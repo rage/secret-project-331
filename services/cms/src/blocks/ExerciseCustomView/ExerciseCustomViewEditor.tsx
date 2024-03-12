@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { BlockEditProps } from "@wordpress/blocks"
-import { t } from "i18next"
+import { useTranslation } from "react-i18next"
 
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"
 import Button from "../../shared-module/components/Button"
@@ -14,6 +14,8 @@ import { ExerciseCustomViewAttributes } from "."
 const ExerciseCustomViewEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseCustomViewAttributes>>
 > = ({ attributes, clientId, setAttributes }) => {
+  const { t } = useTranslation()
+
   const exerciseServicesQuery = useAllExerciseServices()
   if (exerciseServicesQuery.isError) {
     return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
@@ -41,8 +43,8 @@ const ExerciseCustomViewEditor: React.FC<
   return (
     <BlockPlaceholderWrapper
       id={clientId}
-      title={`Exercise Custom View block`}
-      explanation={`Ecercice Custom view block explanation`}
+      title={t("exercise-custom-view-block")}
+      explanation={t("exercise-custom-view-block-explanation")}
     >
       {!exerciseType ? (
         <div>
@@ -84,7 +86,7 @@ const ExerciseCustomViewEditor: React.FC<
         </div>
       ) : (
         <div>
-          <p>{`Selected exercise type: ${exerciseType}`}</p>
+          <p>{t("selected-exercise-type", { exerciseType })}</p>
         </div>
       )}
     </BlockPlaceholderWrapper>

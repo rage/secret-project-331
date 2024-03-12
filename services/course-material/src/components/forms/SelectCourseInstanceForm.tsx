@@ -71,6 +71,7 @@ const SelectCourseInstanceForm: React.FC<
         )
         let initialValue = prevAnswer?.answer_value ?? savedAnswer?.answer_value ?? null
         if (question.question_type === "Checkbox" && initialValue === null) {
+          // eslint-disable-next-line i18next/no-literal-string
           initialValue = "f"
         }
         newState.push({

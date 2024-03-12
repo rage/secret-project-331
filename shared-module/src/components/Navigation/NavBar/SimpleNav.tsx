@@ -17,7 +17,6 @@ const StyledIcon = css`
     fill: ${baseTheme.colors.gray[600]} !important;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
 const Navbar = css`
   height: 90px;
   display: flex;
@@ -38,10 +37,9 @@ const Navbar = css`
     padding: 0 4rem;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
 const NavbarLogo = css`
-  color: ${baseTheme.colors.gray[700]};
   cursor: pointer;
+  color: ${baseTheme.colors.gray[700]};
 
   & > a:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};

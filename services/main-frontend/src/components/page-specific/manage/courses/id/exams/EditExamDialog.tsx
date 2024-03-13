@@ -51,7 +51,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
         onClose={onClose}
         role="dialog"
         aria-labelledby="label"
-        title={"edit exam"}
+        title={t("edit-exam")}
         noPadding={true}
       >
         <div

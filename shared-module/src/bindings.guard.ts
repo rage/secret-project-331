@@ -2911,7 +2911,9 @@ export function isNewTeacherGradingDecision(obj: unknown): obj is NewTeacherGrad
     typeof typedObj["user_exercise_state_id"] === "string" &&
     typeof typedObj["exercise_id"] === "string" &&
     (isTeacherDecisionType(typedObj["action"]) as boolean) &&
-    (typedObj["manual_points"] === null || typeof typedObj["manual_points"] === "number")
+    (typedObj["manual_points"] === null || typeof typedObj["manual_points"] === "number") &&
+    (typedObj["justification"] === null || typeof typedObj["justification"] === "string") &&
+    (typedObj["hidden"] === null || typedObj["hidden"] === false || typedObj["hidden"] === true)
   )
 }
 
@@ -2935,7 +2937,9 @@ export function isTeacherGradingDecision(obj: unknown): obj is TeacherGradingDec
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["score_given"] === "number" &&
-    (isTeacherDecisionType(typedObj["teacher_decision"]) as boolean)
+    (isTeacherDecisionType(typedObj["teacher_decision"]) as boolean) &&
+    (typedObj["justification"] === null || typeof typedObj["justification"] === "string") &&
+    (typedObj["hidden"] === null || typedObj["hidden"] === false || typedObj["hidden"] === true)
   )
 }
 

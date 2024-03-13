@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO teacher_grading_decisions (\n    user_exercise_state_id,\n    teacher_decision,\n    score_given,\n    user_id\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\";\n      ",
+  "query": "\nINSERT INTO teacher_grading_decisions (\n    user_exercise_state_id,\n    teacher_decision,\n    score_given,\n    user_id,\n    justification,\n    hidden\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\",\n  justification,\n  hidden;\n      ",
   "describe": {
     "columns": [
       {
@@ -44,6 +44,16 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 7,
+        "name": "justification",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -58,10 +68,12 @@
           }
         },
         "Float4",
-        "Uuid"
+        "Uuid",
+        "Text",
+        "Bool"
       ]
     },
-    "nullable": [false, false, false, false, true, false, false]
+    "nullable": [false, false, false, false, true, false, false, true, false]
   },
-  "hash": "ccefb55e5d76ed7eb3cf16329d1bfb4d9559069c775b27c6e5b5e4c87459c828"
+  "hash": "6e9ff76b570a35f0bebf23885d0f90b94820cf360c77736192fc3fb582f91dd4"
 }

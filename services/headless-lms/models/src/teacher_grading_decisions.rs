@@ -10,6 +10,8 @@ pub struct TeacherGradingDecision {
     pub deleted_at: Option<DateTime<Utc>>,
     pub score_given: f32,
     pub teacher_decision: TeacherDecisionType,
+    pub justification: Option<String>,
+    pub hidden: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
@@ -29,6 +31,8 @@ pub struct NewTeacherGradingDecision {
     pub exercise_id: Uuid,
     pub action: TeacherDecisionType,
     pub manual_points: Option<f32>,
+    pub justification: Option<String>,
+    pub hidden: Option<bool>,
 }
 
 pub async fn add_teacher_grading_decision(
@@ -37,6 +41,8 @@ pub async fn add_teacher_grading_decision(
     action: TeacherDecisionType,
     score_given: f32,
     decision_maker_user_id: Option<Uuid>,
+    justification: Option<String>,
+    hidden: Option<bool>,
 ) -> ModelResult<TeacherGradingDecision> {
     let res = sqlx::query_as!(
         TeacherGradingDecision,
@@ -45,21 +51,27 @@ INSERT INTO teacher_grading_decisions (
     user_exercise_state_id,
     teacher_decision,
     score_given,
-    user_id
+    user_id,
+    justification,
+    hidden
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id,
   user_exercise_state_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _";
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden;
       "#,
         user_exercise_state_id,
         action as TeacherDecisionType,
         score_given,
-        decision_maker_user_id
+        decision_maker_user_id,
+        justification,
+        hidden
     )
     .fetch_one(conn)
     .await?;
@@ -79,7 +91,9 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _"
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden
 FROM teacher_grading_decisions
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
@@ -108,7 +122,9 @@ SELECT DISTINCT ON (user_exercise_state_id)
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _"
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden
 FROM teacher_grading_decisions
 WHERE user_exercise_state_id IN (
     SELECT user_exercise_states.id

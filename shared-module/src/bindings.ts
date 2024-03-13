@@ -1624,6 +1624,8 @@ export interface NewTeacherGradingDecision {
   exercise_id: string
   action: TeacherDecisionType
   manual_points: number | null
+  justification: string | null
+  hidden: boolean | null
 }
 
 export type TeacherDecisionType =
@@ -1640,6 +1642,8 @@ export interface TeacherGradingDecision {
   deleted_at: string | null
   score_given: number
   teacher_decision: TeacherDecisionType
+  justification: string | null
+  hidden: boolean | null
 }
 
 export interface UserCourseInstanceExerciseServiceVariable {

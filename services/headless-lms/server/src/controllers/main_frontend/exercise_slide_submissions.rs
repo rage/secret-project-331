@@ -49,6 +49,8 @@ async fn update_answer_requiring_attention(
     let exercise_id = payload.exercise_id;
     let user_exercise_state_id = payload.user_exercise_state_id;
     let manual_points = payload.manual_points;
+    let justification = &payload.justification;
+    let hidden = payload.hidden;
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -88,6 +90,8 @@ async fn update_answer_requiring_attention(
         *action,
         points_given,
         Some(user.id),
+        justification.clone(),
+        hidden,
     )
     .await?;
 

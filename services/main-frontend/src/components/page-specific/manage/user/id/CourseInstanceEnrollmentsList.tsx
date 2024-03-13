@@ -53,7 +53,9 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
             <ErrorBanner
               key={enrollment.course_instance_id}
               variant="readOnly"
-              error="Could not find course or course instance or user course settings for this enrollment."
+              error={t(
+                "could-not-find-course-course-instance-or-user-course-settings-for-enrollment",
+              )}
             />
           )
         }

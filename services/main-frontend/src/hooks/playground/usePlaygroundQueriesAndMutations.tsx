@@ -142,6 +142,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           throw new Error("Requirements for the mutation not satisfied.")
         }
         const gradingRequest: GradingRequest = {
+          // eslint-disable-next-line i18next/no-literal-string
           grading_update_url: `${PUBLIC_ADDRESS}/api/v0/main-frontend/playground-views/grading/${websocketId}`,
           exercise_spec: args.parsedPrivateSpec.parsedPrivateSpec,
           submission_data: param.data,
@@ -166,6 +167,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
+      // eslint-disable-next-line i18next/no-literal-string
       setWebsocket(new WebSocket(`${WEBSOCKET_ADDRESS}/api/v0/main-frontend/playground-views/ws`))
       return
     }

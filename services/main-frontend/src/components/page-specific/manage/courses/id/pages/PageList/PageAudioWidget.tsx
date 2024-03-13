@@ -72,7 +72,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     },
     {
       notify: true,
-      successMessage: t("audio-addedd-successfully"),
+      successMessage: t("audio-added-successfully"),
       method: "POST",
     },
     {

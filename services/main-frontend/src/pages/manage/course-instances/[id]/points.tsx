@@ -169,6 +169,7 @@ const CourseInstancePointsList: React.FC<
                     getPointsList.data.user_chapter_points[user.user_id] || {}
                   const chapterPoints = Object.fromEntries(
                     getPointsList.data.chapter_points.map((c) => [
+                      // eslint-disable-next-line i18next/no-literal-string
                       `ch${c.chapter_number}`,
                       userChapterPoints[c.id] || 0,
                     ]),

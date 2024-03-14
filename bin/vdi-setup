@@ -1,0 +1,164 @@
+#!/bin/bash
+set -euo pipefail
+banner="########### MOOC-VDI setup ###########"
+
+# Check if /data exists
+if [ ! -d /data ]; then
+  echo "ERROR: /data doesn't exist. Are you sure this is a VDI and are you sure it has been configured properly?"
+  exit 1
+fi
+
+echo "/data exists"
+
+original_user="$(logname)"
+original_home="/home/$original_user"
+
+
+# Run as root
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: Please run as root"
+  exit 1
+fi
+
+echo "Running as root"
+
+# Create folder /data/$original_user
+if [ ! -d "/data/$original_user" ]; then
+  mkdir "/data/$original_user"
+fi
+
+echo "/data/$original_user exists"
+
+# Create .profile
+if [ ! -f "/data/$original_user/.profile" ]; then
+  touch "/data/$original_user/.profile"
+fi
+
+# Create /data/$original_user/Code/secret-project-331
+if [ ! -d "/data/$original_user/Code/secret-project-331" ]; then
+  mkdir -p "/data/$original_user/Code/secret-project-331"
+fi
+
+echo "/data/$original_user/Code/secret-project-331 exists"
+
+bashrc_addition=$(cat <<-END
+
+$banner
+if [ "\$(hostname)" = "$(hostname)"  ] ; then
+    echo "Switching home dir to a local disk for performance."
+    export HOME=/data/$original_user
+    source /data/$original_user/.profile
+    cd "\$HOME/Code/secret-project-331"
+    export SHELL=/usr/bin/fish
+    [ -x \$SHELL ] && exec \$SHELL "\$@"
+fi
+$banner
+
+END
+)
+
+echo "$bashrc_addition" > /tmp/bashrc_addition
+chmod a+r /tmp/bashrc_addition
+
+script_to_run_as_original_user=$(cat <<-END
+#!/bin/bash
+set -euo pipefail
+bashrc_addition=\$(cat /tmp/bashrc_addition)
+echo "bashrc_addition: \$bashrc_addition"
+echo "Running as $original_user"
+# If .bashrc doesn't exist, create it
+if [ ! -f "$original_home/.bashrc" ]; then
+  touch "$original_home/.bashrc"
+fi
+
+# check if banner in .bashrc
+if grep -q "$banner" "$original_home/.bashrc"; then
+  echo "Vdi snippet alredy exists in $original_home/.bashrc"
+else
+    echo "Vdi snippet not found in $original_home/.bashrc"
+    echo "Adding banner to $original_home/.bashrc"
+    echo "\$bashrc_addition" >> "$original_home/.bashrc"
+fi
+
+END
+)
+
+
+
+echo "--------------------------------------------------------"
+echo "$script_to_run_as_original_user"
+echo "--------------------------------------------------------"
+
+echo "Running script"
+
+sudo -u "$original_user" bash -c "$script_to_run_as_original_user"
+
+rm /tmp/bashrc_addition
+
+export HOME="/data/$original_user"
+
+# Installing packages
+# If nvm not installed, install it
+if ! command -v nvm; then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+  echo "Installed nvm"
+fi
+
+# Install postgres-cli from apt
+sudo apt-get update
+sudo apt-get install -y postgresql-client bc jq rsync moreutils libssl-dev pkg-config
+
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+# Install docker
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# add current user to docker group
+sudo usermod -aG docker "$original_user"
+
+# If rust not installed, install it
+if ! command -v rustc; then
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  echo "Installed rust"
+fi
+
+fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
+fish -c "fisher install jorgebucaran/nvm.fish; and fisher install edc/bass"
+
+echo "Fish setup complete"
+
+# Change docker data dir /data/original_user/docker
+systemctl stop docker
+if [ ! -d "/data/$original_user/docker" ]; then
+  mkdir "/data/$original_user/docker"
+fi
+# Update docker config
+new_docker_config=$(cat <<-END
+{
+  "data-root": "/data/$original_user/docker"
+}
+END
+)
+echo "$new_docker_config" > /etc/docker/daemon.json
+systemctl start docker
+
+# Clone the repository
+repository="https://github.com/rage/secret-project-331.git"
+clone_path="/data/$original_user/Code/secret-project-331"
+git clone "$repository" "$clone_path"
+echo "Cloned the secret project repository to $clone_path"
+
+chown -R "$original_user" "/data/$original_user"
+echo "Fixed permissions in /data/$original_user"

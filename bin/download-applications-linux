@@ -1,0 +1,87 @@
+#!/bin/bash
+set -euo pipefail
+
+# Define the list of URLs and checksums to download
+downloads=(
+  "https://storage.googleapis.com/skaffold/releases/v2.4.1/skaffold-linux-amd64 skaffold 5a5f147c6262263b6f30790673c89d63f44732c33d7eb472eb99248d883650eb"
+  "https://dl.k8s.io/release/v1.27.1/bin/linux/amd64/kubectl kubectl 7fe3a762d926fb068bae32c399880e946e8caf3d903078bea9b169dcd5c17f6d"
+  "https://github.com/kubernetes/minikube/releases/download/v1.30.1/minikube-linux-amd64 minikube e53d9e8c31f4c5f683182f5323d3527aa0725f713945c6d081cf71aa548ab388"
+  "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.0.3/kustomize_v5.0.3_linux_amd64.tar.gz kustomize b4e376166eeeab348cdce889dc3664ddcc929174ed103346af056c3e1dc95db7"
+  "https://github.com/rhysd/actionlint/releases/download/v1.6.24/actionlint_1.6.24_linux_amd64.tar.gz actionlint fbc889db89c64e9f390835ae3f3661aa1a1cdebc7738476032f72379741ebb5f"
+  "https://github.com/stern/stern/releases/download/v1.25.0/stern_1.25.0_linux_amd64.tar.gz stern 1a89589da2694fadcec2e002ca6e38a3a5eab2096bbdd1c46a551b9f416bc75a"
+  "https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubens_v0.9.4_linux_x86_64.tar.gz kubens cc376ced21b441efe4d61685830e0ff3ade194c303216d1ca08b72073c556d44"
+  "https://github.com/ahmetb/kubectx/releases/download/v0.9.4/kubectx_v0.9.4_linux_x86_64.tar.gz kubectx 9317271d6dd7c771c844d9d3b37a7e56c5d74c6e53366aa230ced3fb69d128bc"
+)
+
+# Define the directory to download the binaries to
+download_dir="$HOME/bin/secret-project"
+
+# Create the download directory if it doesn't exist
+mkdir -p "$download_dir"
+
+# Download each binary from the list of URLs
+for download in "${downloads[@]}"; do
+  # Extract the URL and checksum from the download string
+  url=$(echo "$download" | awk '{print $1}')
+  filename=$(echo "$download" | awk '{print $2}')
+  checksum=$(echo "$download" | awk '{print $3}')
+  destination="$download_dir/$filename"
+  # If file already downloaded and checksum matches, skip
+  if [ -f "$destination" ] && echo "$checksum  $download_dir/$filename" | sha256sum --check --status; then
+    echo "$filename already exists in $download_dir"
+    continue
+  fi
+
+  echo "Downloading $filename from $url to $destination"
+
+  # If the url is a tar.gz, download it to a temporary file and extract it to a temporary directory
+  if [[ "$url" == *.tar.gz ]]; then
+    tmpfile=$(mktemp)
+    tmpdir=$(mktemp -d)
+    curl -Lss "$url" -o "$tmpfile"
+    tar -xzf "$tmpfile" -C "$tmpdir"
+    # Find the binary in the temporary directory using $filename as a pattern
+    binary=$(find "$tmpdir" -name "$filename")
+    # Move the binary to the download directory
+    mv "$binary" "$destination"
+    # Remove the temporary file and directory
+    rm "$tmpfile"
+    rm -rf "$tmpdir"
+
+  else
+    # Download the binary to the download directory
+    curl -Lss "$url" -o "$destination"
+  fi
+
+  # Verify the checksum of the downloaded file
+  if ! echo "$checksum  $download_dir/$filename" | sha256sum --check --status; then
+    echo "Checksum verification failed for $filename"
+    # Expected and was
+    echo "Expected the checksum to be $checksum  but was $(sha256sum "$destination")"
+    # Remove the file if the checksum doesn't match
+    rm "$destination"
+    exit 1
+  fi
+
+
+done
+echo "Downloaded all binaries successfully"
+chmod +x "$download_dir"/*
+ls -l "$download_dir"
+
+# Add the download directory to the PATH
+# Detect shell
+shell_profile="$HOME/.profile"
+
+# Detect whether the PATH has already been added
+if grep -q "$download_dir" "$shell_profile"; then
+  echo "$download_dir already exists in $shell_profile"
+  exit 0
+fi
+echo "export PATH=$download_dir:\$PATH" >> "$shell_profile"
+echo "Added $download_dir to $shell_profile"
+echo "export PATH=$HOME/.cargo/bin:\$PATH" >> "$shell_profile"
+echo "Added $HOME/.cargo/bin to PATH as requested by cargo"
+
+cargo install sqlx-cli --no-default-features --features rustls,postgres
+cargo install oxipng

@@ -1,4 +1,8 @@
 import {
+  OldModelSolutionQuiz as OldModelSolutionQuiz,
+  OldModelSolutionQuizItem as OldModelSolutionQuizItem,
+} from "../../../types/oldQuizTypes"
+import {
   ModelSolutionQuiz,
   ModelSolutionQuizItem,
   ModelSolutionQuizItemCheckbox,
@@ -11,10 +15,8 @@ import {
   ModelSolutionQuizItemScale,
   ModelSolutionQuizItemTimeline,
 } from "../../../types/quizTypes/modelSolutionSpec"
-import {
-  ModelSolutionQuiz as OldModelSolutionQuiz,
-  ModelSolutionQuizItem as OldModelSolutionQuizItem,
-} from "../../../types/types"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
@@ -33,6 +35,7 @@ const migrateModelSolutionSpecQuizItem = (
         minWords: quizItem.minWords,
         order: quizItem.order,
         title: quizItem.title,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemEssay
     case "multiple-choice":
       return {
@@ -44,12 +47,13 @@ const migrateModelSolutionSpecQuizItem = (
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        direction: quizItem.direction,
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMultiplechoice
     case "scale":
       return {
@@ -64,6 +68,7 @@ const migrateModelSolutionSpecQuizItem = (
         minLabel: quizItem.minLabel ? quizItem.minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemScale
     case "checkbox":
       return {
@@ -74,6 +79,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         title: quizItem.title,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemCheckbox
     case "open":
       return {
@@ -85,6 +91,7 @@ const migrateModelSolutionSpecQuizItem = (
         formatRegex: quizItem.formatRegex,
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemClosedEndedQuestion
     case "matrix":
       return {
@@ -94,6 +101,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMatrix
     case "timeline":
       return {
@@ -103,6 +111,7 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemTimeline
     case "clickable-multiple-choice":
       return {
@@ -115,6 +124,7 @@ const migrateModelSolutionSpecQuizItem = (
         successMessage: quizItem.successMessage,
         options: quizItem.options,
         n: CHOOSE_N_DEFAULT_VALUE,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemChooseN
     case "multiple-choice-dropdown":
       return {
@@ -126,14 +136,19 @@ const migrateModelSolutionSpecQuizItem = (
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
+        messageOnModelSolution: null,
       } satisfies ModelSolutionQuizItemMultiplechoiceDropdown
   }
 }
 
-const migrateModelSolutionSpecQuiz = (oldModelSolutionQuiz: OldModelSolutionQuiz) => {
+const migrateModelSolutionSpecQuiz = (
+  oldModelSolutionQuiz: OldModelSolutionQuiz | null,
+): ModelSolutionQuiz | null => {
+  if (oldModelSolutionQuiz === null) {
+    return null
+  }
   const modelSolutionQuiz: ModelSolutionQuiz = {
     version: "2",
-    id: oldModelSolutionQuiz.id,
     awardPointsEvenIfWrong: oldModelSolutionQuiz.awardPointsEvenIfWrong,
     body: oldModelSolutionQuiz.body,
     grantPointsPolicy: oldModelSolutionQuiz.grantPointsPolicy,

@@ -1,8 +1,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faAngleDown, faCircleExclamation } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Input, Slider } from "@mui/material"
+import { ExclamationMessage } from "@vectopus/atlas-icons-react"
+import { parseISO } from "date-fns"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
@@ -15,6 +14,7 @@ import {
 } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import ArrowDown from "../../../../../../shared-module/img/caret-arrow-down.svg"
 import { primaryFont } from "../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
@@ -26,12 +26,6 @@ interface Props {
   exerciseMaxPoints: number
   refetch: () => void
 }
-
-const StyledIconDark = styled(FontAwesomeIcon)`
-  font-size: 4rem;
-  color: white;
-  margin: 1.5rem;
-`
 
 const StatusPanel = styled.div`
   border-top: 3px solid rgba(112, 112, 112, 0.1);
@@ -107,16 +101,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
     ],
   })
 
-  const handleSliderChange = (event: Event, newValue: number | number[]) => {
-    if (typeof newValue === "number") {
-      setSliderValue(newValue)
-    }
-  }
-
-  const handleInputFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSliderValue(Number(event.target.value))
-  }
-
   const doSubmitChange = async (
     user_exercise_state_id: string,
     exercise_id: string,
@@ -160,7 +144,13 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         `}
       >
         <TopBar>
-          <StyledIconDark icon={faCircleExclamation} />
+          <ExclamationMessage
+            size={64}
+            className={css`
+              color: white;
+              margin: 1.5rem;
+            `}
+          />
           <div id="text-column">
             <p
               className={css`
@@ -174,7 +164,9 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               `}
             >
               {t("answered-at", {
-                time: `${answerRequiringAttention?.created_at.toDateString()} ${answerRequiringAttention?.created_at.toLocaleTimeString()}`,
+                time: `${parseISO(answerRequiringAttention.created_at).toDateString()} ${parseISO(
+                  answerRequiringAttention.created_at,
+                ).toLocaleTimeString()}`,
               })}{" "}
             </p>
             <p
@@ -325,12 +317,12 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 onClick={handleOpenPopup}
               >
                 {t("button-text-custom-points")}
-                <FontAwesomeIcon
+                <ArrowDown
                   className={css`
-                    margin-left: 0.5em;
+                    transform: scale(1.2);
+                    margin-left: 0.6em;
+                    margin-bottom: 4px;
                   `}
-                  id="fa-angle-down"
-                  icon={faAngleDown}
                 />
               </Button>
             </div>
@@ -353,32 +345,46 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               display: flex;
               flex-direction: row;
               margin-bottom: 1em;
+              justify-content: space-evenly;
             `}
           >
-            <Slider
-              value={typeof sliderValue === "number" ? sliderValue : 0.0}
-              step={0.1}
-              min={0.0}
-              max={exerciseMaxPoints}
-              onChange={handleSliderChange}
-              aria-labelledby="input-slider"
-            />
-            <Input
+            <div
+              className={css`
+                width: 100%;
+                padding: 13px 0;
+                align-self: strech;
+              `}
+            >
+              <input
+                className={css`
+                  height: 4px;
+                `}
+                type="range"
+                min="0"
+                max={exerciseMaxPoints}
+                step={0.1}
+                value={typeof sliderValue === "number" ? sliderValue : 0.0}
+                onChange={(event) => setSliderValue(Number(event.target.value))}
+                aria-labelledby="input-slider"
+              />
+            </div>
+
+            <input
               className={css`
                 margin-left: 1.5em;
                 max-width: 4em;
+                background: none;
+                border: 0px;
+                border-bottom: 1px solid black;
               `}
               value={sliderValue}
-              size="small"
-              onChange={handleInputFieldChange}
-              inputProps={{
-                step: 0.1,
-                min: 0.0,
-                max: exerciseMaxPoints,
-                type: "number",
-                // eslint-disable-next-line i18next/no-literal-string
-                "aria-labelledby": "input-slider",
-              }}
+              onChange={(event) => setSliderValue(Number(event.target.value))}
+              min="0.0"
+              step={0.1}
+              max="exerciseMaxPoints"
+              type="number"
+              // eslint-disable-next-line i18next/no-literal-string
+              aria-labelledby="input-slider"
             />
           </div>
           <div>

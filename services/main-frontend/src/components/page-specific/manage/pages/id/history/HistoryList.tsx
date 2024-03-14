@@ -29,9 +29,10 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     initialSelectedRevisionId,
   )
 
-  const getPageHistoryCount = useQuery([`page-history-count-${pageId}`], () =>
-    fetchHistoryCountForPage(pageId),
-  )
+  const getPageHistoryCount = useQuery({
+    queryKey: [`page-history-count-${pageId}`],
+    queryFn: () => fetchHistoryCountForPage(pageId),
+  })
 
   function compare(history: PageHistory) {
     setSelectedRevisionId(history.id)
@@ -55,7 +56,7 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
       {getPageHistoryCount.isError && (
         <ErrorBanner variant={"readOnly"} error={getPageHistoryCount.error} />
       )}
-      {getPageHistoryCount.isLoading && <Spinner variant={"medium"} />}
+      {getPageHistoryCount.isPending && <Spinner variant={"medium"} />}
       {getPageHistoryCount.isSuccess && (
         <>
           <HistoryPage

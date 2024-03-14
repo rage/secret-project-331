@@ -1,23 +1,22 @@
 import { css } from "@emotion/css"
-import { faGlobe } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Placement } from "@popperjs/core"
-import React, { useState } from "react"
+import { LanguageTranslation } from "@vectopus/atlas-icons-react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
-import OutsideClickHandler from "react-outside-click-handler"
 import { usePopper } from "react-popper"
 
+import useClickOutside from "../../hooks/useClickOutside"
 import { LANGUAGE_COOKIE_KEY } from "../../utils/constants"
 
 import LanguageMenu from "./LanguageMenu"
 import LanguageOption from "./LanguageOption"
 
-interface LanguageOption {
+export interface LanguageOption {
   tag: string
   name: string
 }
 
-const LANGUAGES: LanguageOption[] = [
+const DEFAULT_LANGUAGES: LanguageOption[] = [
   { tag: "en-US", name: "English" },
   { tag: "fi-FI", name: "Suomi" },
 ]
@@ -26,9 +25,16 @@ const ARROW = "arrow"
 
 export interface LanguageSelectionProps {
   placement: Placement
+  languages?: LanguageOption[]
+  handleLanguageChange?: (newLanguage: string) => void
 }
 
-const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
+const LanguageSelection: React.FC<LanguageSelectionProps> = ({
+  placement,
+  languages,
+  handleLanguageChange,
+}) => {
+  const outSideClickRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState<boolean>(false)
   const [referenceElement, setReferenceElement] = useState<Element | null>(null)
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null)
@@ -39,7 +45,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
   })
   const { i18n, t } = useTranslation()
 
-  const handleLanguageChange = (newLanguage: string) => {
+  const defaultHandleLanguageChange = (newLanguage: string) => {
     i18n.changeLanguage(newLanguage)
     setVisible(false)
     const selectedLanguage = newLanguage.split("-")
@@ -47,19 +53,24 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 
+  const noLanguagesToChange = (languages ?? DEFAULT_LANGUAGES).length <= 1
+  useClickOutside(outSideClickRef, () => setVisible(false), visible)
+
   return (
     <>
-      <OutsideClickHandler onOutsideClick={() => setVisible(false)}>
+      <div ref={outSideClickRef}>
         <button
           type="button"
           className={css`
             background: none;
             border: none;
-            padding: 0.5rem 1rem;
-
+            padding: 0.6rem 1rem;
+            margin-bottom: 2px;
             :hover {
               cursor: pointer;
             }
+
+            ${noLanguagesToChange && `cursor: not-allowed !important;`}
           `}
           ref={setReferenceElement}
           onClick={(e) => {
@@ -67,12 +78,12 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
             setVisible(!visible)
           }}
         >
-          <FontAwesomeIcon
+          <LanguageTranslation
+            size={18}
             className={css`
-              margin-right: 0.5rem;
+              margin-right: 0.6rem;
             `}
-            icon={faGlobe}
-          />{" "}
+          />
           {t("language")}
         </button>
         <div
@@ -90,11 +101,17 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
                 padding: 0;
               `}
             >
-              {LANGUAGES.map((x) => (
+              {(languages ?? DEFAULT_LANGUAGES).map((x) => (
                 <LanguageOption
                   key={x.tag}
                   label={x.name}
-                  onClick={() => handleLanguageChange(x.tag)}
+                  onClick={() => {
+                    if (handleLanguageChange) {
+                      handleLanguageChange(x.tag)
+                    } else {
+                      defaultHandleLanguageChange(x.tag)
+                    }
+                  }}
                 />
               ))}
             </ul>
@@ -102,7 +119,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ placement }) => {
           {/* eslint-disable-next-line react/forbid-dom-props */}
           <div ref={setArrowElement} style={styles.arrow} />
         </div>
-      </OutsideClickHandler>
+      </div>
     </>
   )
 }

@@ -1,5 +1,4 @@
 import {
-  expect,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
@@ -9,7 +8,7 @@ import {
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-test.describe("Uploading media as admin", async () => {
+test.describe("Uploading media as admin", () => {
   // As Admin
   test.use({
     storageState: "src/states/admin@example.com.json",
@@ -23,16 +22,16 @@ test.describe("Uploading media as admin", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 
-  test("test", async ({ page, headless }, testInfo) => {
-    await page.locator("text=University of Helsinki, Department of Computer Science").click()
+  test("Uploading images in the image block works", async ({ page, headless }, testInfo) => {
+    await page.getByText("University of Helsinki, Department of Computer Science").click()
 
     await page.locator("[aria-label=\"Manage course 'Introduction to everything'\"] svg").click()
 
-    await page.locator("text=Pages").click()
+    await page.getByText("Pages").click()
 
     await page.click(
       `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
@@ -52,13 +51,11 @@ test.describe("Uploading media as admin", async () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    // This is needed so we get another Gutenberg popup "disabled".
-    await page.click('img[alt="Add alt"]')
-    await page.locator("text=Replace").click()
+    await page.getByText("Replace").click()
 
     const [newPage] = await Promise.all([
       page.waitForEvent("popup"),
-      page.locator("a[href$='.png']").click(),
+      page.locator("a[href$='.png']").nth(1).click(),
     ])
 
     await expectScreenshotsToMatchSnapshots({

@@ -8,19 +8,19 @@ test.use({
 })
 
 test("headings navigation works", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
-  await page.locator("text=Introduction to Course Material").first().click()
+  await page.getByText("Introduction to Course Material").first().click()
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=Chapter 1User Interface").click()
+  await page.getByText("Chapter 1User Interface").click()
 
-  await page.locator("text=1Design").click()
+  await page.getByText("1Design").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-1/design",
   )

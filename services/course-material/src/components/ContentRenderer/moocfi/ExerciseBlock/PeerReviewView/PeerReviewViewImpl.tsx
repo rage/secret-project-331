@@ -1,17 +1,16 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getExerciseBlockBeginningScrollingId } from ".."
+import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
+import ContentRenderer from "../../.."
 import {
+  Block,
   fetchPeerReviewDataByExerciseId,
   postPeerReviewSubmission,
 } from "../../../../../services/backend"
 import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-module/bindings"
-import Button from "../../../../../shared-module/components/Button"
-import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../../../shared-module/components/Centering/Centered"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
 import Spinner from "../../../../../shared-module/components/Spinner"
@@ -37,14 +36,14 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     new Map(),
   )
 
-  const query = useQuery(
-    [`exercise-${exerciseId}-peer-review`],
-    () => {
+  const query = useQuery({
+    queryKey: [`exercise-${exerciseId}-peer-review`],
+    queryFn: () => {
       return fetchPeerReviewDataByExerciseId(exerciseId)
     },
     // 23 hours in ms. Need to refetch at this time because the given peer review candidate expires in 24 hours, and someone might leave the peer review view open for longer than that
-    { refetchInterval: 82800000 },
-  )
+    refetchInterval: 82800000,
+  })
 
   const peerReviewData = query.data?.course_material_peer_review_data
 
@@ -127,7 +126,8 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     return <ErrorBanner variant={"readOnly"} error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  // Uses isFetching instead of isPending because we want there to be a visual indication when the refresh button is clicked
+  if (query.isFetching || !query.data) {
     return <Spinner variant="medium" />
   }
 
@@ -141,14 +141,13 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
         >
           {t("help-text-no-answers-to-peer-review-yet")}
         </div>
-        <Button
-          variant="primary"
+        <button
+          className={cx(exerciseButtonStyles)}
           onClick={() => query.refetch()}
-          size="medium"
-          disabled={query.isLoading}
+          disabled={query.isPending}
         >
           {t("button-text-refresh")}
-        </Button>
+        </button>
       </div>
     )
   }
@@ -156,7 +155,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
   return (
     <div
       className={css`
-        margin-top: 3rem;
+        margin-top: 1rem;
       `}
     >
       <PeerReviewProgress
@@ -166,87 +165,88 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
 
       <div
         className={css`
-          margin-bottom: 2rem;
+          border: 0;
+          margin-bottom: 1rem;
+          background-color: #fff;
+          padding: 0.8rem 1.25rem;
+          border-radius: 0.625rem;
         `}
       >
-        <div
+        <h4
           className={css`
-            border-bottom: 3px solid #f8f8f8;
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 20px;
           `}
         >
-          <h4
-            className={css`
-              padding-bottom: 0.5rem;
-              font-weight: 600;
-              font-size: 20px;
-            `}
-          >
-            {t("title-instructions")}
-          </h4>
-        </div>
+          {t("title-peer-review-instructions")}
+        </h4>
+
         <div>
           <p>{t("peer-review-instructions")}</p>
         </div>
       </div>
 
-      <BreakFromCentered sidebar={false}>
-        <div>
-          <Centered variant="narrow">
-            <div>
-              <h4
-                className={css`
-                  margin-bottom: 2rem;
-                `}
-              >
-                {t("answer-from-another-student")}
-              </h4>
-              {peerReviewData.answer_to_review.course_material_exercise_tasks
-                .sort((a, b) => a.order_number - b.order_number)
-                .map((course_material_exercise_task) => (
-                  <ExerciseTaskIframe
-                    exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
-                    key={course_material_exercise_task.id}
-                    postThisStateToIFrame={{
-                      // eslint-disable-next-line i18next/no-literal-string
-                      view_type: "view-submission",
-                      exercise_task_id: course_material_exercise_task.id,
-                      user_information: {
-                        pseudonymous_id:
-                          course_material_exercise_task.pseudonumous_user_id ??
-                          getGuestPseudonymousUserId(),
-                        signed_in: Boolean(loginStateContext.signedIn),
-                      },
-                      // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
-                      user_variables: {},
-                      data: {
-                        grading: exerciseTaskGradingToExerciseTaskGradingResult(
-                          course_material_exercise_task.previous_submission_grading,
-                        ),
-                        user_answer: course_material_exercise_task.previous_submission?.data_json,
-                        public_spec: course_material_exercise_task.public_spec,
-                        model_solution_spec: course_material_exercise_task.model_solution_spec,
-                      },
-                    }}
-                    url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
-                    setAnswer={null}
-                    title={t("exercise-task-content", {
-                      "exercise-number": exerciseNumber + 1,
-                      "task-number": course_material_exercise_task.order_number + 1,
-                    })}
+      <div>
+        {peerReviewData.answer_to_review.course_material_exercise_tasks
+          .sort((a, b) => a.order_number - b.order_number)
+          .map((course_material_exercise_task) => {
+            return (
+              <div key={course_material_exercise_task.id}>
+                <div data-testid="assignment">
+                  <ContentRenderer
+                    data={(course_material_exercise_task.assignment as Array<Block<unknown>>) ?? []}
+                    editing={false}
+                    selectedBlockId={null}
+                    setEdits={(map) => map}
+                    isExam={false}
                   />
-                ))}
-            </div>
-          </Centered>
-        </div>
-        <hr
-          className={css`
-            margin-bottom: 2rem;
-            background-color: #e0e0e0;
-            height: 6px;
-            border: none;
-          `}
-        />
-      </BreakFromCentered>
+                </div>
+                <ExerciseTaskIframe
+                  exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
+                  key={course_material_exercise_task.id}
+                  postThisStateToIFrame={{
+                    // eslint-disable-next-line i18next/no-literal-string
+                    view_type: "view-submission",
+                    exercise_task_id: course_material_exercise_task.id,
+                    user_information: {
+                      pseudonymous_id:
+                        course_material_exercise_task.pseudonumous_user_id ??
+                        getGuestPseudonymousUserId(),
+                      signed_in: Boolean(loginStateContext.signedIn),
+                    },
+                    // Don't reveal peer revewiee user variables to peer reviewers in case they contain something sensitive
+                    user_variables: {},
+                    data: {
+                      grading: exerciseTaskGradingToExerciseTaskGradingResult(
+                        course_material_exercise_task.previous_submission_grading,
+                      ),
+                      user_answer: course_material_exercise_task.previous_submission?.data_json,
+                      public_spec: course_material_exercise_task.public_spec,
+                      model_solution_spec: course_material_exercise_task.model_solution_spec,
+                    },
+                  }}
+                  url={`${course_material_exercise_task.exercise_iframe_url}?width=${narrowContainerWidthPx}`}
+                  setAnswer={null}
+                  title={t("exercise-task-content", {
+                    "exercise-number": exerciseNumber + 1,
+                    "task-number": course_material_exercise_task.order_number + 1,
+                  })}
+                />
+              </div>
+            )
+          })}
+      </div>
+
+      <hr
+        className={css`
+          margin-top: 3rem;
+          margin-bottom: 2rem;
+          background-color: #e0e0e0;
+          height: 6px;
+          border: none;
+        `}
+      />
 
       {peerReviewData.peer_review_questions
         .sort((a, b) => a.order_number - b.order_number)
@@ -273,14 +273,13 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
             }}
           />
         ))}
-      <Button
-        size="medium"
-        variant="primary"
-        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isLoading}
+      <button
+        className={cx(exerciseButtonStyles)}
+        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isPending}
         onClick={() => submitPeerReviewMutation.mutate()}
       >
         {t("submit-button")}
-      </Button>
+      </button>
     </div>
   )
 }

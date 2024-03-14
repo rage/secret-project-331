@@ -3,7 +3,6 @@ import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import RegisterCompletion from "../../../components/page-specific/register-completion/RegisterCompletion"
 import { fetchUserCompletionInformation } from "../../../services/backend/course-modules"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
@@ -24,10 +23,10 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
   const { t } = useTranslation()
   const { courseModuleId } = query
   const router = useRouter()
-  const userCompletionInformation = useQuery(
-    [`course-module-${courseModuleId}-completion-information`],
-    () => fetchUserCompletionInformation(courseModuleId),
-  )
+  const userCompletionInformation = useQuery({
+    queryKey: [`course-module-${courseModuleId}-completion-information`],
+    queryFn: () => fetchUserCompletionInformation(courseModuleId),
+  })
 
   if (
     userCompletionInformation.isSuccess &&
@@ -41,18 +40,18 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
     )
   }
   return (
-    <Layout>
+    <>
       {userCompletionInformation.isError && (
         <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
       )}
-      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
+      {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <RegisterCompletion
           data={userCompletionInformation.data}
           registrationFormUrl={`${router.asPath.split("?")[0]}/${REDIRECT}`}
         />
       )}
-    </Layout>
+    </>
   )
 }
 

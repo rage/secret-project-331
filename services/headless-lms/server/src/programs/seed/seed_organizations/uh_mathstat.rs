@@ -16,7 +16,10 @@ use sqlx::{Pool, Postgres};
 
 use crate::{
     domain::models_requests::{self, JwtKey},
-    programs::seed::seed_courses::seed_sample_course,
+    programs::seed::{
+        seed_courses::{seed_sample_course, CommonCourseData},
+        seed_file_storage::SeedFileStorageResult,
+    },
 };
 
 use super::super::seed_users::SeedUsersResult;
@@ -24,7 +27,10 @@ use super::super::seed_users::SeedUsersResult;
 pub async fn seed_organization_uh_mathstat(
     db_pool: Pool<Postgres>,
     seed_users_result: SeedUsersResult,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
+    // Passed to this function to ensure the seed file storage has been ran before this. This function will not work is seed file storage has not been ran
+    seed_file_storage_result: SeedFileStorageResult,
 ) -> anyhow::Result<Uuid> {
     info!("seeding organization uh-mathstat");
 
@@ -32,11 +38,21 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         teacher_user_id,
         language_teacher_user_id: _,
+        material_viewer_user_id,
         assistant_user_id: _,
         course_or_exam_creator_user_id: _,
-        student_user_id,
         example_normal_user_ids,
+        teaching_and_learning_services_user_id: _,
+        student_without_research_consent: _,
+        user_user_id: _,
+        student_1_user_id: _,
+        student_2_user_id: _,
+        student_3_user_id,
+        student_4_user_id: _,
+        student_5_user_id: _,
+        langs_user_id: _,
     } = seed_users_result;
+    let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;
 
@@ -48,6 +64,15 @@ pub async fn seed_organization_uh_mathstat(
         "Organization for Mathematics and Statistics courses. This organization creates courses that do require prior experience in mathematics, such as integration and induction.",
     )
     .await?;
+
+    roles::insert(
+        &mut conn,
+        material_viewer_user_id,
+        UserRole::MaterialViewer,
+        RoleDomain::Organization(uh_mathstat_id),
+    )
+    .await?;
+
     let new_course = NewCourse {
         name: "Introduction to Statistics".to_string(),
         slug: "introduction-to-statistics".to_string(),
@@ -58,6 +83,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     let (
         statistics_course,
@@ -72,7 +98,7 @@ pub async fn seed_organization_uh_mathstat(
         }),
         new_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -102,6 +128,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -111,21 +138,25 @@ pub async fn seed_organization_uh_mathstat(
         }),
         draft_course,
         admin_user_id,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
 
+    let uh_data = CommonCourseData {
+        db_pool: db_pool.clone(),
+        organization_id: uh_mathstat_id,
+        admin_user_id,
+        student_user_id: student_3_user_id,
+        example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
+        jwt_key: Arc::clone(&jwt_key),
+        base_url,
+    };
     let introduction_to_citations = seed_sample_course(
-        &db_pool,
-        uh_mathstat_id,
         Uuid::parse_str("049061ba-ac30-49f1-aa9d-b7566dc22b78")?,
         "Introduction to citations",
         "introduction-to-citations",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
+        uh_data.clone(),
     )
     .await?;
 
@@ -142,21 +173,18 @@ pub async fn seed_organization_uh_mathstat(
             description: "Just a draft.".to_string(),
             is_draft: false,
             is_test_mode: false,
+            copy_user_permissions: false,
         },
         true,
+        admin_user_id,
     )
     .await?;
 
     let preview_unopened_chapters = seed_sample_course(
-        &db_pool,
-        uh_mathstat_id,
         Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
         "Preview unopened chapters",
         "preview-unopened-chapters",
-        admin_user_id,
-        student_user_id,
-        &example_normal_user_ids,
-        Arc::clone(&jwt_key),
+        uh_data.clone(),
     )
     .await?;
 
@@ -165,6 +193,38 @@ pub async fn seed_organization_uh_mathstat(
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(preview_unopened_chapters),
+    )
+    .await?;
+
+    let reset_progress = seed_sample_course(
+        Uuid::parse_str("841ea3f5-0269-4146-a4c6-4fd2f51e4150")?,
+        "Reset progress",
+        "reset-progress",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(reset_progress),
+    )
+    .await?;
+
+    let change_path = seed_sample_course(
+        Uuid::parse_str("c783777b-426e-4cfd-9a5f-4a36b2da503a")?,
+        "Change path",
+        "change-path",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(change_path),
     )
     .await?;
 

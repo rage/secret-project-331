@@ -1,17 +1,14 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { isServer, useQuery } from "@tanstack/react-query"
+import { BellXmark, CheckCircle, MoveUpDownArrows } from "@vectopus/atlas-icons-react"
 import axios from "axios"
-import ArrowsVertical from "humbleicons/icons/arrows-vertical.svg"
 import _ from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
-import Layout from "../components/Layout"
 import PlaygroundExerciseEditorIframe from "../components/page-specific/playground-views/PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "../components/page-specific/playground-views/PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "../components/page-specific/playground-views/PlaygroundViewSubmissionIframe"
@@ -39,14 +36,12 @@ import {
 import { GradingRequest } from "../shared-module/exercise-service-protocol-types-2"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "../shared-module/styles"
-import { narrowContainerWidthPx } from "../shared-module/styles/constants"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import withNoSsr from "../shared-module/utils/withNoSsr"
 
 interface PlaygroundFields {
   url: string
-  width: string
   private_spec: string
   showIframeBorders: boolean
   disableSandbox: boolean
@@ -178,7 +173,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     defaultValues: {
       // eslint-disable-next-line i18next/no-literal-string
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      width: narrowContainerWidthPx.toString(),
       // eslint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
@@ -189,7 +183,6 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     },
   })
 
-  const width = watch("width")
   const url = watch("url")
   const privateSpec = watch("private_spec")
   const showIframeBorders = watch("showIframeBorders")
@@ -217,13 +210,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     console.warn("Private spec was invalid JSON", e)
   }
 
-  const serviceInfoQuery = useQuery(
-    [`iframe-view-playground-service-info-${url}`],
-    async (): Promise<ExerciseServiceInfoApi> => {
+  const serviceInfoQuery = useQuery({
+    queryKey: [`iframe-view-playground-service-info-${url}`],
+    queryFn: async (): Promise<ExerciseServiceInfoApi> => {
       const res = await axios.get(url)
       return res.data
     },
-  )
+  })
 
   const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
 
@@ -234,9 +227,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
   }, [isValidServiceInfo, url])
 
-  const publicSpecQuery = useQuery(
-    [`iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
-    async (): Promise<unknown> => {
+  const publicSpecQuery = useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: [
+      `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
+      isValidServiceInfo,
+      privateSpecValidJson,
+      privateSpecParsed,
+      exerciseServiceHost,
+    ],
+    queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
       }
@@ -251,15 +251,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       )
       return res.data
     },
-    {
-      enabled:
-        serviceInfoQuery.isSuccess &&
-        Boolean(serviceInfoQuery.data) &&
-        isValidServiceInfo &&
-        privateSpecValidJson,
-      retry: false,
-    },
-  )
+    enabled:
+      serviceInfoQuery.isSuccess &&
+      Boolean(serviceInfoQuery.data) &&
+      isValidServiceInfo &&
+      privateSpecValidJson,
+    retry: false,
+  })
 
   const [userAnswer, setUserAnswer] = useState<unknown>(null)
   type submitAnswerMutationParam =
@@ -314,7 +312,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {
-        console.log("Registered websocket", msg.data)
+        console.info("Registered websocket", msg.data)
         setWebsocketId(msg.data)
       } else if (msg.tag == "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
@@ -330,9 +328,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
   }, [websocket, submitAnswerMutation])
 
-  const modelSolutionSpecQuery = useQuery(
-    [`iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`],
-    async (): Promise<unknown> => {
+  const modelSolutionSpecQuery = useQuery({
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
+    queryKey: [
+      `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
+      isValidServiceInfo,
+      privateSpecValidJson,
+      privateSpecParsed,
+      exerciseServiceHost,
+    ],
+    queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
         throw new Error("This query should be disabled.")
       }
@@ -348,15 +353,13 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
       )
       return res.data
     },
-    {
-      enabled:
-        serviceInfoQuery.isSuccess &&
-        Boolean(serviceInfoQuery.data) &&
-        isValidServiceInfo &&
-        privateSpecValidJson,
-      retry: false,
-    },
-  )
+    enabled:
+      serviceInfoQuery.isSuccess &&
+      Boolean(serviceInfoQuery.data) &&
+      isValidServiceInfo &&
+      privateSpecValidJson,
+    retry: false,
+  })
 
   const userInformation: UserInformation = {
     pseudonymous_id: pseudonymousUserId,
@@ -364,16 +367,16 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout>
+    <>
       <h1 id="heading-playground-exercise-iframe">{t("title-playground-exercise-iframe")}</h1>
       <br />
 
       <BreakFromCentered sidebar={false}>
         <GridContainer>
           <ServiceInfoUrlGridArea>
-            <TextField label={t("service-info-url")} register={register("url")} />
+            <TextField label={t("service-info-url")} {...register("url")} />
             {serviceInfoQuery.isError && t("error-fetching-service-info")}
-            {!serviceInfoQuery.isLoading && (
+            {!serviceInfoQuery.isPending && (
               <div
                 className={css`
                   margin-top: -0.7rem;
@@ -381,14 +384,12 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                   padding-left: 1rem;
                 `}
               >
-                <FontAwesomeIcon
-                  icon={isValidServiceInfo ? faCheck : faXmark}
-                  className={css`
-                    color: ${isValidServiceInfo
-                      ? baseTheme.colors.green[400]
-                      : baseTheme.colors.red[500]};
-                  `}
-                />
+                {isValidServiceInfo ? (
+                  <CheckCircle color={baseTheme.colors.green[400]} size={16} />
+                ) : (
+                  <BellXmark color={baseTheme.colors.red[500]} size={16} />
+                )}
+
                 <span
                   className={css`
                     margin: 0 0.5rem;
@@ -415,19 +416,14 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             )}
           </ServiceInfoUrlGridArea>
           <MiscSettingsGridArea>
-            <TextField
-              placeholder={t("label-width")}
-              label={t("label-width")}
-              register={register("width")}
-            />
-            <CheckBox label={t("show-iframe-borders")} register={register("showIframeBorders")} />
-            <CheckBox label={t("disable-sandbox")} register={register("disableSandbox")} />
+            <CheckBox label={t("show-iframe-borders")} {...register("showIframeBorders")} />
+            <CheckBox label={t("disable-sandbox")} {...register("disableSandbox")} />
             <TextField
               placeholder={t("label-pseudonymous-user-id")}
               label={t("label-pseudonymous-user-id")}
-              register={register("pseudonymousUserId")}
+              {...register("pseudonymousUserId")}
             />
-            <CheckBox label={t("button-text-signed-in")} register={register("signedIn")} />
+            <CheckBox label={t("button-text-signed-in")} {...register("signedIn")} />
           </MiscSettingsGridArea>
 
           <PrivateSpecGridArea>
@@ -436,7 +432,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               rows={20}
               spellCheck={false}
               label={t("private-spec")}
-              register={register("private_spec", {
+              {...register("private_spec", {
                 validate: (value) => {
                   try {
                     JSON.parse(value)
@@ -504,7 +500,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                 {t("grading-explanation")}
               </p>
 
-              {submitAnswerMutation.isSuccess && !submitAnswerMutation.isLoading ? (
+              {submitAnswerMutation.isSuccess && !submitAnswerMutation.isPending ? (
                 <StyledPre fullWidth={false}>
                   {JSON.stringify(submitAnswerMutation.data, undefined, 2)}
                 </StyledPre>
@@ -531,10 +527,10 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {publicSpecQuery.isError && (
                 <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
               )}
-              {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
+              {publicSpecQuery.isPending && publicSpecQuery.isFetching && (
                 <Spinner variant={"medium"} />
               )}
-              {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
+              {publicSpecQuery.isPending && !publicSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {/* eslint-disable i18next/no-literal-string */}
@@ -556,10 +552,10 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               {modelSolutionSpecQuery.isError && (
                 <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
               )}
-              {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
+              {modelSolutionSpecQuery.isPending && modelSolutionSpecQuery.isFetching && (
                 <Spinner variant={"medium"} />
               )}
-              {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
+              {modelSolutionSpecQuery.isPending && !modelSolutionSpecQuery.isFetching && (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
               {/* eslint-disable i18next/no-literal-string */}
@@ -667,7 +663,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
             <>
               {currentView === "exercise-editor" && (
                 <PlaygroundExerciseEditorIframe
-                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                  url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                   privateSpec={privateSpecParsed}
                   setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                   showIframeBorders={showIframeBorders}
@@ -722,7 +718,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }}
                   />
                   <PlaygroundExerciseIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
@@ -734,7 +730,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isLoading
+                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {
@@ -760,7 +756,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
                     }}
                   />
                   <PlaygroundViewSubmissionIframe
-                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}?width=${width}`}
+                    url={`${exerciseServiceHost}${serviceInfoQuery.data.user_interface_iframe_path}`}
                     publicSpecQuery={publicSpecQuery}
                     setCurrentStateReceivedFromIframe={setCurrentStateReceivedFromIframe}
                     showIframeBorders={showIframeBorders}
@@ -878,7 +874,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
               align-items: center;
             `}
           >
-            <ArrowsVertical />
+            <MoveUpDownArrows />
             <select
               name="pets"
               id="pet-select"
@@ -911,7 +907,7 @@ const IframeViewPlayground: React.FC<React.PropsWithChildren<unknown>> = () => {
           </div>
         </div>
       </HideChildrenInSystemTests>
-    </Layout>
+    </>
   )
 }
 

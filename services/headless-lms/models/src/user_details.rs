@@ -4,7 +4,7 @@ use futures::Stream;
 
 use crate::{prelude::*, users::User};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserDetail {
     pub user_id: Uuid,
@@ -13,6 +13,7 @@ pub struct UserDetail {
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
+    pub search_helper: Option<String>,
 }
 
 pub async fn get_user_details_by_user_id(
@@ -81,4 +82,76 @@ WHERE user_id in (
         course_id
     )
     .fetch(conn)
+}
+
+pub async fn search_for_user_details_by_email(
+    conn: &mut PgConnection,
+    email: &str,
+) -> ModelResult<Vec<UserDetail>> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT *
+FROM user_details
+WHERE lower(email::text) LIKE '%' || lower($1) || '%'
+LIMIT 1000;
+",
+        email.trim(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn search_for_user_details_by_other_details(
+    conn: &mut PgConnection,
+    search: &str,
+) -> ModelResult<Vec<UserDetail>> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT *
+FROM user_details
+WHERE lower(search_helper::text) LIKE '%' || lower($1) || '%'
+LIMIT 1000;
+",
+        search.trim(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn search_for_user_details_fuzzy_match(
+    conn: &mut PgConnection,
+    search: &str,
+) -> ModelResult<Vec<UserDetail>> {
+    // For email domains, the fuzzy match returns too much results that have the same domain
+    // To combat this, we omit the email domain from the fuzzy match
+    let search = search.split('@').next().unwrap_or(search);
+
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  search_helper
+FROM (
+    SELECT *,
+      LOWER($1) <<->search_helper AS dist
+    FROM user_details
+    ORDER BY dist, LENGTH(search_helper)
+    LIMIT 100
+  ) search
+WHERE dist < 0.7;
+",
+        search.trim(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }

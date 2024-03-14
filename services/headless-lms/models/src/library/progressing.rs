@@ -248,7 +248,7 @@ async fn update_module_completion_prerequisite_statuses_for_user(
     let default_course_module =
         course_modules::get_default_by_course_id(conn, course_instance.course_id).await?;
     let course_module_completions =
-        course_module_completions::get_all_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance.id,
             user_id,
@@ -358,14 +358,14 @@ pub async fn process_all_course_instance_completions(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceCompletionSummary {
     pub course_modules: Vec<CourseModule>,
     pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserWithModuleCompletions {
     pub completed_modules: Vec<CourseModuleCompletionWithRegistrationInfo>,
@@ -375,7 +375,7 @@ pub struct UserWithModuleCompletions {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseModuleCompletion {
     pub course_module_id: Uuid,
@@ -451,7 +451,7 @@ pub async fn get_course_instance_completion_summary(
     })
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherManualCompletionRequest {
     pub course_module_id: Uuid,
@@ -459,7 +459,7 @@ pub struct TeacherManualCompletionRequest {
     pub skip_duplicate_completions: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherManualCompletion {
     pub user_id: Uuid,
@@ -542,7 +542,7 @@ pub async fn add_manual_completions(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ManualCompletionPreview {
     pub already_completed_users: Vec<ManualCompletionPreviewUser>,
@@ -550,7 +550,7 @@ pub struct ManualCompletionPreview {
     pub non_enrolled_users: Vec<ManualCompletionPreviewUser>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ManualCompletionPreviewUser {
     pub user_id: Uuid,
@@ -619,14 +619,14 @@ pub async fn get_manual_completion_result_preview(
     })
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
     pub course_name: String,
     pub uh_course_code: String,
     pub email: String,
-    pub ects_credits: Option<i32>,
+    pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
 }
 
@@ -677,7 +677,7 @@ pub async fn get_user_completion_information(
     })
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserModuleCompletionStatus {
     pub completed: bool,
@@ -689,6 +689,8 @@ pub struct UserModuleCompletionStatus {
     pub grade: Option<i32>,
     pub passed: Option<bool>,
     pub enable_registering_completion_to_uh_open_university: bool,
+    pub certification_enabled: bool,
+    pub certificate_configuration_id: Option<Uuid>,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -701,7 +703,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
-        course_module_completions::get_all_by_course_instance_and_user_ids(
+        course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
             course_instance_id,
             user_id,
@@ -710,29 +712,50 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
         .into_iter()
         .map(|x| (x.course_module_id, x))
         .collect();
+
+    let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
+
     let course_module_completion_statuses = course_modules
         .into_iter()
         .map(|module| {
+            let mut certificate_configuration_id = None;
+
             let completion = course_module_completions.get(&module.id);
+            let passed = completion.map(|x| x.passed);
+            if module.certification_enabled && passed == Some(true) {
+                // If passed, show the user the default certificate configuration id so that they can generate their certificate.
+                let default_certificate_configuration = all_default_certificate_configurations
+                    .iter()
+                    .find(|x| x.requirements.course_module_ids.contains(&module.id));
+                if let Some(default_certificate_configuration) = default_certificate_configuration {
+                    certificate_configuration_id = Some(
+                        default_certificate_configuration
+                            .certificate_configuration
+                            .id,
+                    );
+                }
+            }
             UserModuleCompletionStatus {
                 completed: completion.is_some(),
                 default: module.is_default_module(),
                 module_id: module.id,
                 name: module.name.unwrap_or_else(|| course.name.clone()),
                 order_number: module.order_number,
-                passed: completion.map(|x| x.passed),
+                passed,
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .map_or(false, |x| x.prerequisite_modules_completed),
                 enable_registering_completion_to_uh_open_university: module
                     .enable_registering_completion_to_uh_open_university,
+                certification_enabled: module.certification_enabled,
+                certificate_configuration_id,
             }
         })
         .collect();
     Ok(course_module_completion_statuses)
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CompletionRegistrationLink {
     pub url: String,

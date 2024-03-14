@@ -21,7 +21,6 @@ GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks 
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page(
     page_id: web::Path<Uuid>,
@@ -40,7 +39,7 @@ GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, or
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
-#[generated_doc]
+
 async fn get_page_info(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -76,14 +75,15 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
-#[instrument(skip(pool))]
+
+#[instrument(skip(pool, app_conf))]
 async fn update_page(
     request_id: RequestId,
     payload: web::Json<CmsPageUpdate>,
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     jwt_key: web::Data<JwtKey>,
+    app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<ContentManagementPage>> {
     let mut conn = pool.acquire().await?;
@@ -102,7 +102,11 @@ async fn update_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page,
         },
-        models_requests::make_spec_fetcher(request_id.0, jwt_key.into_inner()),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            jwt_key.into_inner(),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -112,14 +116,13 @@ async fn update_page(
 /**
 GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page_navigation(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<PageNavigationInformation>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
 
     token.authorized_ok(web::Json(res))

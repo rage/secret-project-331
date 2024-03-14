@@ -5,7 +5,6 @@ use crate::{domain::authorization::skip_authorize, prelude::*};
 /**
 GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_playground_examples(
     pool: web::Data<PgPool>,
@@ -13,14 +12,13 @@ async fn get_playground_examples(
     let mut conn = pool.acquire().await?;
     let res = models::playground_examples::get_all_playground_examples(&mut conn).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
 /**
 POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn insert_playground_example(
     pool: web::Data<PgPool>,
@@ -39,7 +37,6 @@ async fn insert_playground_example(
 /**
 PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_playground_example(
     pool: web::Data<PgPool>,
@@ -58,7 +55,6 @@ async fn update_playground_example(
 /**
 DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete_playground_example(
     pool: web::Data<PgPool>,

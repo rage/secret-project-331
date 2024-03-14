@@ -12,6 +12,7 @@ use crate::{
     exercises::Exercise,
     peer_review_configs::PeerReviewConfig,
     peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::PeerReviewQuestion,
     peer_review_queue_entries::PeerReviewQueueEntry,
     peer_review_submissions::PeerReviewSubmission,
     prelude::*,
@@ -23,7 +24,7 @@ use crate::{
 use std::default::Default;
 
 /// Visible only in the current module (and submodules) to prevent misuse.
-pub(self) struct UserExerciseStateUpdateRequiredData {
+pub struct UserExerciseStateUpdateRequiredData {
     pub exercise: Exercise,
     pub current_user_exercise_state: UserExerciseState,
     /// None if peer review is not enabled for the exercise
@@ -35,12 +36,13 @@ pub(self) struct UserExerciseStateUpdateRequiredData {
 }
 
 /// Visible only in the current module (and submodules) to prevent misuse.
-pub(self) struct UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+pub struct UserExerciseStateUpdateRequiredDataPeerReviewInformation {
     pub given_peer_review_submissions: Vec<PeerReviewSubmission>,
     pub latest_exercise_slide_submission_received_peer_review_question_submissions:
         Vec<PeerReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
     pub peer_review_config: PeerReviewConfig,
+    pub peer_review_questions: Vec<PeerReviewQuestion>,
 }
 
 /**
@@ -69,6 +71,7 @@ pub struct UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation
     /// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not
     pub peer_review_queue_entry: Option<Option<PeerReviewQueueEntry>>,
     pub peer_review_config: Option<PeerReviewConfig>,
+    pub peer_review_questions: Option<Vec<PeerReviewQuestion>>,
 }
 
 /// Loads all required data and updates user_exercise_state. Also creates completions if needed.

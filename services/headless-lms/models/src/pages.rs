@@ -21,13 +21,13 @@ use crate::{
     exercises::Exercise,
     page_history::{self, HistoryChangeReason, PageHistoryContent},
     peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_review_questions::{normalize_cms_peer_review_questions, CmsPeerReviewQuestion},
     prelude::*,
     user_course_settings::{self, UserCourseSettings},
-    CourseOrExamId,
+    CourseOrExamId, SpecFetcher,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Page {
     pub id: Uuid,
@@ -47,7 +47,7 @@ pub struct Page {
     pub page_language_group_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageInfo {
     pub page_id: Uuid,
@@ -58,7 +58,7 @@ pub struct PageInfo {
     pub organization_slug: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageAudioFiles {
     pub id: Uuid,
@@ -75,7 +75,7 @@ impl Page {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CoursePageWithUserData {
     pub page: Page,
@@ -86,7 +86,7 @@ pub struct CoursePageWithUserData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageWithExercises {
     #[serde(flatten)]
@@ -94,7 +94,7 @@ pub struct PageWithExercises {
     pub exercises: Vec<Exercise>,
 }
 
-// Represents the subset of page fields that are required to create a new page.
+/// Represents the subset of page fields that are required to create a new page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewPage {
@@ -114,7 +114,15 @@ pub struct NewPage {
     pub content_search_language: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+/// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct PageDetailsUpdate {
+    pub title: String,
+    pub url_path: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
@@ -123,7 +131,7 @@ pub struct NormalizedCmsExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageRoutingData {
     pub url_path: String,
@@ -135,7 +143,7 @@ pub struct PageRoutingData {
     pub chapter_front_page_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct PageMetadata {
     pub page_id: Uuid,
     pub order_number: i32,
@@ -145,7 +153,7 @@ pub struct PageMetadata {
     pub exam_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageChapterAndCourseInformation {
     pub chapter_name: Option<String>,
@@ -179,12 +187,12 @@ pub struct ContentManagementPage {
     pub organization_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PageSearchRequest {
-    query: String,
+pub struct SearchRequest {
+    pub query: String,
 }
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageNavigationInformation {
     pub chapter_front_page: Option<PageRoutingData>,
@@ -192,7 +200,7 @@ pub struct PageNavigationInformation {
     pub previous_page: Option<PageRoutingData>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
@@ -207,7 +215,7 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct IsChapterFrontPage {
     pub is_chapter_front_page: bool,
@@ -296,7 +304,7 @@ RETURNING id
         new_course_page.hidden,
         page_language_group_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     let history_id = crate::page_history::insert(
         &mut tx,
@@ -345,7 +353,7 @@ RETURNING id
         page.title,
         0
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let history_id = crate::page_history::insert(
@@ -413,7 +421,7 @@ impl PageVisibility {
     /// Hacky way to implement a nullable boolean filter. Based on the idea that
     /// `null IS DISTINCT FROM anything` in PostgreSQL.
     ///
-    /// More information at: https://www.postgresql.org/docs/current/functions-comparison.html
+    /// More information at: <https://www.postgresql.org/docs/current/functions-comparison.html>
     ///
     /// # Examples
     ///
@@ -659,7 +667,6 @@ pub async fn get_page_with_user_data_by_path(
     user_id: Option<Uuid>,
     course_data: &CourseContextData,
     url_path: &str,
-    can_view_not_open_chapters: bool,
 ) -> ModelResult<CoursePageWithUserData> {
     let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
 
@@ -670,7 +677,6 @@ pub async fn get_page_with_user_data_by_path(
             page,
             false,
             course_data.is_test_mode,
-            can_view_not_open_chapters,
         )
         .await;
     } else {
@@ -683,7 +689,6 @@ pub async fn get_page_with_user_data_by_path(
                 redirected_page,
                 true,
                 course_data.is_test_mode,
-                can_view_not_open_chapters,
             )
             .await;
         }
@@ -739,18 +744,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     page: Page,
     was_redirected: bool,
     is_test_mode: bool,
-    can_view_not_open_chapters: bool,
 ) -> ModelResult<CoursePageWithUserData> {
-    if let Some(chapter_id) = page.chapter_id {
-        if !can_view_not_open_chapters && !crate::chapters::is_open(conn, chapter_id).await? {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "Chapter is not open yet.".to_string(),
-                None,
-            ));
-        }
-    }
-
     if let Some(course_id) = page.course_id {
         if let Some(user_id) = user_id {
             let instance =
@@ -917,7 +911,7 @@ impl CmsPageExercise {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseSlide {
     pub id: Uuid,
@@ -935,7 +929,7 @@ impl From<ExerciseSlide> for CmsPageExerciseSlide {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPageExerciseTask {
     pub id: Uuid,
@@ -1042,15 +1036,17 @@ pub struct PageUpdateArgs {
 pub async fn update_page(
     conn: &mut PgConnection,
     page_update: PageUpdateArgs,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
-    let cms_page_update = page_update.cms_page_update;
+    let mut cms_page_update = page_update.cms_page_update;
     cms_page_update.validate_exercise_data()?;
+
+    for exercise in cms_page_update.exercises.iter_mut() {
+        if let Some(peer_review_questions) = exercise.peer_review_questions.as_mut() {
+            normalize_cms_peer_review_questions(peer_review_questions);
+        }
+    }
 
     let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(cms_page_update.content)?;
     if !page_update.is_exam_page
@@ -1095,7 +1091,7 @@ RETURNING id,
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     // Exercises
@@ -1186,7 +1182,7 @@ RETURNING id,
         ",
         &existing_exercise_slide_ids,
     )
-    .fetch_all(&mut tx)
+    .fetch_all(&mut *tx)
     .await?;
     let final_tasks = upsert_exercise_tasks(
         &mut tx,
@@ -1232,7 +1228,7 @@ RETURNING id,
         new_content,
         page.id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let x = remapped_exercises.into_values().collect::<Vec<_>>();
@@ -1472,11 +1468,7 @@ async fn upsert_exercise_tasks(
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
     // For generating public specs for exercises.
@@ -1618,8 +1610,9 @@ pub async fn upsert_peer_review_configs(
         exercise_id,
         peer_reviews_to_give,
         peer_reviews_to_receive,
-        accepting_strategy,
+        processing_strategy,
         accepting_threshold,
+        points_are_all_or_nothing,
         deleted_at
       ) ",
         );
@@ -1650,8 +1643,9 @@ pub async fn upsert_peer_review_configs(
                 .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
                 .push_bind(pr.peer_reviews_to_receive)
-                .push_bind(pr.accepting_strategy)
+                .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
+                .push_bind(pr.points_are_all_or_nothing)
                 .push("NULL");
         });
 
@@ -1670,8 +1664,9 @@ SET course_id = excluded.course_id,
   exercise_id = excluded.exercise_id,
   peer_reviews_to_give = excluded.peer_reviews_to_give,
   peer_reviews_to_receive = excluded.peer_reviews_to_receive,
-  accepting_strategy = excluded.accepting_strategy,
+  processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing,
   deleted_at = NULL
 RETURNING id;
 ",
@@ -1693,8 +1688,9 @@ SELECT id as "id!",
   exercise_id,
   peer_reviews_to_give as "peer_reviews_to_give!",
   peer_reviews_to_receive as "peer_reviews_to_receive!",
-  accepting_strategy AS "accepting_strategy!: _",
-  accepting_threshold "accepting_threshold!"
+  processing_strategy AS "processing_strategy!: _",
+  accepting_threshold "accepting_threshold!",
+  points_are_all_or_nothing "points_are_all_or_nothing!"
 FROM peer_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -1745,6 +1741,7 @@ pub async fn upsert_peer_review_questions(
         question,
         question_type,
         answer_required,
+        weight,
         deleted_at
       ) ",
         );
@@ -1787,6 +1784,7 @@ pub async fn upsert_peer_review_questions(
                     .push_bind(prq.question.as_str())
                     .push_bind(prq.question_type)
                     .push_bind(prq.answer_required)
+                    .push_bind(prq.weight)
                     .push("NULL");
             },
         );
@@ -1799,6 +1797,7 @@ SET peer_review_config_id = excluded.peer_review_config_id,
     question = excluded.question,
     question_type = excluded.question_type,
     answer_required = excluded.answer_required,
+    weight = excluded.weight,
     deleted_at = NULL
 RETURNING id;
 ",
@@ -1820,7 +1819,8 @@ SELECT id AS "id!",
   order_number AS "order_number!",
   peer_review_config_id AS "peer_review_config_id!",
   question AS "question!",
-  question_type AS "question_type!: _"
+  question_type AS "question_type!: _",
+  weight AS "weight!"
 FROM peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -1883,11 +1883,7 @@ async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
     urls_by_exercise_type: &HashMap<&String, Url>,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, Result<serde_json::Value, ModelError>>,
+    spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
     cms_block_id: Uuid,
 ) -> Result<Option<serde_json::Value>, ModelError> {
@@ -1926,11 +1922,7 @@ pub async fn insert_new_content_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut tx = conn.begin().await?;
@@ -1970,11 +1962,7 @@ pub async fn insert_page(
     conn: &mut PgConnection,
     new_page: NewPage,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     let mut page_language_group_id = None;
@@ -2024,7 +2012,7 @@ INSERT INTO pages(
     content_search_language,
     page_language_group_id
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8::regconfig, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id,
   created_at,
   updated_at,
@@ -2050,7 +2038,7 @@ RETURNING id,
         content_search_language as _,
         page_language_group_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let cms_page = update_page(
@@ -2089,7 +2077,7 @@ RETURNING *;
             front_page_of_chapter_id
         )
         // this should fail if no rows returned
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await?;
     }
 
@@ -2140,7 +2128,7 @@ RETURNING id,
           "#,
         page_id,
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -2152,7 +2140,7 @@ RETURNING id,
           "#,
         page_id,
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -2168,7 +2156,7 @@ WHERE exercise_id IN (
         ",
         page.id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -2185,7 +2173,7 @@ WHERE exercise_slide_id IN (
             "#,
         page.id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
 
     tx.commit().await?;
@@ -2651,7 +2639,7 @@ Returns search results for a phrase i.e. looks for matches where the words come 
 pub async fn get_page_search_results_for_phrase(
     conn: &mut PgConnection,
     course_id: Uuid,
-    page_search_request: &PageSearchRequest,
+    page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
 
@@ -2710,6 +2698,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -2734,7 +2723,7 @@ Returns search results for the given words. The words can appear in the source d
 pub async fn get_page_search_results_for_words(
     conn: &mut PgConnection,
     course_id: Uuid,
-    page_search_request: &PageSearchRequest,
+    page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
 
@@ -2794,6 +2783,7 @@ SELECT id,
 FROM pages
 WHERE course_id = $1
     AND deleted_at IS NULL
+    AND hidden IS FALSE
     AND content_search @@ (
     SELECT query
     from cte
@@ -2836,11 +2826,7 @@ pub async fn restore(
     page_id: Uuid,
     history_id: Uuid,
     author: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
     // fetch old content
@@ -2979,14 +2965,14 @@ WHERE pages.order_number = $1
                     page.order_number,
                     page.chapter_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
                 sqlx::query!(
                     "UPDATE pages SET order_number = $2 WHERE pages.id = $1",
                     page.id,
                     page.order_number
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
             } else {
                 // Chapter changes
@@ -3011,7 +2997,7 @@ WHERE pages.order_number = $1
                                     new_chapter.id,
                                     page.order_number
                                 )
-                                .execute(&mut tx)
+                                .execute(&mut *tx)
                                 .await?;
                                 sqlx::query!(
                                     "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
@@ -3019,7 +3005,7 @@ WHERE pages.order_number = $1
                                     old_path,
                                     course_id
                                 )
-                                .execute(&mut tx)
+                                .execute(&mut *tx)
                                 .await?;
                             } else {
                                 return Err(ModelError::new(
@@ -3090,7 +3076,7 @@ pub async fn reorder_chapters(
                     matching_db_chapter.id,
                     course_id
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
 
                 // get newly modified chapter
@@ -3114,7 +3100,7 @@ pub async fn reorder_chapters(
                         page.id,
                         new_path
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
                 }
             }
@@ -3136,7 +3122,7 @@ pub async fn reorder_chapters(
                     chapter.id,
                     new_chapter_number
                 )
-                .execute(&mut tx)
+                .execute(&mut *tx)
                 .await?;
 
                 // update all pages url in the modified chapter
@@ -3160,17 +3146,17 @@ pub async fn reorder_chapters(
                         page.id,
                         new_path
                     )
-                    .execute(&mut tx)
+                    .execute(&mut *tx)
                     .await?;
 
-                    sqlx::query!(
-                            "INSERT INTO url_redirections(destination_page_id, old_url_path, course_id) VALUES ($1, $2, $3)",
-                            page.id,
-                            old_path,
-                            course_id
-                        )
-                        .execute(&mut tx)
-                        .await?;
+                    crate::url_redirections::upsert(
+                        &mut tx,
+                        PKeyPolicy::Generate,
+                        page.id,
+                        &old_path,
+                        course_id,
+                    )
+                    .await?;
                 }
             } else {
                 return Err(ModelError::new(
@@ -3206,6 +3192,45 @@ pub async fn is_chapter_front_page(
             is_chapter_front_page: id == page_id,
         },
     ))
+}
+
+pub async fn update_page_details(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    page_details_update: &PageDetailsUpdate,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let page_before_update = get_page(&mut tx, page_id).await?;
+    sqlx::query!(
+        "
+UPDATE pages
+SET title = $2,
+  url_path = $3
+WHERE id = $1
+",
+        page_id,
+        page_details_update.title,
+        page_details_update.url_path,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    if let Some(course_id) = page_before_update.course_id {
+        if page_before_update.url_path != page_details_update.url_path {
+            // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
+            crate::url_redirections::upsert(
+                &mut tx,
+                PKeyPolicy::Generate,
+                page_id,
+                &page_before_update.url_path,
+                course_id,
+            )
+            .await?;
+        }
+    }
+
+    tx.commit().await?;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -3344,10 +3369,11 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
-            accepting_threshold:0.5,
-            peer_reviews_to_give:2,
-            peer_reviews_to_receive:1
+            processing_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: 0.5,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            points_are_all_or_nothing: false,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3356,6 +3382,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: 0.31,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
@@ -3370,6 +3397,8 @@ mod test {
         assert!(pr_res.get(&pr_id).unwrap().accepting_threshold == 0.5);
 
         assert!(prq_res.get(&prq_id).unwrap().question == *"juu");
+        assert!(!pr_res.get(&pr_id).unwrap().points_are_all_or_nothing);
+        assert_eq!(prq_res.get(&prq_id).unwrap().weight, 0.31);
     }
 
     #[tokio::test]
@@ -3384,10 +3413,11 @@ mod test {
             id:pr_id,
             exercise_id: Some(exercise_id),
             course_id: course,
-            accepting_strategy: crate::peer_review_configs::PeerReviewAcceptingStrategy::AutomaticallyAcceptOrManualReviewByAverage,
-            accepting_threshold:0.5,
-            peer_reviews_to_give:2,
-            peer_reviews_to_receive:1
+            processing_strategy: crate::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            accepting_threshold: 0.5,
+            peer_reviews_to_give: 2,
+            peer_reviews_to_receive: 1,
+            points_are_all_or_nothing: true,
         };
         let prq = CmsPeerReviewQuestion {
             id: prq_id,
@@ -3396,6 +3426,7 @@ mod test {
             order_number: 0,
             question: "juu".to_string(),
             question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+            weight: 0.0,
         };
         let mut remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);

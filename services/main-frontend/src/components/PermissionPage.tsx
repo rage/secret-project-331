@@ -1,10 +1,11 @@
 import { css } from "@emotion/css"
-import { Check, Clear, Create, ExpandMore } from "@mui/icons-material"
 import { useQuery } from "@tanstack/react-query"
-import { TFunction } from "i18next"
+import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { t as globalT, TFunction } from "i18next"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { assert, Equals } from "tsafe"
 
 import { fetchPendingRoles } from "../services/backend/pendingRoles"
 import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
@@ -14,8 +15,8 @@ import ErrorBanner from "../shared-module/components/ErrorBanner"
 import SelectField from "../shared-module/components/InputFields/SelectField"
 import TextField from "../shared-module/components/InputFields/TextField"
 import useToastMutation from "../shared-module/hooks/useToastMutation"
+import CaretArrowDown from "../shared-module/img/caret-arrow-down.svg"
 import { respondToOrLarger } from "../shared-module/styles/respond"
-
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -25,6 +26,8 @@ const REVIEWER: UserRole = "Reviewer"
 const TEACHER: UserRole = "Teacher"
 const COURSE_OR_EXAM_CREATOR: UserRole = "CourseOrExamCreator"
 const MATERIAL_VIEWER: UserRole = "MaterialViewer"
+const TEACHING_AND_LEARNING_SERVICES: UserRole = "TeachingAndLearningServices"
+const STATS_VIEWER: UserRole = "StatsViewer"
 
 const options = (t: TFunction) => {
   return [
@@ -40,8 +43,22 @@ const options = (t: TFunction) => {
       value: MATERIAL_VIEWER,
       label: t("role-material-viewer"),
     },
+    {
+      value: TEACHING_AND_LEARNING_SERVICES,
+      label: t("role-teaching-and-learning-services"),
+    },
+    {
+      value: STATS_VIEWER,
+      label: t("role-stats-viewer"),
+    },
   ]
 }
+
+// Check we have options for all the roles in the system
+const allRoles = options(globalT).map((o) => o.value)
+type rolesInTheForm = (typeof allRoles)[number]
+// Check if two string unions are the same. If this fails, you have changed the UserRole type and need to update the options function above.
+assert<Equals<rolesInTheForm, UserRole>>()
 
 interface EditingRole {
   userId: string
@@ -93,8 +110,14 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
-  const roleQuery = useQuery([`roles`, domain], () => fetchRoles(query))
-  const pendingRolesQuery = useQuery([`pending-roles`, domain], () => fetchPendingRoles(query))
+  const roleQuery = useQuery({
+    queryKey: [`roles`, domain, query],
+    queryFn: () => fetchRoles(query),
+  })
+  const pendingRolesQuery = useQuery({
+    queryKey: [`pending-roles`, domain, query],
+    queryFn: () => fetchPendingRoles(query),
+  })
   const addMutation = useToastMutation(
     () => {
       return giveRole(newEmail, newRole, domain)
@@ -129,7 +152,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   )
 
   let userList
-  if (roleQuery.isLoading) {
+  if (roleQuery.isPending) {
     userList = <div>{t("loading-text")}</div>
   }
   if (roleQuery.isError) {
@@ -183,7 +206,15 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     setSorting(SORT_KEY_NAME)
                   }}
                 >
-                  <ExpandMore />
+                  <CaretArrowDown
+                    className={css`
+                      margin-bottom: 8px;
+                      transform: scale(1.2);
+                      path {
+                        fill: #000;
+                      }
+                    `}
+                  />{" "}
                 </button>
               </th>
               <th>
@@ -207,7 +238,15 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     setSorting(SORT_KEY_EMAIL)
                   }}
                 >
-                  <ExpandMore />
+                  <CaretArrowDown
+                    className={css`
+                      margin-bottom: 8px;
+                      transform: scale(1.2);
+                      path {
+                        fill: #000;
+                      }
+                    `}
+                  />
                 </button>
               </th>
               <th>
@@ -231,7 +270,15 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     setSorting(SORT_KEY_ROLE)
                   }}
                 >
-                  <ExpandMore />
+                  <CaretArrowDown
+                    className={css`
+                      margin-bottom: 8px;
+                      transform: scale(1.2);
+                      path {
+                        fill: #000;
+                      }
+                    `}
+                  />
                 </button>
               </th>
               <th>{t("label-action")}</th>
@@ -278,7 +325,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
                       >
-                        <Create />
+                        <Pencil />
                       </button>
                       <button
                         aria-label={t("remove-role")}
@@ -290,7 +337,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
                       >
-                        <Clear />
+                        <XmarkCircle />
                       </button>
                     </td>
                   </>
@@ -300,8 +347,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                     <td>
                       <SelectField
                         id={"editing-role"}
-                        onChange={(role) => {
-                          setEditingRole({ userId: ur.id, newRole: role })
+                        onChangeByValue={(role) => {
+                          setEditingRole({ userId: ur.id, newRole: role as UserRole })
                         }}
                         options={options(t)}
                         defaultValue={ur.role}
@@ -326,7 +373,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                           setEditingRole(null)
                         }}
                       >
-                        <Check />
+                        <CheckCircle />
                       </button>{" "}
                       <button
                         aria-label={t("cancel-editing-role")}
@@ -338,7 +385,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => setEditingRole(null)}
                       >
-                        <Clear />
+                        <XmarkCircle />
                       </button>
                     </td>
                   </>
@@ -377,7 +424,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
             id={t("label-email")}
             label={t("label-email")}
             placeholder={t("field-enter-email")}
-            onChange={(value) => setNewEmail(value)}
+            onChangeByValue={(value) => setNewEmail(value)}
           />
         </div>
         <div
@@ -391,8 +438,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
           <SelectField
             id={`adding-${t("label-role")}`}
             label={t("label-role")}
-            onChange={(role) => {
-              setNewRole(role)
+            onChangeByValue={(role) => {
+              setNewRole(role as UserRole)
             }}
             options={options(t)}
             defaultValue={ASSISTANT}

@@ -1,8 +1,7 @@
 import { css, cx } from "@emotion/css"
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useTranslation } from "react-i18next"
 
+import MOOCfi from "../../../img/moocfiLogoNoText.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"
@@ -12,9 +11,12 @@ import { NavigationProps } from "."
 
 const StyledIcon = css`
   font-size: 1.8rem;
-  color: ${baseTheme.colors.gray[700]};
+  transform: scale(0.7);
+
+  path {
+    fill: ${baseTheme.colors.gray[600]} !important;
+  }
 `
-// eslint-disable-next-line i18next/no-literal-string
 const Navbar = css`
   height: 90px;
   display: flex;
@@ -35,10 +37,9 @@ const Navbar = css`
     padding: 0 4rem;
   }
 `
-// eslint-disable-next-line i18next/no-literal-string
 const NavbarLogo = css`
-  color: ${baseTheme.colors.gray[700]};
   cursor: pointer;
+  color: ${baseTheme.colors.gray[700]};
 
   & > a:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
@@ -66,12 +67,7 @@ const Navigation: React.FC<React.PropsWithChildren<React.PropsWithChildren<Navig
           aria-label={t("home-page")}
           role="button"
         >
-          <FontAwesomeIcon
-            className={cx(StyledIcon)}
-            icon={faFingerprint}
-            aria-label={t("home-page")}
-            aria-hidden="true"
-          />
+          <MOOCfi className={cx(StyledIcon)} />
         </a>
       </div>
       {children}

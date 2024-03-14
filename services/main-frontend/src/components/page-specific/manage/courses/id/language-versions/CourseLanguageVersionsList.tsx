@@ -18,16 +18,16 @@ export interface CourseTranslationsListProps {
 const CourseLanguageVersionsList: React.FC<
   React.PropsWithChildren<CourseTranslationsListProps>
 > = ({ courseId }) => {
-  const getCourseLanguageVersions = useQuery([formatLanguageVersionsQueryKey(courseId)], () =>
-    fetchCourseLanguageVersions(courseId),
-  )
-
+  const getCourseLanguageVersions = useQuery({
+    queryKey: [formatLanguageVersionsQueryKey(courseId)],
+    queryFn: () => fetchCourseLanguageVersions(courseId),
+  })
   return (
     <>
       {getCourseLanguageVersions.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseLanguageVersions.error} />
       )}
-      {getCourseLanguageVersions.isLoading && <Spinner variant={"medium"} />}
+      {getCourseLanguageVersions.isPending && <Spinner variant={"medium"} />}
       {getCourseLanguageVersions.isSuccess && (
         <ul>
           {getCourseLanguageVersions.data.map((course) => (

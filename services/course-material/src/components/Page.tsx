@@ -1,17 +1,27 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useState } from "react"
+import { useRouter } from "next/router"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { GlossaryContext, GlossaryState } from "../contexts/GlossaryContext"
 import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
-import { Block, fetchGlossary, fetchPageAudioFiles } from "../services/backend"
+import {
+  Block,
+  fetchGlossary,
+  fetchPageAudioFiles,
+  fetchResearchFormAnswersWithUserId,
+  fetchResearchFormWithCourseId,
+} from "../services/backend"
 import { NewProposedBlockEdit } from "../shared-module/bindings"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import Spinner from "../shared-module/components/Spinner"
+import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../shared-module/hooks/useQueryParameter"
 import { baseTheme } from "../shared-module/styles"
+import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
@@ -22,7 +32,8 @@ import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
-import SelectCourseInstanceModal from "./modals/SelectCourseInstanceModal"
+import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
+import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
 interface Props {
@@ -60,17 +71,73 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const tracks: AudioFile[] = []
 
   const { t } = useTranslation()
+  const router = useRouter()
 
-  const getPageAudioFiles = useQuery([`page-${pageId}-audio-files`], () =>
-    courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : [],
-  )
+  const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
+  const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
+  const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
+  const researchFormQueryParam = useQueryParameter("show_research_form")
+  const loginContext = useContext(LoginStateContext)
+  const waitingForCourseSettingsToBeFilled =
+    pageContext.settings?.current_course_instance_id === null ||
+    pageContext.settings?.current_course_instance_id === undefined
+
+  useEffect(() => {
+    if (researchFormQueryParam) {
+      setShowResearchConsentForm(true)
+      const newPathObject = {
+        ...router,
+      }
+
+      delete newPathObject.query.show_research_form
+
+      router.replace(newPathObject, undefined, { shallow: true })
+    }
+  }, [router, researchFormQueryParam])
+
+  const researchConsentFormQuery = useQuery({
+    queryKey: [`courses-${courseId}-research-consent-form`],
+    queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
+    enabled: loginContext.signedIn === true && Boolean(courseId),
+  })
+
+  const researchConsentFormAnswerQuery = useQuery({
+    queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
+    queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
+    enabled: loginContext.signedIn === true && Boolean(courseId),
+  })
+
+  useEffect(() => {
+    if (
+      researchConsentFormQuery.data !== null &&
+      researchConsentFormAnswerQuery.data?.length === 0 &&
+      !shouldAnswerResearchForm &&
+      !hasAnsweredForm &&
+      !waitingForCourseSettingsToBeFilled
+    ) {
+      setShouldAnswerResearchForm(true)
+    }
+  }, [
+    researchConsentFormAnswerQuery.data?.length,
+    hasAnsweredForm,
+    shouldAnswerResearchForm,
+    researchConsentFormQuery.data,
+    waitingForCourseSettingsToBeFilled,
+  ])
+
+  const getPageAudioFiles = useQuery({
+    queryKey: [`page-${pageId}-audio-files`, courseId, isMaterialPage],
+    queryFn: () => (courseId && isMaterialPage && pageId ? fetchPageAudioFiles(pageId) : []),
+  })
 
   // Fetch glossary for each page seperately
-  const glossary = useQuery([`glossary-${courseId}`], () =>
-    courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
-  )
+  const glossary = useQuery({
+    queryKey: [`glossary-${courseId}`, pageContext.exam, isMaterialPage],
+    queryFn: () =>
+      courseId && pageContext.exam === null && isMaterialPage ? fetchGlossary(courseId) : [],
+  })
 
-  if (glossary.isLoading) {
+  if (glossary.isPending) {
     return <Spinner variant={"small"} />
   }
 
@@ -79,7 +146,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   }
   const glossaryState: GlossaryState = { terms: glossary.data }
 
-  if (getPageAudioFiles.isLoading) {
+  if (getPageAudioFiles.isPending) {
     return <Spinner variant={"small"} />
   }
 
@@ -101,8 +168,31 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               organizationSlug={organizationSlug}
             />
           )}
-        {courseId && <SelectCourseInstanceModal onClose={onRefresh} />}
-
+        {courseId && (
+          <CourseSettingsModal
+            onClose={() => {
+              onRefresh()
+            }}
+          />
+        )}
+        {researchConsentFormQuery.isSuccess &&
+          researchConsentFormQuery.data !== null &&
+          (showResearchConsentForm || shouldAnswerResearchForm) && (
+            <SelectResearchConsentForm
+              editForm={showResearchConsentForm}
+              shouldAnswerResearchForm={shouldAnswerResearchForm}
+              usersInitialAnswers={researchConsentFormAnswerQuery.data}
+              researchForm={researchConsentFormQuery.data}
+              onClose={() => {
+                setShowResearchConsentForm(false)
+                setShouldAnswerResearchForm(false)
+                setHasAnsweredForm(true)
+                if (showResearchConsentForm) {
+                  router.back()
+                }
+              }}
+            />
+          )}
         {getPageAudioFiles.isSuccess && tracks.length !== 0 && (
           <AudioNotification>
             <p>{t("audio-notification-description")}</p>

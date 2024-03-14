@@ -17,6 +17,10 @@ import {
   NewCourse,
   NewMaterialReference,
   Page,
+  PageVisitDatumSummaryByCourse,
+  PageVisitDatumSummaryByCourseDeviceTypes,
+  PageVisitDatumSummaryByCoursesCountries,
+  PageVisitDatumSummaryByPages,
   Term,
   TermUpdate,
 } from "../../shared-module/bindings"
@@ -29,27 +33,27 @@ import {
   isExerciseAnswersInCourseRequiringAttentionCount,
   isExerciseSlideSubmissionCountByWeekAndHour,
   isExerciseUserCounts,
+  isPageVisitDatumSummaryByCourse,
+  isPageVisitDatumSummaryByCourseDeviceTypes,
+  isPageVisitDatumSummaryByCoursesCountries,
+  isPageVisitDatumSummaryByPages,
   isTerm,
 } from "../../shared-module/bindings.guard"
 import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const getCourse = async (courseId: string): Promise<Course> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}`, { responseType: "json" })
+  const response = await mainFrontendClient.get(`/courses/${courseId}`)
   return validateResponse(response, isCourse)
 }
 
 export const getCourseBreadCrumbInfo = async (courseId: string): Promise<CourseBreadcrumbInfo> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/breadcrumb-info`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/breadcrumb-info`)
   return validateResponse(response, isCourseBreadcrumbInfo)
 }
 
 export const postNewCourse = async (data: NewCourse): Promise<Course> => {
-  const response = await mainFrontendClient.post("/courses", data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.post("/courses", data)
   return validateResponse(response, isCourse)
 }
 
@@ -59,9 +63,7 @@ export const deleteCourse = async (courseId: string): Promise<Course> => {
 }
 
 export const fetchCourseLanguageVersions = async (courseId: string): Promise<Array<Course>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/language-versions`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/language-versions`)
   return validateResponse(response, isArray(isCourse))
 }
 
@@ -69,9 +71,7 @@ export const postNewCourseTranslation = async (
   courseId: string,
   data: NewCourse,
 ): Promise<Course> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/language-versions`, data, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.post(`/courses/${courseId}/language-versions`, data)
   return validateResponse(response, isCourse)
 }
 
@@ -79,25 +79,19 @@ export const postNewCourseDuplicate = async (
   courseId: string,
   data: NewCourse,
 ): Promise<Course> => {
-  const response = await mainFrontendClient.post(`/courses/${courseId}/duplicate`, data, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.post(`/courses/${courseId}/duplicate`, data)
   return validateResponse(response, isCourse)
 }
 
 export const updateCourse = async (courseId: string, data: CourseUpdate): Promise<Course> => {
-  const response = await mainFrontendClient.put(`/courses/${courseId}`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.put(`/courses/${courseId}`, data)
   return validateResponse(response, isCourse)
 }
 
 export const fetchCourseDailySubmissionCounts = async (
   courseId: string,
 ): Promise<Array<ExerciseSlideSubmissionCount>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/daily-submission-counts`)
   // return validateResponse(response, isArray(isSubmissionCount))
   // TODO: validating does not work because the date does not contain a time
   return response.data
@@ -108,9 +102,6 @@ export const fetchCourseDailyUserCountsWithSubmissions = async (
 ): Promise<Array<ExerciseSlideSubmissionCount>> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/daily-users-who-have-submitted-something`,
-    {
-      responseType: "json",
-    },
   )
   // return validateResponse(response, isArray(isSubmissionCount))
   // TODO: validating does not work because the date does not contain a time
@@ -122,17 +113,46 @@ export const fetchCourseUsersCountByExercise = async (
 ): Promise<Array<ExerciseUserCounts>> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/course-users-counts-by-exercise`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isExerciseUserCounts))
 }
 
+export const fetchCoursePageVisitDatumSummaries = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByCourse>> => {
+  const response = await mainFrontendClient.get(`/courses/${courseId}/page-visit-datum-summary`)
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByCourse))
+}
+
+export const fetchCoursePageVisitDatumSummariesByCountry = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByCoursesCountries>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/page-visit-datum-summary-by-countries`,
+  )
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByCoursesCountries))
+}
+
+export const fetchCoursePageVisitDatumSummariesByDeviceTypes = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByCourseDeviceTypes>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/page-visit-datum-summary-by-device-types`,
+  )
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByCourseDeviceTypes))
+}
+
+export const fetchCoursePageVisitDatumSummaryByPages = async (
+  courseId: string,
+): Promise<Array<PageVisitDatumSummaryByPages>> => {
+  const response = await mainFrontendClient.get(
+    `/courses/${courseId}/page-visit-datum-summary-by-pages`,
+  )
+  return validateResponse(response, isArray(isPageVisitDatumSummaryByPages))
+}
+
 export const fetchCourseExercises = async (courseId: string): Promise<Array<Exercise>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/exercises`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/exercises`)
   return validateResponse(response, isArray(isExercise))
 }
 
@@ -141,17 +161,12 @@ export const fetchCourseExercisesAndCountOfAnswersRequiringAttention = async (
 ): Promise<Array<ExerciseAnswersInCourseRequiringAttentionCount>> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/exercises-and-count-of-answers-requiring-attention`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isExerciseAnswersInCourseRequiringAttentionCount))
 }
 
 export const fetchCourseStructure = async (courseId: string): Promise<CourseStructure> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/structure`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/structure`)
   return validateResponse(response, isCourseStructure)
 }
 
@@ -160,17 +175,12 @@ export const fetchCourseWeekdayHourSubmissionCounts = async (
 ): Promise<Array<ExerciseSlideSubmissionCountByWeekAndHour>> => {
   const response = await mainFrontendClient.get(
     `/courses/${courseId}/weekday-hour-submission-counts`,
-    {
-      responseType: "json",
-    },
   )
   return validateResponse(response, isArray(isExerciseSlideSubmissionCountByWeekAndHour))
 }
 
 export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/course-instances`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/course-instances`)
   return validateResponse(response, isArray(isCourseInstance))
 }
 
@@ -187,9 +197,7 @@ export const newCourseInstance = async (
 }
 
 export const fetchGlossary = async (courseId: string): Promise<Array<Term>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/glossary`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.get(`/courses/${courseId}/glossary`)
   return validateResponse(response, isArray(isTerm))
 }
 
@@ -206,7 +214,26 @@ export const postNewTerm = async (
 }
 
 export const postNewPageOrdering = async (courseId: string, pages: Page[]): Promise<void> => {
-  await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pages)
+  // To avoid too large payload errors, remove the content from the pages as it's not needed for this endpoint
+  const pagesWithoutContent: Page[] = pages.map((page) => {
+    return {
+      ...page,
+      content: null,
+    }
+  })
+  await mainFrontendClient.post(`/courses/${courseId}/new-page-ordering`, pagesWithoutContent)
+}
+
+/** Teacher can use this to delete their own submissions, points, etc but they cannot use it to delete those things for other users */
+export const teacherResetCourseProgressForThemselves = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.delete(
+    `/courses/${courseId}/teacher-reset-course-progress-for-themselves`,
+  )
+}
+
+/** Teacher can use this to delete submissions, points, etc for everyone. Can only be used for draft courses. */
+export const teacherResetCourseProgressForEveryone = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.delete(`/courses/${courseId}/teacher-reset-course-progress-for-everyone`)
 }
 
 export const postNewChapterOrdering = async (

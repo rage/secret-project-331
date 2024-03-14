@@ -5,7 +5,7 @@ const externallyEmbeddableIFrameResponseHeaders =
 const svgoConfig = require("./src/shared-module/utils/svgoConfig")
 
 const config = {
-  swcMinify: false,
+  swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -44,6 +44,8 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
+
+  transpilePackages: ["@vectopus/atlas-icons-react"],
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

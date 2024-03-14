@@ -31,7 +31,7 @@ async fn authorize_role_management(
 }
 
 /**
- * POST /api/v0/main-frontend/roles/set - Give a role to a user.
+ * POST /api/v0/main-frontend/roles/add - Give a role to a user.
  */
 #[instrument(skip(pool))]
 pub async fn set(
@@ -48,15 +48,22 @@ pub async fn set(
     )
     .await?;
 
-    let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
-    roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
-
-    let token = skip_authorize()?;
-    token.authorized_ok(HttpResponse::Ok().finish())
+    let target_user = users::try_get_by_email(&mut conn, &role_info.email).await?;
+    if let Some(target_user) = target_user {
+        roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
+        let token = skip_authorize();
+        return token.authorized_ok(HttpResponse::Ok().finish());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::NotFound,
+        "The user either does not exist or has not logged in to this website previously."
+            .to_string(),
+        None,
+    ))
 }
 
 /**
- * POST /api/v0/main-frontend/roles/unset - Remove a role from a user.
+ * POST /api/v0/main-frontend/roles/remove - Remove a role from a user.
  */
 #[instrument(skip(pool))]
 pub async fn unset(
@@ -75,7 +82,7 @@ pub async fn unset(
     let target_user = users::get_by_email(&mut conn, &role_info.email).await?;
     roles::remove(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
@@ -131,7 +138,7 @@ impl TryFrom<RoleQuery> for RoleDomain {
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 #[instrument(skip(pool))]
-#[generated_doc]
+
 pub async fn fetch(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,
@@ -151,7 +158,7 @@ pub async fn fetch(
  * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
 #[instrument(skip(pool))]
-#[generated_doc]
+
 pub async fn fetch_pending(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,

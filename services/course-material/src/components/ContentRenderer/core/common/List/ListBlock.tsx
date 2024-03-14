@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
@@ -11,6 +11,8 @@ import colorMapper from "../../../../../styles/colorMapper"
 import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
+
+const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
 
 const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttributes>>> = (
   props,
@@ -33,23 +35,28 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   const { terms } = useContext(GlossaryContext)
 
-  const LIST_ITEM_CLASS = css`
-    ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
-    ${textColor && `color: ${colorMapper(textColor)};`}
+  /* eslint-disable i18next/no-literal-string */
+  const listItemClass = cx(
+    css`
+      ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
+      ${textColor && `color: ${colorMapper(textColor)};`}
     ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
     ${gradient && `background: ${colorMapper(gradient)};`}
     ${backgroundColor && `padding: 1.25em 2.375em !important;`}
     padding-inline-start: 2.5rem !important;
-    overflow-wrap: break-word;
+      overflow-wrap: break-word;
 
-    ${respondToOrLarger.md} {
-      font-size: ${fontSizeMapper(fontSize)};
-    }
+      ${respondToOrLarger.md} {
+        font-size: ${fontSizeMapper(fontSize)};
+      }
 
-    li::marker {
-      color: ${baseTheme.colors.gray[600]};
-    }
-  `
+      li::marker {
+        color: ${baseTheme.colors.gray[600]};
+      }
+    `,
+    LIST_BLOCK_CLASS_NAME,
+  )
+  /* eslint-enable i18next/no-literal-string */
 
   const usesNewFormat = props.data.innerBlocks && props.data.innerBlocks.length > 0
   let dangerouslySetInnerHTML = undefined
@@ -67,7 +74,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     return (
       // eslint-disable-next-line react/no-danger-with-children
       <ol
-        className={LIST_ITEM_CLASS}
+        className={listItemClass}
         {...(anchor && { id: anchor })}
         {...(start && { start: start })}
         reversed={reversed}
@@ -80,7 +87,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     return (
       // eslint-disable-next-line react/no-danger-with-children
       <ul
-        className={LIST_ITEM_CLASS}
+        className={listItemClass}
         {...(anchor && { id: anchor })}
         dangerouslySetInnerHTML={dangerouslySetInnerHTML}
         // eslint-disable-next-line react/no-children-prop
@@ -90,4 +97,8 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
   }
 }
 
-export default withErrorBoundary(ListBlock)
+const exported = withErrorBoundary(ListBlock)
+// @ts-expect-error: Custom property
+exported.dontUseDefaultBlockMargin = true
+
+export default exported

@@ -2,16 +2,6 @@
 Handlers for HTTP requests to `/api/v0/auth`.
 */
 
-use std::{env, time::Duration};
-
-use actix_session::Session;
-use models::users::User;
-use oauth2::{
-    basic::BasicTokenType, reqwest::AsyncHttpClientError, EmptyExtraTokenFields,
-    ResourceOwnerPassword, ResourceOwnerUsername, StandardTokenResponse, TokenResponse,
-};
-use reqwest::Client;
-
 use crate::{
     domain::{
         authorization::{
@@ -22,6 +12,9 @@ use crate::{
     prelude::*,
     OAuthClient,
 };
+use actix_session::Session;
+use reqwest::Client;
+use std::{env, time::Duration};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -30,35 +23,10 @@ pub struct Login {
     password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GraphQLRquest<'a> {
-    query: &'a str,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MoocfiCurrentUserResponse {
-    pub data: MoocfiCurrentUserResponseData,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MoocfiCurrentUserResponseData {
-    #[serde(rename = "currentUser")]
-    pub current_user: MoocfiCurrentUser,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MoocfiCurrentUser {
-    pub id: Uuid,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-    pub email: String,
-    pub upstream_id: i32,
-}
-
 /**
 POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
 **/
-#[generated_doc]
+
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_action_on_resource(
     pool: web::Data<PgPool>,
@@ -74,12 +42,12 @@ pub async fn authorize_action_on_resource(
             true_token.authorized_ok(web::Json(true))
         } else {
             // We went to return success message even if the authorization fails.
-            let false_token = skip_authorize()?;
+            let false_token = skip_authorize();
             false_token.authorized_ok(web::Json(false))
         }
     } else {
         // Never authorize anonymous user
-        let false_token = skip_authorize()?;
+        let false_token = skip_authorize();
         false_token.authorized_ok(web::Json(false))
     }
 }
@@ -126,29 +94,16 @@ pub async fn signup(
         let user_details = payload.0;
         post_new_user_to_moocfi(&user_details).await?;
 
-        let token = client
-            .exchange_password(
-                &ResourceOwnerUsername::new(user_details.email),
-                &ResourceOwnerPassword::new(user_details.password),
-            )
-            .request_async(async_http_client_with_headers)
-            .await;
-        let token = match token {
-            Ok(token) => token,
-            Err(error) => {
-                info!(token_error = ?error, "Token error when fetching");
-                return Err(ControllerError::new(
-                    ControllerErrorType::Unauthorized,
-                    "Incorrect email or password.".to_string(),
-                    None,
-                ));
-            }
-        };
-
         let mut conn = pool.acquire().await?;
-        let user = get_user_from_moocfi(&token, &mut conn).await;
-        if let Ok(user) = user {
-            let token = skip_authorize()?;
+        let user = authorization::authenticate_moocfi_user(
+            &mut conn,
+            &client,
+            user_details.email,
+            user_details.password,
+        )
+        .await;
+        if let Ok((user, _token)) = user {
+            let token = skip_authorize();
             authorization::remember(&session, user)?;
             token.authorized_ok(HttpResponse::Ok().finish())
         } else {
@@ -171,7 +126,7 @@ pub async fn signup(
 POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
 Returns booleans for the authorizations in the same order as the input.
 **/
-#[generated_doc]
+
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_multiple_actions_on_resources(
     pool: web::Data<PgPool>,
@@ -207,7 +162,7 @@ pub async fn authorize_multiple_actions_on_resources(
             results.push(false);
         }
     }
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(results))
 }
 
@@ -229,75 +184,32 @@ pub async fn login(
         warn!("Trying development mode UUID login");
         if let Ok(id) = Uuid::parse_str(&email) {
             let user = { models::users::get_by_id(&mut conn, id).await? };
-            let token = skip_authorize()?;
+            let token = skip_authorize();
             authorization::remember(&session, user)?;
             return token.authorized_ok(HttpResponse::Ok().finish());
         };
     }
 
-    if app_conf.test_mode {
+    let user = if app_conf.test_mode {
         warn!("Using test credentials. Normal accounts won't work.");
-        let user =
-            models::users::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?;
-        let token = skip_authorize()?;
-        authorization::remember(&session, user)?;
-        return token.authorized_ok(HttpResponse::Ok().finish());
-    }
-
-    let token = client
-        .exchange_password(
-            &ResourceOwnerUsername::new(email),
-            &ResourceOwnerPassword::new(password),
-        )
-        .request_async(async_http_client_with_headers)
-        .await;
-    let token = match token {
-        Ok(token) => token,
-        Err(error) => {
-            info!(token_error = ?error, "Token error when fetching");
-            return Err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Incorrect email or password.".to_string(),
-                None,
-            ));
-        }
+        authorization::authenticate_test_user(&mut conn, &email, &password, &app_conf).await?
+    } else {
+        let (user, _token) =
+            authorization::authenticate_moocfi_user(&mut conn, &client, email, password)
+                .await
+                .map_err(|err| {
+                    info!("Could not get user from moocfi: {err}");
+                    ControllerError::new(
+                        ControllerErrorType::Unauthorized,
+                        "Incorrect email or password.".to_string(),
+                        None,
+                    )
+                })?;
+        user
     };
-
-    let user = get_user_from_moocfi(&token, &mut conn).await;
-    match user {
-        Ok(user) => {
-            let token = skip_authorize()?;
-            authorization::remember(&session, user)?;
-            token.authorized_ok(HttpResponse::Ok().finish())
-        }
-        Err(err) => {
-            info!("Could not get user from moocfi: {err}");
-            Err(ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Incorrect email or password.".to_string(),
-                None,
-            ))
-        }
-    }
-}
-
-/**
- * HTTP Client used only for authing with TMC server, this is to ensure that TMC server
- * does not rate limit auth requests from backend
- */
-async fn async_http_client_with_headers(
-    mut request: oauth2::HttpRequest,
-) -> Result<oauth2::HttpResponse, AsyncHttpClientError> {
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
-    request.headers.append(
-        "RATELIMIT-PROTECTION-SAFE-API-KEY",
-        ratelimit_api_key.parse().map_err(|_err| {
-            AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-        })?,
-    );
-    let result = oauth2::reqwest::async_http_client(request).await?;
-    Ok(result)
+    let token = skip_authorize();
+    authorization::remember(&session, user)?;
+    token.authorized_ok(HttpResponse::Ok().finish())
 }
 
 /**
@@ -326,22 +238,34 @@ pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<b
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserInfo {
     pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
 }
 
 /**
 GET `/api/v0/auth/user-info` Returns the current user's info.
 **/
-#[generated_doc]
-#[instrument(skip(user))]
-pub async fn user_info(user: Option<AuthUser>) -> web::Json<Option<UserInfo>> {
-    if let Some(user) = user {
-        web::Json(Some(UserInfo { user_id: user.id }))
+
+#[instrument(skip(auth_user, pool))]
+pub async fn user_info(
+    auth_user: Option<AuthUser>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Option<UserInfo>>> {
+    let token = skip_authorize();
+    if let Some(auth_user) = auth_user {
+        let mut conn = pool.acquire().await?;
+        let user_details =
+            models::user_details::get_user_details_by_user_id(&mut conn, auth_user.id).await?;
+
+        token.authorized_ok(web::Json(Some(UserInfo {
+            user_id: user_details.user_id,
+            first_name: user_details.first_name,
+            last_name: user_details.last_name,
+        })))
     } else {
-        web::Json(None)
+        token.authorized_ok(web::Json(None))
     }
 }
-
-pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
 
 /// Posts new user account to tmc.mooc.fi.
 ///
@@ -382,77 +306,6 @@ pub async fn post_new_user_to_moocfi(user_details: &CreateAccountDetails) -> any
     } else {
         Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"))
     }
-}
-
-pub async fn get_user_from_moocfi(
-    token: &LoginToken,
-    conn: &mut PgConnection,
-) -> anyhow::Result<User> {
-    info!("Getting user details from mooc.fi");
-    let moocfi_graphql_url = "https://www.mooc.fi/api";
-    let client = Client::default();
-    let res = client
-        .post(moocfi_graphql_url)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(reqwest::header::ACCEPT, "application/json")
-        .json(&GraphQLRquest {
-            query: r#"
-{
-    currentUser {
-    id
-    email
-    first_name
-    last_name
-    upstream_id
-    }
-}
-            "#,
-        })
-        .bearer_auth(token.access_token().secret())
-        .send()
-        .await
-        .context("Failed to send request to Mooc.fi")?;
-    if !res.status().is_success() {
-        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
-    }
-    let current_user_response: MoocfiCurrentUserResponse = res
-        .json()
-        .await
-        .context("Unexpected response from Mooc.fi")?;
-    let MoocfiCurrentUser {
-        id: moocfi_id,
-        first_name,
-        last_name,
-        email,
-        upstream_id,
-    } = current_user_response.data.current_user;
-
-    // fetch existing user or create new one
-    let user =
-        match models::users::find_by_upstream_id(conn, upstream_id).await? {
-            Some(existing_user) => existing_user,
-            None => {
-                models::users::insert_with_upstream_id_and_moocfi_id(
-                    conn,
-                    &email,
-                    // convert empty names to None
-                    first_name.as_deref().and_then(|n| {
-                        if n.trim().is_empty() {
-                            None
-                        } else {
-                            Some(n)
-                        }
-                    }),
-                    last_name
-                        .as_deref()
-                        .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
-                    upstream_id,
-                    moocfi_id,
-                )
-                .await?
-            }
-        };
-    Ok(user)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

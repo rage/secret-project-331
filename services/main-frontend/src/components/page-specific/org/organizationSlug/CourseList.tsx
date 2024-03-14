@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,6 +10,7 @@ import {
 } from "../../../../services/backend/organizations"
 import { NewCourse } from "../../../../shared-module/bindings"
 import Button from "../../../../shared-module/components/Button"
+import Dialog from "../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
 import Pagination from "../../../../shared-module/components/Pagination"
@@ -34,9 +34,9 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getOrgCourses = useQuery(
-    [`organization-courses`, paginationInfo.page, paginationInfo.limit],
-    () => {
+  const getOrgCourses = useQuery({
+    queryKey: [`organization-courses`, paginationInfo.page, paginationInfo.limit, organizationId],
+    queryFn: () => {
       if (organizationId) {
         return fetchOrganizationCourses(organizationId, paginationInfo.page, paginationInfo.limit)
       } else {
@@ -44,12 +44,12 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
-    { enabled: !!organizationId },
-  )
+    enabled: !!organizationId,
+  })
 
-  const getOrgCourseCount = useQuery(
-    [`organization-courses-count`, organizationSlug],
-    () => {
+  const getOrgCourseCount = useQuery({
+    queryKey: [`organization-courses-count`, organizationSlug, organizationId],
+    queryFn: () => {
       if (organizationId) {
         return fetchOrganizationCourseCount(organizationId)
       } else {
@@ -57,8 +57,8 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         return Promise.reject(new Error("Organization ID undefined"))
       }
     },
-    { enabled: !!organizationId },
-  )
+    enabled: !!organizationId,
+  })
 
   const canMangeCourse = useAuthorizeMultiple(
     getOrgCourses.data?.map((course) => {
@@ -93,7 +93,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
     return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
   }
 
-  if (getOrgCourses.isLoading || getOrgCourseCount.isLoading) {
+  if (getOrgCourses.isPending || getOrgCourseCount.isPending) {
     return <Spinner variant={"medium"} />
   }
 
@@ -138,10 +138,11 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
           margin-bottom: 1rem;
         `}
       >
-        <Dialog open={newCourseFormOpen} onClose={() => setNewCourseFormOpen(!newCourseFormOpen)}>
+        <Dialog open={newCourseFormOpen} noPadding>
           <div
             className={css`
               margin: 1rem;
+              padding: 1rem;
             `}
           >
             <Button

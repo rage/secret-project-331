@@ -22,15 +22,16 @@ const CourseUsersCountsByExercise: React.FC<
   React.PropsWithChildren<CourseUsersCountsByExerciseProps>
 > = ({ courseId }) => {
   const { t } = useTranslation()
-  const query = useQuery([`course-users-counts-by-exercise-${courseId}`], () =>
-    fetchCourseUsersCountByExercise(courseId),
-  )
+  const query = useQuery({
+    queryKey: [`course-users-counts-by-exercise-${courseId}`],
+    queryFn: () => fetchCourseUsersCountByExercise(courseId),
+  })
 
   if (query.isError) {
     return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
-  if (query.isLoading || !query.data) {
+  if (query.isPending || !query.data) {
     return <Spinner variant="medium" />
   }
 

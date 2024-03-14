@@ -1,13 +1,12 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faEnvelope as emailIcon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Envelope } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
 import { useContext, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../components/Layout"
+import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import Button from "../shared-module/components/Button"
 import ErrorBanner from "../shared-module/components/ErrorBanner"
 import TextField from "../shared-module/components/InputFields/TextField"
@@ -174,144 +173,141 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   if (confirmEmailPageVisible) {
     return (
-      <Layout>
-        <Wrapper>
-          <h1>{t("message-please-confirm-your-email-address")}</h1>
-          <div
+      <Wrapper>
+        <h1>{t("message-please-confirm-your-email-address")}</h1>
+        <div
+          className={css`
+            margin: 2rem 0;
+            padding: 1rem;
+            background-color: ${baseTheme.colors.green[100]};
+            line-height: 1.7;
+            display: flex;
+            align-items: center;
+          `}
+        >
+          <Envelope
+            size={32}
             className={css`
-              margin: 2rem 0;
-              padding: 1rem;
-              background-color: ${baseTheme.colors.green[100]};
-              line-height: 1.7;
-              display: flex;
-              align-items: center;
+              font-size: 2rem;
+              margin-right: 1rem;
             `}
-          >
-            <FontAwesomeIcon
-              icon={emailIcon}
-              className={css`
-                font-size: 2rem;
-                margin-right: 1rem;
-              `}
-            />
-            <div>
-              <p>
-                {t("confirm-email-address-instructions-1")}{" "}
-                <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
-                {t("confirm-email-address-instructions-3")}
-              </p>
-              <p></p>
-            </div>
+          />
+          <div>
+            <p>
+              {t("confirm-email-address-instructions-1")}{" "}
+              <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
+              {t("confirm-email-address-instructions-3")}
+            </p>
+            <p></p>
           </div>
-          <Button
-            variant="primary"
-            size="medium"
-            onClick={() => {
-              const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-              router.push(returnTo)
-            }}
-          >
-            {t("button-text-done")}
-          </Button>
-        </Wrapper>
-      </Layout>
+        </div>
+        <Button
+          variant="primary"
+          size="medium"
+          onClick={() => {
+            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
+            router.push(returnTo)
+          }}
+        >
+          {t("button-text-done")}
+        </Button>
+        {<ResearchOnCoursesForm />}
+      </Wrapper>
     )
   }
 
   return (
-    <Layout>
-      <Wrapper>
-        <h1>{t("create-new-account")}</h1>
-        <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
-        <form
-          onSubmit={handleSubmit(async (data, event) => {
-            event?.preventDefault()
-            createAccountMutation.mutate(data)
-          })}
-        >
-          <fieldset disabled={isSubmitting}>
-            <TextField
-              label={t("first-name")}
-              placeholder={t("enter-first-name")}
-              register={register("first_name", {
-                required: t("required-field"),
-              })}
-              required={true}
-              error={errors.first_name}
-            />
-
-            <TextField
-              label={t("last-name")}
-              placeholder={t("enter-last-name")}
-              register={register("last_name", {
-                required: t("required-field"),
-              })}
-              required={true}
-              error={errors.last_name}
-            />
-            <TextField
-              label={t("email")}
-              type="email"
-              placeholder={t("enter-your-email")}
-              register={register("email", {
-                required: t("required-field"),
-                validate: {
-                  isValidEmail: (value) =>
-                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
-                },
-              })}
-              required={true}
-              error={errors.email}
-            />
-            <TextField
-              label={t("password")}
-              type="password"
-              placeholder={t("enter-your-password")}
-              register={register("password", {
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-characters"),
-                },
-              })}
-              required={true}
-              error={errors.password}
-            />
-
-            <TextField
-              label={t("confirm-password")}
-              type="password"
-              placeholder={t("confirm-your-password")}
-              register={register("password_confirmation", {
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-characters"),
-                },
-                validate: {
-                  passwordMatch: (value) => value === password || t("passwords-dont-match"),
-                },
-              })}
-              required={true}
-              error={errors.password_confirmation}
-            />
-          </fieldset>
-          <input
-            disabled={!isValid || createAccountMutation.isLoading}
-            value={t("create-an-acount")}
-            type="submit"
+    <Wrapper>
+      <h1>{t("create-new-account")}</h1>
+      <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
+      <form
+        onSubmit={handleSubmit(async (data, event) => {
+          event?.preventDefault()
+          createAccountMutation.mutate(data)
+        })}
+      >
+        <fieldset disabled={isSubmitting}>
+          <TextField
+            label={t("first-name")}
+            placeholder={t("enter-first-name")}
+            {...register("first_name", {
+              required: t("required-field"),
+            })}
+            required={true}
+            error={errors.first_name}
           />
-        </form>
-        <span className="signin-link">
-          <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
-            {t("sign-in-if-you-have-an-account")}
-          </a>
-        </span>
-        {createAccountMutation.isError && (
-          <ErrorBanner variant={"text"} error={createAccountMutation.error} />
-        )}
-      </Wrapper>
-    </Layout>
+
+          <TextField
+            label={t("last-name")}
+            placeholder={t("enter-last-name")}
+            {...register("last_name", {
+              required: t("required-field"),
+            })}
+            required={true}
+            error={errors.last_name}
+          />
+          <TextField
+            label={t("email")}
+            type="email"
+            placeholder={t("enter-your-email")}
+            {...register("email", {
+              required: t("required-field"),
+              validate: {
+                isValidEmail: (value) =>
+                  value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+              },
+            })}
+            required={true}
+            error={errors.email}
+          />
+          <TextField
+            label={t("password")}
+            type="password"
+            placeholder={t("enter-your-password")}
+            {...register("password", {
+              required: t("required-field"),
+              minLength: {
+                value: 8,
+                message: t("password-must-have-at-least-8-characters"),
+              },
+            })}
+            required={true}
+            error={errors.password}
+          />
+
+          <TextField
+            label={t("confirm-password")}
+            type="password"
+            placeholder={t("confirm-your-password")}
+            {...register("password_confirmation", {
+              required: t("required-field"),
+              minLength: {
+                value: 8,
+                message: t("password-must-have-at-least-8-characters"),
+              },
+              validate: {
+                passwordMatch: (value) => value === password || t("passwords-dont-match"),
+              },
+            })}
+            required={true}
+            error={errors.password_confirmation}
+          />
+        </fieldset>
+        <input
+          disabled={!isValid || createAccountMutation.isPending}
+          value={t("create-an-acount")}
+          type="submit"
+        />
+      </form>
+      <span className="signin-link">
+        <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
+          {t("sign-in-if-you-have-an-account")}
+        </a>
+      </span>
+      {createAccountMutation.isError && (
+        <ErrorBanner variant={"text"} error={createAccountMutation.error} />
+      )}
+    </Wrapper>
   )
 }
 

@@ -12,3 +12,31 @@ export function manageCourseRoute(courseId: string) {
 export function organizationFrontPageRoute(organizationSlug: string) {
   return `/org/${organizationSlug}`
 }
+
+export function loginRoute(returnTo: string) {
+  return `/login?return_to=${encodeURIComponent(returnTo)}`
+}
+
+export function signUpRoute(returnTo: string) {
+  return `/signup?return_to=${encodeURIComponent(returnTo)}`
+}
+
+export function manageExerciseServicesRoute() {
+  return "/manage/exercise-services"
+}
+
+export function searchUsersRoute() {
+  return "/manage/search-users"
+}
+
+export function globalPermissionsRoute() {
+  return "/manage/permissions"
+}
+
+export function globalStatsRoute() {
+  return "/stats"
+}
+
+export function allOrganizationsRoute() {
+  return "/organizations"
+}

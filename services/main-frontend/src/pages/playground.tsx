@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../components/Layout"
 import {
   deletePlaygroundExample,
   fetchPlaygroundExamples,
@@ -33,7 +32,10 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery(["playground-examples"], () => fetchPlaygroundExamples())
+  const getPlaygroundExamples = useQuery({
+    queryKey: ["playground-examples"],
+    queryFn: () => fetchPlaygroundExamples(),
+  })
   const saveMutation = useToastMutation(
     savePlaygroundExample,
     {
@@ -91,9 +93,9 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 
   const onMessage = (message: unknown, responsePort: MessagePort) => {
-    console.log(responsePort)
+    console.info(responsePort)
     // eslint-disable-next-line i18next/no-literal-string
-    console.log("received message from iframe", message)
+    console.info("received message from iframe", message)
   }
 
   useEffect(() => {
@@ -103,12 +105,12 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
     try {
       // eslint-disable-next-line i18next/no-literal-string
-      const newUrl = new URL(exampleUrl + `?width=${exampleWidth}`)
+      const newUrl = new URL(exampleUrl)
       setCombinedUrl(newUrl.toString())
       setInvalidUrl(false)
     } catch (error) {
-      console.log(error)
       setInvalidUrl(true)
+      console.error(error)
     }
   }, [exampleUrl, exampleWidth])
 
@@ -169,13 +171,13 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout>
+    <>
       <div>
         <h2>{t("title-playground-exercise-iframe")}</h2>
         {getPlaygroundExamples.isError && (
           <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
         )}
-        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
+        {getPlaygroundExamples.isPending && <Spinner variant={"medium"} />}
         {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
           <div>
             <h3>{t("title-list-of-examples")}</h3>
@@ -207,7 +209,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           value={exampleUrl || ""}
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
           label={t("label-url")}
-          onChange={(value) => handleUrlChange(value)}
+          onChangeByValue={(value) => handleUrlChange(value)}
           error={invalidUrl ? t("invalid-url") : undefined}
           className={css`
             margin-bottom: 1rem !important;
@@ -217,7 +219,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           value={String(exampleWidth) || ""}
           placeholder={t("label-width")}
           label={t("label-width")}
-          onChange={(value) => handleWidthChange(value)}
+          onChangeByValue={(value) => handleWidthChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -226,7 +228,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           value={exampleName}
           placeholder={t("label-example-name")}
           label={t("label-example-name")}
-          onChange={(value) => handleNameChange(value)}
+          onChangeByValue={(value) => handleNameChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
@@ -254,7 +256,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
             className={css`
               margin-right: 1rem;
             `}
-            disabled={saveMutation.isLoading}
+            disabled={saveMutation.isPending}
           >
             {t("button-text-save")}
           </Button>
@@ -265,7 +267,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
               onClick={handleExampleUpdate}
               variant="primary"
               size="medium"
-              disabled={updateMutation.isLoading}
+              disabled={updateMutation.isPending}
             >
               {t("button-text-update")}
             </Button>
@@ -273,7 +275,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
               onClick={handleExampleDeletion}
               variant="primary"
               size="medium"
-              disabled={deleteMutation.isLoading}
+              disabled={deleteMutation.isPending}
               className={css`
                 margin-left: 1rem;
               `}
@@ -310,7 +312,7 @@ const Home: React.FC<React.PropsWithChildren<unknown>> = () => {
           />
         </div>
       )}
-    </Layout>
+    </>
   )
 }
 

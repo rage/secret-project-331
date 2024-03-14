@@ -1,8 +1,8 @@
 import { useRouter } from "next/router"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import HistoryView from "../../../../components/page-specific/manage/pages/id/history/HistoryView"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
 
 const History: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -19,13 +19,11 @@ const History: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout navVariant="simple">
-      <div>
-        <h2>{t("title-page-edit-history")}</h2>
-        <HistoryView pageId={id} />
-      </div>
-    </Layout>
+    <div>
+      <h2>{t("title-page-edit-history")}</h2>
+      <HistoryView pageId={id} />
+    </div>
   )
 }
 
-export default History
+export default withSignedIn(History)

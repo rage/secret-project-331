@@ -19,7 +19,7 @@ test("glossary-tooltip", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "glossary-tooltips",
     beforeScreenshot: async () => {
-      await page.locator("text=KBKeyboard.").hover()
+      await page.getByText("KBKeyboard.").hover()
     },
   })
 })

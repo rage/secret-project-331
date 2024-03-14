@@ -1,9 +1,8 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchOrganizations } from "../../../../services/backend/organizations"
+import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
 import DebugModal from "../../../../shared-module/components/DebugModal"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -14,9 +13,8 @@ import { organizationCoursesPageHref } from "../../../../shared-module/utils/cro
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
-  const getOrganizations = useQuery([`organizations`], () => fetchOrganizations(), {
-    cacheTime: 60000,
-  })
+
+  const allOrganizationsQuery = useAllOrganizationsQuery()
 
   return (
     <div
@@ -35,17 +33,17 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       >
         {t("organizations-heading")}
       </h1>
-      {getOrganizations.isError && (
-        <ErrorBanner variant={"readOnly"} error={getOrganizations.error} />
+      {allOrganizationsQuery.isError && (
+        <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
       )}
-      {getOrganizations.isLoading && <Spinner variant={"medium"} />}
-      {getOrganizations.isSuccess && (
+      {allOrganizationsQuery.isPending && <Spinner variant={"medium"} />}
+      {allOrganizationsQuery.isSuccess && (
         <div
           className={css`
             margin-bottom: 1rem;
           `}
         >
-          {getOrganizations.data.map((organization) => (
+          {allOrganizationsQuery.data.map((organization) => (
             <a
               key={organization.id}
               href={organizationCoursesPageHref(organization.slug)}
@@ -149,7 +147,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           ))}
         </div>
       )}
-      <DebugModal data={getOrganizations.data} />
+      <DebugModal data={allOrganizationsQuery.data} />
     </div>
   )
 }

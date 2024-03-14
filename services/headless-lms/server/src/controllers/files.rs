@@ -119,7 +119,7 @@ async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerRe
     }
 
     // this endpoint is only used for development
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(response.body(contents))
 }
 
@@ -131,7 +131,7 @@ Used to upload data from exercise service iframes.
 The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
 */
 #[instrument(skip(payload, file_store, app_conf, upload_claim))]
-#[generated_doc]
+
 async fn upload_from_exercise_service(
     pool: web::Data<PgPool>,
     exercise_service_slug: web::Path<String>,
@@ -144,7 +144,7 @@ async fn upload_from_exercise_service(
     let mut conn = pool.acquire().await?;
     // accessed from exercise services, can't authenticate using login,
     // the upload claim is used to verify requests instead
-    let token = skip_authorize()?;
+    let token = skip_authorize();
 
     // the playground uses the special "playground" slug to upload temporary files
     if exercise_service_slug.as_str() != "playground" {
@@ -180,7 +180,7 @@ async fn upload_from_exercise_service(
         payload,
         file_store.as_ref(),
         &mut paths,
-        user.as_ref(),
+        user,
         &app_conf.base_url,
     )
     .await

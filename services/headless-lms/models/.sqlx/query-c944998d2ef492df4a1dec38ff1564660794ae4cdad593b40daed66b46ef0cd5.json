@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT c.name as course_name,\n  q.year as \"year!\",\n  q.value as \"value!\",\n  q.course_module_id as \"course_module_id!\",\n  c.id as \"course_id\",\n  cm.name as \"course_module_name\",\n  cm.ects_credits as \"course_module_ects_credits\",\n  o.id as \"organization_id\",\n  o.name as \"organization_name\"\nFROM (\n    SELECT cmcrtsr.course_module_id,\n      EXTRACT(\n        'year'\n        FROM cms.completion_date\n      )::VARCHAR as year,\n      COUNT(DISTINCT cmcrtsr.user_id) as value\n    FROM course_module_completion_registered_to_study_registries cmcrtsr\n      JOIN course_module_completions cms ON cmcrtsr.course_module_completion_id = cms.id\n    WHERE cmcrtsr.deleted_at IS NULL\n    GROUP BY cmcrtsr.course_module_id,\n      year\n    ORDER BY cmcrtsr.course_module_id,\n      year\n  ) q\n  JOIN course_modules cm ON q.course_module_id = cm.id\n  JOIN courses c ON cm.course_id = c.id\n  JOIN organizations o ON c.organization_id = o.id\nWHERE c.is_draft = FALSE\n  AND c.deleted_at IS NULL\n  AND c.is_test_mode = FALSE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "year!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "value!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_module_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_module_ects_credits",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 7,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "organization_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [false, null, null, false, false, true, true, false, false]
+  },
+  "hash": "c944998d2ef492df4a1dec38ff1564660794ae4cdad593b40daed66b46ef0cd5"
+}

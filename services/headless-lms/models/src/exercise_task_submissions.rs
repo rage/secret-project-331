@@ -8,13 +8,14 @@ use crate::{
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
+    library::custom_view_exercises::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::PeerReviewQuestion,
     prelude::*,
     CourseOrExamId,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskSubmission {
     pub id: Uuid,
@@ -36,7 +37,7 @@ pub struct PeerReviewsRecieved {
     pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SubmissionData {
     pub exercise_id: Uuid,
@@ -65,6 +66,7 @@ pub struct ExportedSubmission {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExportedCourseSubmission {
+    pub exercise_slide_submission_id: Uuid,
     pub id: Uuid,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -337,7 +339,8 @@ pub fn stream_course_submissions(
     sqlx::query_as!(
         ExportedCourseSubmission,
         "
-SELECT exercise_task_submissions.id,
+SELECT exercise_task_submissions.exercise_slide_submission_id,
+  exercise_task_submissions.id,
   user_id,
   exercise_task_submissions.created_at,
   exercise_slide_submissions.course_instance_id,
@@ -450,5 +453,100 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         };
         res.push(course_material_exercise_task);
     }
+    Ok(res)
+}
+
+pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+    course_module_id: Uuid,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<CustomViewExerciseTasks> {
+    let task_submissions =
+        crate::exercise_task_submissions::get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+            &mut *conn,
+            user_id,
+            exercise_type,
+            course_module_id,
+            course_instance_id,
+        )
+        .await?;
+    let task_gradings =
+        crate::exercise_task_gradings::get_user_exercise_task_gradings_by_module_and_exercise_type(
+            &mut *conn,
+            user_id,
+            exercise_type,
+            course_module_id,
+            course_instance_id,
+        )
+        .await?;
+
+    let exercise_tasks = crate::exercise_tasks::get_all_exercise_tasks_by_module_and_exercise_type(
+        &mut *conn,
+        exercise_type,
+        course_module_id,
+    )
+    .await?;
+    let res: CustomViewExerciseTasks = CustomViewExerciseTasks {
+        exercise_tasks,
+        task_submissions,
+        task_gradings,
+    };
+    Ok(res)
+}
+
+// get all submissions for user and course module and exercise type
+pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_type: &str,
+    module_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<CustomViewExerciseTaskSubmission>> {
+    let res: Vec<CustomViewExerciseTaskSubmission> = sqlx::query_as!(
+        CustomViewExerciseTaskSubmission,
+        r#"
+SELECT id,
+  created_at,
+  exercise_slide_submission_id,
+  exercise_slide_id,
+  exercise_task_id,
+  exercise_task_grading_id,
+  data_json
+FROM exercise_task_submissions g
+WHERE deleted_at IS NULL
+AND g.exercise_task_id IN (
+    SELECT distinct (t.id)
+    FROM exercise_tasks t
+    WHERE deleted_at IS NULL
+    AND t.exercise_slide_id IN (
+        SELECT s.exercise_slide_id
+        FROM exercise_slide_submissions s
+        WHERE s.user_id = $1
+        AND s.course_instance_id = $4
+        AND deleted_at IS NULL
+        AND s.exercise_id IN (
+            SELECT id
+            FROM exercises e
+            WHERE exercise_type = $2
+            AND deleted_at IS NULL
+            AND e.chapter_id IN (
+                SELECT id
+                FROM chapters c
+                WHERE c.course_module_id = $3
+                AND deleted_at IS NULL
+              )
+          )
+      )
+  )
+      "#,
+        user_id,
+        exercise_type,
+        module_id,
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
     Ok(res)
 }

@@ -1,13 +1,10 @@
 import { css } from "@emotion/css"
-import CancelIcon from "@mui/icons-material/Cancel"
-import CheckIcon from "@mui/icons-material/Check"
-import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
-import { IconButton } from "@mui/material"
+import { CheckCircle, Pencil, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import Button from "../../../../../../shared-module/components/Button"
 import Checkbox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import SelectField from "../../../../../../shared-module/components/InputFields/SelectField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
@@ -122,7 +119,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 color: ${baseTheme.colors.clear[100]};
               `}
               placeholder={t("name-of-module")}
-              register={register("name", { required: true })}
+              {...register("name", { required: true })}
               error={errors["name"]?.message}
             />
           ) : (
@@ -181,7 +178,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   options={chapters.map((c) => {
                     return { value: c.toString(), label: c.toString() }
                   })}
-                  register={register("starts", { required: true, valueAsNumber: true })}
+                  {...register("starts", { required: true, valueAsNumber: true })}
                   error={errors["starts"]?.message}
                 />
                 <SelectField
@@ -198,7 +195,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   options={chapters.map((cn) => {
                     return { value: cn.toString(), label: cn.toString() }
                   })}
-                  register={register("ends", { required: true, valueAsNumber: true })}
+                  {...register("ends", { required: true, valueAsNumber: true })}
                   error={errors["ends"]?.message}
                 />
               </div>
@@ -206,7 +203,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
 
             <Checkbox
               label={t("enable-automatic-completion")}
-              register={register("automatic_completion")}
+              {...register("automatic_completion")}
               className={css`
                 label {
                   color: #fff !important;
@@ -232,7 +229,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   color: #fff;
                 `}
                 placeholder={t("automatic-completion-points-treshold")}
-                register={register("automatic_completion_number_of_points_treshold", {
+                {...register("automatic_completion_number_of_points_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
@@ -249,7 +246,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 placeholder={t("automatic-completion-exercise-treshold")}
                 type="number"
-                register={register("automatic_completion_number_of_exercises_attempted_treshold", {
+                {...register("automatic_completion_number_of_exercises_attempted_treshold", {
                   valueAsNumber: true,
                   disabled: !isChecked,
                 })}
@@ -264,7 +261,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 >
                   <Checkbox
                     label={t("automatic-completion-requires-exam")}
-                    register={register("automatic_completion_requires_exam", {
+                    {...register("automatic_completion_requires_exam", {
                       disabled: !isChecked,
                     })}
                     className={css`
@@ -288,7 +285,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             >
               <Checkbox
                 label={t("override-completion-registration-link")}
-                register={register("override_completion_link")}
+                {...register("override_completion_link")}
                 className={css`
                   label {
                     color: #fff !important;
@@ -304,7 +301,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 className={css`
                   margin-bottom: 0;
                 `}
-                register={register("completion_registration_link_override", {
+                {...register("completion_registration_link_override", {
                   disabled: !overrideLink,
                   minLength: 10,
                 })}
@@ -313,7 +310,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
             </div>
             <Checkbox
               label={t("label-enable-registering-completion-to-uh-open-university")}
-              register={register("enable_registering_completion_to_uh_open_university")}
+              {...register("enable_registering_completion_to_uh_open_university")}
               className={css`
                 label {
                   color: #fff !important;
@@ -345,7 +342,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 labelStyle={css`
                   color: #fff;
                 `}
-                register={register("uh_course_code")}
+                {...register("uh_course_code")}
                 error={errors["name"]?.message}
               />
               <TextField
@@ -360,7 +357,9 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 placeholder={t("ects-credits")}
                 type="number"
-                register={register("ects_credits", {
+                // eslint-disable-next-line i18next/no-literal-string
+                step="any"
+                {...register("ects_credits", {
                   valueAsNumber: true,
                 })}
               />
@@ -380,23 +379,28 @@ const EditCourseModuleForm: React.FC<Props> = ({
           />
           {active ? (
             <>
-              <IconButton
+              <Button
                 aria-label={t("button-text-save")}
                 className={css`
-                  background-color: ${baseTheme.colors.green[400]};
                   border-radius: 0;
                   height: 3.5rem;
                   width: 3.5rem;
                 `}
                 disabled={!isValid || isSubmitting}
                 type={"submit"}
+                variant={"icon"}
+                size={"small"}
               >
-                <CheckIcon />
-              </IconButton>
-              <IconButton
+                <CheckCircle
+                  size={20}
+                  className={css`
+                    color: black;
+                  `}
+                />
+              </Button>
+              <Button
                 aria-label={t("button-text-cancel")}
                 className={css`
-                  background-color: ${baseTheme.colors.green[400]};
                   border-radius: 0;
                   height: 3.5rem;
                   width: 3.5rem;
@@ -406,38 +410,42 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   reset()
                 }}
                 disabled={isSubmitting}
+                variant={"icon"}
+                size={"small"}
               >
-                <CancelIcon />
-              </IconButton>
+                <XmarkCircle size={20} />
+              </Button>
             </>
           ) : (
-            <IconButton
+            <Button
               aria-label={t("edit")}
               className={css`
-                background-color: ${baseTheme.colors.green[400]};
                 border-radius: 0;
                 height: 3.5rem;
                 width: 3.5rem;
               `}
               onClick={() => setActive(true)}
+              variant={"icon"}
+              size={"small"}
             >
-              <EditIcon />
-            </IconButton>
+              <Pencil size={20} />
+            </Button>
           )}
           {module.name !== null && (
-            <IconButton
+            <Button
               aria-label={t("button-text-delete")}
               className={css`
-                background-color: ${baseTheme.colors.green[300]};
                 border-radius: 0;
                 height: 3.5rem;
                 width: 3.5rem;
               `}
               onClick={() => onDeleteModule(module.id)}
               disabled={isSubmitting}
+              variant={"icon"}
+              size={"small"}
             >
-              <DeleteIcon />
-            </IconButton>
+              <Trash size={20} />
+            </Button>
           )}
         </div>
       </div>

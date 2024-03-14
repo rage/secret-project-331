@@ -15,15 +15,13 @@ import {
   NavItems,
 } from "../shared-module/components/Navigation/NavBar"
 import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
 type LayoutProps = {
   children: ReactNode
-  navVariant?: "simple" | "complex"
-  faqUrl?: string
-  title?: string
-  licenseUrl?: string
+  noVisibleLayout?: boolean
 }
 
 const DynamicToaster = dynamic(
@@ -33,19 +31,16 @@ const DynamicToaster = dynamic(
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
-  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
-  navVariant,
-  licenseUrl,
+  noVisibleLayout = false,
 }) => {
   const router = useRouter()
+  // eslint-disable-next-line i18next/no-literal-string
+  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
-  return (
+  const visibleLayout = noVisibleLayout ? (
+    <>{children}</>
+  ) : (
     <>
-      <Head>
-        <title>{title}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      </Head>
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`
@@ -55,7 +50,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
       >
         <NavBar
           // faqUrl={faqUrl}
-          variant={navVariant ?? "simple"}
+          variant={"simple"}
           // Return to path can be override per page
           // returnToPath={returnToPath ?? returnPath}
         >
@@ -75,10 +70,21 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           <Centered variant="default">{children}</Centered>
         </main>
       </div>
+      <Footer />
+    </>
+  )
+
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
+      {visibleLayout}
       <DynamicToaster />
-      <Footer licenseUrl={licenseUrl} />
     </>
   )
 }
 
-export default Layout
+export default withNoSsr(Layout)

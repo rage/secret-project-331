@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import ExerciseServiceContainer from "../../../components/page-specific/manage/exercise-services/ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "../../../components/page-specific/manage/exercise-services/ExerciseServiceCreationModal"
 import {
@@ -13,6 +12,7 @@ import { ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
@@ -29,6 +29,11 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
     internal_url: "",
     max_reprocessing_submissions_at_once: 1,
   })
+
+  const sortServices = () => {
+    getExerciseServices.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
+  }
+
   const createExerciseServiceMutation = useToastMutation(
     async () => {
       if (!canSave(exerciseService)) {
@@ -41,6 +46,7 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
     {
       onSuccess: () => {
         getExerciseServices.refetch()
+        sortServices()
         handleClose()
         resetExerciseService()
       },
@@ -83,7 +89,11 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
     }
   }
 
-  const getExerciseServices = useQuery([`exercise-services`], () => fetchExerciseServices())
+  const getExerciseServices = useQuery({
+    queryKey: [`exercise-services`],
+    queryFn: () => fetchExerciseServices(),
+  })
+  sortServices()
 
   const handleClose = () => {
     setOpen(false)
@@ -94,38 +104,36 @@ const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   return (
-    <Layout navVariant={"simple"}>
-      <div>
-        <h1>{t("title-manage-exercise-services")}</h1>
-        <Button onClick={openModal} variant="primary" size="medium">
-          {t("button-text-new")}
-        </Button>
-        <br />
-        {getExerciseServices.isError && (
-          <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
-        )}
-        {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
-        {getExerciseServices.isSuccess && (
-          <>
-            <ExerciseServiceContainer
-              exerciseServices={getExerciseServices.data}
-              refetch={getExerciseServices.refetch}
-            />
-            <ExerciseServiceCreationModal
-              open={open}
-              handleClose={handleClose}
-              exercise_service={exerciseService}
-              onChange={onChangeCreationModal}
-              onChangeName={onChangeName}
-              handleSubmit={async () => {
-                createExerciseServiceMutation.mutateAsync()
-              }}
-            />
-          </>
-        )}
-      </div>
-    </Layout>
+    <div>
+      <h1>{t("title-manage-exercise-services")}</h1>
+      <Button onClick={openModal} variant="primary" size="medium">
+        {t("button-text-new")}
+      </Button>
+      <br />
+      {getExerciseServices.isError && (
+        <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
+      )}
+      {getExerciseServices.isPending && <Spinner variant={"medium"} />}
+      {getExerciseServices.isSuccess && (
+        <>
+          <ExerciseServiceContainer
+            exerciseServices={getExerciseServices.data}
+            refetch={getExerciseServices.refetch}
+          />
+          <ExerciseServiceCreationModal
+            open={open}
+            handleClose={handleClose}
+            exercise_service={exerciseService}
+            onChange={onChangeCreationModal}
+            onChangeName={onChangeName}
+            handleSubmit={async () => {
+              createExerciseServiceMutation.mutateAsync()
+            }}
+          />
+        </>
+      )}
+    </div>
   )
 }
 
-export default withErrorBoundary(ExerciseServicePage)
+export default withErrorBoundary(withSignedIn(ExerciseServicePage))

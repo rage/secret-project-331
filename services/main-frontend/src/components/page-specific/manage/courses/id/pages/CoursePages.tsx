@@ -11,16 +11,17 @@ import ManageCourseStructure from "./ManageCourseStructure"
 const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
-  const getCourseStructure = useQuery([`course-structure-${courseId}`], () =>
-    fetchCourseStructure(courseId),
-  )
+  const getCourseStructure = useQuery({
+    queryKey: [`course-structure-${courseId}`],
+    queryFn: () => fetchCourseStructure(courseId),
+  })
 
   return (
     <>
       {getCourseStructure.isError && (
         <ErrorBanner variant={"link"} error={getCourseStructure.error} />
       )}
-      {getCourseStructure.isLoading && <Spinner variant={"medium"} />}
+      {getCourseStructure.isPending && <Spinner variant={"medium"} />}
       {getCourseStructure.isSuccess && (
         <ManageCourseStructure
           courseStructure={getCourseStructure.data}

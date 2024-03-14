@@ -1,4 +1,5 @@
 {
+  "about": "Tietoja",
   "about-mooc-center": "MOOC-keskuksesta",
   "about-mooc-center-description": "MOOC keskus luo mukautettuja verkkokursseja Helsingin yliopistolle. Se on vastuussa kaikista suosituista kursseista, jotka ovat olleet käytössä mooc.fi osoitteessa vuodesta 2012. Kurssien alusta on kehitetty talon sisällä MOOC-keskuksessa yliopiston työntekijöiden ja opiskelijoiden voimin.",
   "about-this-project": "Tietoa projektista",
@@ -43,7 +44,9 @@
   "home-page": "Kotisivu",
   "in-this-page": "Tällä sivulla",
   "instruction": "Ohje",
+  "label-false": "Ei",
   "label-items-per-page": "Tuloksia sivulla",
+  "label-true": "Kyllä",
   "language": "Kieli",
   "leave-a-comment": "Jätä kommentti",
   "license": "Lisenssi",
@@ -56,6 +59,7 @@
   "log-in": "Kirjaudu sisään",
   "log-out": "Kirjaudu ulos",
   "modules": "Moduulit",
+  "mooc-project-description": "Tämä verkkosivusto pyörii Helsingin yliopiston MOOC-keskuksen kehittämällä avoimen lähdekoodin ohjelmistolla.",
   "navigation-menu": "Navigaatiovalikko",
   "next-page": "Seuraava sivu",
   "no": "Ei",
@@ -97,7 +101,8 @@
   "to-complete-this-chapter": "Suorittaaksesi tämän luvun",
   "translate": "Käännä",
   "university-of-helsinki": "Helsingin yliopisto",
+  "user-settings": "Käyttäjän asetukset",
   "what-you-will-learn": "Mitä opit tässä luvussa",
   "write-a-review": "Kirjoita arvostelu",
-  "yes": "Yes"
+  "yes": "Kyllä"
 }

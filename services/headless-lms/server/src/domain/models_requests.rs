@@ -18,13 +18,15 @@ use headless_lms_models::{
 use headless_lms_utils::error::backend_error::BackendError;
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
+use models::SpecFetcher;
 use sha2::Sha256;
 use std::{borrow::Cow, fmt::Debug, sync::Arc};
 use url::Url;
 
 use super::error::{ControllerError, ControllerErrorType};
 
-const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update";
+// keep in sync with the shared-module constants
+const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
 
 #[derive(Clone, Debug)]
@@ -232,19 +234,16 @@ pub struct SpecRequest<'a> {
 /// The slug and jwt key are used for an upload claim that allows the service
 /// to upload files as part of the spec.
 pub fn make_spec_fetcher(
+    base_url: String,
     request_id: Uuid,
     jwt_key: Arc<JwtKey>,
-) -> impl Fn(Url, &str, Option<&serde_json::Value>) -> BoxFuture<'static, ModelResult<serde_json::Value>>
-{
+) -> impl SpecFetcher {
     move |url, exercise_service_slug, private_spec| {
         let client = reqwest::Client::new();
         let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug.into());
-        // TODO: use real url
-        let upload_url = Some(format!(
-            "http://project-331.local/api/v0/files/{exercise_service_slug}"
-        ));
+        let upload_url = Some(format!("{base_url}/api/v0/files/{exercise_service_slug}"));
         let req = client
-            .post(url)
+            .post(url.clone())
             .header(
                 EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER,
                 upload_claim.sign(&jwt_key),
@@ -258,11 +257,21 @@ pub fn make_spec_fetcher(
             .send();
         async move {
             let res = req.await.map_err(reqwest_err)?;
-            if !res.status().is_success() {
-                let error = res.text().await.unwrap_or_default();
+            let status_code = res.status();
+            if !status_code.is_success() {
+                let error_text = res.text().await;
+                let error = error_text.as_deref().unwrap_or("(No text in response)");
+                error!(
+                    ?url,
+                    ?exercise_service_slug,
+                    ?private_spec,
+                    ?status_code,
+                    "Exercise service returned an error while generating a spec: {}",
+                    error
+                );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
-                    format!("Failed to generate spec for exercise: {}.", error,),
+                    format!("Failed to generate spec for exercise for {exercise_service_slug}: {error}."),
                     None,
                 ));
             }
@@ -313,7 +322,7 @@ pub fn make_grading_request_sender(
         let client = reqwest::Client::new();
         // TODO: use real url
         let grading_update_url = format!(
-            "http://project-331.local/api/v0/exercise-services/grading/update-grading/{}",
+            "http://project-331.local/api/v0/exercise-services/grading/grading-update/{}",
             submission.id
         );
         let grading_update_claim = GradingUpdateClaim::expiring_in_1_day(submission.id);
@@ -338,10 +347,15 @@ pub fn make_grading_request_sender(
                     ?response_body,
                     "Grading request returned an unsuccesful status code"
                 );
+                let source_error = ModelError::new(
+                    ModelErrorType::Generic,
+                    format!("{:?}", response_body),
+                    None,
+                );
                 return Err(ModelError::new(
                     ModelErrorType::Generic,
                     "Grading failed".to_string(),
-                    None,
+                    Some(source_error.into()),
                 ));
             }
             let obj = res

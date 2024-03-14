@@ -1,6 +1,6 @@
 use crate::{course_module_completions, prelude::*};
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct CourseModuleCompletionRegisteredToStudyRegistry {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,7 +14,7 @@ pub struct CourseModuleCompletionRegisteredToStudyRegistry {
     pub real_student_number: String,
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct NewCourseModuleCompletionRegisteredToStudyRegistry {
     pub course_id: Uuid,
     pub course_module_completion_id: Uuid,
@@ -142,4 +142,23 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Get the number of students that have completed the course
+pub async fn get_count_of_distinct_users_with_registrations_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(DISTINCT user_id) as count
+FROM course_module_completion_registered_to_study_registries
+WHERE course_id = $1
+  AND deleted_at IS NULL
+",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0))
 }

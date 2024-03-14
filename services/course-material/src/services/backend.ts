@@ -10,6 +10,7 @@ import {
   CourseMaterialPeerReviewDataWithToken,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
+  CustomViewExerciseSubmissions,
   ExamData,
   ExamEnrollment,
   IsChapterFrontPage,
@@ -17,16 +18,21 @@ import {
   NewFeedback,
   NewMaterialReference,
   NewProposedPageEdits,
+  NewResearchFormQuestionAnswer,
   OEmbedResponse,
   Page,
   PageAudioFile,
   PageChapterAndCourseInformation,
   PageNavigationInformation,
-  PageSearchRequest,
   PageSearchResult,
   PageWithExercises,
   PeerReviewsRecieved,
+  ResearchForm,
+  ResearchFormQuestion,
+  ResearchFormQuestionAnswer,
   SaveCourseSettingsPayload,
+  SearchRequest,
+  StudentCountry,
   StudentExerciseSlideSubmission,
   StudentExerciseSlideSubmissionResult,
   Term,
@@ -45,6 +51,7 @@ import {
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewDataWithToken,
   isCoursePageWithUserData,
+  isCustomViewExerciseSubmissions,
   isExamData,
   isIsChapterFrontPage,
   isMaterialReference,
@@ -56,6 +63,10 @@ import {
   isPageSearchResult,
   isPageWithExercises,
   isPeerReviewsRecieved,
+  isResearchForm,
+  isResearchFormQuestion,
+  isResearchFormQuestionAnswer,
+  isStudentCountry,
   isStudentExerciseSlideSubmissionResult,
   isTerm,
   isUserCourseInstanceChapterExerciseProgress,
@@ -67,6 +78,8 @@ import {
 import {
   isArray,
   isNull,
+  isNumber,
+  isObjectMap,
   isString,
   isUnion,
   validateResponse,
@@ -330,7 +343,7 @@ export const postSubmission = async (
 }
 
 export const searchPagesWithPhrase = async (
-  searchRequest: PageSearchRequest,
+  searchRequest: SearchRequest,
   courseId: string,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
@@ -341,7 +354,7 @@ export const searchPagesWithPhrase = async (
 }
 
 export const searchPagesWithWords = async (
-  searchRequest: PageSearchRequest,
+  searchRequest: SearchRequest,
   courseId: string,
 ): Promise<Array<PageSearchResult>> => {
   const response = await courseMaterialClient.post(
@@ -452,6 +465,39 @@ export const fetchCourseLanguageVersions = async (courseId: string): Promise<Arr
   return validateResponse(response, isArray(isCourse))
 }
 
+export const postStudentCountry = async (
+  course_id: string,
+  course_instance_id: string,
+  country_code: string,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/courses/${course_id}/course-instances/${course_instance_id}/student-countries/${country_code}`,
+  )
+}
+
+export const fetchStudentCountry = async (course_instance_id: string): Promise<StudentCountry> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_instance_id}/student-country`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isStudentCountry)
+}
+
+export const fetchStudentCountries = async (
+  course_id: string,
+  course_instance_id: string,
+): Promise<{ [key: string]: number }> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/course-instances/${course_instance_id}/student-countries`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isObjectMap(isNumber))
+}
+
 export const fetchPageByCourseIdAndLanguageGroupId = async (
   course_id: string,
   page_language_group_id: string,
@@ -463,4 +509,84 @@ export const fetchPageByCourseIdAndLanguageGroupId = async (
     },
   )
   return validateResponse(response, isPage)
+}
+
+export const fetchResearchFormWithCourseId = async (
+  courseId: string,
+): Promise<ResearchForm | null> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/research-consent-form`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isUnion(isResearchForm, isNull))
+}
+
+export const fetchResearchFormQuestionsWithCourseId = async (
+  course_id: string,
+): Promise<Array<ResearchFormQuestion>> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/research-consent-form-questions`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isResearchFormQuestion))
+}
+
+export const fetchResearchFormAnswersWithUserId = async (
+  course_id: string,
+): Promise<Array<ResearchFormQuestionAnswer>> => {
+  const response = await courseMaterialClient.get(
+    `/courses/${course_id}/research-consent-form-user-answers`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isArray(isResearchFormQuestionAnswer))
+}
+
+export const postResearchFormUserAnswer = async (
+  courseId: string,
+  user_id: string,
+  research_form_question_id: string,
+  research_consent: boolean,
+): Promise<string> => {
+  const answer: NewResearchFormQuestionAnswer = {
+    user_id,
+    research_form_question_id,
+    research_consent,
+  }
+  const response = await courseMaterialClient.post(
+    `/courses/${courseId}/research-consent-form-questions-answer`,
+    answer,
+  )
+  return validateResponse(response, isString)
+}
+
+export const fetchCourseModuleExercisesAndSubmissionsByType = async (
+  courseModuleId: string,
+  exercise_type: string,
+  courseInstanceId: string,
+): Promise<CustomViewExerciseSubmissions> => {
+  const res = await courseMaterialClient.get(
+    `/course-modules/${courseModuleId}/exercise-tasks/${exercise_type}/${courseInstanceId}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isCustomViewExerciseSubmissions)
+}
+
+export const fetchModuleIdByChapterId = async (chapter_id: string) => {
+  const res = await courseMaterialClient.get(`/course-modules/chapter/${chapter_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(res, isString)
+}
+
+export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
+  console.log("in here")
+  const res = await courseMaterialClient.get(`/course-modules/course/${course_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(res, isString)
 }

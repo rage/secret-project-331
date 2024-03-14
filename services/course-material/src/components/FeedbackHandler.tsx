@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { Menu, MenuItem } from "@mui/material"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -85,35 +84,58 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
             z-index: 1100;
           `}
         >
-          <Menu
-            open={feedbackMenuAnchor !== null}
-            anchorEl={feedbackMenuAnchor}
-            onClose={() => setFeedbackMenuAnchor(null)}
-          >
-            <MenuItem
-              onClick={() => {
-                setFeedbackMenuAnchor(null)
-                setFeedbackDialogOpen(true)
-                setLastSelection("")
-              }}
+          {feedbackMenuAnchor !== null && (
+            <div
+              className={css`
+                display: flex;
+                flex-direction: column;
+                background: white;
+                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+                padding: 10px;
+                position: fixed;
+                bottom: 20px;
+                right: 25px;
+                z-index: 1110;
+              `}
             >
-              {t("written-feedback")}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                setFeedbackMenuAnchor(null)
-                setEditProposalDialogOpen(true)
-                onEnterEditProposalMode()
-              }}
-            >
-              {t("improve-material")}
-            </MenuItem>
-          </Menu>
+              <Button
+                onClick={() => {
+                  setFeedbackMenuAnchor(null)
+                  setFeedbackDialogOpen(true)
+                  setLastSelection("")
+                }}
+                variant={"icon"}
+                transform="capitalize"
+                size={"small"}
+              >
+                {t("written-feedback")}
+              </Button>
+              <Button
+                onClick={() => {
+                  setFeedbackMenuAnchor(null)
+                  setEditProposalDialogOpen(true)
+                  onEnterEditProposalMode()
+                }}
+                variant={"icon"}
+                transform="capitalize"
+                size={"small"}
+              >
+                {t("improve-material")}
+              </Button>
+            </div>
+          )}
+
           <Button
             className="give-feedback-button"
             variant={"primary"}
             size={"medium"}
-            onClick={(ev) => setFeedbackMenuAnchor(ev.currentTarget)}
+            onClick={(ev) => {
+              if (feedbackMenuAnchor !== null) {
+                setFeedbackMenuAnchor(null)
+              } else {
+                setFeedbackMenuAnchor(ev.currentTarget)
+              }
+            }}
           >
             {t("give-feedback")}
           </Button>

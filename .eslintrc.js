@@ -1,7 +1,13 @@
 /* eslint-disable i18next/no-literal-string */
 
-const DETECT_CSS_REGEX = /\S+:\s+[^\n]+;/
+const DETECT_CSS_REGEX = /:.*;/
+const DETECT_CSS_REGEX_2 = /!important/
+const DETECT_CSS_REGEX_3 = /;.*:/s
 const DETECT_PX_REGEX = /^\d+px$/
+const DETECT_REM_REGEX = /^\d+rem$/
+const DETECT_EM_REGEX = /^\d+em$/
+const DETECT_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$/
+
 module.exports = {
   env: {
     browser: true,
@@ -9,6 +15,8 @@ module.exports = {
     node: true,
   },
   extends: [
+    "plugin:@next/next/recommended",
+    "plugin:@tanstack/eslint-plugin-query/recommended",
     "plugin:i18next/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:react-hooks/recommended",
@@ -28,13 +36,15 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint", "import", "eslint-custom-rules"],
+  plugins: ["react", "@typescript-eslint", "@tanstack/query", "import", "eslint-custom-rules"],
   settings: {
     react: {
       version: "detect",
     },
   },
   rules: {
+    // Should be investigated later
+    "@next/next/no-img-element": "off",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "no-unused-vars": "off",
@@ -53,80 +63,6 @@ module.exports = {
       {
         paths: [
           {
-            name: "@mui/material",
-            importNames: ["Grid"],
-            message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
-          },
-          {
-            name: "@mui/material/Grid",
-            importNames: ["default"],
-            message: "Don't use Grid from @material-ui. Please use either css flexbox or css grid.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Container"],
-            message:
-              "Don't use Container from @material-ui. Please use Centered from shared-module.",
-          },
-          {
-            name: "@mui/material/Container",
-            importNames: ["default"],
-            message:
-              "Don't use Container from @material-ui. Please use Centered from shared-module.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Typography"],
-            message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
-          },
-          {
-            name: "@mui/material/Typography",
-            importNames: ["default"],
-            message: "Don't use Typography from @material-ui. Please use p, h1, h2, h3...",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Button"],
-            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
-          },
-          {
-            name: "@mui/material/Button",
-            importNames: ["default"],
-            message: "Don't use Button from @material-ui. Please use Button from shared-module.",
-          },
-          {
-            name: "@mui/material/Pagination",
-            importNames: ["default"],
-            message:
-              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Pagination"],
-            message:
-              "Don't use Pagination from @material-ui. Please use Pagination from shared-module.",
-          },
-          {
-            name: "@mui/material/Box",
-            importNames: ["default"],
-            message: "Don't use Box from @material-ui. Please use a div.",
-          },
-          {
-            name: "@mui/material",
-            importNames: ["Box"],
-            message: "Don't use Box from @material-ui. Please use a div.",
-          },
-          {
-            name: "@mui/styles",
-            importNames: ["withStyles"],
-            message: "Don't use withStyles from @material-ui. Please use emotion.js.",
-          },
-          {
-            name: "@mui/styles/withStyles",
-            importNames: ["default"],
-            message: "Don't use withStyles from @material-ui. Please use emotion.js.",
-          },
-          {
             name: "@emotion/react",
             importNames: ["css"],
             message: 'Use this instead: import { css } from "@emotion/css"',
@@ -140,8 +76,6 @@ module.exports = {
         ],
       },
     ],
-    "eslint-custom-rules/ban-ts-ignore-without-comment": "error",
-    "eslint-custom-rules/no-material-ui-grid-component": "error",
     "react/forbid-component-props": [
       "error",
       {
@@ -190,61 +124,128 @@ module.exports = {
     "i18next/no-literal-string": [
       "error",
       {
-        validateTemplate: true,
+        mode: "all",
+        message: "Untranslated string",
+        "should-validate-template": true,
         // only add attributes here that are guranteed to never contain traslatable strings
-        ignoreAttribute: [
-          "variant",
-          "size",
-          "href",
-          "severity",
-          "navVariant",
-          "aria-labelledby",
-          "aria-describedby",
-          "url",
-          "labelId",
-          "defaultLanguage",
-          "color",
-          "labelPlacement",
-          "role",
-          "aria-hidden",
-          "maxWidth",
-          "transform",
-          "viewBox",
-          "testPlaceholder",
-          "sidebarPosition",
-          "buttonSize",
-          "labelStyle",
-          "data-testid",
-        ],
-        ignore: [DETECT_CSS_REGEX, DETECT_PX_REGEX],
-        ignoreCallee: [
-          "div",
-          "useQuery",
-          "useQueryParameter",
-          "get",
-          "post",
-          "put",
-          "delete",
-          "create",
-          "styled",
-          "css",
-          "register",
-          "setValue",
-          "getValues",
-          "watch",
-          "useMediaQuery",
-          "console.log",
-          "console.error",
-          "Error",
-        ],
-        ignoreProperty: ["type"],
+        "jsx-components": {
+          exclude: ["Trans"],
+        },
+        "jsx-attributes": {
+          exclude: [
+            "className",
+            "styleName",
+            "style",
+            "type",
+            "key",
+            "id",
+            "width",
+            "height",
+            "variant",
+            "size",
+            "href",
+            "severity",
+            "navVariant",
+            "aria-labelledby",
+            "aria-describedby",
+            "url",
+            "labelId",
+            "defaultLanguage",
+            "color",
+            "labelPlacement",
+            "role",
+            "aria-hidden",
+            "maxWidth",
+            "transform",
+            "viewBox",
+            "testPlaceholder",
+            "sidebarPosition",
+            "buttonSize",
+            "labelStyle",
+            "data-testid",
+            "weight",
+            "action",
+            "tagName",
+          ],
+        },
+        words: {
+          exclude: [
+            DETECT_CSS_REGEX,
+            DETECT_CSS_REGEX_2,
+            DETECT_CSS_REGEX_3,
+            DETECT_PX_REGEX,
+            DETECT_REM_REGEX,
+            DETECT_EM_REGEX,
+            DETECT_COLOR_REGEX,
+            "[0-9!-/:-@[-`{-~]+",
+            "[A-Z_-]+",
+            /^\p{Emoji}+$/u,
+          ],
+        },
+        callees: {
+          exclude: [
+            "i18n(ext)?",
+            "t",
+            "require",
+            "addEventListener",
+            "removeEventListener",
+            "postMessage",
+            "getElementById",
+            "dispatch",
+            "commit",
+            "includes",
+            "indexOf",
+            "endsWith",
+            "startsWith",
+            "div",
+            "useQuery",
+            "useQueryParameter",
+            "get",
+            "post",
+            "put",
+            "delete",
+            "create",
+            "styled",
+            "css",
+            "register",
+            "setValue",
+            "getValues",
+            "watch",
+            "useMediaQuery",
+            "log",
+            "error",
+            "warn",
+            "info",
+            "group",
+            "Error",
+            "querySelector",
+            "usePopper",
+            "i18n.on",
+            "i18n.off",
+            "createElement",
+            "localStorage.setItem",
+            "localStorage.getItem",
+            "differenceBy",
+            "accessor",
+            "useTranslation",
+            "sortBy",
+            "split",
+            "JSON.parse",
+          ],
+        },
+        "object-properties": {
+          exclude: ["type", "[A-Z_-]+", "displayName"],
+        },
+        "class-properties": {
+          exclude: ["displayName"],
+        },
       },
     ],
     curly: "error",
   },
   overrides: [
     {
-      files: ["system-tests/**/*"],
+      files: ["system-tests/**/*", "**.test.tsx", "**.test.ts"],
       rules: {
         "i18next/no-literal-string": "off",
       },
@@ -256,6 +257,8 @@ module.exports = {
         "playwright/no-focused-test": "off",
         "playwright/prefer-strict-equal": "error",
         "playwright/prefer-to-be": "error",
+        "playwright/valid-expect": "off",
+        "playwright/expect-expect": "off",
       },
     },
   ],

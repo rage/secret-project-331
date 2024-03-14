@@ -1,4 +1,4 @@
-// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.31.1/crates/tmc-langs-cli/bindings.d.ts
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.32.0/crates/tmc-langs-cli/bindings.d.ts
 
 export type Locale = string
 
@@ -87,6 +87,7 @@ export type DataKind =
   | { "output-data-kind": "submission-finished"; "output-data": SubmissionFinished }
   | { "output-data-kind": "config-value"; "output-data": ConfigValue }
   | { "output-data-kind": "tmc-config"; "output-data": TmcConfig }
+  | { "output-data-kind": "compressed-project-hash"; "output-data": string }
   | { "output-data-kind": "submission-sandbox"; "output-data": string }
 
 export interface NewSubmission {

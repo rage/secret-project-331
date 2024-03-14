@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
+test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
   // Mock response from example.com so that the test does not actually make a request there
   await page.route("https://example.com/iframe", (route) =>
     route.fulfill({
@@ -15,7 +15,7 @@ test("test", async ({ page, headless }, testInfo) => {
       body: `<body><style> body { background-color: black; color: white; font-family: "Arial"; } </style><h1>Example domain</h1><p>This is a mocked response from example.com.</p></body>`,
     }),
   )
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

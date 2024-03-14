@@ -22,19 +22,21 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
 }) => {
   const { t } = useTranslation()
   const [showNewLanguageVersionForm, setShowNewLanguageVersionForm] = useState(false)
-  const getCourseQuery = useQuery([`course-${courseId}`], () => getCourse(courseId))
+  const getCourseQuery = useQuery({
+    queryKey: [`course-${courseId}`],
+    queryFn: () => getCourse(courseId),
+  })
 
   const handleCreateNewLanguageVersion = async (newCourse: NewCourse) => {
     await postNewCourseTranslation(courseId, newCourse)
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries([formatLanguageVersionsQueryKey(courseId)])
+    queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
   }
-
   return (
     <>
       {getCourseQuery.isError && <ErrorBanner error={getCourseQuery.error} variant={"readOnly"} />}
-      {getCourseQuery.isLoading && <Spinner variant={"medium"} />}
+      {getCourseQuery.isPending && <Spinner variant={"medium"} />}
       {getCourseQuery.isSuccess && (
         <>
           {showNewLanguageVersionForm && (
@@ -44,6 +46,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               organizationId={getCourseQuery.data.organization_id}
               handleSubmit={handleCreateNewLanguageVersion}
               onClose={() => setShowNewLanguageVersionForm(false)}
+              courseId={courseId}
             />
           )}
           <h2

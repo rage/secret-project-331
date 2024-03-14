@@ -8,7 +8,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseService {
     pub id: Uuid,
@@ -24,16 +24,18 @@ pub struct ExerciseService {
 }
 
 /// Exercise service definition that the CMS can use to render the editor view.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceIframeRenderingInfo {
     pub id: Uuid,
     pub name: String,
     pub slug: String,
     pub public_iframe_url: String,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_custom_view: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceNewOrUpdate {
     pub name: String,
@@ -233,6 +235,7 @@ pub async fn get_all_exercise_services_iframe_rendering_infos(
                         name: exercise_service.name,
                         slug: exercise_service.slug,
                         public_iframe_url: url.to_string(),
+                        has_custom_view: service_info.has_custom_view,
                     })
                 } else {
                     warn!(exercise_service_id = ?exercise_service.id, "Skipping exercise service from the list because it has an invalid base url");

@@ -1,6 +1,6 @@
 use crate::{course_background_questions::CourseBackgroundQuestion, prelude::*};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestionAnswer {
     pub id: Uuid,
@@ -12,7 +12,7 @@ pub struct CourseBackgroundQuestionAnswer {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseBackgroundQuestionAnswer {
     pub answer_value: Option<String>,
@@ -61,8 +61,11 @@ INSERT INTO course_background_question_answers (
     user_id,
     answer_value
   )
-VALUES ($1, $2, $3) ON CONFLICT (course_background_question_id, user_id)
-WHERE deleted_at IS NULL DO
+VALUES ($1, $2, $3) ON CONFLICT (
+    course_background_question_id,
+    user_id,
+    deleted_at
+  ) DO
 UPDATE
 SET answer_value = $3
         "#,
@@ -70,7 +73,7 @@ SET answer_value = $3
             user_id,
             answer.answer_value
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await?;
     }
 

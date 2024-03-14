@@ -64,7 +64,9 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
         }
         :focus {
           background: ${theme.secondary.focusBg};
-          box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+          box-shadow:
+            rgba(17, 17, 26, 0.1) 0px 4px 16px,
+            rgba(17, 17, 26, 0.05) 0px 8px 32px;
         }
         :hover {
           background: ${isActive ? theme.secondary.activeBg : theme.secondary.hoverBg};
@@ -72,7 +74,7 @@ const TabLink: React.FC<React.PropsWithChildren<React.PropsWithChildren<TabLinkP
         }
       `}
     >
-      <span>{children}</span> {count?.isLoading && <Spinner variant="small" disableMargin />}
+      <span>{children}</span> {count?.isPending && <Spinner variant="small" disableMargin />}
       {count?.isSuccess && count.data !== 0 && (
         <span
           className={css`

@@ -1,8 +1,6 @@
-use headless_lms_utils::ApplicationConfiguration;
-
 use crate::prelude::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct User {
     pub id: Uuid,
@@ -31,7 +29,7 @@ RETURNING id
         pkey_policy.into_uuid(),
         email_domain
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let _res2 = sqlx::query!(
@@ -44,7 +42,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(res.id)
@@ -73,7 +71,7 @@ RETURNING *;
         upstream_id,
         email_domain
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
 
     let _res2 = sqlx::query!(
@@ -86,7 +84,7 @@ VALUES ($1, $2, $3, $4)
         first_name,
         last_name
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(user)
@@ -153,43 +151,6 @@ pub async fn find_by_upstream_id(
     Ok(user)
 }
 
-// Only used for testing, not to use in production.
-pub async fn authenticate_test_user(
-    conn: &mut PgConnection,
-    email: &str,
-    password: &str,
-    application_configuration: &ApplicationConfiguration,
-) -> ModelResult<User> {
-    // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
-    assert!(application_configuration.test_mode);
-    let user = if email == "admin@example.com" && password == "admin" {
-        crate::users::get_by_email(conn, "admin@example.com").await?
-    } else if email == "teacher@example.com" && password == "teacher" {
-        crate::users::get_by_email(conn, "teacher@example.com").await?
-    } else if email == "language.teacher@example.com" && password == "language.teacher" {
-        crate::users::get_by_email(conn, "language.teacher@example.com").await?
-    } else if email == "user@example.com" && password == "user" {
-        crate::users::get_by_email(conn, "user@example.com").await?
-    } else if email == "assistant@example.com" && password == "assistant" {
-        crate::users::get_by_email(conn, "assistant@example.com").await?
-    } else if email == "creator@example.com" && password == "creator" {
-        crate::users::get_by_email(conn, "creator@example.com").await?
-    } else if email == "student1@example.com" && password == "student.1" {
-        crate::users::get_by_email(conn, "student1@example.com").await?
-    } else if email == "student2@example.com" && password == "student.2" {
-        crate::users::get_by_email(conn, "student2@example.com").await?
-    } else if email == "student3@example.com" && password == "student.3" {
-        crate::users::get_by_email(conn, "student3@example.com").await?
-    } else {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Invalid email or password".to_string(),
-            None,
-        ));
-    };
-    Ok(user)
-}
-
 /// Includes all users who have returned an exercise on a course course instance
 pub async fn get_all_user_ids_with_user_exercise_states_on_course_instance(
     conn: &mut PgConnection,
@@ -251,6 +212,45 @@ AND deleted_at IS NULL
     .fetch_all(&mut *conn)
     .await?;
     Ok(res.iter().map(|x| x.id).collect::<Vec<_>>())
+}
+
+pub async fn update_email_for_user(
+    conn: &mut PgConnection,
+    upstream_id: &i32,
+    new_email: String,
+) -> ModelResult<()> {
+    info!("Updating user (Upstream id: {upstream_id})");
+    let mut tx = conn.begin().await?;
+
+    let user = sqlx::query_as!(
+        User,
+        "SELECT * FROM users WHERE upstream_id = $1",
+        upstream_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        "UPDATE user_details SET email = $1 WHERE user_id = $2",
+        new_email,
+        user.id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    let email_domain = new_email.trim().split('@').last();
+    sqlx::query!(
+        "UPDATE users SET email_domain = $1 WHERE id = $2",
+        email_domain,
+        user.id,
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+
+    info!("Email change succeeded");
+    Ok(())
 }
 
 pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

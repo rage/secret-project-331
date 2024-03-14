@@ -20,7 +20,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "../../shared-module/src/components/OnlyRenderIfPermissions.tsx"
+    "../cms/src/components/forms/NewResearchConsentForm.tsx"
   ],
   "exclude": ["node_modules"]
 }

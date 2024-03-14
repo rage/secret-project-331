@@ -9,18 +9,30 @@ export const queryClient = new QueryClient({
       // for example if the user is supposed to edit the data.
       // If caching is desired, this can be explicitly overriden when using
       // the hooks.
-      cacheTime: 10,
+      gcTime: 10,
       // Same applies here too
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: (failureCount, error) => {
+        console.warn(`Query failed (attempt ${failureCount + 1})`)
         // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const statusCode: number | undefined = (error as any)?.status
+
+        const statusCode: number | undefined =
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (error as any)?.request?.status ?? (error as any)?.status
         if (statusCode && Math.floor(statusCode / 100) === 4) {
+          console.info(
+            `Not retrying because the status code indicated the error was a client error (${statusCode})`,
+          )
           return false
         }
-        return failureCount < 3
+        const willRetry = failureCount < 3
+        if (willRetry) {
+          console.info("Retrying... (${statusCode})")
+        } else {
+          console.info("Maximum number of retries reached. Not retrying anymore. (${statusCode})")
+        }
+        return willRetry
       },
     },
   },

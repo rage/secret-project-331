@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use futures::Stream;
 
-use crate::prelude::*;
+use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletion {
     pub id: Uuid,
@@ -26,7 +26,7 @@ pub struct CourseModuleCompletion {
     pub completion_granter_user_id: Option<Uuid>,
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,
     User(Uuid),
@@ -41,7 +41,7 @@ impl CourseModuleCompletionGranter {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
@@ -182,7 +182,7 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletionWithRegistrationInfo {
     /// When the student has attempted to register the completion.
@@ -236,7 +236,7 @@ WHERE completions.course_instance_id = $1
 
 /// Gets all module completions for the user on a single course instance. There can be multiple modules
 /// in a single course, so the result is a `Vec`.
-pub async fn get_all_by_course_instance_and_user_ids(
+pub async fn get_all_by_course_instance_and_user_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
     user_id: Uuid,
@@ -251,6 +251,25 @@ WHERE course_instance_id = $1
   AND deleted_at IS NULL
         ",
         course_instance_id,
+        user_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_by_user_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        ",
         user_id,
     )
     .fetch_all(conn)
@@ -309,6 +328,25 @@ LIMIT 1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// Get the number of students that have completed the course
+pub async fn get_count_of_distinct_completors_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        "
+SELECT COUNT(DISTINCT user_id) as count
+FROM course_module_completions
+WHERE course_id = $1
+  AND deleted_at IS NULL
+",
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.count.unwrap_or(0))
 }
 
 /// Gets automatically granted course module completion for the given user on the specified course
@@ -397,7 +435,7 @@ pub async fn user_has_completed_course_module_on_instance(
 }
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryCompletion {
     /// The date when the student completed the course. The value of this field is the date that will
@@ -478,7 +516,7 @@ impl From<CourseModuleCompletion> for StudyRegistryCompletion {
 ///   }
 /// }
 /// ```
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudyRegistryGrade {
     pub scale: String,
@@ -503,25 +541,42 @@ impl StudyRegistryGrade {
         }
     }
 }
-
+/// Streams completions.
+///
+/// If no_completions_registered_by_this_study_registry_registrar is None, then all completions are streamed.
 pub fn stream_by_course_module_id<'a>(
     conn: &'a mut PgConnection,
     course_module_ids: &'a [Uuid],
-) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + 'a {
-    sqlx::query_as!(
+    no_completions_registered_by_this_study_registry_registrar: &'a Option<StudyRegistryRegistrar>,
+) -> impl Stream<Item = sqlx::Result<StudyRegistryCompletion>> + Send + 'a {
+    // If this is none, we're using a null uuid, which will never match anything. Therefore, no completions will be filtered out.
+    let study_module_registrar_id = no_completions_registered_by_this_study_registry_registrar
+        .clone()
+        .map(|o| o.id)
+        .unwrap_or(Uuid::nil());
+    let res = sqlx::query_as!(
         CourseModuleCompletion,
         r#"
 SELECT *
 FROM course_module_completions
 WHERE course_module_id = ANY($1)
   AND prerequisite_modules_completed
-  AND eligible_for_ects
+  AND eligible_for_ects IS TRUE
   AND deleted_at IS NULL
+  AND id NOT IN (
+    SELECT course_module_completion_id
+    FROM course_module_completion_registered_to_study_registries
+    WHERE course_module_id = ANY($1)
+      AND study_registry_registrar_id = $2
+      AND deleted_at IS NULL
+  )
         "#,
         course_module_ids,
+        study_module_registrar_id,
     )
     .map(StudyRegistryCompletion::from)
-    .fetch(conn)
+    .fetch(conn);
+    res
 }
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {

@@ -16,7 +16,7 @@ import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import {
   CurrentStateMessageData,
   EditorExercisePublicSpec,
-  IframeState,
+  ExerciseIframeState,
   MessageToParent,
   ModelSolutionSpec,
   PrivateSpec,
@@ -27,7 +27,7 @@ import {
 const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
   const iframeId = v4().slice(0, 4)
 
-  const [state, setState] = useState<IframeState | null>(null)
+  const [state, setState] = useState<ExerciseIframeState | null>(null)
   const [fileUploadResponse, setFileUploadResponse] = useState<UploadResultMessage | null>(null)
   const router = useRouter()
   const rawMaxWidth = router?.query?.width
@@ -38,7 +38,7 @@ const Iframe: React.FC<React.PropsWithChildren<unknown>> = () => {
 
   const setStateAndSend = (
     port: MessagePort | null,
-    updater: (state: IframeState | null) => IframeState | null,
+    updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null,
   ) => {
     if (!port) {
       return
@@ -188,7 +188,7 @@ const publicSpecToTemplateUserAnswer = (publicSpec: PublicSpec): UserAnswer => {
   } else if (publicSpec.type == "editor") {
     return { type: "editor", archiveDownloadUrl: publicSpec.archiveDownloadUrl }
   } else {
-    throw "unreachable"
+    throw new Error("unreachable")
   }
 }
 

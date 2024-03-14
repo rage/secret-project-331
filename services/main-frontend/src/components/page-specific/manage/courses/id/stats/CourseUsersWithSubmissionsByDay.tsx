@@ -22,27 +22,25 @@ const CourseUsersWithSubmissionsByDay: React.FC<
   React.PropsWithChildren<CourseUsersWithSubmissionsByDayProps>
 > = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseDailySubmissionCounts = useQuery(
-    [`course-daily-users-count-with-submissionss`, courseId],
-    () => fetchCourseDailyUserCountsWithSubmissions(courseId),
-    {
-      select: (data) => {
-        const eChartsData = groupBy(data, (o) => {
-          const dateString = o.date as string | null
-          const year = dateString?.substring(0, dateString.indexOf("-"))
-          return year
-        })
-        const maxValue = max(data.map((o) => o.count)) || 10000
-        return { apiData: data, eChartsData, maxValue }
-      },
+  const getCourseDailySubmissionCounts = useQuery({
+    queryKey: [`course-daily-users-count-with-submissionss`, courseId],
+    queryFn: () => fetchCourseDailyUserCountsWithSubmissions(courseId),
+    select: (data) => {
+      const eChartsData = groupBy(data, (o) => {
+        const dateString = o.date as string | null
+        const year = dateString?.substring(0, dateString.indexOf("-"))
+        return year
+      })
+      const maxValue = max(data.map((o) => o.count)) || 10000
+      return { apiData: data, eChartsData, maxValue }
     },
-  )
+  })
 
   if (getCourseDailySubmissionCounts.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
   }
 
-  if (getCourseDailySubmissionCounts.isLoading) {
+  if (getCourseDailySubmissionCounts.isPending) {
     return <Spinner variant={"medium"} />
   }
 

@@ -29,6 +29,7 @@ interface RequiredAttributes {
   backgroundColor: string | undefined
   fontColor?: string | undefined
   alignCenter?: boolean | undefined
+  alignBottom?: boolean | undefined
   backgroundRepeatX: boolean | undefined
   useDefaultTextForLabel?: boolean | undefined
   partiallyTransparent?: boolean | undefined
@@ -37,11 +38,12 @@ interface RequiredAttributes {
 interface BackgroundAndColorCustomizerProps {
   attributes: RequiredAttributes
   setAttributes: (attributes: Partial<RequiredAttributes>) => void
+  noAlign?: boolean
 }
 
 const BackgroundAndColorCustomizer: React.FC<
   React.PropsWithChildren<BackgroundAndColorCustomizerProps>
-> = ({ attributes, setAttributes }) => {
+> = ({ attributes, setAttributes, noAlign }) => {
   const { t } = useTranslation()
   const alignCenter = attributes.alignCenter == undefined || attributes.alignCenter
   const useDefaultTextForLabel =
@@ -76,7 +78,6 @@ const BackgroundAndColorCustomizer: React.FC<
           }}
           onSelect={(media) => {
             setAttributes({ backgroundImage: media.url })
-            console.log({ media })
           }}
           accept={ALLOWED_MIMETYPES_FOR_UPLOAD.join(",")}
           allowedTypes={ALLOWED_MIMETYPES_FOR_UPLOAD}
@@ -118,11 +119,20 @@ const BackgroundAndColorCustomizer: React.FC<
         checked={attributes.backgroundRepeatX}
         onChange={() => setAttributes({ backgroundRepeatX: !attributes.backgroundRepeatX })}
       />
-      <CheckBox
-        label={t("label-align-center")}
-        checked={alignCenter}
-        onChange={() => setAttributes({ alignCenter: !alignCenter })}
-      />
+      {!noAlign && (
+        <>
+          <CheckBox
+            label={t("label-align-center")}
+            checked={alignCenter}
+            onChange={() => setAttributes({ alignCenter: !alignCenter })}
+          />
+          <CheckBox
+            label={t("label-align-bottom")}
+            checked={attributes.alignBottom}
+            onChange={() => setAttributes({ alignBottom: !attributes.alignBottom })}
+          />
+        </>
+      )}
       <CheckBox
         label={t("use-default-text-for-label")}
         checked={useDefaultTextForLabel}

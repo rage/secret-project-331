@@ -1,21 +1,22 @@
 import { expect, test } from "@playwright/test"
 
 import { downloadToString } from "../../utils/download"
+import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+test("Managing course instances works", async ({ page, headless }, testInfo) => {
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-  await await page
+  await page
     .locator("[aria-label=\"Manage course 'Advanced course instance management'\"] svg")
     .click()
   await expect(page).toHaveURL(
@@ -30,16 +31,16 @@ test("test", async ({ page, headless }, testInfo) => {
     screenshotTarget: page,
   })
 
-  await page.locator("text=Export submissions as CSV").scrollIntoViewIfNeeded()
+  await page.getByText("Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
 
   const [submissionsDownload] = await Promise.all([
     page.waitForEvent("download"),
-    page.getByRole("link", { name: "Export submissions as CSV" }).click(),
+    page.getByRole("link", { name: "Export submissions (exercise tasks) as CSV" }).click(),
   ])
 
   const submissionsCsvContents = await downloadToString(submissionsDownload)
   expect(submissionsCsvContents).toContain(
-    "id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
+    "exercise_slide_submission_id,exercise_task_submission_id,user_id,created_at,course_instance_id,exercise_id,exercise_task_id,score_given,data_json",
   )
   expect(submissionsCsvContents).toContain("e10557bd-9835-51b4-b0d9-f1d9689ebc8d")
   expect(submissionsCsvContents).toContain(
@@ -66,7 +67,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "new-course-instance-form",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=New course instance")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("New course instance")],
     screenshotTarget: page,
   })
 
@@ -77,7 +78,9 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.fill("#supportEmail", "support@example.com")
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2099-01-01T23:59")
-  await page.locator("text=Submit").click()
+
+  await showNextToastsInfinitely(page)
+  await page.getByText("Submit").click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4/course-instances",
   )
@@ -89,10 +92,9 @@ test("test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
     screenshotTarget: page,
   })
+  await showToastsNormally(page)
 
-  await page.click(
-    "text=Default Manage Manage emails Manage permissions View Completions View Points Export points >> a",
-  )
+  await page.click("text=Default Manage >> a")
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/211556f5-7793-5705-ac63-b84465916da5",
   )
@@ -101,7 +103,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "initial-management-page",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Course instance default")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Course instance default")],
     screenshotTarget: page,
     clearNotifications: true,
   })
@@ -112,7 +114,7 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "initial-management-page-editing",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Name").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Name").first()],
     screenshotTarget: page,
   })
 
@@ -124,13 +126,13 @@ test("test", async ({ page, headless }, testInfo) => {
   await page.fill("text=Opening time", "2000-01-01T00:00")
   await page.fill("text=Closing time", "2098-01-01T23:59")
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await page.evaluate(() => {
     window.scrollTo(0, 0)
   })
 
-  await page.waitForSelector("text=Instance is open and ends at")
+  await page.getByText("Instance is open and ends at").waitFor()
 
   await page.evaluate(() => {
     const divs = document.querySelectorAll("div")
@@ -149,11 +151,12 @@ test("test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "management-page-after-changes",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Success").first()],
+    waitForTheseToBeVisibleAndStable: [page.getByText("newsupport@example.com").first()],
     screenshotTarget: page,
+    clearNotifications: true,
   })
 
-  await page.locator("text=Delete").click()
+  await page.getByText("Delete").click()
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 

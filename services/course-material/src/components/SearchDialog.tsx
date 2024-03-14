@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faXmark as closeIcon, faSearch } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { MagnifyingGlass, XmarkCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -17,7 +16,6 @@ import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
 
 export interface SearchDialogProps {
   courseId: string
-  courseSlug: string
   organizationSlug: string
 }
 
@@ -32,6 +30,8 @@ const HeaderBar = styled.div`
 `
 
 const StyledIcon = css`
+  right: -8px;
+  bottom: -2px;
   :hover {
     cursor: pointer;
   }
@@ -107,24 +107,20 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     setOpen(true)
   }
 
-  const openModalOnEnter = (event: React.KeyboardEvent<SVGSVGElement>) => {
-    if (event.key == "Enter") {
-      setOpen(true)
-    }
-  }
-
   return (
     <>
-      <FontAwesomeIcon
+      <Button
         tabIndex={0}
         id="search-for-pages-button"
         className={cx(StyledIcon)}
-        icon={faSearch}
         aria-label={t("button-label-search-for-pages")}
         aria-hidden={false}
+        size="small"
+        variant="icon"
         onClick={openModal}
-        onKeyPress={openModalOnEnter}
-      />
+      >
+        <MagnifyingGlass size={16} weight="bold" />
+      </Button>
       <Dialog open={open} onClose={closeModal} noPadding aria-labelledby="search-for-pages-button">
         <div
           className={css`
@@ -139,18 +135,18 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
             `}
           >
             <HeaderBar>
-              <FontAwesomeIcon
+              <MagnifyingGlass
+                weight="bold"
                 className={css`
                   margin-right: -23px;
                   z-index: 2;
                   font-size: 22px;
                   position: relative;
-                  right: -9px;
+                  right: -8px;
                   color: ${baseTheme.colors.gray[400]};
                 `}
-                icon={faSearch}
-                aria-label={t("button-label-search-for-pages")}
               />
+
               <input
                 className={css`
                   display: flex;
@@ -185,7 +181,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                 aria-label={t("close")}
                 onClick={closeModal}
               >
-                <FontAwesomeIcon icon={closeIcon} />
+                <XmarkCircle />
               </Button>
             </HeaderBar>
             <div
@@ -204,6 +200,9 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
                       <Link
                         href={`/${organizationSlug}/courses/${result.url_path}`}
                         key={result.id}
+                        onClick={() => {
+                          setOpen(false)
+                        }}
                         className={css`
                           text-decoration: none;
                           color: unset;

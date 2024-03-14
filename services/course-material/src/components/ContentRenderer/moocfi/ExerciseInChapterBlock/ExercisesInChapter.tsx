@@ -12,10 +12,10 @@ import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage
 const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
 > = ({ chapterId, courseInstanceId }) => {
-  const getChaptersPagesWithExercises = useQuery(
-    [`chapter-${chapterId}-pages-with-exercises`],
-    () => fetchChaptersPagesWithExercises(chapterId),
-  )
+  const getChaptersPagesWithExercises = useQuery({
+    queryKey: [`chapter-${chapterId}-pages-with-exercises`],
+    queryFn: () => fetchChaptersPagesWithExercises(chapterId),
+  })
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 
@@ -24,7 +24,7 @@ const ExercisesInChapter: React.FC<
       {getChaptersPagesWithExercises.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersPagesWithExercises.error} />
       )}
-      {getChaptersPagesWithExercises.isLoading && <Spinner variant={"medium"} />}
+      {getChaptersPagesWithExercises.isPending && <Spinner variant={"medium"} />}
       {getChaptersPagesWithExercises.isSuccess && (
         <>
           {getChaptersPagesWithExercises.data.map((page) => (

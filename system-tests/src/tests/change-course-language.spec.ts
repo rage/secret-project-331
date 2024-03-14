@@ -7,8 +7,8 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+test("Changing course language works", async ({ page, headless }, testInfo) => {
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Mathematics and Statistics" })
     .click()
@@ -16,14 +16,14 @@ test("test", async ({ page, headless }, testInfo) => {
   await selectCourseInstanceIfPrompted(page)
 
   await page.getByRole("button", { name: "Open menu" }).click()
-  await page.getByRole("button", { name: "Settings" }).click()
+  await page.getByRole("button", { name: "Settings", exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "course-lang-selection-eng-to-fi",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Choose your preferred language")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("Choose your preferred language")],
   })
   const value = page.locator("#changeLanguage")
   await value?.selectOption({ label: "Suomi" })
@@ -31,21 +31,25 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Oletus").first().click()
   await page.getByRole("button", { name: "Jatka" }).click()
+  await page.getByRole("heading", { name: "Kurssin asetukset" }).waitFor({ state: "hidden" })
 
   await page.getByRole("heading", { name: "Kurssin yhteenveto" }).waitFor()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin",
   )
 
-  await page.getByRole("button", { name: "Avaa valikko" }).click()
-  await page.getByRole("button", { name: "Asetukset" }).click()
+  // await page.getByRole("button", { name: "Avaa valikko" }).click()
+  await page.getByRole("button", { name: "Asetukset", exact: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "course-lang-selection-fi-to-eng",
-    waitForTheseToBeVisibleAndStable: [page.locator("text=Valitse kieli")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("Valitse kieli"),
+      page.locator("id=language-flag"),
+    ],
   })
 
   const value1 = page.locator("#changeLanguage")
@@ -58,5 +62,19 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-mathstat/courses/introduction-to-citations",
+  )
+  // Make sure the language menu changes the course language version
+  await page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
+  await page.getByRole("link", { name: "2 Page 2" }).click()
+  await page.getByText("First chapters second page.").click()
+  await page.getByRole("button", { name: "Language" }).click()
+  await page.getByRole("button", { name: "Suomi" }).click()
+  await page
+    .getByRole("link", {
+      name: "Olet tekemässä kurssia jo toisella kielellä. Ennen kuin vastaat mihinkään tehtävään, palaa kieliversioon Introduction to citations (English) tai vaihda käytössä oleva kieli kurssin asetuksista.",
+    })
+    .waitFor()
+  await expect(page).toHaveURL(
+    "http://project-331.local/org/uh-mathstat/courses/johdatus-sitaatioihin/chapter-1/page-2",
   )
 })

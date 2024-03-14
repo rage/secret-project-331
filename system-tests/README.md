@@ -21,7 +21,7 @@ npm run test-nohtml # runs tests without the html report
 npm run test-headed # runs tests with with a visible browser
 npm run test-slowmo # runs tests in slow motion
 npm run test-video # runs tests and records a video to `system-tests/test-results`
-npm run test-debug # For debuggin a test https://playwright.dev/docs/debug#run-in-debug-mode
+npm run test-debug # For debugging a test https://playwright.dev/docs/debug#run-in-debug-mode
 npm run test-ui # opens the playwright ui
 npm run open # opens playwright without running tests
 ```
@@ -38,6 +38,20 @@ To start recording, run one of the following:
 
 Create a new test file somewhere in `src/tests/` named e.g. `foo.spec.ts`.<br />
 Once you've recorded, copy the code automatically written by the recorder to your newly created test file and manually insert assertions where necessary.
+
+## Running tests from the repo root
+
+The following commands are avaialle for running the tests directly from the repo root:
+
+- `bin/system-tests-debug` &mdash; Running tests with a debugger that can be used to step through the code
+- `bin/system-tests-record-test-admin` &mdash; Record a test as admin
+- `bin/system-tests-record-test-teacher` &mdash; Record a test as teacher
+- `bin/system-tests-record-test-user` &mdash; Record a test as user
+- `bin/system-tests-record-test-without-resetting-db` &mdash; Record a test without resetting the database
+- `bin/system-tests-run-tests` &mdash; Run tests
+- `bin/system-tests-update-snapshots` &mdash; Update image snapshots
+- `bin/system-tests-run-tests-record-video` &mdash; Run tests and record a video of the test run that is saved to `system-tests/test-results`
+- `bin/system-tests-run-tests-slowmo` &mdash; Run tests with the browser visible in slow motion
 
 ## Helper functions
 

@@ -17,14 +17,15 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const { t } = useTranslation()
   const pageContext = useContext(PageContext)
   const courseInstanceId = pageContext.instance?.id
-  const getUserCourseProgress = useQuery(
-    [`course-instance-${courseInstanceId}-progress`],
-    () => fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
-    { enabled: !!courseInstanceId },
-  )
+  const getUserCourseProgress = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-progress`],
+    queryFn: () =>
+      fetchUserCourseProgress(courseInstanceId as NonNullable<typeof courseInstanceId>),
+    enabled: !!courseInstanceId,
+  })
   const loginStateContext = useContext(LoginStateContext)
 
-  if (pageContext.state !== "ready" || loginStateContext.isLoading) {
+  if (pageContext.state !== "ready" || loginStateContext.isPending) {
     return <Spinner variant={"small"} />
   }
   if (!loginStateContext.signedIn) {
@@ -39,7 +40,7 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
       {getUserCourseProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
       )}
-      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
+      {getUserCourseProgress.isPending && <Spinner variant={"medium"} />}
       {getUserCourseProgress.isSuccess && (
         <CourseProgress userCourseInstanceProgress={getUserCourseProgress.data} />
       )}

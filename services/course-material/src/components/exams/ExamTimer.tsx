@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faCheckCircle, faClock } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { CheckCircle, ClockTime } from "@vectopus/atlas-icons-react"
 import { hoursToSeconds, secondsToHours, secondsToMinutes } from "date-fns"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
@@ -64,18 +63,15 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
 
   return (
     <div
-      className={cx(
-        css`
-          display: flex;
-          flex-direction: row;
-          flex-wrap: wrap;
-        `,
-      )}
+      className={cx(css`
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+      `)}
     >
       {maxScore && (
         <InfoBoxLightGreenMedium>
-          <FontAwesomeIcon
-            icon={faCheckCircle}
+          <CheckCircle
             className={css`
               color: ${baseTheme.colors.green[200]};
               margin-right: 0.5rem;
@@ -97,8 +93,7 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
         </InfoBoxLightGreenMedium>
       )}
       <InfoBoxLightGreenMedium>
-        <FontAwesomeIcon
-          icon={faClock}
+        <ClockTime
           className={css`
             margin: 0.5rem;
           `}

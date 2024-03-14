@@ -8,7 +8,7 @@ test.use({
 })
 
 test("exam list renders, can create exam", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.click(
@@ -16,20 +16,24 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     ),
   ])
 
-  await page.locator("text=Exams").nth(1).click()
+  await page.getByText("Exams").nth(1).click()
 
+  await page.getByText("Introduction to Everything").first().waitFor()
+  await page.getByRole("link", { name: "Automatic course exam" }).last().waitFor()
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
+
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "exam-listing",
+    useCoordinatesFromTheBottomForSavingYCoordinates: true,
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("link", { name: "Automatic course exam" }).last(),
     ],
   })
 
-  await page.locator("text=ManageCre >> button").click()
+  await page.getByRole("button", { name: "Create" }).nth(1).click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page.locator("id=new-exam-dialog"),
@@ -37,11 +41,11 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     testInfo,
     snapshotName: "create-exam-dialog",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Name"),
-      page.locator("text=Starts at"),
-      page.locator("text=Ends at"),
-      page.locator("text=Time in minutes"),
-      page.locator("text=duplicate"),
+      page.getByText("Name"),
+      page.getByText("Starts at"),
+      page.getByText("Ends at"),
+      page.getByText("Time in minutes"),
+      page.getByText("duplicate"),
     ],
   })
 
@@ -63,13 +67,13 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     testInfo,
     snapshotName: "create-exam-dialog-filled",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Name"),
-      page.locator("text=Starts at"),
-      page.locator("text=Ends at"),
-      page.locator("text=Time in minutes"),
-      page.locator("text=duplicate"),
+      page.getByText("Name"),
+      page.getByText("Starts at"),
+      page.getByText("Ends at"),
+      page.getByText("Time in minutes"),
+      page.getByText("duplicate"),
     ],
   })
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 })

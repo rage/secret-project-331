@@ -80,10 +80,14 @@ const StyledFailedIcon = styled(FailedIcon)`
 `
 
 export interface ModuleCardProps {
+  certificateConfigurationId: string | null
   module: UserModuleCompletionStatus
 }
 
-const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module }) => {
+const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
+  certificateConfigurationId,
+  module,
+}) => {
   const { t } = useTranslation()
   const { grade, passed, prerequisite_modules_completed } = module
   const numericGrade = grade?.toString()
@@ -107,7 +111,10 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({ module
       >
         {module.name}
       </h2>
-      <CongratulationsLinks module={module} />
+      <CongratulationsLinks
+        certificateConfigurationId={certificateConfigurationId}
+        module={module}
+      />
     </Wrapper>
   )
 }

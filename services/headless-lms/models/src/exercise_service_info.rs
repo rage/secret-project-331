@@ -10,7 +10,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ExerciseServiceInfo {
     pub exercise_service_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -19,24 +19,28 @@ pub struct ExerciseServiceInfo {
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
     pub model_solution_spec_endpoint_path: String,
+    //#[serde(skip_serializing_if = "Option::is_none")]
+    pub has_custom_view: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PathInfo {
     pub exercise_service_id: Uuid,
     pub user_interface_iframe_path: String,
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
     pub model_solution_spec_endpoint_path: String,
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_custom_view: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceInfoApi {
     pub service_name: String,
@@ -44,6 +48,8 @@ pub struct ExerciseServiceInfoApi {
     pub grade_endpoint_path: String,
     pub public_spec_endpoint_path: String,
     pub model_solution_spec_endpoint_path: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub has_custom_view: Option<bool>,
 }
 
 pub async fn insert(
@@ -58,16 +64,18 @@ INSERT INTO exercise_service_info (
     user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_spec_endpoint_path
+    model_solution_spec_endpoint_path,
+    has_custom_view
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *
 ",
         exercise_service_info.exercise_service_id,
         exercise_service_info.user_interface_iframe_path,
         exercise_service_info.grade_endpoint_path,
         exercise_service_info.public_spec_endpoint_path,
-        exercise_service_info.model_solution_spec_endpoint_path
+        exercise_service_info.model_solution_spec_endpoint_path,
+        exercise_service_info.has_custom_view
     )
     .fetch_one(conn)
     .await?;
@@ -114,21 +122,24 @@ INSERT INTO exercise_service_info(
     user_interface_iframe_path,
     grade_endpoint_path,
     public_spec_endpoint_path,
-    model_solution_spec_endpoint_path
+    model_solution_spec_endpoint_path,
+    has_custom_view
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
   public_spec_endpoint_path = $4,
-  model_solution_spec_endpoint_path = $5
+  model_solution_spec_endpoint_path = $5,
+  has_custom_view = $6
 RETURNING *
     "#,
         exercise_service_id,
         update.user_interface_iframe_path,
         update.grade_endpoint_path,
         update.public_spec_endpoint_path,
-        update.model_solution_spec_endpoint_path
+        update.model_solution_spec_endpoint_path,
+        update.has_custom_view.unwrap_or_else(|| false)
     )
     .fetch_one(conn)
     .await?;

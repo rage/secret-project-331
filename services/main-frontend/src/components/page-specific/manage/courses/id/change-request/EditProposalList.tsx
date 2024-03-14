@@ -23,15 +23,16 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getEditProposalCount = useQuery([`edit-proposal-count-${courseId}`], () =>
-    fetchEditProposalCount(courseId),
-  )
+  const getEditProposalCount = useQuery({
+    queryKey: [`edit-proposal-count-${courseId}`],
+    queryFn: () => fetchEditProposalCount(courseId),
+  })
 
   if (getEditProposalCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
   }
 
-  if (getEditProposalCount.isLoading) {
+  if (getEditProposalCount.isPending) {
     return <Spinner variant="medium" />
   }
 

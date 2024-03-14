@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use chrono::NaiveDate;
 use futures::future::BoxFuture;
+use rand::prelude::SliceRandom;
 use url::Url;
 
 use crate::{
@@ -30,7 +31,7 @@ pub struct AnswerRequiringAttention {
     pub submission_id: Uuid,
     pub exercise_id: Uuid,
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
@@ -42,7 +43,7 @@ pub struct NewExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmission {
     pub id: Uuid,
@@ -70,7 +71,7 @@ impl ExerciseSlideSubmission {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub id: Uuid,
@@ -81,14 +82,14 @@ pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCountByExercise {
     pub exercise_id: Uuid,
@@ -96,7 +97,7 @@ pub struct ExerciseSlideSubmissionCountByExercise {
     pub exercise_name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
@@ -234,11 +235,11 @@ pub async fn try_to_get_random_filtered_by_user_and_submissions(
     excluded_user_id: Uuid,
     excluded_ids: &[Uuid],
 ) -> ModelResult<Option<ExerciseSlideSubmission>> {
-    // TODO: Filter to only latest submission per student.
-    let res = sqlx::query_as!(
+    let mut res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
+SELECT DISTINCT ON (user_id)
+  id,
   created_at,
   updated_at,
   deleted_at,
@@ -254,15 +255,18 @@ WHERE exercise_id = $1
   AND id <> ALL($2)
   AND user_id <> $3
   AND deleted_at IS NULL
-ORDER BY random() ASC
+ORDER BY user_id, created_at DESC
         "#,
         exercise_id,
         excluded_ids,
         excluded_user_id,
     )
-    .fetch_optional(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(res)
+    // shuffle the res vec
+    let mut rng = rand::thread_rng();
+    res.shuffle(&mut rng);
+    Ok(res.into_iter().next())
 }
 
 pub async fn get_by_exercise_id(
@@ -292,6 +296,40 @@ LIMIT $2 OFFSET $3;
         exercise_id,
         pagination.limit(),
         pagination.offset(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+pub async fn get_users_all_submissions_for_course_instance_or_exam(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let (course_instance_id, exam_id) = course_instance_id_or_exam_id.to_instance_and_exam_ids();
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  exercise_slide_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  exercise_id,
+  user_id,
+  user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE user_id = $1
+  AND (course_instance_id = $2 OR exam_id = $3)
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        course_instance_id,
+        exam_id,
     )
     .fetch_all(conn)
     .await?;
@@ -401,6 +439,7 @@ SELECT id,
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
+ORDER BY created_at DESC
 LIMIT $2 OFFSET $3
         "#,
         exercise_id,

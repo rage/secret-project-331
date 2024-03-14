@@ -3,35 +3,37 @@ use std::sync::Arc;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::programs::seed::seed_helpers::{
     create_best_exercise, create_best_peer_review, create_page, example_exercise_flexible,
-    paragraph, quizzes_exercise, submit_and_grade,
+    paragraph, quizzes_exercise, submit_and_grade, tmc_exercise,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
+use headless_lms_models::certificate_configurations::DatabaseCertificateConfiguration;
 use headless_lms_models::pages::PageUpdateArgs;
+use headless_lms_models::{certificate_configuration_to_requirements, CourseOrExamId};
 use headless_lms_models::{
-    chapters,
+    certificate_configurations, chapters,
     chapters::NewChapter,
     course_instance_enrollments,
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, NewCourseModule},
     courses::NewCourse,
-    feedback,
+    exercise_repositories, feedback,
     feedback::{FeedbackBlock, NewFeedback},
-    glossary, library,
+    file_uploads, glossary, library,
     library::content_management::CreateNewCourseFixedIds,
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
-    peer_review_configs::PeerReviewAcceptingStrategy::{
-        AutomaticallyAcceptOrManualReviewByAverage, AutomaticallyAcceptOrRejectByAverage,
+    peer_review_configs::PeerReviewProcessingStrategy::{
+        AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections, PKeyPolicy,
+    repository_exercises, url_redirections, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
@@ -39,21 +41,36 @@ use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-use super::seed_helpers::heading;
+use super::seed_helpers::{heading, CommonExerciseData};
 
-#[allow(clippy::too_many_arguments)]
+#[derive(Clone)]
+pub struct CommonCourseData {
+    pub db_pool: Pool<Postgres>,
+    pub organization_id: Uuid,
+    pub admin_user_id: Uuid,
+    pub student_user_id: Uuid,
+    pub example_normal_user_ids: Arc<Vec<Uuid>>,
+    pub jwt_key: Arc<JwtKey>,
+    pub base_url: String,
+}
+
 pub async fn seed_sample_course(
-    db_pool: &Pool<Postgres>,
-    org: Uuid,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
-    admin: Uuid,
-    student: Uuid,
-    users: &[Uuid],
-    jwt_key: Arc<JwtKey>,
+    common_course_data: CommonCourseData,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        admin_user_id: admin,
+        student_user_id: student,
+        example_normal_user_ids: users,
+        jwt_key,
+        base_url,
+    } = common_course_data;
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -66,6 +83,7 @@ pub async fn seed_sample_course(
         description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     let (course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -223,7 +241,7 @@ pub async fn seed_sample_course(
         &mut conn,
         PKeyPolicy::Generate,
         &NewCourseModule::new(course.id, Some("Another module".to_string()), 1)
-            .set_ects_credits(Some(5)),
+            .set_ects_credits(Some(5.0)),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -356,15 +374,17 @@ pub async fn seed_sample_course(
         Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_1_id,
-        exercise_1_slide_1_id,
-        exercise_1_slide_1_task_1_id,
-        block_id_2,
         block_id_3,
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_1_id,
+            exercise_slide_id: exercise_1_slide_1_id,
+            exercise_task_id: exercise_1_slide_1_task_1_id,
+            block_id: block_id_2,
+        },
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -386,6 +406,7 @@ pub async fn seed_sample_course(
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -421,37 +442,43 @@ pub async fn seed_sample_course(
     let exercise_4_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
     let (exercise_block_2, exercise_2, slide_2, task_2) = create_best_exercise(
-        exercise_2_id,
-        exercise_2_slide_1_id,
-        exercise_2_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_2_id,
+            exercise_slide_id: exercise_2_slide_1_id,
+            exercise_task_id: exercise_2_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
+        },
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
-        exercise_3_id,
-        exercise_3_slide_1_id,
-        exercise_3_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_3_id,
+            exercise_slide_id: exercise_3_slide_1_id,
+            exercise_task_id: exercise_3_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
+        },
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
-        exercise_4_id,
-        exercise_4_slide_1_id,
-        exercise_4_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
         Uuid::new_v5(&course_id, b"389e80bd-5f91-40c7-94ff-7dda1eeb96fb"),
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_4_id,
+            exercise_slide_id: exercise_4_slide_1_id,
+            exercise_task_id: exercise_4_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
+        },
     );
 
     let page2_id = create_page(
@@ -476,11 +503,12 @@ pub async fn seed_sample_course(
                 exercise_block_4,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
 
-    url_redirections::insert(
+    url_redirections::upsert(
         &mut conn,
         PKeyPolicy::Generate,
         page2_id,
@@ -496,10 +524,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_1,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
-        Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
-        Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
-        Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
         Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
         true,
         serde_json::json!({
@@ -548,6 +572,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
+            block_id: Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
+        },
     );
 
     let (
@@ -557,10 +587,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_2,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
-        Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
-        Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
-        Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
         Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
         false,
         serde_json::json!({
@@ -586,7 +612,7 @@ pub async fn seed_sample_course(
                 "direction": "row",
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
-                "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
+                "validityRegex": r"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$".to_string(),
                 "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
                 "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
@@ -610,6 +636,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
+            block_id: Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
+        },
     );
 
     let (
@@ -619,10 +651,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_3,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
-        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
-        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
-        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
         Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
         false,
         serde_json::json!({
@@ -691,6 +719,12 @@ pub async fn seed_sample_course(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+            block_id: Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        },
     );
 
     let (
@@ -700,99 +734,83 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_4,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
-        Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
-        Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
-        Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
         false,
         serde_json::json!({
-            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-            "body": "very hard",
-            "open": "2021-12-17T07:15:33.479Z",
-            "part": 0,
-            "items": [{
-                "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
-                "body": null,
-                "type": "clickable-multiple-choice",
-                "multi": true,
-                "multipleChoiceMultipleOptionsGradingPolicy": "default",
-                "order": 0,
-                "title": "Pick all the programming languages from below",
-                "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-                "options": [
-                    {
-                        "id": "55a63887-a896-425c-91ae-2f85032c3d58",
-                        "body": "Java",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Java is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
-                        "body": "Erlang",
-                        "order": 2,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null,
-                    },
-                    {
-                        "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
-                        "body": "Jupiter",
-                        "order": 3,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
-                        "body": "Rust",
-                        "order": 4,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Rust is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
-                        "body": "AC",
-                        "order": 5,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "AC is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                ],
-                "allAnswersCorrect": false,
-                "sharedOptionFeedbackMessage": null,
-                "usesSharedOptionFeedbackMessage": false
-            }],
-            "title": "Pretty good exercise",
-            "tries": 1,
-            "points": 2,
-            "section": 0,
-            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
-            "deadline": "2021-12-17T07:15:33.479Z",
-            "createdAt": "2021-12-17T07:15:33.479Z",
-            "updatedAt": "2021-12-17T07:15:33.479Z",
-            "autoReject": false,
-            "autoConfirm": true,
-            "randomizeOptions": false,
-            "triesLimited": true,
-            "submitMessage": "This is an extra submit message from the teacher.",
-            "excludedFromScore": true,
-            "grantPointsPolicy": "grant_whenever_possible",
-            "awardPointsEvenIfWrong": false}),
+          "version": "2",
+          "title": "",
+          "body": "very hard",
+          "awardPointsEvenIfWrong": false,
+          "grantPointsPolicy": "grant_whenever_possible",
+          "quizItemDisplayDirection": "vertical",
+          "submitMessage": "This is an extra submit message from the teacher.",
+          "items": [
+            {
+              "type": "choose-n",
+              "id": "663c52bd-f649-4ba2-9c39-2387c386cbf1",
+              "failureMessage": "",
+              "options": [
+                {
+                  "order": 1,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "9339c966-cc48-4a6c-9512-b38c82240dd0",
+                  "messageAfterSubmissionWhenSelected": "Java is a programming language",
+                  "title": "Java"
+                },
+                {
+                  "order": 2,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "2e6de165-ea76-4f03-a216-2f15179c9e6e",
+                  "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
+                  "title": "Erlang"
+                },
+                {
+                  "order": 3,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "2d452914-8cf7-426c-b130-51d556a33566",
+                  "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
+                  "title": "Jupiter"
+                },
+                {
+                  "order": 4,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "d503894c-3eaf-4ebe-a7d5-95f04b641479",
+                  "messageAfterSubmissionWhenSelected": "Rust is a programming language",
+                  "title": "Rust"
+                },
+                {
+                  "order": 5,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "a5a6cef2-df55-4926-9ecc-95da3e049ea7",
+                  "messageAfterSubmissionWhenSelected": "AC is not a programming language",
+                  "title": "AC"
+                }
+              ],
+              "order": 0,
+              "successMessage": "",
+              "title": "Pick all the programming languages from below",
+              "body": "",
+              "n": 2
+            }
+          ]
+        }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
+            block_id: Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
+        },
     );
 
     let (
@@ -802,10 +820,6 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
-        Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
-        Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
-        Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
         Uuid::new_v5(&course.id, b"b2f7d8d5-f3c0-4cac-8eb7-89a7b88c2236"),
         false,
         serde_json::json!({
@@ -871,13 +885,19 @@ pub async fn seed_sample_course(
           "part": 0,
           "points": 0,
           "section": 0,
-          "submitMessage": "",
+          "submitMessage": "This is an extra submit message from the teacher.",
           "title": "",
           "tries": 1,
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
+            block_id: Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
+        },
     );
 
     let (
@@ -887,16 +907,18 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
         "Multiple choice with feedback".to_string(),
-        Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
-        Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
-        Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
-        Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
         Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
         false,
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
+            block_id: Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
+        },
     );
 
     let (
@@ -906,14 +928,16 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
         "Scale".to_string(),
-        Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
-        Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
-        Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
-        Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
         serde_json::from_str(include_str!("../../assets/scale.json"))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
+            block_id: Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
+        },
     );
 
     let (
@@ -923,14 +947,16 @@ pub async fn seed_sample_course(
         quizzes_exercise_task_8,
     ) = quizzes_exercise(
         "Vector exercise".to_string(),
-        Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
-        Uuid::new_v5(&course.id, b"08f0da90-9080-4cdd-adc7-66173cd5b833"),
-        Uuid::new_v5(&course.id, b"ea24c875-1a3c-403e-8272-b1249a475c89"),
-        Uuid::new_v5(&course.id, b"38ed716f-5d4f-4ddd-9f5a-700ef124b934"),
         Uuid::new_v5(&course.id, b"0c271345-6934-4489-8164-2cc4dc8974bb"),
         false,
         serde_json::from_str(include_str!("../../assets/vector-exercise.json"))?,
         None,
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"80373dc3-ceba-45b4-a114-161d60228c0c"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"08f0da90-9080-4cdd-adc7-66173cd5b833"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"ea24c875-1a3c-403e-8272-b1249a475c89"),
+            block_id: Uuid::new_v5(&course.id, b"38ed716f-5d4f-4ddd-9f5a-700ef124b934"),
+        },
     );
 
     let page_3 = create_page(
@@ -953,6 +979,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_1,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -977,6 +1004,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_2
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1001,6 +1029,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_3
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1025,6 +1054,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_4
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1049,6 +1079,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_5,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1073,6 +1104,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_7
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1097,6 +1129,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_6
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1121,6 +1154,7 @@ pub async fn seed_sample_course(
                 quizzes_exercise_block_8
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1225,6 +1259,7 @@ pub async fn seed_sample_course(
                 multi_exercise_block_1
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1240,15 +1275,17 @@ pub async fn seed_sample_course(
     let exercise_5_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
     let (exercise_block_5, exercise_5, exercise_slide_5, exercise_task_5) = create_best_exercise(
-        exercise_5_id,
-        exercise_5_slide_1_id,
-        exercise_5_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
         Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836"),
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_5_id,
+            exercise_slide_id: exercise_5_slide_1_id,
+            exercise_task_id: exercise_5_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
+        },
     );
     create_page(
         &mut conn,
@@ -1264,9 +1301,357 @@ pub async fn seed_sample_course(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
+
+    let multi_exercise_2_id = Uuid::new_v5(&course_id, b"057def52-6895-4374-a7f5-1849d136f1f4");
+    let multi_exercise_2_slide_1_id =
+        Uuid::new_v5(&course_id, b"fa02d232-8e33-4e20-9c20-d3b03fa89eb5");
+    let multi_exercise_2_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"6c72f989-4d7e-4b22-b63c-3c51c631abcb");
+    let multi_exercise_2_slide_1_task_2_id =
+        Uuid::new_v5(&course_id, b"9445e8a3-6a86-4492-96b8-971f7b7acedd");
+    let multi_exercise_2_slide_1_task_3_id =
+        Uuid::new_v5(&course_id, b"8fbdbc4d-0c62-4b70-bb31-4c5fbb4ea6dd");
+    let (multi_exercise_block_2, multi_exercise_2, multi_exercise_2_slides, multi_exercise_2_tasks) =
+        example_exercise_flexible(
+            multi_exercise_2_id,
+            "Multiple task quizzes exercise".to_string(),
+            vec![(
+                multi_exercise_2_slide_1_id,
+                vec![
+                    (
+                        multi_exercise_2_slide_1_task_1_id,
+                        "quizzes".to_string(),
+                        serde_json::json!([paragraph(
+                            "First question.",
+                            Uuid::new_v5(&course_id, b"c8414adc-4e99-4d93-b926-e257517ff934")
+                        )]),
+                        serde_json::json!({
+                            "id": "e8a81dad-d616-44ab-bd6e-ec5430b454be",
+                            "body": "very hard",
+                            "open": "2021-12-17T07:15:33.479Z",
+                            "part": 0,
+                            "items": [{
+                                "id": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                "body": null,
+                                "type": "multiple-choice",
+                                "multi": false,
+                                "multipleChoiceMultipleOptionsGradingPolicy": "default",
+                                "order": 0,
+                                "title": "Select all correct answers from below",
+                                "quizId": "e8a81dad-d616-44ab-bd6e-ec5430b454be",
+                                "options": [
+                                    {
+                                        "id": "bb172040-753d-40ef-bded-a487b668905a",
+                                        "body": "Correct",
+                                        "order": 1,
+                                        "title": null,
+                                        "quizItemId": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                    {
+                                        "id": "a1534c77-3379-4462-b67c-f55a17aa6499",
+                                        "body": "Correct",
+                                        "order": 2,
+                                        "title": null,
+                                        "quizItemId": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null,
+                                    },
+                                    {
+                                        "id": "828328e6-5491-4ccb-b6f7-1df0796db44e",
+                                        "body": "Incorrect",
+                                        "order": 3,
+                                        "title": null,
+                                        "quizItemId": "ba2b179a-fab7-4eb7-896f-ef841eeda8e5",
+                                        "correct":false,
+                                        "messageAfterSubmissionWhenSelected": "This is incorrect option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                ],
+                                "allAnswersCorrect": false,
+                                "sharedOptionFeedbackMessage": null,
+                                "usesSharedOptionFeedbackMessage": false
+                            }],
+                            "title": "Pretty good exercise",
+                            "tries": 1,
+                            "points": 2,
+                            "section": 0,
+                            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+                            "deadline": "2021-12-17T07:15:33.479Z",
+                            "createdAt": "2021-12-17T07:15:33.479Z",
+                            "updatedAt": "2021-12-17T07:15:33.479Z",
+                            "autoReject": false,
+                            "autoConfirm": true,
+                            "randomizeOptions": false,
+                            "triesLimited": true,
+                            "submitMessage": "This is an extra submit message from the teacher.",
+                            "excludedFromScore": true,
+                            "grantPointsPolicy": "grant_whenever_possible",
+                            "awardPointsEvenIfWrong": false}),
+                    ),
+                    (
+                        multi_exercise_2_slide_1_task_2_id,
+                        "quizzes".to_string(),
+                        serde_json::json!([paragraph(
+                            "Second question.",
+                            Uuid::new_v5(&course_id, b"fcdeb228-a36e-499b-9cf0-dfb264a2cf34")
+                        )]),
+                        serde_json::json!({
+                            "id": "67fc1eea-541c-4247-a852-090c71d7a9d1",
+                            "body": "very hard",
+                            "open": "2021-12-17T07:15:33.479Z",
+                            "part": 0,
+                            "items": [{
+                                "id": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                "body": null,
+                                "type": "multiple-choice",
+                                "multi": false,
+                                "multipleChoiceMultipleOptionsGradingPolicy": "default",
+                                "order": 0,
+                                "title": "Select all correct answers from below",
+                                "quizId": "67fc1eea-541c-4247-a852-090c71d7a9d1",
+                                "options": [
+                                    {
+                                        "id": "446034b8-e049-4973-a634-5561da4b6d8e",
+                                        "body": "Correct",
+                                        "order": 1,
+                                        "title": null,
+                                        "quizItemId": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                    {
+                                        "id": "a4a0c48a-b171-4855-b738-b248f1e50561",
+                                        "body": "Incorrect",
+                                        "order": 2,
+                                        "title": null,
+                                        "quizItemId": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                        "correct":false,
+                                        "messageAfterSubmissionWhenSelected": "This is incorrect option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null,
+                                    },
+                                    {
+                                        "id": "f65330da-de15-47f3-9a4d-9f47eb6a5f5a",
+                                        "body": "Correct",
+                                        "order": 3,
+                                        "title": null,
+                                        "quizItemId": "7640b8db-eee0-4685-b031-dde26f183c9c",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                ],
+                                "allAnswersCorrect": false,
+                                "sharedOptionFeedbackMessage": null,
+                                "usesSharedOptionFeedbackMessage": false
+                            }],
+                            "title": "Pretty good exercise",
+                            "tries": 1,
+                            "points": 2,
+                            "section": 0,
+                            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+                            "deadline": "2021-12-17T07:15:33.479Z",
+                            "createdAt": "2021-12-17T07:15:33.479Z",
+                            "updatedAt": "2021-12-17T07:15:33.479Z",
+                            "autoReject": false,
+                            "autoConfirm": true,
+                            "randomizeOptions": false,
+                            "triesLimited": true,
+                            "submitMessage": "This is an extra submit message from the teacher.",
+                            "excludedFromScore": true,
+                            "grantPointsPolicy": "grant_whenever_possible",
+                            "awardPointsEvenIfWrong": false}),
+                    ),
+                    (
+                        multi_exercise_2_slide_1_task_3_id,
+                        "quizzes".to_string(),
+                        serde_json::json!([paragraph(
+                            "Third question.",
+                            Uuid::new_v5(&course_id, b"13b75f4e-b02d-41fa-b5bc-79adf22d9aef")
+                        )]),
+                        serde_json::json!({
+                            "id": "3f332295-b409-4fa8-a690-e5afd4e06b7a",
+                            "body": "very hard",
+                            "open": "2021-12-17T07:15:33.479Z",
+                            "part": 0,
+                            "items": [{
+                                "id": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                "body": null,
+                                "type": "multiple-choice",
+                                "multi": false,
+                                "multipleChoiceMultipleOptionsGradingPolicy": "default",
+                                "order": 0,
+                                "title": "Pick all the correct answers from below",
+                                "quizId": "3f332295-b409-4fa8-a690-e5afd4e06b7a",
+                                "options": [
+                                    {
+                                        "id": "d606fec9-6854-4b40-9b37-e1f53f4d4a0f",
+                                        "body": "Incorrect",
+                                        "order": 1,
+                                        "title": null,
+                                        "quizItemId": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                        "correct":false,
+                                        "messageAfterSubmissionWhenSelected": "This is incorrect option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                    {
+                                        "id": "9c69312d-c1e1-48bd-b920-309b39d2a7db",
+                                        "body": "Correct",
+                                        "order": 2,
+                                        "title": null,
+                                        "quizItemId": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null,
+                                    },
+                                    {
+                                        "id": "fef8854d-fee0-40ad-ab81-f4ed66daadeb",
+                                        "body": "Correct",
+                                        "order": 3,
+                                        "title": null,
+                                        "quizItemId": "a72b53f5-97c4-4385-899b-560d06592aec",
+                                        "correct":true,
+                                        "messageAfterSubmissionWhenSelected": "This is correct option",
+                                        "additionalCorrectnessExplanationOnModelSolution": null
+                                    },
+                                ],
+                                "allAnswersCorrect": false,
+                                "sharedOptionFeedbackMessage": null,
+                                "usesSharedOptionFeedbackMessage": false
+                            }],
+                            "title": "Pretty good exercise",
+                            "tries": 1,
+                            "points": 2,
+                            "section": 0,
+                            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
+                            "deadline": "2021-12-17T07:15:33.479Z",
+                            "createdAt": "2021-12-17T07:15:33.479Z",
+                            "updatedAt": "2021-12-17T07:15:33.479Z",
+                            "autoReject": false,
+                            "autoConfirm": true,
+                            "randomizeOptions": false,
+                            "triesLimited": true,
+                            "submitMessage": "This is an extra submit message from the teacher.",
+                            "excludedFromScore": true,
+                            "grantPointsPolicy": "grant_whenever_possible",
+                            "awardPointsEvenIfWrong": false}),
+                    ),
+                ],
+            )],
+            Uuid::new_v5(&course_id, b"9e70076a-9137-4d65-989c-0c0951027c53"),
+        );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/complicated-quizzes-exercise".to_string(),
+            title: "Complicated quizzes exercise page".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![multi_exercise_2],
+            exercise_slides: multi_exercise_2_slides,
+            exercise_tasks: multi_exercise_2_tasks,
+            content: serde_json::json!([
+                paragraph(
+                    "This page has a complicated quizzes exercise.",
+                    Uuid::new_v5(&course_id, b"ea0eaf34-3c92-4007-aae4-9abff7ad1e4c")
+                ),
+                multi_exercise_block_2
+            ]),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/the-authors".to_string(),
+            title: "The Author Block".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: serde_json::json!([GutenbergBlock {
+                name: "moocfi/author".to_string(),
+                is_valid: true,
+                client_id: Uuid::parse_str("eb27eddd-6fc7-46f8-b7aa-968b16f86f1f").unwrap(),
+                attributes: attributes! {},
+                inner_blocks: vec![GutenbergBlock {
+                    name: "moocfi/author-inner-block".to_string(),
+                    is_valid: true,
+                    client_id: Uuid::parse_str("b5565362-e8e3-4837-9546-014dc98af686").unwrap(),
+                    attributes: attributes! {},
+                    inner_blocks: vec![GutenbergBlock {
+                        name: "core/columns".to_string(),
+                        is_valid: true,
+                        client_id: Uuid::parse_str("d8df9ead-9be3-4d25-96ec-c6e591db261b").unwrap(),
+                        attributes: attributes! { "isStackedOnMobile": true },
+                        inner_blocks: vec![GutenbergBlock {
+                            name: "core/column".to_string(),
+                            is_valid: true,
+                            client_id: Uuid::parse_str("6435c2f7-ccc0-4cec-9c38-19bd688b057c").unwrap(),
+                            attributes: attributes! {},
+                                inner_blocks: vec![GutenbergBlock {
+                                name: "core/image".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
+                                attributes: attributes! {
+                                    "alt": "Add alt",
+                                    "anchor": "author-photo",
+                                    "blurDataUrl": "",
+                                    "href": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
+                                    "linkDestination": "media",
+                                    "sizeSlug": "full",
+                                    "url": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
+                                },
+                                inner_blocks: vec![],
+                            }],
+                        },
+                        GutenbergBlock {
+                            name: "core/column".to_string(),
+                            is_valid: true,
+                            client_id: Uuid::parse_str("fe8b2efc-e5da-407e-9293-f156847cc571").unwrap(),
+                            attributes: attributes! {},
+                            inner_blocks: vec![GutenbergBlock {
+                                name: "core/paragraph".to_string(),
+                                is_valid: true,
+                                client_id: Uuid::parse_str("6d0e2979-9a57-492a-af6f-9f62381f1ede").unwrap(),
+                                attributes: attributes! {
+                                    "align": "left",
+                                    "content": "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur",
+                                    "dropCap": false,
+                                    "placeholder": "Insert author's bio text..."
+                                },
+                                inner_blocks: vec![],
+                            }],
+                        },
+                        ],
+
+                        },
+                    ],
+                }]
+            }])
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
     create_page(
         &mut conn,
         course.id,
@@ -1287,13 +1672,14 @@ pub async fn seed_sample_course(
                 inner_blocks: vec![]
             }]),
         },
+        base_url.clone(),
         jwt_key,
     )
     .await?;
 
     // enrollments, user exercise states, submissions, grades
     info!("sample enrollments, user exercise states, submissions, grades");
-    for &user_id in users {
+    for user_id in users.iter().copied() {
         course_instance_enrollments::insert_enrollment_and_set_as_current(
             &mut conn,
             NewCourseInstanceEnrollment {
@@ -1536,16 +1922,66 @@ pub async fn seed_sample_course(
 
     // create_best_peer_review(&mut conn, course.id, Some(exercise_1_id)).await?;
 
+    // certificate configuration
+    let background_svg_path = "svgs/certificate-background.svg".to_string();
+    let background_svg_file_upload_id = file_uploads::insert(
+        &mut conn,
+        &format!("background-{}.svg", module.id),
+        &background_svg_path,
+        "image/svg+xml",
+        None,
+    )
+    .await?;
+    let configuration = DatabaseCertificateConfiguration {
+        id: Uuid::new_v5(&course_id, b"886d3e22-5007-4371-94d7-e0ad93a2391c"),
+        certificate_owner_name_y_pos: None,
+        certificate_owner_name_x_pos: None,
+        certificate_owner_name_font_size: None,
+        certificate_owner_name_text_color: None,
+        certificate_owner_name_text_anchor: None,
+        certificate_validate_url_y_pos: None,
+        certificate_validate_url_x_pos: None,
+        certificate_validate_url_font_size: None,
+        certificate_validate_url_text_color: None,
+        certificate_validate_url_text_anchor: None,
+        certificate_date_y_pos: None,
+        certificate_date_x_pos: None,
+        certificate_date_font_size: None,
+        certificate_date_text_color: None,
+        certificate_date_text_anchor: None,
+        certificate_locale: None,
+        paper_size: None,
+        background_svg_path,
+        background_svg_file_upload_id,
+        overlay_svg_path: None,
+        overlay_svg_file_upload_id: None,
+    };
+    let database_configuration =
+        certificate_configurations::insert(&mut conn, &configuration).await?;
+    certificate_configuration_to_requirements::insert(
+        &mut conn,
+        database_configuration.id,
+        Some(default_module.id),
+        Some(default_instance.id),
+    )
+    .await?;
+
     Ok(course.id)
 }
 
 pub async fn create_glossary_course(
-    db_pool: &Pool<Postgres>,
-    org_id: Uuid,
-    admin: Uuid,
     course_id: Uuid,
-    jwt_key: Arc<JwtKey>,
+    common_course_data: CommonCourseData,
 ) -> Result<Uuid> {
+    let CommonCourseData {
+        db_pool,
+        organization_id: org_id,
+        admin_user_id: admin,
+        student_user_id: _,
+        example_normal_user_ids: _,
+        jwt_key,
+        base_url,
+    } = common_course_data;
     let mut conn = db_pool.acquire().await?;
 
     // Create new course
@@ -1559,6 +1995,7 @@ pub async fn create_glossary_course(
         description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
 
     let (course, _front_page, _default_instance, default_module) =
@@ -1573,7 +2010,11 @@ pub async fn create_glossary_course(
             }),
             new_course,
             admin,
-            models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+            models_requests::make_spec_fetcher(
+                base_url.clone(),
+                Uuid::new_v4(),
+                Arc::clone(&jwt_key),
+            ),
             models_requests::fetch_service_info,
         )
         .await?;
@@ -1617,7 +2058,7 @@ pub async fn create_glossary_course(
         )),
         &new_chapter,
         admin,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -1641,6 +2082,7 @@ pub async fn create_glossary_course(
                 Uuid::new_v5(&course.id, b"6903cf16-4f79-4985-a354-4257be1193a2")
             ),]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -1658,10 +2100,12 @@ pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
     org: Uuid,
     admin: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let mut conn = db_pool.acquire().await?;
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     // Create new course
     let new_course = NewCourse {
         name: "Introduction to Course Material".to_string(),
@@ -1673,6 +2117,7 @@ pub async fn seed_cs_course_material(
         description: "The definitive introduction to course material.".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     let (course, front_page, _default_instance, default_module) =
         library::content_management::create_new_course(
@@ -1698,10 +2143,6 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"cd3aa815-620e-43b3-b291-0fb10beca030"),
-        Uuid::new_v5(&course.id, b"0b1bbfb0-df56-4e40-92f1-df0a33f1fc70"),
-        Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
-        Uuid::new_v5(&course.id, b"b9446b94-0edf-465c-9a9a-57708b7ef180"),
         Uuid::new_v5(&course.id, b"58e71279-81e1-4679-83e6-8f5f23ec055a"),
         false,
         serde_json::json!({
@@ -1767,6 +2208,12 @@ pub async fn seed_cs_course_material(
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"cd3aa815-620e-43b3-b291-0fb10beca030"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"0b1bbfb0-df56-4e40-92f1-df0a33f1fc70"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"7f011d0e-1cbf-4870-bacf-1873cf360c15"),
+            block_id: Uuid::new_v5(&course.id, b"b9446b94-0edf-465c-9a9a-57708b7ef180"),
+        },
     );
 
     let (
@@ -1776,16 +2223,18 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
-        Uuid::new_v5(&course.id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
-        Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
-        Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
         Uuid::new_v5(&course.id, b"085b60ec-aa9d-11ec-b500-7b1e176646f8"),
         false,
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-additional-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"925d4a89-0f25-4e8e-bc11-350393d8d894"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"ff92ca4a-aa9c-11ec-ac56-475e57747ad3"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"9037cb17-3841-4a79-8f50-bbe595a4f785"),
+            block_id: Uuid::new_v5(&course.id, b"d6d80ae0-97a1-4db1-8a3b-2bdde3cfbe9a"),
+        },
     );
 
     let (
@@ -1795,10 +2244,6 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
-        Uuid::new_v5(&course.id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
-        Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
-        Uuid::new_v5(&course.id, b"604dae7c-aa9d-11ec-8df1-575042832340"),
         Uuid::new_v5(&course.id, b"6365746e-aa9d-11ec-8718-0b5628cbe29f"),
         false,
         serde_json::json!({
@@ -1864,6 +2309,12 @@ pub async fn seed_cs_course_material(
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"57905c8a-aa9d-11ec-92d4-47ab996cb70c"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"5b058552-aa9d-11ec-bc36-57e1c5f8407a"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"5d953894-aa9d-11ec-97e7-2ff4d73f69f1"),
+            block_id: Uuid::new_v5(&course.id, b"604dae7c-aa9d-11ec-8df1-575042832340"),
+        },
     );
 
     let (
@@ -1873,10 +2324,6 @@ pub async fn seed_cs_course_material(
         quizzes_exercise_task_8,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
-        Uuid::new_v5(&course.id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
-        Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
-        Uuid::new_v5(&course.id, b"6799021d-ff0c-4e4d-b5db-c2c19fba7fb9"),
         Uuid::new_v5(&course.id, b"01b69776-3e82-4694-98a9-5ce53f2a4ab5"),
         false,
         serde_json::json!({
@@ -1942,6 +2389,12 @@ pub async fn seed_cs_course_material(
                 "grantPointsPolicy": "grant_whenever_possible",
                 "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"c1a4831c-cc78-4f42-be18-2a35a7f3b506"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"75045b18-aa9d-11ec-b3d1-6f64c2d6d46d"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"712fd37c-e3d7-4569-8a64-371d7dda9c19"),
+            block_id: Uuid::new_v5(&course.id, b"6799021d-ff0c-4e4d-b5db-c2c19fba7fb9"),
+        },
     );
 
     pages::update_page(
@@ -2103,6 +2556,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_1.id),
         design_content,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2150,6 +2604,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_1.id),
         content_b,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2252,6 +2707,7 @@ pub async fn seed_cs_course_material(
         admin,
         Some(chapter_2.id),
         page_content,
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2272,6 +2728,7 @@ pub async fn seed_cs_course_material(
             title: "Content rendering".to_string(),
             chapter_id: Some(chapter_2.id),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2298,6 +2755,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_5,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2322,6 +2780,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_6,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2347,6 +2806,7 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_7,
             ]),
         },
+        base_url.clone(),
         jwt_key.clone(),
     )
     .await?;
@@ -2371,13 +2831,132 @@ pub async fn seed_cs_course_material(
                 quizzes_exercise_block_8,
             ]),
         },
-        jwt_key,
+        base_url.clone(),
+        jwt_key.clone(),
+    )
+    .await?;
+
+    // tmc exercises
+    let exercise_repository_id = Uuid::new_v5(&course.id, b"a4b01c0d-f801-4d87-a238-dc148516d730");
+    let exercise_repository_url = "http://example.com";
+    exercise_repositories::new(
+        &mut conn,
+        exercise_repository_id,
+        CourseOrExamId::Course(course.id),
+        exercise_repository_url,
+        None,
+    )
+    .await?;
+    let repository_exercise_1_id =
+        Uuid::new_v5(&course.id, b"6494ae57-628b-45d5-92bc-3db59e8d71c4");
+    let repository_exercise_part = "part01";
+    let repository_exercise_1_name = "ex01";
+    let repository_exercise_1_checksum = &[0, 1, 2, 3];
+    let repository_exercise_1_download_url =
+        format!("{base_url}/api/v0/files/uploads/playground-views/repository-exercise-1.tar.zst");
+    repository_exercises::new(
+        &mut conn,
+        repository_exercise_1_id,
+        exercise_repository_id,
+        repository_exercise_part,
+        repository_exercise_1_name,
+        repository_exercise_1_checksum,
+        &repository_exercise_1_download_url,
+    )
+    .await?;
+    let repository_exercise_2_id =
+        Uuid::new_v5(&course.id, b"a7bb7bd8-70fb-4764-9429-34849efc7276");
+    let repository_exercise_2_name = "ex02";
+    let repository_exercise_2_checksum = &[0, 1, 2, 3];
+    let repository_exercise_2_download_url =
+        format!("{base_url}/api/v0/files/uploads/playground-views/repository-exercise-2.tar.zst");
+    repository_exercises::new(
+        &mut conn,
+        repository_exercise_2_id,
+        exercise_repository_id,
+        repository_exercise_part,
+        repository_exercise_2_name,
+        repository_exercise_2_checksum,
+        &repository_exercise_2_download_url,
+    )
+    .await?;
+    let (tmc_exercise_block_1, tmc_exercise_1, tmc_exercise_slide_1, tmc_exercise_task_1) =
+        tmc_exercise(
+            "Best tmc browser exercise".to_string(),
+            Uuid::new_v5(&course.id, b"42b06d18-f872-4e26-9c31-415fe10e1567"),
+            Uuid::new_v5(&course.id, b"79a0bdb9-eb28-4a11-8bfc-29b37076a56e"),
+            Uuid::new_v5(&course.id, b"f48f33c2-f5e4-4c72-8aa9-1e7df558a94a"),
+            Uuid::new_v5(&course.id, b"d18ec32c-d134-4819-b668-d85e3e53a0f8"),
+            Uuid::new_v5(&course.id, b"06a8d2d9-9ff0-44ab-b5b1-c06cbc65eb06"),
+            false,
+            serde_json::json!({
+                "type": "browser",
+                "repositoryExercise": {
+                    "id": repository_exercise_1_id,
+                    "repository_id": exercise_repository_id,
+                    "part": repository_exercise_part,
+                    "name": repository_exercise_1_name,
+                    "repository_url": exercise_repository_url,
+                    "checksum": repository_exercise_1_checksum,
+                    "download_url": repository_exercise_1_download_url,
+                }
+            }),
+            Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        );
+    let (tmc_exercise_block_2, tmc_exercise_2, tmc_exercise_slide_2, tmc_exercise_task_2) =
+        tmc_exercise(
+            "Best tmc editor exercise".to_string(),
+            Uuid::new_v5(&course.id, b"d18feea1-33bd-435d-b7f1-a4c3fab45914"),
+            Uuid::new_v5(&course.id, b"8d43641e-a968-405d-894e-840508c623a5"),
+            Uuid::new_v5(&course.id, b"534aff8f-d1d7-4a30-9afb-20406506e7b8"),
+            Uuid::new_v5(&course.id, b"a07ca540-ee6d-4d03-a052-28732d82a074"),
+            Uuid::new_v5(&course.id, b"0d31654b-2b62-4327-b876-d6b56a756c22"),
+            false,
+            serde_json::json!({
+                "type": "editor",
+                "repositoryExercise": {
+                    "id": repository_exercise_2_id,
+                    "repository_id": exercise_repository_id,
+                    "part": repository_exercise_part,
+                    "name": repository_exercise_2_name,
+                    "repository_url": exercise_repository_url,
+                    "checksum": repository_exercise_2_checksum,
+                    "download_url": repository_exercise_2_download_url,
+                }
+
+            }),
+            Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        );
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_2.id),
+        CmsPageUpdate {
+            url_path: "/chapter-2/page-7".to_string(),
+            title: "Page 7".to_string(),
+            chapter_id: Some(chapter_2.id),
+            exercises: vec![tmc_exercise_1, tmc_exercise_2],
+            exercise_slides: vec![tmc_exercise_slide_1, tmc_exercise_slide_2],
+            exercise_tasks: vec![tmc_exercise_task_1, tmc_exercise_task_2],
+            content: serde_json::json!([
+                paragraph(
+                    "Second chapters seventh page",
+                    Uuid::new_v5(&course.id, b"cd63081d-09c1-4c50-a466-0e7fe4ac7be3")
+                ),
+                tmc_exercise_block_1,
+                tmc_exercise_block_2,
+            ]),
+        },
+        base_url.clone(),
+        jwt_key.clone(),
     )
     .await?;
 
     Ok(course.id)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn seed_course_without_submissions(
     db_pool: &Pool<Postgres>,
     org: Uuid,
@@ -2386,9 +2965,11 @@ pub async fn seed_course_without_submissions(
     course_slug: &str,
     admin: Uuid,
     student: Uuid,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -2401,6 +2982,7 @@ pub async fn seed_course_without_submissions(
         description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
         &mut conn,
@@ -2417,6 +2999,7 @@ pub async fn seed_course_without_submissions(
         models_requests::fetch_service_info,
     )
     .await?;
+    course_modules::update_certification_enabled(&mut conn, default_module.id, true).await?;
     course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::new_v5(
@@ -2684,15 +3267,17 @@ pub async fn seed_course_without_submissions(
         Uuid::new_v5(&course_id, b"4027d508-4fad-422e-bb7f-15c613a02cc6");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_1_id,
-        exercise_1_slide_1_id,
-        exercise_1_slide_1_task_1_id,
-        block_id_2,
         block_id_3,
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_1_id,
+            exercise_slide_id: exercise_1_slide_1_id,
+            exercise_task_id: exercise_1_slide_1_task_1_id,
+            block_id: block_id_2,
+        },
     );
     let page_c1_1 = create_page(
         &mut conn,
@@ -2713,7 +3298,9 @@ pub async fn seed_course_without_submissions(
                 paragraph("Like this.", block_id_5),
                 paragraph(&"At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ".repeat(4), block_id_6),
             ]),
-        },Arc::clone(&jwt_key),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
     )
     .await?;
 
@@ -2723,6 +3310,9 @@ pub async fn seed_course_without_submissions(
         exercise_1_id,
         ManualReviewEverything,
         3.0,
+        true,
+        1,
+        0,
     )
     .await?;
 
@@ -2757,37 +3347,43 @@ pub async fn seed_course_without_submissions(
     let exercise_4_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"fca5a8ba-50e0-4375-8d4b-9d02762d908c");
     let (exercise_block_2, exercise_2, slide_2, task_2) = create_best_exercise(
-        exercise_2_id,
-        exercise_2_slide_1_id,
-        exercise_2_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_2_id,
+            exercise_slide_id: exercise_2_slide_1_id,
+            exercise_task_id: exercise_2_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"2dbb4649-bcac-47ab-a817-ca17dcd70378"),
+        },
     );
     let (exercise_block_3, exercise_3, slide_3, task_3) = create_best_exercise(
-        exercise_3_id,
-        exercise_3_slide_1_id,
-        exercise_3_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
         Uuid::new_v5(&course_id, b"c0986981-c8ae-4c0b-b558-1163a16760ec"),
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_3_id,
+            exercise_slide_id: exercise_3_slide_1_id,
+            exercise_task_id: exercise_3_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"fb26489d-ca49-4f76-a1c2-f759ed3146c0"),
+        },
     );
     let (exercise_block_4, exercise_4, slide_4, task_4_1) = create_best_exercise(
-        exercise_4_id,
-        exercise_4_slide_1_id,
-        exercise_4_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
         Uuid::new_v5(&course_id, b"389e80bd-5f91-40c7-94ff-7dda1eeb96fb"),
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_4_id,
+            exercise_slide_id: exercise_4_slide_1_id,
+            exercise_task_id: exercise_4_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"334593ad-8ba5-4589-b1f7-b159e754bdc5"),
+        },
     );
 
     let page2_id = create_page(
@@ -2812,6 +3408,7 @@ pub async fn seed_course_without_submissions(
                 exercise_block_4,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -2820,8 +3417,11 @@ pub async fn seed_course_without_submissions(
         &mut conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         2.5,
+        true,
+        1,
+        0,
     )
     .await?;
 
@@ -2829,12 +3429,15 @@ pub async fn seed_course_without_submissions(
         &mut conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         2.0,
+        true,
+        1,
+        0,
     )
     .await?;
 
-    url_redirections::insert(
+    url_redirections::upsert(
         &mut conn,
         PKeyPolicy::Generate,
         page2_id,
@@ -2850,10 +3453,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_1,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
-        Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
-        Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
-        Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
         Uuid::new_v5(&course_id, b"f6f63ff0-c119-4141-922b-bc04cbfa0a31"),
         true,
         serde_json::json!({
@@ -2902,6 +3501,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"a6ee42d0-2200-43b7-9981-620753a9b5c0"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"8d01d9b3-87d1-4e24-bee2-2726d3853ec6"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"00dd984d-8651-404e-80b8-30fae9cf32ed"),
+            block_id: Uuid::new_v5(&course_id, b"a66c2552-8123-4287-bd8b-b49a29204870"),
+        },
     );
 
     let (
@@ -2911,10 +3516,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_2,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
-        Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
-        Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
-        Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
         Uuid::new_v5(&course_id, b"1057f91c-9dac-4364-9d6a-fa416abc540b"),
         false,
         serde_json::json!({
@@ -2940,7 +3541,7 @@ pub async fn seed_course_without_submissions(
                 "direction": "row",
                 "updatedAt": "2021-12-17T07:16:23.202Z",
                 "formatRegex": null,
-                "validityRegex": r#"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$"#.to_string(),
+                "validityRegex": r"^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$".to_string(),
                 "failureMessage": "Oh no! Your answer is not in yyyy-mm-dd format :(".to_string(),
                 "successMessage": "Gongrats! your answer is in yyyy-mm-dd format!".to_string(),
                 "allAnswersCorrect": false,
@@ -2964,6 +3565,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"949b548f-a87f-4dc6-aafc-9f1e1abe34a7"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"39c36d3f-017e-4c36-a97e-908e25b3678b"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"8ae8971c-95dd-4d8c-b38f-152ad89c6b20"),
+            block_id: Uuid::new_v5(&course_id, b"d05b1d9b-f270-4e5e-baeb-a904ea29dc90"),
+        },
     );
 
     let (
@@ -2973,10 +3580,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_3,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
-        Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
-        Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
-        Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
         Uuid::new_v5(&course_id, b"8845b17e-2320-4384-97f8-24e42457cb5e"),
         false,
         serde_json::json!({
@@ -3045,6 +3648,12 @@ pub async fn seed_course_without_submissions(
             "grantPointsPolicy": "grant_whenever_possible",
             "awardPointsEvenIfWrong": false}),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"9bcf634d-584c-4fef-892c-3c0e97dab1d5"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"984457f6-bc9b-4604-b54c-80fb4adfab76"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"e4230b3a-1db8-49c4-9554-1f96f7f3d015"),
+            block_id: Uuid::new_v5(&course_id, b"52939561-af36-4ab6-bffa-be97e94d3314"),
+        },
     );
 
     let (
@@ -3054,99 +3663,83 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_4,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
-        Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
-        Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
-        Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
         Uuid::new_v5(&course_id, b"7ca39a36-2dcd-4521-bbf6-bfc5849874e3"),
         false,
         serde_json::json!({
-            "id": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-            "body": "very hard",
-            "open": "2021-12-17T07:15:33.479Z",
-            "part": 0,
-            "items": [{
-                "id": "d30bec57-4011-4ac4-b676-79fe766d6424",
-                "body": null,
-                "type": "clickable-multiple-choice",
-                "multi": true,
-                "multipleChoiceMultipleOptionsGradingPolicy": "default",
-                "order": 0,
-                "title": "Pick all the programming languages from below",
-                "quizId": "1e2bb795-1736-4b37-ae44-b16ca59b4e4f",
-                "options": [
-                    {
-                        "id": "55a63887-a896-425c-91ae-2f85032c3d58",
-                        "body": "Java",
-                        "order": 1,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Java is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "534bf512-014e-47b6-a67b-8bea6dc65177",
-                        "body": "Erlang",
-                        "order": 2,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null,
-                    },
-                    {
-                        "id": "ea4e0bb4-f84e-4048-be2f-f819a391396f",
-                        "body": "Jupiter",
-                        "order": 3,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "b851f1b3-ae90-46bd-8f10-fd6d968695ef",
-                        "body": "Rust",
-                        "order": 4,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":true,
-                        "messageAfterSubmissionWhenSelected": "Rust is a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                    {
-                        "id": "8107ae39-96aa-4f54-aa78-1a33362a19c1",
-                        "body": "AC",
-                        "order": 5,
-                        "title": null,
-                        "quizItemId": "f8cff916-da28-40ab-9e8b-f523e661ddb6",
-                        "correct":false,
-                        "messageAfterSubmissionWhenSelected": "AC is not a programming language",
-                        "additionalCorrectnessExplanationOnModelSolution": null
-                    },
-                ],
-                "allAnswersCorrect": false,
-                "sharedOptionFeedbackMessage": null,
-                "usesSharedOptionFeedbackMessage": false
-            }],
-            "title": "Pretty good exercise",
-            "tries": 1,
-            "points": 2,
-            "section": 0,
-            "courseId": "39c7879a-e61f-474a-8f18-7fc476ccc3a0",
-            "deadline": "2021-12-17T07:15:33.479Z",
-            "createdAt": "2021-12-17T07:15:33.479Z",
-            "updatedAt": "2021-12-17T07:15:33.479Z",
-            "autoReject": false,
-            "autoConfirm": true,
-            "randomizeOptions": false,
-            "triesLimited": true,
-            "submitMessage": "This is an extra submit message from the teacher.",
-            "excludedFromScore": true,
-            "grantPointsPolicy": "grant_whenever_possible",
-            "awardPointsEvenIfWrong": false}),
+          "version": "2",
+          "title": "",
+          "body": "very hard",
+          "awardPointsEvenIfWrong": false,
+          "grantPointsPolicy": "grant_whenever_possible",
+          "quizItemDisplayDirection": "vertical",
+          "submitMessage": "This is an extra submit message from the teacher.",
+          "items": [
+            {
+              "type": "choose-n",
+              "id": "663c52bd-f649-4ba2-9c39-2387c386cbf1",
+              "failureMessage": "",
+              "options": [
+                {
+                  "order": 1,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "9339c966-cc48-4a6c-9512-b38c82240dd0",
+                  "messageAfterSubmissionWhenSelected": "Java is a programming language",
+                  "title": "Java"
+                },
+                {
+                  "order": 2,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "2e6de165-ea76-4f03-a216-2f15179c9e6e",
+                  "messageAfterSubmissionWhenSelected": "Erlang is a programming language",
+                  "title": "Erlang"
+                },
+                {
+                  "order": 3,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "2d452914-8cf7-426c-b130-51d556a33566",
+                  "messageAfterSubmissionWhenSelected": "Jupiter is not a programming language",
+                  "title": "Jupiter"
+                },
+                {
+                  "order": 4,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": true,
+                  "id": "d503894c-3eaf-4ebe-a7d5-95f04b641479",
+                  "messageAfterSubmissionWhenSelected": "Rust is a programming language",
+                  "title": "Rust"
+                },
+                {
+                  "order": 5,
+                  "additionalCorrectnessExplanationOnModelSolution": "",
+                  "body": "",
+                  "correct": false,
+                  "id": "a5a6cef2-df55-4926-9ecc-95da3e049ea7",
+                  "messageAfterSubmissionWhenSelected": "AC is not a programming language",
+                  "title": "AC"
+                }
+              ],
+              "order": 0,
+              "successMessage": "",
+              "title": "Pick all the programming languages from below",
+              "body": "",
+              "n": 2
+            }
+          ]
+        }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course_id, b"854a4e05-6575-4d27-8feb-6ee01f662d8a"),
+            exercise_slide_id: Uuid::new_v5(&course_id, b"6a8e65be-f5cd-4c87-b4f9-9522cb37bbcb"),
+            exercise_task_id: Uuid::new_v5(&course_id, b"b5e1e7e87-0678-4296-acf7-a8ac926ff94b"),
+            block_id: Uuid::new_v5(&course_id, b"50e26d7f-f11f-4a8a-990d-fb17c3371d1d"),
+        },
     );
 
     let (
@@ -3156,10 +3749,6 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_5,
     ) = quizzes_exercise(
         "Best quizzes exercise".to_string(),
-        Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
-        Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
-        Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
-        Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
         Uuid::new_v5(&course.id, b"b2f7d8d5-f3c0-4cac-8eb7-89a7b88c2236"),
         false,
         serde_json::json!({
@@ -3225,13 +3814,19 @@ pub async fn seed_course_without_submissions(
           "part": 0,
           "points": 0,
           "section": 0,
-          "submitMessage": "",
+          "submitMessage": "This is an extra submit message from the teacher.",
           "title": "",
           "tries": 1,
           "triesLimited": true,
           "updatedAt": "2022-05-04T09:03:06.271Z"
         }),
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"981623c8-baa3-4d14-bb8a-963e167da9ca"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"b1a6d7e4-00b2-43fb-bf39-863f4ef49d09"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"1a2f2c9f-9552-440e-8dd3-1e3703bd0fab"),
+            block_id: Uuid::new_v5(&course.id, b"6b568812-f752-4d9f-a60a-48257822d21e"),
+        },
     );
 
     let (
@@ -3241,16 +3836,18 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_6,
     ) = quizzes_exercise(
         "Multiple choice with feedback".to_string(),
-        Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
-        Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
-        Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
-        Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
         Uuid::new_v5(&course.id, b"664ea614-4af4-4ad0-9855-eae1881568e6"),
         false,
         serde_json::from_str(include_str!(
             "../../assets/quizzes-multiple-choice-feedback.json"
         ))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"f7fa3a08-e287-44de-aea8-32133af89d31"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"31820133-579a-4d9f-8b0c-2120f76d1390"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"55f929c7-30ab-441d-a0ad-6cd115857b3b"),
+            block_id: Uuid::new_v5(&course.id, b"d7a91d07-9bd9-449c-9862-fbacb0b402b0"),
+        },
     );
 
     let (
@@ -3260,14 +3857,16 @@ pub async fn seed_course_without_submissions(
         quizzes_exercise_task_7,
     ) = quizzes_exercise(
         "Scale".to_string(),
-        Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
-        Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
-        Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
-        Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
         Uuid::new_v5(&course.id, b"05fa1188-4653-4904-bf1c-a93363225841"),
         false,
         serde_json::from_str(include_str!("../../assets/scale.json"))?,
         Some(Utc.with_ymd_and_hms(2125, 1, 1, 23, 59, 59).unwrap()),
+        CommonExerciseData {
+            exercise_id: Uuid::new_v5(&course.id, b"212132eb-b108-4027-b312-2275cf0b7473"),
+            exercise_slide_id: Uuid::new_v5(&course.id, b"6172a36a-b65d-463c-81d0-7f7fce07615c"),
+            exercise_task_id: Uuid::new_v5(&course.id, b"0dcfc4ca-c2f7-40b0-8654-14c6893a1fd9"),
+            block_id: Uuid::new_v5(&course.id, b"b64d7bd2-a216-494e-a23c-7a975fb1a415"),
+        },
     );
 
     let page_3 = create_page(
@@ -3290,6 +3889,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_1,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3314,6 +3914,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_2
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3338,6 +3939,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_3
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3362,6 +3964,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_4
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3386,6 +3989,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_5,
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3410,6 +4014,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_7
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3434,6 +4039,7 @@ pub async fn seed_course_without_submissions(
                 quizzes_exercise_block_6
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3538,6 +4144,7 @@ pub async fn seed_course_without_submissions(
                 multi_exercise_block_1
             ]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3553,15 +4160,17 @@ pub async fn seed_course_without_submissions(
     let exercise_5_slide_1_task_1_spec_3_id =
         Uuid::new_v5(&course_id, b"d77fb97d-322c-4c5f-a405-8978a8cfb0a9");
     let (exercise_block_5, exercise_5, exercise_slide_5, exercise_task_5) = create_best_exercise(
-        exercise_5_id,
-        exercise_5_slide_1_id,
-        exercise_5_slide_1_task_1_id,
-        Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
         Uuid::new_v5(&course_id, b"fe464d17-2365-4e65-8b33-e0ebb5a67836"),
         exercise_5_slide_1_task_1_spec_1_id,
         exercise_5_slide_1_task_1_spec_2_id,
         exercise_5_slide_1_task_1_spec_3_id,
         Some("Best exercise".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_5_id,
+            exercise_slide_id: exercise_5_slide_1_id,
+            exercise_task_id: exercise_5_slide_1_task_1_id,
+            block_id: Uuid::new_v5(&course_id, b"e869c471-b1b7-42a0-af05-dffd1d86a7bb"),
+        },
     );
     create_page(
         &mut conn,
@@ -3577,6 +4186,7 @@ pub async fn seed_course_without_submissions(
             exercise_tasks: vec![exercise_task_5],
             content: serde_json::json!([exercise_block_5]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3600,6 +4210,7 @@ pub async fn seed_course_without_submissions(
                 inner_blocks: vec![]
             }]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3746,15 +4357,22 @@ pub async fn seed_course_without_submissions(
 }
 
 pub async fn seed_peer_review_course_without_submissions(
-    db_pool: &Pool<Postgres>,
-    org: Uuid,
     course_id: Uuid,
     course_name: &str,
     course_slug: &str,
-    admin: Uuid,
-    jwt_key: Arc<JwtKey>,
+    common_course_data: CommonCourseData,
 ) -> Result<Uuid> {
-    let spec_fetcher = models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key));
+    let CommonCourseData {
+        db_pool,
+        organization_id: org,
+        admin_user_id: admin,
+        student_user_id: _,
+        example_normal_user_ids: _,
+        jwt_key,
+        base_url,
+    } = common_course_data;
+    let spec_fetcher =
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key));
     info!("inserting sample course {}", course_name);
     let mut conn = db_pool.acquire().await?;
     let new_course = NewCourse {
@@ -3767,6 +4385,7 @@ pub async fn seed_peer_review_course_without_submissions(
         description: "Sample course.".to_string(),
         is_draft: false,
         is_test_mode: false,
+        copy_user_permissions: false,
     };
 
     let (course, _front_page, _, default_module) = library::content_management::create_new_course(
@@ -3863,15 +4482,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"b354830c-38c7-4b83-8370-0e7222272c56");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_1_id,
-        exercise_1_slide_1_id,
-        exercise_1_slide_1_task_1_id,
-        block_id_1,
         block_id_2,
         exercise_1_slide_1_task_1_spec_1_id,
         exercise_1_slide_1_task_1_spec_2_id,
         exercise_1_slide_1_task_1_spec_3_id,
         Some("ManualReviewEverything".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_1_id,
+            exercise_slide_id: exercise_1_slide_1_id,
+            exercise_task_id: exercise_1_slide_1_task_1_id,
+            block_id: block_id_1,
+        },
     );
 
     create_page(
@@ -3888,6 +4509,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_1,]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3898,6 +4520,9 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_1_id,
         ManualReviewEverything,
         3.0,
+        true,
+        1,
+        0,
     )
     .await?;
 
@@ -3915,15 +4540,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"9f6e4ad4-b9f5-40cf-b071-642da7058fec");
 
     let (exercise_block_2, exercise_2, slide_1, task_1) = create_best_exercise(
-        exercise_2_id,
-        exercise_2_slide_1_id,
-        exercise_2_slide_1_task_1_id,
-        block_id_3,
         block_id_4,
         exercise_2_slide_1_task_1_spec_1_id,
         exercise_2_slide_1_task_1_spec_2_id,
         exercise_2_slide_1_task_1_spec_3_id,
-        Some("AutomaticallyAcceptOrManualReviewByAverage".to_string()),
+        Some("AutomaticallyGradeOrManualReviewByAverage".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_2_id,
+            exercise_slide_id: exercise_2_slide_1_id,
+            exercise_task_id: exercise_2_slide_1_task_1_id,
+            block_id: block_id_3,
+        },
     );
 
     create_page(
@@ -3940,6 +4567,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_2]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -3948,8 +4576,11 @@ pub async fn seed_peer_review_course_without_submissions(
         &mut conn,
         course_id,
         exercise_2_id,
-        AutomaticallyAcceptOrManualReviewByAverage,
+        AutomaticallyGradeOrManualReviewByAverage,
         2.5,
+        true,
+        1,
+        0,
     )
     .await?;
 
@@ -3967,15 +4598,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"31443721-fc55-4ea6-9b2a-2da8a6a991df");
 
     let (exercise_block_3, exercise_3, slide_1, task_1) = create_best_exercise(
-        exercise_3_id,
-        exercise_3_slide_1_id,
-        exercise_3_slide_1_task_1_id,
-        block_id_5,
         block_id_6,
         exercise_3_slide_1_task_1_spec_1_id,
         exercise_3_slide_1_task_1_spec_2_id,
         exercise_3_slide_1_task_1_spec_3_id,
-        Some("AutomaticallyAcceptOrRejectByAverage".to_string()),
+        Some("AutomaticallyGradeByAverage".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_3_id,
+            exercise_slide_id: exercise_3_slide_1_id,
+            exercise_task_id: exercise_3_slide_1_task_1_id,
+            block_id: block_id_5,
+        },
     );
 
     create_page(
@@ -3992,6 +4625,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_3,]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4000,8 +4634,11 @@ pub async fn seed_peer_review_course_without_submissions(
         &mut conn,
         course_id,
         exercise_3_id,
-        AutomaticallyAcceptOrRejectByAverage,
+        AutomaticallyGradeByAverage,
         2.0,
+        true,
+        1,
+        0,
     )
     .await?;
 
@@ -4019,15 +4656,17 @@ pub async fn seed_peer_review_course_without_submissions(
         Uuid::new_v5(&course_id, b"c17f23ca-7daa-40dd-b390-1ac8531dd17d");
 
     let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
-        exercise_4_id,
-        exercise_4_slide_1_id,
-        exercise_4_slide_1_task_1_id,
-        block_id_7,
         block_id_8,
         exercise_4_slide_1_task_1_spec_1_id,
         exercise_4_slide_1_task_1_spec_2_id,
         exercise_4_slide_1_task_1_spec_3_id,
         Some("ManualReviewEverything2".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_4_id,
+            exercise_slide_id: exercise_4_slide_1_id,
+            exercise_task_id: exercise_4_slide_1_task_1_id,
+            block_id: block_id_7,
+        },
     );
 
     create_page(
@@ -4044,6 +4683,7 @@ pub async fn seed_peer_review_course_without_submissions(
             exercise_tasks: vec![task_1],
             content: serde_json::json!([exercise_block_1,]),
         },
+        base_url.clone(),
         Arc::clone(&jwt_key),
     )
     .await?;
@@ -4054,6 +4694,67 @@ pub async fn seed_peer_review_course_without_submissions(
         exercise_4_id,
         ManualReviewEverything,
         3.0,
+        true,
+        1,
+        0,
+    )
+    .await?;
+
+    let block_id_9 = Uuid::new_v5(&course_id, b"54349cc8-dbba-4223-b5e0-71fafdfe8fd3");
+    let block_id_10 = Uuid::new_v5(&course_id, b"ee05ad17-07dc-4c3b-be63-67bd2a4ac46a");
+    let exercise_5_id = Uuid::new_v5(&course_id, b"31717e20-8fe5-451c-a7d3-bca09d0ea14f");
+    let exercise_5_slide_1_id = Uuid::new_v5(&course_id, b"9bd990d1-3cd6-4e23-b372-8860ebd8bac5");
+    let exercise_5_slide_1_task_1_id =
+        Uuid::new_v5(&course_id, b"fe5da9f8-aaae-4b05-9cf9-29f3cde55bd7");
+    let exercise_5_slide_1_task_1_spec_1_id =
+        Uuid::new_v5(&course_id, b"5efb1377-70af-455f-ad78-cddd0bd6cbb1");
+    let exercise_5_slide_1_task_1_spec_2_id =
+        Uuid::new_v5(&course_id, b"f92ba66c-fe8a-4711-b25a-73a13c451543");
+    let exercise_5_slide_1_task_1_spec_3_id =
+        Uuid::new_v5(&course_id, b"75bbc9f6-84f2-4182-80d1-07bd7c435d6c");
+
+    let (exercise_block_1, exercise_1, slide_1, task_1) = create_best_exercise(
+        block_id_10,
+        exercise_5_slide_1_task_1_spec_1_id,
+        exercise_5_slide_1_task_1_spec_2_id,
+        exercise_5_slide_1_task_1_spec_3_id,
+        Some("Can give extra reviews".to_string()),
+        CommonExerciseData {
+            exercise_id: exercise_5_id,
+            exercise_slide_id: exercise_5_slide_1_id,
+            exercise_task_id: exercise_5_slide_1_task_1_id,
+            block_id: block_id_9,
+        },
+    );
+
+    create_page(
+        &mut conn,
+        course.id,
+        admin,
+        Some(chapter_1.id),
+        CmsPageUpdate {
+            url_path: "/chapter-1/can-give-extra-reviews".to_string(),
+            title: "Can give extra peer reviews".to_string(),
+            chapter_id: Some(chapter_1.id),
+            exercises: vec![exercise_1],
+            exercise_slides: vec![slide_1],
+            exercise_tasks: vec![task_1],
+            content: serde_json::json!([exercise_block_1,]),
+        },
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+    )
+    .await?;
+
+    create_best_peer_review(
+        &mut conn,
+        course_id,
+        exercise_5_id,
+        AutomaticallyGradeByAverage,
+        3.0,
+        true,
+        3,
+        2,
     )
     .await?;
 

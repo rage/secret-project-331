@@ -1,25 +1,28 @@
 import { css } from "@emotion/css"
-import ClickAwayListener from "@mui/base/ClickAwayListener"
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 
+import useClickOutside from "../hooks/useClickOutside"
 import { typography } from "../styles"
 
-interface DialogExtraProps {
+interface DialogProps extends React.HTMLAttributes<HTMLDialogElement> {
   open: boolean
   onClose?: () => void
   closeable?: boolean
   noPadding?: boolean
+  width?: "normal" | "wide"
 }
 
-const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProps> = ({
+const Dialog: React.FC<DialogProps> = ({
   children,
   open,
   onClose,
   closeable = true,
   noPadding = false,
+  width = "normal",
   ...rest
 }) => {
   const ref = useRef<HTMLDialogElement>(null)
+  const dialogContentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const current = ref.current
@@ -65,6 +68,16 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
     }
   }, [closeable])
 
+  useClickOutside(
+    dialogContentRef,
+    () => {
+      if (closeable) {
+        ref.current?.close()
+      }
+    },
+    open,
+  )
+
   return (
     <dialog
       ref={ref}
@@ -74,7 +87,7 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
         border-radius: 5px;
         padding: 0;
         width: 95%;
-        max-width: 700px;
+        max-width: ${width === "normal" ? "700px" : "1200px"};
 
         h1 {
           font-size: ${typography.h5};
@@ -101,23 +114,16 @@ const Dialog: React.FC<React.HTMLAttributes<HTMLDialogElement> & DialogExtraProp
       `}
     >
       {open && (
-        <ClickAwayListener
-          onClickAway={() => {
-            if (closeable) {
-              ref.current?.close()
-            }
-          }}
+        <div
+          //  For accessibility, so that screen readers don't interpret the whole dialog as clickable.
+          role="presentation"
+          ref={dialogContentRef}
+          className={css`
+            ${!noPadding && `padding: 2rem 3rem;`}
+          `}
         >
-          {/* For accessibility, so that screen readers don't interpret the whole dialog as clickable. */}
-          <div
-            role="presentation"
-            className={css`
-              ${!noPadding && `padding: 2rem 3rem;`}
-            `}
-          >
-            {children}
-          </div>
-        </ClickAwayListener>
+          {children}
+        </div>
       )}
     </dialog>
   )

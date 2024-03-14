@@ -19,7 +19,6 @@ const LinearProgress = styled.div<LinearProgressProps>`
 
   ${respondToOrLarger.sm} {
     height: ${({ height }) => (height === "small" ? "16px" : "28px")};
-    /* width: 500px; */
     width: 100%;
   }
 `

@@ -15,9 +15,12 @@ interface Props {
 const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  const glossary = useQuery([`glossary-${courseId}`], () => fetchGlossary(courseId))
+  const glossary = useQuery({
+    queryKey: [`glossary-${courseId}`],
+    queryFn: () => fetchGlossary(courseId),
+  })
 
-  if (glossary.isLoading) {
+  if (glossary.isPending) {
     return <Spinner variant={"small"} />
   }
 

@@ -19,35 +19,43 @@ import {
 import { ExerciseFile, ModelSolutionSpec, PrivateSpec } from "../../util/stateInterfaces"
 
 export default async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
-  if (req.method !== "POST") {
-    return res.status(404).json({ message: "Not found" })
-  }
-  let uploadClaim: string | null = null
-  const uploadClaimHeader = req.headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER]
-  if (typeof uploadClaimHeader === "string") {
-    uploadClaim = uploadClaimHeader
-  }
+  try {
+    const specRequest = req.body as SpecRequest
+    const requestId = specRequest.request_id.slice(0, 4)
 
-  return await handlePost(req, uploadClaim, res)
+    if (req.method !== "POST") {
+      return badRequest(requestId, res, "Wrong method")
+    }
+    let uploadClaim: string | null = null
+    const uploadClaimHeader = req.headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER]
+    if (typeof uploadClaimHeader === "string") {
+      uploadClaim = uploadClaimHeader
+    }
+
+    return await processModelSolution(res, requestId, specRequest, uploadClaim)
+  } catch (err) {
+    return internalServerError("----", res, "Error while processing request", err)
+  }
 }
 
-const handlePost = async (
-  req: NextApiRequest,
-  uploadClaim: string | null,
+const processModelSolution = async (
   res: NextApiResponse<ModelSolutionSpec | ClientErrorResponse>,
+  requestId: string,
+  specRequest: SpecRequest,
+  uploadClaim: string | null,
 ): Promise<void> => {
-  const { request_id, private_spec, upload_url } = req.body as SpecRequest
-  const requestId = request_id.slice(0, 4)
-
-  const privateSpec = private_spec as PrivateSpec | null
-  if (privateSpec === null) {
-    throw "Private spec cannot be null"
-  }
-  if (upload_url === null) {
-    throw "Missing upload URL"
-  }
-
   try {
+    log(requestId, "Processing model solution")
+
+    const { private_spec, upload_url } = specRequest
+    const privateSpec = private_spec as PrivateSpec | null
+    if (privateSpec === null) {
+      return badRequest(requestId, res, "Private spec cannot be null")
+    }
+    if (upload_url === null) {
+      return badRequest(requestId, res, "Missing upload URL")
+    }
+
     // create model solution
     debug(requestId, "downloading template")
     const templateArchive = temporaryFile()
@@ -55,16 +63,18 @@ const handlePost = async (
 
     debug(requestId, "extracting template")
     const extractedProjectDir = temporaryDirectory()
-    await extractProject(templateArchive, extractedProjectDir)
+    await extractProject(templateArchive, extractedProjectDir, makeLog(requestId))
 
     debug(requestId, "preparing solution")
     const solutionDir = temporaryDirectory()
-    await prepareSolution(extractedProjectDir, solutionDir)
+    await prepareSolution(extractedProjectDir, solutionDir, makeLog(requestId))
 
     let modelSolutionSpec: ModelSolutionSpec
     if (privateSpec.type === "browser") {
-      modelSolutionSpec = await prepareBrowserModelSolution(solutionDir)
+      debug(requestId, "preparing browser model solution")
+      modelSolutionSpec = await prepareBrowserModelSolution(requestId, solutionDir)
     } else if (privateSpec.type === "editor") {
+      debug(requestId, "preparing editor model solution")
       modelSolutionSpec = await prepareEditorModelSolution(
         requestId,
         solutionDir,
@@ -73,19 +83,25 @@ const handlePost = async (
         uploadClaim,
       )
     } else {
-      return res.status(500).json({ message: `Unexpected private spec type: ${privateSpec.type}` })
+      return internalServerError(requestId, res, "Unexpected private spec type", privateSpec.type)
     }
-    return res.status(200).json(modelSolutionSpec)
-  } catch (e) {
-    if (e instanceof Error) {
-      error(requestId, "error:", e.stack)
-    }
-    return res.status(500).json({ message: `Internal server error: ${JSON.stringify(e, null, 2)}` })
+    return ok(res, modelSolutionSpec)
+  } catch (err) {
+    error(requestId, "Error while processing the model solution spec", err)
+    return internalServerError(
+      requestId,
+      res,
+      "Error while processing the model solution spec",
+      err,
+    )
   }
 }
 
-const prepareBrowserModelSolution = async (solutionDir: string): Promise<ModelSolutionSpec> => {
-  const config = await getExercisePackagingConfiguration(solutionDir)
+const prepareBrowserModelSolution = async (
+  requestId: string,
+  solutionDir: string,
+): Promise<ModelSolutionSpec> => {
+  const config = await getExercisePackagingConfiguration(solutionDir, makeLog(requestId))
   const solutionFiles: Array<ExerciseFile> = []
   for (const studentFilePath of config.student_file_paths) {
     const resolvedPath = path.resolve(solutionDir, studentFilePath)
@@ -108,14 +124,18 @@ const prepareEditorModelSolution = async (
 ): Promise<ModelSolutionSpec> => {
   debug(requestId, "compressing solution")
   const solutionArchive = temporaryFile()
-  await compressProject(solutionDir, solutionArchive, "zstd", true)
+  await compressProject(solutionDir, solutionArchive, "zstd", true, makeLog(requestId))
 
   debug(requestId, "uploading solution to", uploadUrl)
   const form = new FormData()
   const archiveName = exercise.part + "/" + exercise.name + "-solution.tar.zst"
   form.append(archiveName, fs.createReadStream(solutionArchive))
+  const headers: Record<string, string> = {}
+  if (uploadClaim) {
+    headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
+  }
   const res = await axios.post(uploadUrl, form, {
-    headers: uploadClaim ? { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: uploadClaim } : {},
+    headers,
   })
   if (isObjectMap<string>(res.data)) {
     const solutionDownloadUrl = res.data[archiveName]
@@ -128,10 +148,71 @@ const prepareEditorModelSolution = async (
   }
 }
 
+// response helpers
+
+const ok = (
+  res: NextApiResponse<ModelSolutionSpec>,
+  modelSolutionSpec: ModelSolutionSpec,
+): void => {
+  res.status(200).json(modelSolutionSpec)
+}
+
+const badRequest = (
+  requestId: string,
+  res: NextApiResponse<ClientErrorResponse>,
+  contextMessage: string,
+  err?: unknown,
+): void => {
+  errorResponse(requestId, res, 400, contextMessage, err)
+}
+
+const internalServerError = (
+  requestId: string,
+  res: NextApiResponse<ClientErrorResponse>,
+  contextMessage: string,
+  err?: unknown,
+): void => {
+  errorResponse(requestId, res, 500, contextMessage, err)
+}
+
+const errorResponse = (
+  requestId: string,
+  res: NextApiResponse<ClientErrorResponse>,
+  statusCode: number,
+  contextMessage: string,
+  err?: unknown,
+) => {
+  let message
+  let stack = undefined
+  if (err instanceof Error) {
+    message = `${contextMessage}: ${err.message}`
+    stack = err.stack
+  } else if (typeof err === "string") {
+    message = `${contextMessage}: ${err}`
+  } else if (err === undefined) {
+    message = contextMessage
+  } else {
+    // unexpected type
+    message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
+  }
+  error(requestId, message, stack)
+  res.status(statusCode).json({ message })
+}
+
+// logging helpers
+
+const log = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
+  console.log(`[model-solution/${requestId}]`, message, ...optionalParams)
+}
+
 const debug = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
   console.debug(`[model-solution/${requestId}]`, message, ...optionalParams)
 }
 
 const error = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
   console.error(`[model-solution/${requestId}]`, message, ...optionalParams)
+}
+
+const makeLog = (requestId: string): ((message: string, ...optionalParams: unknown[]) => void) => {
+  return (message, optionalParams) => log(requestId, message, optionalParams)
 }

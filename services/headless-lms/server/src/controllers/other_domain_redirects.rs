@@ -8,8 +8,8 @@ use crate::{domain::authorization::skip_authorize, prelude::*};
 /**
 GET `/api/v0/other-domain-redirects/.*` Redirects a domain that is not a main domain to the correct course.
 
-For example https://example-course.mooc.fi could redirect one to https://courses.mooc.fi/org/uh-cs/courses/example-course.
-Paths after the domain are supported, too. For example, https://example-course.mooc.fi/a/b would redirect one to https://courses.mooc.fi/org/uh-cs/courses/example-course/a/b.
+For example <https://example-course.mooc.fi> could redirect one to <https://courses.mooc.fi/org/uh-cs/courses/example-course>.
+Paths after the domain are supported, too. For example, <https://example-course.mooc.fi/a/b> would redirect one to <https://courses.mooc.fi/org/uh-cs/courses/example-course/a/b>.
 The request url is rewritten by the other domain ingress so that right requests end up here.
 **/
 pub async fn redirect_other_domain(
@@ -34,7 +34,7 @@ pub async fn redirect_other_domain(
         let course = models::courses::get_course(&mut conn, redirection.course_id).await?;
         let organization =
             models::organizations::get_organization(&mut conn, course.organization_id).await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         return token.authorized_ok(
             HttpResponse::TemporaryRedirect()
                 .insert_header((

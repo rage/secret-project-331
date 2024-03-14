@@ -1,21 +1,8 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
-import { UseFormRegisterReturn } from "react-hook-form"
+import React, { forwardRef, InputHTMLAttributes } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
-
-interface CheckboxFieldExtraProps {
-  label: string
-  error?: boolean
-  checked?: boolean
-  name?: string
-  /* onBlur?: (name?: string) => void */
-  onChange?: (checked: boolean, name?: string) => void
-  className?: string
-  register?: UseFormRegisterReturn
-  id?: string
-}
 
 const ERRORCOLOR = "#F76D82"
 const DEFAULTCOLOR = "#787878"
@@ -86,53 +73,68 @@ const error = css`
 
 const ERROR = "Please check the secret box"
 
-export type CheckboxProps = React.HTMLAttributes<HTMLInputElement> & CheckboxFieldExtraProps
-
-const CheckBox = ({ onChange, className, checked, register, ...rest }: CheckboxFieldExtraProps) => {
-  return (
-    <div
-      className={cx(
-        css`
-          margin-bottom: 1rem;
-        `,
-        className,
-      )}
-    >
-      <Label {...rest}>
-        <input
-          type="checkbox"
-          checked={checked}
-          aria-errormessage={rest.error ? `${rest.label}_error` : undefined}
-          aria-invalid={rest.error !== undefined}
-          onChange={({ target: { checked } }) => {
-            if (onChange) {
-              onChange(checked)
-            }
-          }}
-          {...register}
-          {...rest}
-        />
-        <span>{rest.label}</span>
-      </Label>
-      {rest.error && (
-        <span
-          className={
-            rest.error
-              ? cx(error)
-              : css`
-                  visibility: hidden;
-                  height: 0;
-                  display: block;
-                `
-          }
-          id={`${rest.id ?? rest.label}_error`}
-          role="alert"
-        >
-          {ERROR}
-        </span>
-      )}
-    </div>
-  )
+export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  error?: boolean
+  checked?: boolean
+  onChangeByValue?: (checked: boolean, name?: string) => void
 }
 
+const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
+  ({ onChangeByValue, onChange, className, checked, ...rest }: CheckboxProps, ref) => {
+    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChangeByValue) {
+        const {
+          target: { checked },
+        } = event
+        onChangeByValue(checked)
+      }
+      if (onChange) {
+        onChange(event)
+      }
+    }
+    return (
+      <div
+        className={cx(
+          css`
+            margin-bottom: 1rem;
+          `,
+          className,
+        )}
+      >
+        <Label>
+          <input
+            type="checkbox"
+            checked={checked}
+            aria-errormessage={rest.error ? `${rest.label}_error` : undefined}
+            aria-invalid={rest.error !== undefined}
+            onChange={handleOnChange}
+            ref={ref}
+            {...rest}
+          />
+          <span>{rest.label}</span>
+        </Label>
+        {rest.error && (
+          <span
+            className={
+              rest.error
+                ? cx(error)
+                : css`
+                    visibility: hidden;
+                    height: 0;
+                    display: block;
+                  `
+            }
+            id={`${rest.id ?? rest.label}_error`}
+            role="alert"
+          >
+            {ERROR}
+          </span>
+        )}
+      </div>
+    )
+  },
+)
+
+CheckBox.displayName = "CheckBox"
 export default CheckBox

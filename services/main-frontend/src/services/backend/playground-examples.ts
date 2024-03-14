@@ -1,5 +1,3 @@
-import axios from "axios"
-
 import { PlaygroundExample, PlaygroundExampleData } from "../../shared-module/bindings"
 import { isPlaygroundExample } from "../../shared-module/bindings.guard"
 import {
@@ -12,7 +10,7 @@ import { filesClient } from "../filesClient"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchPlaygroundExamples = async (): Promise<Array<PlaygroundExample>> => {
-  const response = await mainFrontendClient.get(`/playground_examples`, { responseType: "json" })
+  const response = await mainFrontendClient.get(`/playground_examples`)
   return validateResponse(response, isArray(isPlaygroundExample))
 }
 
@@ -31,9 +29,7 @@ export const updatePlaygroundExample = async (
 }
 
 export const deletePlaygroundExample = async (id: string): Promise<PlaygroundExample> => {
-  const response = await mainFrontendClient.delete(`/playground_examples/${id}`, {
-    responseType: "json",
-  })
+  const response = await mainFrontendClient.delete(`/playground_examples/${id}`)
   return validateResponse(response, isPlaygroundExample)
 }
 

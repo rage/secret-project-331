@@ -1,11 +1,13 @@
 import styled from "@emotion/styled"
 import { AxiosError } from "axios"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ErrorResponse } from "../bindings"
 import { isErrorData, isErrorResponse } from "../bindings.guard"
 import { baseTheme } from "../styles"
+
+import Spinner from "./Spinner"
 
 const BannerWrapper = styled.div`
   background: #f1f1f1;
@@ -120,9 +122,35 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
   props,
 ) => {
   const { t } = useTranslation()
+
   const { error: unknownError } = props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const error = unknownError as any
+  const anyError = unknownError as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [error, setError] = useState<any>(undefined)
+  useEffect(() => {
+    if (typeof anyError === "object" && anyError !== null && anyError.data instanceof Blob) {
+      const blob: Blob = anyError.data
+      blob.text().then((text) => {
+        try {
+          const parsed = JSON.parse(text)
+          setError({ ...anyError, data: parsed })
+        } catch {
+          setError({ ...anyError, data: text })
+        }
+      })
+    } else if (anyError === undefined) {
+      throw new Error("Invalid input")
+    } else {
+      setError(anyError)
+    }
+  }, [anyError])
+
+  if (error === undefined) {
+    // error data is blob and haven't read it yet, this should practically never be shown
+    return <Spinner variant="medium" />
+  }
+
   if (typeof error === "string") {
     return (
       <BannerWrapper>
@@ -236,7 +264,10 @@ const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<Bann
         <BannerWrapper>
           <Content>
             <Text>
-              <h2>{t("error-title")}</h2>
+              <h2>
+                {t("error-title")}
+                {error.message && `: ${error.message}`}
+              </h2>
             </Text>
             <DetailTag>
               <details>

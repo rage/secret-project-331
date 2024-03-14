@@ -43,7 +43,7 @@ pub async fn regrade(
     // set of regradings that should not be marked as completed by the end
     let mut incomplete_regradings = HashSet::new();
 
-    tracing::info!("fetching uncompleted regradings");
+    tracing::debug!("fetching uncompleted regradings");
     let regrading_ids =
         models::regradings::get_uncompleted_regradings_and_mark_as_started(&mut *conn).await?;
     for regrading_id in regrading_ids.iter().copied() {
@@ -372,7 +372,7 @@ mod test {
         )
         .await
         .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
@@ -465,7 +465,7 @@ mod test {
         )
         .await
         .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
@@ -629,7 +629,7 @@ mod test {
             .exercise_task_submission_results
             .first()
             .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(serde_json::to_string(&grading_result).unwrap())
@@ -749,7 +749,7 @@ mod test {
         )
         .await
         .unwrap();
-        let mut server = mockito::Server::new();
+        let mut server = mockito::Server::new_async().await;
         let _m = server
             .mock("POST", Matcher::Any)
             .with_body(
@@ -965,6 +965,7 @@ mod test {
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "/model-solution".to_string(),
+                has_custom_view: false,
             },
         )
         .await?;

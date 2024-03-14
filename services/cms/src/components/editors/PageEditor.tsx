@@ -124,9 +124,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
-  const getNextPageRoutingData = useQuery([`pages-${data.id}-page-navigation`], () =>
-    fetchNextPageRoutingData(data.id),
-  )
+  const getNextPageRoutingData = useQuery({
+    queryKey: [`pages-${data.id}-page-navigation`],
+    queryFn: () => fetchNextPageRoutingData(data.id),
+  })
 
   const pageRoutingData = getNextPageRoutingData.data
   let nextPageUrl = "/"
@@ -230,8 +231,8 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             data.chapter_id !== null || data.exam_id !== null
               ? blockTypeMapForPages
               : data.url_path === "/"
-              ? blockTypeMapForFrontPages
-              : blockTypeMapForTopLevelPages
+                ? blockTypeMapForFrontPages
+                : blockTypeMapForTopLevelPages
           }
           allowedBlocks={supportedCoreBlocks}
           allowedBlockVariations={allowedBlockVariants}

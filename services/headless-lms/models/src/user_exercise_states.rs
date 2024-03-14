@@ -189,14 +189,14 @@ pub struct UserCourseInstanceMetrics {
     pub attempted_exercises: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 pub struct CourseInstanceExerciseMetrics {
     course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseUserCounts {
     exercise_name: String,
@@ -635,6 +635,42 @@ WHERE user_id = $1
         exam_id
     )
     .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_for_user_and_course_instance_or_exam(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_or_exam_id: CourseInstanceOrExamId,
+) -> ModelResult<Vec<UserExerciseState>> {
+    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id = $1
+  AND (course_instance_id = $2 OR exam_id = $3)
+  AND deleted_at IS NULL
+      "#,
+        user_id,
+        course_instance_id,
+        exam_id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -1122,7 +1158,7 @@ mod tests {
             Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
         )
         .set_timestamps(timestamp, timestamp, None)
-        .set_registration_info(None, Some(5), None, false)];
+        .set_registration_info(None, Some(5.0), None, false)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
             CourseInstanceExerciseMetrics {

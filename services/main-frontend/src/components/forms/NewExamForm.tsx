@@ -57,8 +57,8 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
     onCreateNewExam({
       organization_id: organizationId,
       name: data.name,
-      starts_at: new Date(data.startsAt),
-      ends_at: new Date(data.endsAt),
+      starts_at: new Date(data.startsAt).toISOString(),
+      ends_at: new Date(data.endsAt).toISOString(),
       time_minutes: Number(data.timeMinutes),
       minimum_points_treshold: data.automaticCompletionEnabled
         ? Number(data.minimumPointsTreshold)
@@ -71,8 +71,8 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       const newExam: NewExam = {
         organization_id: organizationId,
         name: data.name,
-        starts_at: new Date(data.startsAt),
-        ends_at: new Date(data.endsAt),
+        starts_at: new Date(data.startsAt).toISOString(),
+        ends_at: new Date(data.endsAt).toISOString(),
         time_minutes: Number(data.timeMinutes),
         minimum_points_treshold: data.automaticCompletionEnabled
           ? Number(data.minimumPointsTreshold)
@@ -102,7 +102,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           id={"name"}
           error={errors.name?.message}
           label={t("label-name")}
-          register={register("name", { required: t("required-field") })}
+          {...register("name", { required: t("required-field") })}
         />
         <DateTimeLocal
           error={errors.startsAt?.message}
@@ -110,7 +110,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
           }
           label={t("label-starts-at")}
-          register={register("startsAt", { required: t("required-field") })}
+          {...register("startsAt", { required: t("required-field") })}
         />
         <DateTimeLocal
           error={errors.endsAt?.message}
@@ -118,28 +118,24 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
             initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
           }
           label={t("label-ends-at")}
-          register={register("endsAt", { required: t("required-field") })}
+          {...register("endsAt", { required: t("required-field") })}
         />
         <TextField
           id={"timeMinutes"}
           error={errors.timeMinutes?.message}
           label={t("label-time-minutes")}
-          register={register("timeMinutes", {
-            required: t("required-field"),
-          })}
+          {...register("timeMinutes", { required: t("required-field") })}
         />
         <CheckBox
           label={t("label-related-courses-can-be-completed-automatically")}
-          register={register("automaticCompletionEnabled")}
+          {...register("automaticCompletionEnabled")}
         />
         {automaticEnabled && (
           <TextField
             id={"minimumPointsTreshold"}
             error={errors.timeMinutes?.message}
             label={t("label-exam-minimum-points")}
-            register={register("minimumPointsTreshold", {
-              required: t("required-field"),
-            })}
+            {...register("minimumPointsTreshold", { required: t("required-field") })}
           />
         )}
         <br />
@@ -151,7 +147,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         {duplicateExam && (
           <SelectField
             id={"parentId"}
-            onChange={(value) => handleSetExamToDuplicate(value)}
+            onChangeByValue={(value) => handleSetExamToDuplicate(value)}
             options={exams.map((e) => {
               return { label: e.name, value: e.id }
             })}

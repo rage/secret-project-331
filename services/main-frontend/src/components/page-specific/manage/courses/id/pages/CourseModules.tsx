@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -56,23 +56,8 @@ type ModuleList = {
 const CourseModules: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  const [chapterNumbers, setChapterNumbers] = useState([1])
-
-  // module list state
-  const [initialModuleList, setInitialModuleList] = useState<ModuleList>({
-    modules: [],
-    chapters: [],
-    error: null,
-  })
-  const [{ modules, chapters, error }, setModuleList] = useState<ModuleList>({
-    modules: [],
-    chapters: [],
-    error: null,
-  })
-
-  // submitting state
   const [edited, setEdited] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [moduleList, setModuleList] = useState<ModuleList | null>(null)
 
   // helper functions
   const validateModuleList = (
@@ -128,9 +113,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     }
 
     // check that no module is empty
-    for (const module of modules) {
-      if (!seenModules.has(module.id)) {
-        return t("error-modules-empty-module", { moduleName: module.name })
+    for (const courseModule of modules) {
+      if (!seenModules.has(courseModule.id)) {
+        return t("error-modules-empty-module", { moduleName: courseModule.name })
       }
     }
 
@@ -179,82 +164,95 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
 
   // queries and mutations
-  const courseStructureQuery = useQuery(
-    ["course-structure", courseId],
-    () => fetchCourseStructure(courseId),
-    {
-      onSuccess: (courseStructure) => {
-        const chapterNumbers = courseStructure.chapters
-          .sort((l, r) => l.chapter_number - r.chapter_number)
-          .map((c) => c.chapter_number)
-        setChapterNumbers(chapterNumbers)
+  const courseStructureQuery = useQuery({
+    queryKey: ["course-structure", courseId],
+    queryFn: () => fetchCourseStructure(courseId),
+    select: (courseStructure) => {
+      const chapterNumbers = courseStructure.chapters
+        .sort((l, r) => l.chapter_number - r.chapter_number)
+        .map((c) => c.chapter_number)
 
-        const makeModuleList = () => {
-          const chapters = courseStructure.chapters
-            .sort((l, r) => l.chapter_number - r.chapter_number)
-            .map((c) => {
-              return {
-                id: c.id,
-                name: c.name,
-                module: c.course_module_id,
-                chapter_number: c.chapter_number,
-              }
-            })
-          const modules = courseStructure.modules.map<ModuleView>((m) => {
-            const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-            if (m.completion_policy.policy === "automatic") {
-              return {
-                id: m.id,
-                name: m.name,
-                order_number: m.order_number,
-                firstChapter,
-                lastChapter,
-                isNew: false,
-                uh_course_code: m.uh_course_code,
-                ects_credits: m.ects_credits,
-                automatic_completion: true,
-                automatic_completion_number_of_points_treshold:
-                  m.completion_policy.number_of_points_treshold,
-                automatic_completion_number_of_exercises_attempted_treshold:
-                  m.completion_policy.number_of_exercises_attempted_treshold,
-                automatic_completion_requires_exam: m.completion_policy.requires_exam,
-                completion_registration_link_override: m.completion_registration_link_override,
-                enable_registering_completion_to_uh_open_university:
-                  m.enable_registering_completion_to_uh_open_university,
-              }
-            } else {
-              return {
-                id: m.id,
-                name: m.name,
-                order_number: m.order_number,
-                firstChapter,
-                lastChapter,
-                isNew: false,
-                uh_course_code: m.uh_course_code,
-                ects_credits: m.ects_credits,
-                automatic_completion: false,
-                automatic_completion_number_of_points_treshold: null,
-                automatic_completion_number_of_exercises_attempted_treshold: null,
-                automatic_completion_requires_exam: false,
-                completion_registration_link_override: m.completion_registration_link_override,
-                enable_registering_completion_to_uh_open_university:
-                  m.enable_registering_completion_to_uh_open_university,
-              }
+      const makeModuleList = () => {
+        const chapters = courseStructure.chapters
+          .sort((l, r) => l.chapter_number - r.chapter_number)
+          .map((c) => {
+            return {
+              id: c.id,
+              name: c.name,
+              module: c.course_module_id,
+              chapter_number: c.chapter_number,
             }
           })
-          const error = validateModuleList(modules, chapters)
-          return { modules, chapters, error }
-        }
-        setInitialModuleList(makeModuleList())
-        setModuleList(makeModuleList())
-      },
+        const modules = courseStructure.modules.map<ModuleView>((m) => {
+          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+          if (m.completion_policy.policy === "automatic") {
+            return {
+              id: m.id,
+              name: m.name,
+              order_number: m.order_number,
+              firstChapter,
+              lastChapter,
+              isNew: false,
+              uh_course_code: m.uh_course_code,
+              ects_credits: m.ects_credits,
+              automatic_completion: true,
+              automatic_completion_number_of_points_treshold:
+                m.completion_policy.number_of_points_treshold,
+              automatic_completion_number_of_exercises_attempted_treshold:
+                m.completion_policy.number_of_exercises_attempted_treshold,
+              automatic_completion_requires_exam: m.completion_policy.requires_exam,
+              completion_registration_link_override: m.completion_registration_link_override,
+              enable_registering_completion_to_uh_open_university:
+                m.enable_registering_completion_to_uh_open_university,
+            }
+          } else {
+            return {
+              id: m.id,
+              name: m.name,
+              order_number: m.order_number,
+              firstChapter,
+              lastChapter,
+              isNew: false,
+              uh_course_code: m.uh_course_code,
+              ects_credits: m.ects_credits,
+              automatic_completion: false,
+              automatic_completion_number_of_points_treshold: null,
+              automatic_completion_number_of_exercises_attempted_treshold: null,
+              automatic_completion_requires_exam: false,
+              completion_registration_link_override: m.completion_registration_link_override,
+              enable_registering_completion_to_uh_open_university:
+                m.enable_registering_completion_to_uh_open_university,
+            }
+          }
+        })
+        const error = validateModuleList(modules, chapters)
+        return { modules, chapters, error }
+      }
+      return {
+        initialModuleList: makeModuleList(),
+        moduleList: makeModuleList(),
+        chapterNumbers,
+      }
     },
-  )
+  })
+  const initialModuleList = courseStructureQuery.data?.initialModuleList
+  useEffect(() => {
+    if (!courseStructureQuery.data) {
+      return
+    }
+    if (moduleList === null) {
+      setModuleList(courseStructureQuery.data.moduleList)
+    }
+  }, [courseStructureQuery.data, moduleList])
+
   const moduleUpdatesMutation = useToastMutation(
     () => {
-      console.log(modules)
-      console.log(initialModuleList.modules)
-      setSubmitting(true)
+      if (!initialModuleList) {
+        throw new Error("initialModuleList is undefined")
+      }
+      if (!moduleList) {
+        throw new Error("moduleList is undefined")
+      }
 
       // check new and modified modules
       const newModules = new Map<string, NewModule>()
@@ -263,51 +261,55 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         (map, module) => map.set(module.id, module),
         new Map(),
       )
-      for (const module of modules) {
+      for (const courseModule of moduleList.modules) {
         // cannot add or modify default module
-        const initialModule = idToInitialModule.get(module.id)
-        if (initialModule === undefined && module.name !== null) {
+        const initialModule = idToInitialModule.get(courseModule.id)
+        if (initialModule === undefined && courseModule.name !== null) {
           // new module
-          newModules.set(module.id, {
-            name: module.name,
-            order_number: module.order_number,
-            chapters: chapters.filter((c) => c.module === module.id).map((c) => c.id),
-            uh_course_code: module.uh_course_code,
-            ects_credits: module.ects_credits,
-            completion_policy: mapFieldsToCompletionPolicy(module),
-            completion_registration_link_override: module.completion_registration_link_override,
+          newModules.set(courseModule.id, {
+            name: courseModule.name,
+            order_number: courseModule.order_number,
+            chapters: moduleList.chapters
+              .filter((c) => c.module === courseModule.id)
+              .map((c) => c.id),
+            uh_course_code: courseModule.uh_course_code,
+            ects_credits: courseModule.ects_credits,
+            completion_policy: mapFieldsToCompletionPolicy(courseModule),
+            completion_registration_link_override:
+              courseModule.completion_registration_link_override,
             enable_registering_completion_to_uh_open_university:
-              module.enable_registering_completion_to_uh_open_university,
+              courseModule.enable_registering_completion_to_uh_open_university,
           })
         } else if (initialModule !== undefined) {
           // old module, check for modifications
           if (
-            module.name !== initialModule.name ||
-            module.uh_course_code !== initialModule.uh_course_code ||
-            module.ects_credits !== initialModule.ects_credits ||
-            module.automatic_completion !== initialModule.automatic_completion ||
-            module.automatic_completion_number_of_points_treshold !==
+            courseModule.name !== initialModule.name ||
+            courseModule.uh_course_code !== initialModule.uh_course_code ||
+            courseModule.ects_credits !== initialModule.ects_credits ||
+            courseModule.automatic_completion !== initialModule.automatic_completion ||
+            courseModule.automatic_completion_number_of_points_treshold !==
               initialModule.automatic_completion_number_of_points_treshold ||
-            module.ects_credits !== initialModule.ects_credits ||
-            module.automatic_completion_number_of_exercises_attempted_treshold !==
+            courseModule.ects_credits !== initialModule.ects_credits ||
+            courseModule.automatic_completion_number_of_exercises_attempted_treshold !==
               initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
-            module.automatic_completion_requires_exam !==
+            courseModule.automatic_completion_requires_exam !==
               initialModule.automatic_completion_requires_exam ||
-            module.completion_registration_link_override !==
+            courseModule.completion_registration_link_override !==
               initialModule.completion_registration_link_override ||
-            module.enable_registering_completion_to_uh_open_university !==
+            courseModule.enable_registering_completion_to_uh_open_university !==
               initialModule.enable_registering_completion_to_uh_open_university
           ) {
             modifiedModules.push({
-              id: module.id,
-              name: module.name,
-              order_number: module.order_number,
-              uh_course_code: module.uh_course_code,
-              ects_credits: module.ects_credits,
-              completion_policy: mapFieldsToCompletionPolicy(module),
-              completion_registration_link_override: module.completion_registration_link_override,
+              id: courseModule.id,
+              name: courseModule.name,
+              order_number: courseModule.order_number,
+              uh_course_code: courseModule.uh_course_code,
+              ects_credits: courseModule.ects_credits,
+              completion_policy: mapFieldsToCompletionPolicy(courseModule),
+              completion_registration_link_override:
+                courseModule.completion_registration_link_override,
               enable_registering_completion_to_uh_open_university:
-                module.enable_registering_completion_to_uh_open_university,
+                courseModule.enable_registering_completion_to_uh_open_university,
             })
           }
         }
@@ -315,13 +317,13 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
       // check deleted modules
       const deletedModules = new Array<string>()
-      const idToUpdatedModule = modules.reduce<Map<string, ModuleView>>(
+      const idToUpdatedModule = moduleList.modules.reduce<Map<string, ModuleView>>(
         (map, module) => map.set(module.id, module),
         new Map(),
       )
-      for (const module of initialModuleList.modules) {
-        if (!idToUpdatedModule.has(module.id)) {
-          deletedModules.push(module.id)
+      for (const courseModule of initialModuleList.modules) {
+        if (!idToUpdatedModule.has(courseModule.id)) {
+          deletedModules.push(courseModule.id)
         }
       }
 
@@ -331,7 +333,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         (map, chapter) => map.set(chapter.id, chapter),
         new Map(),
       )
-      for (const chapter of chapters) {
+      for (const chapter of moduleList.chapters) {
         const initialChapter = idToInitialChapter.get(chapter.id)
         if (
           initialChapter !== undefined &&
@@ -358,9 +360,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         setEdited(false)
         courseStructureQuery.refetch()
       },
-      onSettled: () => {
-        setSubmitting(false)
-      },
     },
   )
 
@@ -384,6 +383,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   ) => {
     setEdited(true)
     setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
       const chapters = old.chapters.map((c) => {
         if (starts <= c.chapter_number && c.chapter_number <= ends) {
           return { ...c, module: id }
@@ -428,6 +430,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const handleDeleteModule = (moduleId: string) => {
     setEdited(true)
     setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
       const modules = old.modules.filter((m) => m.id !== moduleId)
       const chapters = [...old.chapters].map((c) => {
         const updated = { ...c }
@@ -445,6 +450,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
   const handleSubmit = () => moduleUpdatesMutation.mutate()
   const handleReset = () => {
+    if (!initialModuleList) {
+      throw new Error("initialModuleList is undefined")
+    }
     setEdited(false)
     setModuleList(initialModuleList)
   }
@@ -466,6 +474,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     const newModuleId = v4()
 
     setModuleList((old) => {
+      if (!old) {
+        throw new Error("old module list is null")
+      }
       // update chapters
       const chapters = [...old.chapters]
       chapters.forEach((c) => {
@@ -512,7 +523,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
   if (courseStructureQuery.isError) {
     return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
-  } else if (courseStructureQuery.isLoading) {
+  } else if (courseStructureQuery.isPending) {
     return <Spinner variant={"medium"} />
   }
   return (
@@ -534,8 +545,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         >
           {t("modules")}
         </h1>
-        <NewCourseModuleForm chapters={chapterNumbers} onSubmitForm={onSaveNewModule} />
-        {modules
+        <NewCourseModuleForm
+          chapters={courseStructureQuery.data.chapterNumbers}
+          onSubmitForm={onSaveNewModule}
+        />
+        {moduleList?.modules
           .sort((l, r) => {
             return l.order_number - r.order_number
           })
@@ -552,11 +566,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             >
               <EditCourseModuleForm
                 module={module}
-                chapters={chapterNumbers}
+                chapters={courseStructureQuery.data.chapterNumbers}
                 onSubmitForm={handleSaveModuleEdits}
                 onDeleteModule={handleDeleteModule}
               />
-              {chapters
+              {moduleList?.chapters
                 .filter((c) => c.module === module.id)
                 .map((c) => (
                   <div
@@ -587,14 +601,17 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       </div>
       <BottomPanel
         title={t("title-dialog-module-save")}
-        error={error}
+        error={moduleList?.error}
         show={edited}
         leftButtonText={t("save-changes")}
-        leftButtonDisabled={error !== null || submitting}
+        leftButtonDisabled={
+          (moduleList?.error !== null && moduleList?.error !== undefined) ||
+          moduleUpdatesMutation.isPending
+        }
         onClickLeft={handleSubmit}
         rightButtonText={t("button-reset")}
         onClickRight={handleReset}
-        rightButtonDisabled={submitting}
+        rightButtonDisabled={moduleUpdatesMutation.isPending}
       />
     </>
   )

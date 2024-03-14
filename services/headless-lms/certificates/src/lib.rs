@@ -6,25 +6,26 @@ pub mod font_loader;
 
 use chrono::{Datelike, NaiveDate};
 use futures::future::OptionFuture;
-use headless_lms_models::course_module_certificate_configurations::{
-    get_course_module_certificate_configuration_by_course_module_and_course_instance,
-    CertificateTextAnchor, PaperSize,
-};
+use headless_lms_models::certificate_configurations::{CertificateTextAnchor, PaperSize};
+use headless_lms_models::generated_certificates::GeneratedCertificate;
 use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::icu4x::Icu4xBlob;
 use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
-use resvg::FitTo;
+use icu::calendar::Gregorian;
+use icu::datetime::TypedDateTimeFormatter;
+use resvg::tiny_skia;
 use std::path::Path;
 use std::time::Instant;
-use usvg::{fontdb, TreeParsing, TreeTextToPath};
-use uuid::Uuid;
+use usvg::{fontdb, TreeParsing, TreePostProc};
 
 use quick_xml::{events::BytesText, Writer};
 use std::io::Cursor;
 
-use icu::datetime::{options::length, DateTimeFormatter};
+use icu::datetime::options::length;
 use icu::{calendar::DateTime, locid::Locale};
 use icu_provider::DataLocale;
+use icu_provider_blob::BlobDataProvider;
 use tracing::log::info;
 
 /**
@@ -32,23 +33,20 @@ Generates a certificate as a png.
 
 ## Arguments
 
-- debug_show_anchoring_points: If true, the certificate will have a red dot at the anchoring points. Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
+- debug: If true, the certificate will have a red dot at the anchoring points, and the URL will be replaced with a placeholder.
+  Should be false when rendering certificates for the students. However, when positioning the texts, this can be used to see why the texts were positioned where they were.
 */
 #[allow(clippy::too_many_arguments)]
 pub async fn generate_certificate(
     conn: &mut PgConnection,
-    file_store: &impl FileStore,
-    certificate_url_identifier: &str,
-    cerificate_owner_name: &str,
-    certificate_date: &NaiveDate,
-    course_module_id: Uuid,
-    course_instance_id: Uuid,
-    debug_show_anchoring_points: bool,
+    file_store: &dyn FileStore,
+    certificate: &GeneratedCertificate,
+    debug: bool,
+    icu4x_blob: Icu4xBlob,
 ) -> UtilResult<Vec<u8>> {
-    let config = get_course_module_certificate_configuration_by_course_module_and_course_instance(
+    let config = headless_lms_models::certificate_configurations::get_by_id(
         &mut *conn,
-        course_module_id,
-        course_instance_id,
+        certificate.certificate_configuration_id,
     )
     .await
     .map_err(|original_error| {
@@ -71,9 +69,24 @@ pub async fn generate_certificate(
     .transpose()?;
 
     let fontdb = font_loader::get_font_database_with_fonts(&mut *conn, file_store).await?;
+    let url = if debug {
+        "https://courses.mooc.fi/certificates/validate/debug".to_string()
+    } else {
+        format!(
+            // TODO: use base url here
+            "https://courses.mooc.fi/certificates/validate/{}",
+            certificate.verification_id
+        )
+    };
+    let date = if debug {
+        // TODO: this fixes the date for system tests, not a great solution...
+        NaiveDate::from_ymd_opt(2023, 1, 1).unwrap()
+    } else {
+        certificate.created_at.date_naive()
+    };
     let texts_to_render = vec![
         TextToRender {
-            text: cerificate_owner_name.to_string(),
+            text: certificate.name_on_certificate.to_string(),
             y_pos: config.certificate_owner_name_y_pos,
             x_pos: config.certificate_owner_name_x_pos,
             font_size: config.certificate_owner_name_font_size,
@@ -82,10 +95,7 @@ pub async fn generate_certificate(
             ..Default::default()
         },
         TextToRender {
-            text: format!(
-                // TODO: use base url here
-                "https://courses.mooc.fi/certificates/validate/{certificate_url_identifier}"
-            ),
+            text: url,
             y_pos: config.certificate_validate_url_y_pos,
             x_pos: config.certificate_validate_url_x_pos,
             font_size: config.certificate_validate_url_font_size,
@@ -94,7 +104,7 @@ pub async fn generate_certificate(
             ..Default::default()
         },
         TextToRender {
-            text: get_date_as_localized_string(&config.certificate_locale, certificate_date)?,
+            text: get_date_as_localized_string(&config.certificate_locale, date, icu4x_blob)?,
             y_pos: config.certificate_date_y_pos,
             x_pos: config.certificate_date_x_pos,
             font_size: config.certificate_date_font_size,
@@ -110,7 +120,7 @@ pub async fn generate_certificate(
         overlay_svg.as_deref(),
         &texts_to_render,
         &paper_size,
-        debug_show_anchoring_points,
+        debug,
         &fontdb,
     )?;
     Ok(res)
@@ -134,43 +144,53 @@ fn generate_certificate_impl(
         ..Default::default()
     };
 
-    let mut pixmap = tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px())
+    let mut pixmap = resvg::tiny_skia::Pixmap::new(paper_size.width_px(), paper_size.height_px())
         .ok_or_else(|| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not create a pixmap".to_string(),
-                None,
-            )
-        })?;
-    info!("Setup time {:?}", start_setup.elapsed());
-    let parse_background_svg_start = Instant::now();
-    let mut rtree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            "Could not parse background svg".to_string(),
-            Some(original_error.into()),
+            "Could not create a pixmap".to_string(),
+            None,
         )
     })?;
-    rtree.convert_text(fontdb);
+    info!("Setup time {:?}", start_setup.elapsed());
+    let parse_background_svg_start = Instant::now();
+    let tree = {
+        let mut tree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not parse background svg".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
+        tree.postprocess(
+            usvg::PostProcessingSteps {
+                convert_text_into_paths: true,
+            },
+            fontdb,
+        );
+        tree
+    };
+
     info!(
         "Parse background svg time {:?}",
         parse_background_svg_start.elapsed()
     );
 
     let start_render_background = Instant::now();
+    // Scaling the background to the paper size, if the aspect ratio is wrong (for example if it does not follow the aspect ratio of A4 paper size), the background will get stretched.
+    // If that's the case, the you should fix the background svg.
+    let background_size = tree.size.to_int_size();
+    let x_scale = paper_size.width_px() as f32 / background_size.width() as f32;
+    let y_scale = paper_size.height_px() as f32 / background_size.height() as f32;
+    info!(
+        "Background size {:?}, paper size: {:?}, x_scale: {}, y_scale: {}",
+        background_size, paper_size, x_scale, y_scale
+    );
     resvg::render(
-        &rtree,
-        FitTo::Size(paper_size.width_px(), paper_size.height_px()),
-        tiny_skia::Transform::default(),
-        pixmap.as_mut(),
-    )
-    .ok_or_else(|| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not render background svg".to_string(),
-            None,
-        )
-    })?;
+        &tree,
+        resvg::tiny_skia::Transform::from_scale(x_scale, y_scale),
+        &mut pixmap.as_mut(),
+    );
 
     info!(
         "Render background time {:?}",
@@ -180,54 +200,59 @@ fn generate_certificate_impl(
     let text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)?;
     info!("{}", String::from_utf8_lossy(&text_svg_data));
     let parse_text_svg_start = Instant::now();
-    let mut text_rtree = usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not parse text svg".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
-    text_rtree.convert_text(fontdb);
+    let text_tree = {
+        let mut text_tree =
+            usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
+                UtilError::new(
+                    UtilErrorType::Other,
+                    "Could not parse text svg".to_string(),
+                    Some(original_error.into()),
+                )
+            })?;
+        text_tree.postprocess(
+            usvg::PostProcessingSteps {
+                convert_text_into_paths: true,
+            },
+            fontdb,
+        );
+        text_tree
+    };
+
     info!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
 
     let render_text_start = Instant::now();
     resvg::render(
-        &text_rtree,
-        FitTo::Original,
+        &text_tree,
         tiny_skia::Transform::default(),
-        pixmap.as_mut(),
-    )
-    .ok_or_else(|| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Could not render text svg".to_string(),
-            None,
-        )
-    })?;
+        &mut pixmap.as_mut(),
+    );
     info!("Render text time {:?}", render_text_start.elapsed());
 
     if let Some(overlay_svg) = overlay_svg {
         let start_render_overlay = Instant::now();
-        let overlay_rtree = usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not parse overlay svg".to_string(),
-                Some(original_error.into()),
-            )
-        })?;
+        let overlay_tree = {
+            let mut overlay_tree =
+                usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
+                    UtilError::new(
+                        UtilErrorType::Other,
+                        "Could not parse overlay svg".to_string(),
+                        Some(original_error.into()),
+                    )
+                })?;
+            overlay_tree.postprocess(
+                usvg::PostProcessingSteps {
+                    convert_text_into_paths: true,
+                },
+                fontdb,
+            );
+            overlay_tree
+        };
+
         resvg::render(
-            &overlay_rtree,
-            FitTo::Size(paper_size.width_px(), paper_size.height_px()),
+            &overlay_tree,
             tiny_skia::Transform::default(),
-            pixmap.as_mut(),
-        )
-        .ok_or_else(|| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not render overlay svg".to_string(),
-                None,
-            )
-        })?;
+            &mut pixmap.as_mut(),
+        );
 
         info!("Overlay time {:?}", start_render_overlay.elapsed());
     }
@@ -244,29 +269,34 @@ fn generate_certificate_impl(
     Ok(png)
 }
 
-fn get_date_as_localized_string(locale: &str, certificate_date: &NaiveDate) -> UtilResult<String> {
+fn get_date_as_localized_string(
+    locale: &str,
+    certificate_date: NaiveDate,
+    icu4x_blob: Icu4xBlob,
+) -> UtilResult<String> {
     let options = length::Bag::from_date_style(length::Date::Long).into();
-    // TODO: load locale data using this https://docs.rs/icu_provider_blob/latest/icu_provider_blob/struct.BlobDataProvider.html
-    let dtf = DateTimeFormatter::try_new_unstable(
-        &icu_testdata::unstable(),
-        &DataLocale::from(locale.parse::<Locale>().map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not parse locale".to_string(),
-                Some(original_error.into()),
-            )
-        })?),
+    let provider = BlobDataProvider::try_new_from_static_blob(icu4x_blob.get()).unwrap();
+    let locale = locale.parse::<Locale>().map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse locale".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
+    let dtf = TypedDateTimeFormatter::<Gregorian>::try_new_with_buffer_provider(
+        &provider,
+        &DataLocale::from(locale),
         options,
     )
     .map_err(|original_error| {
         UtilError::new(
             UtilErrorType::Other,
-            "Failed to create DateTimeFormatter instance.".to_string(),
+            "Failed to create TypedDateTimeFormatter instance.".to_string(),
             Some(original_error.into()),
         )
     })?;
 
-    let icu_date = DateTime::try_new_iso_datetime(
+    let date = DateTime::try_new_gregorian_datetime(
         certificate_date.year(),
         certificate_date.month() as u8,
         certificate_date.day() as u8,
@@ -281,15 +311,7 @@ fn get_date_as_localized_string(locale: &str, certificate_date: &NaiveDate) -> U
             Some(original_error.into()),
         )
     })?;
-    let date = icu_date.to_any();
-
-    let formatted_date = dtf.format(&date).map_err(|original_error| {
-        UtilError::new(
-            UtilErrorType::Other,
-            "Formatting date failed.".to_string(),
-            Some(original_error.into()),
-        )
-    })?;
+    let formatted_date = dtf.format(&date);
     Ok(formatted_date.to_string())
 }
 
@@ -300,7 +322,7 @@ pub struct TextToRender {
     pub text_color: String,
     pub x_pos: String,
     pub y_pos: String,
-    /// How to align the text related to x_pos and y_pos. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor.
+    /// How to align the text related to x_pos and y_pos. See: <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
     pub text_anchor: CertificateTextAnchor,
 }
 
@@ -381,11 +403,11 @@ fn generate_text_svg(
             }
             Ok(())
         })
-        .map_err(|original_error| {
+        .map_err(|original_error: anyhow::Error| {
             UtilError::new(
                 UtilErrorType::Other,
                 "Could not write text svg".to_string(),
-                Some(original_error.into()),
+                Some(original_error),
             )
         })?;
 

@@ -18,16 +18,17 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
   organizationSlug,
 }) => {
   const { t } = useTranslation()
-  const getAllCoursePages = useQuery([`course-${courseId}-all-pages`], () =>
-    fetchAllCoursePages(courseId),
-  )
+  const getAllCoursePages = useQuery({
+    queryKey: [`course-${courseId}-all-pages`],
+    queryFn: () => fetchAllCoursePages(courseId),
+  })
 
   return (
     <>
       {getAllCoursePages.isError && (
         <ErrorBanner variant={"readOnly"} error={getAllCoursePages.error} />
       )}
-      {getAllCoursePages.isLoading && <Spinner variant={"medium"} />}
+      {getAllCoursePages.isPending && <Spinner variant={"medium"} />}
       {getAllCoursePages.isSuccess && (
         <>
           {getAllCoursePages.data.length === 0 ? (

@@ -11,6 +11,7 @@ use crate::{
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
+    library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId},
     CourseOrExamId,
@@ -41,7 +42,7 @@ pub struct CourseMaterialExerciseTask {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct NewExerciseTask {
     pub exercise_slide_id: Uuid,
     pub exercise_type: String,
@@ -60,7 +61,7 @@ pub struct ExerciseTaskSpec {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTask {
     pub id: Uuid,
@@ -210,7 +211,7 @@ pub async fn get_course_material_exercise_tasks(
         let model_solution_spec = exercise_task.model_solution_spec;
         let previous_submission = latest_submissions_by_task_id.remove(&exercise_task.id);
         let previous_submission_grading = if let Some(submission) = previous_submission.as_ref() {
-            exercise_task_gradings::get_by_exercise_task_submission_id(conn, &submission.id).await?
+            exercise_task_gradings::get_by_exercise_task_submission_id(conn, submission.id).await?
         } else {
             None
         };
@@ -483,6 +484,42 @@ WHERE deleted_at IS NULL
         exercise_slide_submission_id
     )
     .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_all_exercise_tasks_by_module_and_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+    module_id: Uuid,
+) -> ModelResult<Vec<CustomViewExerciseTaskSpec>> {
+    let res: Vec<CustomViewExerciseTaskSpec> = sqlx::query_as!(
+        CustomViewExerciseTaskSpec,
+        r#"
+SELECT distinct (t.id),
+  t.public_spec,
+  t.order_number
+from exercise_tasks t
+where t.exercise_slide_id in (
+    SELECT id
+    from exercise_slides s
+    where s.exercise_id in (
+        SELECT id
+        from exercises e
+        where exercise_type = $1
+          AND e.chapter_id in (
+            SELECT id
+            from chapters c
+            where c.course_module_id = $2
+          )
+      )
+  )
+  AND deleted_at IS NULL;
+        "#,
+        exercise_type,
+        module_id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

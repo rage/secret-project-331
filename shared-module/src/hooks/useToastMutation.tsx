@@ -58,13 +58,14 @@ export default function useToastMutation<
       },
       {
         ...notificationOptions.toastOptions,
-        duration: showToastInfinitely ? 1000000 : notificationOptions.toastOptions?.duration,
+        duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
         id: toastId,
       },
     )
   }
 
-  const mutation = useMutation(mutationFn, {
+  const mutation = useMutation({
+    mutationFn,
     ...mutationOptions,
     onMutate: (variables: TVariables) => {
       if (notificationOptions.notify) {

@@ -1,11 +1,13 @@
 //! Commonly used utils.
 
+pub mod cache;
 pub mod document_schema_processor;
 pub mod email_processor;
 pub mod error;
 pub mod file_store;
 pub mod folder_checksum;
 pub mod futures;
+pub mod icu4x;
 pub mod ip_to_country;
 pub mod language_tag_to_name;
 pub mod merge_edits;
@@ -21,7 +23,7 @@ extern crate tracing;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,

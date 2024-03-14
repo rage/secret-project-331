@@ -7,13 +7,13 @@ import Spinner from "../components/Spinner"
 import { loggedIn } from "../services/backend/auth"
 
 export interface LoginState {
-  isLoading: boolean
+  isPending: boolean
   refresh(): Promise<unknown>
   signedIn: boolean | null | undefined
 }
 
 const defaultLoginState: LoginState = {
-  isLoading: false,
+  isPending: false,
   refresh: async () => {
     /* No op */
   },
@@ -28,16 +28,16 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren<unknown
   children,
 }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
-  const isLoggedIn = useQuery([`logged-in`], loggedIn)
+  const isLoggedIn = useQuery({ queryKey: [`logged-in`], queryFn: loggedIn })
 
   useEffect(() => {
     setLoginState((prev) => ({
       ...prev,
-      isLoading: isLoggedIn.isLoading,
+      isPending: isLoggedIn.isPending,
       refresh: isLoggedIn.refetch,
       signedIn: isLoggedIn.data,
     }))
-  }, [isLoggedIn.data, isLoggedIn.isLoading, isLoggedIn.refetch])
+  }, [isLoggedIn.data, isLoggedIn.isPending, isLoggedIn.refetch])
 
   if (isLoggedIn.isError) {
     return <ErrorBanner variant={"readOnly"} error={isLoggedIn.error} />
@@ -56,7 +56,7 @@ export function withSignedIn<T>(
     const { t } = useTranslation()
     const loginStateContext = useContext(LoginStateContext)
 
-    if (loginStateContext.isLoading || loginStateContext.signedIn === null) {
+    if (loginStateContext.isPending || loginStateContext.signedIn === null) {
       return <Spinner variant="medium" />
     }
 

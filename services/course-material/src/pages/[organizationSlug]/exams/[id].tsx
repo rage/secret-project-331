@@ -1,15 +1,15 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { addMinutes, differenceInSeconds, isPast, min } from "date-fns"
-import React, { useCallback, useEffect, useReducer } from "react"
+import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
+import React, { useCallback, useContext, useEffect, useReducer } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../../../components/ContentRenderer"
 import Page from "../../../components/Page"
 import ExamStartBanner from "../../../components/exams/ExamStartBanner"
 import ExamTimer from "../../../components/exams/ExamTimer"
-import Layout from "../../../components/layout/Layout"
 import ExamTimeOverModal from "../../../components/modals/ExamTimeOverModal"
+import LayoutContext from "../../../contexts/LayoutContext"
 import PageContext, { CoursePageDispatch, getDefaultPageState } from "../../../contexts/PageContext"
 import useTime from "../../../hooks/useTime"
 import pageStateReducer from "../../../reducers/pageStateReducer"
@@ -32,7 +32,7 @@ interface ExamProps {
 }
 
 const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const examId = query.id
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
@@ -41,7 +41,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   )
   const now = useTime(5000)
 
-  const exam = useQuery([`exam-page-${examId}`], () => fetchExam(examId))
+  const exam = useQuery({ queryKey: [`exam-page-${examId}`], queryFn: () => fetchExam(examId) })
 
   useEffect(() => {
     if (exam.isError) {
@@ -65,6 +65,20 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     }
   }, [exam.isError, exam.isSuccess, exam.data, exam.error])
 
+  useEffect(() => {
+    if (!exam.data) {
+      return
+    }
+    if (i18n.language !== exam.data.language) {
+      i18n.changeLanguage(exam.data.language)
+    }
+  })
+
+  const layoutContext = useContext(LayoutContext)
+  useEffect(() => {
+    layoutContext.setOrganizationSlug(query.organizationSlug)
+  }, [layoutContext, query.organizationSlug])
+
   const handleRefresh = useCallback(async () => {
     await exam.refetch()
   }, [exam])
@@ -73,7 +87,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     await handleRefresh()
   }, [handleRefresh])
 
-  if (exam.isLoading) {
+  if (exam.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -100,7 +114,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       >
         <div
           className={css`
-            font-family: Josefin Sans, sans-serif;
+            font-family:
+              Josefin Sans,
+              sans-serif;
             font-size: 30px;
             font-style: normal;
             font-weight: 600;
@@ -165,45 +181,40 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     </BreakFromCentered>
   )
 
-  const canStartExam =
-    exam.data.enrollment_data.tag === "NotEnrolled" ? exam.data.enrollment_data.can_enroll : false
-
   if (
     exam.data.enrollment_data.tag === "NotEnrolled" ||
     exam.data.enrollment_data.tag === "NotYetStarted"
   ) {
     return (
       <>
-        <Layout organizationSlug={query.organizationSlug}>
-          {examInfo}
-          <div id="exam-instructions">
-            <ExamStartBanner
-              onStart={async () => {
-                await enrollInExam(examId)
-                exam.refetch()
-              }}
-              canStartExam={canStartExam}
-              examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
-              examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
-              timeMinutes={exam.data.time_minutes}
+        {examInfo}
+        <div id="exam-instructions">
+          <ExamStartBanner
+            onStart={async () => {
+              await enrollInExam(examId)
+              exam.refetch()
+            }}
+            examEnrollmentData={exam.data.enrollment_data}
+            examHasStarted={exam.data.starts_at ? isPast(exam.data.starts_at) : false}
+            examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
+            timeMinutes={exam.data.time_minutes}
+          >
+            <div
+              id="maincontent"
+              className={css`
+                opacity: 80%;
+              `}
             >
-              <div
-                id="maincontent"
-                className={css`
-                  opacity: 80%;
-                `}
-              >
-                <ContentRenderer
-                  data={(exam.data.instructions as Array<Block<unknown>>) ?? []}
-                  editing={false}
-                  selectedBlockId={null}
-                  setEdits={(map) => map}
-                  isExam={false}
-                />
-              </div>
-            </ExamStartBanner>
-          </div>
-        </Layout>
+              <ContentRenderer
+                data={(exam.data.instructions as Array<Block<unknown>>) ?? []}
+                editing={false}
+                selectedBlockId={null}
+                setEdits={(map) => map}
+                isExam={false}
+              />
+            </div>
+          </ExamStartBanner>
+        </div>
       </>
     )
   }
@@ -211,10 +222,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   if (exam.data.enrollment_data.tag === "StudentTimeUp") {
     return (
       <>
-        <Layout organizationSlug={query.organizationSlug}>
-          {examInfo}
-          <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
-        </Layout>
+        {examInfo}
+        <div>{t("exam-time-up", { "ends-at": exam.data.ends_at.toLocaleString() })}</div>
       </>
     )
   }
@@ -230,34 +239,32 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <PageContext.Provider value={pageState}>
-        <Layout organizationSlug={query.organizationSlug}>
-          <ExamTimeOverModal
-            disabled={exam.data.ended}
-            secondsLeft={secondsLeft}
-            onClose={handleTimeOverModalClose}
-          />
-          {examInfo}
+        <ExamTimeOverModal
+          disabled={exam.data.ended}
+          secondsLeft={secondsLeft}
+          onClose={handleTimeOverModalClose}
+        />
+        {examInfo}
 
-          <ExamTimer
-            startedAt={exam.data.enrollment_data.enrollment.started_at}
-            endsAt={endsAt}
-            secondsLeft={secondsLeft}
-          />
-          {secondsLeft < 10 * 60 && (
-            <div
-              className={css`
-                background-color: ${baseTheme.colors.yellow[100]};
-                color: black;
-                padding: 0.7rem 1rem;
-                margin: 1rem 0;
-                border: 1px solid ${baseTheme.colors.yellow[300]};
-              `}
-            >
-              <div>{t("exam-time-running-out-soon-help-text")}</div>
-            </div>
-          )}
-          <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
-        </Layout>
+        <ExamTimer
+          startedAt={parseISO(exam.data.enrollment_data.enrollment.started_at)}
+          endsAt={endsAt}
+          secondsLeft={secondsLeft}
+        />
+        {secondsLeft < 10 * 60 && (
+          <div
+            className={css`
+              background-color: ${baseTheme.colors.yellow[100]};
+              color: black;
+              padding: 0.7rem 1rem;
+              margin: 1rem 0;
+              border: 1px solid ${baseTheme.colors.yellow[300]};
+            `}
+          >
+            <div>{t("exam-time-running-out-soon-help-text")}</div>
+          </div>
+        )}
+        <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

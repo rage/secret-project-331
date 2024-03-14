@@ -6,15 +6,16 @@ import { uploadFilesFromIframe } from "../../../services/backend/playground-exam
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
-  IframeState,
+  ExerciseIframeState,
   MessageToIframe,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundExerciseIframeProps {
   url: string
-  publicSpecQuery: UseQueryResult<unknown>
+  publicSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
     React.SetStateAction<CurrentStateMessage | null>
@@ -39,8 +40,8 @@ const PlaygroundExerciseIframe: React.FC<
   userAnswer,
 }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
-    return <>{t("error-no-public-spec")}</>
+  if (publicSpecQuery.isPending || publicSpecQuery.isError) {
+    return <div>{t("error-no-public-spec")}</div>
   }
   // Makes sure the iframe renders again when the data changes
   const iframeKey =
@@ -68,7 +69,7 @@ const PlaygroundExerciseIframe: React.FC<
               public_spec: publicSpecQuery.data,
               previous_submission: userAnswer,
             },
-          } as IframeState
+          } as ExerciseIframeState
         }
         onMessageFromIframe={async (msg, responsePort) => {
           if (isMessageFromIframe(msg)) {
@@ -104,4 +105,4 @@ const PlaygroundExerciseIframe: React.FC<
   )
 }
 
-export default PlaygroundExerciseIframe
+export default withErrorBoundary(PlaygroundExerciseIframe)

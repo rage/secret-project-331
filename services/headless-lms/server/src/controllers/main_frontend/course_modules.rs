@@ -1,16 +1,38 @@
 use models::{
-    course_modules,
+    course_modules::{self, CourseModule},
     library::progressing::{CompletionRegistrationLink, UserCompletionInformation},
 };
 
 use crate::prelude::*;
 
 /**
+GET `/api/v0/main-frontend/course-modules/{course_module_id}`
+
+Returns information about the course module.
+*/
+#[instrument(skip(pool))]
+async fn get_course_module(
+    course_module_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseModule>> {
+    let mut conn = pool.acquire().await?;
+    let course_module = course_modules::get_by_id(&mut conn, *course_module_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
+    token.authorized_ok(web::Json(course_module))
+}
+
+/**
 GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
 
 Gets active users's completion for the course, if it exists.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_module_completion_information_for_user(
     course_module_id: web::Path<Uuid>,
@@ -39,7 +61,6 @@ async fn get_course_module_completion_information_for_user(
 /**
 GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_module_completion_registration_link(
     course_module_id: web::Path<Uuid>,
@@ -66,6 +87,29 @@ async fn get_course_module_completion_registration_link(
     token.authorized_ok(web::Json(completion_registration_link))
 }
 
+async fn enable_or_disable_certificate_generation(
+    params: web::Path<(Uuid, bool)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let (course_module_id, enabled) = params.into_inner();
+
+    let course_module = course_modules::get_by_id(&mut conn, course_module_id).await?;
+    // Proper request validation is based on whether a completion exists for the user or not.
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(course_module.course_id),
+    )
+    .await?;
+    models::course_modules::update_certification_enabled(&mut conn, course_module_id, enabled)
+        .await?;
+
+    token.authorized_ok(web::Json(true))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -74,12 +118,17 @@ The name starts with an underline in order to appear before other functions in t
 We add the routes by calling the route method instead of using the route annotations because this method preserves the function signatures for documentation.
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route(
-        "/{course_module_id}/user-completion",
-        web::get().to(get_course_module_completion_information_for_user),
-    )
-    .route(
-        "/{course_module_id}/completion-registration-link",
-        web::get().to(get_course_module_completion_registration_link),
-    );
+    cfg.route("/{course_module_id}", web::get().to(get_course_module))
+        .route(
+            "/{course_module_id}/user-completion",
+            web::get().to(get_course_module_completion_information_for_user),
+        )
+        .route(
+            "/{course_module_id}/completion-registration-link",
+            web::get().to(get_course_module_completion_registration_link),
+        )
+        .route(
+            "/{course_module_id}/set-certificate-generation/{enabled}",
+            web::post().to(enable_or_disable_certificate_generation),
+        );
 }

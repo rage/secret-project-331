@@ -1,11 +1,11 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+test("Creating an exam works", async ({ page }) => {
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()

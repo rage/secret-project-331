@@ -5,6 +5,7 @@ import {
   NewPage,
   Page,
   PageAudioFile,
+  PageDetailsUpdate,
   PageHistory,
   PageInfo,
 } from "../../shared-module/bindings"
@@ -19,9 +20,7 @@ import { validateFile } from "../../shared-module/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postNewPage = async (data: NewPage): Promise<Page> => {
-  const response = await mainFrontendClient.post("/pages", data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.post("/pages", data)
   return validateResponse(response, isPage)
 }
 
@@ -48,14 +47,12 @@ export const fetchHistoryCountForPage = async (pageId: string): Promise<number> 
 
 export const restorePage = async (pageId: string, historyId: string): Promise<string> => {
   const data: HistoryRestoreData = { history_id: historyId }
-  const response = await mainFrontendClient.post(`/pages/${pageId}/restore`, data, {
-    headers: { "Content-Type": "application/json" },
-  })
+  const response = await mainFrontendClient.post(`/pages/${pageId}/restore`, data)
   return validateResponse(response, isString)
 }
 
 export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
-  const response = await mainFrontendClient.get(`/pages/${pageId}/info`, { responseType: "json" })
+  const response = await mainFrontendClient.get(`/pages/${pageId}/info`)
   return validateResponse(response, isPageInfo)
 }
 
@@ -65,7 +62,6 @@ export const postPageAudioFile = async (pageId: string, file: File): Promise<boo
   const data = new FormData()
   // eslint-disable-next-line i18next/no-literal-string
   data.append("file", file, file.name || "unknown")
-  console.log("data", data)
   const response = await mainFrontendClient.post(`/page_audio/${pageId}`, data)
   return validateResponse(response, isBoolean)
 }
@@ -77,4 +73,9 @@ export const removePageAudioFile = async (fileId: string): Promise<void> => {
 export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
   const response = await mainFrontendClient.get(`/page_audio/${pageId}/files`)
   return validateResponse(response, isArray(isPageAudioFile))
+}
+
+export const updatePageDetails = async (pageId: string, data: PageDetailsUpdate): Promise<void> => {
+  const response = await mainFrontendClient.put(`/pages/${pageId}/page-details`, data)
+  validateResponse(response, isBoolean)
 }

@@ -1,4 +1,5 @@
 import { ClassNamesArg, css, cx } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +12,7 @@ import { logout } from "../../shared-module/services/backend/auth"
 import { baseTheme } from "../../shared-module/styles"
 import { useCurrentPagePathForReturnTo } from "../../shared-module/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "../../shared-module/utils/routes"
-import SelectCourseInstanceModal from "../modals/SelectCourseInstanceModal"
+import CourseSettingsModal from "../modals/CourseSettingsModal"
 
 export interface UserNavigationControlsProps {
   styles?: ClassNamesArg[]
@@ -28,14 +29,19 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
+  const queryClient = useQueryClient()
 
-  if (loginStateContext.isLoading) {
+  if (loginStateContext.isPending) {
     return <Spinner variant="large" />
   }
 
   const submitLogout = async () => {
     await logout()
+    queryClient.removeQueries()
     await loginStateContext.refresh()
+    setTimeout(() => {
+      queryClient.refetchQueries()
+    }, 100)
   }
 
   // eslint-disable-next-line i18next/no-literal-string
@@ -47,7 +53,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   return loginStateContext.signedIn ? (
     <>
       {showSettings && (
-        <SelectCourseInstanceModal
+        <CourseSettingsModal
           onClose={() => {
             setShowSettings(false)
           }}
@@ -96,6 +102,21 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
               {t("settings")}
             </Button>
           </li>
+
+          <li>
+            <a href={"/user-settings"}>
+              <Button
+                className={css`
+                  color: ${baseTheme.colors.green[600]}!important;
+                `}
+                size="medium"
+                variant="primary"
+              >
+                {t("user-settings")}
+              </Button>
+            </a>
+          </li>
+
           <li className={cx(styles)}>
             <Button
               className={css`

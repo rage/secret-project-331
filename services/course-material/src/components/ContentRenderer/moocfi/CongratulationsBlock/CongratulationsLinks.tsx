@@ -11,6 +11,8 @@ const CTAWrapper = styled.div`
   margin-top: 2rem;
   display: flex;
   align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 `
 
 const StyledLink = styled.a`
@@ -22,10 +24,12 @@ const StyledLink = styled.a`
 `
 
 export interface CongratulationsLinksProps {
+  certificateConfigurationId: string | null
   module: UserModuleCompletionStatus
 }
 
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
+  certificateConfigurationId,
   module,
 }) => {
   const { t } = useTranslation()
@@ -42,6 +46,16 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
         >
           <Button variant="tertiary" size="large" disabled={!module.completed}>
             {t("register")}
+          </Button>
+        </a>
+      )}
+      {module.certification_enabled && certificateConfigurationId && (
+        <a
+          href={`/generate-certificate?module=${module.module_id}&ccid=${certificateConfigurationId}`}
+          aria-label={`Generate certificate for completing ${module.name}`}
+        >
+          <Button variant="tertiary" size="large" disabled={!module.completed}>
+            {t("generate-certificate-button-label")}
           </Button>
         </a>
       )}

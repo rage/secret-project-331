@@ -11,7 +11,7 @@ use headless_lms_utils::{
     ApplicationConfiguration,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseChapter {
     pub id: Uuid,
@@ -30,7 +30,16 @@ pub struct DatabaseChapter {
     pub course_module_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+impl DatabaseChapter {
+    /// True if the chapter is currently open or was open and is now closed.
+    pub fn has_opened(&self) -> bool {
+        self.opens_at
+            .map(|opens_at| opens_at < Utc::now())
+            .unwrap_or(true)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Chapter {
     pub id: Uuid,
@@ -92,7 +101,7 @@ impl Default for ChapterStatus {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ChapterPagesWithExercises {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -105,7 +114,7 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
@@ -120,7 +129,7 @@ pub struct NewChapter {
     pub course_module_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,
@@ -304,7 +313,7 @@ RETURNING *;",
     Ok(updated_chapter)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterWithStatus {
     pub id: Uuid,
@@ -443,30 +452,30 @@ RETURNING *;
 "#,
         chapter_id
     )
-    .fetch_one(&mut tx)
+    .fetch_one(&mut *tx)
     .await?;
     // We'll also delete all the pages and exercises so that they don't conflict with future chapters
     sqlx::query!(
         "UPDATE pages SET deleted_at = now() WHERE chapter_id = $1 AND deleted_at IS NULL;",
         chapter_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     sqlx::query!(
         "UPDATE exercise_tasks SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_slide_id IN (SELECT id FROM exercise_slides WHERE exercise_slides.deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL));",
         chapter_id
     )
-    .execute(&mut tx).await?;
+    .execute(&mut *tx).await?;
     sqlx::query!(
         "UPDATE exercise_slides SET deleted_at = now() WHERE deleted_at IS NULL AND exercise_id IN (SELECT id FROM exercises WHERE chapter_id = $1 AND exercises.deleted_at IS NULL);",
         chapter_id
     )
-    .execute(&mut tx).await?;
+    .execute(&mut *tx).await?;
     sqlx::query!(
         "UPDATE exercises SET deleted_at = now() WHERE deleted_at IS NULL AND chapter_id = $1;",
         chapter_id
     )
-    .execute(&mut tx)
+    .execute(&mut *tx)
     .await?;
     tx.commit().await?;
     Ok(deleted)
@@ -492,9 +501,7 @@ pub async fn get_user_course_instance_chapter_progress(
             user_chapter_metrics.score_given,
         ),
         score_maximum,
-        total_exercises: Some(exercise_ids.len())
-            .map(TryInto::try_into)
-            .transpose()?,
+        total_exercises: Some(TryInto::try_into(exercise_ids.len())).transpose()?,
         attempted_exercises: user_chapter_metrics
             .attempted_exercises
             .map(TryInto::try_into)
@@ -609,6 +616,7 @@ mod tests {
                     description: "".to_string(),
                     is_draft: false,
                     is_test_mode: false,
+                    copy_user_permissions: false,
                 },
                 user,
                 |_, _, _| unimplemented!(),

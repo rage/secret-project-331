@@ -10,10 +10,10 @@ test.use({
 test("multiple-choice course material column test", async ({ page, headless }, testInfo) => {
   test.slow()
   // Go to http://project-331.local/
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
 
   await page.locator(`div:text-is("Introduction to Course Material")`).click()
@@ -23,7 +23,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     window.scrollBy(0, 1800)
   })
 
-  await page.locator("text=User Experience").click()
+  await page.getByText("User Experience").click()
   await expect(page).toHaveURL(
     "http://project-331.local/org/uh-cs/courses/introduction-to-course-material/chapter-2",
   )
@@ -49,7 +49,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
 
   await frame.locator('button:has-text("This is first option")').click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -62,7 +62,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     clearNotifications: true,
   })
 
-  await page.locator("text=try again").click()
+  await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -77,7 +77,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
 
   await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
@@ -110,7 +110,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
 
   await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -118,13 +118,13 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame.locator(`text="Correct! This is indeed the first option"`),
+      frame.getByText(`Only first option can be correct because it is the first one.`),
     ],
     screenshotTarget: frame2,
     clearNotifications: true,
   })
 
-  await page.locator("text=try again").click()
+  await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
     axeSkip: ["color-contrast"],
@@ -136,16 +136,17 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     clearNotifications: true,
   })
 
+  await page.frameLocator("iframe").locator('button:has-text("This is first option")').click()
   await page.frameLocator("iframe").locator('button:has-text("This is second option")').click()
 
-  await page.locator("text=Submit").click()
+  await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame.locator(`text="Incorrect. This is not the first option"`),
+      frame.getByText(`Second option can't be the right answer because it isn't the first one.`),
     ],
     screenshotTarget: frame2,
     clearNotifications: true,

@@ -2,6 +2,8 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_program_in_path jq
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 
 # Generate types
@@ -11,7 +13,13 @@ RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
 run_command cd "$RELATIVE_PATH" || exit
 
-run_command cargo run --features ts_rs -- doc-file-generator
+run_command env SQLX_OFFLINE=1 cargo run --features ts_rs -- doc-file-generator
+
+# Sort the keys alphabetically so that the output is deterministic. Rust HashMaps use random order by default.
+run_command find server/generated-docs/ -name '*.json' -exec jq --sort-keys . -M {} \;
 
 # Fix formatting
 run_command npm run eslint:format-generated-docs
+
+echo ""
+echo -e "${GREEN}✅ New examples have been generated for the backend documentation.${RESET_EVERYTHING}"

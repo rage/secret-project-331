@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import Layout from "../../../components/Layout"
 import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../shared-module/components/Spinner"
@@ -20,19 +19,32 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
 }) => {
   const { courseModuleId } = query
   const { t } = useTranslation()
-  const userCompletionInformation = useQuery(
-    [`course-${courseModuleId}-completion-registration-link`],
-    () => fetchCompletionRegistrationLink(courseModuleId),
-    {
-      onSuccess: (data) => window.location.replace(data.url),
-    },
-  )
+  const userCompletionInformation = useQuery({
+    queryKey: [`course-${courseModuleId}-completion-registration-link`],
+    queryFn: () => fetchCompletionRegistrationLink(courseModuleId),
+  })
+
+  useEffect(() => {
+    if (!userCompletionInformation.data) {
+      return
+    }
+    window.location.replace(userCompletionInformation.data.url)
+  }, [userCompletionInformation.data])
+
   return (
-    <Layout>
+    <>
       {userCompletionInformation.isError && (
-        <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
+        <ErrorBanner
+          error={
+            // @ts-expect-error: Using property from axios
+            userCompletionInformation.error.request.status !== 404
+              ? userCompletionInformation.error
+              : t("completion-registration-link-not-found")
+          }
+          variant={"readOnly"}
+        />
       )}
-      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
+      {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <div>
           <Trans
@@ -54,7 +66,7 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
           </Trans>
         </div>
       )}
-    </Layout>
+    </>
   )
 }
 

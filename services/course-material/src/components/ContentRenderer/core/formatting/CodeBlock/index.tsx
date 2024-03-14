@@ -3,6 +3,7 @@ import dynamic from "next/dynamic"
 
 import { BlockRendererProps } from "../../.."
 import { CodeAttributes } from "../../../../../../types/GutenbergBlockAttributes"
+import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
 import Spinner from "../../../../../shared-module/components/Spinner"
 import { monospaceFont } from "../../../../../shared-module/styles"
 import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
@@ -20,18 +21,22 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
 }) => {
   const { anchor, content, fontSize } = data.attributes
   return (
-    <pre
-      className={css`
-        ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
-        font-family: ${monospaceFont} !important;
-        line-height: 1.75rem;
-        white-space: pre-wrap;
-        overflow-wrap: break-word;
-      `}
-      {...(anchor && { id: anchor })}
-    >
-      <SyntaxHighlightedContainer content={content} />
-    </pre>
+    <BreakFromCentered sidebar={false}>
+      <pre
+        className={css`
+          max-width: 1000px;
+          margin: 0 auto;
+          ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+          font-family: ${monospaceFont} !important;
+          line-height: 1.75rem;
+          white-space: pre-wrap;
+          overflow-wrap: break-word;
+        `}
+        {...(anchor && { id: anchor })}
+      >
+        <SyntaxHighlightedContainer content={content} />
+      </pre>
+    </BreakFromCentered>
   )
 }
 

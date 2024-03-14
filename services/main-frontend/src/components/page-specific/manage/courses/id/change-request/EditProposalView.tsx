@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { FormControl, FormControlLabel, Radio, RadioGroup } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import { diffChars } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,8 +13,10 @@ import {
   BlockProposalInfo,
   PageProposal,
 } from "../../../../../../shared-module/bindings"
+import { isEditedBlockStillExistsData } from "../../../../../../shared-module/bindings.guard"
 import Button from "../../../../../../shared-module/components/Button"
 import DiffFormatter from "../../../../../../shared-module/components/DiffFormatter"
+import RadioButton from "../../../../../../shared-module/components/InputFields/RadioButton"
 import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
 import HideTextInSystemTests from "../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
@@ -47,11 +49,14 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const [blockActions, setBlockActions] = useState<Map<string, BlockProposalAction>>(new Map())
   const [editingBlocks, setEditingBlocks] = useState<Set<string>>(new Set())
 
-  const pageInfo = useQuery([`page-info-id-${proposal.page_id}`], () => {
-    if (!proposal.page_id) {
-      return null
-    }
-    return fetchPageInfo(proposal.page_id)
+  const pageInfo = useQuery({
+    queryKey: [`page-info-id-${proposal.page_id}`],
+    queryFn: () => {
+      if (!proposal.page_id) {
+        return null
+      }
+      return fetchPageInfo(proposal.page_id)
+    },
   })
 
   const sendMutation = useToastMutation(
@@ -68,7 +73,10 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   )
 
   const pendingBlock = (block: BlockProposal) => {
-    const diffChanges = diffChars(block.current_text, block.accept_preview ?? "")
+    let diffChanges = null
+    if (isEditedBlockStillExistsData(block)) {
+      diffChanges = diffChars(block.current_text, block.accept_preview ?? "")
+    }
     return (
       <div>
         <div>
@@ -77,23 +85,36 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
           />
         </div>
-        <div>
-          {t("label-current-text")}
-          <ImportantText>
-            <DiffFormatter dontShowAdded changes={diffChanges} />
-          </ImportantText>
-        </div>
-        <div>
-          {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
-        </div>
-        <div>
-          {t("label-result-after-merging")}
-          <ImportantText>
-            <DiffFormatter dontShowRemoved changes={diffChanges} />
-          </ImportantText>
-        </div>
+        {diffChanges ? (
+          <div>
+            <div>
+              {t("label-current-text")}
+              <ImportantText>
+                <DiffFormatter dontShowAdded changes={diffChanges} />
+              </ImportantText>
+            </div>
+            <div>
+              {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
+            </div>
+            <div>
+              {t("label-result-after-merging")}
+              <ImportantText>
+                <DiffFormatter dontShowRemoved changes={diffChanges} />
+              </ImportantText>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div>
+              {t("label-original-text")} <ImportantText>{block.original_text}</ImportantText>
+            </div>
+            <div>
+              {t("label-proposed-text")} <ImportantText>{block.changed_text}</ImportantText>
+            </div>
+          </div>
+        )}
 
-        {editingBlocks.has(block.id) && (
+        {editingBlocks.has(block.id) && isEditedBlockStillExistsData(block) && (
           <TextArea
             className={css`
               width: 100%;
@@ -101,7 +122,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             autoResize
             label={t(`change-request-edited-result-label`)}
             defaultValue={block.accept_preview ?? undefined}
-            onChange={(newValue) =>
+            onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
                 if (block.accept_preview !== null) {
                   // eslint-disable-next-line i18next/no-literal-string
@@ -112,37 +133,42 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             }
           />
         )}
-
-        {/* eslint-disable-next-line i18next/no-literal-string */}
-        <FormControl component="fieldset">
-          {/* eslint-disable-next-line i18next/no-literal-string */}
-          <RadioGroup row aria-label={t("accept-or-reject-proposal")} name="radio-buttons-group">
-            {block.accept_preview !== null && (
-              <FormControlLabel
-                // eslint-disable-next-line i18next/no-literal-string
-                value="accept"
-                control={<Radio />}
-                label={t("button-text-accept")}
-                onChange={() => {
-                  setEditingBlocks((eb) => {
-                    eb.delete(block.id)
-                    return new Set(eb)
-                  })
-                  setBlockActions((ba) => {
-                    if (block.accept_preview !== null) {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      ba.set(block.id, { tag: "Accept", data: block.accept_preview })
-                    }
-                    return new Map(ba)
-                  })
-                }}
-              />
-            )}
-            <FormControlLabel
+        <div
+          className={css`
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+          `}
+        >
+          {isEditedBlockStillExistsData(block) && (
+            <RadioButton
+              // eslint-disable-next-line i18next/no-literal-string
+              value="accept"
+              label={t("button-text-accept")}
+              // eslint-disable-next-line i18next/no-literal-string
+              name="accept-or-reject-proposal"
+              onChange={() => {
+                setEditingBlocks((eb) => {
+                  eb.delete(block.id)
+                  return new Set(eb)
+                })
+                setBlockActions((ba) => {
+                  if (block.accept_preview !== null) {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    ba.set(block.id, { tag: "Accept", data: block.accept_preview })
+                  }
+                  return new Map(ba)
+                })
+              }}
+            />
+          )}
+          {isEditedBlockStillExistsData(block) && (
+            <RadioButton
               // eslint-disable-next-line i18next/no-literal-string
               value="edit"
-              control={<Radio />}
               label={t("edit-and-accept")}
+              // eslint-disable-next-line i18next/no-literal-string
+              name="accept-or-reject-proposal"
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.add(block.id)
@@ -157,55 +183,81 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 })
               }}
             />
-            <FormControlLabel
-              // eslint-disable-next-line i18next/no-literal-string
-              value="reject"
-              control={<Radio />}
-              label={t("button-text-reject")}
-              onChange={() => {
-                setEditingBlocks((eb) => {
-                  eb.delete(block.id)
-                  return new Set(eb)
-                })
-                setBlockActions((ba) => {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  ba.set(block.id, { tag: "Reject" })
-                  return new Map(ba)
-                })
-              }}
-            />
-          </RadioGroup>
-        </FormControl>
+          )}
+          <RadioButton
+            // eslint-disable-next-line i18next/no-literal-string
+            value="reject"
+            label={t("button-text-reject")}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="accept-or-reject-proposal"
+            onChange={() => {
+              setEditingBlocks((eb) => {
+                eb.delete(block.id)
+                return new Set(eb)
+              })
+              setBlockActions((ba) => {
+                // eslint-disable-next-line i18next/no-literal-string
+                ba.set(block.id, { tag: "Reject" })
+                return new Map(ba)
+              })
+            }}
+          />
+        </div>
       </div>
     )
   }
 
   const acceptedBlock = (block: BlockProposal) => {
-    const diffChanges = diffChars(block.original_text, block.changed_text ?? "")
+    let diffChanges = null
+    if (block.type == "edited-block-still-exists") {
+      diffChanges = diffChars(block.original_text, block.changed_text ?? "")
+    }
     return (
       <>
-        {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
-        <div>
-          <HideTextInSystemTests
-            text={t("block-id", { id: block.block_id })}
-            testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
-          />
-        </div>
-        <div>
-          {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
-        </div>
-        <div>
-          {t("label-original-text")}
-          <ImportantText>
-            <DiffFormatter dontShowAdded changes={diffChanges} />
-          </ImportantText>
-        </div>
-        <div>
-          {t("label-proposed-text")}
-          <ImportantText>
-            <DiffFormatter dontShowRemoved changes={diffChanges} />
-          </ImportantText>
-        </div>
+        {isEditedBlockStillExistsData(block) && diffChanges !== null ? (
+          <div>
+            {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+            <div>
+              <HideTextInSystemTests
+                text={t("block-id", { id: block.block_id })}
+                testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+              />
+            </div>
+            <div>
+              {t("label-current-text")} <ImportantText>{block.current_text}</ImportantText>
+            </div>
+            <div>
+              {t("label-original-text")}
+              <ImportantText>
+                <DiffFormatter dontShowAdded changes={diffChanges} />
+              </ImportantText>
+            </div>
+            <div>
+              {t("label-proposed-text")}
+              <ImportantText>
+                <DiffFormatter dontShowRemoved changes={diffChanges} />
+              </ImportantText>
+            </div>
+          </div>
+        ) : (
+          <div>
+            {block.status === "Accepted" ? <div>{t("accepted")}</div> : <div>{t("rejected")}</div>}
+            <div>
+              <HideTextInSystemTests
+                text={t("block-id", { id: block.block_id })}
+                testPlaceholder={t("block-id", { id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" })}
+              />
+            </div>
+            <div>
+              {t("label-original-text")}
+              <ImportantText>{block.original_text}</ImportantText>
+            </div>
+            <div>
+              {t("label-proposed-text")}
+              <ImportantText>{block.changed_text} </ImportantText>
+            </div>
+          </div>
+        )}
       </>
     )
   }
@@ -257,7 +309,11 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         />
       </div>
       <div>
-        <TimeComponent boldLabel={false} label={t("label-created")} date={proposal.created_at} />
+        <TimeComponent
+          boldLabel={false}
+          label={t("label-created")}
+          date={parseISO(proposal.created_at)}
+        />
       </div>
       <ul
         className={css`
@@ -269,7 +325,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           return (
             <li
               className={css`
-                padding: 1rem;
+                padding-top: 1rem;
               `}
               key={b.id}
             >

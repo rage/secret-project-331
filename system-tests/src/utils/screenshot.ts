@@ -6,6 +6,7 @@ import { stat } from "fs/promises"
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
   SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
+  SPINNER_CLASS,
 } from "../shared-module/utils/constants"
 
 import accessibilityCheck from "./accessibilityCheck"
@@ -41,8 +42,11 @@ type ViewPortDict = { [Property in keyof typeof viewPorts]: number }
 interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   headless: boolean | undefined
   snapshotName: string
+  useCoordinatesFromTheBottomForSavingYCoordinates?: boolean
   waitForTheseToBeVisibleAndStable?: Locator[]
+  waitForTheseToBeGone?: Locator[]
   clearNotifications?: boolean
+  dontWaitForSpinnersToDisappear?: boolean
   beforeScreenshot?: () => Promise<void>
   axeSkip?: string[]
   skipMobile?: boolean
@@ -73,8 +77,10 @@ export default async function expectScreenshotsToMatchSnapshots({
   snapshotName,
   screenshotOptions,
   waitForTheseToBeVisibleAndStable,
+  useCoordinatesFromTheBottomForSavingYCoordinates,
   beforeScreenshot,
   clearNotifications = false,
+  dontWaitForSpinnersToDisappear = false,
   axeSkip = undefined,
   skipMobile = false,
   scrollToYCoordinate,
@@ -82,73 +88,121 @@ export default async function expectScreenshotsToMatchSnapshots({
   screenshotTarget,
   testInfo,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
-  await test.step(`Expect screenshots to match snapshots "${snapshotName}"`, async () => {
-    let page: Page
-    if (isPage(screenshotTarget)) {
-      page = screenshotTarget
-    } else {
-      page = screenshotTarget.page()
-    }
-
-    const originalViewPort = page.viewportSize()
-    try {
-      if (replaceSomePartsWithPlaceholders) {
-        await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+  await test.step(
+    `Expect screenshots to match snapshots "${snapshotName}"`,
+    async () => {
+      let page: Page
+      if (isPage(screenshotTarget)) {
+        page = screenshotTarget
+      } else {
+        page = screenshotTarget.page()
       }
-
-      if (waitForTheseToBeVisibleAndStable) {
-        await waitToBeVisible({
-          waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
-        })
+      if (!screenshotOptions) {
+        screenshotOptions = {}
       }
+      if (!screenshotOptions.mask) {
+        screenshotOptions.mask = []
+      }
+      // We always want to mask the objects that have been wrapped with the `MaskOverThisInSystemTests` component
+      screenshotOptions.mask.push(page.locator('[data-mask-over-this-in-system-tests="true"]'))
 
-      if (clearNotifications) {
-        await page.evaluate(() => {
-          for (const notif of Array.from(document.querySelectorAll("#give-feedback-button"))) {
-            notif.remove()
+      // If the page has not fully loaded yet, no reason to continue
+      await page.waitForLoadState()
+
+      if (!dontWaitForSpinnersToDisappear) {
+        // Make sure there are no accidental loading spinners still visible on the page
+        try {
+          await page.waitForTimeout(100)
+          for (let i = 0; i < 2; i++) {
+            const spinnerLocators = await page.locator(`.${SPINNER_CLASS}`).all()
+            await Promise.all(
+              spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })),
+            )
           }
-        })
-        await hideToasts(page)
+        } catch (e) {
+          console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
+          throw new Error(
+            `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
+          )
+        }
       }
 
-      if (!skipMobile) {
+      const originalViewPort = page.viewportSize()
+      try {
+        if (replaceSomePartsWithPlaceholders) {
+          await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
+        }
+        if (waitForTheseToBeVisibleAndStable) {
+          await waitToBeVisible({
+            waitForTheseToBeVisibleAndStable: waitForTheseToBeVisibleAndStable,
+          })
+        }
+
+        if (clearNotifications) {
+          await page.evaluate(() => {
+            for (const notif of Array.from(
+              document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+            )) {
+              notif.style.display = "none"
+            }
+          })
+          await hideToasts(page)
+        }
+
+        if (!skipMobile) {
+          await snapshotWithViewPort({
+            snapshotName,
+            viewPortName: "mobile-tall",
+            screenshotOptions,
+            waitForTheseToBeVisibleAndStable,
+            beforeScreenshot,
+            headless,
+            testInfo,
+            axeSkip,
+            scrollToYCoordinate,
+            replaceSomePartsWithPlaceholders,
+            useCoordinatesFromTheBottomForSavingYCoordinates,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            screenshotTarget: screenshotTarget as any,
+          })
+        }
+
         await snapshotWithViewPort({
           snapshotName,
-          viewPortName: "mobile-tall",
+          viewPortName: "desktop-regular",
           screenshotOptions,
-          waitForTheseToBeVisibleAndStable,
           beforeScreenshot,
           headless,
           testInfo,
+          waitForTheseToBeVisibleAndStable,
           axeSkip,
           scrollToYCoordinate,
           replaceSomePartsWithPlaceholders,
+          useCoordinatesFromTheBottomForSavingYCoordinates,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           screenshotTarget: screenshotTarget as any,
         })
+      } finally {
+        if (clearNotifications) {
+          await page.evaluate(() => {
+            for (const notif of Array.from(
+              document.querySelectorAll<HTMLElement>("#give-feedback-button"),
+            )) {
+              notif.style.display = "block"
+            }
+          })
+        }
+        if (originalViewPort) {
+          // always restore the original viewport
+          await page.setViewportSize(originalViewPort)
+          if (replaceSomePartsWithPlaceholders) {
+            await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
+          }
+        }
       }
-
-      await snapshotWithViewPort({
-        snapshotName,
-        viewPortName: "desktop-regular",
-        screenshotOptions,
-        beforeScreenshot,
-        headless,
-        testInfo,
-        waitForTheseToBeVisibleAndStable,
-        axeSkip,
-        scrollToYCoordinate,
-        replaceSomePartsWithPlaceholders,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        screenshotTarget: screenshotTarget as any,
-      })
-    } finally {
-      if (originalViewPort) {
-        // always restore the original viewport
-        await page.setViewportSize(originalViewPort)
-      }
-    }
-  })
+    },
+    { box: true },
+  )
 }
 
 type SnapshotWithViewPortProps = ExpectScreenshotsToMatchSnapshotsProps & SnapshotWithViewPortExtra
@@ -162,6 +216,7 @@ async function snapshotWithViewPort({
   screenshotOptions,
   viewPortName,
   waitForTheseToBeVisibleAndStable,
+  waitForTheseToBeGone,
   beforeScreenshot,
   headless,
   testInfo,
@@ -169,6 +224,7 @@ async function snapshotWithViewPort({
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders,
   screenshotTarget,
+  useCoordinatesFromTheBottomForSavingYCoordinates,
 }: SnapshotWithViewPortProps) {
   let page: Page
   if (isPage(screenshotTarget)) {
@@ -187,23 +243,15 @@ async function snapshotWithViewPort({
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
   }
-
-  if (beforeScreenshot) {
-    await page.waitForTimeout(100)
-    await beforeScreenshot()
-    if (replaceSomePartsWithPlaceholders) {
-      // Dispatch again in case the thing being hidden had not rendered yet when we previously dispatched this
-      await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
-    }
-
-    await page.waitForTimeout(100)
-    if (waitForTheseToBeVisibleAndStable) {
-      await waitToBeStable(waitForTheseToBeVisibleAndStable)
-    }
+  if (waitForTheseToBeGone) {
+    await waitToBeGone(waitForTheseToBeGone)
+  }
+  // Has to be dispatched again in case the hidden content appeared while we waited for `waitForTheseToBeVisibleAndStable`
+  if (replaceSomePartsWithPlaceholders) {
+    await page.dispatchEvent("body", HIDE_TEXT_IN_SYSTEM_TESTS_EVENT)
   }
 
-  // Last thing before taking the screenshot so that nothing will accidentally scroll the page after this.
-  if (scrollToYCoordinate) {
+  if (scrollToYCoordinate !== undefined) {
     if (typeof scrollToYCoordinate === "number") {
       await page.evaluate(async (coord) => {
         window.scrollTo(0, coord)
@@ -217,6 +265,13 @@ async function snapshotWithViewPort({
       // 100ms was not enough at the time of writing this
       await page.waitForTimeout(200)
     }
+  }
+
+  // leave beforeScreenshot for last before the actual screenshot so the adjustments it makes are final
+  if (beforeScreenshot) {
+    await page.waitForTimeout(100)
+    await beforeScreenshot()
+    await page.waitForTimeout(100)
   }
 
   const screenshotName = `${snapshotName.replace(
@@ -234,6 +289,7 @@ async function snapshotWithViewPort({
       screenshotOptions,
       testInfo,
       page,
+      useCoordinatesFromTheBottomForSavingYCoordinates,
     )
   } else {
     console.warn("Not in headless mode, skipping screenshot")
@@ -242,10 +298,6 @@ async function snapshotWithViewPort({
   // we do a accessibility check for every screenshot because the places we screenshot tend to also be important
   // for accessibility
   await accessibilityCheck(page, screenshotName, axeSkip)
-
-  if (replaceSomePartsWithPlaceholders) {
-    await page.dispatchEvent("body", SHOW_TEXT_IN_SYSTEM_TESTS_EVENT)
-  }
 }
 
 interface WaitToBeVisibleProps {
@@ -258,7 +310,11 @@ export async function takeScreenshotAndComparetoSnapshot(
   screenshotOptions: ScreenshotOptions | PageScreenshotOptions,
   testInfo: TestInfo,
   page: Page,
+  useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
 ): Promise<void> {
+  if (process.env.SKIP_TAKING_SCREENSHOTS) {
+    return
+  }
   const pathToImage = testInfo.snapshotPath(screenshotName)
   let newScreenshot = false
   try {
@@ -267,39 +323,97 @@ export async function takeScreenshotAndComparetoSnapshot(
     newScreenshot = true
   }
 
+  const originalUpdateSnapshotsSetting = testInfo.config.updateSnapshots
+
   try {
+    if (testInfo.config.updateSnapshots === "all") {
+      // Special handling for the case when we're updating all screenshots.
+      // If the screenshot y coordinate is not stable, we'll have to restore the scroll position before updating the screenshot so that the screenshot does not change on every run.
+      testInfo.config.updateSnapshots = "missing"
+    }
+
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
   } catch (e: unknown) {
-    // sometimes snapshots have wild race conditions, lets try again in a moment
-    console.warn(
-      "Screenshot did not match snapshots retrying... Note that if this passes, the test is unstable",
-    )
+    await page.waitForTimeout(100)
+    testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
-    if (savedYCoordinate !== null) {
+    if (
+      savedYCoordinate !== null &&
+      process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION === undefined
+    ) {
       console.log(
-        `Found a saved y coordinate of ${savedYCoordinate}. Trying to scroll to it in case it helps to fix the test.`,
+        `Found a saved y coordinate of ${savedYCoordinate}. Scrolling to it for the screenshot comparison.`,
       )
-      page.evaluate((savedYCoordinate) => {
-        window.scrollTo(0, savedYCoordinate)
-      }, savedYCoordinate)
+      let yCoordinateRightNTimes = 0
+      let totalTries = 0
+      do {
+        const observedYCoordinate = await page.mainFrame().evaluate(() => window.scrollY)
+        if (observedYCoordinate === savedYCoordinate) {
+          yCoordinateRightNTimes++
+        } else {
+          if (totalTries > 90) {
+            console.warn(
+              `Observed y coordinate ${observedYCoordinate} is not the same as the saved y coordinate ${savedYCoordinate}`,
+            )
+            const maximumPossibleCoordinate = await page.mainFrame().evaluate(() => {
+              return document.documentElement.scrollHeight - window.innerHeight
+            })
+            console.info(`Maximum possible y coordinate is ${maximumPossibleCoordinate}`)
+            if (savedYCoordinate > maximumPossibleCoordinate) {
+              console.error(
+                `Saved y coordinate ${savedYCoordinate} is greater than the maximum possible y coordinate ${maximumPossibleCoordinate}`,
+              )
+              console.error(`Saving the current y coordinate to the image`)
+              await savePageYCoordinateToImage(
+                pathToImage,
+                page,
+                useCoordinatesFromTheBottomForSavingYCoordinates,
+              )
+              throw new Error(
+                "Tried to scroll the browser further than is possible. The page is too short. Saved a new more reasonable coordinate to the image.",
+              )
+            }
+          }
+          await page.mainFrame().evaluate((savedYCoordinate) => {
+            window.scrollTo(0, savedYCoordinate)
+          }, savedYCoordinate)
+          yCoordinateRightNTimes = 0
+        }
+        if (totalTries > 100) {
+          throw new Error(`Could not scroll to the saved y coordinate`)
+        }
+        await page.waitForTimeout(100)
+
+        totalTries++
+      } while (yCoordinateRightNTimes < 3)
     }
-    await page.waitForTimeout(600)
+
     if (isPage(screenshotTarget)) {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     } else {
       await expect(screenshotTarget).toHaveScreenshot(screenshotName, screenshotOptions)
     }
+  } finally {
+    testInfo.config.updateSnapshots = originalUpdateSnapshotsSetting
   }
-  if (testInfo.config.updateSnapshots === "all" || newScreenshot) {
+  if (
+    testInfo.config.updateSnapshots === "all" ||
+    newScreenshot ||
+    process.env.UPDATE_SCREENSHOTS_WITHOUT_SCROLL_RESTORATION !== undefined
+  ) {
     // When updating snapshots, optimize the new image so that it does not take extra space in version control.
     await ensureImageHasBeenOptimized(pathToImage)
     const savedYCoordinate = await imageSavedPageYCoordinate(pathToImage)
     if (savedYCoordinate === null) {
-      await savePageYCoordinateToImage(pathToImage, page)
+      await savePageYCoordinateToImage(
+        pathToImage,
+        page,
+        useCoordinatesFromTheBottomForSavingYCoordinates,
+      )
     }
   }
 }
@@ -318,6 +432,12 @@ async function waitToBeStable(waitForThisToBeStable: Locator[]): Promise<void> {
     await scrollLocatorsParentIframeToViewIfNeeded(locator)
     const elementHandle = await locator.elementHandle()
     await elementHandle?.waitForElementState("stable")
+  }
+}
+
+async function waitToBeGone(waitToBeGone: Locator[]): Promise<void> {
+  for (const locator of waitToBeGone) {
+    await expect(locator).toHaveCount(0)
   }
 }
 

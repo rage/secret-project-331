@@ -1,17 +1,15 @@
 import { css } from "@emotion/css"
-import { faCheck as icon } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { Envelope } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../components/Layout"
 import Button from "../shared-module/components/Button"
 import { baseTheme } from "../shared-module/styles"
 
 const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
   return (
-    <Layout>
+    <>
       <div
         className={css`
           background-color: ${baseTheme.colors.green[100]};
@@ -24,13 +22,12 @@ const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
         `}
       >
         <h1>
-          <FontAwesomeIcon
-            icon={icon}
+          <Envelope
             className={css`
               color: ${baseTheme.colors.green[500]};
               margin-right: 0.5rem;
             `}
-          />{" "}
+          />
           {t("message-your-email-has-been-verified")}
         </h1>
       </div>
@@ -40,7 +37,7 @@ const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
           {t("home-page")}
         </Button>
       </Link>
-    </Layout>
+    </>
   )
 }
 

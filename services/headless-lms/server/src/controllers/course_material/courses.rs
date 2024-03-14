@@ -2,7 +2,8 @@
 
 use std::{collections::HashMap, net::IpAddr, path::Path};
 
-use actix_http::header;
+use actix_http::header::{self, X_FORWARDED_FOR};
+use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
@@ -21,14 +22,19 @@ use models::{
     page_visit_datum_daily_visit_hashing_keys::{
         generate_anonymous_identifier, GenerateAnonymousIdentifierInput,
     },
-    pages::{CoursePageWithUserData, Page, PageSearchRequest, PageSearchResult, PageVisibility},
+    pages::{CoursePageWithUserData, Page, PageSearchResult, PageVisibility, SearchRequest},
     proposed_page_edits::{self, NewProposedPageEdits},
+    research_forms::{
+        NewResearchFormQuestionAnswer, ResearchForm, ResearchFormQuestion,
+        ResearchFormQuestionAnswer,
+    },
+    student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
 
 use crate::{
     domain::authorization::{
-        authorize_access_to_course_material, can_user_view_not_open_chapter, skip_authorize,
+        authorize_access_to_course_material, can_user_view_chapter, skip_authorize,
     },
     prelude::*,
 };
@@ -36,7 +42,6 @@ use crate::{
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -45,7 +50,7 @@ async fn get_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(course))
 }
 
@@ -57,7 +62,7 @@ If the page has moved and there's a redirection, this will still return the move
 # Example
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
-#[generated_doc]
+
 #[instrument(skip(pool, ip_to_country_mapper, req))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
@@ -76,18 +81,25 @@ async fn get_course_page_by_path(
     };
     let user_id = user.map(|u| u.id);
     let course_data = get_nondeleted_course_id_by_slug(&mut conn, &course_slug).await?;
+    let page_with_user_data =
+        models::pages::get_page_with_user_data_by_path(&mut conn, user_id, &course_data, &path)
+            .await?;
 
-    let can_view_not_open_chapters =
-        can_user_view_not_open_chapter(&mut conn, user_id, course_data.id).await?;
-
-    let page_with_user_data = models::pages::get_page_with_user_data_by_path(
+    // Chapters may be closed
+    if !can_user_view_chapter(
         &mut conn,
         user_id,
-        &course_data,
-        &path,
-        can_view_not_open_chapters,
+        page_with_user_data.page.course_id,
+        page_with_user_data.page.chapter_id,
     )
-    .await?;
+    .await?
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Chapter is not open yet.".to_string(),
+            None,
+        ));
+    }
 
     let token = authorize_access_to_course_material(
         &mut conn,
@@ -108,7 +120,11 @@ async fn get_course_page_by_path(
     let RequestInformation {
         ip,
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         user_agent,
         has_bot_user_agent,
@@ -147,7 +163,11 @@ async fn get_course_page_by_path(
             device_type,
             referrer,
             is_bot: has_bot_user_agent || browser_admits_its_a_bot,
-            utm_tags,
+            utm_source,
+            utm_medium,
+            utm_campaign,
+            utm_term,
+            utm_content,
             anonymous_identifier,
             exam_id: page_with_user_data.page.exam_id,
         },
@@ -161,7 +181,11 @@ struct RequestInformation {
     ip: Option<IpAddr>,
     user_agent: String,
     referrer: Option<String>,
-    utm_tags: Option<serde_json::Value>,
+    utm_source: Option<String>,
+    utm_medium: Option<String>,
+    utm_campaign: Option<String>,
+    utm_term: Option<String>,
+    utm_content: Option<String>,
     country: Option<String>,
     has_bot_user_agent: bool,
     browser_admits_its_a_bot: bool,
@@ -177,8 +201,13 @@ async fn derive_information_from_requester(
     req: HttpRequest,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<RequestInformation> {
-    let headers = req.headers();
-    let user_agent = headers.get(header::USER_AGENT);
+    let mut headers = req.headers().clone();
+    let x_real_ip = headers.get("X-Real-IP");
+    let x_forwarded_for = headers.get(X_FORWARDED_FOR);
+    let connection_info = req.connection_info();
+    let peer_address = connection_info.peer_addr();
+    let headers_clone = headers.clone();
+    let user_agent = headers_clone.get(header::USER_AGENT);
     let bots = Bots::default();
     let has_bot_user_agent = user_agent
         .and_then(|ua| ua.to_str().ok())
@@ -202,19 +231,50 @@ async fn derive_information_from_requester(
         .and_then(|ua| ua.to_str().ok())
         .and_then(|ua| user_agent_parser.parse(ua));
 
-    let ip: Option<IpAddr> = req
-        .connection_info()
+    let ip: Option<IpAddr> = connection_info
         .realip_remote_addr()
         .and_then(|ip| ip.parse::<IpAddr>().ok());
+
+    info!(
+        "Ip {:?}, x_real_ip {:?}, x_forwarded_for {:?}, peer_address {:?}",
+        ip, x_real_ip, x_forwarded_for, peer_address
+    );
 
     let country = ip
         .and_then(|ip| ip_to_country_mapper.map_ip_to_country(&ip))
         .map(|c| c.to_string());
 
     let utm_tags = headers
-        .get("utm-tags")
-        .and_then(|utms| utms.to_str().ok())
-        .and_then(|utms| serde_json::to_value(utms).ok());
+        .remove("utm-tags")
+        .next()
+        .and_then(|utms| String::from_utf8(utms.as_bytes().to_vec()).ok())
+        .and_then(|utms| serde_json::from_str::<serde_json::Value>(&utms).ok())
+        .and_then(|o| o.as_object().cloned());
+
+    let utm_source = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_source"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_medium = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_medium"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_campaign = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_campaign"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_term = utm_tags
+        .clone()
+        .and_then(|mut tags| tags.remove("utm_term"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
+    let utm_content = utm_tags
+        .and_then(|mut tags| tags.remove("utm_content"))
+        .and_then(|v| v.as_str().map(|s| s.to_string()));
+
     let referrer = headers
         .get("Orignal-Referrer")
         .and_then(|r| r.to_str().ok())
@@ -227,7 +287,7 @@ async fn derive_information_from_requester(
         .as_ref()
         .map(|ua| ua.os_version.to_string());
     let device_type = parsed_user_agent.as_ref().map(|ua| ua.category.to_string());
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(RequestInformation {
         ip,
         user_agent: user_agent
@@ -235,7 +295,11 @@ async fn derive_information_from_requester(
             .unwrap_or_default()
             .to_string(),
         referrer,
-        utm_tags,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_term,
+        utm_content,
         country,
         has_bot_user_agent,
         browser_admits_its_a_bot,
@@ -250,7 +314,6 @@ async fn derive_information_from_requester(
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -263,7 +326,7 @@ async fn get_current_course_instance(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         token.authorized_ok(web::Json(instance))
     } else {
         Err(ControllerError::new(
@@ -277,7 +340,7 @@ async fn get_current_course_instance(
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
-#[generated_doc]
+
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -285,7 +348,7 @@ async fn get_course_instances(
     let mut conn = pool.acquire().await?;
     let instances =
         models::course_instances::get_course_instances_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(instances))
 }
 
@@ -294,7 +357,6 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of publi
 
 Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_public_course_pages(
     course_id: web::Path<Uuid>,
@@ -307,18 +369,18 @@ async fn get_public_course_pages(
         PageVisibility::Public,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(pages))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
     pub modules: Vec<CourseMaterialCourseModule>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,
@@ -331,7 +393,7 @@ pub struct CourseMaterialCourseModule {
 /**
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
@@ -346,7 +408,7 @@ async fn get_chapters(
     }))
     .await
     .is_some();
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let chapters = models::chapters::course_chapters(&mut conn, *course_id)
         .await?
@@ -403,14 +465,13 @@ fn collect_course_modules(
             .chapters
             .push(chapter);
     }
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(course_modules.into_values().collect())
 }
 
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
@@ -423,7 +484,7 @@ async fn get_user_course_settings(
             &mut conn, user.id, *course_id,
         )
         .await?;
-        let token = skip_authorize()?;
+        let token = skip_authorize();
         token.authorized_ok(web::Json(settings))
     } else {
         Err(ControllerError::new(
@@ -452,17 +513,16 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
-    payload: web::Json<PageSearchRequest>,
+    payload: web::Json<SearchRequest>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -484,24 +544,23 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
-    payload: web::Json<PageSearchRequest>,
+    payload: web::Json<SearchRequest>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
     let res =
         models::pages::get_page_search_results_for_words(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
-#[generated_doc]
+
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
@@ -546,14 +605,14 @@ pub async fn feedback(
         ids.push(id);
     }
     tx.commit().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(ids))
 }
 
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
-#[generated_doc]
+
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,
@@ -570,11 +629,10 @@ async fn propose_edit(
         &edits.into_inner(),
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(id))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn glossary(
     pool: web::Data<PgPool>,
@@ -582,19 +640,19 @@ async fn glossary(
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(glossary))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_material_references_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<MaterialReference>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, user.map(|u| u.id), *course_id).await?;
     let res =
         models::material_references::get_references_by_course_id(&mut conn, *course_id).await?;
 
@@ -604,7 +662,6 @@ async fn get_material_references_by_course_id(
 /**
 GET /api/v0/course-material/courses/:course_id/top-level-pages
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_public_top_level_pages(
     course_id: web::Path<Uuid>,
@@ -617,21 +674,20 @@ async fn get_public_top_level_pages(
         PageVisibility::Public,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
 
 /**
 GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     let language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course)
@@ -645,7 +701,6 @@ async fn get_all_course_language_versions(
 /**
 GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_page_by_course_id_and_language_group(
     info: web::Path<(Uuid, Uuid)>,
@@ -660,8 +715,167 @@ async fn get_page_by_course_id_and_language_group(
         page_language_group_id,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(page))
+}
+
+/**
+POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
+*/
+#[instrument(skip(pool))]
+async fn student_country(
+    query: web::Path<(Uuid, Uuid, String)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let (course_id, course_instance_id, country_code) = query.into_inner();
+
+    models::student_countries::insert(
+        &mut conn,
+        user.id,
+        course_id,
+        course_instance_id,
+        &country_code,
+    )
+    .await?;
+    let token = skip_authorize();
+
+    token.authorized_ok(Json(true))
+}
+
+/**
+GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
+ */
+#[instrument(skip(pool))]
+async fn get_student_countries(
+    query: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<HashMap<String, u32>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let (course_id, course_instance_id) = query.into_inner();
+
+    let country_codes: Vec<String> =
+        models::student_countries::get_countries(&mut conn, course_id, course_instance_id)
+            .await?
+            .into_iter()
+            .map(|c| (c.country_code))
+            .collect();
+
+    let mut frequency: HashMap<String, u32> = HashMap::new();
+    for code in country_codes {
+        *frequency.entry(code).or_insert(0) += 1
+    }
+
+    token.authorized_ok(web::Json(frequency))
+}
+
+/**
+GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
+ */
+#[instrument(skip(pool))]
+async fn get_student_country(
+    course_instance_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<StudentCountry>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let res = models::student_countries::get_selected_country_by_user_id(
+        &mut conn,
+        user.id,
+        *course_instance_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
+*/
+#[instrument(skip(pool))]
+async fn get_research_form_with_course_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Option<ResearchForm>>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+
+    let res = models::research_forms::get_research_form_with_course_id(&mut conn, *course_id)
+        .await
+        .optional()?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
+*/
+#[instrument(skip(pool))]
+async fn get_research_form_questions_with_course_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestion>>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+    let res =
+        models::research_forms::get_research_form_questions_with_course_id(&mut conn, *course_id)
+            .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
+*/
+
+#[instrument(skip(pool, payload))]
+async fn upsert_course_research_form_answer(
+    payload: web::Json<NewResearchFormQuestionAnswer>,
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+    let answer = payload;
+    let res =
+        models::research_forms::upsert_research_form_anwser(&mut conn, *course_id, &answer).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
+*/
+#[instrument(skip(pool))]
+async fn get_research_form_answers_with_user_id(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestionAnswer>>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+
+    let res = models::research_forms::get_research_form_answers_with_user_id(
+        &mut conn, *course_id, user.id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -717,5 +931,33 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
             web::get().to(get_page_by_course_id_and_language_group),
         )
-        .route("/{course_id}/pages", web::get().to(get_public_course_pages));
+        .route("/{course_id}/pages", web::get().to(get_public_course_pages))
+        .route(
+            "/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}",
+            web::post().to(student_country),
+        )
+        .route(
+            "/{course_instance_id}/student-country",
+            web::get().to(get_student_country),
+        )
+        .route(
+            "/{course_id}/course-instances/{course_instance_id}/student-countries",
+            web::get().to(get_student_countries),
+        )
+        .route(
+            "/{course_id}/research-consent-form-questions-answer",
+            web::post().to(upsert_course_research_form_answer),
+        )
+        .route(
+            "/{courseId}/research-consent-form-user-answers",
+            web::get().to(get_research_form_answers_with_user_id),
+        )
+        .route(
+            "/{course_id}/research-consent-form",
+            web::get().to(get_research_form_with_course_id),
+        )
+        .route(
+            "/{course_id}/research-consent-form-questions",
+            web::get().to(get_research_form_questions_with_course_id),
+        );
 }

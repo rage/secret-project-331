@@ -80,6 +80,7 @@ const ParagraphBlock: React.FC<
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;
             border-style: dotted;
+            overflow-x: hidden;
           `}
           contentEditable
           onInput={(ev) => {
@@ -90,7 +91,7 @@ const ParagraphBlock: React.FC<
                 edits.set(id, {
                   block_id: id,
                   block_attribute: "content",
-                  original_text: content,
+                  original_text: content ?? "",
                   changed_text: changed,
                 })
                 return new Map(edits)
@@ -108,7 +109,7 @@ const ParagraphBlock: React.FC<
         </p>
       )
     } else {
-      const diffChanges = diffChars(data.attributes.content, editedContent)
+      const diffChanges = diffChars(data.attributes.content ?? "", editedContent ?? "")
 
       return (
         <p
@@ -119,6 +120,7 @@ const ParagraphBlock: React.FC<
             background-color: ${backgroundColor};
             font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
+            overflow-x: hidden;
           `}
         >
           <DiffFormatter changes={diffChanges} />
@@ -126,13 +128,12 @@ const ParagraphBlock: React.FC<
       )
     }
   }
-  const { count, parsedText } = parseText(content, terms)
+  const { count, parsedText, hasCitationsOrGlossary } = parseText(content, terms)
   const P = count > 0 ? LatexParagraph : Paragraph
 
   return (
     <P
       className={css`
-        ${dropCap ? hasDropCap : null}
         margin: 1.25rem 0;
         min-width: 1px;
         color: ${colorMapper(textColor)};
@@ -141,10 +142,13 @@ const ParagraphBlock: React.FC<
         line-height: 160%;
         text-align: ${align ?? "left"};
         ${backgroundColor && `padding: 1.25em 2.375em !important;`}
+        ${!hasCitationsOrGlossary && `overflow-x: hidden;`}
 
         ${respondToOrLarger.md} {
           font-size: ${fontSizeMapper(fontSize)};
         }
+
+        ${dropCap ? hasDropCap : null}
       `}
       dangerouslySetInnerHTML={{
         __html: parsedText,
@@ -154,4 +158,8 @@ const ParagraphBlock: React.FC<
   )
 }
 
-export default withErrorBoundary(ParagraphBlock)
+const exported = withErrorBoundary(ParagraphBlock)
+// @ts-expect-error: Custom property
+exported.dontUseDefaultBlockMargin = true
+
+export default exported

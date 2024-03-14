@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 test("blocks render correctly", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.click(
@@ -18,11 +18,13 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
 
   await selectCourseInstanceIfPrompted(page)
 
-  await page.locator("text=User Experience").click()
+  await page.getByText("User Experience").click()
 
-  await page.locator("text=Content rendering").click()
+  await page.getByText("Content rendering").click()
 
-  await page.waitForSelector("text=100px wide")
+  await page.getByText("100px wide").waitFor()
+
+  await expect(page.getByText("crashed")).toBeHidden()
 
   await expectScreenshotsToMatchSnapshots({
     // TODO: these should be removed
@@ -32,6 +34,7 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "content-components-renderer-view",
     waitForTheseToBeVisibleAndStable: undefined,
-    screenshotOptions: { fullPage: true },
+    // taking the large screenshot sometimes times out even with 5000ms
+    screenshotOptions: { fullPage: true, timeout: 10_000 },
   })
 })

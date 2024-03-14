@@ -25,7 +25,7 @@ const EssayPeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuesti
         rows={4}
         autoResize
         placeholder={t("write-a-review")}
-        onChange={(value) =>
+        onChangeByValue={(value) =>
           setPeerReviewQuestionAnswer({
             text_data: value,
             number_data: null,

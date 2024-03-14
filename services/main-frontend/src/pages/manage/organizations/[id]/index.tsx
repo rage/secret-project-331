@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import OrganizationImageWidget from "../../../../components/page-specific/org/organizationSlug/OrganizationImageWidget"
 import { fetchOrganization } from "../../../../services/backend/organizations"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -20,10 +19,13 @@ interface Props {
 
 const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const organization = useQuery([`organization-${query.id}`], () => fetchOrganization(query.id))
+  const organization = useQuery({
+    queryKey: [`organization-${query.id}`],
+    queryFn: () => fetchOrganization(query.id),
+  })
 
   let contents
-  if (organization.isLoading) {
+  if (organization.isPending) {
     contents = <Spinner variant={"medium"} />
   } else if (organization.isError) {
     contents = <ErrorBanner variant={"readOnly"} error={organization.error} />
@@ -43,15 +45,13 @@ const ManageOrganization: React.FC<React.PropsWithChildren<Props>> = ({ query })
   }
 
   return (
-    <Layout navVariant={"simple"}>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {contents}
-      </div>
-    </Layout>
+    <div
+      className={css`
+        margin-bottom: 1rem;
+      `}
+    >
+      {contents}
+    </div>
   )
 }
 

@@ -14,7 +14,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
-    peer_review_configs::PeerReviewAcceptingStrategy,
+    peer_review_configs::PeerReviewProcessingStrategy,
     peer_review_question_submissions::{
         self, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
     },
@@ -31,7 +31,7 @@ use crate::{
 use super::user_exercise_state_updater;
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
@@ -67,7 +67,7 @@ impl StudentExerciseSlideSubmissionResult {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
@@ -94,9 +94,9 @@ pub struct ExerciseSlideSubmissionWithTasks {
 pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
     pub given_enough_peer_reviews: bool,
     pub received_enough_peer_reviews: bool,
-    pub peer_review_accepting_strategy: PeerReviewAcceptingStrategy,
+    pub peer_review_processing_strategy: PeerReviewProcessingStrategy,
     pub peer_review_accepting_threshold: f32,
-    /// Used to for calculating averages when acting on PeerReviewAcceptingStrategy
+    /// Used to for calculating averages when acting on PeerReviewProcessingStrategy
     pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
 }
 

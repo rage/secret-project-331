@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, RefObject, useCallback, useEffect, useRef, useState } from "react"
+import React, { RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 // icons
 import FastForward from "../../../../img/audio-player/fast-forward.svg"
@@ -53,6 +53,7 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
       const currentTime = audioRef.current.currentTime
       progressBarRef.current.value = String(currentTime)
       progressBarRef.current.style.setProperty(
+        // eslint-disable-next-line i18next/no-literal-string
         "--range-progress",
         `${(Number(progressBarRef.current.value) / duration) * 100}%`,
       )
@@ -67,7 +68,6 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
       if (isPlaying) {
         audioRef.current.play()
         playAnimationRef.current = requestAnimationFrame(repeat)
-        console.log(playAnimationRef.current)
       } else {
         audioRef.current.pause()
         cancelAnimationFrame(playAnimationRef.current)
@@ -160,4 +160,4 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
   )
 }
 
-export default forwardRef(Controls)
+export default Controls

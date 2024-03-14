@@ -12,7 +12,7 @@ pub struct NewExerciseSlide {
     order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlide {
     pub id: Uuid,
@@ -226,6 +226,7 @@ pub async fn delete_exercise_slides_by_exercise_ids(
 UPDATE exercise_slides
 SET deleted_at = now()
 WHERE exercise_id = ANY($1)
+AND deleted_at IS NULL
 RETURNING id;
         ",
         exercise_ids,

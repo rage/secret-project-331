@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    c.id AS course_id,\n    c.slug AS course_slug,\n    c.name AS course_name,\n    c.description AS course_description,\n    ci.id AS course_instance_id,\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description\nFROM course_instances AS ci\n  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id\n  LEFT JOIN courses AS c ON ci.course_id = c.id\nWHERE cie.user_id = $1\n  AND ci.deleted_at IS NULL\n  AND cie.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_instance_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_description",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, true, true]
+  },
+  "hash": "c05303789bb275fbdb7f8205a7933805eacc79488a5f0ec7acf9d1254098068a"
+}

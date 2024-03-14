@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -27,15 +28,16 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
   onRestore,
 }) => {
   const { t } = useTranslation()
-  const getPageHistory = useQuery([`page-history-${pageId}-${page}-${limit}`], () =>
-    fetchHistoryForPage(pageId, page, limit),
-  )
+  const getPageHistory = useQuery({
+    queryKey: [`page-history-${pageId}-${page}-${limit}`],
+    queryFn: () => fetchHistoryForPage(pageId, page, limit),
+  })
 
   if (getPageHistory.isError) {
     return <ErrorBanner variant={"readOnly"} error={getPageHistory.error} />
   }
 
-  if (getPageHistory.isLoading) {
+  if (getPageHistory.isPending) {
     return <Spinner variant={"medium"} />
   }
 
@@ -60,7 +62,7 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
           >
             <hr />
             <div>
-              {h.id} ({h.created_at.toDateString()})
+              {h.id} ({parseISO(h.created_at).toDateString()})
             </div>
             <div>
               {h.history_change_reason === "PageSaved" &&

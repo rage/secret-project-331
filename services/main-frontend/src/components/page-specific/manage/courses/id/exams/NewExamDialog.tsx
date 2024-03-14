@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
-import { Dialog, DialogContentText } from "@mui/material"
 import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
 import { NewExam, OrgExam } from "../../../../../../shared-module/bindings"
+import Dialog from "../../../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
 import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewExamForm from "../../../../../forms/NewExamForm"
@@ -72,22 +72,22 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
         role="dialog"
         aria-labelledby="label"
         title={t("new-exam-dialog")}
+        noPadding={true}
       >
         <div
-          id="new-exam-dialog"
           className={css`
             padding: 1rem;
           `}
         >
-          <h1
-            id="label"
-            className={css`
-              font-size: 32px;
-            `}
-          >
-            {t("new-exam")}
-          </h1>
-          <DialogContentText role="main" id="alert-dialog-description">
+          <div id="new-exam-dialog">
+            <h1
+              id="label"
+              className={css`
+                font-size: 32px !important;
+              `}
+            >
+              {t("new-exam")}
+            </h1>
             {createExamMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
             )}
@@ -104,7 +104,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
                 duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
               }
             />
-          </DialogContentText>
+          </div>
         </div>
       </Dialog>
     </div>

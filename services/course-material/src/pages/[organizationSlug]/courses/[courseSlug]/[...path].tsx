@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
-import Head from "next/head"
 import { useRouter } from "next/router"
-import React, { useCallback, useEffect, useReducer } from "react"
+import React, { useCallback, useContext, useEffect, useMemo, useReducer } from "react"
 
 import Page from "../../../../components/Page"
 import PageNotFound from "../../../../components/PageNotFound"
-import Layout from "../../../../components/layout/Layout"
 import CourseMaterialPageBreadcrumbs from "../../../../components/navigation/CourseMaterialPageBreadcrumbs"
 import CourseTestModeNotification from "../../../../components/notifications/CourseTestModeNotification"
+import LayoutContext from "../../../../contexts/LayoutContext"
 import PageContext, {
   CoursePageDispatch,
   getDefaultPageState,
@@ -21,36 +20,50 @@ import { PageMarginOffset } from "../../../../shared-module/components/layout/Pa
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import basePath from "../../../../shared-module/utils/base-path"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/utils/constants"
-import dontRenderUntilQueryParametersReady, {
-  SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
-import { courseFaqPageRoute } from "../../../../utils/routing"
 
-interface PagePageProps {
-  // "organizationSlug" | "courseSlug" | "path"
-  query: SimplifiedUrlQuery<string>
-}
-
-const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) => {
+const PagePage: React.FC = () => {
+  const layoutContext = useContext(LayoutContext)
   const router = useRouter()
-  const courseSlug = query.courseSlug
-  const path = `/${useQueryParameter("path")}`
-  const getCoursePageByPath = useQuery([`course-page-${courseSlug}-${path}`], () =>
-    fetchCoursePageByPath(courseSlug, path),
+  const courseSlug = useQueryParameter("courseSlug")
+  const pathQueryParameter = useQueryParameter("path")
+  const organizationSlug = useQueryParameter("organizationSlug")
+  const path = useMemo(() => `/${pathQueryParameter}`, [pathQueryParameter])
+  const getCoursePageByPath = useQuery({
+    queryKey: [`course-page-${courseSlug}-${path}`],
+    queryFn: () => fetchCoursePageByPath(courseSlug, path),
+  })
+
+  const pageStateReducerIntializer = useMemo(
+    () =>
+      getDefaultPageState(async () => {
+        await getCoursePageByPath.refetch()
+      }),
+    [getCoursePageByPath],
   )
-  const [pageState, pageStateDispatch] = useReducer(
-    pageStateReducer,
-    getDefaultPageState(async () => {
-      await getCoursePageByPath.refetch()
-    }),
-  )
+  const [pageState, pageStateDispatch] = useReducer(pageStateReducer, pageStateReducerIntializer)
+
+  useEffect(() => {
+    if (getCoursePageByPath.data) {
+      if (layoutContext.title !== getCoursePageByPath.data.page.title) {
+        layoutContext.setTitle(getCoursePageByPath.data.page.title)
+      }
+      if (layoutContext.courseId !== getCoursePageByPath.data.page.course_id) {
+        layoutContext.setCourseId(getCoursePageByPath.data.page.course_id)
+      }
+    }
+    if (layoutContext.organizationSlug !== organizationSlug) {
+      layoutContext.setOrganizationSlug(organizationSlug)
+    }
+    layoutContext.setPageState(pageState)
+  }, [getCoursePageByPath.data, layoutContext, organizationSlug, pageState])
 
   useEffect(() => {
     if (getCoursePageByPath.isError) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setError", payload: getCoursePageByPath.error })
-    } else if (getCoursePageByPath.isLoading) {
+    } else if (getCoursePageByPath.isPending) {
       // eslint-disable-next-line i18next/no-literal-string
       pageStateDispatch({ type: "setLoading" })
     } else {
@@ -70,7 +83,7 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
     getCoursePageByPath.data,
     getCoursePageByPath.error,
     getCoursePageByPath.isError,
-    getCoursePageByPath.isLoading,
+    getCoursePageByPath.isPending,
     getCoursePageByPath.isSuccess,
   ])
 
@@ -107,41 +120,27 @@ const PagePage: React.FC<React.PropsWithChildren<PagePageProps>> = ({ query }) =
   if (getCoursePageByPath.isError) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((getCoursePageByPath.error as any)?.response?.status === 404) {
-      return (
-        <PageNotFound path={path} courseId={courseSlug} organizationSlug={query.organizationSlug} />
-      )
+      return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
     return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
-  if (getCoursePageByPath.isLoading) {
+  if (getCoursePageByPath.isPending) {
     return <Spinner variant={"small"} />
   }
 
   return (
     <CoursePageDispatch.Provider value={pageStateDispatch}>
       <PageContext.Provider value={pageState}>
-        <Layout
-          faqUrl={courseFaqPageRoute(query.organizationSlug, courseSlug)}
-          title={getCoursePageByPath.data.page.title}
-          organizationSlug={query.organizationSlug}
-          courseSlug={courseSlug}
+        <PageMarginOffset
+          marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+          // eslint-disable-next-line i18next/no-literal-string
+          marginBottom={"0rem"}
         >
-          {getCoursePageByPath.data.page.hidden && (
-            <Head>
-              <meta name="robots" content="noindex" />
-            </Head>
-          )}
-          <PageMarginOffset
-            marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-            // eslint-disable-next-line i18next/no-literal-string
-            marginBottom={"0rem"}
-          >
-            <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
-            {<CourseTestModeNotification isTestMode={pageState.isTest} />}
-          </PageMarginOffset>
-          <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
-        </Layout>
+          <CourseMaterialPageBreadcrumbs currentPagePath={path} page={pageState.pageData} />
+          {<CourseTestModeNotification isTestMode={pageState.isTest} />}
+        </PageMarginOffset>
+        <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

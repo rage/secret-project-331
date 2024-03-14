@@ -6,18 +6,19 @@ import { ExerciseTaskGradingResult } from "../../../shared-module/bindings"
 import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
-  IframeState,
+  ExerciseIframeState,
   UserInformation,
 } from "../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundViewSubmissionIframeProps {
   url: string
-  publicSpecQuery: UseQueryResult<unknown>
+  publicSpecQuery: UseQueryResult<unknown, unknown>
   // Caused weird type errors when the parameter generic was set to unknown
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gradingQuery: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
-  modelSolutionSpecQuery: UseQueryResult<unknown>
+  modelSolutionSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
   setCurrentStateReceivedFromIframe: React.Dispatch<
     React.SetStateAction<CurrentStateMessage | null>
@@ -46,16 +47,16 @@ const PlaygroundViewSubmissionIframe: React.FC<
   userInformation,
 }) => {
   const { t } = useTranslation()
-  if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
+  if (publicSpecQuery.isPending || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
-  if (modelSolutionSpecQuery.isLoading || modelSolutionSpecQuery.isError) {
+  if (modelSolutionSpecQuery.isPending || modelSolutionSpecQuery.isError) {
     return <>{t("error-no-model-solution-spec")}</>
   }
-  if (gradingQuery.isLoading || gradingQuery.isError) {
+  if (gradingQuery.isPending || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
-  const iframeState: IframeState = {
+  const iframeState: ExerciseIframeState = {
     // eslint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,
@@ -95,4 +96,4 @@ const PlaygroundViewSubmissionIframe: React.FC<
   )
 }
 
-export default PlaygroundViewSubmissionIframe
+export default withErrorBoundary(PlaygroundViewSubmissionIframe)

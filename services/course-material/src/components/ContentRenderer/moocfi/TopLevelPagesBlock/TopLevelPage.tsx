@@ -24,11 +24,13 @@ const Wrapper = styled.div`
 
 const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ courseId }) => {
   const { t } = useTranslation()
-  const getTopLevelPages = useQuery([`courses-${courseId}-top-level-pages`], () =>
-    fetchTopLevelPages(courseId).then((pages) =>
-      pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
-    ),
-  )
+  const getTopLevelPages = useQuery({
+    queryKey: [`courses-${courseId}-top-level-pages`],
+    queryFn: () =>
+      fetchTopLevelPages(courseId).then((pages) =>
+        pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
+      ),
+  })
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
   return (
@@ -36,7 +38,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
       {getTopLevelPages.isError && (
         <ErrorBanner variant={"readOnly"} error={getTopLevelPages.error} />
       )}
-      {getTopLevelPages.isLoading && <Spinner variant={"medium"} />}
+      {getTopLevelPages.isPending && <Spinner variant={"medium"} />}
       {getTopLevelPages.isSuccess && (
         <>
           {getTopLevelPages.data && (

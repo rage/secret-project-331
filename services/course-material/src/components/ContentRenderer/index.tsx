@@ -11,7 +11,10 @@ import useQueryParameter from "../../shared-module/hooks/useQueryParameter"
 import { baseTheme } from "../../shared-module/styles"
 import { linkWithExtraIconClass } from "../../shared-module/styles/constants"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import { courseMaterialBlockClass } from "../../utils/constants"
+import {
+  COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
+  courseMaterialBlockClass,
+} from "../../utils/constants"
 
 import DefaultBlock from "./DefaultBlock"
 import AudioBlock from "./core/common/Audio/AudioBlock"
@@ -36,12 +39,16 @@ import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
 import AudioPlayer from "./moocfi/AudioPlayer/index"
+import AuthorBlock from "./moocfi/AuthorBlock"
+import AuthorInnerBlock from "./moocfi/AuthorInnerBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import ConditionalBlock from "./moocfi/ConditionalBlock"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
 import CourseObjectiveSectionBlock from "./moocfi/CourseObjectiveSectionBlock"
 import CourseProgressBlock from "./moocfi/CourseProgressBlock"
 import ExerciseBlock from "./moocfi/ExerciseBlock"
+import ExerciseCustomViewBlock from "./moocfi/ExerciseCustomViewBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
@@ -52,8 +59,10 @@ import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
+import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import PartnersBlock from "./moocfi/PartnersBlock"
+import ResearchFormCheckBoxBlock from "./moocfi/ResearchFormCheckBoxBlock"
 import TableBox from "./moocfi/TableBox"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
@@ -120,6 +129,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   // moocfi
   "moocfi/aside": AsideBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
+  "moocfi/conditional-block": ConditionalBlock,
   "moocfi/congratulations": CongratulationsBlock,
   "moocfi/course-chapter-grid": CourseChapterGridBlock,
   "moocfi/course-objective-section": CourseObjectiveSectionBlock,
@@ -141,11 +151,22 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/landing-page-copy-text": LandingPageCopyTextBlock,
   "moocfi/iframe": IframeBlock,
   "moocfi/audio-upload": AudioPlayer,
+  "moocfi/map": Map,
+  "moocfi/author": AuthorBlock,
+  "moocfi/author-inner-block": AuthorInnerBlock,
+  "moocfi/research-consent-checkbox": ResearchFormCheckBoxBlock,
+  "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
 }
 
 const highlightedBlockStyles = css`
   outline: 2px solid ${baseTheme.colors.red[400]};
   outline-offset: 10px;
+`
+
+// Adds a default margin between all blocks. If you would like to undo this margin in some cases, add a negative margin to the block implementation
+// or add dontUseDefaultBlockMargin to the block implementation. See the Heading block for an example.
+const defaultBlockMargin = css`
+  margin: ${COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM}rem 0;
 `
 
 const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> = (props) => {
@@ -204,9 +225,11 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
       {props.data.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
+        const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
         const wrapperClassName = cx(
           courseMaterialBlockClass,
           (isHighlighted && highlightedBlockStyles) ?? undefined,
+          dontUseDefaultBlockMargin ? undefined : defaultBlockMargin,
         )
 
         // In some cases we cannot use the wrapper div to get the correct HTML.

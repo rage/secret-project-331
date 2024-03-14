@@ -20,7 +20,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(request, payload, pool, file_store))]
 async fn set_page_audio(
     request: HttpRequest,
@@ -56,7 +56,7 @@ async fn set_page_audio(
         let mime_type = field
             .content_type()
             .map(|ct| ct.to_string())
-            .unwrap_or("".to_string());
+            .unwrap_or_else(|| "".to_string());
         /*
         if !matches!(mime_type.as_str(), "audio/mpeg" | "audio/ogg") {
             return Err(...)
@@ -113,7 +113,6 @@ DELETE /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTT
 ```
 */
 
-#[generated_doc]
 #[instrument(skip(pool, file_store))]
 async fn remove_page_audio(
     page_audio_id: web::Path<Uuid>,
@@ -153,7 +152,7 @@ GET `/api/v0/main-fronted/page_audio/:page_id/files` - Get a page audio files
 Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
 */
 #[instrument(skip(app_conf))]
-#[generated_doc]
+
 async fn get_page_audio(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

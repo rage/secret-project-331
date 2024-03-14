@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
-import Layout from "../../../components/Layout"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import {
   getCoursesDefaultCmsPeerReviewConfiguration,
@@ -40,19 +39,25 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
   const { id } = query
 
-  const getCmsPeerReviewConfiguration = useQuery(
-    [`course-${id}-cms-peer-review-configuration`],
-    () => getCoursesDefaultCmsPeerReviewConfiguration(id),
-    {
-      onSuccess: (data) =>
-        setAttributes({
-          peer_review_config: JSON.stringify(data.peer_review_config),
-          peer_review_questions_config: JSON.stringify(data.peer_review_questions),
-          needs_peer_review: true,
-          use_course_default_peer_review: false,
-        }),
-    },
-  )
+  const getCmsPeerReviewConfiguration = useQuery({
+    queryKey: [`course-${id}-cms-peer-review-configuration`],
+    queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(id),
+  })
+
+  useEffect(() => {
+    if (!getCmsPeerReviewConfiguration.data) {
+      return
+    }
+    setAttributes({
+      peer_review_config: JSON.stringify(getCmsPeerReviewConfiguration.data.peer_review_config),
+      peer_review_questions_config: JSON.stringify(
+        getCmsPeerReviewConfiguration.data.peer_review_questions,
+      ),
+      needs_peer_review: true,
+      use_course_default_peer_review: false,
+    })
+  }, [getCmsPeerReviewConfiguration.data])
+
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
       {
@@ -81,12 +86,12 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     return <ErrorBanner error={getCmsPeerReviewConfiguration.error} variant="text" />
   }
 
-  if (getCmsPeerReviewConfiguration.isLoading) {
+  if (getCmsPeerReviewConfiguration.isPending) {
     return <Spinner variant="medium" />
   }
 
   return (
-    <Layout>
+    <>
       <PeerReviewEditor
         attributes={attributes}
         setAttributes={setAttributes}
@@ -100,8 +105,13 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       >
         {t("save")}
       </Button>
-    </Layout>
+    </>
   )
 }
 
-export default dontRenderUntilQueryParametersReady(PeerReviewManager)
+const exported = dontRenderUntilQueryParametersReady(PeerReviewManager)
+
+// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
+exported.hideBreadcrumbs = true
+
+export default exported

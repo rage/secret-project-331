@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { differenceInSeconds, formatDuration } from "date-fns"
+import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { useTranslation } from "react-i18next"
 
 import { fetchPageUrl } from "../../../../services/backend"
@@ -54,19 +54,22 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   backgroundImage,
 }) => {
   const { i18n } = useTranslation()
-  const getChapterPageUrl = useQuery([`chapter-grid-chapter-${chapter.id}`], () => {
-    if (chapter.front_page_id) {
-      return fetchPageUrl(chapter.front_page_id)
-    } else {
-      return `/chapter-${chapter.chapter_number}`
-    }
+  const getChapterPageUrl = useQuery({
+    queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id],
+    queryFn: () => {
+      if (chapter.front_page_id) {
+        return fetchPageUrl(chapter.front_page_id)
+      } else {
+        return `/chapter-${chapter.chapter_number}`
+      }
+    },
   })
 
   if (getChapterPageUrl.isError) {
     return <ErrorBanner variant={"readOnly"} error={getChapterPageUrl.error} />
   }
 
-  if (getChapterPageUrl.isLoading) {
+  if (getChapterPageUrl.isPending) {
     return <Spinner variant={"small"} />
   }
 
@@ -87,12 +90,12 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
       })
     } else {
       // opens in over 10 minutes
-      date = chapter.opens_at.toLocaleString(i18n.language, {
+      date = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
         year: NUMERIC,
         month: LONG,
         day: NUMERIC,
       })
-      time = chapter.opens_at.toLocaleString(i18n.language, {
+      time = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
         hour: NUMERIC,
         minute: NUMERIC,
       })

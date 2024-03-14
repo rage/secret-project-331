@@ -151,27 +151,25 @@ async fn get_theme_settings(
     token.authorized_ok(web::Json(response))
 }
 
-#[generated_doc]
 #[instrument(skip(app_conf))]
 async fn get_mentimeter_oembed_data(
     query_params: web::Query<OEmbedRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let url = query_params.url.to_string();
     let response = mentimeter_oembed_response_builder(url, app_conf.base_url.to_string())?;
     token.authorized_ok(web::Json(response))
 }
 
-#[generated_doc]
 #[instrument(skip(app_conf))]
 async fn get_thinglink_oembed_data(
     query_params: web::Query<OEmbedRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<OEmbedResponse>> {
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let url = query_params.url.to_string();
     let response = thinglink_oembed_response_builder(url, app_conf.base_url.to_string())?;
     token.authorized_ok(web::Json(response))

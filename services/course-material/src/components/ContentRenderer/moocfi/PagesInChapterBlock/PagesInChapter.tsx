@@ -22,10 +22,10 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
   organizationSlug,
 }) => {
   const { t } = useTranslation()
-  const getPagesInChapterExcludeFrontpage = useQuery(
-    [`chapter-${chapterId}-pages-excluding-frontpage`],
-    () => fetchChaptersPagesExcludeFrontpage(chapterId),
-  )
+  const getPagesInChapterExcludeFrontpage = useQuery({
+    queryKey: [`chapter-${chapterId}-pages-excluding-frontpage`],
+    queryFn: () => fetchChaptersPagesExcludeFrontpage(chapterId),
+  })
 
   return (
     <>
@@ -52,7 +52,7 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
           {getPagesInChapterExcludeFrontpage.isError && (
             <ErrorBanner variant={"readOnly"} error={getPagesInChapterExcludeFrontpage.error} />
           )}
-          {getPagesInChapterExcludeFrontpage.isLoading && <Spinner variant={"medium"} />}
+          {getPagesInChapterExcludeFrontpage.isPending && <Spinner variant={"medium"} />}
           {getPagesInChapterExcludeFrontpage.isSuccess && (
             <>
               {getPagesInChapterExcludeFrontpage.data

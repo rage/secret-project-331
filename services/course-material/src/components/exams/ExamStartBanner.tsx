@@ -2,20 +2,21 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ExamEnrollmentData } from "../../shared-module/bindings"
 import Button from "../../shared-module/components/Button"
 import { baseTheme } from "../../shared-module/styles"
 
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>
-  canStartExam: boolean
   examHasStarted: boolean
   examHasEnded: boolean
   timeMinutes: number
+  examEnrollmentData: ExamEnrollmentData
 }
 
 const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> = ({
   onStart,
-  canStartExam,
+  examEnrollmentData,
   examHasStarted,
   examHasEnded,
   timeMinutes,
@@ -60,7 +61,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
             text-align: center;
           `}
         >
-          <h2>{t("instructions")}</h2>
+          <h2>{t("title-instructions")}</h2>
         </div>
         <p
           className={css`
@@ -69,15 +70,24 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
         >
           {children}
         </p>
-        {!canStartExam && <p>{t("you-are-not-eligible-for-taking-this-exam")}</p>}
+        {examEnrollmentData.tag === "NotEnrolled" && !examEnrollmentData.can_enroll && (
+          <p>{t("message-you-have-not-met-the-requirements-for-taking-this-exam")}</p>
+        )}
+        {!examHasStarted && !examHasEnded && <p>{t("message-the-exam-has-not-started-yet")}</p>}
         <div
           className={css`
             text-align: center;
+            margin-top: 1rem;
           `}
         >
           <Button
             onClick={handleStart}
-            disabled={!examHasStarted || examHasEnded || !canStartExam || disabled}
+            disabled={
+              !examHasStarted ||
+              examHasEnded ||
+              (examEnrollmentData.tag === "NotEnrolled" && !examEnrollmentData.can_enroll) ||
+              disabled
+            }
             variant="primary"
             size="medium"
           >

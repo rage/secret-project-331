@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import Layout from "../../components/Layout"
 import PageContext from "../../contexts/PageContext"
 import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { CmsPageUpdate, Page } from "../../shared-module/bindings"
@@ -31,7 +30,15 @@ const Pages = ({ query }: PagesProps) => {
   const { id } = query
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
-  const getPage = useQuery([`page-${id}`], () => fetchPageWithId(id), {
+  const getPage = useQuery({
+    queryKey: [`page-${id}`],
+    gcTime: 0,
+    queryFn: async () => {
+      const res = await fetchPageWithId(id)
+      // This only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
     select: (data) => {
       const page: Page = {
         ...data.page,
@@ -46,9 +53,6 @@ const Pages = ({ query }: PagesProps) => {
         }).content,
       }
       return page
-    },
-    onSuccess: () => {
-      setNeedToRunMigrationsAndValidations(true)
     },
   })
 
@@ -66,13 +70,12 @@ const Pages = ({ query }: PagesProps) => {
         // eslint-disable-next-line i18next/no-literal-string
         queryClient.setQueryData([`page-${id}`], newData)
       },
-      retry: 3,
     },
   )
   return (
-    <Layout>
+    <>
       {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
-      {getPage.isLoading && <Spinner variant={"medium"} />}
+      {getPage.isPending && <Spinner variant={"medium"} />}
       {getPage.isSuccess && (
         <PageContext.Provider value={{ page: getPage.data }}>
           <PageEditor
@@ -83,7 +86,7 @@ const Pages = ({ query }: PagesProps) => {
           />
         </PageContext.Provider>
       )}
-    </Layout>
+    </>
   )
 }
 

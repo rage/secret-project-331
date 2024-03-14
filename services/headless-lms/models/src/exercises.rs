@@ -1,4 +1,5 @@
 use futures::future::BoxFuture;
+use itertools::Itertools;
 use url::Url;
 
 use crate::{
@@ -10,7 +11,12 @@ use crate::{
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
     peer_review_configs::CourseMaterialPeerReviewConfig,
+    peer_review_question_submissions::PeerReviewQuestionSubmission,
+    peer_review_questions::PeerReviewQuestion,
+    peer_review_queue_entries::PeerReviewQueueEntry,
+    peer_review_submissions::PeerReviewSubmission,
     prelude::*,
+    teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
@@ -18,7 +24,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,
@@ -51,6 +57,33 @@ impl Exercise {
             )
         })
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseGradingStatus {
+    pub exercise_id: Uuid,
+    pub exercise_name: String,
+    pub score_maximum: i32,
+    pub score_given: Option<f32>,
+    pub teacher_decision: Option<TeacherDecisionType>,
+    pub submission_id: Uuid,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseStatusSummaryForUser {
+    pub exercise: Exercise,
+    pub user_exercise_state: Option<UserExerciseState>,
+    pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,
+    pub given_peer_review_submissions: Vec<PeerReviewSubmission>,
+    pub given_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub received_peer_review_submissions: Vec<PeerReviewSubmission>,
+    pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
+    pub teacher_grading_decision: Option<TeacherGradingDecision>,
+    pub peer_review_questions: Vec<PeerReviewQuestion>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -96,11 +129,12 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
 pub enum ActivityProgress {
     /// The user has not started the activity, or the activity has been reset for that student.
+    #[default]
     Initialized,
     /// The activity associated with the exercise has been started by the user to which the result relates.
     Started,
@@ -110,12 +144,6 @@ pub enum ActivityProgress {
     Submitted,
     /// The user has completed the activity associated with the exercise.
     Completed,
-}
-
-impl Default for ActivityProgress {
-    fn default() -> Self {
-        ActivityProgress::Initialized
-    }
 }
 
 /**
@@ -246,7 +274,7 @@ WHERE course_id = $1
 
 pub async fn get_exercises_by_course_instance_id(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
@@ -261,7 +289,45 @@ WHERE course_id = (
   AND deleted_at IS NULL
 ORDER BY order_number ASC
 "#,
-        course_id
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
+pub async fn get_exercise_submissions_and_status_by_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<ExerciseGradingStatus>> {
+    let exercises = sqlx::query_as!(
+        ExerciseGradingStatus,
+        r#"
+        SELECT
+        e.id as exercise_id,
+        e.name as exercise_name,
+        e.score_maximum,
+        ues.score_given,
+        tgd.teacher_decision as "teacher_decision: _",
+        ess.id as submission_id,
+        ess.updated_at
+        FROM exercises e
+        LEFT JOIN user_exercise_states ues on e.id = ues.exercise_id
+        LEFT JOIN teacher_grading_decisions tgd on tgd.user_exercise_state_id = ues.id
+        LEFT JOIN exercise_slide_submissions ess on e.id = ess.exercise_id
+        WHERE e.course_id = (
+            SELECT course_id
+            FROM course_instances
+            WHERE id = $1
+          )
+          AND e.deleted_at IS NULL
+          AND ess.user_id = $2
+          AND ues.user_id = $2
+        ORDER BY e.order_number ASC;
+"#,
+        course_instance_id,
+        user_id
     )
     .fetch_all(conn)
     .await?;
@@ -674,6 +740,171 @@ RETURNING id;
     Ok(id.id)
 }
 
+pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<Vec<ExerciseStatusSummaryForUser>> {
+    let course_instance_or_exam_id = CourseInstanceOrExamId::Instance(course_instance_id);
+    // Load all the data for this user from all the exercises to memory, and group most of them to HashMaps by exercise id
+    let exercises =
+        crate::exercises::get_exercises_by_course_instance_id(&mut *conn, course_instance_id)
+            .await?;
+    let mut user_exercise_states =
+        crate::user_exercise_states::get_all_for_user_and_course_instance_or_exam(
+            &mut *conn,
+            user_id,
+            course_instance_or_exam_id,
+        )
+        .await?
+        .into_iter()
+        .map(|ues| (ues.exercise_id, ues))
+        .collect::<HashMap<_, _>>();
+    let mut exercise_slide_submissions =
+        crate::exercise_slide_submissions::get_users_all_submissions_for_course_instance_or_exam(
+            &mut *conn,
+            user_id,
+            course_instance_or_exam_id,
+        )
+        .await?
+        .into_iter()
+        .into_group_map_by(|o| o.exercise_id);
+    let mut given_peer_review_submissions = crate::peer_review_submissions::get_all_given_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
+        .into_group_map_by(|o| o.exercise_id);
+    let mut received_peer_review_submissions = crate::peer_review_submissions::get_all_received_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
+        .into_group_map_by(|o| o.exercise_id);
+    let given_peer_review_submission_ids = given_peer_review_submissions
+        .values()
+        .flatten()
+        .map(|x| x.id)
+        .collect::<Vec<_>>();
+    let mut given_peer_review_question_submissions = crate::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, &given_peer_review_submission_ids).await?
+        .into_iter()
+        .into_group_map_by(|o| {
+            let peer_review_submission = given_peer_review_submissions.clone().into_iter()
+                .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+                .unwrap_or_else(|| (Uuid::nil(), vec![]));
+            peer_review_submission.0
+    });
+    let received_peer_review_submission_ids = received_peer_review_submissions
+        .values()
+        .flatten()
+        .map(|x| x.id)
+        .collect::<Vec<_>>();
+    let mut received_peer_review_question_submissions = crate::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, &received_peer_review_submission_ids).await?.into_iter()
+    .into_group_map_by(|o| {
+        let peer_review_submission = received_peer_review_submissions.clone().into_iter()
+            .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+            .unwrap_or_else(|| (Uuid::nil(), vec![]));
+        peer_review_submission.0
+    });
+    let mut peer_review_queue_entries =
+        crate::peer_review_queue_entries::get_all_by_user_and_course_instance_ids(
+            &mut *conn,
+            user_id,
+            course_instance_id,
+        )
+        .await?
+        .into_iter()
+        .map(|x| (x.exercise_id, x))
+        .collect::<HashMap<_, _>>();
+    let mut teacher_grading_decisions = crate::teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_course_instance_id(&mut *conn, user_id, course_instance_id).await?.into_iter()
+    .filter_map(|tgd| {
+        let user_exercise_state = user_exercise_states.clone().into_iter()
+            .find(|(_exercise_id, ues)|  ues.id == tgd.user_exercise_state_id)?;
+        Some((user_exercise_state.0, tgd))
+    }).collect::<HashMap<_, _>>();
+    let all_peer_review_question_ids = given_peer_review_question_submissions
+        .iter()
+        .chain(received_peer_review_question_submissions.iter())
+        .flat_map(|(_exercise_id, prqs)| prqs.iter().map(|p| p.peer_review_question_id))
+        .collect::<Vec<_>>();
+    let all_peer_review_questions =
+        crate::peer_review_questions::get_by_ids(&mut *conn, &all_peer_review_question_ids).await?;
+
+    // Map all the data for all the exercises to be summaries of the data for each exercise.
+    //
+    // Since all data is in hashmaps grouped by exercise id, and we iterate though every
+    // exercise id exactly once, we can just remove the data for the exercise from the
+    // hashmaps and avoid extra copying.
+    let res = exercises
+        .into_iter()
+        .map(|exercise| {
+            let user_exercise_state = user_exercise_states.remove(&exercise.id);
+            let exercise_slide_submissions = exercise_slide_submissions
+                .remove(&exercise.id)
+                .unwrap_or_default();
+            let given_peer_review_submissions = given_peer_review_submissions
+                .remove(&exercise.id)
+                .unwrap_or_default();
+            let received_peer_review_submissions = received_peer_review_submissions
+                .remove(&exercise.id)
+                .unwrap_or_default();
+            let given_peer_review_question_submissions = given_peer_review_question_submissions
+                .remove(&exercise.id)
+                .unwrap_or_default();
+            let received_peer_review_question_submissions =
+                received_peer_review_question_submissions
+                    .remove(&exercise.id)
+                    .unwrap_or_default();
+            let peer_review_queue_entry = peer_review_queue_entries.remove(&exercise.id);
+            let teacher_grading_decision = teacher_grading_decisions.remove(&exercise.id);
+            let peer_review_question_ids = given_peer_review_question_submissions
+                .iter()
+                .chain(received_peer_review_question_submissions.iter())
+                .map(|prqs| prqs.peer_review_question_id)
+                .unique()
+                .collect::<Vec<_>>();
+            let peer_review_questions = all_peer_review_questions
+                .iter()
+                .filter(|prq| peer_review_question_ids.contains(&prq.id))
+                .cloned()
+                .collect::<Vec<_>>();
+            ExerciseStatusSummaryForUser {
+                exercise,
+                user_exercise_state,
+                exercise_slide_submissions,
+                given_peer_review_submissions,
+                received_peer_review_submissions,
+                given_peer_review_question_submissions,
+                received_peer_review_question_submissions,
+                peer_review_queue_entry,
+                teacher_grading_decision,
+                peer_review_questions,
+            }
+        })
+        .collect::<Vec<_>>();
+    Ok(res)
+}
+
+pub async fn get_exercises_by_module_containing_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+    course_module_id: Uuid,
+) -> ModelResult<Vec<Exercise>> {
+    let res: Vec<Exercise> = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT ex.*
+FROM exercises ex
+  JOIN exercise_slides slides ON ex.id = slides.exercise_id
+  JOIN exercise_tasks tasks ON slides.id = tasks.exercise_slide_id
+  JOIN chapters c ON ex.chapter_id = c.id
+where tasks.exercise_type = $1
+  AND c.course_module_id = $2
+  AND ex.deleted_at IS NULL
+  AND tasks.deleted_at IS NULL
+  and c.deleted_at IS NULL
+  and slides.deleted_at IS NULL
+        "#,
+        exercise_type,
+        course_module_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -721,6 +952,7 @@ mod test {
                 grade_endpoint_path: "/grade".to_string(),
                 public_spec_endpoint_path: "/public-spec".to_string(),
                 model_solution_spec_endpoint_path: "test-only-empty-path".to_string(),
+                has_custom_view: false,
             },
         )
         .await
@@ -758,7 +990,7 @@ mod test {
             exercise
                 .current_exercise_slide
                 .exercise_tasks
-                .get(0)
+                .first()
                 .unwrap()
                 .id,
             exercise_task_id

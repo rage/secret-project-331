@@ -8,11 +8,11 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test("test", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+test("Manually adding completions works", async ({ page, headless }, testInfo) => {
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
-    page.locator("text=University of Helsinki, Department of Computer Science").click(),
+    page.getByText("University of Helsinki, Department of Computer Science").click(),
   ])
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
@@ -23,16 +23,12 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByRole("tab", { name: "Course instances" }).click()
 
-  await page
-    .locator(
-      'text=Default Manage Manage emails Manage permissions View completions View points Exp >> [aria-label="View completions"]',
-    )
-    .click()
+  await page.locator('text=Default Manage >> [aria-label="View completions"]').click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/course-instances/6e3764c9-f2ad-5fe5-b310-ab73c289842e/completions",
   )
 
-  await page.locator("text=Manually add completions").click()
+  await page.getByText("Manually add completions").click()
 
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
@@ -42,7 +38,7 @@ test("test", async ({ page, headless }, testInfo) => {
   fbeb9286-3dd8-4896-a6b8-3faffa3fabd6,4
   3524d694-7fa8-4e73-aa1a-de9a20fd514b,3`)
 
-  await page.locator("text=Check").click()
+  await page.getByRole("button", { name: "Check" }).click()
 
   await page
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (3)")')
@@ -54,7 +50,7 @@ test("test", async ({ page, headless }, testInfo) => {
     snapshotName: "manual-completion-default-module-preview",
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("button", { name: "Submit" }),
-      page.locator("text=Users receiving a completion for the first time"),
+      page.getByText("Users receiving a completion for the first time"),
     ],
     screenshotTarget: page,
     clearNotifications: true,
@@ -64,7 +60,7 @@ test("test", async ({ page, headless }, testInfo) => {
 
   await page.getByText(`Completions submitted successfully`).waitFor()
 
-  await page.locator("text=Manually add completions").click()
+  await page.getByText("Manually add completions").click()
 
   // Select 57db3a62-d098-489a-8869-0a14efd6fa80
   await page.locator("select").selectOption({ label: "Another module" })
@@ -75,7 +71,7 @@ test("test", async ({ page, headless }, testInfo) => {
   00e249d8-345f-4eff-aedb-7bdc4c44c1d5
   fbeb9286-3dd8-4896-a6b8-3faffa3fabd6`)
 
-  await page.locator("text=Check").click()
+  await page.getByRole("button", { name: "Check" }).click()
 
   await page
     .locator('div[role="button"]:has-text("Users receiving a completion for the first time (2)")')
@@ -86,7 +82,7 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "manual-completion-another-module-preview",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=Users receiving a completion for the first time"),
+      page.getByText("Users receiving a completion for the first time"),
       page.getByRole("button", { name: "Submit" }),
     ],
     screenshotTarget: page,
@@ -101,14 +97,14 @@ test("test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "manual-completion-after-posting-completions",
     waitForTheseToBeVisibleAndStable: [
-      page.locator("text=User1"),
-      page.locator("text=User2"),
-      page.locator("text=User3"),
-      page.locator("text=User4"),
-      page.locator("text=Completions submitted successfully."),
+      page.getByText("User1"),
+      page.getByText("User2"),
+      page.getByText("User3"),
+      page.getByText("User4"),
+      page.getByText("Completions submitted successfully."),
     ],
     screenshotTarget: page,
-    beforeScreenshot: () => page.locator("text=User1").scrollIntoViewIfNeeded(),
+    beforeScreenshot: () => page.getByText("User1").scrollIntoViewIfNeeded(),
   })
 
   await showToastsNormally(page)

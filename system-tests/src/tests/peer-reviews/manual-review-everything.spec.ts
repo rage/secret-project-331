@@ -33,7 +33,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     const teacherPage = await context3.newPage()
 
     // Student 1 submits an answer
-    await student1Page.goto("http://project-331.local/")
+    await student1Page.goto("http://project-331.local/organizations")
     await student1Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -55,9 +55,10 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     // Student 2 submits an answer
-    await student2Page.goto("http://project-331.local/")
+    await student2Page.goto("http://project-331.local/organizations")
     await student2Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -79,6 +80,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+    await student2Page.getByText("Try again").waitFor()
 
     await student1Page
       .frameLocator("iframe")
@@ -154,8 +156,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
 
     // Teacher checks answers requiring attention
-    await teacherPage.goto("http://project-331.local/")
-    await teacherPage.waitForTimeout(1000)
+    await teacherPage.goto("http://project-331.local/organizations")
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -216,7 +217,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     const teacherPage = await context3.newPage()
 
     // student 1 submits an answer
-    await student1Page.goto("http://project-331.local/")
+    await student1Page.goto("http://project-331.local/organizations")
     await student1Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -238,13 +239,15 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     await student1Page.getByRole("button", { name: "try again" }).click()
     await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
+    await student1Page.getByText("Try again").waitFor()
 
     // student 2 submits an answer
-    await student2Page.goto("http://project-331.local/")
+    await student2Page.goto("http://project-331.local/organizations")
     await student2Page
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -266,6 +269,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     )
     await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
+    await student2Page.getByText("Try again").waitFor()
 
     await student2Page
       .frameLocator("iframe")
@@ -336,8 +340,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     })
 
     // teacher checks the answers
-    await teacherPage.goto("http://project-331.local/")
-    await teacherPage.waitForTimeout(1000)
+    await teacherPage.goto("http://project-331.local/organizations")
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
@@ -387,6 +390,28 @@ test.describe("test ManualReviewEverything behavior", () => {
       clearNotifications: true,
       waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
       screenshotOptions: { fullPage: true },
+    })
+
+    // Check Course status summary
+    await teacherPage.goto("http://project-331.local/org/uh-cs")
+    await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
+    await teacherPage.getByRole("tab", { name: "Course instances" }).click()
+    await teacherPage
+      .getByRole("listitem")
+      .filter({
+        hasText: "Default",
+        hasNotText: "Non-default instance",
+      })
+      .getByRole("link", { name: "View points" })
+      .click()
+    await teacherPage.getByText("d7d6246c-45a8-4ff4-bf4d-31dedfaac159").click()
+    await teacherPage.getByText(`Exercise: ManualReviewEverything2 (1 submissions)`).waitFor()
+    await expectScreenshotsToMatchSnapshots({
+      headless,
+      testInfo,
+      snapshotName: "course-status-summary",
+      screenshotTarget: teacherPage,
+      clearNotifications: true,
     })
   })
 })

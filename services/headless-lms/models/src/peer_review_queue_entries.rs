@@ -82,7 +82,7 @@ INSERT INTO peer_review_queue_entries (
     receiving_peer_reviews_exercise_slide_submission_id,
     received_enough_peer_reviews
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id) WHERE deleted_at IS NULL DO
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id, deleted_at) DO
 UPDATE
 SET peer_review_priority = $4
 RETURNING *
@@ -393,6 +393,30 @@ WHERE course_instance_id = $1
     Ok(res)
 }
 
+pub async fn get_entries_that_need_reviews_and_are_older_than_with_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    timestamp: DateTime<Utc>,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE exercise_id = $1
+  AND received_enough_peer_reviews = FALSE
+  AND removed_from_queue_for_unusual_reason = FALSE
+  AND created_at < $2
+  AND deleted_at IS NULL
+    ",
+        exercise_id,
+        timestamp
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn remove_from_queue_and_add_to_manual_review(
     conn: &mut PgConnection,
     peer_review_queue_entry: &PeerReviewQueueEntry,
@@ -492,4 +516,36 @@ AND deleted_at is NULL
     .await?;
 
     Ok(())
+}
+
+pub async fn get_all_by_user_and_course_instance_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<PeerReviewQueueEntry>> {
+    let res = sqlx::query_as!(
+        PeerReviewQueueEntry,
+        "
+SELECT *
+FROM peer_review_queue_entries
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        course_instance_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn try_to_get_all_by_user_and_course_instance_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<Vec<PeerReviewQueueEntry>>> {
+    get_all_by_user_and_course_instance_ids(conn, user_id, course_instance_id)
+        .await
+        .optional()
 }

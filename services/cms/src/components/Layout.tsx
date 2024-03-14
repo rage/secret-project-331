@@ -18,6 +18,7 @@ import {
 import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
 import { respondToOrLarger } from "../shared-module/styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
@@ -26,10 +27,7 @@ export const SIDEBAR_WIDTH_PX = 350
 
 type LayoutProps = {
   children: ReactNode
-  navVariant?: "simple" | "complex"
-  faqUrl?: string
-  title?: string
-  licenseUrl?: string
+  hideBreadcrumbs?: boolean
 }
 
 const DynamicToaster = dynamic(
@@ -39,12 +37,11 @@ const DynamicToaster = dynamic(
 
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   children,
-  title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331",
-  navVariant,
-  // faqUrl,
-  licenseUrl,
+  hideBreadcrumbs = false,
 }) => {
   const router = useRouter()
+  // eslint-disable-next-line i18next/no-literal-string
+  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
   return (
     <>
       <Head>
@@ -59,12 +56,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <NavBar
-          // faqUrl={faqUrl}
-          variant={navVariant ?? "simple"}
-          // Return to path can be override per page
-          // returnToPath={returnToPath ?? returnPath}
-        >
+        <NavBar variant={"simple"}>
           <NavContainer>
             <NavItems>
               <NavItem>
@@ -89,20 +81,22 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           id="maincontent"
         >
           <Centered variant="narrow">
-            <PageMarginOffset
-              marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
-              marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
-            >
-              <EditorBreadcrumbs />
-            </PageMarginOffset>
+            {!hideBreadcrumbs && (
+              <PageMarginOffset
+                marginTop={`-${MARGIN_BETWEEN_NAVBAR_AND_CONTENT}`}
+                marginBottom={MARGIN_BETWEEN_NAVBAR_AND_CONTENT}
+              >
+                <EditorBreadcrumbs />
+              </PageMarginOffset>
+            )}
             {children}
           </Centered>
         </main>
       </div>
       <DynamicToaster />
-      <Footer licenseUrl={licenseUrl} />
+      <Footer />
     </>
   )
 }
 
-export default Layout
+export default withNoSsr(Layout)

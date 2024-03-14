@@ -20,17 +20,17 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
   courseInstanceId,
 }) => {
   const { t } = useTranslation()
-  const getUserChapterProgress = useQuery(
-    [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
-  )
+  const getUserChapterProgress = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
+    queryFn: () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
+  })
 
   return (
     <div>
       {getUserChapterProgress.isError && (
         <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
       )}
-      {getUserChapterProgress.isLoading && <Spinner variant={"medium"} />}
+      {getUserChapterProgress.isPending && <Spinner variant={"medium"} />}
       {getUserChapterProgress.isSuccess && (
         <div
           className={css`

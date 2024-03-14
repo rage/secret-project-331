@@ -120,7 +120,11 @@ const Congratulations: React.FC<React.PropsWithChildren<CongratulationsProps>> =
           {modules
             .sort((a, b) => a.order_number - b.order_number)
             .map((module) => (
-              <ModuleCard key={module.module_id} module={module} />
+              <ModuleCard
+                key={module.module_id}
+                certificateConfigurationId={module.certificate_configuration_id}
+                module={module}
+              />
             ))}
         </ModuleWrapper>
       </Content>

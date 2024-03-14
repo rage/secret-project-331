@@ -5,7 +5,7 @@ use models::{
     chapters::UserCourseInstanceChapterProgress,
     course_background_question_answers::NewCourseBackgroundQuestionAnswer,
     course_background_questions::CourseBackgroundQuestionsAndAnswers,
-    course_instance_enrollments::{CourseInstanceEnrollment, NewCourseInstanceEnrollment},
+    course_instance_enrollments::CourseInstanceEnrollment,
     library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
@@ -15,7 +15,6 @@ use crate::{domain::authorization::skip_authorize, prelude::*};
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
@@ -30,14 +29,13 @@ async fn get_user_progress_for_course_instance(
             user.id,
         )
         .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_progress))
 }
 
 /**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
@@ -54,14 +52,13 @@ async fn get_user_progress_for_course_instance_chapter(
             user.id,
         )
         .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
@@ -90,14 +87,13 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(rounded_score_given_instances))
 }
 
 /**
 GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_module_completions_for_course_instance(
     user: AuthUser,
@@ -105,7 +101,7 @@ async fn get_module_completions_for_course_instance(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<UserModuleCompletionStatus>>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     let mut module_completion_statuses =
         models::library::progressing::get_user_module_completion_statuses_for_course_instance(
             &mut conn,
@@ -117,6 +113,7 @@ async fn get_module_completions_for_course_instance(
     module_completion_statuses.iter_mut().for_each(|module| {
         if !module.prerequisite_modules_completed {
             module.completed = false;
+            module.certificate_configuration_id = None;
         }
     });
     token.authorized_ok(web::Json(module_completion_statuses))
@@ -131,7 +128,6 @@ pub struct SaveCourseSettingsPayload {
 /**
 POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn save_course_settings(
     pool: web::Data<PgPool>,
@@ -140,38 +136,21 @@ async fn save_course_settings(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
-    let mut tx = conn.begin().await?;
 
-    let instance =
-        models::course_instances::get_course_instance(&mut tx, *course_instance_id).await?;
-    let enrollment = models::course_instance_enrollments::insert_enrollment_and_set_as_current(
-        &mut tx,
-        NewCourseInstanceEnrollment {
-            course_id: instance.course_id,
-            course_instance_id: instance.id,
-            user_id: user.id,
-        },
+    let enrollment = models::library::course_instances::enroll(
+        &mut conn,
+        user.id,
+        *course_instance_id,
+        payload.background_question_answers.as_slice(),
     )
     .await?;
-
-    let background_question_answers = &payload.background_question_answers;
-    if !background_question_answers.is_empty() {
-        models::course_background_question_answers::upsert_backround_question_answers(
-            &mut tx,
-            user.id,
-            background_question_answers,
-        )
-        .await?;
-    }
-    tx.commit().await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(enrollment))
 }
 
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_background_questions_and_answers(
     pool: web::Data<PgPool>,
@@ -186,7 +165,7 @@ async fn get_background_questions_and_answers(
         &mut conn, &instance, user.id,
     )
     .await?;
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 

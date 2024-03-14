@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { parseISO } from "date-fns"
 import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -15,6 +16,7 @@ import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
   manageCourseInstancePermissionsPageRoute,
+  viewCourseInstanceCertificatesPageRoute,
   viewCourseInstanceCompletionsPageRoute,
   viewCourseInstancePointsPageRoute,
 } from "../../../../../../utils/routing"
@@ -28,14 +30,15 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
 }) => {
   const { t } = useTranslation()
   const [showDialog, setShowDialog] = useState(false)
-  const getCourseInstances = useQuery([`course-${courseId}-course-instances`], () =>
-    fetchCourseInstances(courseId),
-  )
+  const getCourseInstances = useQuery({
+    queryKey: [`course-${courseId}-course-instances`],
+    queryFn: () => fetchCourseInstances(courseId),
+  })
 
   const handleCreateNewCourseInstance = async () => {
     setShowDialog(false)
     // eslint-disable-next-line i18next/no-literal-string
-    queryClient.invalidateQueries([`course-${courseId}-course-instances`])
+    queryClient.invalidateQueries({ queryKey: [`course-${courseId}-course-instances`] })
   }
 
   return (
@@ -43,7 +46,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
       {getCourseInstances.isError && (
         <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
       )}
-      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
+      {getCourseInstances.isPending && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && (
         <div>
           <h2
@@ -58,7 +61,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
           </h2>
           <ul>
             {getCourseInstances.data
-              .sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
+              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
               .map((instance) => {
                 const name = instance.name ?? t("default-course-instance-name")
                 return (
@@ -81,6 +84,12 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                       aria-label={`${t("link-manage-permissions")} (${name})`}
                     >
                       {t("link-manage-permissions")}
+                    </Link>{" "}
+                    <Link
+                      href={viewCourseInstanceCertificatesPageRoute(instance.id)}
+                      aria-label={`${t("link-manage-certificates")} (${name})`}
+                    >
+                      {t("link-manage-certificates")}
                     </Link>{" "}
                     <Link
                       href={viewCourseInstanceCompletionsPageRoute(instance.id)}

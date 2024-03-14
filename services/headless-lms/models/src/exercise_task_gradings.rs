@@ -11,6 +11,7 @@ use crate::{
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::{self, ExerciseTask},
     exercises::{Exercise, GradingProgress},
+    library::custom_view_exercises::CustomViewExerciseTaskGrading,
     prelude::*,
     user_exercise_states::UserExerciseState,
     CourseOrExamId,
@@ -131,7 +132,7 @@ WHERE id = $1
 
 pub async fn get_by_exercise_task_submission_id(
     conn: &mut PgConnection,
-    exercise_task_submission_id: &Uuid,
+    exercise_task_submission_id: Uuid,
 ) -> ModelResult<Option<ExerciseTaskGrading>> {
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
@@ -538,4 +539,57 @@ WHERE deleted_at IS NULL
         map.insert(regrading.id, regrading);
     }
     Ok(map)
+}
+
+// Get all gradings for user for course module and exercise type
+pub async fn get_user_exercise_task_gradings_by_module_and_exercise_type(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_type: &str,
+    module_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<CustomViewExerciseTaskGrading>> {
+    let res: Vec<CustomViewExerciseTaskGrading> = sqlx::query_as!(
+        CustomViewExerciseTaskGrading,
+        r#"
+SELECT id,
+  created_at,
+  exercise_id,
+  exercise_task_id,
+  feedback_json,
+  feedback_text
+FROM exercise_task_gradings g
+WHERE deleted_at IS NULL
+  AND g.exercise_task_id IN (
+    SELECT distinct (t.id)
+    FROM exercise_tasks t
+    WHERE t.exercise_type = $2
+      AND deleted_at IS NULL
+      AND t.exercise_slide_id IN (
+        SELECT s.exercise_slide_id
+        FROM exercise_slide_submissions s
+        WHERE s.user_id = $1
+          AND s.course_instance_id = $4
+          AND deleted_at IS NULL
+          AND s.exercise_id IN (
+            SELECT id
+            FROM exercises e
+            WHERE e.chapter_id IN (
+                SELECT id
+                FROM chapters c
+                WHERE c.course_module_id = $3
+                AND deleted_at IS NULL
+              )
+          )
+      )
+  )
+      "#,
+        user_id,
+        exercise_type,
+        module_id,
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }

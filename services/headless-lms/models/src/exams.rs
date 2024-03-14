@@ -9,12 +9,14 @@ pub struct Exam {
     pub id: Uuid,
     pub name: String,
     pub instructions: serde_json::Value,
+    // TODO: page_id is not in the exams table, prevents from using select * with query_as!
     pub page_id: Uuid,
     pub courses: Vec<Course>,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
     pub time_minutes: i32,
     pub minimum_points_treshold: i32,
+    pub language: String,
 }
 
 impl Exam {
@@ -37,7 +39,7 @@ impl Exam {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct OrgExam {
     pub id: Uuid,
@@ -60,7 +62,8 @@ SELECT exams.id,
   exams.starts_at,
   exams.ends_at,
   exams.time_minutes,
-  exams.minimum_points_treshold
+  exams.minimum_points_treshold,
+  exams.language
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
@@ -109,10 +112,11 @@ WHERE course_exams.exam_id = $1
         time_minutes: exam.time_minutes,
         courses,
         minimum_points_treshold: exam.minimum_points_treshold,
+        language: exam.language.unwrap_or("en-US".to_string()),
     })
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseExam {
     pub id: Uuid,
@@ -121,7 +125,7 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExam {
     pub name: String,

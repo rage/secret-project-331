@@ -1,15 +1,15 @@
-import { Alert } from "@mui/lab"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { IframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string
   url: string
-  postThisStateToIFrame: IframeState | null
+  postThisStateToIFrame: ExerciseIframeState | null
   setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
   title: string
 }
@@ -22,7 +22,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
-    return <Alert severity="error">{t("cannot-render-exercise-task-missing-url")}</Alert>
+    return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} variant="readOnly" />
   }
 
   return (
@@ -30,7 +30,6 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (messageContainer, _responsePort) => {
-        console.log(messageContainer)
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
             const { data, valid } = messageContainer

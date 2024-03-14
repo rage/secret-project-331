@@ -1,7 +1,7 @@
-use std::pin::Pin;
+//! Common functionality related to authorization
 
 use crate::prelude::*;
-
+use crate::OAuthClient;
 use actix_http::Payload;
 use actix_session::Session;
 use actix_session::SessionExt;
@@ -9,20 +9,32 @@ use actix_web::{FromRequest, HttpRequest, Responder};
 use anyhow::Result;
 use chrono::{DateTime, Duration, Utc};
 use futures::Future;
-use headless_lms_models::{self as models, roles::UserRole};
+use headless_lms_models::{self as models, roles::UserRole, users::User};
 use models::{roles::Role, CourseOrExamId};
+use oauth2::basic::BasicTokenType;
+use oauth2::reqwest::AsyncHttpClientError;
+use oauth2::EmptyExtraTokenFields;
+use oauth2::ResourceOwnerPassword;
+use oauth2::ResourceOwnerUsername;
+use oauth2::StandardTokenResponse;
+use oauth2::TokenResponse;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::PgConnection;
+use std::env;
+use std::pin::Pin;
 #[cfg(feature = "ts_rs")]
 pub use ts_rs::TS;
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
 
+const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
 /// Extractor for an authenticated user.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AuthUser {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -32,7 +44,7 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
@@ -152,7 +164,7 @@ pub async fn has_auth_user_session(session: &Session, pool: web::Data<PgPool>) -
 
 /// Forgets authentication from the current session, if any.
 pub fn forget(session: &Session) {
-    session.remove(SESSION_KEY);
+    session.purge();
 }
 
 /// Describes an action that a user can take on some resource.
@@ -173,10 +185,13 @@ pub enum Action {
     /// Deletion that we usually don't want to allow.
     UsuallyUnacceptableDeletion,
     UploadFile,
+    ViewUserProgressOrDetails,
+    ViewInternalCourseStructure,
+    ViewStats,
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
@@ -248,15 +263,15 @@ async fn example_function(
 ) -> ControllerResult<....> {
     // We need to return ControllerResult -> AuthorizedResponse
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
 
     token.authorized_ok(web::Json(organizations))
 
 }
 ```
 */
-pub fn skip_authorize() -> Result<AuthorizationToken, ControllerError> {
-    Ok(AuthorizationToken(()))
+pub fn skip_authorize() -> AuthorizationToken {
+    AuthorizationToken(())
 }
 
 /**  Can be used to check whether user is allowed to view some course material */
@@ -275,22 +290,71 @@ pub async fn authorize_access_to_course_material(
         }
         authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await?
     } else {
-        skip_authorize()?
+        skip_authorize()
     };
     Ok(token)
 }
 
 /**  Can be used to check whether user is allowed to view some course material */
-pub async fn can_user_view_not_open_chapter(
+pub async fn authorize_access_to_tmc_server(
+    request: &HttpRequest,
+) -> Result<AuthorizationToken, ControllerError> {
+    let tmc_server_secret_for_communicating_to_secret_project =
+        env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
+            .expect("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined");
+    // check authorization header
+    let auth_header = request
+        .headers()
+        .get("Authorization")
+        .ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Unauthorized".to_string(),
+                None,
+            )
+        })?
+        .to_str()
+        .map_err(|_| {
+            ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Unauthorized".to_string(),
+                None,
+            )
+        })?;
+    // If auth header correct one, grant access
+    if auth_header == tmc_server_secret_for_communicating_to_secret_project {
+        return Ok(skip_authorize());
+    }
+    Err(ControllerError::new(
+        ControllerErrorType::Unauthorized,
+        "Unauthorized".to_string(),
+        None,
+    ))
+}
+
+/**  Can be used to check whether user is allowed to view some course material. Chapters can be closed and and limited to certain people only. */
+pub async fn can_user_view_chapter(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    course_id: Uuid,
+    course_id: Option<Uuid>,
+    chapter_id: Option<Uuid>,
 ) -> Result<bool, ControllerError> {
-    if user_id.is_none() {
-        return Ok(false);
+    if let Some(course_id) = course_id {
+        if let Some(chapter_id) = chapter_id {
+            if !models::chapters::is_open(&mut *conn, chapter_id).await? {
+                if user_id.is_none() {
+                    return Ok(false);
+                }
+                // If the user has been granted access to view the material, then they can see the unopened chapters too
+                // This is important because sometimes teachers wish to test unopened chapters with real students
+                let permission =
+                    authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await;
+
+                return Ok(permission.is_ok());
+            }
+        }
     }
-    let permission = authorize(conn, Act::Edit, user_id, Res::Course(course_id)).await;
-    Ok(permission.is_ok())
+    Ok(true)
 }
 
 /**
@@ -326,7 +390,7 @@ pub async fn authorize(
     authorize_with_fetched_list_of_roles(conn, action, user_id, resource, &user_roles).await
 }
 
-/// Same as `authorize`, but takes as an argument Vec<Role> so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
+/// Same as `authorize`, but takes as an argument `Vec<Role>` so that we avoid fetching the roles from the database for optimization reasons. This is useful when we're checking multiple authorizations at once.
 pub async fn authorize_with_fetched_list_of_roles(
     conn: &mut PgConnection,
     action: Action,
@@ -353,10 +417,10 @@ pub async fn authorize_with_fetched_list_of_roles(
     // for some resources, we need to get more information from the database
     match resource {
         Resource::Chapter(id) => {
-            // if trying to View a chapter that is not open, check for permission to Teach
+            // if trying to View a chapter that is not open, check for permission to view the material
             let action =
                 if matches!(action, Action::View) && !models::chapters::is_open(conn, id).await? {
-                    Action::Teach
+                    Action::ViewMaterial
                 } else {
                     action
                 };
@@ -542,8 +606,15 @@ async fn check_study_registry_permission(
     secret_key: String,
     _action: Action,
 ) -> Result<AuthorizationToken, ControllerError> {
-    let _registrar =
-        models::study_registry_registrars::get_by_secret_key(conn, &secret_key).await?;
+    let _registrar = models::study_registry_registrars::get_by_secret_key(conn, &secret_key)
+        .await
+        .map_err(|original_error| {
+            ControllerError::new(
+                ControllerErrorType::Forbidden,
+                "Unauthorized".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
     Ok(AuthorizationToken(()))
 }
 
@@ -561,10 +632,13 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | Grade
                 | Duplicate
                 | DeleteAnswer
-                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer)
+                | EditRole(Teacher | Assistant | Reviewer | MaterialViewer | StatsViewer)
                 | CreateCoursesOrExams
                 | ViewMaterial
                 | UploadFile
+                | ViewUserProgressOrDetails
+                | ViewInternalCourseStructure
+                | ViewStats
         ),
         Assistant => matches!(
             action,
@@ -574,10 +648,22 @@ fn has_permission(user_role: UserRole, action: Action) -> bool {
                 | EditRole(Assistant | Reviewer | MaterialViewer)
                 | Teach
                 | ViewMaterial
+                | ViewUserProgressOrDetails
+                | ViewInternalCourseStructure
         ),
-        Reviewer => matches!(action, View | Grade | ViewMaterial),
+        Reviewer => matches!(
+            action,
+            View | Grade | ViewMaterial | ViewInternalCourseStructure
+        ),
         CourseOrExamCreator => matches!(action, CreateCoursesOrExams),
         MaterialViewer => matches!(action, ViewMaterial),
+        TeachingAndLearningServices => {
+            matches!(
+                action,
+                View | ViewMaterial | ViewUserProgressOrDetails | ViewInternalCourseStructure
+            )
+        }
+        StatsViewer => matches!(action, ViewStats),
     }
 }
 
@@ -602,6 +688,263 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
         )
     })?;
     Ok(secret_key)
+}
+
+/// Authenticates the user with mooc.fi, returning the authenticated user and their oauth token.
+pub async fn authenticate_moocfi_user(
+    conn: &mut PgConnection,
+    client: &OAuthClient,
+    email: String,
+    password: String,
+) -> anyhow::Result<(User, LoginToken)> {
+    let token = exchange_password_with_moocfi(client, email, password).await?;
+    let user = get_user_from_moocfi_by_login_token(&token, conn).await?;
+    Ok((user, token))
+}
+
+pub type LoginToken = StandardTokenResponse<EmptyExtraTokenFields, BasicTokenType>;
+pub async fn exchange_password_with_moocfi(
+    client: &OAuthClient,
+    email: String,
+    password: String,
+) -> anyhow::Result<LoginToken> {
+    let token = client
+        .exchange_password(
+            &ResourceOwnerUsername::new(email),
+            &ResourceOwnerPassword::new(password),
+        )
+        .request_async(async_http_client_with_headers)
+        .await?;
+    Ok(token)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GraphQLRequest<'a> {
+    query: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    variables: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserResponse {
+    pub data: MoocfiUserResponseData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserResponseData {
+    pub user: MoocfiUser,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUser {
+    pub id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: String,
+    pub upstream_id: i32,
+}
+
+pub async fn get_user_from_moocfi_by_login_token(
+    token: &LoginToken,
+    conn: &mut PgConnection,
+) -> anyhow::Result<User> {
+    info!("Getting user details from mooc.fi");
+
+    let client = reqwest::Client::default();
+    let res = client
+        .post(MOOCFI_GRAPHQL_URL)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .json(&GraphQLRequest {
+            query: r#"
+{
+    user: currentUser {
+      id
+      email
+      first_name
+      last_name
+      upstream_id
+    }
+}"#,
+            variables: None,
+        })
+        .bearer_auth(token.access_token().secret())
+        .send()
+        .await
+        .context("Failed to send request to Mooc.fi")?;
+    if !res.status().is_success() {
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
+    }
+    let current_user_response: MoocfiUserResponse = res
+        .json()
+        .await
+        .context("Unexpected response from Mooc.fi")?;
+
+    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
+        .await?;
+    Ok(user)
+}
+
+pub async fn get_user_from_moocfi_by_tmc_access_token_and_upstream_id(
+    conn: &mut PgConnection,
+    tmc_access_token: &str,
+    upstream_id: &i32,
+) -> anyhow::Result<User> {
+    info!("Getting user details from mooc.fi");
+    let client = reqwest::Client::default();
+
+    let res = client
+        .post(MOOCFI_GRAPHQL_URL)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .bearer_auth(tmc_access_token)
+        .json(&GraphQLRequest {
+            query: r#"
+query ($upstreamId: Int) {
+  user(upstream_id: $upstreamId) {
+    id
+    email
+    first_name
+    last_name
+    upstream_id
+  }
+}"#,
+            variables: Some(json!({ "upstreamId": upstream_id })),
+        })
+        .send()
+        .await
+        .context("Failed to send request to Mooc.fi")?;
+    if !res.status().is_success() {
+        return Err(anyhow::anyhow!("Failed to get current user from Mooc.fi"));
+    }
+    let current_user_response: MoocfiUserResponse = res
+        .json()
+        .await
+        .context("Unexpected response from Mooc.fi")?;
+
+    let user = get_or_create_user_from_moocfi_response(&mut *conn, current_user_response.data.user)
+        .await?;
+    Ok(user)
+}
+
+async fn get_or_create_user_from_moocfi_response(
+    conn: &mut PgConnection,
+    moocfi_user: MoocfiUser,
+) -> anyhow::Result<User> {
+    let MoocfiUser {
+        id: moocfi_id,
+        first_name,
+        last_name,
+        email,
+        upstream_id,
+    } = moocfi_user;
+
+    // fetch existing user or create new one
+    let user =
+        match models::users::find_by_upstream_id(conn, upstream_id).await? {
+            Some(existing_user) => existing_user,
+            None => {
+                models::users::insert_with_upstream_id_and_moocfi_id(
+                    conn,
+                    &email,
+                    // convert empty names to None
+                    first_name.as_deref().and_then(|n| {
+                        if n.trim().is_empty() {
+                            None
+                        } else {
+                            Some(n)
+                        }
+                    }),
+                    last_name
+                        .as_deref()
+                        .and_then(|n| if n.trim().is_empty() { None } else { Some(n) }),
+                    upstream_id,
+                    moocfi_id,
+                )
+                .await?
+            }
+        };
+    Ok(user)
+}
+
+// Only used for testing, not to use in production.
+pub async fn authenticate_test_user(
+    conn: &mut PgConnection,
+    email: &str,
+    password: &str,
+    application_configuration: &ApplicationConfiguration,
+) -> anyhow::Result<User> {
+    // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
+    assert!(application_configuration.test_mode);
+    let user = if email == "admin@example.com" && password == "admin" {
+        models::users::get_by_email(conn, "admin@example.com").await?
+    } else if email == "teacher@example.com" && password == "teacher" {
+        models::users::get_by_email(conn, "teacher@example.com").await?
+    } else if email == "language.teacher@example.com" && password == "language.teacher" {
+        models::users::get_by_email(conn, "language.teacher@example.com").await?
+    } else if email == "material.viewer@example.com" && password == "material.viewer" {
+        models::users::get_by_email(conn, "material.viewer@example.com").await?
+    } else if email == "user@example.com" && password == "user" {
+        models::users::get_by_email(conn, "user@example.com").await?
+    } else if email == "assistant@example.com" && password == "assistant" {
+        models::users::get_by_email(conn, "assistant@example.com").await?
+    } else if email == "creator@example.com" && password == "creator" {
+        models::users::get_by_email(conn, "creator@example.com").await?
+    } else if email == "student1@example.com" && password == "student1" {
+        models::users::get_by_email(conn, "student1@example.com").await?
+    } else if email == "student2@example.com" && password == "student2" {
+        models::users::get_by_email(conn, "student2@example.com").await?
+    } else if email == "student3@example.com" && password == "student3" {
+        models::users::get_by_email(conn, "student3@example.com").await?
+    } else if email == "student4@example.com" && password == "student4" {
+        models::users::get_by_email(conn, "student4@example.com").await?
+    } else if email == "student5@example.com" && password == "student5" {
+        models::users::get_by_email(conn, "student5@example.com").await?
+    } else if email == "teaching-and-learning-services@example.com"
+        && password == "teaching-and-learning-services"
+    {
+        models::users::get_by_email(conn, "teaching-and-learning-services@example.com").await?
+    } else if email == "student-without-research-consent@example.com"
+        && password == "student-without-research-consent"
+    {
+        models::users::get_by_email(conn, "student-without-research-consent@example.com").await?
+    } else if email == "langs@example.com" && password == "langs" {
+        models::users::get_by_email(conn, "langs@example.com").await?
+    } else {
+        anyhow::bail!("Invalid email or password");
+    };
+    Ok(user)
+}
+
+// Only used for testing, not to use in production.
+pub async fn authenticate_test_token(
+    conn: &mut PgConnection,
+    token: &str,
+    application_configuration: &ApplicationConfiguration,
+) -> anyhow::Result<User> {
+    // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
+    assert!(application_configuration.test_mode);
+    let user = models::users::get_by_email(conn, token).await?;
+    Ok(user)
+}
+
+/**
+ * HTTP Client used only for authing with TMC server, this is to ensure that TMC server
+ * does not rate limit auth requests from backend
+ */
+async fn async_http_client_with_headers(
+    mut request: oauth2::HttpRequest,
+) -> Result<oauth2::HttpResponse, AsyncHttpClientError> {
+    let ratelimit_api_key = std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    request.headers.append(
+        "RATELIMIT-PROTECTION-SAFE-API-KEY",
+        ratelimit_api_key.parse().map_err(|_err| {
+            AsyncHttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+        })?,
+    );
+    let result = oauth2::reqwest::async_http_client(request).await?;
+    Ok(result)
 }
 
 #[cfg(test)]

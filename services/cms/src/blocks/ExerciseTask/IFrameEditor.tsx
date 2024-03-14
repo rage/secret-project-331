@@ -1,4 +1,3 @@
-import { Alert } from "@mui/lab"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
@@ -6,10 +5,11 @@ import { v5 } from "uuid"
 
 import { SIDEBAR_WIDTH_PX } from "../../components/Layout"
 import CourseContext from "../../contexts/CourseContext"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../shared-module/components/MessageChannelIFrame"
 import Spinner from "../../shared-module/components/Spinner"
 import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import { IframeState } from "../../shared-module/exercise-service-protocol-types"
+import { ExerciseIframeState } from "../../shared-module/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../shared-module/exercise-service-protocol-types.guard"
 import useMedia from "../../shared-module/hooks/useMedia"
 import useUserInfo from "../../shared-module/hooks/useUserInfo"
@@ -39,7 +39,7 @@ const ExerciseTaskIFrameEditor: React.FC<
 
   const largeScreen = useMedia(respondToOrLarger.xl)
 
-  const postThisStateToIFrame: IframeState = useMemoOne(() => {
+  const postThisStateToIFrame: ExerciseIframeState = useMemoOne(() => {
     return {
       view_type: VIEW_TYPE,
       exercise_task_id: exerciseTaskId,
@@ -55,7 +55,9 @@ const ExerciseTaskIFrameEditor: React.FC<
   }, [privateSpec])
 
   if (!url || url.trim() === "") {
-    return <Alert severity="error">{t("error-cannot-render-exercise-task-missing-url")}</Alert>
+    return (
+      <ErrorBanner variant="readOnly" error={t("error-cannot-render-exercise-task-missing-url")} />
+    )
   }
 
   if (!userInfo.data) {

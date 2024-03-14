@@ -29,24 +29,33 @@ jobs:
         run: |
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
 
+
       - name: Free up disk space
         run: |
+          echo "Space before:"
+          df -h
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /usr/local/lib/android
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Space after:"
+          df -h
 
       # If glcoud cli is installed skaffold spams the output because we're not logged in and in some cases might even fail the build.
       - name: Hide gcloud cli from skaffold
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
       - name: Install skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        uses: yokawasa/action-setup-kube-tools@v0.9.3
         with:
-          skaffold: "2.0.1"
+          skaffold: "2.8.0"
 
       - name: Run npm ci so that shared module gets copied
         run: npm ci
+
+      - name: Download tmc-langs
+        run: bin/download-tmc-langs
 
       - name: Build
         run: bin/skaffold-build-test-env-and-serialize-output
@@ -109,10 +118,15 @@ jobs:
     steps:
       - name: Free up disk space
         run: |
+          echo "Space before:"
+          df -h
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /usr/local/lib/android
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Space after:"
+          df -h
       - name: Check out repository code
         uses: actions/checkout@v2
 
@@ -122,11 +136,11 @@ jobs:
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
 
       - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.7.1
+        uses: yokawasa/action-setup-kube-tools@v0.9.3
         with:
-          kubectl: "1.25.4"
-          kustomize: "4.5.7"
-          skaffold: "2.0.1"
+          kubectl: "1.28.2"
+          kustomize: "5.1.1"
+          skaffold: "2.8.0"
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
         run: |
           # Workarounds this issue when starting up kube-system/kube-proxy:
@@ -200,6 +214,10 @@ jobs:
         run: npm run test -- -- --shard="${{ matrix.shard }}/2"
         working-directory: ./system-tests/
         if: ${{ github.ref != 'refs/heads/master' }}
+
+      - name: Headless lms logs
+        run: kubectl logs 'deployment/headless-lms'
+        if: failure()
 
       - uses: actions/upload-artifact@v2
         if: failure()

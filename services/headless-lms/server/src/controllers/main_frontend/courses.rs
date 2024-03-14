@@ -18,6 +18,10 @@ use models::{
     glossary::{Term, TermUpdate},
     library,
     material_references::{MaterialReference, NewMaterialReference},
+    page_visit_datum_summary_by_courses::PageVisitDatumSummaryByCourse,
+    page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
+    page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
+    page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     pages::Page,
     peer_review_configs::PeerReviewConfig,
     peer_review_questions::PeerReviewQuestion,
@@ -40,7 +44,6 @@ use crate::{
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -48,7 +51,7 @@ async fn get_course(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(course))
 }
@@ -56,7 +59,6 @@ async fn get_course(
 /**
 GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_breadcrumb_info(
     course_id: web::Path<Uuid>,
@@ -64,7 +66,8 @@ async fn get_course_breadcrumb_info(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseBreadcrumbInfo>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let user_id = Some(user.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let info = models::courses::get_course_breadcrumb_info(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(info))
 }
@@ -85,13 +88,14 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
-#[instrument(skip(pool))]
+
+#[instrument(skip(pool, app_conf))]
 async fn post_new_course(
     request_id: RequestId,
     pool: web::Data<PgPool>,
     payload: web::Json<NewCourse>,
     user: AuthUser,
+    app_conf: web::Data<ApplicationConfiguration>,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
@@ -117,7 +121,11 @@ async fn post_new_course(
         PKeyPolicy::Generate,
         new_course,
         user.id,
-        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            Arc::clone(&jwt_key),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -148,7 +156,6 @@ Content-Type: application/json
 
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_course(
     payload: web::Json<CourseUpdate>,
@@ -166,7 +173,6 @@ async fn update_course(
 /**
 DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete_course(
     course_id: web::Path<Uuid>,
@@ -232,7 +238,7 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
 }
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_course_structure(
     course_id: web::Path<Uuid>,
@@ -244,7 +250,7 @@ async fn get_course_structure(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewInternalCourseStructure,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -274,7 +280,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media_for_course(
     course_id: web::Path<Uuid>,
@@ -305,7 +311,6 @@ async fn add_media_for_course(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_exercises(
     pool: web::Data<PgPool>,
@@ -322,7 +327,6 @@ async fn get_all_exercises(
 /**
 GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_exercises_and_count_of_answers_requiring_attention(
     pool: web::Data<PgPool>,
@@ -347,7 +351,6 @@ GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-
 Content-Type: application/json
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
@@ -381,7 +384,6 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_language_version(
     pool: web::Data<PgPool>,
@@ -399,7 +401,15 @@ pub async fn post_new_course_language_version(
     .await?;
 
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, true, user.id)
+            .await?;
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(copied_course))
 }
@@ -422,7 +432,6 @@ Content-Type: application/json
 }
 ```
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn post_new_course_duplicate(
     pool: web::Data<PgPool>,
@@ -439,15 +448,22 @@ pub async fn post_new_course_duplicate(
     )
     .await?;
     let copied_course =
-        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false).await?;
+        models::library::copying::copy_course(&mut conn, *course_id, &payload.0, false, user.id)
+            .await?;
 
+    models::roles::insert(
+        &mut conn,
+        user.id,
+        models::roles::UserRole::Teacher,
+        models::roles::RoleDomain::Course(copied_course.id),
+    )
+    .await?;
     token.authorized_ok(web::Json(copied_course))
 }
 
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_daily_submission_counts(
     pool: web::Data<PgPool>,
@@ -457,7 +473,7 @@ async fn get_daily_submission_counts(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -473,7 +489,6 @@ async fn get_daily_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_daily_user_counts_with_submissions(
     pool: web::Data<PgPool>,
@@ -483,7 +498,7 @@ async fn get_daily_user_counts_with_submissions(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -500,7 +515,6 @@ async fn get_daily_user_counts_with_submissions(
 /**
 GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_weekday_hour_submission_counts(
     pool: web::Data<PgPool>,
@@ -510,7 +524,7 @@ async fn get_weekday_hour_submission_counts(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -527,7 +541,6 @@ async fn get_weekday_hour_submission_counts(
 /**
 GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_submission_counts_by_exercise(
     pool: web::Data<PgPool>,
@@ -537,7 +550,7 @@ async fn get_submission_counts_by_exercise(
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::Teach,
+        Act::ViewStats,
         Some(user.id),
         Res::Course(*course_id),
     )
@@ -554,7 +567,6 @@ async fn get_submission_counts_by_exercise(
 /**
 GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
@@ -586,7 +598,6 @@ pub struct GetFeedbackQuery {
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_feedback(
     course_id: web::Path<Uuid>,
@@ -612,7 +623,6 @@ pub async fn get_feedback(
 /**
 GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_feedback_count(
     course_id: web::Path<Uuid>,
@@ -636,7 +646,6 @@ pub async fn get_feedback_count(
 /**
 POST `/api/v0/main-frontend/courses/:id/new-course-instance`
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn new_course_instance(
     form: web::Json<CourseInstanceForm>,
@@ -662,7 +671,6 @@ async fn new_course_instance(
     token.authorized_ok(web::Json(ci.id))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn glossary(
     pool: web::Data<PgPool>,
@@ -677,7 +685,7 @@ async fn glossary(
 }
 
 // unused?
-#[generated_doc]
+
 #[instrument(skip(pool))]
 async fn _new_term(
     pool: web::Data<PgPool>,
@@ -691,7 +699,6 @@ async fn _new_term(
     token.authorized_ok(web::Json(glossary))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn new_glossary_term(
     pool: web::Data<PgPool>,
@@ -718,7 +725,13 @@ pub async fn get_course_users_counts_by_exercise(
 ) -> ControllerResult<web::Json<Vec<ExerciseUserCounts>>> {
     let mut conn = pool.acquire().await?;
     let course_id = course_id.into_inner();
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     let res =
         models::user_exercise_states::get_course_users_counts_by_exercise(&mut conn, course_id)
@@ -728,7 +741,9 @@ pub async fn get_course_users_counts_by_exercise(
 }
 
 /**
-POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.#
+POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.
+
+Note that the page objects posted here might have the content omitted because it is not needed here and the content makes the request body to be very large.
 
 Creates redirects if url_path changes.
 */
@@ -769,7 +784,6 @@ pub async fn post_new_chapter_ordering(
     token.authorized_ok(web::Json(()))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_material_references_by_course_id(
     course_id: web::Path<Uuid>,
@@ -784,7 +798,6 @@ async fn get_material_references_by_course_id(
     token.authorized_ok(web::Json(res))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn insert_material_references(
     course_id: web::Path<Uuid>,
@@ -800,7 +813,6 @@ async fn insert_material_references(
     token.authorized_ok(web::Json(()))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn update_material_reference(
     path: web::Path<(Uuid, Uuid)>,
@@ -821,7 +833,6 @@ async fn update_material_reference(
     token.authorized_ok(web::Json(()))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn delete_material_reference_by_id(
     path: web::Path<(Uuid, Uuid)>,
@@ -836,7 +847,6 @@ async fn delete_material_reference_by_id(
     token.authorized_ok(web::Json(()))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn update_modules(
     course_id: web::Path<Uuid>,
@@ -857,7 +867,13 @@ async fn get_course_default_peer_review(
     user: AuthUser,
 ) -> ControllerResult<web::Json<(PeerReviewConfig, Vec<PeerReviewQuestion>)>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
 
     let peer_review =
         models::peer_review_configs::get_default_for_course_by_course_id(&mut conn, *course_id)
@@ -873,7 +889,7 @@ POST `/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews
 
 Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, user))]
 async fn post_update_peer_review_queue_reviews_received(
     pool: web::Data<PgPool>,
@@ -915,7 +931,7 @@ pub async fn submission_export(
     general_export(
         pool,
         &format!(
-            "attachment; filename=\"Course: {} - Submissions {}.csv\"",
+            "attachment; filename=\"Course: {} - Submissions (exercise tasks) {}.csv\"",
             course.name,
             Utc::now().format("%Y-%m-%d")
         ),
@@ -1042,6 +1058,204 @@ pub async fn course_instances_export(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
+*/
+pub async fn get_page_visit_datum_summary(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCourse>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let res = models::page_visit_datum_summary_by_courses::get_all_for_course(&mut conn, course_id)
+        .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
+*/
+pub async fn get_page_visit_datum_summary_by_pages(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByPages>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let res =
+        models::page_visit_datum_summary_by_pages::get_all_for_course(&mut conn, course_id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
+*/
+pub async fn get_page_visit_datum_summary_by_device_types(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCourseDeviceTypes>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let res = models::page_visit_datum_summary_by_courses_device_types::get_all_for_course(
+        &mut conn, course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
+*/
+pub async fn get_page_visit_datum_summary_by_countries(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<PageVisitDatumSummaryByCoursesCountries>>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(
+        &mut conn,
+        Act::ViewStats,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let res = models::page_visit_datum_summary_by_courses_countries::get_all_for_course(
+        &mut conn, course_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-themselves` - Allows a teacher to reset the course progress for themselves. Cannot be used to reset the course for others.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+pub async fn teacher_reset_course_progress_for_themselves(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let mut tx = conn.begin().await?;
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+    for course_instance in course_instances {
+        models::course_instances::reset_progress_on_course_instance_for_user(
+            &mut tx,
+            user.id,
+            course_instance.id,
+        )
+        .await?;
+    }
+
+    tx.commit().await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
+DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-everyone` - Can be used by teachers to reset the course progress for all students. Only works when the course is a draft and not published to students. Cannot be used to delete a course that some students have taken.
+
+Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
+*/
+pub async fn teacher_reset_course_progress_for_everyone(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let course_id = course_id.into_inner();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let course = models::courses::get_course(&mut conn, course_id).await?;
+    if !course.is_draft {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Can only reset progress for a draft course.".to_string(),
+            None,
+        ));
+    }
+    // To prevent teachers from deleting courses that real students have been taking, we need to address the case where the teacher turns the course back to draft to enable resetting progress for everyone. We'll counteract this by checking the number of course module completions to the course.
+    let n_course_module_completions =
+        models::course_module_completions::get_count_of_distinct_completors_by_course_id(
+            &mut conn, course_id,
+        )
+        .await?;
+    let n_completions_registered_to_study_registry = models::course_module_completion_registered_to_study_registries::get_count_of_distinct_users_with_registrations_by_course_id(
+        &mut conn, course_id,
+    ).await?;
+    if n_course_module_completions > 200 {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Too many students have completed the course.".to_string(),
+            None,
+        ));
+    }
+    if n_completions_registered_to_study_registry > 2 {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Too many students have registered their completion to a study registry".to_string(),
+            None,
+        ));
+    }
+
+    let mut tx = conn.begin().await?;
+    let course_instances =
+        models::course_instances::get_course_instances_for_course(&mut tx, course_id).await?;
+
+    // Looping though the data since this is only for draft courses and the amount of data is not expected to be large.
+    for course_instance in course_instances {
+        let users_in_course_instance =
+            models::users::get_users_by_course_instance_enrollment(&mut tx, course_instance.id)
+                .await?;
+        for user_in_course_instance in users_in_course_instance {
+            models::course_instances::reset_progress_on_course_instance_for_user(
+                &mut tx,
+                user_in_course_instance.id,
+                course_instance.id,
+            )
+            .await?;
+        }
+    }
+
+    tx.commit().await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1165,5 +1379,29 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/export-course-instances",
             web::get().to(course_instances_export),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary",
+            web::get().to(get_page_visit_datum_summary),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-pages",
+            web::get().to(get_page_visit_datum_summary_by_pages),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-device-types",
+            web::get().to(get_page_visit_datum_summary_by_device_types),
+        )
+        .route(
+            "/{course_id}/page-visit-datum-summary-by-countries",
+            web::get().to(get_page_visit_datum_summary_by_countries),
+        )
+        .route(
+            "/{course_id}/teacher-reset-course-progress-for-themselves",
+            web::delete().to(teacher_reset_course_progress_for_themselves),
+        )
+        .route(
+            "/{course_id}/teacher-reset-course-progress-for-everyone",
+            web::delete().to(teacher_reset_course_progress_for_everyone),
         );
 }

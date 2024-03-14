@@ -23,18 +23,21 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
   const [currentRevision, setCurrentRevision] = useState<string | null>(null)
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
-  const getCurrentPageHistory = useQuery([`page-history-current-${pageId}`], async () => {
-    const history = await fetchHistoryForPage(pageId, 1, 1)
-    if (history.length === 0) {
-      // there is always at least one history entry corresponding to the current state of the page
-      throw new Error(t("error-could-not-find-edit-history-for-page"))
-    }
-    const initial = JSON.stringify(history[0].content, null, 2)
-    setCurrentTitle(history[0].title)
-    setSelectedTitle(history[0].title)
-    setCurrentRevision(initial)
-    setSelectedRevision(initial)
-    return history[0]
+  const getCurrentPageHistory = useQuery({
+    queryKey: [`page-history-current-${pageId}`],
+    queryFn: async () => {
+      const history = await fetchHistoryForPage(pageId, 1, 1)
+      if (history.length === 0) {
+        // there is always at least one history entry corresponding to the current state of the page
+        throw new Error(t("error-could-not-find-edit-history-for-page"))
+      }
+      const initial = JSON.stringify(history[0].content, null, 2)
+      setCurrentTitle(history[0].title)
+      setSelectedTitle(history[0].title)
+      setCurrentRevision(initial)
+      setSelectedRevision(initial)
+      return history[0]
+    },
   })
 
   useEffect(() => {
@@ -65,7 +68,7 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
       {getCurrentPageHistory.isError && (
         <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
       )}
-      {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
+      {getCurrentPageHistory.isPending && <Spinner variant={"medium"} />}
       {getCurrentPageHistory.isSuccess && (
         <div>
           <p

@@ -1,10 +1,8 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import NewEmailTemplateForm from "../../../../components/page-specific/manage/course-instances/id/emails/NewEmailTemplateForm"
 import {
   fetchCourseInstanceEmailTemplates,
@@ -12,6 +10,7 @@ import {
 } from "../../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
 import Button from "../../../../shared-module/components/Button"
+import Dialog from "../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../shared-module/components/Spinner"
 import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
@@ -29,10 +28,10 @@ const CourseInstanceEmailTemplates: React.FC<
 > = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const getCourseInstanceEmailTemplates = useQuery(
-    [`course-instance-${courseInstanceId}-emails`],
-    () => fetchCourseInstanceEmailTemplates(courseInstanceId),
-  )
+  const getCourseInstanceEmailTemplates = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-emails`],
+    queryFn: () => fetchCourseInstanceEmailTemplates(courseInstanceId),
+  })
   const [showForm, setShowForm] = useState(false)
 
   const handleCreateEmailTemplate = async (newName: string) => {
@@ -50,55 +49,52 @@ const CourseInstanceEmailTemplates: React.FC<
   }
 
   return (
-    <Layout navVariant="simple">
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {/* TODO: Perhaps insert some data regarding the course instance */}
-        <h1>{t("title-email-templates")}</h1>
-        <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
-          {t("button-text-create")}
-        </Button>
+    <div
+      className={css`
+        margin-bottom: 1rem;
+      `}
+    >
+      {/* TODO: Perhaps insert some data regarding the course instance */}
+      <h1>{t("title-email-templates")}</h1>
+      <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
+        {t("button-text-create")}
+      </Button>
 
-        <Dialog open={showForm} onClose={() => setShowForm(!showForm)}>
-          <div
-            className={css`
-              margin: 1rem;
-            `}
-          >
-            <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
-              {t("button-text-close")}
-            </Button>
-            <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
-          </div>
-        </Dialog>
-        {getCourseInstanceEmailTemplates.isError && (
-          <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
-        )}
-        {getCourseInstanceEmailTemplates.isLoading && <Spinner variant={"medium"} />}
-        {getCourseInstanceEmailTemplates.isSuccess && (
-          <ul>
-            {getCourseInstanceEmailTemplates.data.map((template) => {
-              return (
-                <li key={template.id}>
-                  {template.name}{" "}
-                  <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
-                  <Button
-                    size="medium"
-                    variant="secondary"
-                    onClick={async () => await handleOnDelete(template.id)}
-                  >
-                    {t("button-text-delete")}
-                  </Button>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
-    </Layout>
+      <Dialog open={showForm}>
+        <div
+          className={css`
+            margin: 1rem;
+          `}
+        >
+          <Button size="medium" variant="primary" onClick={() => setShowForm(!showForm)}>
+            {t("button-text-close")}
+          </Button>
+          <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
+        </div>
+      </Dialog>
+      {getCourseInstanceEmailTemplates.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
+      )}
+      {getCourseInstanceEmailTemplates.isPending && <Spinner variant={"medium"} />}
+      {getCourseInstanceEmailTemplates.isSuccess && (
+        <ul>
+          {getCourseInstanceEmailTemplates.data.map((template) => {
+            return (
+              <li key={template.id}>
+                {template.name} <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
+                <Button
+                  size="medium"
+                  variant="secondary"
+                  onClick={async () => await handleOnDelete(template.id)}
+                >
+                  {t("button-text-delete")}
+                </Button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
   )
 }
 

@@ -9,7 +9,7 @@ import {
   MessageFromIframe,
 } from "../shared-module/exercise-service-protocol-types"
 
-export type IframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
+export type ExerciseIframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
 
 export type ExerciseEditorState = {
   viewType: "exercise-editor"
@@ -50,6 +50,7 @@ export interface EditorExercisePublicSpec {
   type: "editor"
   archiveName: string
   archiveDownloadUrl: string
+  checksum: string
 }
 
 export type MessageToParent =

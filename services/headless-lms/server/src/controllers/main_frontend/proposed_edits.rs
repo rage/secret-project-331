@@ -21,7 +21,6 @@ pub struct GetEditProposalsQuery {
 /**
 GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_edit_proposals(
     course_id: web::Path<Uuid>,
@@ -52,7 +51,6 @@ pub async fn get_edit_proposals(
 /**
 GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 pub async fn get_edit_proposal_count(
     course_id: web::Path<Uuid>,
@@ -77,10 +75,11 @@ pub async fn get_edit_proposal_count(
 /**
 POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
 */
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 pub async fn process_edit_proposal(
     request_id: RequestId,
     proposal: web::Json<EditProposalInfo>,
+    app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
     pool: web::Data<PgPool>,
     jwt_key: web::Data<JwtKey>,
@@ -94,7 +93,11 @@ pub async fn process_edit_proposal(
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
-        models_requests::make_spec_fetcher(request_id.0, Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(
+            app_conf.base_url.clone(),
+            request_id.0,
+            Arc::clone(&jwt_key),
+        ),
         models_requests::fetch_service_info,
     )
     .await?;

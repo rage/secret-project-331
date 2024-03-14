@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import { PermissionPage } from "../../../../components/PermissionPage"
 import { fetchCourseInstance } from "../../../../services/backend/course-instances"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
@@ -22,38 +21,37 @@ interface Props {
 
 const CourseInstancePermissions: React.FC<React.PropsWithChildren<Props>> = ({ query }) => {
   const { t } = useTranslation()
-  const courseInstance = useQuery([`course-instance-${query.id}`], () =>
-    fetchCourseInstance(query.id),
-  )
+  const courseInstance = useQuery({
+    queryKey: [`course-instance-${query.id}`],
+    queryFn: () => fetchCourseInstance(query.id),
+  })
 
   return (
-    <Layout navVariant="simple">
-      <div
-        className={css`
-          margin-top: 40px;
-          ${respondToOrLarger.sm} {
-            margin-top: 80px;
-          }
-        `}
-      >
-        {courseInstance.isLoading && <Spinner variant="large" />}
-        {courseInstance.isError && <ErrorBanner variant="readOnly" error={courseInstance.error} />}
-        {courseInstance.isSuccess && (
-          <>
-            <h1>
-              {t("roles-for-course-instance")} {courseInstance.data.name}
-            </h1>
-            <PermissionPage
-              domain={{
-                // eslint-disable-next-line i18next/no-literal-string
-                tag: "CourseInstance",
-                id: courseInstance.data.id,
-              }}
-            />
-          </>
-        )}
-      </div>
-    </Layout>
+    <div
+      className={css`
+        margin-top: 40px;
+        ${respondToOrLarger.sm} {
+          margin-top: 80px;
+        }
+      `}
+    >
+      {courseInstance.isPending && <Spinner variant="large" />}
+      {courseInstance.isError && <ErrorBanner variant="readOnly" error={courseInstance.error} />}
+      {courseInstance.isSuccess && (
+        <>
+          <h1>
+            {t("roles-for-course-instance")} {courseInstance.data.name}
+          </h1>
+          <PermissionPage
+            domain={{
+              // eslint-disable-next-line i18next/no-literal-string
+              tag: "CourseInstance",
+              id: courseInstance.data.id,
+            }}
+          />
+        </>
+      )}
+    </div>
   )
 }
 

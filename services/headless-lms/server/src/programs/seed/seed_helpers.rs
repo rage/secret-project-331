@@ -24,14 +24,13 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::domain::models_requests::{self, JwtKey};
-// fix this
-#[allow(clippy::too_many_arguments)]
 pub async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
     author: Uuid,
     chapter_id: Option<Uuid>,
     page_data: CmsPageUpdate,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_page = NewPage {
@@ -51,7 +50,7 @@ pub async fn create_page(
         conn,
         new_page,
         author,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -73,7 +72,7 @@ pub async fn create_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page: false,
         },
-        models_requests::make_spec_fetcher(Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -105,23 +104,33 @@ pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     }
 }
 
-#[allow(clippy::too_many_arguments)]
+#[derive(Clone, Copy)]
+pub struct CommonExerciseData {
+    pub exercise_id: Uuid,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_id: Uuid,
+    pub block_id: Uuid,
+}
+
 pub fn create_best_exercise(
-    exercise_id: Uuid,
-    exercise_slide_id: Uuid,
-    exercise_task_id: Uuid,
-    block_id: Uuid,
     paragraph_id: Uuid,
     spec_1: Uuid,
     spec_2: Uuid,
     spec_3: Uuid,
     exercise_name: Option<String>,
+    exercise_data: CommonExerciseData,
 ) -> (
     GutenbergBlock,
     CmsPageExercise,
     CmsPageExerciseSlide,
     CmsPageExerciseTask,
 ) {
+    let CommonExerciseData {
+        exercise_id,
+        exercise_slide_id,
+        exercise_task_id,
+        block_id,
+    } = exercise_data;
     let (exercise_block, exercise, mut slides, mut tasks) = example_exercise_flexible(
         exercise_id,
         exercise_name.unwrap_or_else(|| "Best exercise".to_string()),
@@ -237,8 +246,67 @@ pub fn example_exercise_flexible(
     (block, exercise, slides, tasks)
 }
 
-#[allow(clippy::too_many_arguments)]
 pub fn quizzes_exercise(
+    name: String,
+    paragraph_id: Uuid,
+    needs_peer_review: bool,
+    private_spec: serde_json::Value,
+    deadline: Option<DateTime<Utc>>,
+    exercise_data: CommonExerciseData,
+) -> (
+    GutenbergBlock,
+    CmsPageExercise,
+    CmsPageExerciseSlide,
+    CmsPageExerciseTask,
+) {
+    let CommonExerciseData {
+        exercise_id,
+        exercise_slide_id,
+        exercise_task_id,
+        block_id,
+    } = exercise_data;
+    let block = GutenbergBlock {
+        client_id: block_id,
+        name: "moocfi/exercise".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "id": exercise_id,
+            "name": name,
+            "dropCap": false,
+        },
+        inner_blocks: vec![],
+    };
+    let exercise = CmsPageExercise {
+        id: exercise_id,
+        name,
+        order_number: 1,
+        score_maximum: 1,
+        max_tries_per_slide: None,
+        limit_number_of_tries: false,
+        deadline,
+        needs_peer_review,
+        use_course_default_peer_review_config: true,
+        peer_review_config: None,
+        peer_review_questions: None,
+    };
+    let exercise_slide = CmsPageExerciseSlide {
+        id: exercise_slide_id,
+        exercise_id,
+        order_number: 1,
+    };
+    let exercise_task = CmsPageExerciseTask {
+        id: exercise_task_id,
+        exercise_slide_id,
+        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
+        exercise_type: "quizzes".to_string(),
+        private_spec: Some(serde_json::json!(private_spec)),
+        order_number: 0,
+    };
+    (block, exercise, exercise_slide, exercise_task)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn tmc_exercise(
     name: String,
     exercise_id: Uuid,
     exercise_slide_id: Uuid,
@@ -286,8 +354,8 @@ pub fn quizzes_exercise(
     let exercise_task = CmsPageExerciseTask {
         id: exercise_task_id,
         exercise_slide_id,
-        assignment: serde_json::json!([paragraph("Answer this question.", paragraph_id)]),
-        exercise_type: "quizzes".to_string(),
+        assignment: serde_json::json!([paragraph("Write an `add` function.", paragraph_id)]),
+        exercise_type: "tmc".to_string(),
         private_spec: Some(serde_json::json!(private_spec)),
         order_number: 0,
     };
@@ -308,7 +376,7 @@ pub async fn submit_and_grade(
     out_of_100: f32,
 ) -> Result<()> {
     // combine the id with the user id to ensure it's unique
-    let id = [id, &user_id.as_bytes()[..]].concat();
+    let id: Vec<u8> = [id, &user_id.as_bytes()[..]].concat();
     let slide_submission = exercise_slide_submissions::insert_exercise_slide_submission_with_id(
         conn,
         Uuid::new_v4(),
@@ -387,6 +455,7 @@ pub async fn submit_and_grade(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn create_exam(
     conn: &mut PgConnection,
     name: String,
@@ -398,6 +467,7 @@ pub async fn create_exam(
     exam_id: Uuid,
     teacher: Uuid,
     minimum_points_treshold: i32,
+    base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
     let new_exam_id = exams::insert(
@@ -417,28 +487,38 @@ pub async fn create_exam(
     let (exam_exercise_block_1, exam_exercise_1, exam_exercise_slide_1, exam_exercise_task_1) =
         quizzes_exercise(
             "Multiple choice with feedback".to_string(),
-            Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
-            Uuid::new_v5(&course_id, b"ea461a21-e0b4-4e09-a811-231f583b3dcb"),
-            Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
-            Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
             Uuid::new_v5(&course_id, b"eced4875-ece9-4c3d-ad0a-2443e61b3e78"),
             false,
             serde_json::from_str(include_str!(
                 "../../assets/quizzes-multiple-choice-feedback.json"
             ))?,
             None,
+            CommonExerciseData {
+                exercise_id: Uuid::new_v5(&course_id, b"b1b16970-60bc-426e-9537-b29bd2185db3"),
+                exercise_slide_id: Uuid::new_v5(
+                    &course_id,
+                    b"ea461a21-e0b4-4e09-a811-231f583b3dcb",
+                ),
+                exercise_task_id: Uuid::new_v5(&course_id, b"9d8ccf47-3e83-4459-8f2f-8e546a75f372"),
+                block_id: Uuid::new_v5(&course_id, b"a4edb4e5-507d-43f1-8058-9d95941dbf09"),
+            },
         );
     let (exam_exercise_block_2, exam_exercise_2, exam_exercise_slide_2, exam_exercise_task_2) =
         create_best_exercise(
-            Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
-            Uuid::new_v5(&course_id, b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52"),
-            Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),
-            Uuid::new_v5(&course_id, b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"),
             Uuid::new_v5(&course_id, b"fe5bb5a9-d0ab-4072-abe1-119c9c1e4f4a"),
             Uuid::new_v5(&course_id, b"22959aad-26fc-4212-8259-c128cdab8b08"),
             Uuid::new_v5(&course_id, b"d8ba9e92-4530-4a74-9b11-eb708fa54d40"),
             Uuid::new_v5(&course_id, b"846f4895-f573-41e2-9926-cd700723ac18"),
             Some("Best exercise".to_string()),
+            CommonExerciseData {
+                exercise_id: Uuid::new_v5(&course_id, b"44f472e5-b726-4c50-89a1-93f4170673f5"),
+                exercise_slide_id: Uuid::new_v5(
+                    &course_id,
+                    b"23182b3d-fbf4-4c0d-93fa-e9ddc199cc52",
+                ),
+                exercise_task_id: Uuid::new_v5(&course_id, b"ca105826-5007-439f-87be-c25f9c79506e"),
+                block_id: Uuid::new_v5(&course_id, b"96a9e586-cf88-4cb2-b7c9-efc2bc47e90b"),
+            },
         );
     pages::insert_page(
         conn,
@@ -468,7 +548,7 @@ pub async fn create_exam(
             content_search_language: None,
         },
         teacher,
-        models_requests::make_spec_fetcher(Uuid::new_v4(), jwt_key),
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), jwt_key),
         models_requests::fetch_service_info,
     )
     .await?;
@@ -476,16 +556,17 @@ pub async fn create_exam(
     Ok(new_exam_id)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn create_best_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
     exercise_id: Uuid,
-    accepting_strategy: peer_review_configs::PeerReviewAcceptingStrategy,
+    processing_strategy: peer_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
+    points_are_all_or_nothing: bool,
+    peer_reviews_to_give: i32,
+    peer_reviews_to_receive: i32,
 ) -> Result<()> {
-    // let prc_id =
-    //     peer_review_configs::insert(conn, PKeyPolicy::Generate, course_id, Some(exercise_id))
-    //         .await?;
     let prc = peer_review_configs::upsert_with_id(
         conn,
         PKeyPolicy::Generate,
@@ -493,10 +574,11 @@ pub async fn create_best_peer_review(
             id: Uuid::new_v4(),
             course_id,
             exercise_id: Some(exercise_id),
-            peer_reviews_to_give: 1,
-            peer_reviews_to_receive: 0,
+            peer_reviews_to_give,
+            peer_reviews_to_receive,
             accepting_threshold,
-            accepting_strategy,
+            processing_strategy,
+            points_are_all_or_nothing,
         },
     )
     .await?;
@@ -511,6 +593,7 @@ pub async fn create_best_peer_review(
             question: "What are your thoughts on the answer".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Essay,
             answer_required: true,
+            weight: 0.0,
         },
     )
     .await?;
@@ -525,6 +608,7 @@ pub async fn create_best_peer_review(
             question: "Was the answer correct?".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: true,
+            weight: 0.0,
         },
     )
     .await?;
@@ -539,6 +623,7 @@ pub async fn create_best_peer_review(
             question: "Was the answer good?".to_string(),
             question_type: peer_review_questions::PeerReviewQuestionType::Scale,
             answer_required: true,
+            weight: 0.0,
         },
     )
     .await?;

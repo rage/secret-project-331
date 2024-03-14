@@ -18,7 +18,7 @@ use actix_web::web::{self, Json};
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
@@ -32,14 +32,13 @@ async fn get_all_organizations(
         .map(|org| Organization::from_database_organization(org, file_store.as_ref(), &app_conf))
         .collect();
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(organizations))
 }
 
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
@@ -58,11 +57,10 @@ async fn get_organization_courses(
     )
     .await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(courses))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_course_count(
     request_organization_id: web::Path<Uuid>,
@@ -72,11 +70,10 @@ async fn get_organization_course_count(
     let result =
         models::courses::organization_course_count(&mut conn, *request_organization_id).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(Json(result))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
@@ -87,15 +84,14 @@ async fn get_organization_active_courses(
     let courses = models::courses::get_active_courses_for_organization(
         &mut conn,
         *request_organization_id,
-        &pagination,
+        *pagination,
     )
     .await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(Json(courses))
 }
 
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_organization_active_courses_count(
     request_organization_id: web::Path<Uuid>,
@@ -108,7 +104,7 @@ async fn get_organization_active_courses_count(
     )
     .await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(Json(result))
 }
 
@@ -125,7 +121,7 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_organization_image(
     request: HttpRequest,
@@ -199,7 +195,7 @@ Request:
 DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store))]
 async fn remove_organization_image(
     organization_id: web::Path<Uuid>,
@@ -241,7 +237,7 @@ async fn remove_organization_image(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
 */
-#[generated_doc]
+
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization(
     organization_id: web::Path<Uuid>,
@@ -255,14 +251,13 @@ async fn get_organization(
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(organization))
 }
 
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_course_exams(
     pool: web::Data<PgPool>,
@@ -271,14 +266,13 @@ async fn get_course_exams(
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_course_exams_for_organization(&mut conn, *organization).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(exams))
 }
 
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn get_org_exams(
     pool: web::Data<PgPool>,
@@ -287,14 +281,13 @@ async fn get_org_exams(
     let mut conn = pool.acquire().await?;
     let exams = models::exams::get_exams_for_organization(&mut conn, *organization).await?;
 
-    let token = skip_authorize()?;
+    let token = skip_authorize();
     token.authorized_ok(web::Json(exams))
 }
 
 /**
 POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
 */
-#[generated_doc]
 #[instrument(skip(pool))]
 async fn create_exam(
     pool: web::Data<PgPool>,

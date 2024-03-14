@@ -1,11 +1,10 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { isPast } from "date-fns"
+import { isPast, parseISO } from "date-fns"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import NewCourseInstanceForm from "../../../../components/page-specific/manage/courses/id/course-instances/NewCourseInstanceForm"
 import {
   deleteCourseInstance,
@@ -23,7 +22,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
-interface ManageCourseInstancesProps {
+export interface ManageCourseInstancesProps {
   query: SimplifiedUrlQuery<"id">
 }
 
@@ -34,9 +33,10 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
   const courseInstanceId = query.id
   const router = useRouter()
 
-  const getCourseInstances = useQuery([`course-instance-${courseInstanceId}`], () =>
-    fetchCourseInstance(courseInstanceId),
-  )
+  const getCourseInstances = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}`],
+    queryFn: () => fetchCourseInstance(courseInstanceId),
+  })
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
@@ -93,13 +93,17 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
       let schedule
       if (data.ends_at && isPast(data.ends_at)) {
         // instance is over
-        schedule = <div>{t("instance-ended-at-time", { time: data.ends_at.toISOString() })}</div>
+        schedule = (
+          <div>{t("instance-ended-at-time", { time: parseISO(data.ends_at).toISOString() })}</div>
+        )
       } else if (data.starts_at && isPast(data.starts_at)) {
         // course is currently open
         if (data.ends_at) {
           schedule = (
             <div>
-              {t("instance-is-open-and-ends-at-time", { time: data.ends_at.toISOString() })}
+              {t("instance-is-open-and-ends-at-time", {
+                time: parseISO(data.ends_at).toISOString(),
+              })}
             </div>
           )
         } else {
@@ -107,7 +111,9 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
         }
       } else if (data.starts_at) {
         // course is not open yet
-        schedule = <div>{t("instance-opens-at-time", { time: data.starts_at.toISOString() })}</div>
+        schedule = (
+          <div>{t("instance-opens-at-time", { time: parseISO(data.starts_at).toISOString() })}</div>
+        )
       } else {
         schedule = <div>{t("instance-has-no-set-opening-time")}</div>
       }
@@ -140,28 +146,24 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
   }
 
   return (
-    <Layout navVariant="simple">
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        <h1>
-          {t("label-course-instance")}{" "}
-          {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
-          {getCourseInstances.isSuccess && getCourseInstances.data.id})
-        </h1>
-        {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
-        {deleteMutation.isError && (
-          <ErrorBanner variant={"readOnly"} error={deleteMutation.error} />
-        )}
-        {getCourseInstances.isError && (
-          <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
-        )}
-        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
-        {getCourseInstances.isSuccess && instanceInfo}
-      </div>
-    </Layout>
+    <div
+      className={css`
+        margin-bottom: 1rem;
+      `}
+    >
+      <h1>
+        {t("label-course-instance")}{" "}
+        {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
+        {getCourseInstances.isSuccess && getCourseInstances.data.id})
+      </h1>
+      {mutation.isError && <ErrorBanner variant={"readOnly"} error={mutation.error} />}
+      {deleteMutation.isError && <ErrorBanner variant={"readOnly"} error={deleteMutation.error} />}
+      {getCourseInstances.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
+      )}
+      {getCourseInstances.isPending && <Spinner variant={"medium"} />}
+      {getCourseInstances.isSuccess && instanceInfo}
+    </div>
   )
 }
 

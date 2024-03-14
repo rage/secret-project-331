@@ -1,7 +1,6 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faPenSquare, faTrashAlt, faWindowClose } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
@@ -15,7 +14,6 @@ import DebugModal from "../../shared-module/components/DebugModal"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
 import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
-import { narrowContainerWidthPx } from "../../shared-module/styles/constants"
 import { runCallbackIfEnterPressed } from "../../shared-module/utils/accessibility"
 import { gutenbergControlsVisible } from "../../styles/EditorStyles"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
@@ -56,20 +54,6 @@ const gray500WithHover = css`
   }
 `
 
-// eslint-disable-next-line i18next/no-literal-string
-const StyledIconDark = styled(FontAwesomeIcon)`
-  font-size: 1rem;
-  color: ${baseTheme.colors.gray[700]};
-  margin: 1.5rem;
-`
-
-// eslint-disable-next-line i18next/no-literal-string
-const StyledIconLight = styled(FontAwesomeIcon)`
-  font-size: 1rem;
-  color: ${baseTheme.colors.gray[100]};
-  margin: 1.5rem;
-`
-
 export interface ExerciseTaskAttributes {
   id: string
   exercise_type: string
@@ -104,7 +88,7 @@ const ExerciseTaskEditor: React.FC<
     return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
   }
 
-  if (exerciseServicesQuery.isLoading) {
+  if (exerciseServicesQuery.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -155,7 +139,23 @@ const ExerciseTaskEditor: React.FC<
             tabIndex={0}
             aria-label={attributes.show_editor ? t("close") : t("edit")}
           >
-            <StyledIconLight icon={attributes.show_editor ? faWindowClose : faPenSquare} />
+            {attributes.show_editor ? (
+              <XmarkCircle
+                size={16}
+                className={css`
+                  color: ${baseTheme.colors.gray[100]};
+                  margin: 1.5rem;
+                `}
+              />
+            ) : (
+              <PencilBox
+                size={16}
+                className={css`
+                  color: ${baseTheme.colors.gray[100]};
+                  margin: 1.5rem;
+                `}
+              />
+            )}
           </div>
           <div
             className={cx(svgSquare, gray400WithHover)}
@@ -165,7 +165,13 @@ const ExerciseTaskEditor: React.FC<
             tabIndex={0}
             aria-label={t("delete")}
           >
-            <StyledIconDark icon={faTrashAlt} />
+            <Trash
+              size={16}
+              className={css`
+                color: ${baseTheme.colors.gray[700]};
+                margin: 1.5rem;
+              `}
+            />
           </div>
         </div>
       </div>
@@ -216,7 +222,7 @@ const ExerciseTaskEditor: React.FC<
                     exerciseTaskId={attributes.id}
                     onPrivateSpecChange={(x) => setAttributes({ private_spec: x })}
                     privateSpec={privateSpecToPostToIframe}
-                    url={`${url}?width=${narrowContainerWidthPx}`}
+                    url={url}
                   />
                 )}
               </ExerciseTaskEditorCard>

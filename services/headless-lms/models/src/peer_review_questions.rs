@@ -12,7 +12,7 @@ pub enum PeerReviewQuestionType {
     Scale,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerReviewQuestion {
     pub id: Uuid,
@@ -21,6 +21,7 @@ pub struct CmsPeerReviewQuestion {
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+    pub weight: f32,
 }
 
 impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
@@ -32,11 +33,12 @@ impl From<PeerReviewQuestion> for CmsPeerReviewQuestion {
             question: prq.question,
             question_type: prq.question_type,
             answer_required: prq.answer_required,
+            weight: prq.weight,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewQuestion {
     pub id: Uuid,
@@ -48,6 +50,7 @@ pub struct PeerReviewQuestion {
     pub question: String,
     pub question_type: PeerReviewQuestionType,
     pub answer_required: bool,
+    pub weight: f32,
 }
 
 pub async fn insert(
@@ -90,7 +93,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  weight
 FROM peer_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -98,6 +102,36 @@ WHERE id = $1
         id,
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    id: &[Uuid],
+) -> ModelResult<Vec<PeerReviewQuestion>> {
+    let res = sqlx::query_as!(
+        PeerReviewQuestion,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  peer_review_config_id,
+  order_number,
+  question,
+  question_type AS "question_type: _",
+  answer_required,
+  weight
+FROM peer_review_questions
+WHERE id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL;
+        "#,
+        id,
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -117,7 +151,8 @@ SELECT id,
     order_number,
     question,
     question_type AS "question_type: _",
-    answer_required
+    answer_required,
+    weight
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
   AND deleted_at IS NULL;
@@ -144,7 +179,8 @@ SELECT id,
     order_number,
     question,
     question_type AS "question_type: _",
-    answer_required
+    answer_required,
+    weight
 FROM peer_review_questions
 WHERE peer_review_config_id = $1
     AND deleted_at IS NULL;
@@ -180,7 +216,8 @@ SELECT prq.id as id,
   prq.order_number as order_number,
   prq.question as question,
   prq.question_type AS "question_type: _",
-  prq.answer_required as answer_required
+  prq.answer_required as answer_required,
+  prq.weight
 from pages p
   join exercises e on p.id = e.page_id
   join peer_review_configs pr on e.id = pr.exercise_id
@@ -233,7 +270,8 @@ SELECT id,
   order_number,
   question_type AS "question_type: _",
   question,
-  answer_required
+  answer_required,
+  weight
 FROM peer_review_questions
 where peer_review_config_id = $1
   AND deleted_at IS NULL;
@@ -289,7 +327,8 @@ SELECT id,
   order_number,
   question,
   question_type AS "question_type: _",
-  answer_required
+  answer_required,
+  weight
 from peer_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -301,4 +340,86 @@ WHERE id IN (
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/** Modifies the questions in memory so that the weights sum to either 0 or 1. */
+pub fn normalize_cms_peer_review_questions(peer_review_questions: &mut [CmsPeerReviewQuestion]) {
+    // All scales have to be answered, skipping them does not make sense.
+    for question in peer_review_questions.iter_mut() {
+        if question.question_type == PeerReviewQuestionType::Scale {
+            question.answer_required = true;
+        }
+    }
+    peer_review_questions.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    info!(
+        "Peer review question weights before normalization: {:?}",
+        peer_review_questions
+            .iter()
+            .map(|x| x.weight)
+            .collect::<Vec<_>>()
+    );
+    let (mut allowed_to_have_weight, mut not_allowed_to_have_weight) = peer_review_questions
+        .iter_mut()
+        .partition::<Vec<_>, _>(|q| q.question_type == PeerReviewQuestionType::Scale);
+    let total_weight: f32 = allowed_to_have_weight.iter().map(|x| x.weight).sum();
+    if total_weight == 0.0 {
+        return;
+    }
+    for question in allowed_to_have_weight.iter_mut() {
+        question.weight /= total_weight;
+    }
+    for question in not_allowed_to_have_weight.iter_mut() {
+        question.weight = 0.0;
+    }
+    info!(
+        "Peer review question weights after normalization: {:?}",
+        peer_review_questions
+            .iter()
+            .map(|x| x.weight)
+            .collect::<Vec<_>>()
+    );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_cms_peer_review_questions() {
+        let mut questions = vec![
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id: Uuid::new_v4(),
+                order_number: 1,
+                question: String::from("Question 1"),
+                question_type: PeerReviewQuestionType::Scale,
+                answer_required: true,
+                weight: 2.0,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id: Uuid::new_v4(),
+                order_number: 2,
+                question: String::from("Question 2"),
+                question_type: PeerReviewQuestionType::Scale,
+                answer_required: true,
+                weight: 3.0,
+            },
+            CmsPeerReviewQuestion {
+                id: Uuid::new_v4(),
+                peer_review_config_id: Uuid::new_v4(),
+                order_number: 3,
+                question: String::from("Question 3"),
+                question_type: PeerReviewQuestionType::Essay,
+                answer_required: true,
+                weight: 1.0,
+            },
+        ];
+
+        normalize_cms_peer_review_questions(&mut questions);
+
+        assert_eq!(questions[0].weight, 2.0 / 5.0);
+        assert_eq!(questions[1].weight, 3.0 / 5.0);
+        assert_eq!(questions[2].weight, 0.0);
+    }
 }

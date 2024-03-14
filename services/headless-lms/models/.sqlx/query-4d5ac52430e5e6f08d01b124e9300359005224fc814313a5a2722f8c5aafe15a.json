@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_service_info (\n    exercise_service_id,\n    user_interface_iframe_path,\n    grade_endpoint_path,\n    public_spec_endpoint_path,\n    model_solution_spec_endpoint_path,\n    has_custom_view\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_service_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "grade_endpoint_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "public_spec_endpoint_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "model_solution_spec_endpoint_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_interface_iframe_path",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "has_custom_view",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Bool"]
+    },
+    "nullable": [false, false, false, false, false, false, false, false]
+  },
+  "hash": "4d5ac52430e5e6f08d01b124e9300359005224fc814313a5a2722f8c5aafe15a"
+}

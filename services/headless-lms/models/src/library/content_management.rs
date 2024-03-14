@@ -12,6 +12,7 @@ use crate::{
     pages::{self, NewPage, Page},
     peer_review_questions::CmsPeerReviewQuestion,
     prelude::*,
+    SpecFetcher,
 };
 
 #[derive(Debug, Clone)]
@@ -26,11 +27,7 @@ pub async fn create_new_course(
     pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
     let mut tx = conn.begin().await?;
@@ -100,7 +97,7 @@ pub async fn create_new_course(
     let default_module = crate::course_modules::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(5)),
+        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(5.0)),
     )
     .await?;
 
@@ -119,6 +116,7 @@ pub async fn create_new_course(
                 question: "General comments".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
                 answer_required: false,
+                weight: 0.0,
             },
             CmsPeerReviewQuestion {
                 id: Uuid::new_v4(),
@@ -127,6 +125,7 @@ pub async fn create_new_course(
                 question: "The answer was correct".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
                 answer_required: true,
+                weight: 0.0,
             },
             CmsPeerReviewQuestion {
                 id: Uuid::new_v4(),
@@ -135,6 +134,7 @@ pub async fn create_new_course(
                 question: "The answer was easy to read".to_string(),
                 question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
                 answer_required: true,
+                weight: 0.0,
             },
         ],
     )
@@ -150,11 +150,7 @@ pub async fn create_new_chapter(
     pkey_policy: PKeyPolicy<(Uuid, Uuid)>,
     new_chapter: &NewChapter,
     user: Uuid,
-    spec_fetcher: impl Fn(
-        Url,
-        &str,
-        Option<&serde_json::Value>,
-    ) -> BoxFuture<'static, ModelResult<serde_json::Value>>,
+    spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(DatabaseChapter, Page)> {
     let mut tx = conn.begin().await?;

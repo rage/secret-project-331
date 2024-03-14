@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import React, { useState } from "react"
 
-import Layout from "../../../components/Layout"
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
 import { ExamInstructions, ExamInstructionsUpdate } from "../../../shared-module/bindings"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
@@ -32,11 +31,16 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
 }) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const examsId = query.id
-  const getExamsInstructions = useQuery(
-    [`exam-${examsId}-instructions`],
-    () => fetchExamsInstructions(examsId),
-    { onSuccess: () => setNeedToRunMigrationsAndValidations(true) },
-  )
+  const getExamsInstructions = useQuery({
+    queryKey: [`exam-${examsId}-instructions`],
+    gcTime: 0,
+    queryFn: async () => {
+      const res = await fetchExamsInstructions(examsId)
+      // Only works when gCTime is set to 0
+      setNeedToRunMigrationsAndValidations(true)
+      return res
+    },
+  })
 
   const handleSave = async (instructions: ExamInstructionsUpdate): Promise<ExamInstructions> => {
     const res = await updateExamsInstructions(examsId, {
@@ -46,7 +50,7 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
     return res
   }
 
-  if (getExamsInstructions.isLoading) {
+  if (getExamsInstructions.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -55,14 +59,12 @@ const ExamsInstructionsEditor: React.FC<React.PropsWithChildren<ExamInstructions
   }
 
   return (
-    <Layout>
-      <ExamsInstructionsGutenbergEditor
-        data={getExamsInstructions.data}
-        handleSave={handleSave}
-        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-      />
-    </Layout>
+    <ExamsInstructionsGutenbergEditor
+      data={getExamsInstructions.data}
+      handleSave={handleSave}
+      needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+      setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+    />
   )
 }
 

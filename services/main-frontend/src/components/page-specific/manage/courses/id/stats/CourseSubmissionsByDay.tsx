@@ -22,27 +22,25 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
   courseId,
 }) => {
   const { t } = useTranslation()
-  const getCourseDailySubmissionCounts = useQuery(
-    [`course-daily-submission-counts-${courseId}`],
-    () => fetchCourseDailySubmissionCounts(courseId),
-    {
-      select: (data) => {
-        const eChartsData = groupBy(data, (o) => {
-          const dateString = o.date as string | null
-          const year = dateString?.substring(0, dateString.indexOf("-"))
-          return year
-        })
-        const maxValue = max(data.map((o) => o.count)) || 10000
-        return { apiData: data, eChartsData, maxValue }
-      },
+  const getCourseDailySubmissionCounts = useQuery({
+    queryKey: [`course-daily-submission-counts-${courseId}`],
+    queryFn: () => fetchCourseDailySubmissionCounts(courseId),
+    select: (data) => {
+      const eChartsData = groupBy(data, (o) => {
+        const dateString = o.date as string | null
+        const year = dateString?.substring(0, dateString.indexOf("-"))
+        return year
+      })
+      const maxValue = max(data.map((o) => o.count)) || 10000
+      return { apiData: data, eChartsData, maxValue }
     },
-  )
+  })
 
   if (getCourseDailySubmissionCounts.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseDailySubmissionCounts.error} />
   }
 
-  if (getCourseDailySubmissionCounts.isLoading) {
+  if (getCourseDailySubmissionCounts.isPending) {
     return <Spinner variant={"medium"} />
   }
 
@@ -64,15 +62,9 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
         options={{
           tooltip: {
             // eslint-disable-next-line i18next/no-literal-string
-            position: "top",
-            formatter: (a) => {
-              return t("daily-submissions-visualization-tooltip", {
-                // @ts-expect-error: todo
-                day: a.data[0],
-                // @ts-expect-error: todo
-                submissions: a.data[1],
-              })
-            },
+            trigger: "item",
+            // eslint-disable-next-line i18next/no-literal-string
+            formatter: "{b}: {c}",
           },
           visualMap: {
             show: false,

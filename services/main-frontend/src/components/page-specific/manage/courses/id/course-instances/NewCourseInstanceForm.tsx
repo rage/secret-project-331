@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import { CourseInstance, CourseInstanceForm } from "../../../../../../shared-module/bindings"
 import Button from "../../../../../../shared-module/components/Button"
 import TimePicker from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
-import FormField from "../../../../../FormField"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 
 interface FormProps {
   initialData: CourseInstance | null
@@ -50,51 +50,56 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   return (
     <>
       <form onSubmit={onSubmitWrapper}>
-        <FormField
+        <TextField
+          label={t("text-field-label-name")}
           id={"name"}
           error={errors["name"]}
-          defaultValue={initialData?.name}
+          defaultValue={initialData?.name || ""}
           placeholder={t("text-field-label-name")}
-          register={register}
+          {...register("name")}
         />
-        <FormField
+        <TextField
+          label={t("text-field-label-description")}
           id={"description"}
           error={errors["description"]}
-          defaultValue={initialData?.description}
+          defaultValue={initialData?.description || ""}
           placeholder={t("text-field-label-description")}
-          register={register}
+          {...register("description")}
         />
-        <FormField
+        <TextField
+          label={t("support-email")}
           id={"supportEmail"}
           error={errors["supportEmail"]}
-          defaultValue={initialData?.support_email}
+          defaultValue={initialData?.support_email || ""}
           placeholder={t("support-email")}
-          register={register}
+          {...register("supportEmail")}
         />
-        <FormField
+        <TextField
+          label={t("teacher-in-charge-name")}
           id={"teacherName"}
           error={errors["teacherName"]}
           defaultValue={initialData?.teacher_in_charge_name}
           placeholder={t("teacher-in-charge-name")}
-          register={register}
+          {...register("teacherName")}
         />
-        <FormField
+        <TextField
+          label={t("teacher-in-charge-email")}
           id={"teacherEmail"}
           error={errors["teacherEmail"]}
           defaultValue={initialData?.teacher_in_charge_email}
           placeholder={t("teacher-in-charge-email")}
-          register={register}
+          {...register("teacherEmail")}
         />
         <TimePicker
           label={t("opening-time")}
-          onChange={(time) => setNewOpeningTime(new Date(time))}
+          onChangeByValue={(time) => setNewOpeningTime(new Date(time).toISOString())}
           className={css`
             margin-bottom: 0.5rem;
           `}
         />
         <TimePicker
           label={t("closing-time")}
-          onChange={(time) => setNewClosingTime(new Date(time))}
+          onChangeByValue={(time) => setNewClosingTime(new Date(time).toISOString())}
           className={css`
             margin-bottom: 0.5rem;
           `}

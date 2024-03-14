@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next"
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../../shared-module/components/LandingPageHeroSection"
 import Spinner from "../../../../shared-module/components/Spinner"
 import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
 import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
+import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../LandingPageHeroSection"
 
 import Grid from "./Grid"
 
@@ -33,9 +33,10 @@ const COLORS_ARRAY = [
 const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ courseId }) => {
   const { t } = useTranslation()
   const now = useTime()
-  const getChaptersInCourse = useQuery([`course-${courseId}-chapters`], () =>
-    fetchChaptersInTheCourse(courseId),
-  )
+  const getChaptersInCourse = useQuery({
+    queryKey: [`course-${courseId}-chapters`],
+    queryFn: () => fetchChaptersInTheCourse(courseId),
+  })
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")
 
@@ -64,7 +65,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
       {getChaptersInCourse.isError && (
         <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
       )}
-      {getChaptersInCourse.isLoading && <Spinner variant={"medium"} />}
+      {getChaptersInCourse.isPending && <Spinner variant={"medium"} />}
       {getChaptersInCourse.isSuccess && (
         <>
           {getChaptersInCourse.data.modules

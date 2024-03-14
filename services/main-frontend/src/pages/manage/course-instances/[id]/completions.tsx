@@ -4,7 +4,6 @@ import { maxBy } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Layout from "../../../../components/Layout"
 import AddCompletionsForm from "../../../../components/forms/AddCompletionsForm"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import CompletionRegistrationPreview from "../../../../components/page-specific/manage/course-instances/id/CompletionRegistrationPreview"
@@ -51,15 +50,18 @@ interface Sorting {
 const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   const { t } = useTranslation()
   const courseInstanceId = query.id
-  const getCompletionsList = useQuery([`completions-list-${courseInstanceId}`], async () => {
-    const completions = await getCompletions(courseInstanceId)
-    const sortedCourseModules = completions.course_modules.sort(
-      (a, b) => a.order_number - b.order_number,
-    )
-    return {
-      sortedCourseModules,
-      users: completions.users_with_course_module_completions.map(prepareUser),
-    }
+  const getCompletionsList = useQuery({
+    queryKey: [`completions-list-${courseInstanceId}`],
+    queryFn: async () => {
+      const completions = await getCompletions(courseInstanceId)
+      const sortedCourseModules = completions.course_modules.sort(
+        (a, b) => a.order_number - b.order_number,
+      )
+      return {
+        sortedCourseModules,
+        users: completions.users_with_course_module_completions.map(prepareUser),
+      }
+    },
   })
   const [showForm, setShowForm] = useState(false)
   const [sorting, setSorting] = useState<Sorting>({ type: NAME, data: null })
@@ -105,14 +107,14 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
   }
 
   return (
-    <Layout navVariant="simple">
+    <>
       <h2>
         {t("completions")}: {courseInstanceId}
       </h2>
       {getCompletionsList.isError && (
         <ErrorBanner variant="readOnly" error={getCompletionsList.error} />
       )}
-      {getCompletionsList.isLoading && <Spinner variant="medium" />}
+      {getCompletionsList.isPending && <Spinner variant="medium" />}
       {getCompletionsList.isSuccess && (
         <>
           <div>
@@ -238,7 +240,7 @@ const CompletionsPage: React.FC<CompletionsPageProps> = ({ query }) => {
         </>
       )}
       <CompletionsExportButton courseInstanceId={courseInstanceId} />
-    </Layout>
+    </>
   )
 }
 

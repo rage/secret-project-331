@@ -1,7 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { ArrowLeft, ArrowRight } from "@vectopus/atlas-icons-react"
 import { maxBy, minBy } from "lodash"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -20,7 +19,7 @@ const TOP_OFFSET_PX = 50
 const MOBILE_TOP_OFFSET_PX = 100
 
 const HEADING_START_OFFSET_PX = -30
-const HEADING_SCROLL_DESTINATION_START_OFFSET_PX = -15
+const HEADING_SCROLL_DESTINATION_START_OFFSET_PX = -20
 
 const WIDTH_PX = 300
 
@@ -196,7 +195,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
     if (
       pageContext.exam !== null ||
       // Collapsed by default on chapter front pages
-      isPageChapterFrontPageQuery.isLoading ||
+      isPageChapterFrontPageQuery.isPending ||
       isPageChapterFrontPageQuery.data?.is_chapter_front_page === true
     ) {
       realCollapsed = true
@@ -239,82 +238,85 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
         `}
         aria-hidden={Boolean(realCollapsed)}
       >
-        <h3
-          className={css`
-            font-size: 16px;
-            color: ${baseTheme.colors.gray[600]};
-            font-weight: 700;
-            display: inline;
-            position: relative;
-            left: -2px;
-            bottom: -3px;
-          `}
-        >
-          {t("in-this-page")}
-        </h3>
-
-        <StyledTopics role="navigation">
+        {!realCollapsed && (
           <div>
-            {headings &&
-              headings.map(({ headingsNavigationIndex, title, element }) => {
-                return (
-                  <button
-                    className={css`
-                      border: none;
-                      background: unset;
-                      text-align: left;
-                      width: 100%;
-                      padding: 0;
-                    `}
-                    tabIndex={realCollapsed ? -1 : 0}
-                    key={headingsNavigationIndex}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      try {
-                        // Atomic, since Javascript is single-threaded
-                        numberOfCallbacksScrollingTheDocument.current += 1
-                        setActiveHeading(headingsNavigationIndex)
+            <h3
+              className={css`
+                font-size: 16px;
+                color: ${baseTheme.colors.gray[600]};
+                font-weight: 700;
+                display: inline;
+                position: relative;
+                left: -2px;
+                bottom: -3px;
+              `}
+            >
+              {t("in-this-page")}
+            </h3>
+            <StyledTopics role="navigation">
+              <div>
+                {headings &&
+                  headings.map(({ headingsNavigationIndex, title, element }) => {
+                    return (
+                      <button
+                        className={css`
+                          border: none;
+                          background: unset;
+                          text-align: left;
+                          width: 100%;
+                          padding: 0;
+                        `}
+                        tabIndex={realCollapsed ? -1 : 0}
+                        key={headingsNavigationIndex}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          try {
+                            // Atomic, since Javascript is single-threaded
+                            numberOfCallbacksScrollingTheDocument.current += 1
+                            setActiveHeading(headingsNavigationIndex)
 
-                        // Better to use to use the parent provided by the block -- it makes scrolling to hero section to reveal the whole block
-                        const blockElement =
-                          element.closest(`.${courseMaterialBlockClass}`) || element
+                            // Better to use to use the parent provided by the block -- it makes scrolling to hero section to reveal the whole block
+                            const blockElement =
+                              element.closest(`.${courseMaterialBlockClass}`) || element
 
-                        // we have to calculate the position of the element because it might have moved.
-                        const elementYCoordinateRelativeToViewport =
-                          blockElement.getBoundingClientRect().top
-                        const top = elementYCoordinateRelativeToViewport + window.scrollY
-                        window.scrollTo({
-                          top: top + HEADING_SCROLL_DESTINATION_START_OFFSET_PX,
-                          behavior: "smooth",
-                        })
-                      } finally {
-                        // We don't know when the scroll animation is done, so we'll guess
-                        // The timeout has to be unfortunately long because the scroll animation may take quite some time
-                        setTimeout(() => {
-                          // Atomic, since Javascript is single-threaded
-                          numberOfCallbacksScrollingTheDocument.current -= 1
-                          // Since we have skipped updating the active heading indicator for some time, it's a good idea to update it now
-                          onScrollCallback2()
-                        }, 3000)
-                      }
-                    }}
-                  >
-                    <StTopic
-                      className={css`
-                        ${activeHeading === headingsNavigationIndex &&
-                        `background: #DAE6E5;
+                            // we have to calculate the position of the element because it might have moved.
+                            const elementYCoordinateRelativeToViewport =
+                              blockElement.getBoundingClientRect().top
+                            const top = elementYCoordinateRelativeToViewport + window.scrollY
+                            window.scrollTo({
+                              top: top + HEADING_SCROLL_DESTINATION_START_OFFSET_PX,
+                              behavior: "smooth",
+                            })
+                          } finally {
+                            // We don't know when the scroll animation is done, so we'll guess
+                            // The timeout has to be unfortunately long because the scroll animation may take quite some time
+                            setTimeout(() => {
+                              // Atomic, since Javascript is single-threaded
+                              numberOfCallbacksScrollingTheDocument.current -= 1
+                              // Since we have skipped updating the active heading indicator for some time, it's a good idea to update it now
+                              onScrollCallback2()
+                            }, 3000)
+                          }
+                        }}
+                      >
+                        <StTopic
+                          className={css`
+                            ${activeHeading === headingsNavigationIndex &&
+                            `background: #DAE6E5;
                         &:before{
                           background: #1F6964 !important
                         }`}
-                      `}
-                    >
-                      <div>{title}</div>
-                    </StTopic>
-                  </button>
-                )
-              })}
+                          `}
+                        >
+                          <div>{title}</div>
+                        </StTopic>
+                      </button>
+                    )
+                  })}
+              </div>
+            </StyledTopics>
           </div>
-        </StyledTopics>
+        )}
       </div>
 
       <button
@@ -341,7 +343,11 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
           }
         `}
       >
-        <FontAwesomeIcon icon={realCollapsed ? faArrowLeft : faArrowRight} />
+        {realCollapsed ? (
+          <ArrowLeft size={16} weight="bold" />
+        ) : (
+          <ArrowRight size={16} weight="bold" />
+        )}
       </button>
     </>
   )

@@ -1,6 +1,5 @@
-import { css } from "@emotion/css"
 import { Namespace, TFunction } from "i18next"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -8,7 +7,7 @@ import {
   GradingProgress,
   ReviewingStage,
 } from "../../../../shared-module/bindings"
-import { baseTheme } from "../../../../shared-module/styles"
+import YellowBox from "../../../YellowBox"
 
 interface GradingStateProps {
   gradingProgress: GradingProgress
@@ -21,22 +20,20 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   peerReviewConfig,
 }) => {
   const { t } = useTranslation()
-  if (reviewingStage === "NotStarted" && gradingProgress === "FullyGraded") {
+
+  const text = useMemo(
+    () => getText(reviewingStage, gradingProgress, peerReviewConfig, t),
+    [gradingProgress, peerReviewConfig, reviewingStage, t],
+  )
+
+  if (text === null) {
     return null
   }
+
   return (
-    <div
-      className={css`
-        padding: 1rem;
-        background-color: ${baseTheme.colors.yellow[200]};
-        color: #493f13;
-        margin: 1rem 0;
-        font-size: clamp(10px, 2.5vw, 16px);
-        text-align: center;
-      `}
-    >
-      <p>{getText(reviewingStage, gradingProgress, peerReviewConfig, t)}</p>
-    </div>
+    <YellowBox>
+      <p>{text}</p>
+    </YellowBox>
   )
 }
 
@@ -44,8 +41,8 @@ const getText = (
   reviewingStage: ReviewingStage,
   gradingProgress: GradingProgress,
   peerReviewConfig: CourseMaterialPeerReviewConfig | null,
-  t: TFunction<Namespace<"course-material">, undefined, Namespace<"course-material">>,
-) => {
+  t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
+): string | null => {
   if (peerReviewConfig && reviewingStage === "NotStarted") {
     return t("help-text-exercise-involves-peer-review", {
       peer_reviews_to_give: peerReviewConfig.peer_reviews_to_give,
@@ -64,7 +61,7 @@ const getText = (
       case "PendingManual":
         return t("grading-pending-manual")
       default:
-        return ""
+        return null
     }
   }
   switch (reviewingStage) {
@@ -75,7 +72,7 @@ const getText = (
     case "WaitingForPeerReviews":
       return t("help-text-waiting-for-peer-reviews")
     default:
-      return ""
+      return null
   }
 }
 

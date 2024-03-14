@@ -1,7 +1,13 @@
 /* eslint-disable i18next/no-literal-string */
 /* stylelint-disable */
 import {
-  OldQuizItemType,
+  OldNormalizedQuizItemOption,
+  OldQuiz,
+  OldQuizItemOption,
+  QuizItem,
+} from "../../../types/oldQuizTypes"
+import { OldQuizItemType } from "../../../types/quizTypes/oldQuizTypes"
+import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
   PrivateSpecQuizItemChooseN,
@@ -13,16 +19,16 @@ import {
   PrivateSpecQuizItemScale,
   PrivateSpecQuizItemTimeline,
 } from "../../../types/quizTypes/privateSpec"
-import { NormalizedQuizItemOption, Quiz, QuizItem, QuizItemOption } from "../../../types/types"
+import { sanitizeQuizDirection } from "../css-sanitization"
 
 import { DEFAULT_N } from "./migrationSettings"
 
 const CHOOSE_N_DEFAULT_VALUE = DEFAULT_N
 
 export const convertNormalizedQuizItemOptionsToQuizItemOptions = (
-  quizOptions: NormalizedQuizItemOption[],
+  quizOptions: OldNormalizedQuizItemOption[],
 ) => {
-  const result: QuizItemOption[] = quizOptions.map((item) => ({
+  const result: OldQuizItemOption[] = quizOptions.map((item) => ({
     id: item.id,
     quizItemId: item.quizItemId,
     order: item.order,
@@ -50,6 +56,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         title: quizItem.title,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemCheckbox
     case "essay":
       return {
@@ -62,6 +69,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         maxWords: quizItem.maxWords,
         minWords: quizItem.minWords,
         successMessage: quizItem.successMessage,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemEssay
     case "matrix":
       return {
@@ -71,6 +79,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         failureMessage: quizItem.failureMessage,
         optionCells: quizItem.optionCells,
         successMessage: quizItem.successMessage,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemMatrix
     case "multiple-choice":
       return {
@@ -82,12 +91,14 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         multipleChoiceMultipleOptionsGradingPolicy:
           quizItem.multipleChoiceMultipleOptionsGradingPolicy,
         allowSelectingMultipleOptions: quizItem.multi,
-        direction: quizItem.direction,
+        optionDisplayDirection: sanitizeQuizDirection(quizItem.direction),
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         sharedOptionFeedbackMessage: quizItem.sharedOptionFeedbackMessage,
         options: quizItem.options,
         shuffleOptions: quizItem.shuffleOptions,
+        fogOfWar: false,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemMultiplechoice
     case "open":
       return {
@@ -100,6 +111,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         validityRegex: quizItem.validityRegex,
         successMessage: quizItem.successMessage,
         failureMessage: quizItem.failureMessage,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemClosedEndedQuestion
     case "scale":
       return {
@@ -114,6 +126,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         minLabel: quizItem.minLabel ? quizItem.minLabel : "?",
         maxValue: quizItem.maxValue,
         minValue: quizItem.minValue,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemScale
     case "timeline":
       return {
@@ -123,6 +136,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         timelineItems: quizItem.timelineItems,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemTimeline
     case "clickable-multiple-choice":
       return {
@@ -135,6 +149,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         successMessage: quizItem.successMessage,
         options: quizItem.options,
         n: CHOOSE_N_DEFAULT_VALUE,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemChooseN
     case "multiple-choice-dropdown":
       return {
@@ -146,6 +161,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
         failureMessage: quizItem.failureMessage,
         successMessage: quizItem.successMessage,
         options: quizItem.options,
+        messageOnModelSolution: null,
       } satisfies PrivateSpecQuizItemMultiplechoiceDropdown
     default:
       console.error(`Unknown type: '${quizItem.type}'`)
@@ -162,6 +178,7 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
     maxWords: 100,
     minWords: 0,
     successMessage: "quizItem.successMessage",
+    messageOnModelSolution: null,
   } satisfies PrivateSpecQuizItemEssay
 }
 
@@ -169,19 +186,19 @@ export const migratePrivateSpecQuizItem = (quizItem: QuizItem) => {
  * Migrate quiz into newer format.
  *
  * @param oldQuiz Older version of Quiz
- * @see Quiz
+ * @see OldQuiz
  * @see PrivateSpecQuiz
  * @returns New version of Quiz
  */
-export const migratePrivateSpecQuiz = (oldQuiz: Quiz): PrivateSpecQuiz => {
+export const migratePrivateSpecQuiz = (oldQuiz: OldQuiz): PrivateSpecQuiz => {
   const privateSpecQuiz: PrivateSpecQuiz = {
     version: "2",
-    id: oldQuiz.id,
     title: oldQuiz.title,
     body: oldQuiz.body,
     awardPointsEvenIfWrong: oldQuiz.awardPointsEvenIfWrong,
     grantPointsPolicy: oldQuiz.grantPointsPolicy,
     submitMessage: oldQuiz.submitMessage,
+    quizItemDisplayDirection: sanitizeQuizDirection(oldQuiz.direction),
     items: [],
   }
 

@@ -9,6 +9,7 @@ import Banner from "../../shared-module/components/Banner/Banner"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import Spinner from "../../shared-module/components/Spinner"
+import ietfLanguageTagToHumanReadableName from "../../shared-module/utils/ietfLanguageTagToHumanReadableName"
 import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 export interface UserOnWrongCourseNotificationProps {
@@ -20,17 +21,22 @@ const UserOnWrongCourseNotification: React.FC<
   React.PropsWithChildren<UserOnWrongCourseNotificationProps>
 > = ({ correctCourseId, organizationSlug }) => {
   const { t } = useTranslation()
-  const getCourseById = useQuery([`correct-course-${correctCourseId}`], () =>
-    fetchCourseById(correctCourseId),
-  )
+  const getCourseById = useQuery({
+    queryKey: [`correct-course-${correctCourseId}`],
+    queryFn: () => fetchCourseById(correctCourseId),
+  })
 
   if (getCourseById.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseById.error} />
   }
 
-  if (getCourseById.isLoading) {
+  if (getCourseById.isPending) {
     return <Spinner variant={"medium"} />
   }
+  const languageHumanReadableName = ietfLanguageTagToHumanReadableName(
+    getCourseById.data.language_code,
+  )
+  const name = `${getCourseById.data.name} (${languageHumanReadableName})`
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -40,6 +46,9 @@ const UserOnWrongCourseNotification: React.FC<
           className={css`
             color: #000;
             text-decoration: none;
+            max-width: 900px;
+            display: block;
+            margin: 0 auto;
             &:hover {
               color: #333;
             }
@@ -48,7 +57,7 @@ const UserOnWrongCourseNotification: React.FC<
         >
           <Trans t={t} i18nKey="message-already-on-different-language-version">
             Looks like you&apos;re already on a different language version of this course. Before
-            answering any exercises, please return to <b>{{ name: getCourseById.data.name }}</b>
+            answering any exercises, please return to <b>{{ name }}</b>
             or change your active language in the settings.
           </Trans>
         </Link>

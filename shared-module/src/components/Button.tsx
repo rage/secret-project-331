@@ -6,7 +6,7 @@ import { defaultFontSizePx } from "../styles/constants"
 import { respondToOrLarger } from "../styles/respond"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue" | "white"
+  variant: "primary" | "secondary" | "reject" | "tertiary" | "outlined" | "blue" | "white" | "icon"
   size: "small" | "medium" | "large"
   transform?: "capitalize" | "uppercase" | "none" | "lowercase"
   children?: React.ReactNode
@@ -87,6 +87,22 @@ export const WhiteButtonStyles = (props: ButtonProps) => {
 
   `
   return WHITE_BUTTON_STYLES
+}
+
+export const IconButtonStyles = (props: ButtonProps) => {
+  const ICON_BUTTON_STYLES = `
+    text-transform: ${props.transform};
+    padding: ${theme.buttonSizes[props.size].padding};
+    color: black;
+    background: none;
+    border: 0px;
+
+    &:hover, &:active, &:disabled {
+      background: none;
+    }
+
+  `
+  return ICON_BUTTON_STYLES
 }
 
 export const SecondaryButtonStyles = (props: ButtonProps) => {
@@ -234,6 +250,10 @@ const WhiteButton = styled.button`
   ${BASE_BUTTON_STYLES}
   ${WhiteButtonStyles}
 `
+const IconButton = styled.button`
+  ${BASE_BUTTON_STYLES}
+  ${IconButtonStyles}
+`
 
 export const LabelButton = styled.label`
   ${BASE_BUTTON_STYLES}
@@ -263,6 +283,8 @@ const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => 
       return <BlueButton ref={ref} {...props} />
     case "white":
       return <WhiteButton ref={ref} {...props} />
+    case "icon":
+      return <IconButton ref={ref} {...props} />
     default:
       return <PrimaryButton ref={ref} {...props} />
   }

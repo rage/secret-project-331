@@ -1,7 +1,5 @@
 import { css } from "@emotion/css"
-import { Dialog } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/router"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,6 +10,7 @@ import {
   postPageAudioFile,
   removePageAudioFile,
 } from "../../../../../../../services/backend/pages"
+import Dialog from "../../../../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../../shared-module/components/Spinner"
 import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
@@ -34,9 +33,9 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
 
   const pageId = id
 
-  const getPageAudioFiles = useQuery(
-    [`page-${pageId}-audio-files`],
-    () => {
+  const getPageAudioFiles = useQuery({
+    queryKey: [`page-${pageId}-audio-files`],
+    queryFn: () => {
       // fetchPageAudioFiles(pageId),
       if (pageId) {
         return fetchPageAudioFiles(pageId)
@@ -44,8 +43,8 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
         return Promise.reject(new Error("Page ID undefined"))
       }
     },
-    { enabled: !!pageId },
-  )
+    enabled: !!pageId,
+  })
 
   const deletePageAudioFile = useToastMutation(
     (fileId: string) => removePageAudioFile(fileId),
@@ -73,7 +72,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     },
     {
       notify: true,
-      successMessage: t("audio-addedd-successfully"),
+      successMessage: t("audio-added-successfully"),
       method: "POST",
     },
     {
@@ -92,7 +91,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     if (file) {
       const isNotAcceptedFormat = file.type !== "audio/mpeg" && file.type !== "audio/ogg"
       if (isNotAcceptedFormat) {
-        console.log("UNACCEPTED AUDIO TYPES")
+        console.error("The audio format is not accepted")
       }
       uploadAudioFileMutation.mutate(file)
       event.currentTarget.audioFile.value = null
@@ -129,7 +128,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
         >
           <CloseIcon />
         </div>
-        {getPageAudioFiles.isLoading && (
+        {getPageAudioFiles.isPending && (
           <div
             className={css`
               margin-top: 40px;

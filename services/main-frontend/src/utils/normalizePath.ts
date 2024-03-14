@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 export const normalizePath = (title: string): string => {
   // eslint-disable-next-line i18next/no-literal-string
   const regex = RegExp("([^A-Za-z0-9-])", "g")

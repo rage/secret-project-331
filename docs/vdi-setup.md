@@ -4,7 +4,7 @@
 
 1. Go to [https://onify.it.helsinki.fi/](https://onify.it.helsinki.fi/) and select `Order a virtual desktop`.
 2. Select `Basic Linux`.
-3. Email helpdesk@helsinki.fi to ask them to bump up the resources from the basic stuff to what others in the mooc-team have. Also ask them to set up an external disk mounted to `/data` similarly how it is set up for others in the mooc-team.
+3. To get proper resources and an external disk that is required for the environment setup, the university's helpdesk needs to be emailed about it. The MOOC-center has an email thread regarding this, so you can ask in the Rage Research-slack's #secret-project-331 channel for help to email to that thread to get the resources for your virtual desktop.
 
 ## Install and set up VMware Horizon Client
 

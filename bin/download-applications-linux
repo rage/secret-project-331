@@ -80,6 +80,8 @@ if grep -q "$download_dir" "$shell_profile"; then
 fi
 echo "export PATH=$download_dir:\$PATH" >> "$shell_profile"
 echo "Added $download_dir to $shell_profile"
+echo "export PATH=$HOME/.cargo/bin:\$PATH" >> "$shell_profile"
+echo "Added $HOME/.cargo/bin to PATH as requested by cargo"
 
 cargo install sqlx-cli --no-default-features --features rustls,postgres
 cargo install oxipng

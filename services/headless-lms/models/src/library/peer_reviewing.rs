@@ -271,7 +271,7 @@ async fn update_peer_review_giver_exercise_progress(
             UserExerciseStateUpdateAlreadyLoadedRequiredData {
                 current_user_exercise_state: Some(user_exercise_state),
                 exercise: Some(exercise.clone()),
-                peer_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
+                peer_or_self_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
                     peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
                     latest_exercise_slide_submission_received_peer_review_question_submissions:
                         Some(received_peer_review_question_submissions),
@@ -323,7 +323,7 @@ async fn update_peer_review_receiver_exercise_status(
                 UserExerciseStateUpdateAlreadyLoadedRequiredData {
                     current_user_exercise_state: Some(user_exercise_state),
                     exercise: Some(exercise.clone()),
-                    peer_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
+                    peer_or_self_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
                         peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
                         latest_exercise_slide_submission_received_peer_review_question_submissions:
                             Some(received_peer_review_question_submissions),

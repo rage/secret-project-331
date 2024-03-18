@@ -251,3 +251,31 @@ WHERE exercise_slide_submission_id = $1
     .await?;
     Ok(res.count.unwrap_or(0).try_into()?)
 }
+
+pub async fn get_self_review_submission_by_user_and_exercise(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<Option<PeerReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewSubmission,
+        "
+SELECT prs.*
+FROM peer_review_submissions prs
+  JOIN user_exercise_states ues ON (
+    ues.exercise_id = prs.exercise_id
+    AND ues.user_id = prs.user_id
+    AND ues.course_instance_id = prs.course_instance_id
+  )
+WHERE ues.user_id = $1
+  AND prs.exercise_id = $2
+  AND prs.deleted_at IS NULL
+  AND ues.deleted_at IS NULL
+        ",
+        user_id,
+        exercise_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}

@@ -558,6 +558,7 @@ const ExerciseBlock: React.FC<
               parentExerciseQuery={getCourseMaterialExercise}
             />
           )}
+          {reviewingStage === "SelfReview" && <div>{t("self-review")}</div>}
           {(reviewingStage === "WaitingForPeerReviews" ||
             reviewingStage === "ReviewedAndLocked") && (
             <div

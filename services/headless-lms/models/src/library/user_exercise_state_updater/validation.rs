@@ -12,8 +12,8 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
             None,
         ));
     }
-    if let Some(peer_review_information) = &input_data.peer_review_information {
-        if peer_review_information
+    if let Some(peer_or_self_review_information) = &input_data.peer_or_self_review_information {
+        if peer_or_self_review_information
             .given_peer_review_submissions
             .iter()
             .any(|prs| prs.deleted_at.is_some())
@@ -26,7 +26,7 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
             ));
         }
 
-        if peer_review_information
+        if peer_or_self_review_information
             .latest_exercise_slide_submission_received_peer_review_question_submissions
             .iter()
             .any(|prqs| prqs.deleted_at.is_some())
@@ -39,7 +39,9 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
             ));
         }
 
-        if let Some(peer_review_queue_entry) = &peer_review_information.peer_review_queue_entry {
+        if let Some(peer_review_queue_entry) =
+            &peer_or_self_review_information.peer_review_queue_entry
+        {
             if peer_review_queue_entry.deleted_at.is_some() {
                 return Err(ModelError::new(
               ModelErrorType::Generic,
@@ -50,7 +52,7 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
             }
         }
 
-        if peer_review_information
+        if peer_or_self_review_information
             .peer_review_config
             .deleted_at
             .is_some()

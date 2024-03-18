@@ -28,7 +28,7 @@ pub(super) async fn load_required_data(
     let UserExerciseStateUpdateAlreadyLoadedRequiredData {
         exercise,
         current_user_exercise_state,
-        peer_review_information,
+        peer_or_self_review_information,
         latest_teacher_grading_decision,
         user_exercise_slide_state_grading_summary,
     } = already_loaded_internal_dependencies;
@@ -39,9 +39,9 @@ pub(super) async fn load_required_data(
     let loaded_exercise = load_exercise(conn, exercise, &loaded_user_exercise_state).await?;
 
     Ok(UserExerciseStateUpdateRequiredData {
-        peer_review_information: load_peer_review_information(
+        peer_or_self_review_information: load_peer_or_self_review_information(
             conn,
-            peer_review_information,
+            peer_or_self_review_information,
             &loaded_user_exercise_state,
             &loaded_exercise,
         )
@@ -125,29 +125,36 @@ async fn load_exercise(
     }
 }
 
-async fn load_peer_review_information(
+async fn load_peer_or_self_review_information(
     conn: &mut PgConnection,
-    already_loaded_peer_review_information: Option<
+    already_loaded_peer_or_self_review_information: Option<
         UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation,
     >,
     loaded_user_exercise_state: &UserExerciseState,
     loaded_exercise: &Exercise,
 ) -> ModelResult<Option<UserExerciseStateUpdateRequiredDataPeerReviewInformation>> {
-    info!("Loading peer review information");
-    if loaded_exercise.needs_peer_review {
-        info!("Exercise needs peer review");
-        // Destruct the contents of already_loaded_peer_review_information so that we can use the fields of the parent struct independently
+    info!("Loading peer or self review information");
+    if loaded_exercise.needs_peer_review || loaded_exercise.needs_self_review {
+        if loaded_exercise.needs_peer_review {
+            info!("Exercise needs peer review");
+        }
+        if loaded_exercise.needs_self_review {
+            info!("Exercise needs self review");
+        }
+
+        // Destruct the contents of already_loaded_peer_or_self_review_information so that we can use the fields of the parent struct independently
         let UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
             given_peer_review_submissions,
+            given_self_review_submission,
             latest_exercise_slide_submission,
             latest_exercise_slide_submission_received_peer_review_question_submissions,
             peer_review_queue_entry,
             peer_review_config,
             peer_review_questions,
-        } = if let Some(already_loaded_peer_review_information) =
-            already_loaded_peer_review_information
+        } = if let Some(already_loaded_peer_or_self_review_information) =
+            already_loaded_peer_or_self_review_information
         {
-            already_loaded_peer_review_information
+            already_loaded_peer_or_self_review_information
         } else {
             Default::default()
         };
@@ -167,6 +174,12 @@ async fn load_peer_review_information(
                 given_peer_review_submissions: load_given_peer_review_submissions(
                     conn,
                     given_peer_review_submissions,
+                    loaded_user_exercise_state,
+                )
+                .await?,
+                given_self_review_submission: load_given_self_review_submission(
+                    conn,
+                    given_self_review_submission,
                     loaded_user_exercise_state,
                 )
                 .await?,
@@ -194,7 +207,7 @@ async fn load_peer_review_information(
             },
         ))
     } else {
-        info!("Exercise does not need peer review");
+        info!("Exercise does not need peer or self review");
         // Peer review disabled for the exercise, no need to load any information related to peer reviews.
         Ok(None)
     }
@@ -377,6 +390,27 @@ async fn load_given_peer_review_submissions(
                     )
                 })?;
         Ok(peer_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise(conn, loaded_user_exercise_state.user_id, course_instance_id, loaded_user_exercise_state.exercise_id).await?)
+    }
+}
+
+async fn load_given_self_review_submission(
+    conn: &mut PgConnection,
+    already_loaded_given_self_review_submission: Option<Option<PeerReviewSubmission>>,
+    loaded_user_exercise_state: &UserExerciseState,
+) -> ModelResult<Option<PeerReviewSubmission>> {
+    if let Some(given_self_review_submission) = already_loaded_given_self_review_submission {
+        info!("Using already loaded given self review submission");
+        Ok(given_self_review_submission)
+    } else {
+        info!("Loading given self review submission");
+        Ok(
+            peer_review_submissions::get_self_review_submission_by_user_and_exercise(
+                conn,
+                loaded_user_exercise_state.user_id,
+                loaded_user_exercise_state.exercise_id,
+            )
+            .await?,
+        )
     }
 }
 

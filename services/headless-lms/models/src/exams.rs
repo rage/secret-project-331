@@ -184,15 +184,7 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn edit(
-    conn: &mut PgConnection,
-    id: Uuid,
-    name: Option<&str>,
-    starts_at: Option<DateTime<Utc>>,
-    ends_at: Option<DateTime<Utc>>,
-    time_minutes: Option<i32>,
-    minimum_points_treshold: Option<i32>,
-) -> ModelResult<()> {
+pub async fn edit(conn: &mut PgConnection, id: Uuid, new_exam: NewExam) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE exams
@@ -204,11 +196,11 @@ SET name = COALESCE($2, name),
 WHERE id = $1
 ",
         id,
-        name,
-        starts_at,
-        ends_at,
-        time_minutes,
-        minimum_points_treshold,
+        new_exam.name,
+        new_exam.starts_at,
+        new_exam.ends_at,
+        new_exam.time_minutes,
+        new_exam.minimum_points_treshold,
     )
     .execute(conn)
     .await?;
@@ -237,6 +229,32 @@ WHERE exams.organization_id = $1
         organization
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_organization_exam_with_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> ModelResult<OrgExam> {
+    let res = sqlx::query_as!(
+        OrgExam,
+        "
+SELECT id,
+  name,
+  instructions,
+  starts_at,
+  ends_at,
+  time_minutes,
+  organization_id,
+  minimum_points_treshold
+FROM exams
+WHERE exams.id = $1
+  AND exams.deleted_at IS NULL
+",
+        exam_id
+    )
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

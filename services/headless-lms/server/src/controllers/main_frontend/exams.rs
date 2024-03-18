@@ -174,24 +174,9 @@ async fn edit_exam(
     let mut tx = conn.begin().await?;
 
     let exam = payload.0;
-    let token = authorize(
-        &mut tx,
-        Act::CreateCoursesOrExams,
-        Some(user.id),
-        Res::Exam(*exam_id),
-    )
-    .await?;
+    let token = authorize(&mut tx, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    models::exams::edit(
-        &mut tx,
-        *exam_id,
-        Some(exam.name.as_str()),
-        exam.starts_at,
-        exam.ends_at,
-        Some(exam.time_minutes),
-        Some(exam.minimum_points_treshold),
-    )
-    .await?;
+    models::exams::edit(&mut tx, *exam_id, exam).await?;
 
     tx.commit().await?;
 

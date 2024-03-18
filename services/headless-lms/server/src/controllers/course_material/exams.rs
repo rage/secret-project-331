@@ -305,7 +305,10 @@ pub async fn reset_exam_progress(
     let started_at = Utc::now();
     exams::update_exam_start_time(&mut conn, *exam_id, user.id, started_at).await?;
 
-    crate::prelude::models::exercise_slide_submissions::delete_exercise_submissions_with_exam_id_and_user_id(&mut conn, *exam_id, user.id).await?;
+    models::exercise_slide_submissions::delete_exercise_submissions_with_exam_id_and_user_id(
+        &mut conn, *exam_id, user.id,
+    )
+    .await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
     token.authorized_ok(web::Json(()))

@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next"
 import EditExamDialog from "../../../../components/page-specific/manage/courses/id/exams/EditExamDialog"
 import {
   fetchExam,
-  fetchOrganizationExams,
+  fetchOrganization,
+  fetchOrgExam,
   setCourse,
   unsetCourse,
 } from "../../../../services/backend/exams"
@@ -28,6 +29,16 @@ interface OrganizationPageProps {
 const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const getExam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
+  const organizationId = useQuery({
+    queryKey: [`organizations-${query.id}`],
+    queryFn: () => fetchOrgExam(query.id),
+  }).data?.organization_id
+
+  const organizationSlug = useQuery({
+    queryKey: [`organizations-${organizationId}`],
+    queryFn: () => fetchOrganization(organizationId ?? ""),
+    enabled: !!organizationId,
+  }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
   const [newCourse, setNewCourse] = useState("")
@@ -46,11 +57,6 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
     },
   )
 
-  const queryString = window.location.search
-  const urlParams = new URLSearchParams(queryString)
-  const organizationSlug = urlParams.get("org-slug")
-  const organizationId = urlParams.get("org-id")
-
   const unsetCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
       return unsetCourse(examId, courseId)
@@ -65,26 +71,6 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
       },
     },
   )
-
-  const getOrgExams = useQuery({
-    queryKey: ["organization-exams", organizationId],
-    queryFn: () => {
-      if (organizationId) {
-        return fetchOrganizationExams(organizationId)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    enabled: !!organizationId,
-  })
-
-  if (getOrgExams.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
-  }
-
-  if (getOrgExams.isPending) {
-    return <Spinner variant={"medium"} />
-  }
   return (
     <div
       className={css`

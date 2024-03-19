@@ -4,7 +4,7 @@ use url::Url;
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercises::{self, Exercise},
-    library::{self, peer_reviewing::CourseMaterialPeerReviewData},
+    library::{self, peer_reviewing::CourseMaterialPeerOrSelfReviewData},
     peer_review_questions::{
         delete_peer_review_questions_by_peer_review_config_ids,
         upsert_multiple_peer_review_questions, CmsPeerReviewQuestion,
@@ -278,12 +278,12 @@ RETURNING id
     Ok(res.id)
 }
 
-pub async fn get_course_material_peer_review_data(
+pub async fn get_course_material_peer_or_self_review_data(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-) -> ModelResult<CourseMaterialPeerReviewData> {
+) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let (_current_exercise_slide, instance_or_exam_id) = exercises::get_or_select_exercise_slide(
         &mut *conn,
@@ -319,6 +319,15 @@ pub async fn get_course_material_peer_review_data(
                     &exercise,
                     user_exercise_state,
                     &fetch_service_info
+                )
+                .await?;
+                Ok(res)
+            } else if user_exercise_state.reviewing_stage == ReviewingStage::SelfReview {
+                let res = library::peer_reviewing::select_own_submission_for_self_review(
+                    conn,
+                    &exercise,
+                    user_exercise_state,
+                    &fetch_service_info,
                 )
                 .await?;
                 Ok(res)

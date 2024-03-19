@@ -11,6 +11,7 @@ use crate::{
     library::custom_view_exercises::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
     peer_review_question_submissions::PeerReviewQuestionSubmission,
     peer_review_questions::PeerReviewQuestion,
+    peer_review_submissions::PeerReviewSubmission,
     prelude::*,
     CourseOrExamId,
 };
@@ -32,9 +33,10 @@ pub struct ExerciseTaskSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewsRecieved {
+pub struct PeerOrSelfReviewsReceived {
     pub peer_review_questions: Vec<PeerReviewQuestion>,
     pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub peer_review_submissions: Vec<PeerReviewSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -245,7 +247,7 @@ pub async fn get_peer_reviews_received(
     exercise_id: Uuid,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<PeerReviewsRecieved> {
+) -> ModelResult<PeerOrSelfReviewsReceived> {
     let exercise = crate::exercises::get_by_id(&mut *conn, exercise_id).await?;
     let peer_review_config = crate::peer_review_configs::get_by_exercise_or_course_id(
         &mut *conn,
@@ -265,21 +267,33 @@ pub async fn get_peer_reviews_received(
     )
     .await?;
 
+    let peer_review_question_ids = peer_review_questions
+        .iter()
+        .map(|x| (x.id))
+        .collect::<Vec<_>>();
+
+    let peer_review_submissions =
+        crate::peer_review_submissions::get_received_peer_or_self_review_submissions_for_user_by_peer_review_config_id_and_exercise_slide_submission(
+            &mut *conn,
+            user_id,
+            exercise_slide_submission_id,
+            peer_review_config.id,
+        )
+        .await?;
+
     let peer_review_question_submissions =
         crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(
             &mut *conn,
-            &peer_review_questions
-                .iter()
-                .map(|x| (x.id))
-                .collect::<Vec<_>>(),
+            &peer_review_question_ids,
             user_id,
             exercise_slide_submission_id,
         )
         .await?;
 
-    Ok(PeerReviewsRecieved {
+    Ok(PeerOrSelfReviewsReceived {
         peer_review_questions,
         peer_review_question_submissions,
+        peer_review_submissions,
     })
 }
 

@@ -5,19 +5,22 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "../../../../../shared-module/styles"
 
-import PeerReviewViewImpl from "./PeerReviewViewImpl"
+import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
 
-export interface PeerReviewViewProps {
+export interface PeerOrSelfReviewViewProps {
   exerciseNumber: number
   exerciseId: string
   parentExerciseQuery: UseQueryResult<unknown, unknown>
+  selfReview?: boolean
 }
 
 export const getPeerReviewBeginningScrollingId = (exerciseId: string) =>
   // eslint-disable-next-line i18next/no-literal-string
   `start-of-peer-review-${exerciseId}`
 
-const PeerReviewView: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = (props) => {
+const PeerOrSelfReviewView: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = (
+  props,
+) => {
   const { t } = useTranslation()
 
   return (
@@ -33,11 +36,11 @@ const PeerReviewView: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = (
           color: ${baseTheme.colors.gray[700]};
         `}
       >
-        {t("title-peer-review")}
+        {props.selfReview ? t("title-self-review") : t("title-peer-review")}
       </h3>
-      <PeerReviewViewImpl {...props} />
+      <PeerOrSelfReviewViewImpl {...props} />
     </div>
   )
 }
 
-export default PeerReviewView
+export default PeerOrSelfReviewView

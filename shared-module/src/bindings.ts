@@ -647,9 +647,10 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
-export interface PeerReviewsRecieved {
+export interface PeerOrSelfReviewsReceived {
   peer_review_questions: Array<PeerReviewQuestion>
   peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  peer_review_submissions: Array<PeerReviewSubmission>
 }
 
 export interface CourseMaterialExerciseSlide {
@@ -918,14 +919,14 @@ export interface StudentExerciseTaskSubmissionResult {
   exercise_task_exercise_service_slug: string
 }
 
-export interface CourseMaterialPeerReviewData {
-  answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
+export interface CourseMaterialPeerOrSelfReviewData {
+  answer_to_review: CourseMaterialPeerOrSelfReviewDataAnswerToReview | null
   peer_review_config: PeerReviewConfig
   peer_review_questions: Array<PeerReviewQuestion>
   num_peer_reviews_given: number
 }
 
-export interface CourseMaterialPeerReviewDataAnswerToReview {
+export interface CourseMaterialPeerOrSelfReviewDataAnswerToReview {
   exercise_slide_submission_id: string
   course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
 }
@@ -1864,8 +1865,8 @@ export type ExamEnrollmentData =
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
 
-export interface CourseMaterialPeerReviewDataWithToken {
-  course_material_peer_review_data: CourseMaterialPeerReviewData
+export interface CourseMaterialPeerOrSelfReviewDataWithToken {
+  course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData
   token: string | null
 }
 

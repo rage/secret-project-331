@@ -107,7 +107,7 @@ fn models(target: &mut File) {
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
-        exercise_task_submissions::PeerReviewsRecieved,
+        exercise_task_submissions::PeerOrSelfReviewsReceived,
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
         exercise_task_gradings::ExerciseTaskGrading,
@@ -142,8 +142,8 @@ fn models(target: &mut File) {
         library::grading::StudentExerciseSlideSubmissionResult,
         library::grading::StudentExerciseTaskSubmission,
         library::grading::StudentExerciseTaskSubmissionResult,
-        library::peer_reviewing::CourseMaterialPeerReviewData,
-        library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
+        library::peer_reviewing::CourseMaterialPeerOrSelfReviewData,
+        library::peer_reviewing::CourseMaterialPeerOrSelfReviewDataAnswerToReview,
         library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
         library::peer_reviewing::CourseMaterialPeerReviewSubmission,
         library::progressing::CompletionRegistrationLink,
@@ -290,7 +290,7 @@ fn controllers(target: &mut File) {
             courses::CourseMaterialCourseModule,
             exams::ExamData,
             exams::ExamEnrollmentData,
-            exercises::CourseMaterialPeerReviewDataWithToken
+            exercises::CourseMaterialPeerOrSelfReviewDataWithToken
         };
     }
 

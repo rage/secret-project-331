@@ -7,7 +7,7 @@ import {
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
   CourseMaterialExercise,
-  CourseMaterialPeerReviewDataWithToken,
+  CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerReviewSubmission,
   CoursePageWithUserData,
   CustomViewExerciseSubmissions,
@@ -26,7 +26,7 @@ import {
   PageNavigationInformation,
   PageSearchResult,
   PageWithExercises,
-  PeerReviewsRecieved,
+  PeerOrSelfReviewsReceived,
   ResearchForm,
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
@@ -49,7 +49,7 @@ import {
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
   isCourseMaterialExercise,
-  isCourseMaterialPeerReviewDataWithToken,
+  isCourseMaterialPeerOrSelfReviewDataWithToken,
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
   isExamData,
@@ -62,7 +62,7 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
-  isPeerReviewsRecieved,
+  isPeerOrSelfReviewsReceived,
   isResearchForm,
   isResearchFormQuestion,
   isResearchFormQuestionAnswer,
@@ -260,24 +260,24 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
 
 export const fetchPeerReviewDataByExerciseId = async (
   id: string,
-): Promise<CourseMaterialPeerReviewDataWithToken> => {
+): Promise<CourseMaterialPeerOrSelfReviewDataWithToken> => {
   const response = await courseMaterialClient.get(`/exercises/${id}/peer-review`, {
     responseType: "json",
   })
-  return validateResponse(response, isCourseMaterialPeerReviewDataWithToken)
+  return validateResponse(response, isCourseMaterialPeerOrSelfReviewDataWithToken)
 }
 
 export const fetchPeerReviewDataReceivedByExerciseId = async (
   id: string,
   submissionId: string,
-): Promise<PeerReviewsRecieved> => {
+): Promise<PeerOrSelfReviewsReceived> => {
   const response = await courseMaterialClient.get(
     `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isPeerReviewsRecieved)
+  return validateResponse(response, isPeerOrSelfReviewsReceived)
 }
 
 export const fetchChaptersPagesWithExercises = async (

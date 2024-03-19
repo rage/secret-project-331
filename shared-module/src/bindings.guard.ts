@@ -55,10 +55,10 @@ import {
   CourseMaterialExerciseServiceInfo,
   CourseMaterialExerciseSlide,
   CourseMaterialExerciseTask,
+  CourseMaterialPeerOrSelfReviewData,
+  CourseMaterialPeerOrSelfReviewDataAnswerToReview,
+  CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerReviewConfig,
-  CourseMaterialPeerReviewData,
-  CourseMaterialPeerReviewDataAnswerToReview,
-  CourseMaterialPeerReviewDataWithToken,
   CourseMaterialPeerReviewQuestionAnswer,
   CourseMaterialPeerReviewSubmission,
   CourseModule,
@@ -169,6 +169,7 @@ import {
   PageWithExercises,
   Pagination,
   PaperSize,
+  PeerOrSelfReviewsReceived,
   PeerReviewAnswer,
   PeerReviewConfig,
   PeerReviewProcessingStrategy,
@@ -177,7 +178,6 @@ import {
   PeerReviewQuestionSubmission,
   PeerReviewQuestionType,
   PeerReviewQueueEntry,
-  PeerReviewsRecieved,
   PeerReviewSubmission,
   PeerReviewWithQuestionsAndAnswers,
   PendingRole,
@@ -1273,8 +1273,8 @@ export function isExerciseSlideSubmissionInfo(obj: unknown): obj is ExerciseSlid
   )
 }
 
-export function isPeerReviewsRecieved(obj: unknown): obj is PeerReviewsRecieved {
-  const typedObj = obj as PeerReviewsRecieved
+export function isPeerOrSelfReviewsReceived(obj: unknown): obj is PeerOrSelfReviewsReceived {
+  const typedObj = obj as PeerOrSelfReviewsReceived
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     Array.isArray(typedObj["peer_review_questions"]) &&
@@ -1282,7 +1282,9 @@ export function isPeerReviewsRecieved(obj: unknown): obj is PeerReviewsRecieved 
     Array.isArray(typedObj["peer_review_question_submissions"]) &&
     typedObj["peer_review_question_submissions"].every(
       (e: any) => isPeerReviewQuestionSubmission(e) as boolean,
-    )
+    ) &&
+    Array.isArray(typedObj["peer_review_submissions"]) &&
+    typedObj["peer_review_submissions"].every((e: any) => isPeerReviewSubmission(e) as boolean)
   )
 }
 
@@ -1748,12 +1750,16 @@ export function isStudentExerciseTaskSubmissionResult(
   )
 }
 
-export function isCourseMaterialPeerReviewData(obj: unknown): obj is CourseMaterialPeerReviewData {
-  const typedObj = obj as CourseMaterialPeerReviewData
+export function isCourseMaterialPeerOrSelfReviewData(
+  obj: unknown,
+): obj is CourseMaterialPeerOrSelfReviewData {
+  const typedObj = obj as CourseMaterialPeerOrSelfReviewData
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typedObj["answer_to_review"] === null ||
-      (isCourseMaterialPeerReviewDataAnswerToReview(typedObj["answer_to_review"]) as boolean)) &&
+      (isCourseMaterialPeerOrSelfReviewDataAnswerToReview(
+        typedObj["answer_to_review"],
+      ) as boolean)) &&
     (isPeerReviewConfig(typedObj["peer_review_config"]) as boolean) &&
     Array.isArray(typedObj["peer_review_questions"]) &&
     typedObj["peer_review_questions"].every((e: any) => isPeerReviewQuestion(e) as boolean) &&
@@ -1761,10 +1767,10 @@ export function isCourseMaterialPeerReviewData(obj: unknown): obj is CourseMater
   )
 }
 
-export function isCourseMaterialPeerReviewDataAnswerToReview(
+export function isCourseMaterialPeerOrSelfReviewDataAnswerToReview(
   obj: unknown,
-): obj is CourseMaterialPeerReviewDataAnswerToReview {
-  const typedObj = obj as CourseMaterialPeerReviewDataAnswerToReview
+): obj is CourseMaterialPeerOrSelfReviewDataAnswerToReview {
+  const typedObj = obj as CourseMaterialPeerOrSelfReviewDataAnswerToReview
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["exercise_slide_submission_id"] === "string" &&
@@ -3277,13 +3283,15 @@ export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
   )
 }
 
-export function isCourseMaterialPeerReviewDataWithToken(
+export function isCourseMaterialPeerOrSelfReviewDataWithToken(
   obj: unknown,
-): obj is CourseMaterialPeerReviewDataWithToken {
-  const typedObj = obj as CourseMaterialPeerReviewDataWithToken
+): obj is CourseMaterialPeerOrSelfReviewDataWithToken {
+  const typedObj = obj as CourseMaterialPeerOrSelfReviewDataWithToken
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (isCourseMaterialPeerReviewData(typedObj["course_material_peer_review_data"]) as boolean) &&
+    (isCourseMaterialPeerOrSelfReviewData(
+      typedObj["course_material_peer_or_self_review_data"],
+    ) as boolean) &&
     (typedObj["token"] === null || typeof typedObj["token"] === "string")
   )
 }

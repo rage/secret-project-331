@@ -12,8 +12,9 @@ import Essay from "./Essay"
 import Likert from "./Likert"
 interface ReviewProps {
   orderNumber: number
-  review: PeerReviewQuestionSubmission[]
+  reviews: PeerReviewQuestionSubmission[]
   questions: PeerReviewQuestion[]
+  selfReview: boolean
 }
 
 const Wrapper = styled.div`
@@ -29,16 +30,17 @@ const Heading = styled.div`
   border-bottom: 2px solid #ebedee;
 `
 
-const ReceivedPeerReview: React.FunctionComponent<ReviewProps> = ({
+const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
   orderNumber,
-  review,
+  reviews,
   questions,
+  selfReview,
 }) => {
   const { t } = useTranslation()
 
-  const sortedReview = useMemo(
+  const sortedReviews = useMemo(
     () =>
-      review.sort((o1, o2) => {
+      reviews.sort((o1, o2) => {
         const o1Question = questions.find((q) => q.id === o1.peer_review_question_id)
         const o2Question = questions.find((q) => q.id === o2.peer_review_question_id)
         if (!o1Question) {
@@ -49,13 +51,15 @@ const ReceivedPeerReview: React.FunctionComponent<ReviewProps> = ({
         }
         return o1Question.order_number - o2Question.order_number
       }),
-    [questions, review],
+    [questions, reviews],
   )
 
   return (
     <Wrapper>
-      <Heading>{`${t("peer-review")} #${orderNumber + 1}`}</Heading>
-      {sortedReview.map(({ id, number_data, text_data, peer_review_question_id }, index) => {
+      <Heading>
+        {selfReview ? t("title-self-review") : `${t("peer-review")} #${orderNumber + 1}`}
+      </Heading>
+      {sortedReviews.map(({ id, number_data, text_data, peer_review_question_id }, index) => {
         const questionIndex = questions.findIndex((q) => q.id === peer_review_question_id)
         if (questionIndex === -1) {
           return null
@@ -74,4 +78,4 @@ const ReceivedPeerReview: React.FunctionComponent<ReviewProps> = ({
   )
 }
 
-export default ReceivedPeerReview
+export default PeerOrSelfReviewsReceived

@@ -33,9 +33,9 @@ import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
-import PeerReviewView from "./PeerReviewView"
-import PeerReviewsReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
-import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
+import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
+import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
+import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -552,13 +552,20 @@ const ExerciseBlock: React.FC<
                 />
               ))}
           {reviewingStage === "PeerReview" && (
-            <PeerReviewView
+            <PeerOrSelfReviewView
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
               exerciseId={id}
               parentExerciseQuery={getCourseMaterialExercise}
             />
           )}
-          {reviewingStage === "SelfReview" && <div>{t("self-review")}</div>}
+          {reviewingStage === "SelfReview" && (
+            <PeerOrSelfReviewView
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              exerciseId={id}
+              parentExerciseQuery={getCourseMaterialExercise}
+              selfReview
+            />
+          )}
           {(reviewingStage === "WaitingForPeerReviews" ||
             reviewingStage === "ReviewedAndLocked") && (
             <div
@@ -576,7 +583,7 @@ const ExerciseBlock: React.FC<
                 exerciseSlideSubmissionId &&
                 (reviewingStage === "WaitingForPeerReviews" ||
                   reviewingStage === "ReviewedAndLocked") && (
-                  <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+                  <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
                 )}
             </div>
           )}

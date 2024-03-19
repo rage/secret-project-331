@@ -340,9 +340,9 @@ async fn update_peer_review_receiver_exercise_status(
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseMaterialPeerReviewData {
+pub struct CourseMaterialPeerOrSelfReviewData {
     /// If none, no answer was available for review.
-    pub answer_to_review: Option<CourseMaterialPeerReviewDataAnswerToReview>,
+    pub answer_to_review: Option<CourseMaterialPeerOrSelfReviewDataAnswerToReview>,
     pub peer_review_config: PeerReviewConfig,
     pub peer_review_questions: Vec<PeerReviewQuestion>,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
@@ -351,7 +351,7 @@ pub struct CourseMaterialPeerReviewData {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseMaterialPeerReviewDataAnswerToReview {
+pub struct CourseMaterialPeerOrSelfReviewDataAnswerToReview {
     pub exercise_slide_submission_id: Uuid,
     /// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.
     pub course_material_exercise_tasks: Vec<CourseMaterialExerciseTask>,
@@ -368,7 +368,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     exercise: &Exercise,
     reviewer_user_exercise_state: &UserExerciseState,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-) -> ModelResult<CourseMaterialPeerReviewData> {
+) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
         conn,
         exercise,
@@ -379,7 +379,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
 
     // If an answer has been given within 1 hour to be reviewed and it still needs peer review, return the same one
     if let Some(saved_exercise_slide_submission_to_review) = crate::offered_answers_to_peer_review_temporary::try_to_restore_previously_given_exercise_slide_submission(&mut *conn, exercise.id, reviewer_user_exercise_state.user_id, course_instance_id).await? {
-        let data = get_course_material_peer_review_data(
+        let data = get_course_material_peer_or_self_review_data(
             conn,
             &peer_review_config,
             &Some(saved_exercise_slide_submission_to_review),
@@ -432,10 +432,45 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             .await?
         }
     };
-    let data = get_course_material_peer_review_data(
+    let data = get_course_material_peer_or_self_review_data(
         conn,
         &peer_review_config,
         &exercise_slide_submission_to_review,
+        reviewer_user_exercise_state.user_id,
+        course_instance_id,
+        exercise.id,
+        fetch_service_info,
+    )
+    .await?;
+
+    Ok(data)
+}
+
+/// Selects a user's own submission to be self-reviewed. Works similarly to `try_to_select_exercise_slide_submission_for_peer_review` but selects the user's latest submission.
+pub async fn select_own_submission_for_self_review(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    reviewer_user_exercise_state: &UserExerciseState,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
+    let peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
+        conn,
+        exercise,
+        exercise.get_course_id()?,
+    )
+    .await?;
+    let course_instance_id = reviewer_user_exercise_state.get_course_instance_id()?;
+    let exercise_slide_submission =
+        exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+            conn,
+            reviewer_user_exercise_state.get_selected_exercise_slide_id()?,
+            reviewer_user_exercise_state.user_id,
+        )
+        .await?;
+    let data = get_course_material_peer_or_self_review_data(
+        conn,
+        &peer_review_config,
+        &Some(exercise_slide_submission),
         reviewer_user_exercise_state.user_id,
         course_instance_id,
         exercise.id,
@@ -524,7 +559,7 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
     }
 }
 
-async fn get_course_material_peer_review_data(
+async fn get_course_material_peer_or_self_review_data(
     conn: &mut PgConnection,
     peer_review_config: &PeerReviewConfig,
     exercise_slide_submission: &Option<ExerciseSlideSubmission>,
@@ -532,7 +567,7 @@ async fn get_course_material_peer_review_data(
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-) -> ModelResult<CourseMaterialPeerReviewData> {
+) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
     let peer_review_questions =
         peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
             .await?;
@@ -554,7 +589,7 @@ async fn get_course_material_peer_review_data(
                 reviewer_user_id,
                  fetch_service_info
             ).await?;
-            Some(CourseMaterialPeerReviewDataAnswerToReview {
+            Some(CourseMaterialPeerOrSelfReviewDataAnswerToReview {
                 exercise_slide_submission_id,
                 course_material_exercise_tasks,
             })
@@ -562,7 +597,7 @@ async fn get_course_material_peer_review_data(
         None => None,
     };
 
-    Ok(CourseMaterialPeerReviewData {
+    Ok(CourseMaterialPeerOrSelfReviewData {
         answer_to_review,
         peer_review_config: peer_review_config.clone(),
         peer_review_questions,

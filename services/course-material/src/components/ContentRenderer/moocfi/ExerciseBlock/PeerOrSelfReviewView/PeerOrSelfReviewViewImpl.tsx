@@ -23,12 +23,13 @@ import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerReviewQuestion from "./PeerReviewQuestion"
 
-import { getPeerReviewBeginningScrollingId, PeerReviewViewProps } from "."
+import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
-const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>> = ({
+const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = ({
   exerciseNumber,
   exerciseId,
   parentExerciseQuery,
+  selfReview,
 }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
@@ -45,7 +46,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
     refetchInterval: 82800000,
   })
 
-  const peerReviewData = query.data?.course_material_peer_review_data
+  const peerReviewData = query.data?.course_material_peer_or_self_review_data
 
   const isValid = useMemo(() => {
     if (!peerReviewData) {
@@ -158,10 +159,12 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
         margin-top: 1rem;
       `}
     >
-      <PeerReviewProgress
-        total={peerReviewData.peer_review_config.peer_reviews_to_give}
-        attempt={peerReviewData.num_peer_reviews_given}
-      />
+      {!selfReview && (
+        <PeerReviewProgress
+          total={peerReviewData.peer_review_config.peer_reviews_to_give}
+          attempt={peerReviewData.num_peer_reviews_given}
+        />
+      )}
 
       {Boolean(peerReviewData.peer_review_config.review_instructions) && (
         <div
@@ -180,7 +183,7 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
               font-size: 20px;
             `}
           >
-            {t("title-peer-review-instructions")}
+            {selfReview ? t("title-self-review-instructions") : t("title-peer-review-instructions")}
           </h4>
 
           <ContentRenderer
@@ -241,7 +244,11 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
                     "exercise-number": exerciseNumber + 1,
                     "task-number": course_material_exercise_task.order_number + 1,
                   })}
-                  headingBeforeIframe={t("title-answer-submitted-by-another-student")}
+                  headingBeforeIframe={
+                    selfReview
+                      ? t("title-your-answer")
+                      : t("title-answer-submitted-by-another-student")
+                  }
                 />
               </div>
             )
@@ -294,4 +301,4 @@ const PeerReviewViewImpl: React.FC<React.PropsWithChildren<PeerReviewViewProps>>
   )
 }
 
-export default PeerReviewViewImpl
+export default PeerOrSelfReviewViewImpl

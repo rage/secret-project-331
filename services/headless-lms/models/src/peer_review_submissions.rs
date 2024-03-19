@@ -279,3 +279,30 @@ WHERE ues.user_id = $1
     .await?;
     Ok(res)
 }
+
+pub async fn get_received_peer_or_self_review_submissions_for_user_by_peer_review_config_id_and_exercise_slide_submission(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_slide_submission_id: Uuid,
+    peer_review_config_id: Uuid,
+) -> ModelResult<Vec<PeerReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerReviewSubmission,
+        "
+SELECT prs.*
+FROM peer_review_submissions prs
+  JOIN exercise_slide_submissions ess ON (ess.id = prs.exercise_slide_submission_id)
+WHERE ess.user_id = $1
+  AND ess.id = $2
+  AND prs.peer_review_config_id = $3
+  AND prs.deleted_at IS NULL
+  AND ess.deleted_at IS NULL
+        ",
+        user_id,
+        exercise_slide_submission_id,
+        peer_review_config_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

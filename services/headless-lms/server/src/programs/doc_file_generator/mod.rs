@@ -123,7 +123,7 @@ use headless_lms_models::{
         StudyRegistryCompletion, StudyRegistryGrade,
     },
     courses::CourseBreadcrumbInfo,
-    exercise_task_submissions::PeerReviewsRecieved,
+    exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::ExerciseStatusSummaryForUser,
     library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry},
     page_audio_files::PageAudioFile,
@@ -151,7 +151,7 @@ use std::{collections::HashMap, fs};
 use ts_rs::TS;
 use uuid::Uuid;
 
-use crate::controllers::course_material::exercises::CourseMaterialPeerReviewDataWithToken;
+use crate::controllers::course_material::exercises::CourseMaterialPeerOrSelfReviewDataWithToken;
 
 // Helper function to avoid typing out Example::example()
 fn ex<T: Example>() -> T {

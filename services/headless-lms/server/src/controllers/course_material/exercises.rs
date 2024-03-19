@@ -8,19 +8,19 @@ use crate::{
     prelude::*,
 };
 use models::{
-    exercise_task_submissions::PeerReviewsRecieved,
+    exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-        peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
+        peer_reviewing::{CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerReviewSubmission},
     },
     user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseMaterialPeerReviewDataWithToken {
-    pub course_material_peer_review_data: CourseMaterialPeerReviewData,
+pub struct CourseMaterialPeerOrSelfReviewDataWithToken {
+    pub course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData,
     pub token: Option<String>,
 }
 
@@ -94,10 +94,10 @@ async fn get_peer_review_for_exercise(
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
-) -> ControllerResult<web::Json<CourseMaterialPeerReviewDataWithToken>> {
+) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
-    let course_material_peer_review_data =
-        models::peer_review_configs::get_course_material_peer_review_data(
+    let course_material_peer_or_self_review_data =
+        models::peer_review_configs::get_course_material_peer_or_self_review_data(
             &mut conn,
             user.id,
             *exercise_id,
@@ -112,11 +112,13 @@ async fn get_peer_review_for_exercise(
     )
     .await?;
     let give_peer_review_claim =
-        if let Some(to_review) = &course_material_peer_review_data.answer_to_review {
+        if let Some(to_review) = &course_material_peer_or_self_review_data.answer_to_review {
             Some(
                 GivePeerReviewClaim::expiring_in_1_day(
                     to_review.exercise_slide_submission_id,
-                    course_material_peer_review_data.peer_review_config.id,
+                    course_material_peer_or_self_review_data
+                        .peer_review_config
+                        .id,
                 )
                 .sign(&jwt_key),
             )
@@ -124,8 +126,8 @@ async fn get_peer_review_for_exercise(
             None
         };
 
-    let res = CourseMaterialPeerReviewDataWithToken {
-        course_material_peer_review_data,
+    let res = CourseMaterialPeerOrSelfReviewDataWithToken {
+        course_material_peer_or_self_review_data,
         token: give_peer_review_claim,
     };
     token.authorized_ok(web::Json(res))
@@ -139,7 +141,7 @@ async fn get_peer_reviews_received(
     pool: web::Data<PgPool>,
     params: web::Path<(Uuid, Uuid)>,
     user: AuthUser,
-) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
+) -> ControllerResult<web::Json<PeerOrSelfReviewsReceived>> {
     let mut conn = pool.acquire().await?;
     let (exercise_id, exercise_slide_submission_id) = params.into_inner();
     let peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(

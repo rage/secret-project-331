@@ -78,10 +78,21 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: boolean
   checked?: boolean
   onChangeByValue?: (checked: boolean, name?: string) => void
+  labelIsRawHtml?: boolean
 }
 
 const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ onChangeByValue, onChange, className, checked, ...rest }: CheckboxProps, ref) => {
+  (
+    {
+      onChangeByValue,
+      onChange,
+      className,
+      checked,
+      labelIsRawHtml = false,
+      ...rest
+    }: CheckboxProps,
+    ref,
+  ) => {
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
@@ -110,9 +121,10 @@ const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
             aria-invalid={rest.error !== undefined}
             onChange={handleOnChange}
             ref={ref}
+            dangerouslySetInnerHTML={labelIsRawHtml ? { __html: rest.label } : undefined}
             {...rest}
           />
-          <span>{rest.label}</span>
+          {!labelIsRawHtml && <span>{rest.label}</span>}
         </Label>
         {rest.error && (
           <span

@@ -755,6 +755,25 @@
 <a href="#754" id="754">754</a>
 <a href="#755" id="755">755</a>
 <a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::NaiveDate;
@@ -1510,5 +1529,24 @@ GROUP BY exercise_slide_id;
         tasks,
         exercise_slide_submission,
     })
+}
+
+<span class="kw">pub async fn </span>delete_exercise_submissions_with_exam_id_and_user_id(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">"
+UPDATE exercise_slide_submissions
+SET deleted_at = now()
+WHERE exam_id = $1 AND user_id = $2
+    "</span>,
+        exam_id,
+        user_id,
+    )
+    .execute(<span class="kw-2">&amp;mut *</span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div></section></main></body></html>

@@ -179,6 +179,29 @@
 <a href="#178" id="178">178</a>
 <a href="#179" id="179">179</a>
 <a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>models::{
     course_exams,
@@ -315,7 +338,7 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
     exam_id: web::Path&lt;Uuid&gt;,
     new_exam: web::Json&lt;NewExam&gt;,
     user: AuthUser,
-) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>organization_id = models::exams::get_organization_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
@@ -338,9 +361,31 @@ GET `/api/v0/main-frontend/exams/:id/export-submissions`
     .<span class="kw">await</span><span class="question-mark">?</span>;
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
 
-    token.authorized_ok(web::Json(()))
+    token.authorized_ok(web::Json(<span class="bool-val">true</span>))
 }
 
+<span class="doccomment">/**
+POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
+*/
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>edit_exam(
+    pool: web::Data&lt;PgPool&gt;,
+    exam_id: web::Path&lt;Uuid&gt;,
+    payload: web::Json&lt;NewExam&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;()&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>exam = payload.<span class="number">0</span>;
+    <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>tx, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    models::exams::edit(<span class="kw-2">&amp;mut </span>tx, <span class="kw-2">*</span>exam_id, exam).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(()))
+}
 <span class="doccomment">/**
 Add a route for each controller in this module.
 
@@ -357,6 +402,7 @@ We add the routes by calling the route method instead of using the route annotat
             <span class="string">"/{id}/export-submissions"</span>,
             web::get().to(export_submissions),
         )
+        .route(<span class="string">"/{id}/edit-exam"</span>, web::post().to(edit_exam))
         .route(<span class="string">"/{id}/duplicate"</span>, web::post().to(duplicate_exam));
 }
 </code></pre></div></section></main></body></html>

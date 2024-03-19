@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ExamEnrollmentData"],"fn":["_add_routes","enroll","enrollment","fetch_exam_for_user"],"struct":["ExamData"]};
+window.SIDEBAR_ITEMS = {"enum":["ExamEnrollmentData"],"fn":["_add_routes","enroll","enrollment","fetch_exam_for_testing","fetch_exam_for_user","reset_exam_progress","update_show_exercise_answers"],"struct":["ExamData","IsTeacherTesting","ShowExerciseAnswers"]};

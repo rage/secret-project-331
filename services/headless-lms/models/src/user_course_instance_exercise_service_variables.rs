@@ -46,6 +46,31 @@ WHERE deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn get_all_user_variables_for_user_and_course_instance_and_exercise_type(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    exercise_type: &str,
+) -> ModelResult<Vec<UserCourseInstanceExerciseServiceVariable>> {
+    let res = sqlx::query_as!(
+        UserCourseInstanceExerciseServiceVariable,
+        r#"
+SELECT *
+FROM user_course_instance_exercise_service_variables
+WHERE deleted_at IS NULL
+  AND user_id = $1
+  AND course_instance_id = $2
+  AND exercise_service_slug = $3;
+    "#,
+        user_id,
+        course_instance_id,
+        exercise_type
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub(crate) async fn insert_after_exercise_task_graded(
     conn: &mut PgConnection,
     set_user_variables: &Option<HashMap<String, serde_json::Value>>,

@@ -954,6 +954,7 @@ export interface CourseInstanceCompletionSummary {
 export interface CustomViewExerciseSubmissions {
   exercise_tasks: CustomViewExerciseTasks
   exercises: Array<Exercise>
+  user_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
 export interface CustomViewExerciseTaskGrading {

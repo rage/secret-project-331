@@ -584,7 +584,6 @@ export const fetchModuleIdByChapterId = async (chapter_id: string) => {
 }
 
 export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
-  console.log("in here")
   const res = await courseMaterialClient.get(`/course-modules/course/${course_id}`, {
     responseType: "json",
   })

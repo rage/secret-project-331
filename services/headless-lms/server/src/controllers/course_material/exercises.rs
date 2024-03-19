@@ -46,8 +46,25 @@ async fn get_exercise(
         models_requests::fetch_service_info,
     )
     .await?;
+
+    let mut should_clear_grading_information = true;
+    // Check if teacher is testing an exam and wants to see the exercise answers
+    if let Some(exam_id) = course_material_exercise.exercise.exam_id {
+        let user_enrollment =
+            models::exams::get_enrollment(&mut conn, exam_id, user_id.unwrap()).await?;
+
+        if let Some(enrollment) = user_enrollment {
+            if let Some(show_answers) = enrollment.show_exercise_answers {
+                if enrollment.is_teacher_testing && show_answers {
+                    should_clear_grading_information = false;
+                }
+            }
+        }
+    }
+
     if course_material_exercise.can_post_submission
         && course_material_exercise.exercise.exam_id.is_some()
+        && should_clear_grading_information
     {
         // Explicitely clear grading information from ongoing exam submissions.
         course_material_exercise.clear_grading_information();

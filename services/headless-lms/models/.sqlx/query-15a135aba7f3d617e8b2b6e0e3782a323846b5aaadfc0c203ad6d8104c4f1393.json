@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exam_enrollments\nSET show_exercise_answers = $3\nWHERE exam_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Bool"]
+    },
+    "nullable": []
+  },
+  "hash": "15a135aba7f3d617e8b2b6e0e3782a323846b5aaadfc0c203ad6d8104c4f1393"
+}

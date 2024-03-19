@@ -134,7 +134,7 @@ async fn duplicate_exam(
     exam_id: web::Path<Uuid>,
     new_exam: web::Json<NewExam>,
     user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let organization_id = models::exams::get_organization_id(&mut conn, *exam_id).await?;
     let token = authorize(
@@ -157,9 +157,31 @@ async fn duplicate_exam(
     .await?;
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(()))
+    token.authorized_ok(web::Json(true))
 }
 
+/**
+POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
+*/
+#[instrument(skip(pool))]
+async fn edit_exam(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    payload: web::Json<NewExam>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
+
+    let exam = payload.0;
+    let token = authorize(&mut tx, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    models::exams::edit(&mut tx, *exam_id, exam).await?;
+
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(()))
+}
 /**
 Add a route for each controller in this module.
 
@@ -176,5 +198,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{id}/export-submissions",
             web::get().to(export_submissions),
         )
+        .route("/{id}/edit-exam", web::post().to(edit_exam))
         .route("/{id}/duplicate", web::post().to(duplicate_exam));
 }

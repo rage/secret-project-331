@@ -754,3 +754,22 @@ pub async fn get_all_exercise_slide_submission_info(
         exercise_slide_submission,
     })
 }
+
+pub async fn delete_exercise_submissions_with_exam_id_and_user_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercise_slide_submissions
+SET deleted_at = now()
+WHERE exam_id = $1 AND user_id = $2
+    ",
+        exam_id,
+        user_id,
+    )
+    .execute(&mut *conn)
+    .await?;
+    Ok(())
+}

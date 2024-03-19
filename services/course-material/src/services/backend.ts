@@ -82,6 +82,7 @@ import {
   isObjectMap,
   isString,
   isUnion,
+  isUuid,
   validateResponse,
 } from "../shared-module/utils/fetching"
 
@@ -580,12 +581,12 @@ export const fetchModuleIdByChapterId = async (chapter_id: string) => {
   const res = await courseMaterialClient.get(`/course-modules/chapter/${chapter_id}`, {
     responseType: "json",
   })
-  return validateResponse(res, isString)
+  return validateResponse(res, isUuid)
 }
 
 export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
   const res = await courseMaterialClient.get(`/course-modules/course/${course_id}`, {
     responseType: "json",
   })
-  return validateResponse(res, isString)
+  return validateResponse(res, isUuid)
 }

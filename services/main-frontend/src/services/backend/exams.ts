@@ -2,11 +2,13 @@ import {
   CourseExam,
   Exam,
   ExamCourseInfo,
-  ExerciseSubmissions,
+  ExerciseSlideSubmission,
+  ExerciseSlideSubmissionAndUserExerciseStateList,
   NewExam,
   OrgExam,
+  UserExerciseState,
 } from "../../shared-module/bindings"
-import { isExerciseSubmissions } from "../../shared-module/bindings.guard"
+import { isExerciseSlideSubmissionAndUserExerciseStateList } from "../../shared-module/bindings.guard"
 import { validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -42,13 +44,18 @@ export const unsetCourse = async (examId: string, courseId: string): Promise<voi
   await mainFrontendClient.post(`/exams/${examId}/unset`, data)
 }
 
+export interface GradingInfo {
+  data: Array<{ sub: ExerciseSlideSubmission; state: UserExerciseState }>
+  total_pages: number
+}
+
 export const fetchExerciseSubmissionsWithExamId = async (
   examId: string,
   page: number,
   limit: number,
-): Promise<ExerciseSubmissions> => {
+): Promise<ExerciseSlideSubmissionAndUserExerciseStateList> => {
   const response = await mainFrontendClient.get(
     `/exams/${examId}/submissions?page=${page}&limit=${limit}`,
   )
-  return validateResponse(response, isExerciseSubmissions)
+  return validateResponse(response, isExerciseSlideSubmissionAndUserExerciseStateList)
 }

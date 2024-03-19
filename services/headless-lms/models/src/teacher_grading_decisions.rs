@@ -32,7 +32,7 @@ pub struct NewTeacherGradingDecision {
     pub action: TeacherDecisionType,
     pub manual_points: Option<f32>,
     pub justification: Option<String>,
-    pub hidden: Option<bool>,
+    pub hidden: bool,
 }
 
 pub async fn add_teacher_grading_decision(
@@ -42,7 +42,7 @@ pub async fn add_teacher_grading_decision(
     score_given: f32,
     decision_maker_user_id: Option<Uuid>,
     justification: Option<String>,
-    hidden: Option<bool>,
+    hidden: bool,
 ) -> ModelResult<TeacherGradingDecision> {
     let res = sqlx::query_as!(
         TeacherGradingDecision,

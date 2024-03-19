@@ -100,6 +100,8 @@ import {
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
   ExerciseSlideSubmission,
+  ExerciseSlideSubmissionAndUserExerciseState,
+  ExerciseSlideSubmissionAndUserExerciseStateList,
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByExercise,
   ExerciseSlideSubmissionCountByWeekAndHour,
@@ -1270,6 +1272,33 @@ export function isExerciseSlideSubmissionInfo(obj: unknown): obj is ExerciseSlid
     typedObj["tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
     (isExercise(typedObj["exercise"]) as boolean) &&
     (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean)
+  )
+}
+
+export function isExerciseSlideSubmissionAndUserExerciseState(
+  obj: unknown,
+): obj is ExerciseSlideSubmissionAndUserExerciseState {
+  const typedObj = obj as ExerciseSlideSubmissionAndUserExerciseState
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean) &&
+    (isUserExerciseState(typedObj["user_exercise_state"]) as boolean) &&
+    (typedObj["teacher_grading_decision"] === null ||
+      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean))
+  )
+}
+
+export function isExerciseSlideSubmissionAndUserExerciseStateList(
+  obj: unknown,
+): obj is ExerciseSlideSubmissionAndUserExerciseStateList {
+  const typedObj = obj as ExerciseSlideSubmissionAndUserExerciseStateList
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["data"]) &&
+    typedObj["data"].every(
+      (e: any) => isExerciseSlideSubmissionAndUserExerciseState(e) as boolean,
+    ) &&
+    typeof typedObj["total_pages"] === "number"
   )
 }
 

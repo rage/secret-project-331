@@ -7,6 +7,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchExerciseSubmissionsWithExamId } from "../../../../services/backend/exams"
+import Accordion from "../../../../shared-module/components/Accordion"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import Pagination from "../../../../shared-module/components/Pagination"
 import Spinner from "../../../../shared-module/components/Spinner"
@@ -110,7 +111,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
             >
               {getSubmissions.data.data.map((submission) => (
                 <tr
-                  key={submission.id}
+                  key={submission.exercise_slide_submission.id}
                   className={css`
                     font-family: ${headingFont};
                     font-weight: ${fontWeights.medium};
@@ -118,8 +119,8 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                     line-height: 19px;
                   `}
                 >
-                  <td>{submission.user_id}</td>
-                  <td>-</td>
+                  <td>{submission.exercise_slide_submission.user_id}</td>
+                  <td>{submission.teacher_grading_decision ? "Graded" : "Not graded"}</td>
                   <td
                     className={css`
                       font-size: 20px;
@@ -129,16 +130,33 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                     <Link
                       href={{
                         pathname: "/submissions/[id]/grading/",
-                        query: { id: submission.id },
+                        query: { id: submission.exercise_slide_submission.id },
                       }}
                     >
                       {t("link")}
                     </Link>
                   </td>
-                  <td>{submission.created_at.toLocaleString()}</td>
+                  <td>{submission.exercise_slide_submission.created_at.toLocaleString()}</td>
+                  <td>
+                    <Accordion variant={"simple"}>
+                      <details>
+                        <summary
+                          className={css`
+                            border-width: 0px !important;
+                          `}
+                        >
+                          {t("label-feedback")}
+                        </summary>
+                        <div>{submission.teacher_grading_decision?.justification}</div>
+                      </details>
+                    </Accordion>
+                  </td>
                   <td>-</td>
-                  <td>-</td>
-                  <td>-</td>
+                  <td>
+                    {submission.teacher_grading_decision
+                      ? submission.teacher_grading_decision.score_given
+                      : 0}
+                  </td>
                 </tr>
               ))}
             </tbody>

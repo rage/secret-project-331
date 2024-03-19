@@ -12,7 +12,8 @@ use crate::{
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
-    user_exercise_states::CourseInstanceOrExamId,
+    teacher_grading_decisions::{self, TeacherGradingDecision},
+    user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
     CourseOrExamId,
 };
 
@@ -111,6 +112,21 @@ pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
+}
+
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSlideSubmissionAndUserExerciseState {
+    pub exercise_slide_submission: ExerciseSlideSubmission,
+    pub user_exercise_state: UserExerciseState,
+    pub teacher_grading_decision: Option<TeacherGradingDecision>,
+}
+
+#[derive(Debug, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
+    pub data: Vec<ExerciseSlideSubmissionAndUserExerciseState>,
+    pub total_pages: u32,
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -469,11 +485,11 @@ AND deleted_at IS NULL
     Ok(count.count.unwrap_or(0).try_into()?)
 }
 
-pub async fn exercise_slide_submissions_with_exam_id(
+pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exam_id(
     conn: &mut PgConnection,
     exam_id: Uuid,
     pagination: Pagination,
-) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+) -> ModelResult<Vec<ExerciseSlideSubmissionAndUserExerciseState>> {
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -498,9 +514,30 @@ pub async fn exercise_slide_submissions_with_exam_id(
         pagination.limit(),
         pagination.offset(),
     )
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
-    Ok(submissions)
+
+    let mut list: Vec<ExerciseSlideSubmissionAndUserExerciseState> = Vec::new();
+    for sub in submissions {
+        let res = user_exercise_states::get_or_create_user_exercise_state(
+            conn,
+            sub.user_id,
+            sub.exercise_id,
+            None,
+            Some(exam_id),
+        )
+        .await?;
+
+        let decision = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id(conn, res.id).await?;
+        let data = ExerciseSlideSubmissionAndUserExerciseState {
+            exercise_slide_submission: sub,
+            user_exercise_state: res,
+            teacher_grading_decision: decision,
+        };
+        list.push(data);
+    }
+
+    Ok(list)
 }
 
 pub async fn get_course_daily_slide_submission_counts(

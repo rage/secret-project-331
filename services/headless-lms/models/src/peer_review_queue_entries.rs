@@ -463,7 +463,7 @@ pub async fn remove_from_queue_and_give_full_points(
             // Giver is none because the system made the decision
             None,
             None,
-            Some(false),
+            false,
         )
         .await?;
         user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)

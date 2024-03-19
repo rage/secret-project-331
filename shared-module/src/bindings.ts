@@ -647,6 +647,17 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
+export interface ExerciseSlideSubmissionAndUserExerciseState {
+  exercise_slide_submission: ExerciseSlideSubmission
+  user_exercise_state: UserExerciseState
+  teacher_grading_decision: TeacherGradingDecision | null
+}
+
+export interface ExerciseSlideSubmissionAndUserExerciseStateList {
+  data: Array<ExerciseSlideSubmissionAndUserExerciseState>
+  total_pages: number
+}
+
 export interface PeerReviewsRecieved {
   peer_review_questions: Array<PeerReviewQuestion>
   peer_review_question_submissions: Array<PeerReviewQuestionSubmission>

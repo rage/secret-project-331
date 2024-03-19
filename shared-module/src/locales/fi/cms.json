@@ -38,6 +38,7 @@
   "error": "Virhe",
   "error-cannot-render-editor-for-exercise-service-x": "En pysty renderöimään editoria tehtäväpalvelulle {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Harjoitustehtävää ei voi renderöidä, URL-osoite puuttuu.",
+  "error-question-too-short": "Kysymys on liian lyhyt.",
   "error-spec-not-parseable": "Mallivastausta ei voida parsia",
   "exercise-custom-view-block": "Mukautettu näkymä lohko",
   "exercise-custom-view-block-explanation": "Näkymä tehtäväpalveluun, joka ei liity tehtävään.",

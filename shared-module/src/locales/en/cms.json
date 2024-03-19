@@ -38,6 +38,7 @@
   "error": "Error",
   "error-cannot-render-editor-for-exercise-service-x": "Cannot render editor for exercise service {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Cannot render exercise task, missing url.",
+  "error-question-too-short": "Question is too short.",
   "error-spec-not-parseable": "Spec not parseable.",
   "exercise-custom-view-block": "Exercise Custom View block",
   "exercise-custom-view-block-explanation": "A view to an exercise service that is not related to an exercise.",

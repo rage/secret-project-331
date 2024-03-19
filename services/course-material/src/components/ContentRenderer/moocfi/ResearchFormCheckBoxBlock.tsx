@@ -30,6 +30,7 @@ const ResearchFormCheckBoxBlock: React.FC<
     <>
       <CheckBox
         label={parseText(props.data.attributes.content, terms).parsedText}
+        labelIsRawHtml
         checked={questionIdsAndAnswers[props.data.clientId]}
         onChange={() => handleChange(!questionIdsAndAnswers[props.data.clientId])}
       />

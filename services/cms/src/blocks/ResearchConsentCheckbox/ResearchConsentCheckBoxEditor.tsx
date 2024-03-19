@@ -4,6 +4,7 @@ import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
@@ -41,6 +42,9 @@ const ResearchConsentCheckBoxEditor: React.FC<
           onChange={(value: string) => setAttributes({ content: value })}
         />
       </div>
+      {(attributes.content ?? "").split(/\s+/).length < 3 && (
+        <ErrorBanner error={t("error-question-too-short")} variant="readOnly" />
+      )}
     </BlockPlaceholderWrapper>
   )
 }

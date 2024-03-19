@@ -101,6 +101,7 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
   const LEFT = "left"
   const direction = alignCenter ? CENTER : LEFT
   const { terms } = useContext(GlossaryContext)
+  // eslint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   return (
     <div

@@ -126,6 +126,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   }
 
   const postThisStateToIFrame: CustomViewIframeState = {
+    // eslint-disable-next-line i18next/no-literal-string
     view_type: "custom-view",
     course_name: courseInfo.data?.name,
     user_information: {

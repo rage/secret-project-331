@@ -12,6 +12,7 @@ export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
     <iframe
       src={`https://open.spotify.com/embed/${type}/${spotifyId}`}
       frameBorder="0"
+      // eslint-disable-next-line i18next/no-literal-string
       title="Spotify"
       sandbox="allow-scripts allow-same-origin"
       allow="encrypted-media"

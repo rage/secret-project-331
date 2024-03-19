@@ -300,7 +300,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
             ))}
             <AddNewRowContainer>
               <Button
-                area-aria-label="add example button"
+                area-aria-label={t("button-add-example")}
                 className={css`
                   cursor: pointer;
                   padding-right: 2px !important;

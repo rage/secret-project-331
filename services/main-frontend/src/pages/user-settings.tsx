@@ -45,6 +45,7 @@ const UserSettings: React.FC<React.PropsWithChildren<Slug>> = () => {
     allCourseIds &&
     allCourseIds.map((courseId) => {
       return {
+        // eslint-disable-next-line i18next/no-literal-string
         queryKey: [`course-${courseId}-breadcrumb-info`, courseId],
         queryFn: () => getCourseBreadCrumbInfo(courseId),
       }

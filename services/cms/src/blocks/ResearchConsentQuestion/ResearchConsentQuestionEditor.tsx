@@ -8,10 +8,10 @@ import ErrorBanner from "../../shared-module/components/ErrorBanner"
 import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
-import { CheckBoxAttributes } from "."
+import { ResearchConsentQuestionAttributes } from "."
 
 const ResearchConsentCheckBoxEditor: React.FC<
-  React.PropsWithChildren<BlockEditProps<CheckBoxAttributes>>
+  React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>
 > = ({ clientId, attributes, isSelected, setAttributes }) => {
   const { content } = attributes
   const { t } = useTranslation()
@@ -19,25 +19,24 @@ const ResearchConsentCheckBoxEditor: React.FC<
   return (
     <BlockPlaceholderWrapper
       id={clientId}
-      title={t("title-research-form-checkbox")}
+      title={t("title-research-form-question")}
       explanation={t("research-form-checkbox-description")}
     >
       <div
         className={css`
-          display: flex;
-          flex-direction: rox;
-          align-items: baseline;
-          padding: 1rem;
+          padding: 1rem 0;
           width: 100%;
+          display: flex;
         `}
       >
-        <CheckBox label={"  "} checked={isSelected} />
-
+        <b>{t("label-question")}: </b>
         <RichText
           className={css`
             width: 100%;
+            margin-left: 0.25rem;
           `}
           tagName="span"
+          label={t("title-research-form-question")}
           value={content}
           onChange={(value: string) => setAttributes({ content: value })}
         />

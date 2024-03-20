@@ -550,3 +550,48 @@ AND g.exercise_task_id IN (
     .await?;
     Ok(res)
 }
+
+pub async fn get_ids_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM exercise_task_submissions
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE exercise_id = $1
+)
+",
+        &exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.iter().map(|x| x.id).collect())
+}
+
+/// Similar to get_ids_by_exercise_id but returns the record with the highest created_at for a user_id
+pub async fn get_latest_submission_ids_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM exercise_task_submissions
+WHERE exercise_slide_submission_id IN (SELECT id
+    FROM (SELECT DISTINCT ON (user_id, exercise_id) *
+        FROM exercise_slide_submissions
+        WHERE exercise_id = $1
+        AND deleted_at IS NULL
+        ORDER BY user_id, exercise_id, created_at DESC) a )
+    AND deleted_at IS NULL
+",
+        &exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.iter().map(|x| x.id).collect())
+}

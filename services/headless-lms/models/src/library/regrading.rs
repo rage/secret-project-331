@@ -201,6 +201,31 @@ async fn do_single_regrading(
             models::exercise_slides::get_exercise_slide(&mut *conn, submission.exercise_slide_id)
                 .await?;
         let exercise = models::exercises::get_by_id(&mut *conn, exercise_slide.exercise_id).await?;
+        if exercise.exam_id.is_some() {
+            info!("Submission being regraded is from an exam, making sure we only give points from the last submission.");
+            let exercise_slide_submission = models::exercise_slide_submissions::get_by_id(
+                &mut *conn,
+                submission.exercise_slide_submission_id,
+            )
+            .await?;
+            let latest_submission =
+                models::exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+                    &mut *conn,
+                    submission.exercise_slide_id,
+                    exercise_slide_submission.user_id,
+                )
+                .await?;
+            if exercise_slide_submission.id != latest_submission.id {
+                info!("Exam submission being regraded is not the latest submission, refusing to grade it.");
+                models::exercise_task_gradings::set_grading_progress(
+                    &mut *conn,
+                    regrading_submission.id,
+                    GradingProgress::Failed,
+                )
+                .await?;
+                continue;
+            }
+        }
         let not_ready_grading =
             models::exercise_task_gradings::new_grading(&mut *conn, &exercise, &submission).await?;
         models::exercise_task_regrading_submissions::set_grading_after_regrading(

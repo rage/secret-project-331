@@ -57,12 +57,12 @@ export const upsertResearchForm = async (
   return validateResponse(response, isResearchForm)
 }
 
-export const upsertResearchFormQuestion = async (
+export const upsertResearchFormQuestions = async (
   courseId: string,
-  data: NewResearchFormQuestion,
+  data: NewResearchFormQuestion[],
 ): Promise<ResearchFormQuestion> => {
   const response = await cmsClient.put(
-    `/courses/${courseId}/research-consent-form-question`,
+    `/courses/${courseId}/research-consent-form-questions`,
     data,
     {
       responseType: "json",

@@ -4,12 +4,12 @@ import dynamic from "next/dynamic"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CheckBoxAttributes } from "../../../blocks/ResearchConsentCheckbox"
+import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
 import CourseContext from "../../../contexts/CourseContext"
 import {
   fetchResearchFormWithCourseId,
   upsertResearchForm,
-  upsertResearchFormQuestion,
+  upsertResearchFormQuestions,
 } from "../../../services/backend/courses"
 import {
   NewResearchForm,
@@ -80,8 +80,24 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
     await getResearchForm.refetch()
   }
   const mutate = useToastMutation(
-    (form: NewResearchForm) => {
-      return upsertResearchForm(assertNotNullOrUndefined(courseId), form)
+    async (form: NewResearchForm) => {
+      if (!isBlockInstanceArray(form.content)) {
+        throw new Error("content is not block instance")
+      }
+      const researchForm = await upsertResearchForm(assertNotNullOrUndefined(courseId), form)
+      const questions: NewResearchFormQuestion[] = []
+      form.content.forEach((block) => {
+        if (isMoocfiCheckbox(block)) {
+          const newResearchQuestion: NewResearchFormQuestion = {
+            question_id: block.clientId,
+            course_id: researchForm.course_id,
+            research_consent_form_id: researchForm.id,
+            question: block.attributes.content,
+          }
+          questions.push(newResearchQuestion)
+        }
+        upsertResearchFormQuestions(researchForm.id, questions)
+      })
     },
     {
       notify: true,
@@ -91,25 +107,9 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
     },
   )
   const handleSave = async (form: NewResearchForm): Promise<ResearchForm> => {
-    const researchForm = await mutate.mutateAsync(form)
-
-    if (!isBlockInstanceArray(form.content)) {
-      throw new Error("content is not block instance")
-    }
-    form.content.forEach((block) => {
-      if (isMoocfiCheckbox(block)) {
-        const newResearchQuestion: NewResearchFormQuestion = {
-          question_id: block.clientId,
-          course_id: researchForm.course_id,
-          research_consent_form_id: researchForm.id,
-          question: block.attributes.content,
-        }
-        upsertResearchFormQuestion(researchForm.id, newResearchQuestion)
-      }
-    })
-
-    await getResearchForm.refetch()
-    return researchForm
+    await mutate.mutateAsync(form)
+    const newData = await getResearchForm.refetch()
+    return newData.data as ResearchForm
   }
 
   return (
@@ -150,8 +150,10 @@ function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
   return true
 }
 
-function isMoocfiCheckbox(obj: BlockInstance): obj is BlockInstance<CheckBoxAttributes> {
-  return obj.name === "moocfi/research-consent-checkbox"
+function isMoocfiCheckbox(
+  obj: BlockInstance,
+): obj is BlockInstance<ResearchConsentQuestionAttributes> {
+  return obj.name === "moocfi/research-consent-question"
 }
 
 const exported = withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))

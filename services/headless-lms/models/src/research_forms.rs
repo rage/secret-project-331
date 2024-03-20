@@ -122,11 +122,16 @@ AND deleted_at IS NULL
 
 pub async fn upsert_research_form_questions(
     conn: &mut PgConnection,
-    question: &NewResearchFormQuestion,
-) -> ModelResult<ResearchFormQuestion> {
-    let form_res = sqlx::query_as!(
-        ResearchFormQuestion,
-        "
+    questions: &[NewResearchFormQuestion],
+) -> ModelResult<Vec<ResearchFormQuestion>> {
+    let mut tx = conn.begin().await?;
+
+    let mut inserted_questions = Vec::new();
+
+    for question in questions {
+        let form_res = sqlx::query_as!(
+            ResearchFormQuestion,
+            "
 INSERT INTO course_specific_consent_form_questions (
     id,
     course_id,
@@ -134,17 +139,24 @@ INSERT INTO course_specific_consent_form_questions (
     question
   )
 VALUES ($1, $2, $3, $4) ON CONFLICT (id)
-DO UPDATE SET question = $4
+DO UPDATE SET question = $4,
+deleted_at = NULL
 RETURNING *
 ",
-        question.question_id,
-        question.course_id,
-        question.research_consent_form_id,
-        question.question
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(form_res)
+            question.question_id,
+            question.course_id,
+            question.research_consent_form_id,
+            question.question
+        )
+        .fetch_one(&mut *tx)
+        .await?;
+
+        inserted_questions.push(form_res);
+    }
+
+    tx.commit().await?;
+
+    Ok(inserted_questions)
 }
 
 pub async fn get_research_form_questions_with_course_id(

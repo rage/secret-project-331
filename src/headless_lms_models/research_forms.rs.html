@@ -230,6 +230,18 @@
 <a href="#229" id="229">229</a>
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -354,11 +366,16 @@ AND deleted_at IS NULL
 
 <span class="kw">pub async fn </span>upsert_research_form_questions(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    question: <span class="kw-2">&amp;</span>NewResearchFormQuestion,
-) -&gt; ModelResult&lt;ResearchFormQuestion&gt; {
-    <span class="kw">let </span>form_res = <span class="macro">sqlx::query_as!</span>(
-        ResearchFormQuestion,
-        <span class="string">"
+    questions: <span class="kw-2">&amp;</span>[NewResearchFormQuestion],
+) -&gt; ModelResult&lt;Vec&lt;ResearchFormQuestion&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>tx = conn.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>inserted_questions = Vec::new();
+
+    <span class="kw">for </span>question <span class="kw">in </span>questions {
+        <span class="kw">let </span>form_res = <span class="macro">sqlx::query_as!</span>(
+            ResearchFormQuestion,
+            <span class="string">"
 INSERT INTO course_specific_consent_form_questions (
     id,
     course_id,
@@ -366,17 +383,24 @@ INSERT INTO course_specific_consent_form_questions (
     question
   )
 VALUES ($1, $2, $3, $4) ON CONFLICT (id)
-DO UPDATE SET question = $4
+DO UPDATE SET question = $4,
+deleted_at = NULL
 RETURNING *
 "</span>,
-        question.question_id,
-        question.course_id,
-        question.research_consent_form_id,
-        question.question
-    )
-    .fetch_one(conn)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(form_res)
+            question.question_id,
+            question.course_id,
+            question.research_consent_form_id,
+            question.question
+        )
+        .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+        inserted_questions.push(form_res);
+    }
+
+    tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(inserted_questions)
 }
 
 <span class="kw">pub async fn </span>get_research_form_questions_with_course_id(

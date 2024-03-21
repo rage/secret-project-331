@@ -361,6 +361,7 @@
   "link-exercises": "Tehtävät",
   "link-export-completions": "Lataa suoritukset CSV-muodossa",
   "link-export-course-instances": "Lataa kurssiversiot CSV-muodossa",
+  "link-export-course-user-consents": "Lataa kurssin tutkimussuostumukset CSV-muodossa",
   "link-export-exercise-tasks": "Lataa tehtävät CSV-muodossa",
   "link-export-points": "Vie pisteet tiedostoon",
   "link-export-submissions": "Lataa palautukset (exercise tasks) CSV-muodossa",

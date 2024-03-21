@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
-import React, { useContext } from "react"
+import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../../contexts/PageContext"
+import useCourseInfo from "../../../../hooks/useCourseInfo"
 import {
   fetchCourseModuleExercisesAndSubmissionsByType,
   fetchDefaultModuleIdByCourseId,
@@ -11,7 +12,10 @@ import {
 } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { CustomViewIframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import {
+  CustomViewIframeState,
+  UserVariablesMap,
+} from "../../../../shared-module/exercise-service-protocol-types"
 import useUserInfo from "../../../../shared-module/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "../../../../shared-module/utils/nullability"
 
@@ -33,6 +37,8 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   const courseInstanceId = pageContext.instance?.id
   const courseId = pageContext.settings?.current_course_id
 
+  const courseInfo = useCourseInfo(pageContext.settings?.current_course_id)
+  console.log(courseInfo.data?.name)
   const moduleIdByChapter = useQuery({
     queryKey: [`course-modules-chapter-${chapterId}`],
     queryFn: () => fetchModuleIdByChapterId(assertNotNullOrUndefined(chapterId)),
@@ -59,53 +65,76 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     enabled: !!moduleId && !!courseInstanceId,
   })
 
-  const subs_by_exercise = submissions_by_exercise.data?.exercises.map((exer) => {
-    return {
-      exercise_id: exer.id,
-      exercise_name: exer.name,
-      exercise_tasks: submissions_by_exercise.data.exercise_tasks.task_gradings
-        .filter((grading) => grading.exercise_id == exer.id)
-        .map((grading) => {
-          const answer = submissions_by_exercise.data.exercise_tasks.task_submissions.filter(
-            (sub) => sub.exercise_task_grading_id == grading.id,
-          )
-          const publicSpec = submissions_by_exercise.data.exercise_tasks.exercise_tasks.find(
-            (task) => task.id == grading.exercise_task_id,
-          )?.public_spec
-          return {
-            task_id: grading.exercise_task_id,
-            public_spec: publicSpec,
-            user_answer: answer,
-            grading: grading,
-          }
-        })
-        .sort(
-          (a, b) =>
-            a.task_id.localeCompare(b.task_id) ||
-            parseISO(b.grading.created_at).getTime() - parseISO(a.grading.created_at).getTime(),
-        )
-        .filter(
-          (task, index, array) => array.findIndex((el) => el.task_id === task.task_id) === index,
-        ),
+  const submission_data = submissions_by_exercise.data
+  const subs_by_exercise = useMemo(() => {
+    if (!submission_data) {
+      return null
     }
-  })
+    return submission_data.exercises.map((exer) => {
+      return {
+        exercise_id: exer.id,
+        exercise_name: exer.name,
+        exercise_tasks: submission_data.exercise_tasks.task_gradings
+          .filter((grading) => grading.exercise_id == exer.id)
+          .map((grading) => {
+            const answer = submission_data.exercise_tasks.task_submissions
+              .filter((sub) => sub.exercise_task_grading_id == grading.id)
+              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
+              .filter(
+                (task_asnwer, index, array) =>
+                  array.findIndex((el) => el.exercise_task_id === task_asnwer.exercise_task_id) ===
+                  index,
+              )[0]
+            const publicSpec = submission_data.exercise_tasks.exercise_tasks.find(
+              (task) => task.id == grading.exercise_task_id,
+            )?.public_spec
+            return {
+              task_id: grading.exercise_task_id,
+              public_spec: publicSpec,
+              user_answer: answer,
+              grading: grading,
+            }
+          })
+          .sort(
+            (a, b) =>
+              a.task_id.localeCompare(b.task_id) ||
+              parseISO(b.grading.created_at).getTime() - parseISO(a.grading.created_at).getTime(),
+          )
+          .filter(
+            (task, index, array) => array.findIndex((el) => el.task_id === task.task_id) === index,
+          ),
+      }
+    })
+  }, [submission_data])
 
+  const user_vars = useMemo(() => {
+    if (!submission_data) {
+      return null
+    }
+    const res: UserVariablesMap = {}
+    submission_data?.user_variables.forEach(
+      (item) => (res[item.variable_key] = item.variable_value),
+    )
+    return res
+  }, [submission_data])
   if (!url || url.trim() === "") {
     return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} variant="readOnly" />
   }
 
-  if (!userInfo.data || !subs_by_exercise) {
-    return <></>
+  if (!userInfo.data || !subs_by_exercise || !courseInfo.data) {
+    return null
   }
 
   const postThisStateToIFrame: CustomViewIframeState = {
     // eslint-disable-next-line i18next/no-literal-string
     view_type: "custom-view",
+    course_name: courseInfo.data?.name,
     user_information: {
       user_id: userInfo.data.user_id,
       first_name: userInfo.data.first_name,
       last_name: userInfo.data.last_name,
     },
+    user_variables: user_vars,
     data: {
       submissions_by_exercise: subs_by_exercise,
     },

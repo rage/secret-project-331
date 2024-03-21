@@ -96,12 +96,16 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_models::user_course_instance_exercise_service_variables;
+<span class="kw">use </span>models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
 
 <span class="kw">use crate</span>::{domain::authorization::skip_authorize, prelude::<span class="kw-2">*</span>};
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/course-modules/chapter/:chapter_id/`
+GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
 
 Returns course module id based on chapter.
 */
@@ -118,7 +122,7 @@ Returns course module id based on chapter.
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/course-modules/course/:course_instance_id/`
+GET `/api/v0/course-material/course-modules/course/:course_instance_id`
 
 Returns course module id based on chapter.
 */
@@ -136,7 +140,7 @@ Returns course module id based on chapter.
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id/`
+GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`
 
 Returns exercise submissions for user to be used in en exercise service Custom view.
 */
@@ -162,11 +166,13 @@ Returns exercise submissions for user to be used in en exercise service Custom v
         course_module_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>user_variables =
+    user_course_instance_exercise_service_variables::get_all_user_variables_for_user_and_course_instance_and_exercise_type(<span class="kw-2">&amp;mut </span>conn, user.id, course_instance_id, <span class="kw-2">&amp;</span>exercise_type).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = skip_authorize();
-
     <span class="kw">let </span>res = CustomViewExerciseSubmissions {
         exercise_tasks,
         exercises,
+        user_variables,
     };
 
     token.authorized_ok(web::Json(res))

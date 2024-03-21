@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["export_course_research_form_question_user_answers"],"struct":["CourseResearchFormExportOperation"]};

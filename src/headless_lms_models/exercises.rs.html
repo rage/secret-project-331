@@ -1901,7 +1901,7 @@ RETURNING id;
     <span class="kw">let </span>res: Vec&lt;Exercise&gt; = <span class="macro">sqlx::query_as!</span>(
         Exercise,
         <span class="string">r#"
-SELECT ex.*
+SELECT DISTINCT(ex.*)
 FROM exercises ex
   JOIN exercise_slides slides ON ex.id = slides.exercise_id
   JOIN exercise_tasks tasks ON slides.id = tasks.exercise_slide_id

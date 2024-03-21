@@ -1,4 +1,7 @@
-use crate::{exercises::Exercise, prelude::*};
+use crate::{
+    exercises::Exercise, prelude::*,
+    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
+};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -36,6 +39,7 @@ pub struct CustomViewExerciseTaskSubmission {
 pub struct CustomViewExerciseSubmissions {
     pub exercise_tasks: CustomViewExerciseTasks,
     pub exercises: Vec<Exercise>,
+    pub user_variables: Vec<UserCourseInstanceExerciseServiceVariable>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

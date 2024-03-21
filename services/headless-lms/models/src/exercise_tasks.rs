@@ -496,25 +496,17 @@ pub async fn get_all_exercise_tasks_by_module_and_exercise_type(
     let res: Vec<CustomViewExerciseTaskSpec> = sqlx::query_as!(
         CustomViewExerciseTaskSpec,
         r#"
-SELECT distinct (t.id),
-  t.public_spec,
-  t.order_number
-from exercise_tasks t
-where t.exercise_slide_id in (
-    SELECT id
-    from exercise_slides s
-    where s.exercise_id in (
-        SELECT id
-        from exercises e
-        where exercise_type = $1
-          AND e.chapter_id in (
-            SELECT id
-            from chapters c
-            where c.course_module_id = $2
-          )
-      )
-  )
-  AND deleted_at IS NULL;
+    SELECT distinct (et.id),
+        et.public_spec,
+        et.order_number
+    FROM exercise_tasks et
+    JOIN exercise_slides es ON es.id = et.exercise_slide_id
+    JOIN exercises e ON es.exercise_id = e.id JOIN chapters c ON e.chapter_id = c.id
+    WHERE et.exercise_type = $1 AND c.course_module_id = $2
+      AND et.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+      AND c.deleted_at IS NULL;
         "#,
         exercise_type,
         module_id

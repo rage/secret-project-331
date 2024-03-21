@@ -1,9 +1,10 @@
+use headless_lms_models::user_course_instance_exercise_service_variables;
 use models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
 
 /**
-GET `/api/v0/course-material/course-modules/chapter/:chapter_id/`
+GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
 
 Returns course module id based on chapter.
 */
@@ -20,7 +21,7 @@ async fn get_course_module_id_by_chapter_id(
 }
 
 /**
-GET `/api/v0/course-material/course-modules/course/:course_instance_id/`
+GET `/api/v0/course-material/course-modules/course/:course_instance_id`
 
 Returns course module id based on chapter.
 */
@@ -38,7 +39,7 @@ async fn get_default_course_module_id_by_course_id(
 }
 
 /**
-GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id/`
+GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`
 
 Returns exercise submissions for user to be used in en exercise service Custom view.
 */
@@ -64,11 +65,13 @@ async fn get_user_course_module_exercises_by_exercise_type(
         course_module_id,
     )
     .await?;
+    let user_variables =
+    user_course_instance_exercise_service_variables::get_all_user_variables_for_user_and_course_instance_and_exercise_type(&mut conn, user.id, course_instance_id, &exercise_type).await?;
     let token = skip_authorize();
-
     let res = CustomViewExerciseSubmissions {
         exercise_tasks,
         exercises,
+        user_variables,
     };
 
     token.authorized_ok(web::Json(res))

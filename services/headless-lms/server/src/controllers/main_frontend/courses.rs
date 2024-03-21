@@ -32,6 +32,7 @@ use crate::{
     domain::{
         csv_export::{
             course_instance_export::CourseInstancesExportOperation,
+            course_research_form_questions_answers_export::CourseResearchFormExportOperation,
             exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
             submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
         },
@@ -1058,6 +1059,44 @@ pub async fn course_instances_export(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`
+
+gets SCV course specific research form questions and user answers for course
+*/
+#[instrument(skip(pool))]
+pub async fn course_consent_form_answers_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - User Consents {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseResearchFormExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
 */
 pub async fn get_page_visit_datum_summary(
@@ -1379,6 +1418,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/export-course-instances",
             web::get().to(course_instances_export),
+        )
+        .route(
+            "/{course_id}/export-course-user-consents",
+            web::get().to(course_consent_form_answers_export),
         )
         .route(
             "/{course_id}/page-visit-datum-summary",

@@ -270,6 +270,14 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 {t("link-export-course-instances")}
               </a>
             </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`}
+                aria-label={t("link-export-course-user-consents")}
+              >
+                {t("link-export-course-user-consents")}
+              </a>
+            </li>
           </ul>
         </>
       </OnlyRenderIfPermissions>

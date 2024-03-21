@@ -1838,7 +1838,11 @@ export function isCustomViewExerciseSubmissions(
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isCustomViewExerciseTasks(typedObj["exercise_tasks"]) as boolean) &&
     Array.isArray(typedObj["exercises"]) &&
-    typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
+    typedObj["exercises"].every((e: any) => isExercise(e) as boolean) &&
+    Array.isArray(typedObj["user_variables"]) &&
+    typedObj["user_variables"].every(
+      (e: any) => isUserCourseInstanceExerciseServiceVariable(e) as boolean,
+    )
   )
 }
 

@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM user_course_instance_exercise_service_variables\nWHERE deleted_at IS NULL\n  AND user_id = $1\n  AND course_instance_id = $2\n  AND exercise_service_slug = $3;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "exercise_service_slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "variable_key",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "variable_value",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Text"]
+    },
+    "nullable": [false, false, false, true, false, false, true, true, false, false]
+  },
+  "hash": "8c1f861182b005b8045c6d6d096216c9da8fb3728d99c6711dff808431d0d8d6"
+}

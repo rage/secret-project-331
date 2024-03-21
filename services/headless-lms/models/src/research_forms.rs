@@ -1,3 +1,5 @@
+use futures::Stream;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -175,6 +177,45 @@ AND deleted_at IS NULL
     .fetch_all(conn)
     .await?;
     Ok(form_res)
+}
+
+pub struct ExportedCourseResearchFormQustionAnswer {
+    pub course_id: Uuid,
+    pub research_consent_form_id: Uuid,
+    pub research_form_question_id: Uuid,
+    pub question: String,
+    pub user_id: Uuid,
+    pub research_consent: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+pub fn stream_course_research_form_user_answers(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<ExportedCourseResearchFormQustionAnswer>> + '_ {
+    sqlx::query_as!(
+        ExportedCourseResearchFormQustionAnswer,
+        r#"
+    SELECT DISTINCT ON (a.research_form_question_id)
+        q.course_id,
+        q.research_consent_form_id,
+        a.research_form_question_id,
+        q.question,
+        a.user_id,
+        a.research_consent,
+        a.created_at,
+        a.updated_at
+        FROM course_specific_consent_form_answers a
+    LEFT JOIN course_specific_consent_form_questions q ON a.research_form_question_id = q.id
+    WHERE a.course_id = $1
+    AND a.deleted_at IS NULL
+    AND q.deleted_at IS NULL
+    ORDER BY a.research_form_question_id, a.updated_at DESC
+    "#,
+        course_id
+    )
+    .fetch(conn)
 }
 
 pub async fn upsert_research_form_anwser(

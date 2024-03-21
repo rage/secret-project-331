@@ -197,7 +197,7 @@ pub fn stream_course_research_form_user_answers(
     sqlx::query_as!(
         ExportedCourseResearchFormQustionAnswer,
         r#"
-    SELECT  DISTINCT ON (a.research_form_question_id)
+    SELECT DISTINCT ON (a.research_form_question_id)
         q.course_id,
         q.research_consent_form_id,
         a.research_form_question_id,

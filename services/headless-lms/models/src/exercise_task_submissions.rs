@@ -496,7 +496,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
     Ok(res)
 }
 
-// get all submissions for user and course module and exercise type
+/// get all submissions for user and course module and exercise type
 pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_type(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -507,44 +507,32 @@ pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_ty
     let res: Vec<CustomViewExerciseTaskSubmission> = sqlx::query_as!(
         CustomViewExerciseTaskSubmission,
         r#"
-SELECT id,
-  created_at,
-  exercise_slide_submission_id,
-  exercise_slide_id,
-  exercise_task_id,
-  exercise_task_grading_id,
-  data_json
-FROM exercise_task_submissions g
-WHERE deleted_at IS NULL
-AND g.exercise_task_id IN (
-    SELECT distinct (t.id)
-    FROM exercise_tasks t
-    WHERE deleted_at IS NULL
-    AND t.exercise_slide_id IN (
-        SELECT s.exercise_slide_id
-        FROM exercise_slide_submissions s
-        WHERE s.user_id = $1
-        AND s.course_instance_id = $4
-        AND deleted_at IS NULL
-        AND s.exercise_id IN (
-            SELECT id
-            FROM exercises e
-            WHERE exercise_type = $2
-            AND deleted_at IS NULL
-            AND e.chapter_id IN (
-                SELECT id
-                FROM chapters c
-                WHERE c.course_module_id = $3
-                AND deleted_at IS NULL
-              )
-          )
-      )
-  )
+        SELECT g.id,
+        g.created_at,
+        g.exercise_slide_submission_id,
+        g.exercise_slide_id,
+        g.exercise_task_id,
+        g.exercise_task_grading_id,
+        g.data_json
+      FROM exercise_task_submissions g
+        JOIN exercise_tasks et ON et.id = g.exercise_task_id
+        JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id
+        JOIN exercises e ON e.id = ess.exercise_id
+        JOIN chapters c ON c.id = e.chapter_id
+      WHERE ess.user_id = $1
+      AND ess.course_instance_id = $2
+      AND et.exercise_type = $3
+      AND c.course_module_id = $4
+      AND g.deleted_at IS NULL
+      AND et.deleted_at IS NULL
+      AND ess.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+      AND c.deleted_at IS NULL
       "#,
         user_id,
+        course_instance_id,
         exercise_type,
-        module_id,
-        course_instance_id
+        module_id
     )
     .fetch_all(conn)
     .await?;

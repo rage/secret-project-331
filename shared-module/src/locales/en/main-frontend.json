@@ -354,6 +354,7 @@
   "link-exercises": "Exercises",
   "link-export-completions": "Export completions as CSV",
   "link-export-course-instances": "Export course instances as CSV",
+  "link-export-course-user-consents": "Export course research consent form answers as CSV",
   "link-export-exercise-tasks": "Export exercise-tasks as CSV",
   "link-export-points": "Export points as CSV",
   "link-export-submissions": "Export submissions (exercise tasks) as CSV",

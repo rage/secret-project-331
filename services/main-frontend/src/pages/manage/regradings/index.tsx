@@ -12,7 +12,11 @@ import {
   fetchAllRegradings,
   fetchRegradingsCount,
 } from "../../../services/backend/regradings"
-import { NewRegrading, UserPointsUpdateStrategy } from "../../../shared-module/bindings"
+import {
+  NewRegrading,
+  NewRegradingIdType,
+  UserPointsUpdateStrategy,
+} from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import DebugModal from "../../../shared-module/components/DebugModal"
 import Dialog from "../../../shared-module/components/Dialog"
@@ -29,8 +33,9 @@ import { isUuid } from "../../../shared-module/utils/fetching"
 import { dateToString } from "../../../shared-module/utils/time"
 
 interface Fields {
-  exerciseTaskSubmissionIds: string
+  ids: string
   userPointsUpdateStrategy: UserPointsUpdateStrategy
+  idType: NewRegradingIdType
 }
 
 const RegradingsPage: React.FC = () => {
@@ -55,9 +60,11 @@ const RegradingsPage: React.FC = () => {
     // eslint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
-      exerciseTaskSubmissionIds: "",
+      ids: "",
       // eslint-disable-next-line i18next/no-literal-string
       userPointsUpdateStrategy: "CanAddPointsButCannotRemovePoints",
+      // eslint-disable-next-line i18next/no-literal-string
+      idType: "ExerciseTaskSubmissionId",
     },
   })
   const newRegradingMutation = useToastMutation(
@@ -161,10 +168,29 @@ const RegradingsPage: React.FC = () => {
       </Button>
       <Dialog open={newRegradingDialogOpen} onClose={() => setNewRegradingDialogOpen(false)}>
         <h1>{t("button-text-new-regrading")}</h1>
+
+        <SelectField
+          id={"id-type"}
+          label={t("label-id-type")}
+          options={[
+            {
+              label: t("option-exercise-task-submission-id"),
+              // eslint-disable-next-line i18next/no-literal-string
+              value: "ExerciseTaskSubmissionId" satisfies NewRegradingIdType,
+            },
+
+            {
+              label: t("option-exercise-id"),
+              // eslint-disable-next-line i18next/no-literal-string
+              value: "ExerciseId" satisfies NewRegradingIdType,
+            },
+          ]}
+          {...register("idType")}
+        />
         <TextAreaField
-          label={t("label-exercise-task-submission-ids")}
+          label={t("label-ids-one-per-line")}
           rows={20}
-          {...register("exerciseTaskSubmissionIds", {
+          {...register("ids", {
             validate: (input) => {
               const lines = input.trim().split("\n")
               if (lines.length === 0) {
@@ -175,6 +201,7 @@ const RegradingsPage: React.FC = () => {
             },
           })}
         />
+
         <SelectField
           id={"user-points-update-strategy"}
           label={t("label-user-points-update-strategy")}
@@ -182,29 +209,31 @@ const RegradingsPage: React.FC = () => {
             {
               label: t("option-can-add-points-but-cannot-remove-points"),
               // eslint-disable-next-line i18next/no-literal-string
-              value: "CanAddPointsButCannotRemovePoints",
+              value: "CanAddPointsButCannotRemovePoints" satisfies UserPointsUpdateStrategy,
             },
 
             {
               label: t("option-can-add-points-and-can-remove-points"),
               // eslint-disable-next-line i18next/no-literal-string
-              value: "CanAddPointsAndCanRemovePoints",
+              value: "CanAddPointsAndCanRemovePoints" satisfies UserPointsUpdateStrategy,
             },
           ]}
           {...register("userPointsUpdateStrategy")}
         />
+
         <Button
           variant="primary"
           size="medium"
           disabled={!isValid || newRegradingMutation.isPending}
           onClick={handleSubmit(async (data) => {
-            const lines = data.exerciseTaskSubmissionIds
+            const lines = data.ids
               .trim()
               .split("\n")
               .map((line) => line.trim())
             newRegradingMutation.mutate({
-              exercise_task_submission_ids: lines,
+              ids: lines,
               user_points_update_strategy: data.userPointsUpdateStrategy,
+              id_type: data.idType,
             })
           })}
         >

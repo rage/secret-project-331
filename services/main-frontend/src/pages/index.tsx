@@ -10,6 +10,7 @@ import {
   globalPermissionsRoute,
   globalStatsRoute,
   manageExerciseServicesRoute,
+  regradingsRoute,
   searchUsersRoute,
 } from "../shared-module/utils/routes"
 import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
@@ -109,6 +110,20 @@ const FrontPage = () => {
             `}
           >
             {t("link-text-global-stats")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
+        <div>
+          <Link
+            href={regradingsRoute()}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("title-regradings")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

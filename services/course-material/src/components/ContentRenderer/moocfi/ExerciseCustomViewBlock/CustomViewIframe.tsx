@@ -48,6 +48,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     enabled: !!courseInstanceId && !!userInfo.data?.user_id,
   })
   const courseInfo = useCourseInfo(pageContext.settings?.current_course_id)
+
   const moduleIdByChapter = useQuery({
     queryKey: [`course-modules-chapter-${chapterId}`],
     queryFn: () => fetchModuleIdByChapterId(assertNotNullOrUndefined(chapterId)),

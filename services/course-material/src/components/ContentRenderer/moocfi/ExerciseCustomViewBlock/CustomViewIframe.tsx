@@ -9,6 +9,7 @@ import {
   fetchCourseModuleExercisesAndSubmissionsByType,
   fetchDefaultModuleIdByCourseId,
   fetchModuleIdByChapterId,
+  getAllCourseModuleCompletionsForUserAndCourseInstance,
 } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
@@ -37,8 +38,17 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   const courseInstanceId = pageContext.instance?.id
   const courseId = pageContext.settings?.current_course_id
 
+  const courseModuleCompletionsQuery = useQuery({
+    queryKey: [`${courseInstanceId}-course-module-completions-${userInfo.data?.user_id}`],
+    queryFn: () =>
+      getAllCourseModuleCompletionsForUserAndCourseInstance(
+        assertNotNullOrUndefined(courseInstanceId),
+        assertNotNullOrUndefined(userInfo.data?.user_id),
+      ),
+    enabled: !!courseInstanceId && !!userInfo.data?.user_id,
+  })
   const courseInfo = useCourseInfo(pageContext.settings?.current_course_id)
-  console.log(courseInfo.data?.name)
+
   const moduleIdByChapter = useQuery({
     queryKey: [`course-modules-chapter-${chapterId}`],
     queryFn: () => fetchModuleIdByChapterId(assertNotNullOrUndefined(chapterId)),
@@ -64,6 +74,10 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
       ),
     enabled: !!moduleId && !!courseInstanceId,
   })
+
+  const completionDate = courseModuleCompletionsQuery.data?.find(
+    (compl) => compl.course_module_id === moduleId,
+  )?.completion_date
 
   const submission_data = submissions_by_exercise.data
   const subs_by_exercise = useMemo(() => {
@@ -129,6 +143,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     // eslint-disable-next-line i18next/no-literal-string
     view_type: "custom-view",
     course_name: courseInfo.data?.name,
+    module_completion_date: completionDate ? parseISO(completionDate).toLocaleDateString() : null,
     user_information: {
       user_id: userInfo.data.user_id,
       first_name: userInfo.data.first_name,

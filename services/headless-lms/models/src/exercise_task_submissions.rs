@@ -464,7 +464,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
     course_instance_id: Uuid,
 ) -> ModelResult<CustomViewExerciseTasks> {
     let task_submissions =
-        crate::exercise_task_submissions::get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+        crate::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
             &mut *conn,
             user_id,
             exercise_type,
@@ -497,7 +497,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
 }
 
 /// get all submissions for user and course module and exercise type
-pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_type: &str,

@@ -197,7 +197,7 @@ pub fn stream_course_research_form_user_answers(
     sqlx::query_as!(
         ExportedCourseResearchFormQustionAnswer,
         r#"
-    SELECT DISTINCT ON (a.research_form_question_id)
+    SELECT DISTINCT ON (a.research_form_question_id, a.user_id)
         q.course_id,
         q.research_consent_form_id,
         a.research_form_question_id,
@@ -211,7 +211,7 @@ pub fn stream_course_research_form_user_answers(
     WHERE a.course_id = $1
     AND a.deleted_at IS NULL
     AND q.deleted_at IS NULL
-    ORDER BY a.research_form_question_id, a.updated_at DESC
+    ORDER BY a.user_id, a.research_form_question_id, a.updated_at DESC
     "#,
         course_id
     )

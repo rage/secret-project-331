@@ -62,6 +62,8 @@ export const blockTypeMapForPages = [
   ["moocfi/author-inner-block", AuthorInnerBlock],
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
+  ["moocfi/partners", PartnersBlock],
+  ["moocfi/top-level-pages", TopLevelPage],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

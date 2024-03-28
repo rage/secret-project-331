@@ -584,6 +584,8 @@
 <a href="#583" id="583">583</a>
 <a href="#584" id="584">584</a>
 <a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use </span>futures::{future::BoxFuture, Stream};
@@ -1050,7 +1052,7 @@ WHERE exercise_slide_submissions.course_id = $1
     course_instance_id: Uuid,
 ) -&gt; ModelResult&lt;CustomViewExerciseTasks&gt; {
     <span class="kw">let </span>task_submissions =
-        <span class="kw">crate</span>::exercise_task_submissions::get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+        <span class="kw">crate</span>::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
             <span class="kw-2">&amp;mut *</span>conn,
             user_id,
             exercise_type,
@@ -1083,7 +1085,7 @@ WHERE exercise_slide_submissions.course_id = $1
 }
 
 <span class="doccomment">/// get all submissions for user and course module and exercise type
-</span><span class="kw">pub async fn </span>get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+</span><span class="kw">pub async fn </span>get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
     exercise_type: <span class="kw-2">&amp;</span>str,
@@ -1093,7 +1095,8 @@ WHERE exercise_slide_submissions.course_id = $1
     <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskSubmission&gt; = <span class="macro">sqlx::query_as!</span>(
         CustomViewExerciseTaskSubmission,
         <span class="string">r#"
-        SELECT g.id,
+        SELECT DISTINCT ON (g.exercise_task_id)
+        g.id,
         g.created_at,
         g.exercise_slide_submission_id,
         g.exercise_slide_id,
@@ -1114,6 +1117,7 @@ WHERE exercise_slide_submissions.course_id = $1
       AND ess.deleted_at IS NULL
       AND e.deleted_at IS NULL
       AND c.deleted_at IS NULL
+      ORDER BY g.exercise_task_id, g.created_at DESC
       "#</span>,
         user_id,
         course_instance_id,

@@ -196,6 +196,41 @@
 <a href="#195" id="195">195</a>
 <a href="#196" id="196">196</a>
 <a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/course-instances`.
 
 </span><span class="kw">use </span>headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
@@ -204,6 +239,7 @@
     course_background_question_answers::NewCourseBackgroundQuestionAnswer,
     course_background_questions::CourseBackgroundQuestionsAndAnswers,
     course_instance_enrollments::CourseInstanceEnrollment,
+    course_module_completions::CourseModuleCompletion,
     library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
@@ -347,6 +383,36 @@ POST /api/v0/course-material/course-instance/:course_instance_id/save-course-set
 }
 
 <span class="doccomment">/**
+GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
+*/
+</span><span class="attr">#[instrument(skip(pool))]
+
+</span><span class="kw">async fn </span>get_all_get_all_course_module_completions_for_user_by_course_instance_id(
+    params: web::Path&lt;(Uuid, Uuid)&gt;,
+    pool: web::Data&lt;PgPool&gt;,
+    user: AuthUser,
+) -&gt; ControllerResult&lt;web::Json&lt;Vec&lt;CourseModuleCompletion&gt;&gt;&gt; {
+    <span class="kw">let </span>(course_instance_id, user_id) = params.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = authorize(
+        <span class="kw-2">&amp;mut </span>conn,
+        Act::ViewUserProgressOrDetails,
+        <span class="prelude-val">Some</span>(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>res = models::course_module_completions::get_all_by_course_instance_and_user_id(
+        <span class="kw-2">&amp;mut </span>conn,
+        course_instance_id,
+        user_id,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(res))
+}
+
+<span class="doccomment">/**
 GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
 */
 </span><span class="attr">#[instrument(skip(pool))]
@@ -387,6 +453,10 @@ GET /api/v0/course-material/course-instance/:course_instance_id/background-quest
     .route(
         <span class="string">"/{course_instance_id}/module-completions"</span>,
         web::get().to(get_module_completions_for_course_instance),
+    )
+    .route(
+        <span class="string">"/{course_instance_id}/course-module-completions/{user_id}"</span>,
+        web::get().to(get_all_get_all_course_module_completions_for_user_by_course_instance_id),
     )
     .route(
         <span class="string">"/{course_instance_id}/background-questions-and-answers"</span>,

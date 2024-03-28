@@ -91,16 +91,11 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
         exercise_tasks: submission_data.exercise_tasks.task_gradings
           .filter((grading) => grading.exercise_id == exer.id)
           .map((grading) => {
-            const answer = submission_data.exercise_tasks.task_submissions
-              .filter((sub) => sub.exercise_task_grading_id == grading.id)
-              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
-              .filter(
-                (task_asnwer, index, array) =>
-                  array.findIndex((el) => el.exercise_task_id === task_asnwer.exercise_task_id) ===
-                  index,
-              )[0]
+            const answer = submission_data.exercise_tasks.task_submissions.find(
+              (sub) => sub.exercise_task_grading_id === grading.id,
+            )
             const publicSpec = submission_data.exercise_tasks.exercise_tasks.find(
-              (task) => task.id == grading.exercise_task_id,
+              (task) => task.id === grading.exercise_task_id,
             )?.public_spec
             return {
               task_id: grading.exercise_task_id,

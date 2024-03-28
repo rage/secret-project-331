@@ -507,7 +507,8 @@ pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_ty
     let res: Vec<CustomViewExerciseTaskSubmission> = sqlx::query_as!(
         CustomViewExerciseTaskSubmission,
         r#"
-        SELECT g.id,
+        SELECT DISTINCT ON (g.exercise_task_id)
+        g.id,
         g.created_at,
         g.exercise_slide_submission_id,
         g.exercise_slide_id,
@@ -528,6 +529,7 @@ pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_ty
       AND ess.deleted_at IS NULL
       AND e.deleted_at IS NULL
       AND c.deleted_at IS NULL
+      ORDER BY g.exercise_task_id, g.created_at DESC
       "#,
         user_id,
         course_instance_id,

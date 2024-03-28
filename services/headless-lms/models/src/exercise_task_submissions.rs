@@ -464,7 +464,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
     course_instance_id: Uuid,
 ) -> ModelResult<CustomViewExerciseTasks> {
     let task_submissions =
-        crate::exercise_task_submissions::get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+        crate::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
             &mut *conn,
             user_id,
             exercise_type,
@@ -497,7 +497,7 @@ pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
 }
 
 /// get all submissions for user and course module and exercise type
-pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_type(
+pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_type: &str,
@@ -507,7 +507,8 @@ pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_ty
     let res: Vec<CustomViewExerciseTaskSubmission> = sqlx::query_as!(
         CustomViewExerciseTaskSubmission,
         r#"
-        SELECT g.id,
+        SELECT DISTINCT ON (g.exercise_task_id)
+        g.id,
         g.created_at,
         g.exercise_slide_submission_id,
         g.exercise_slide_id,
@@ -528,6 +529,7 @@ pub async fn get_user_exersice_task_submissions_by_course_module_and_exercise_ty
       AND ess.deleted_at IS NULL
       AND e.deleted_at IS NULL
       AND c.deleted_at IS NULL
+      ORDER BY g.exercise_task_id, g.created_at DESC
       "#,
         user_id,
         course_instance_id,

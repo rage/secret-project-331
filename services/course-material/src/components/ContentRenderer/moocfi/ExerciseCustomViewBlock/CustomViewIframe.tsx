@@ -9,6 +9,7 @@ import {
   fetchCourseModuleExercisesAndSubmissionsByType,
   fetchDefaultModuleIdByCourseId,
   fetchModuleIdByChapterId,
+  getAllCourseModuleCompletionsForUserAndCourseInstance,
 } from "../../../../services/backend"
 import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
 import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
@@ -37,8 +38,17 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   const courseInstanceId = pageContext.instance?.id
   const courseId = pageContext.settings?.current_course_id
 
+  const courseModuleCompletionsQuery = useQuery({
+    queryKey: [`${courseInstanceId}-course-module-completions-${userInfo.data?.user_id}`],
+    queryFn: () =>
+      getAllCourseModuleCompletionsForUserAndCourseInstance(
+        assertNotNullOrUndefined(courseInstanceId),
+        assertNotNullOrUndefined(userInfo.data?.user_id),
+      ),
+    enabled: !!courseInstanceId && !!userInfo.data?.user_id,
+  })
   const courseInfo = useCourseInfo(pageContext.settings?.current_course_id)
-  console.log(courseInfo.data?.name)
+
   const moduleIdByChapter = useQuery({
     queryKey: [`course-modules-chapter-${chapterId}`],
     queryFn: () => fetchModuleIdByChapterId(assertNotNullOrUndefined(chapterId)),
@@ -65,6 +75,10 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     enabled: !!moduleId && !!courseInstanceId,
   })
 
+  const completionDate = courseModuleCompletionsQuery.data?.find(
+    (compl) => compl.course_module_id === moduleId,
+  )?.completion_date
+
   const submission_data = submissions_by_exercise.data
   const subs_by_exercise = useMemo(() => {
     if (!submission_data) {
@@ -77,16 +91,11 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
         exercise_tasks: submission_data.exercise_tasks.task_gradings
           .filter((grading) => grading.exercise_id == exer.id)
           .map((grading) => {
-            const answer = submission_data.exercise_tasks.task_submissions
-              .filter((sub) => sub.exercise_task_grading_id == grading.id)
-              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
-              .filter(
-                (task_asnwer, index, array) =>
-                  array.findIndex((el) => el.exercise_task_id === task_asnwer.exercise_task_id) ===
-                  index,
-              )[0]
+            const answer = submission_data.exercise_tasks.task_submissions.find(
+              (sub) => sub.exercise_task_grading_id === grading.id,
+            )
             const publicSpec = submission_data.exercise_tasks.exercise_tasks.find(
-              (task) => task.id == grading.exercise_task_id,
+              (task) => task.id === grading.exercise_task_id,
             )?.public_spec
             return {
               task_id: grading.exercise_task_id,
@@ -129,6 +138,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     // eslint-disable-next-line i18next/no-literal-string
     view_type: "custom-view",
     course_name: courseInfo.data?.name,
+    module_completion_date: completionDate ? parseISO(completionDate).toLocaleDateString() : null,
     user_information: {
       user_id: userInfo.data.user_id,
       first_name: userInfo.data.first_name,

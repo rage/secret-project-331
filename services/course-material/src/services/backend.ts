@@ -9,6 +9,7 @@ import {
   CourseMaterialExercise,
   CourseMaterialPeerReviewDataWithToken,
   CourseMaterialPeerReviewSubmission,
+  CourseModuleCompletion,
   CoursePageWithUserData,
   CustomViewExerciseSubmissions,
   ExamData,
@@ -50,6 +51,7 @@ import {
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerReviewDataWithToken,
+  isCourseModuleCompletion,
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
   isExamData,
@@ -623,4 +625,14 @@ export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
     responseType: "json",
   })
   return validateResponse(res, isUuid)
+}
+
+export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
+  courseInstanceId: string,
+  userId: string,
+): Promise<CourseModuleCompletion[]> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
+  )
+  return validateResponse(response, isArray(isCourseModuleCompletion))
 }

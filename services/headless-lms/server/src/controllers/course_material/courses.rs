@@ -685,16 +685,36 @@ GET `/api/v0/course-material/courses/:id/language-versions` - Returns all langua
 async fn get_all_course_language_versions(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Course>>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let language_versions =
+
+    let mut language_versions =
         models::courses::get_all_language_versions_of_course(&mut conn, &course)
             .await?
             .into_iter()
             .filter(|c| !c.is_draft)
             .collect::<Vec<_>>();
+
+    if !language_versions.iter().any(|c| c.id == course.id) {
+        // The course the language version was requested for is likely a draft course.
+        if let Some(user_id) = user.map(|u| u.id) {
+            authorize_access_to_course_material(&mut conn, Some(user_id), *course_id).await?;
+            info!(
+                "Course {} not found in language versions of course {}. Adding it back to the list.",
+                course.id, course.id
+            );
+            language_versions.push(course);
+        } else {
+            return Err(ControllerError::new(
+                ControllerErrorType::Unauthorized,
+                "Please log in".to_string(),
+                None,
+            ));
+        }
+    }
     token.authorized_ok(web::Json(language_versions))
 }
 

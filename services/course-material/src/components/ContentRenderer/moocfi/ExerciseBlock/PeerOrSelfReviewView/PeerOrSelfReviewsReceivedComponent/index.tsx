@@ -119,16 +119,17 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
   })
 
   const data = useMemo(() => {
-    const ordered = peerOrSelfReviewsReceivedQuery.data?.peer_review_question_submissions.sort(
-      (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
-    )
+    const ordered =
+      peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions.sort(
+        (a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime(),
+      )
 
-    const groupByPeerReviewSubmissionId = groupBy(
+    const groupByPeerOrSelfReviewSubmissionId = groupBy(
       ordered,
-      (review) => review.peer_review_submission_id,
+      (review) => review.peer_or_self_review_submission_id,
     )
 
-    let res = Object.values(groupByPeerReviewSubmissionId)
+    let res = Object.values(groupByPeerOrSelfReviewSubmissionId)
     res = res.sort((a, b) => {
       if (a.length === 0) {
         return 1
@@ -144,19 +145,22 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
       if (questionSubmisssions.length === 0) {
         return "peer"
       }
-      const peerReviewSubmission =
-        peerOrSelfReviewsReceivedQuery.data?.peer_review_submissions.find(
-          (pr) => pr.id === questionSubmisssions[0].peer_review_submission_id,
+      const peerOrSelfReviewSubmission =
+        peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_submissions.find(
+          (pr) => pr.id === questionSubmisssions[0].peer_or_self_review_submission_id,
         )
-      if (peerReviewSubmission && peerReviewSubmission.user_id === userInfo.data?.user_id) {
+      if (
+        peerOrSelfReviewSubmission &&
+        peerOrSelfReviewSubmission.user_id === userInfo.data?.user_id
+      ) {
         return "self"
       }
       return "peer"
     })
     return res2
   }, [
-    peerOrSelfReviewsReceivedQuery.data?.peer_review_question_submissions,
-    peerOrSelfReviewsReceivedQuery.data?.peer_review_submissions,
+    peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions,
+    peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_submissions,
     userInfo.data?.user_id,
   ])
 
@@ -184,7 +188,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
               orderNumber={index}
               key={index}
               reviews={items}
-              questions={peerOrSelfReviewsReceivedQuery.data.peer_review_questions}
+              questions={peerOrSelfReviewsReceivedQuery.data.peer_or_self_review_questions}
               selfReview
             />
           )
@@ -196,7 +200,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
               orderNumber={index}
               key={index}
               reviews={items}
-              questions={peerOrSelfReviewsReceivedQuery.data.peer_review_questions}
+              questions={peerOrSelfReviewsReceivedQuery.data.peer_or_self_review_questions}
               selfReview={false}
             />
           )

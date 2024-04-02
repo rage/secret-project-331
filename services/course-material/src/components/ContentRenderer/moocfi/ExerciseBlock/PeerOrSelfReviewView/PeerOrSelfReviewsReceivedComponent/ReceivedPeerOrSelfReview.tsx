@@ -4,16 +4,16 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  PeerReviewQuestion,
-  PeerReviewQuestionSubmission,
+  PeerOrSelfReviewQuestion,
+  PeerOrSelfReviewQuestionSubmission,
 } from "../../../../../../shared-module/bindings"
 
 import Essay from "./Essay"
 import Likert from "./Likert"
 interface ReviewProps {
   orderNumber: number
-  reviews: PeerReviewQuestionSubmission[]
-  questions: PeerReviewQuestion[]
+  reviews: PeerOrSelfReviewQuestionSubmission[]
+  questions: PeerOrSelfReviewQuestion[]
   selfReview: boolean
 }
 
@@ -41,8 +41,8 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
   const sortedReviews = useMemo(
     () =>
       reviews.sort((o1, o2) => {
-        const o1Question = questions.find((q) => q.id === o1.peer_review_question_id)
-        const o2Question = questions.find((q) => q.id === o2.peer_review_question_id)
+        const o1Question = questions.find((q) => q.id === o1.peer_or_self_review_question_id)
+        const o2Question = questions.find((q) => q.id === o2.peer_or_self_review_question_id)
         if (!o1Question) {
           return 1
         }
@@ -59,8 +59,8 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
       <Heading>
         {selfReview ? t("title-self-review") : `${t("peer-review")} #${orderNumber + 1}`}
       </Heading>
-      {sortedReviews.map(({ id, number_data, text_data, peer_review_question_id }, index) => {
-        const questionIndex = questions.findIndex((q) => q.id === peer_review_question_id)
+      {sortedReviews.map(({ id, number_data, text_data, peer_or_self_review_question_id }, index) => {
+        const questionIndex = questions.findIndex((q) => q.id === peer_or_self_review_question_id)
         if (questionIndex === -1) {
           return null
         }

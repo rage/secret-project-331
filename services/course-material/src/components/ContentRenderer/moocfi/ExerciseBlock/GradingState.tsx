@@ -3,7 +3,7 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  CourseMaterialPeerReviewConfig,
+  CourseMaterialPeerOrSelfReviewConfig,
   GradingProgress,
   ReviewingStage,
 } from "../../../../shared-module/bindings"
@@ -12,18 +12,18 @@ import YellowBox from "../../../YellowBox"
 interface GradingStateProps {
   gradingProgress: GradingProgress
   reviewingStage: ReviewingStage
-  peerReviewConfig: CourseMaterialPeerReviewConfig | null
+  peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
   reviewingStage,
-  peerReviewConfig,
+  peerOrSelfReviewConfig,
 }) => {
   const { t } = useTranslation()
 
   const text = useMemo(
-    () => getText(reviewingStage, gradingProgress, peerReviewConfig, t),
-    [gradingProgress, peerReviewConfig, reviewingStage, t],
+    () => getText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, t),
+    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, t],
   )
 
   if (text === null) {
@@ -40,12 +40,15 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
 const getText = (
   reviewingStage: ReviewingStage,
   gradingProgress: GradingProgress,
-  peerReviewConfig: CourseMaterialPeerReviewConfig | null,
+  peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
-  if (peerReviewConfig && reviewingStage === "NotStarted") {
+  if (1 === 1) {
+    return "WAT"
+  }
+  if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
     return t("help-text-exercise-involves-peer-review", {
-      peer_reviews_to_give: peerReviewConfig.peer_reviews_to_give,
+      peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
     })
   }
   if (reviewingStage === "NotStarted") {

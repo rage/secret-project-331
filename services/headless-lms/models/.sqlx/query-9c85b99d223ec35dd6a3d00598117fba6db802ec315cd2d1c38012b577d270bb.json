@@ -85,7 +85,7 @@
       },
       {
         "ordinal": 16,
-        "name": "use_course_default_peer_review_config",
+        "name": "use_course_default_peer_or_self_review_config",
         "type_info": "Bool"
       },
       {

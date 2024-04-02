@@ -23,8 +23,8 @@ use models::{
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     pages::Page,
-    peer_review_configs::PeerReviewConfig,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_configs::PeerOrSelfReviewConfig,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -865,7 +865,7 @@ async fn get_course_default_peer_review(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<(PeerReviewConfig, Vec<PeerReviewQuestion>)>> {
+) -> ControllerResult<web::Json<(PeerOrSelfReviewConfig, Vec<PeerOrSelfReviewQuestion>)>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -875,13 +875,17 @@ async fn get_course_default_peer_review(
     )
     .await?;
 
-    let peer_review =
-        models::peer_review_configs::get_default_for_course_by_course_id(&mut conn, *course_id)
-            .await?;
-    let peer_review_questions =
-        models::peer_review_questions::get_all_by_peer_review_config_id(&mut conn, peer_review.id)
-            .await?;
-    token.authorized_ok(web::Json((peer_review, peer_review_questions)))
+    let peer_review = models::peer_or_self_review_configs::get_default_for_course_by_course_id(
+        &mut conn, *course_id,
+    )
+    .await?;
+    let peer_or_self_review_questions =
+        models::peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id(
+            &mut conn,
+            peer_review.id,
+        )
+        .await?;
+    token.authorized_ok(web::Json((peer_review, peer_or_self_review_questions)))
 }
 
 /**

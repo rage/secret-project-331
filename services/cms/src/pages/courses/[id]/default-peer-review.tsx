@@ -7,13 +7,13 @@ import { ExerciseAttributes } from "../../../blocks/Exercise"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
 import {
-  getCoursesDefaultCmsPeerReviewConfiguration,
-  putCoursesDefaultCmsPeerReviewConfiguration,
+  getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
+  putCoursesDefaultCmsPeerOrSelfReviewConfiguration,
 } from "../../../services/backend/courses"
 import {
-  CmsPeerReviewConfig,
-  CmsPeerReviewConfiguration,
-  CmsPeerReviewQuestion,
+  CmsPeerOrSelfReviewConfig,
+  CmsPeerOrSelfReviewConfiguration,
+  CmsPeerOrSelfReviewQuestion,
 } from "../../../shared-module/bindings"
 import Button from "../../../shared-module/components/Button"
 import ErrorBanner from "../../../shared-module/components/ErrorBanner"
@@ -23,7 +23,7 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
-import { makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerReviewConfig"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -35,46 +35,48 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 }) => {
   const { t } = useTranslation()
   const [attributes, setAttributes] = useState<Partial<Readonly<ExerciseAttributes>>>({
-    peer_review_config: "{}",
-    peer_review_questions_config: "[]",
+    peer_or_self_review_config: "{}",
+    peer_or_self_review_questions_config: "[]",
     needs_peer_review: true,
     use_course_default_peer_review: false,
   })
 
   const { id } = query
 
-  const peerReviewConfigurationQuery = useQuery({
+  const peerOrSelfReviewConfigurationQuery = useQuery({
     queryKey: [`course-${id}-cms-peer-review-configuration`],
-    queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(id),
+    queryFn: () => getCoursesDefaultCmsPeerOrSelfReviewConfiguration(id),
   })
 
   useEffect(() => {
-    if (!peerReviewConfigurationQuery.data) {
+    if (!peerOrSelfReviewConfigurationQuery.data) {
       return
     }
     setAttributes({
-      peer_review_config: JSON.stringify(peerReviewConfigurationQuery.data.peer_review_config),
-      peer_review_questions_config: JSON.stringify(
-        peerReviewConfigurationQuery.data.peer_review_questions,
+      peer_or_self_review_config: JSON.stringify(
+        peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config,
+      ),
+      peer_or_self_review_questions_config: JSON.stringify(
+        peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_questions,
       ),
       needs_peer_review: true,
       use_course_default_peer_review: false,
     })
-  }, [peerReviewConfigurationQuery.data])
+  }, [peerOrSelfReviewConfigurationQuery.data])
 
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
       {
-        let prc: CmsPeerReviewConfig = JSON.parse(attributes.peer_review_config ?? "{}")
-        prc = makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(prc)
-        const prq: CmsPeerReviewQuestion[] = JSON.parse(
-          attributes.peer_review_questions_config ?? "[]",
+        let prc: CmsPeerOrSelfReviewConfig = JSON.parse(attributes.peer_or_self_review_config ?? "{}")
+        prc = makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(prc)
+        const prq: CmsPeerOrSelfReviewQuestion[] = JSON.parse(
+          attributes.peer_or_self_review_questions_config ?? "[]",
         )
-        const configuration: CmsPeerReviewConfiguration = {
-          peer_review_config: prc,
-          peer_review_questions: prq,
+        const configuration: CmsPeerOrSelfReviewConfiguration = {
+          peer_or_self_review_config: prc,
+          peer_or_self_review_questions: prq,
         }
-        return putCoursesDefaultCmsPeerReviewConfiguration(id, configuration)
+        return putCoursesDefaultCmsPeerOrSelfReviewConfiguration(id, configuration)
       }
     },
     {
@@ -84,34 +86,36 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       successMessage: t("default-toast-success-message"),
     },
 
-    { onSuccess: () => peerReviewConfigurationQuery.refetch() },
+    { onSuccess: () => peerOrSelfReviewConfigurationQuery.refetch() },
   )
 
   const parsedAdditionalInstructions: BlockInstance[] = useMemo(() => {
-    const parsedConfig = JSON.parse(attributes.peer_review_config ?? "{}") as CmsPeerReviewConfig
+    const parsedConfig = JSON.parse(
+      attributes.peer_or_self_review_config ?? "{}",
+    ) as CmsPeerOrSelfReviewConfig
     const additionalInstructions = parsedConfig?.review_instructions
     if (isBlockInstanceArray(additionalInstructions)) {
       return additionalInstructions
     }
     return []
-  }, [attributes.peer_review_config])
+  }, [attributes.peer_or_self_review_config])
 
   const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
     setAttributes((prev) => {
-      const newConfig = JSON.parse(prev.peer_review_config ?? "{}") as CmsPeerReviewConfig
+      const newConfig = JSON.parse(prev.peer_or_self_review_config ?? "{}") as CmsPeerOrSelfReviewConfig
       newConfig.review_instructions = newValue
       return {
         ...prev,
-        peer_review_config: JSON.stringify(newConfig),
+        peer_or_self_review_config: JSON.stringify(newConfig),
       }
     })
   }, [])
 
-  if (peerReviewConfigurationQuery.isError) {
-    return <ErrorBanner error={peerReviewConfigurationQuery.error} variant="text" />
+  if (peerOrSelfReviewConfigurationQuery.isError) {
+    return <ErrorBanner error={peerOrSelfReviewConfigurationQuery.error} variant="text" />
   }
 
-  if (peerReviewConfigurationQuery.isPending) {
+  if (peerOrSelfReviewConfigurationQuery.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -120,13 +124,13 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       <PeerReviewEditor
         attributes={attributes}
         setAttributes={setAttributes}
-        courseId={peerReviewConfigurationQuery.data.peer_review_config.course_id}
+        courseId={peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config.course_id}
         courseGlobalEditor={true}
         instructionsEditor={
           <PeerReviewAdditionalInstructionsEditor
             content={parsedAdditionalInstructions}
             setContent={updateAdditionalInstructions}
-            courseId={peerReviewConfigurationQuery.data.peer_review_config.course_id}
+            courseId={peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config.course_id}
           />
         }
       />

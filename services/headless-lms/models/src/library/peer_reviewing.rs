@@ -11,11 +11,11 @@ use crate::{
     exercise_task_submissions,
     exercise_tasks::CourseMaterialExerciseTask,
     exercises::Exercise,
-    peer_review_configs::{self, PeerReviewConfig},
-    peer_review_question_submissions,
-    peer_review_questions::{self, PeerReviewQuestion},
+    peer_or_self_review_configs::{self, PeerOrSelfReviewConfig},
+    peer_or_self_review_question_submissions,
+    peer_or_self_review_questions::{self, PeerOrSelfReviewQuestion},
+    peer_or_self_review_submissions,
     peer_review_queue_entries::{self, PeerReviewQueueEntry},
-    peer_review_submissions,
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
 };
@@ -50,17 +50,17 @@ pub async fn start_peer_review_for_user(
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseMaterialPeerReviewSubmission {
+pub struct CourseMaterialPeerOrSelfReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
-    pub peer_review_config_id: Uuid,
-    pub peer_review_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
+    pub peer_or_self_review_config_id: Uuid,
+    pub peer_review_question_answers: Vec<CourseMaterialPeerOrSelfReviewQuestionAnswer>,
     pub token: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseMaterialPeerReviewQuestionAnswer {
-    pub peer_review_question_id: Uuid,
+pub struct CourseMaterialPeerOrSelfReviewQuestionAnswer {
+    pub peer_or_self_review_question_id: Uuid,
     pub text_data: Option<String>,
     pub number_data: Option<f32>,
 }
@@ -69,24 +69,27 @@ pub async fn create_peer_review_submission_for_user(
     conn: &mut PgConnection,
     exercise: &Exercise,
     giver_exercise_state: UserExerciseState,
-    peer_review_submission: CourseMaterialPeerReviewSubmission,
+    peer_review_submission: CourseMaterialPeerOrSelfReviewSubmission,
 ) -> ModelResult<UserExerciseState> {
-    let peer_review = peer_review_configs::get_by_exercise_or_course_id(
+    let peer_review = peer_or_self_review_configs::get_by_exercise_or_course_id(
         conn,
         exercise,
         exercise.get_course_id()?,
     )
     .await?;
     let sanitized_answers = validate_and_sanitize_peer_review_submission_answers(
-        peer_review_questions::get_all_by_peer_review_config_id_as_map(conn, peer_review.id)
-            .await?,
+        peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id_as_map(
+            conn,
+            peer_review.id,
+        )
+        .await?,
         peer_review_submission.peer_review_question_answers,
     )?;
 
     let mut tx = conn.begin().await?;
 
     let peer_reviews_given_before_this_review: i32 =
-        peer_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
+        peer_or_self_review_submissions::get_users_submission_count_for_exercise_and_course_instance(
             &mut tx,
             giver_exercise_state.user_id,
             giver_exercise_state.exercise_id,
@@ -112,7 +115,7 @@ pub async fn create_peer_review_submission_for_user(
     if peer_reviews_given > suspicious_amount_of_peer_reviews {
         // This is purposefully getting submission time to any peer reviewed exercise to prevent the user from spamming multiple exercises at the same time.
         let last_submission_time =
-            peer_review_submissions::get_last_time_user_submitted_peer_review(
+            peer_or_self_review_submissions::get_last_time_user_submitted_peer_review(
                 &mut tx,
                 giver_exercise_state.user_id,
                 giver_exercise_state.exercise_id,
@@ -133,7 +136,7 @@ pub async fn create_peer_review_submission_for_user(
             }
         }
     }
-    let peer_review_submission_id = peer_review_submissions::insert(
+    let peer_or_self_review_submission_id = peer_or_self_review_submissions::insert(
         &mut tx,
         PKeyPolicy::Generate,
         giver_exercise_state.user_id,
@@ -144,11 +147,11 @@ pub async fn create_peer_review_submission_for_user(
     )
     .await?;
     for answer in sanitized_answers {
-        peer_review_question_submissions::insert(
+        peer_or_self_review_question_submissions::insert(
             &mut tx,
             PKeyPolicy::Generate,
-            answer.peer_review_question_id,
-            peer_review_submission_id,
+            answer.peer_or_self_review_question_id,
+            peer_or_self_review_submission_id,
             answer.text_data,
             answer.number_data,
         )
@@ -205,18 +208,18 @@ pub async fn create_peer_review_submission_for_user(
 
 /// Filters submitted peer review answers to those that are part of the peer review.
 fn validate_and_sanitize_peer_review_submission_answers(
-    mut peer_review_questions: HashMap<Uuid, PeerReviewQuestion>,
-    peer_review_submission_question_answers: Vec<CourseMaterialPeerReviewQuestionAnswer>,
-) -> ModelResult<Vec<CourseMaterialPeerReviewQuestionAnswer>> {
+    mut peer_or_self_review_questions: HashMap<Uuid, PeerOrSelfReviewQuestion>,
+    peer_review_submission_question_answers: Vec<CourseMaterialPeerOrSelfReviewQuestionAnswer>,
+) -> ModelResult<Vec<CourseMaterialPeerOrSelfReviewQuestionAnswer>> {
     let valid_peer_review_question_answers = peer_review_submission_question_answers
         .into_iter()
         .filter(|answer| {
-            peer_review_questions
-                .remove(&answer.peer_review_question_id)
+            peer_or_self_review_questions
+                .remove(&answer.peer_or_self_review_question_id)
                 .is_some()
         })
         .collect();
-    if peer_review_questions
+    if peer_or_self_review_questions
         .into_iter()
         .all(|question| !question.1.answer_required)
     {
@@ -237,7 +240,7 @@ async fn update_peer_review_giver_exercise_progress(
     exercise: &Exercise,
     user_exercise_state: UserExerciseState,
     peer_reviews_given: i32,
-    peer_review: PeerReviewConfig,
+    peer_review: PeerOrSelfReviewConfig,
 ) -> ModelResult<UserExerciseState> {
     let users_latest_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
@@ -247,7 +250,7 @@ async fn update_peer_review_giver_exercise_progress(
         )
         .await?;
     let peer_reviews_received: i32 =
-        peer_review_submissions::count_peer_review_submissions_for_exercise_slide_submission(
+        peer_or_self_review_submissions::count_peer_or_self_review_submissions_for_exercise_slide_submission(
             conn,
             users_latest_submission.id,
         )
@@ -263,7 +266,7 @@ async fn update_peer_review_giver_exercise_progress(
         peer_reviews_received >= peer_review.peer_reviews_to_receive,
     )
     .await?;
-    let received_peer_review_question_submissions = crate::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, users_latest_submission.id).await?;
+    let received_peer_or_self_review_question_submissions = crate::peer_or_self_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, users_latest_submission.id).await?;
     let updated_user_exercise_state =
         user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data(
             conn,
@@ -273,8 +276,8 @@ async fn update_peer_review_giver_exercise_progress(
                 exercise: Some(exercise.clone()),
                 peer_or_self_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
                     peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
-                    latest_exercise_slide_submission_received_peer_review_question_submissions:
-                        Some(received_peer_review_question_submissions),
+                    latest_exercise_slide_submission_received_peer_or_self_review_question_submissions:
+                        Some(received_peer_or_self_review_question_submissions),
                     latest_exercise_slide_submission: Some(users_latest_submission),
                     ..Default::default()
                 }),
@@ -289,11 +292,11 @@ async fn update_peer_review_giver_exercise_progress(
 async fn update_peer_review_receiver_exercise_status(
     conn: &mut PgConnection,
     exercise: &Exercise,
-    peer_review: &PeerReviewConfig,
+    peer_review: &PeerOrSelfReviewConfig,
     peer_review_queue_entry: PeerReviewQueueEntry,
 ) -> ModelResult<()> {
     let peer_reviews_received =
-        peer_review_submissions::count_peer_review_submissions_for_exercise_slide_submission(
+        peer_or_self_review_submissions::count_peer_or_self_review_submissions_for_exercise_slide_submission(
             conn,
             peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id,
         )
@@ -315,7 +318,7 @@ async fn update_peer_review_receiver_exercise_status(
         )
         .await?;
         if let Some(user_exercise_state) = user_exercise_state {
-            let received_peer_review_question_submissions = crate::peer_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id).await?;
+            let received_peer_or_self_review_question_submissions = crate::peer_or_self_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, peer_review_queue_entry.receiving_peer_reviews_exercise_slide_submission_id).await?;
             let _updated_user_exercise_state =
             user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data(
                 conn,
@@ -325,8 +328,8 @@ async fn update_peer_review_receiver_exercise_status(
                     exercise: Some(exercise.clone()),
                     peer_or_self_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
                         peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
-                        latest_exercise_slide_submission_received_peer_review_question_submissions:
-                            Some(received_peer_review_question_submissions),
+                        latest_exercise_slide_submission_received_peer_or_self_review_question_submissions:
+                            Some(received_peer_or_self_review_question_submissions),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -343,8 +346,8 @@ async fn update_peer_review_receiver_exercise_status(
 pub struct CourseMaterialPeerOrSelfReviewData {
     /// If none, no answer was available for review.
     pub answer_to_review: Option<CourseMaterialPeerOrSelfReviewDataAnswerToReview>,
-    pub peer_review_config: PeerReviewConfig,
-    pub peer_review_questions: Vec<PeerReviewQuestion>,
+    pub peer_or_self_review_config: PeerOrSelfReviewConfig,
+    pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
     #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
     pub num_peer_reviews_given: i64,
 }
@@ -369,7 +372,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     reviewer_user_exercise_state: &UserExerciseState,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
-    let peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
+    let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
         conn,
         exercise,
         exercise.get_course_id()?,
@@ -381,7 +384,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     if let Some(saved_exercise_slide_submission_to_review) = crate::offered_answers_to_peer_review_temporary::try_to_restore_previously_given_exercise_slide_submission(&mut *conn, exercise.id, reviewer_user_exercise_state.user_id, course_instance_id).await? {
         let data = get_course_material_peer_or_self_review_data(
             conn,
-            &peer_review_config,
+            &peer_or_self_review_config,
             &Some(saved_exercise_slide_submission_to_review),
             reviewer_user_exercise_state.user_id,
             course_instance_id,
@@ -394,7 +397,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     }
 
     let excluded_exercise_slide_submission_ids =
-        peer_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
+        peer_or_self_review_submissions::get_users_submission_ids_for_exercise_and_course_instance(
             conn,
             reviewer_user_exercise_state.user_id,
             reviewer_user_exercise_state.exercise_id,
@@ -434,7 +437,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
     };
     let data = get_course_material_peer_or_self_review_data(
         conn,
-        &peer_review_config,
+        &peer_or_self_review_config,
         &exercise_slide_submission_to_review,
         reviewer_user_exercise_state.user_id,
         course_instance_id,
@@ -453,7 +456,7 @@ pub async fn select_own_submission_for_self_review(
     reviewer_user_exercise_state: &UserExerciseState,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
-    let peer_review_config = peer_review_configs::get_by_exercise_or_course_id(
+    let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
         conn,
         exercise,
         exercise.get_course_id()?,
@@ -469,7 +472,7 @@ pub async fn select_own_submission_for_self_review(
         .await?;
     let data = get_course_material_peer_or_self_review_data(
         conn,
-        &peer_review_config,
+        &peer_or_self_review_config,
         &Some(exercise_slide_submission),
         reviewer_user_exercise_state.user_id,
         course_instance_id,
@@ -561,18 +564,21 @@ async fn try_to_select_peer_review_candidate_from_queue_impl(
 
 async fn get_course_material_peer_or_self_review_data(
     conn: &mut PgConnection,
-    peer_review_config: &PeerReviewConfig,
+    peer_or_self_review_config: &PeerOrSelfReviewConfig,
     exercise_slide_submission: &Option<ExerciseSlideSubmission>,
     reviewer_user_id: Uuid,
     reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
-    let peer_review_questions =
-        peer_review_questions::get_all_by_peer_review_config_id(conn, peer_review_config.id)
-            .await?;
+    let peer_or_self_review_questions =
+        peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id(
+            conn,
+            peer_or_self_review_config.id,
+        )
+        .await?;
     let num_peer_reviews_given =
-        peer_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
+        peer_or_self_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
             conn,
             reviewer_user_id,
             reviewer_course_instance_id,
@@ -599,8 +605,8 @@ async fn get_course_material_peer_or_self_review_data(
 
     Ok(CourseMaterialPeerOrSelfReviewData {
         answer_to_review,
-        peer_review_config: peer_review_config.clone(),
-        peer_review_questions,
+        peer_or_self_review_config: peer_or_self_review_config.clone(),
+        peer_or_self_review_questions,
         num_peer_reviews_given,
     })
 }
@@ -619,9 +625,10 @@ pub async fn update_peer_review_queue_reviews_received(
         .collect::<Vec<_>>();
     for exercise in exercises {
         info!("Processing exercise {:?}", exercise.id);
-        let peer_review_config =
-            peer_review_configs::get_by_exercise_or_course_id(&mut tx, &exercise, course_id)
-                .await?;
+        let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
+            &mut tx, &exercise, course_id,
+        )
+        .await?;
         let peer_review_queue_entries =
             crate::peer_review_queue_entries::get_all_that_need_peer_reviews_by_exercise_id(
                 &mut tx,
@@ -636,7 +643,7 @@ pub async fn update_peer_review_queue_reviews_received(
             update_peer_review_receiver_exercise_status(
                 &mut tx,
                 &exercise,
-                &peer_review_config,
+                &peer_or_self_review_config,
                 peer_review_queue_entry,
             )
             .await?;
@@ -651,21 +658,22 @@ pub async fn update_peer_review_queue_reviews_received(
 mod tests {
     use super::*;
 
-    mod validate_peer_review_submissions_answers {
+    mod validate_peer_or_self_review_submissions_answers {
         use chrono::TimeZone;
 
-        use crate::peer_review_questions::PeerReviewQuestionType;
+        use crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType;
 
         use super::*;
 
         #[test]
         fn accepts_valid_answers() {
-            let peer_review_config_id =
+            let peer_or_self_review_config_id =
                 Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let question_id = Uuid::parse_str("68d5cda3-6ad8-464b-9af1-bd1692fcbee1").unwrap();
             let questions = HashMap::from([(
                 question_id,
-                create_peer_review_question(question_id, peer_review_config_id, true).unwrap(),
+                create_peer_review_question(question_id, peer_or_self_review_config_id, true)
+                    .unwrap(),
             )]);
             let answers = vec![create_peer_review_answer(question_id)];
             assert_eq!(
@@ -678,10 +686,10 @@ mod tests {
 
         #[test]
         fn filters_illegal_answers() {
-            let peer_review_config_id =
+            let peer_or_self_review_config_id =
                 Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let questions = HashMap::new();
-            let answers = vec![create_peer_review_answer(peer_review_config_id)];
+            let answers = vec![create_peer_review_answer(peer_or_self_review_config_id)];
             assert_eq!(
                 validate_and_sanitize_peer_review_submission_answers(questions, answers)
                     .unwrap()
@@ -692,12 +700,13 @@ mod tests {
 
         #[test]
         fn errors_on_missing_required_answers() {
-            let peer_review_config_id =
+            let peer_or_self_review_config_id =
                 Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let question_id = Uuid::parse_str("68d5cda3-6ad8-464b-9af1-bd1692fcbee1").unwrap();
             let questions = HashMap::from([(
                 question_id,
-                create_peer_review_question(question_id, peer_review_config_id, true).unwrap(),
+                create_peer_review_question(question_id, peer_or_self_review_config_id, true)
+                    .unwrap(),
             )]);
             assert!(
                 validate_and_sanitize_peer_review_submission_answers(questions, vec![]).is_err()
@@ -706,28 +715,28 @@ mod tests {
 
         fn create_peer_review_question(
             id: Uuid,
-            peer_review_config_id: Uuid,
+            peer_or_self_review_config_id: Uuid,
             answer_required: bool,
-        ) -> ModelResult<PeerReviewQuestion> {
-            Ok(PeerReviewQuestion {
+        ) -> ModelResult<PeerOrSelfReviewQuestion> {
+            Ok(PeerOrSelfReviewQuestion {
                 id,
                 created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 deleted_at: None,
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: 0,
                 question: "".to_string(),
-                question_type: PeerReviewQuestionType::Essay,
+                question_type: PeerOrSelfReviewQuestionType::Essay,
                 answer_required,
                 weight: 0.0,
             })
         }
 
         fn create_peer_review_answer(
-            peer_review_question_id: Uuid,
-        ) -> CourseMaterialPeerReviewQuestionAnswer {
-            CourseMaterialPeerReviewQuestionAnswer {
-                peer_review_question_id,
+            peer_or_self_review_question_id: Uuid,
+        ) -> CourseMaterialPeerOrSelfReviewQuestionAnswer {
+            CourseMaterialPeerOrSelfReviewQuestionAnswer {
+                peer_or_self_review_question_id,
                 text_data: Some("".to_string()),
                 number_data: None,
             }

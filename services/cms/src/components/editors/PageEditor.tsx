@@ -29,7 +29,7 @@ import { pageRoute } from "../../shared-module/utils/routes"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
-import { makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerReviewConfig"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
@@ -94,10 +94,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     })
     // Make sure peer review configs are valid
     for (const exercise of dataToSave.exercises) {
-      if (exercise.peer_review_config) {
-        exercise.peer_review_config =
-          makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(
-            exercise.peer_review_config,
+      if (exercise.peer_or_self_review_config) {
+        exercise.peer_or_self_review_config =
+          makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(
+            exercise.peer_or_self_review_config,
           )
       }
     }

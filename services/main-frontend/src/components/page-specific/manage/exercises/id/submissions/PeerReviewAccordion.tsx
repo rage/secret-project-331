@@ -91,7 +91,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
           `}
         >
           {peerReviews.map((peerReview, i) => (
-            <div key={peerReview.peer_review_submission_id}>
+            <div key={peerReview.peer_or_self_review_submission_id}>
               <h5
                 className={css`
                   border-bottom: 1px solid ${baseTheme.colors.clear[600]};
@@ -102,7 +102,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
               </h5>
               {peerReview.questions_and_answers.map((x, i) => (
                 <div
-                  key={x.peer_review_question_id}
+                  key={x.peer_or_self_review_question_id}
                   className={css`
                     margin: 2rem 1.5rem 0rem;
                   `}

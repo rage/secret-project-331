@@ -11,7 +11,7 @@ import {
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
-  CmsPeerReviewConfig,
+  CmsPeerOrSelfReviewConfig,
 } from "../shared-module/bindings"
 
 /**
@@ -53,11 +53,11 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     }
     const originalExerciseBlock = block as BlockInstance<ExerciseAttributes>
     const exerciseAttributes = block.attributes as ExerciseAttributes
-    const peerReviewConfig =
-      exerciseAttributes.peer_review_config === "null" ||
-      exerciseAttributes.peer_review_config === null
+    const peerOrSelfReviewConfig =
+      exerciseAttributes.peer_or_self_review_config === "null" ||
+      exerciseAttributes.peer_or_self_review_config === null
         ? null
-        : (JSON.parse(exerciseAttributes.peer_review_config) as CmsPeerReviewConfig)
+        : (JSON.parse(exerciseAttributes.peer_or_self_review_config) as CmsPeerOrSelfReviewConfig)
 
     const execiseSettingsBlock = block.innerBlocks.find(
       (block2) => block2.name === "moocfi/exercise-settings",
@@ -67,8 +67,8 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
         "Exercise block is missing the settings block. It should not be possible to remove that one.",
       )
     }
-    if (peerReviewConfig) {
-      peerReviewConfig.review_instructions = execiseSettingsBlock.innerBlocks
+    if (peerOrSelfReviewConfig) {
+      peerOrSelfReviewConfig.review_instructions = execiseSettingsBlock.innerBlocks
     }
 
     exercises.push({
@@ -81,13 +81,14 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       deadline: null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
       needs_self_review: exerciseAttributes.needs_self_review,
-      peer_review_config: peerReviewConfig,
-      peer_review_questions:
-        exerciseAttributes.peer_review_questions_config === "null" ||
-        exerciseAttributes.peer_review_config === null
+      peer_or_self_review_config: peerOrSelfReviewConfig,
+      peer_or_self_review_questions:
+        exerciseAttributes.peer_or_self_review_questions_config === "null" ||
+        exerciseAttributes.peer_or_self_review_config === null
           ? null
-          : JSON.parse(exerciseAttributes.peer_review_questions_config),
-      use_course_default_peer_review_config: exerciseAttributes.use_course_default_peer_review,
+          : JSON.parse(exerciseAttributes.peer_or_self_review_questions_config),
+      use_course_default_peer_or_self_review_config:
+        exerciseAttributes.use_course_default_peer_review,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
@@ -213,7 +214,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     })
 
     const settingsInnerBlocks =
-      (exercise.peer_review_config?.review_instructions as BlockInstance[]) ?? []
+      (exercise.peer_or_self_review_config?.review_instructions as BlockInstance[]) ?? []
 
     const exerciseBlock: BlockInstance<ExerciseAttributes> = {
       ...normalizedBlock,
@@ -243,15 +244,15 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
         needs_self_review: exercise.needs_self_review,
-        peer_review_config:
-          exercise.needs_peer_review && !exercise.use_course_default_peer_review_config
-            ? JSON.stringify(exercise.peer_review_config)
+        peer_or_self_review_config:
+          exercise.needs_peer_review && !exercise.use_course_default_peer_or_self_review_config
+            ? JSON.stringify(exercise.peer_or_self_review_config)
             : "null",
-        peer_review_questions_config:
-          exercise.needs_peer_review && !exercise.use_course_default_peer_review_config
-            ? JSON.stringify(exercise.peer_review_questions)
+        peer_or_self_review_questions_config:
+          exercise.needs_peer_review && !exercise.use_course_default_peer_or_self_review_config
+            ? JSON.stringify(exercise.peer_or_self_review_questions)
             : "null",
-        use_course_default_peer_review: exercise.use_course_default_peer_review_config,
+        use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,
       },
     }
 

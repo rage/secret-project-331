@@ -10,11 +10,11 @@ use crate::{
     },
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_tasks,
-    peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
-    peer_review_submissions::PeerReviewSubmission,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
@@ -44,7 +44,7 @@ pub struct Exercise {
     pub limit_number_of_tries: bool,
     pub needs_peer_review: bool,
     pub needs_self_review: bool,
-    pub use_course_default_peer_review_config: bool,
+    pub use_course_default_peer_or_self_review_config: bool,
     pub exercise_language_group_id: Option<Uuid>,
 }
 
@@ -78,13 +78,13 @@ pub struct ExerciseStatusSummaryForUser {
     pub exercise: Exercise,
     pub user_exercise_state: Option<UserExerciseState>,
     pub exercise_slide_submissions: Vec<ExerciseSlideSubmission>,
-    pub given_peer_review_submissions: Vec<PeerReviewSubmission>,
-    pub given_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
-    pub received_peer_review_submissions: Vec<PeerReviewSubmission>,
-    pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub given_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub given_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
+    pub received_peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub received_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
     pub peer_review_queue_entry: Option<PeerReviewQueueEntry>,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
-    pub peer_review_questions: Vec<PeerReviewQuestion>,
+    pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -97,7 +97,7 @@ pub struct CourseMaterialExercise {
     pub exercise_status: Option<ExerciseStatus>,
     #[cfg_attr(feature = "ts_rs", ts(type = "Record<string, number>"))]
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
-    pub peer_review_config: Option<CourseMaterialPeerReviewConfig>,
+    pub peer_or_self_review_config: Option<CourseMaterialPeerOrSelfReviewConfig>,
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
     pub user_course_instance_exercise_service_variables:
         Vec<UserCourseInstanceExerciseServiceVariable>,
@@ -475,22 +475,25 @@ pub async fn get_course_material_exercise(
         HashMap::new()
     };
 
-    let peer_review_config = match (exercise.needs_peer_review, exercise.course_id) {
-        (true, Some(course_id)) => {
-            let prc = crate::peer_review_configs::get_by_exercise_or_course_id(
+    let peer_or_self_review_config = if let Some(course_id) = exercise.course_id {
+        if exercise.needs_peer_review || exercise.needs_self_review {
+            let prc = crate::peer_or_self_review_configs::get_by_exercise_or_course_id(
                 conn, &exercise, course_id,
             )
             .await
             .optional()?;
-            prc.map(|prc| CourseMaterialPeerReviewConfig {
+            prc.map(|prc| CourseMaterialPeerOrSelfReviewConfig {
                 id: prc.id,
                 course_id: prc.course_id,
                 exercise_id: prc.exercise_id,
                 peer_reviews_to_give: prc.peer_reviews_to_give,
                 peer_reviews_to_receive: prc.peer_reviews_to_receive,
             })
+        } else {
+            None
         }
-        _ => None,
+    } else {
+        None
     };
 
     let user_course_instance_exercise_service_variables = match (user_id, instance_or_exam_id) {
@@ -506,7 +509,7 @@ pub async fn get_course_material_exercise(
         current_exercise_slide,
         exercise_status,
         exercise_slide_submission_counts,
-        peer_review_config,
+        peer_or_self_review_config,
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
     })
@@ -717,21 +720,21 @@ RETURNING id;
     Ok(deleted_ids)
 }
 
-pub async fn set_exercise_to_use_exercise_specific_peer_review_config(
+pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     needs_peer_review: bool,
-    use_course_default_peer_review_config: bool,
+    use_course_default_peer_or_self_review_config: bool,
 ) -> ModelResult<Uuid> {
     let id = sqlx::query!(
         "
 UPDATE exercises
-SET use_course_default_peer_review_config = $1,
+SET use_course_default_peer_or_self_review_config = $1,
   needs_peer_review = $2
 WHERE id = $3
 RETURNING id;
         ",
-        use_course_default_peer_review_config,
+        use_course_default_peer_or_self_review_config,
         needs_peer_review,
         exercise_id
     )
@@ -770,32 +773,32 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
         .await?
         .into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    let mut given_peer_review_submissions = crate::peer_review_submissions::get_all_given_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
+    let mut given_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    let mut received_peer_review_submissions = crate::peer_review_submissions::get_all_received_peer_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
+    let mut received_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    let given_peer_review_submission_ids = given_peer_review_submissions
+    let given_peer_or_self_review_submission_ids = given_peer_or_self_review_submissions
         .values()
         .flatten()
         .map(|x| x.id)
         .collect::<Vec<_>>();
-    let mut given_peer_review_question_submissions = crate::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, &given_peer_review_submission_ids).await?
+    let mut given_peer_or_self_review_question_submissions = crate::peer_or_self_review_question_submissions::get_question_submissions_from_from_peer_or_self_review_submission_ids(&mut *conn, &given_peer_or_self_review_submission_ids).await?
         .into_iter()
         .into_group_map_by(|o| {
-            let peer_review_submission = given_peer_review_submissions.clone().into_iter()
-                .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+            let peer_review_submission = given_peer_or_self_review_submissions.clone().into_iter()
+                .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_or_self_review_submission_id))
                 .unwrap_or_else(|| (Uuid::nil(), vec![]));
             peer_review_submission.0
     });
-    let received_peer_review_submission_ids = received_peer_review_submissions
+    let received_peer_or_self_review_submission_ids = received_peer_or_self_review_submissions
         .values()
         .flatten()
         .map(|x| x.id)
         .collect::<Vec<_>>();
-    let mut received_peer_review_question_submissions = crate::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(&mut *conn, &received_peer_review_submission_ids).await?.into_iter()
+    let mut received_peer_or_self_review_question_submissions = crate::peer_or_self_review_question_submissions::get_question_submissions_from_from_peer_or_self_review_submission_ids(&mut *conn, &received_peer_or_self_review_submission_ids).await?.into_iter()
     .into_group_map_by(|o| {
-        let peer_review_submission = received_peer_review_submissions.clone().into_iter()
-            .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+        let peer_review_submission = received_peer_or_self_review_submissions.clone().into_iter()
+            .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_or_self_review_submission_id))
             .unwrap_or_else(|| (Uuid::nil(), vec![]));
         peer_review_submission.0
     });
@@ -815,13 +818,16 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
             .find(|(_exercise_id, ues)|  ues.id == tgd.user_exercise_state_id)?;
         Some((user_exercise_state.0, tgd))
     }).collect::<HashMap<_, _>>();
-    let all_peer_review_question_ids = given_peer_review_question_submissions
+    let all_peer_or_self_review_question_ids = given_peer_or_self_review_question_submissions
         .iter()
-        .chain(received_peer_review_question_submissions.iter())
-        .flat_map(|(_exercise_id, prqs)| prqs.iter().map(|p| p.peer_review_question_id))
+        .chain(received_peer_or_self_review_question_submissions.iter())
+        .flat_map(|(_exercise_id, prqs)| prqs.iter().map(|p| p.peer_or_self_review_question_id))
         .collect::<Vec<_>>();
-    let all_peer_review_questions =
-        crate::peer_review_questions::get_by_ids(&mut *conn, &all_peer_review_question_ids).await?;
+    let all_peer_or_self_review_questions = crate::peer_or_self_review_questions::get_by_ids(
+        &mut *conn,
+        &all_peer_or_self_review_question_ids,
+    )
+    .await?;
 
     // Map all the data for all the exercises to be summaries of the data for each exercise.
     //
@@ -835,43 +841,44 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
             let exercise_slide_submissions = exercise_slide_submissions
                 .remove(&exercise.id)
                 .unwrap_or_default();
-            let given_peer_review_submissions = given_peer_review_submissions
+            let given_peer_or_self_review_submissions = given_peer_or_self_review_submissions
                 .remove(&exercise.id)
                 .unwrap_or_default();
-            let received_peer_review_submissions = received_peer_review_submissions
+            let received_peer_or_self_review_submissions = received_peer_or_self_review_submissions
                 .remove(&exercise.id)
                 .unwrap_or_default();
-            let given_peer_review_question_submissions = given_peer_review_question_submissions
-                .remove(&exercise.id)
-                .unwrap_or_default();
-            let received_peer_review_question_submissions =
-                received_peer_review_question_submissions
+            let given_peer_or_self_review_question_submissions =
+                given_peer_or_self_review_question_submissions
+                    .remove(&exercise.id)
+                    .unwrap_or_default();
+            let received_peer_or_self_review_question_submissions =
+                received_peer_or_self_review_question_submissions
                     .remove(&exercise.id)
                     .unwrap_or_default();
             let peer_review_queue_entry = peer_review_queue_entries.remove(&exercise.id);
             let teacher_grading_decision = teacher_grading_decisions.remove(&exercise.id);
-            let peer_review_question_ids = given_peer_review_question_submissions
+            let peer_or_self_review_question_ids = given_peer_or_self_review_question_submissions
                 .iter()
-                .chain(received_peer_review_question_submissions.iter())
-                .map(|prqs| prqs.peer_review_question_id)
+                .chain(received_peer_or_self_review_question_submissions.iter())
+                .map(|prqs| prqs.peer_or_self_review_question_id)
                 .unique()
                 .collect::<Vec<_>>();
-            let peer_review_questions = all_peer_review_questions
+            let peer_or_self_review_questions = all_peer_or_self_review_questions
                 .iter()
-                .filter(|prq| peer_review_question_ids.contains(&prq.id))
+                .filter(|prq| peer_or_self_review_question_ids.contains(&prq.id))
                 .cloned()
                 .collect::<Vec<_>>();
             ExerciseStatusSummaryForUser {
                 exercise,
                 user_exercise_state,
                 exercise_slide_submissions,
-                given_peer_review_submissions,
-                received_peer_review_submissions,
-                given_peer_review_question_submissions,
-                received_peer_review_question_submissions,
+                given_peer_or_self_review_submissions,
+                received_peer_or_self_review_submissions,
+                given_peer_or_self_review_question_submissions,
+                received_peer_or_self_review_question_submissions,
                 peer_review_queue_entry,
                 teacher_grading_decision,
-                peer_review_questions,
+                peer_or_self_review_questions,
             }
         })
         .collect::<Vec<_>>();

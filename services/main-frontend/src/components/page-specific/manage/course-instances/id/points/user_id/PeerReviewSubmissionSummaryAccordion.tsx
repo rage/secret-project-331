@@ -4,18 +4,18 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import {
-  PeerReviewQuestion,
-  PeerReviewQuestionSubmission,
-  PeerReviewSubmission,
+  PeerOrSelfReviewQuestion,
+  PeerOrSelfReviewQuestionSubmission,
+  PeerOrSelfReviewSubmission,
 } from "../../../../../../../shared-module/bindings"
 import Accordion from "../../../../../../../shared-module/components/Accordion"
 import HideTextInSystemTests from "../../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "../../../../../../../shared-module/styles"
 
-export interface PeerReviewSubmissionSummaryAccordionProps {
-  peerReviewSubmission: PeerReviewSubmission
-  peerReviewQuestionSubmissions: PeerReviewQuestionSubmission[]
-  peerReviewQuestions: PeerReviewQuestion[]
+export interface PeerOrSelfReviewSubmissionSummaryAccordionProps {
+  peerOrSelfReviewSubmission: PeerOrSelfReviewSubmission
+  peerOrSelfReviewQuestionSubmissions: PeerOrSelfReviewQuestionSubmission[]
+  peerOrSelfReviewQuestions: PeerOrSelfReviewQuestion[]
   showSubmissionBeingReviewed?: boolean
 }
 
@@ -23,12 +23,12 @@ const PeerReviewDiv = styled.div`
   margin-bottom: 0.5rem;
 `
 
-const PeerReviewSubmissionSummaryAccordion = ({
-  peerReviewSubmission,
-  peerReviewQuestionSubmissions,
+const PeerOrSelfReviewSubmissionSummaryAccordion = ({
+  peerOrSelfReviewSubmission,
+  peerOrSelfReviewQuestionSubmissions,
   showSubmissionBeingReviewed,
-  peerReviewQuestions,
-}: PeerReviewSubmissionSummaryAccordionProps) => {
+  peerOrSelfReviewQuestions,
+}: PeerOrSelfReviewSubmissionSummaryAccordionProps) => {
   const { t } = useTranslation()
   return (
     <div
@@ -41,7 +41,7 @@ const PeerReviewSubmissionSummaryAccordion = ({
           <summary>
             {t("peer-review-submission-id")}:{" "}
             <HideTextInSystemTests
-              text={peerReviewSubmission.id}
+              text={peerOrSelfReviewSubmission.id}
               testPlaceholder="00000000-0000-0000-0000-000000000000"
             />
           </summary>
@@ -51,24 +51,24 @@ const PeerReviewSubmissionSummaryAccordion = ({
               <Link
                 href={{
                   pathname: "/submissions/[submissionId]",
-                  query: { submissionId: peerReviewSubmission.exercise_slide_submission_id },
+                  query: { submissionId: peerOrSelfReviewSubmission.exercise_slide_submission_id },
                 }}
               >
                 <HideTextInSystemTests
-                  text={peerReviewSubmission.exercise_slide_submission_id}
+                  text={peerOrSelfReviewSubmission.exercise_slide_submission_id}
                   testPlaceholder="00000000-0000-0000-0000-000000000000"
                 />
               </Link>
             </PeerReviewDiv>
           )}
-          {peerReviewQuestionSubmissions.map((prqs) => {
-            const peerReviewQuestion = peerReviewQuestions.find(
-              (prq) => prq.id === prqs.peer_review_question_id,
+          {peerOrSelfReviewQuestionSubmissions.map((prqs) => {
+            const peerOrSelfReviewQuestion = peerOrSelfReviewQuestions.find(
+              (prq) => prq.id === prqs.peer_or_self_review_question_id,
             )
             return (
               <PeerReviewDiv key={prqs.id}>
                 <p>
-                  {t("question")}: {peerReviewQuestion?.question}{" "}
+                  {t("question")}: {peerOrSelfReviewQuestion?.question}{" "}
                   {prqs.number_data !== null && (
                     <span
                       className={css`
@@ -102,4 +102,4 @@ const PeerReviewSubmissionSummaryAccordion = ({
   )
 }
 
-export default PeerReviewSubmissionSummaryAccordion
+export default PeerOrSelfReviewSubmissionSummaryAccordion

@@ -6,7 +6,7 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import PeerReviewSubmissionSummaryAccordion from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/PeerReviewSubmissionSummaryAccordion"
+import PeerOrSelfReviewSubmissionSummaryAccordion from "../../../../../components/page-specific/manage/course-instances/id/points/user_id/PeerOrSelfReviewSubmissionSummaryAccordion"
 import { useCourseStructure } from "../../../../../hooks/useCourseStructure"
 import {
   getAllCourseModuleCompletionsForUserAndCourseInstance,
@@ -417,31 +417,35 @@ const CourseInstanceExerciseStatusList: React.FC<
                                         </p>
                                       )}
 
-                                      {exerciseStatus.received_peer_review_submissions.length >
-                                      0 ? (
+                                      {exerciseStatus.received_peer_or_self_review_submissions
+                                        .length > 0 ? (
                                         <>
                                           <h3>
                                             {/* eslint-disable-next-line i18next/no-literal-string */}
                                             {t("peer-reviews-received")}: (
-                                            {exerciseStatus.received_peer_review_submissions.length}
+                                            {
+                                              exerciseStatus
+                                                .received_peer_or_self_review_submissions.length
+                                            }
                                             )
                                           </h3>
-                                          {exerciseStatus.received_peer_review_submissions.map(
+                                          {exerciseStatus.received_peer_or_self_review_submissions.map(
                                             (received) => {
-                                              const peerReviewQuestionSubmissions =
-                                                exerciseStatus.received_peer_review_question_submissions.filter(
+                                              const peerOrSelfReviewQuestionSubmissions =
+                                                exerciseStatus.received_peer_or_self_review_question_submissions.filter(
                                                   (prqs) =>
-                                                    prqs.peer_review_submission_id === received.id,
+                                                    prqs.peer_or_self_review_submission_id ===
+                                                    received.id,
                                                 )
                                               return (
-                                                <PeerReviewSubmissionSummaryAccordion
+                                                <PeerOrSelfReviewSubmissionSummaryAccordion
                                                   key={received.id}
-                                                  peerReviewSubmission={received}
-                                                  peerReviewQuestionSubmissions={
-                                                    peerReviewQuestionSubmissions
+                                                  peerOrSelfReviewSubmission={received}
+                                                  peerOrSelfReviewQuestionSubmissions={
+                                                    peerOrSelfReviewQuestionSubmissions
                                                   }
-                                                  peerReviewQuestions={
-                                                    exerciseStatus.peer_review_questions
+                                                  peerOrSelfReviewQuestions={
+                                                    exerciseStatus.peer_or_self_review_questions
                                                   }
                                                   showSubmissionBeingReviewed={
                                                     exerciseStatus.exercise_slide_submissions
@@ -455,31 +459,37 @@ const CourseInstanceExerciseStatusList: React.FC<
                                       ) : (
                                         <h3> {t("no-peer-reviews-received")} </h3>
                                       )}
-                                      {exerciseStatus.given_peer_review_submissions.length > 0 ? (
+                                      {exerciseStatus.given_peer_or_self_review_submissions.length >
+                                      0 ? (
                                         <>
                                           <h3>
                                             {/* eslint-disable-next-line i18next/no-literal-string */}
                                             {t("peer-reviews-given")}: (
-                                            {exerciseStatus.given_peer_review_submissions.length})
+                                            {
+                                              exerciseStatus.given_peer_or_self_review_submissions
+                                                .length
+                                            }
+                                            )
                                           </h3>
 
-                                          {exerciseStatus.given_peer_review_submissions.map(
+                                          {exerciseStatus.given_peer_or_self_review_submissions.map(
                                             (given) => {
-                                              const peerReviewQuestionSubmissions =
-                                                exerciseStatus.given_peer_review_question_submissions.filter(
+                                              const peerOrSelfReviewQuestionSubmissions =
+                                                exerciseStatus.given_peer_or_self_review_question_submissions.filter(
                                                   (prqs) =>
-                                                    prqs.peer_review_submission_id === given.id,
+                                                    prqs.peer_or_self_review_submission_id ===
+                                                    given.id,
                                                 )
                                               return (
-                                                <PeerReviewSubmissionSummaryAccordion
+                                                <PeerOrSelfReviewSubmissionSummaryAccordion
                                                   key={given.id}
-                                                  peerReviewSubmission={given}
+                                                  peerOrSelfReviewSubmission={given}
                                                   showSubmissionBeingReviewed
-                                                  peerReviewQuestionSubmissions={
-                                                    peerReviewQuestionSubmissions
+                                                  peerOrSelfReviewQuestionSubmissions={
+                                                    peerOrSelfReviewQuestionSubmissions
                                                   }
-                                                  peerReviewQuestions={
-                                                    exerciseStatus.peer_review_questions
+                                                  peerOrSelfReviewQuestions={
+                                                    exerciseStatus.peer_or_self_review_questions
                                                   }
                                                 />
                                               )

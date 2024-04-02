@@ -12,7 +12,9 @@ use models::{
     exercises::CourseMaterialExercise,
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-        peer_reviewing::{CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerReviewSubmission},
+        peer_reviewing::{
+            CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewSubmission,
+        },
     },
     user_exercise_states,
 };
@@ -97,7 +99,7 @@ async fn get_peer_review_for_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
     let course_material_peer_or_self_review_data =
-        models::peer_review_configs::get_course_material_peer_or_self_review_data(
+        models::peer_or_self_review_configs::get_course_material_peer_or_self_review_data(
             &mut conn,
             user.id,
             *exercise_id,
@@ -117,7 +119,7 @@ async fn get_peer_review_for_exercise(
                 GivePeerReviewClaim::expiring_in_1_day(
                     to_review.exercise_slide_submission_id,
                     course_material_peer_or_self_review_data
-                        .peer_review_config
+                        .peer_or_self_review_config
                         .id,
                 )
                 .sign(&jwt_key),
@@ -243,7 +245,7 @@ async fn start_peer_review(
 async fn submit_peer_review(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-    payload: web::Json<CourseMaterialPeerReviewSubmission>,
+    payload: web::Json<CourseMaterialPeerOrSelfReviewSubmission>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<bool>> {
@@ -253,7 +255,7 @@ async fn submit_peer_review(
     // The validation prevents users from chaging which answer they peer review.
     let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;
     if claim.exercise_slide_submission_id != payload.exercise_slide_submission_id
-        || claim.peer_review_config_id != payload.peer_review_config_id
+        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
     {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,

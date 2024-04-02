@@ -372,18 +372,18 @@ pub fn make_grading_request_sender(
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GivePeerReviewClaim {
     pub exercise_slide_submission_id: Uuid,
-    pub peer_review_config_id: Uuid,
+    pub peer_or_self_review_config_id: Uuid,
     expiration_time: DateTime<Utc>,
 }
 
 impl GivePeerReviewClaim {
     pub fn expiring_in_1_day(
         exercise_slide_submission_id: Uuid,
-        peer_review_config_id: Uuid,
+        peer_or_self_review_config_id: Uuid,
     ) -> Self {
         Self {
             exercise_slide_submission_id,
-            peer_review_config_id,
+            peer_or_self_review_config_id,
             expiration_time: Utc::now() + Duration::days(1),
         }
     }

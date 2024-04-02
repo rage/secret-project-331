@@ -63,7 +63,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       deadline: null,
       needs_peer_review: true,
       needs_self_review: false,
-      peer_review_config: {
+      peer_or_self_review_config: {
         id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
         course_id: "",
         exercise_id: "dd46fb67-d168-4554-b912-0018f812166d",
@@ -86,10 +86,10 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           },
         ],
       },
-      peer_review_questions: [
+      peer_or_self_review_questions: [
         {
           id: "f3c8eadd-75ca-409f-b1c6-31db65701930",
-          peer_review_config_id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
+          peer_or_self_review_config_id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
           answer_required: true,
           order_number: 0,
           question: "how about...",
@@ -97,7 +97,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           weight: 0.3,
         },
       ],
-      use_course_default_peer_review_config: false,
+      use_course_default_peer_or_self_review_config: false,
     },
   ],
   exercise_slides: [
@@ -145,10 +145,10 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   limit_number_of_tries: true,
   needs_peer_review: true,
   needs_self_review: false,
-  peer_review_config:
+  peer_or_self_review_config:
     '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","processing_strategy":"AutomaticallyGradeOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
-  peer_review_questions_config:
-    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay","weight":0}]',
+  peer_or_self_review_questions_config:
+    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_or_self_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay","weight":0}]',
   use_course_default_peer_review: false,
 }
 

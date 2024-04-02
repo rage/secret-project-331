@@ -1,10 +1,10 @@
-import { CmsPeerReviewConfig } from "../shared-module/bindings"
+import { CmsPeerOrSelfReviewConfig } from "../shared-module/bindings"
 
 import { isBlockInstanceArray } from "./Gutenberg/blockInstance"
 
-export function makeSurePeerReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(
-  config: CmsPeerReviewConfig,
-): CmsPeerReviewConfig {
+export function makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(
+  config: CmsPeerOrSelfReviewConfig,
+): CmsPeerOrSelfReviewConfig {
   if (!Array.isArray(config.review_instructions)) {
     throw new Error("review_instructions is not an array")
   }

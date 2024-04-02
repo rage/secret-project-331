@@ -14,9 +14,9 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
-    peer_review_configs::PeerReviewProcessingStrategy,
-    peer_review_question_submissions::{
-        self, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
+    peer_or_self_review_configs::PeerReviewProcessingStrategy,
+    peer_or_self_review_question_submissions::{
+        self, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
     },
     prelude::*,
     regradings,
@@ -97,7 +97,7 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
     pub peer_review_processing_strategy: PeerReviewProcessingStrategy,
     pub peer_review_accepting_threshold: f32,
     /// Used to for calculating averages when acting on PeerReviewProcessingStrategy
-    pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub received_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
 }
 
 /// Inserts user submission to database. Tasks within submission are validated to make sure that
@@ -555,7 +555,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         )
         .await?;
         let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
-            peer_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+            peer_or_self_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
                 conn,
                 answer.user_id,
                 answer.exercise_id,
@@ -566,7 +566,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             vec![]
         };
         let received_peer_reviews =
-            peer_review_question_submissions::get_questions_and_answers_by_submission_id(
+            peer_or_self_review_question_submissions::get_questions_and_answers_by_submission_id(
                 conn,
                 answer.submission_id,
             )

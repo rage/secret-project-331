@@ -593,7 +593,7 @@ WHERE user_id = $1
     .await?;
     sqlx::query!(
         "
-UPDATE peer_review_submissions
+UPDATE peer_or_self_review_submissions
 SET deleted_at = now()
 WHERE user_id = $1
   AND course_instance_id = $2
@@ -606,11 +606,11 @@ WHERE user_id = $1
     .await?;
     sqlx::query!(
         "
-UPDATE peer_review_question_submissions
+UPDATE peer_or_self_review_question_submissions
 SET deleted_at = now()
-WHERE peer_review_submission_id IN (
+WHERE peer_or_self_review_submission_id IN (
     SELECT id
-    FROM peer_review_submissions
+    FROM peer_or_self_review_submissions
     WHERE user_id = $1
       AND course_instance_id = $2
   )

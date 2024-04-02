@@ -131,12 +131,12 @@ use headless_lms_models::{
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
-    peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::{
-        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+    peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
+    peer_or_self_review_question_submissions::{
+        PeerOrSelfReviewQuestionAndAnswer, PeerOrSelfReviewQuestionSubmission, PeerReviewAnswer,
     },
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
-    peer_review_submissions::PeerReviewSubmission,
     proposed_block_edits::EditedBlockStillExistsData,
     research_forms::{ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer},
     student_countries::StudentCountry,

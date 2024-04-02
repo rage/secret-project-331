@@ -4,9 +4,9 @@ use itertools::Itertools;
 use crate::{
     exercises::{ActivityProgress, GradingProgress},
     library::user_exercise_state_updater::validation::validate_input,
-    peer_review_configs::PeerReviewProcessingStrategy,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::{PeerReviewQuestion, PeerReviewQuestionType},
+    peer_or_self_review_configs::PeerReviewProcessingStrategy,
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::{PeerOrSelfReviewQuestion, PeerOrSelfReviewQuestionType},
     prelude::*,
     user_exercise_states::{ReviewingStage, UserExerciseStateUpdate},
 };
@@ -195,8 +195,8 @@ fn get_peer_or_self_review_opinion(
     let score_maximum = input_data.exercise.score_maximum;
     if let Some(info) = &input_data.peer_or_self_review_information {
         if input_data.exercise.needs_peer_review {
-            let given_enough_peer_reviews = info.given_peer_review_submissions.len() as i32
-                >= info.peer_review_config.peer_reviews_to_give;
+            let given_enough_peer_reviews = info.given_peer_or_self_review_submissions.len() as i32
+                >= info.peer_or_self_review_config.peer_reviews_to_give;
             // Received enough peer reviews is cached to the queue entry, lets use it here to make sure its value has been kept up-to-date.
             let received_enough_peer_reviews = info
                 .peer_review_queue_entry
@@ -266,31 +266,31 @@ fn get_peer_or_self_review_opinion(
         }
 
         // Users have given and received enough peer reviews, time to consider how we're doing the grading
-        match info.peer_review_config.processing_strategy {
+        match info.peer_or_self_review_config.processing_strategy {
             PeerReviewProcessingStrategy::AutomaticallyGradeByAverage => {
                 let avg = calculate_average_received_peer_review_score(
                     &info
-                        .latest_exercise_slide_submission_received_peer_review_question_submissions,
+                        .latest_exercise_slide_submission_received_peer_or_self_review_question_submissions,
                 );
-                if !info.peer_review_config.points_are_all_or_nothing {
+                if !info.peer_or_self_review_config.points_are_all_or_nothing {
                     let score_given = calculate_peer_review_weighted_points(
-                        &info.peer_review_questions,
+                        &info.peer_or_self_review_questions,
                         &info
-                            .latest_exercise_slide_submission_received_peer_review_question_submissions,
+                            .latest_exercise_slide_submission_received_peer_or_self_review_question_submissions,
                         score_maximum,
                     );
                     Some(PeerOrSelfReviewOpinion {
                         score_given: Some(score_given),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
-                } else if avg < info.peer_review_config.accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Automatically giving zero points because average is below the threshold");
+                } else if avg < info.peer_or_self_review_config.accepting_threshold {
+                    info!(avg = ?avg, threshold = ?info.peer_or_self_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_or_self_review_config.processing_strategy, "Automatically giving zero points because average is below the threshold");
                     Some(PeerOrSelfReviewOpinion {
                         score_given: Some(0.0),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Automatically giving the points since the average is above the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_or_self_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_or_self_review_config.processing_strategy, "Automatically giving the points since the average is above the threshold");
                     Some(PeerOrSelfReviewOpinion {
                         score_given: Some(score_maximum as f32),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
@@ -300,19 +300,19 @@ fn get_peer_or_self_review_opinion(
             PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage => {
                 let avg = calculate_average_received_peer_review_score(
                     &info
-                        .latest_exercise_slide_submission_received_peer_review_question_submissions,
+                        .latest_exercise_slide_submission_received_peer_or_self_review_question_submissions,
                 );
-                if avg < info.peer_review_config.accepting_threshold {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
+                if avg < info.peer_or_self_review_config.accepting_threshold {
+                    info!(avg = ?avg, threshold = ?info.peer_or_self_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_or_self_review_config.processing_strategy, "Not giving points because average is below the threshold. The answer should be moved to manual review.");
                     Some(PeerOrSelfReviewOpinion {
                         score_given: None,
                         reviewing_stage: ReviewingStage::WaitingForManualGrading,
                     })
-                } else if !info.peer_review_config.points_are_all_or_nothing {
+                } else if !info.peer_or_self_review_config.points_are_all_or_nothing {
                     let score_given = calculate_peer_review_weighted_points(
-                        &info.peer_review_questions,
+                        &info.peer_or_self_review_questions,
                         &info
-                            .latest_exercise_slide_submission_received_peer_review_question_submissions,
+                            .latest_exercise_slide_submission_received_peer_or_self_review_question_submissions,
                         score_maximum,
                     );
                     Some(PeerOrSelfReviewOpinion {
@@ -320,7 +320,7 @@ fn get_peer_or_self_review_opinion(
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
                     })
                 } else {
-                    info!(avg = ?avg, threshold = ?info.peer_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Automatically giving the points since the average is above the threshold");
+                    info!(avg = ?avg, threshold = ?info.peer_or_self_review_config.accepting_threshold, peer_review_processing_strategy = ?info.peer_or_self_review_config.processing_strategy, "Automatically giving the points since the average is above the threshold");
                     Some(PeerOrSelfReviewOpinion {
                         score_given: Some(score_maximum as f32),
                         reviewing_stage: ReviewingStage::ReviewedAndLocked,
@@ -328,7 +328,7 @@ fn get_peer_or_self_review_opinion(
                 }
             }
             PeerReviewProcessingStrategy::ManualReviewEverything => {
-                info!(peer_review_processing_strategy = ?info.peer_review_config.processing_strategy, "Not giving points because the teacher reviews all answers manually");
+                info!(peer_review_processing_strategy = ?info.peer_or_self_review_config.processing_strategy, "Not giving points because the teacher reviews all answers manually");
                 Some(PeerOrSelfReviewOpinion {
                     score_given: None,
                     reviewing_stage: ReviewingStage::WaitingForManualGrading,
@@ -337,15 +337,15 @@ fn get_peer_or_self_review_opinion(
         }
     } else {
         // Even though the exercise needs peer review, the peer review has not been configured. The safest thing to do here is to consider peer review as not complete
-        warn!("Peer review is enabled in the exercise but no peer_review_config found");
+        warn!("Peer review is enabled in the exercise but no peer_or_self_review_config found");
         None
     }
 }
 
 fn calculate_average_received_peer_review_score(
-    peer_review_question_submissions: &[PeerReviewQuestionSubmission],
+    peer_or_self_review_question_submissions: &[PeerOrSelfReviewQuestionSubmission],
 ) -> f32 {
-    let answers_considered = peer_review_question_submissions
+    let answers_considered = peer_or_self_review_question_submissions
         .iter()
         .filter_map(|prqs| {
             if prqs.deleted_at.is_some() {
@@ -362,42 +362,42 @@ fn calculate_average_received_peer_review_score(
 }
 
 fn calculate_peer_review_weighted_points(
-    peer_review_questions: &[PeerReviewQuestion],
-    received_peer_review_question_submissions: &[PeerReviewQuestionSubmission],
+    peer_or_self_review_questions: &[PeerOrSelfReviewQuestion],
+    received_peer_or_self_review_question_submissions: &[PeerOrSelfReviewQuestionSubmission],
     score_maximum: i32,
 ) -> f32 {
     // Weights should be sum to 1. This should be guranteed by the data loader.
-    let questions_considered_for_weighted_points = peer_review_questions
+    let questions_considered_for_weighted_points = peer_or_self_review_questions
         .iter()
-        .filter(|prq| prq.question_type == PeerReviewQuestionType::Scale)
+        .filter(|prq| prq.question_type == PeerOrSelfReviewQuestionType::Scale)
         .collect::<Vec<_>>();
     let question_submissions_considered_for_weighted_points =
-        received_peer_review_question_submissions
+        received_peer_or_self_review_question_submissions
             .iter()
             .filter(|prqs| {
                 questions_considered_for_weighted_points
                     .iter()
-                    .any(|prq| prq.id == prqs.peer_review_question_id)
+                    .any(|prq| prq.id == prqs.peer_or_self_review_question_id)
             })
             .collect::<Vec<_>>();
     let number_of_submissions = question_submissions_considered_for_weighted_points
         .iter()
-        .map(|prqs| prqs.peer_review_submission_id)
+        .map(|prqs| prqs.peer_or_self_review_submission_id)
         .unique()
         .count();
     let grouped = question_submissions_considered_for_weighted_points
         .iter()
-        .group_by(|prqs| prqs.peer_review_submission_id);
+        .group_by(|prqs| prqs.peer_or_self_review_submission_id);
 
     let weighted_score_by_submission = grouped
         .into_iter()
         .map(
-            |(_peer_review_submission_id, peer_review_question_answers)| {
+            |(_peer_or_self_review_submission_id, peer_review_question_answers)| {
                 peer_review_question_answers
                     .filter_map(|prqs| {
                         questions_considered_for_weighted_points
                             .iter()
-                            .find(|prq| prq.id == prqs.peer_review_question_id)
+                            .find(|prq| prq.id == prqs.peer_or_self_review_question_id)
                             .map(|question| question.weight * prqs.number_data.unwrap_or_default())
                     })
                     .sum::<f32>()
@@ -426,8 +426,9 @@ mod tests {
         use crate::{
             exercises::Exercise,
             library::user_exercise_state_updater::UserExerciseStateUpdateRequiredDataPeerReviewInformation,
-            peer_review_configs::PeerReviewConfig, peer_review_queue_entries::PeerReviewQueueEntry,
-            peer_review_submissions::PeerReviewSubmission,
+            peer_or_self_review_configs::PeerOrSelfReviewConfig,
+            peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+            peer_review_queue_entries::PeerReviewQueueEntry,
             user_exercise_slide_states::UserExerciseSlideStateGradingSummary,
             user_exercise_states::UserExerciseState,
         };
@@ -482,12 +483,12 @@ mod tests {
                     current_user_exercise_state: user_exercise_state,
                     peer_or_self_review_information: Some(
                         UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                            given_peer_review_submissions: Vec::new(),
+                            given_peer_or_self_review_submissions: Vec::new(),
                             given_self_review_submission: None,
-                            latest_exercise_slide_submission_received_peer_review_question_submissions: Vec::new(),
+                            latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: Vec::new(),
                             peer_review_queue_entry: None,
-                            peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                            peer_review_questions: Vec::new(),
+                            peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                            peer_or_self_review_questions: Vec::new(),
                         },
                     ),
                     latest_teacher_grading_decision: None,
@@ -525,12 +526,12 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -566,13 +567,13 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 // Average below 2.1
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -613,12 +614,12 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -655,13 +656,13 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 // Average below 2.1
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -702,12 +703,12 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::ManualReviewEverything),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::ManualReviewEverything),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -744,13 +745,13 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 // Average below 2.1
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::ManualReviewEverything),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::ManualReviewEverything),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -847,12 +848,12 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -887,12 +888,12 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: Some(create_peer_review_submission()),
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
                                 peer_review_queue_entry: Some(create_peer_review_queue_entry()),
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -927,12 +928,12 @@ mod tests {
                         current_user_exercise_state: user_exercise_state,
                         peer_or_self_review_information: Some(
                             UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                                given_peer_review_submissions: vec![],
+                                given_peer_or_self_review_submissions: vec![],
                                 given_self_review_submission: None,
-                                latest_exercise_slide_submission_received_peer_review_question_submissions: vec![],
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![],
                                 peer_review_queue_entry: None,
-                                peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                                peer_review_questions: Vec::new(),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                                peer_or_self_review_questions: Vec::new(),
                             },
                         ),
                         latest_teacher_grading_decision: None,
@@ -968,12 +969,12 @@ mod tests {
                     current_user_exercise_state: user_exercise_state,
                     peer_or_self_review_information: Some(
                         UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-                            given_peer_review_submissions: vec![],
+                            given_peer_or_self_review_submissions: vec![],
                             given_self_review_submission: Some(create_peer_review_submission()),
-                            latest_exercise_slide_submission_received_peer_review_question_submissions: vec![],
+                            latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![],
                             peer_review_queue_entry: None,
-                            peer_review_config: create_peer_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
-                            peer_review_questions: Vec::new(),
+                            peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
+                            peer_or_self_review_questions: Vec::new(),
                         },
                     ),
                     latest_teacher_grading_decision: None,
@@ -1007,7 +1008,7 @@ mod tests {
             course_or_exam_id: CourseOrExamId,
             needs_peer_review: bool,
             needs_self_review: bool,
-            use_course_default_peer_review_config: bool,
+            use_course_default_peer_or_self_review_config: bool,
         ) -> Exercise {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
@@ -1028,17 +1029,17 @@ mod tests {
                 max_tries_per_slide: None,
                 limit_number_of_tries: false,
                 needs_peer_review,
-                use_course_default_peer_review_config,
+                use_course_default_peer_or_self_review_config,
                 exercise_language_group_id: None,
                 needs_self_review,
             }
         }
 
-        fn create_peer_review_config(
+        fn create_peer_or_self_review_config(
             processing_strategy: PeerReviewProcessingStrategy,
-        ) -> PeerReviewConfig {
+        ) -> PeerOrSelfReviewConfig {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            PeerReviewConfig {
+            PeerOrSelfReviewConfig {
                 id,
                 created_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
                 updated_at: Utc.with_ymd_and_hms(2022, 1, 1, 0, 0, 0).unwrap(),
@@ -1057,16 +1058,20 @@ mod tests {
 
         fn create_peer_review_question_submission(
             number_data: f32,
-        ) -> PeerReviewQuestionSubmission {
-            PeerReviewQuestionSubmission {
+        ) -> PeerOrSelfReviewQuestionSubmission {
+            PeerOrSelfReviewQuestionSubmission {
                 id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a").unwrap(),
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 deleted_at: None,
-                peer_review_question_id: Uuid::parse_str("b853bbd7-feee-4447-ab14-c9622e565ea1")
-                    .unwrap(),
-                peer_review_submission_id: Uuid::parse_str("be4061b5-b468-4f50-93b0-cf3bf9de9a13")
-                    .unwrap(),
+                peer_or_self_review_question_id: Uuid::parse_str(
+                    "b853bbd7-feee-4447-ab14-c9622e565ea1",
+                )
+                .unwrap(),
+                peer_or_self_review_submission_id: Uuid::parse_str(
+                    "be4061b5-b468-4f50-93b0-cf3bf9de9a13",
+                )
+                .unwrap(),
                 text_data: None,
                 number_data: Some(number_data),
             }
@@ -1074,56 +1079,60 @@ mod tests {
 
         fn create_peer_review_question_submission_with_ids(
             number_data: f32,
-            peer_review_question_id: Uuid,
-            peer_review_submission_id: Uuid,
-        ) -> PeerReviewQuestionSubmission {
-            PeerReviewQuestionSubmission {
+            peer_or_self_review_question_id: Uuid,
+            peer_or_self_review_submission_id: Uuid,
+        ) -> PeerOrSelfReviewQuestionSubmission {
+            PeerOrSelfReviewQuestionSubmission {
                 id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a").unwrap(),
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 deleted_at: None,
-                peer_review_question_id,
-                peer_review_submission_id,
+                peer_or_self_review_question_id,
+                peer_or_self_review_submission_id,
                 text_data: None,
                 number_data: Some(number_data),
             }
         }
 
-        fn create_peer_review_question_scale(id: Uuid, weight: f32) -> PeerReviewQuestion {
-            PeerReviewQuestion {
+        fn create_peer_review_question_scale(id: Uuid, weight: f32) -> PeerOrSelfReviewQuestion {
+            PeerOrSelfReviewQuestion {
                 id,
                 weight,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 deleted_at: None,
-                peer_review_config_id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a")
-                    .unwrap(),
+                peer_or_self_review_config_id: Uuid::parse_str(
+                    "bf923ea4-a637-4d97-b78b-6f843d76120a",
+                )
+                .unwrap(),
                 order_number: 1,
                 question: "A question".to_string(),
-                question_type: PeerReviewQuestionType::Scale,
+                question_type: PeerOrSelfReviewQuestionType::Scale,
                 answer_required: true,
             }
         }
 
-        fn create_peer_review_question_essay(id: Uuid, weight: f32) -> PeerReviewQuestion {
-            PeerReviewQuestion {
+        fn create_peer_review_question_essay(id: Uuid, weight: f32) -> PeerOrSelfReviewQuestion {
+            PeerOrSelfReviewQuestion {
                 id,
                 weight,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 deleted_at: None,
-                peer_review_config_id: Uuid::parse_str("bf923ea4-a637-4d97-b78b-6f843d76120a")
-                    .unwrap(),
+                peer_or_self_review_config_id: Uuid::parse_str(
+                    "bf923ea4-a637-4d97-b78b-6f843d76120a",
+                )
+                .unwrap(),
                 order_number: 1,
                 question: "A question".to_string(),
-                question_type: PeerReviewQuestionType::Essay,
+                question_type: PeerOrSelfReviewQuestionType::Essay,
                 answer_required: true,
             }
         }
 
-        fn create_peer_review_submission() -> PeerReviewSubmission {
+        fn create_peer_review_submission() -> PeerOrSelfReviewSubmission {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
-            PeerReviewSubmission {
+            PeerOrSelfReviewSubmission {
                 id,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
@@ -1131,7 +1140,7 @@ mod tests {
                 user_id: id,
                 exercise_id: id,
                 course_instance_id: id,
-                peer_review_config_id: id,
+                peer_or_self_review_config_id: id,
                 exercise_slide_submission_id: id,
             }
         }

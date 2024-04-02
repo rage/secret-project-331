@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next"
 
 import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
 
-import { PeerReviewQuestionProps } from "."
+import { PeerOrSelfReviewQuestionProps } from "."
 
-const EssayPeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuestionProps>> = ({
+const EssayPeerOrSelfReviewQuestion: React.FC<React.PropsWithChildren<PeerOrSelfReviewQuestionProps>> = ({
   question,
-  setPeerReviewQuestionAnswer,
-  peerReviewQuestionAnswer,
+  setPeerOrSelfReviewQuestionAnswer,
+  peerOrSelfReviewQuestionAnswer,
 }) => {
   const { t } = useTranslation()
   return (
@@ -26,15 +26,15 @@ const EssayPeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuesti
         autoResize
         placeholder={t("write-a-review")}
         onChangeByValue={(value) =>
-          setPeerReviewQuestionAnswer({
+          setPeerOrSelfReviewQuestionAnswer({
             text_data: value,
             number_data: null,
           })
         }
-        value={peerReviewQuestionAnswer?.text_data ?? ""}
+        value={peerOrSelfReviewQuestionAnswer?.text_data ?? ""}
       ></TextArea>
     </div>
   )
 }
 
-export default EssayPeerReviewQuestion
+export default EssayPeerOrSelfReviewQuestion

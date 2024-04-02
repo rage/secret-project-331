@@ -26,7 +26,7 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
-    peer_review_configs::PeerReviewProcessingStrategy::{
+    peer_or_self_review_configs::PeerReviewProcessingStrategy::{
         AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },

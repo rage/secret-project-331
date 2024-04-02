@@ -1,43 +1,41 @@
 import {
-  CourseMaterialPeerReviewQuestionAnswer,
-  PeerReviewQuestion as PeerReviewQuestionType,
+  CourseMaterialPeerOrSelfReviewQuestionAnswer,
+  PeerOrSelfReviewQuestion as PeerOrSelfReviewQuestionType,
 } from "../../../../../../shared-module/bindings"
 
-import EssayPeerReviewQuestion from "./EssayPeerReviewQuestion"
-import ScalePeerReviewQuestion from "./ScalePeerReviewQuestion"
+import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
+import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
 
-export interface PeerReviewQuestionProps {
-  question: PeerReviewQuestionType
-  setPeerReviewQuestionAnswer: (
-    answer: Omit<CourseMaterialPeerReviewQuestionAnswer, "peer_review_question_id">,
+export interface PeerOrSelfReviewQuestionProps {
+  question: PeerOrSelfReviewQuestionType
+  setPeerOrSelfReviewQuestionAnswer: (
+    answer: Omit<CourseMaterialPeerOrSelfReviewQuestionAnswer, "peer_or_self_review_question_id">,
   ) => void
-  peerReviewQuestionAnswer: CourseMaterialPeerReviewQuestionAnswer | null
+  peerOrSelfReviewQuestionAnswer: CourseMaterialPeerOrSelfReviewQuestionAnswer | null
 }
 
-const PeerReviewQuestion: React.FC<React.PropsWithChildren<PeerReviewQuestionProps>> = ({
-  question,
-  setPeerReviewQuestionAnswer,
-  peerReviewQuestionAnswer,
-}) => {
+const PeerOrSelfReviewQuestion: React.FC<
+  React.PropsWithChildren<PeerOrSelfReviewQuestionProps>
+> = ({ question, setPeerOrSelfReviewQuestionAnswer, peerOrSelfReviewQuestionAnswer }) => {
   if (question.question_type === "Scale") {
     return (
-      <ScalePeerReviewQuestion
+      <ScalePeerOrSelfReviewQuestion
         question={question}
-        setPeerReviewQuestionAnswer={setPeerReviewQuestionAnswer}
-        peerReviewQuestionAnswer={peerReviewQuestionAnswer}
+        setPeerOrSelfReviewQuestionAnswer={setPeerOrSelfReviewQuestionAnswer}
+        peerOrSelfReviewQuestionAnswer={peerOrSelfReviewQuestionAnswer}
       />
     )
   }
   if (question.question_type === "Essay") {
     return (
-      <EssayPeerReviewQuestion
+      <EssayPeerOrSelfReviewQuestion
         question={question}
-        setPeerReviewQuestionAnswer={setPeerReviewQuestionAnswer}
-        peerReviewQuestionAnswer={peerReviewQuestionAnswer}
+        setPeerOrSelfReviewQuestionAnswer={setPeerOrSelfReviewQuestionAnswer}
+        peerOrSelfReviewQuestionAnswer={peerOrSelfReviewQuestionAnswer}
       />
     )
   }
   return null
 }
 
-export default PeerReviewQuestion
+export default PeerOrSelfReviewQuestion

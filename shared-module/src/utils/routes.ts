@@ -40,3 +40,7 @@ export function globalStatsRoute() {
 export function allOrganizationsRoute() {
   return "/organizations"
 }
+
+export function editCourseDefaultPeerOrSelfReviewConfigRoute(courseId: string) {
+  return `/cms/courses/${courseId}/default-peer-review`
+}

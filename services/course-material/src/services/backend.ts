@@ -8,7 +8,7 @@ import {
   CourseInstance,
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
-  CourseMaterialPeerReviewSubmission,
+  CourseMaterialPeerOrSelfReviewSubmission,
   CoursePageWithUserData,
   CustomViewExerciseSubmissions,
   ExamData,
@@ -379,13 +379,17 @@ export const postProposedEdits = async (
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
 }
 
-export const postPeerReviewSubmission = async (
+export const postPeerOrSelfReviewSubmission = async (
   exerciseId: string,
-  peerReviewSubmission: CourseMaterialPeerReviewSubmission,
+  peerOrSelfReviewSubmission: CourseMaterialPeerOrSelfReviewSubmission,
 ): Promise<void> => {
-  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews`, peerReviewSubmission, {
-    responseType: "json",
-  })
+  await courseMaterialClient.post(
+    `/exercises/${exerciseId}/peer-reviews`,
+    peerOrSelfReviewSubmission,
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const postStartPeerReview = async (exerciseId: string): Promise<void> => {

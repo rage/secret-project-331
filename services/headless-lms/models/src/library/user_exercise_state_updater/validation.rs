@@ -14,7 +14,7 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
     }
     if let Some(peer_or_self_review_information) = &input_data.peer_or_self_review_information {
         if peer_or_self_review_information
-            .given_peer_review_submissions
+            .given_peer_or_self_review_submissions
             .iter()
             .any(|prs| prs.deleted_at.is_some())
         {
@@ -27,7 +27,7 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
         }
 
         if peer_or_self_review_information
-            .latest_exercise_slide_submission_received_peer_review_question_submissions
+            .latest_exercise_slide_submission_received_peer_or_self_review_question_submissions
             .iter()
             .any(|prqs| prqs.deleted_at.is_some())
         {
@@ -53,7 +53,7 @@ pub(super) fn validate_input(input_data: &UserExerciseStateUpdateRequiredData) -
         }
 
         if peer_or_self_review_information
-            .peer_review_config
+            .peer_or_self_review_config
             .deleted_at
             .is_some()
         {

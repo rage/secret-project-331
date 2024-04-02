@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT prs.*\nFROM peer_or_self_review_submissions prs\n  JOIN user_exercise_states ues ON (\n    ues.exercise_id = prs.exercise_id\n    AND ues.user_id = prs.user_id\n    AND ues.course_instance_id = prs.course_instance_id\n  )\nWHERE ues.user_id = $1\n  AND prs.exercise_id = $2\n  AND prs.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "peer_or_self_review_config_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false]
+  },
+  "hash": "62203b0db65a06f30bb32c705b0a62affeeeb4f18892a7cc52ea4a6a514ba31e"
+}

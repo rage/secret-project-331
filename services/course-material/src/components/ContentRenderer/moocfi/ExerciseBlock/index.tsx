@@ -520,13 +520,15 @@ const ExerciseBlock: React.FC<
               </DeadlineText>
             ))}
 
-          {getCourseMaterialExercise.data.peer_review_config && gradingState && reviewingStage && (
-            <GradingState
-              gradingProgress={gradingState}
-              reviewingStage={reviewingStage}
-              peerReviewConfig={getCourseMaterialExercise.data.peer_review_config}
-            />
-          )}
+          {getCourseMaterialExercise.data.peer_or_self_review_config &&
+            gradingState &&
+            reviewingStage && (
+              <GradingState
+                gradingProgress={gradingState}
+                reviewingStage={reviewingStage}
+                peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
+              />
+            )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&

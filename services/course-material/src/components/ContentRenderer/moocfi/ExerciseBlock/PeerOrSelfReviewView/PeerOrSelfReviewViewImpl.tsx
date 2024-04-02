@@ -8,9 +8,9 @@ import ContentRenderer from "../../.."
 import {
   Block,
   fetchPeerReviewDataByExerciseId,
-  postPeerReviewSubmission,
+  postPeerOrSelfReviewSubmission,
 } from "../../../../../services/backend"
-import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-module/bindings"
+import { CourseMaterialPeerOrSelfReviewQuestionAnswer } from "../../../../../shared-module/bindings"
 import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
 import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
 import Spinner from "../../../../../shared-module/components/Spinner"
@@ -21,7 +21,7 @@ import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGu
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
-import PeerReviewQuestion from "./PeerReviewQuestion"
+import PeerOrSelfReviewQuestion from "./PeerOrSelfReviewQuestion"
 
 import { getPeerReviewBeginningScrollingId, PeerOrSelfReviewViewProps } from "."
 
@@ -33,7 +33,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 }) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
-  const [answers, setAnswers] = useState<Map<string, CourseMaterialPeerReviewQuestionAnswer>>(
+  const [answers, setAnswers] = useState<Map<string, CourseMaterialPeerOrSelfReviewQuestionAnswer>>(
     new Map(),
   )
 
@@ -52,7 +52,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     if (!peerReviewData) {
       return false
     }
-    return peerReviewData.peer_review_questions.every((question) => {
+    return peerReviewData.peer_or_self_review_questions.every((question) => {
       if (!question.answer_required) {
         return true
       }
@@ -79,9 +79,9 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       if (!peerReviewData || !peerReviewData.answer_to_review || !token) {
         return
       }
-      return await postPeerReviewSubmission(exerciseId, {
+      return await postPeerOrSelfReviewSubmission(exerciseId, {
         exercise_slide_submission_id: peerReviewData.answer_to_review.exercise_slide_submission_id,
-        peer_review_config_id: peerReviewData.peer_review_config.id,
+        peer_or_self_review_config_id: peerReviewData.peer_or_self_review_config.id,
         peer_review_question_answers: Array.from(answers.values()),
         token,
       })
@@ -91,7 +91,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       onSuccess: async () => {
         // still old data because we have't refetched yet
         const givenEnoughReviews =
-          (peerReviewData?.peer_review_config.peer_reviews_to_give ?? Number.MAX_VALUE) <=
+          (peerReviewData?.peer_or_self_review_config.peer_reviews_to_give ?? Number.MAX_VALUE) <=
           (peerReviewData?.num_peer_reviews_given ?? 0) + 1
 
         if (givenEnoughReviews) {
@@ -161,12 +161,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     >
       {!selfReview && (
         <PeerReviewProgress
-          total={peerReviewData.peer_review_config.peer_reviews_to_give}
+          total={peerReviewData.peer_or_self_review_config.peer_reviews_to_give}
           attempt={peerReviewData.num_peer_reviews_given}
         />
       )}
 
-      {Boolean(peerReviewData.peer_review_config.review_instructions) && (
+      {Boolean(peerReviewData.peer_or_self_review_config.review_instructions) && (
         <div
           className={css`
             border: 0;
@@ -187,7 +187,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           </h4>
 
           <ContentRenderer
-            data={peerReviewData.peer_review_config.review_instructions as Block<unknown>[]}
+            data={peerReviewData.peer_or_self_review_config.review_instructions as Block<unknown>[]}
             editing={false}
             selectedBlockId={null}
             setEdits={function (_value): void {
@@ -265,14 +265,14 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         `}
       />
 
-      {peerReviewData.peer_review_questions
+      {peerReviewData.peer_or_self_review_questions
         .sort((a, b) => a.order_number - b.order_number)
         .map((question) => (
-          <PeerReviewQuestion
+          <PeerOrSelfReviewQuestion
             key={question.id}
             question={question}
-            peerReviewQuestionAnswer={answers.get(question.id) ?? null}
-            setPeerReviewQuestionAnswer={(newAnswer) => {
+            peerOrSelfReviewQuestionAnswer={answers.get(question.id) ?? null}
+            setPeerOrSelfReviewQuestionAnswer={(newAnswer) => {
               setAnswers((prev) => {
                 const answers = new Map(prev)
                 if (
@@ -282,7 +282,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                   // If everything in the answer is null, transform the answer to not answered
                   answers.delete(question.id)
                 } else {
-                  answers.set(question.id, { ...newAnswer, peer_review_question_id: question.id })
+                  answers.set(question.id, { ...newAnswer, peer_or_self_review_question_id: question.id })
                 }
 
                 return answers

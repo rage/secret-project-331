@@ -43,9 +43,6 @@ const getText = (
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
   t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
-  if (1 === 1) {
-    return "WAT"
-  }
   if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
     return t("help-text-exercise-involves-peer-review", {
       peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,

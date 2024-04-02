@@ -9,8 +9,8 @@ import { v4 } from "uuid"
 import { ExerciseAttributes } from "../blocks/Exercise"
 import { getCoursesDefaultCmsPeerOrSelfReviewConfiguration } from "../services/backend/courses"
 import {
-  CmsPeerOrSelfReviewQuestion,
   CmsPeerOrSelfReviewConfig,
+  CmsPeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionType,
   PeerReviewProcessingStrategy,
@@ -187,13 +187,22 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         peerOrSelfReviewConfig = { ...parsedPeerOrSelfReviewConfig, processing_strategy: value }
         break
       case "accepting_threshold":
-        peerOrSelfReviewConfig = { ...parsedPeerOrSelfReviewConfig, accepting_threshold: Number(value) }
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          accepting_threshold: Number(value),
+        }
         break
       case "peer_reviews_to_give":
-        peerOrSelfReviewConfig = { ...parsedPeerOrSelfReviewConfig, peer_reviews_to_give: Number(value) }
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          peer_reviews_to_give: Number(value),
+        }
         break
       case "peer_reviews_to_receive":
-        peerOrSelfReviewConfig = { ...parsedPeerOrSelfReviewConfig, peer_reviews_to_receive: Number(value) }
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          peer_reviews_to_receive: Number(value),
+        }
         break
       case "points_are_all_or_nothing":
         peerOrSelfReviewConfig = {
@@ -419,7 +428,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   onChangeByValue={(checked) =>
                     handlePeerReviewValueChange(checked.toString(), "points_are_all_or_nothing")
                   }
-                  disabled={parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"}
+                  disabled={
+                    parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"
+                  }
                 />
                 {!parsedPeerOrSelfReviewConfig.points_are_all_or_nothing && (
                   <div
@@ -439,7 +450,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   step="0.01"
                   min={0}
                   required
-                  disabled={parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"}
+                  disabled={
+                    parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"
+                  }
                   value={parsedPeerOrSelfReviewConfig.accepting_threshold}
                   onChangeByValue={(value) => {
                     handlePeerReviewValueChange(value, "accepting_threshold")

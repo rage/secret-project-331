@@ -5,11 +5,9 @@ import TextArea from "../../../../../../shared-module/components/InputFields/Tex
 
 import { PeerOrSelfReviewQuestionProps } from "."
 
-const EssayPeerOrSelfReviewQuestion: React.FC<React.PropsWithChildren<PeerOrSelfReviewQuestionProps>> = ({
-  question,
-  setPeerOrSelfReviewQuestionAnswer,
-  peerOrSelfReviewQuestionAnswer,
-}) => {
+const EssayPeerOrSelfReviewQuestion: React.FC<
+  React.PropsWithChildren<PeerOrSelfReviewQuestionProps>
+> = ({ question, setPeerOrSelfReviewQuestionAnswer, peerOrSelfReviewQuestionAnswer }) => {
   const { t } = useTranslation()
   return (
     <div>

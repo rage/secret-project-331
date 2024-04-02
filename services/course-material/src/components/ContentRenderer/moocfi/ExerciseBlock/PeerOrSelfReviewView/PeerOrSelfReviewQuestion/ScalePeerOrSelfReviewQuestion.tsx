@@ -2,11 +2,9 @@ import LikertScale from "../../../../../../shared-module/components/PeerReview/L
 
 import { PeerOrSelfReviewQuestionProps } from "."
 
-const ScalePeerOrSelfReviewQuestion: React.FC<React.PropsWithChildren<PeerOrSelfReviewQuestionProps>> = ({
-  question,
-  setPeerOrSelfReviewQuestionAnswer,
-  peerOrSelfReviewQuestionAnswer,
-}) => {
+const ScalePeerOrSelfReviewQuestion: React.FC<
+  React.PropsWithChildren<PeerOrSelfReviewQuestionProps>
+> = ({ question, setPeerOrSelfReviewQuestionAnswer, peerOrSelfReviewQuestionAnswer }) => {
   return (
     <div>
       <LikertScale

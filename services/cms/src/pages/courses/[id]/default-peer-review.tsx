@@ -67,8 +67,11 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   const mutateCourseDefaultPeerReview = useToastMutation(
     () => {
       {
-        let prc: CmsPeerOrSelfReviewConfig = JSON.parse(attributes.peer_or_self_review_config ?? "{}")
-        prc = makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(prc)
+        let prc: CmsPeerOrSelfReviewConfig = JSON.parse(
+          attributes.peer_or_self_review_config ?? "{}",
+        )
+        prc =
+          makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(prc)
         const prq: CmsPeerOrSelfReviewQuestion[] = JSON.parse(
           attributes.peer_or_self_review_questions_config ?? "[]",
         )
@@ -102,7 +105,9 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
   const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
     setAttributes((prev) => {
-      const newConfig = JSON.parse(prev.peer_or_self_review_config ?? "{}") as CmsPeerOrSelfReviewConfig
+      const newConfig = JSON.parse(
+        prev.peer_or_self_review_config ?? "{}",
+      ) as CmsPeerOrSelfReviewConfig
       newConfig.review_instructions = newValue
       return {
         ...prev,

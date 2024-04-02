@@ -59,21 +59,25 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
       <Heading>
         {selfReview ? t("title-self-review") : `${t("peer-review")} #${orderNumber + 1}`}
       </Heading>
-      {sortedReviews.map(({ id, number_data, text_data, peer_or_self_review_question_id }, index) => {
-        const questionIndex = questions.findIndex((q) => q.id === peer_or_self_review_question_id)
-        if (questionIndex === -1) {
-          return null
-        }
-        const question = questions[questionIndex].question
-        return (
-          <>
-            {text_data && <Essay key={id} question={question} content={text_data} index={index} />}
-            {number_data !== null && (
-              <Likert key={id} question={question} content={number_data} index={index} />
-            )}
-          </>
-        )
-      })}
+      {sortedReviews.map(
+        ({ id, number_data, text_data, peer_or_self_review_question_id }, index) => {
+          const questionIndex = questions.findIndex((q) => q.id === peer_or_self_review_question_id)
+          if (questionIndex === -1) {
+            return null
+          }
+          const question = questions[questionIndex].question
+          return (
+            <>
+              {text_data && (
+                <Essay key={id} question={question} content={text_data} index={index} />
+              )}
+              {number_data !== null && (
+                <Likert key={id} question={question} content={number_data} index={index} />
+              )}
+            </>
+          )
+        },
+      )}
     </Wrapper>
   )
 }

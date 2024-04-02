@@ -282,7 +282,10 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                   // If everything in the answer is null, transform the answer to not answered
                   answers.delete(question.id)
                 } else {
-                  answers.set(question.id, { ...newAnswer, peer_or_self_review_question_id: question.id })
+                  answers.set(question.id, {
+                    ...newAnswer,
+                    peer_or_self_review_question_id: question.id,
+                  })
                 }
 
                 return answers

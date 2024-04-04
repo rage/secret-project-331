@@ -1,6 +1,6 @@
 CREATE TABLE exercise_list_of_suspected_cheaters_exercise_list (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  student_id UUID NOT NULL REFERENCES course_module_completion,
+  student_id UUID NOT NULL REFERENCES course_module_completions,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   exercise_id UUID REFERENCES exercises NOT NULL ,

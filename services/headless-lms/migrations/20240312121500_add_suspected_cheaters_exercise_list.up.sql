@@ -1,4 +1,4 @@
-CREATE TABLE exercise_list_of_suspected_cheaters (
+CREATE TABLE suspected_cheaters_exercise_list (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   student_id UUID NOT NULL REFERENCES course_module_completions,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -19,7 +19,7 @@ EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE suspected_cheaters_exercise_list IS 'This table stores data regarding the list of exercises pertaining to students that have been suspected of cheating in a course.';
 COMMENT ON COLUMN suspected_cheaters_exercise_list.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN suspected_cheaters_exercise_list.student_id IS 'The id of the student being suspected.';
-COMMENT ON COLUMN exercise_list_of_suspected_cheaters_exercise_list.updated_at IS 'Timestamp when the record was updated.';
+COMMENT ON COLUMN suspected_cheaters_exercise_list.updated_at IS 'Timestamp when the record was updated.';
 COMMENT ON COLUMN suspected_cheaters_exercise_list.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN suspected_cheaters_exercise_list.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN suspected_cheaters_exercise_list.exercise_id IS 'Exercise Id of an exercise completed by the suspected student.';

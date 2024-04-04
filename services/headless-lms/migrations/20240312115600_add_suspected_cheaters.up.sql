@@ -29,7 +29,7 @@ CREATE TABLE course_student_average (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   course_average_duration INTEGER NOT NULL,
-  course_average_points INTEGER NOT NULL,
+  course_average_points INTEGER NOT NULL
 );
 
 CREATE TRIGGER set_timestamp

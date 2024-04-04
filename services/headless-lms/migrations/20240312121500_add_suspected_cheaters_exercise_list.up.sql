@@ -1,4 +1,4 @@
-CREATE TABLE exercise_list_of_suspected_cheaters_exercise_list (
+CREATE TABLE exercise_list_of_suspected_cheaters (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   student_id UUID NOT NULL REFERENCES course_module_completions,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),

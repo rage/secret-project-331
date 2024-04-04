@@ -1,1 +1,2 @@
 DROP TABLE exercise_list_of_suspected_cheaters;
+DROP TABLE exercise_student_average;

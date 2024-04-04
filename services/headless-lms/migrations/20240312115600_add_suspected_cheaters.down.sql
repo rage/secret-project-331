@@ -1,2 +1,2 @@
 DROP TABLE suspected_cheaters;
-DROP TABLE student_average;
+DROP TABLE course_student_average;

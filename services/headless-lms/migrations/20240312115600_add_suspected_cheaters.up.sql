@@ -17,7 +17,7 @@ COMMENT ON TABLE suspected_cheaters IS 'This table stores data regarding student
 COMMENT ON COLUMN suspected_cheaters.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN suspected_cheaters.student_id IS 'The id of the student being suspected.';
 COMMENT ON COLUMN suspected_cheaters.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN suspected_cheaters.updates_at IS 'Timestamp when the record was updated.';
+COMMENT ON COLUMN suspected_cheaters.updated_at IS 'Timestamp when the record was updated.';
 COMMENT ON COLUMN suspected_cheaters.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN suspected_cheaters.total_duration IS 'The total duration the student spend completing the course.';
 COMMENT ON COLUMN suspected_cheaters.total_points IS 'The total points the student acquired in the course.';

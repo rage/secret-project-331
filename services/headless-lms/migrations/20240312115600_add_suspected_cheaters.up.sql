@@ -40,7 +40,7 @@ EXECUTE PROCEDURE trigger_set_timestamp();
 COMMENT ON TABLE course_student_average IS 'This table stores data regarding the average in a specific course.';
 COMMENT ON COLUMN course_student_average.course_id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN course_student_average.created_at IS 'Timestamp when the record was created.';
-COMMENT ON COLUMN course_student_average.updates_at IS 'Timestamp when the record was updated.';
+COMMENT ON COLUMN course_student_average.updated_at IS 'Timestamp when the record was updated.';
 COMMENT ON COLUMN course_student_average.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN course_student_average.student_average_duration IS 'The average duration all student spent completing the course.';
 COMMENT ON COLUMN course_student_average.student_average_points IS 'The average points all students acquired in the course.';

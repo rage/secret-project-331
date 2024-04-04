@@ -43,8 +43,8 @@ CREATE TABLE exercise_student_average (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  exercise_average_duration INTEGER NOT NULL,
-  exercise_average_points INTEGER NOT NULL
+  average_duration INTEGER NOT NULL,
+  average_points INTEGER NOT NULL
 );
 
 CREATE TRIGGER set_timestamp
@@ -58,5 +58,5 @@ COMMENT ON COLUMN exercise_student_average.exercise_id IS 'The exercise_id of th
 COMMENT ON COLUMN exercise_student_average.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN exercise_student_average.updated_at IS 'Timestamp when the record was updated.';
 COMMENT ON COLUMN exercise_student_average.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN exercise_student_average.student_average_duration IS 'The average duration a all student used in completing an exercise.';
-COMMENT ON COLUMN exercise_student_average.student_average_points IS 'The average points all student received from completing an exercise.';
+COMMENT ON COLUMN exercise_student_average.average_duration IS 'The average duration a all student used in completing an exercise.';
+COMMENT ON COLUMN exercise_student_average.average_points IS 'The average points all student received from completing an exercise.';

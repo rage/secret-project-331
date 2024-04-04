@@ -12,7 +12,7 @@ CREATE TABLE suspected_cheaters_exercise_list (
 );
 
 CREATE TRIGGER set_timestamp
-BEFORE UPDATE ON exercise_list_of_suspected_cheaters_exercise_list
+BEFORE UPDATE ON suspected_cheaters_exercise_list
 FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
@@ -28,18 +28,9 @@ COMMENT ON COLUMN suspected_cheaters_exercise_list.points IS 'The points a suspe
 COMMENT ON COLUMN suspected_cheaters_exercise_list.attempts IS 'The number of times a student attempt an exercise.';
 COMMENT ON COLUMN suspected_cheaters_exercise_list.status IS 'The status of an exercise.';
 
--- suspected_cheater_exercise_states
-CREATE TYPE activity_progress AS ENUM (
-  'initialized',
-  'started',
-  'in-progress',
-  'submitted',
-  'completed'
-);
-
 CREATE TABLE exercise_student_average (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  exercise_id UUID NOT NULL REFERENCES exercise,
+  exercise_id UUID NOT NULL REFERENCES exercises,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,

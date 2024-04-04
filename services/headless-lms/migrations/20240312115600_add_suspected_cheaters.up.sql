@@ -1,6 +1,6 @@
 CREATE TABLE suspected_cheaters (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  student_id UUID NOT NULL REFERENCES course_module_completions,
+  user_id UUID NOT NULL REFERENCES users,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
@@ -15,7 +15,7 @@ EXECUTE PROCEDURE trigger_set_timestamp();
 
 COMMENT ON TABLE suspected_cheaters IS 'This table stores data regarding student that are suspected of cheating in a course.';
 COMMENT ON COLUMN suspected_cheaters.id IS 'A unique, stable identifier for the record.';
-COMMENT ON COLUMN suspected_cheaters.student_id IS 'The id of the student being suspected.';
+COMMENT ON COLUMN suspected_cheaters.user_id IS 'The user_id of the student being suspected.';
 COMMENT ON COLUMN suspected_cheaters.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN suspected_cheaters.updated_at IS 'Timestamp when the record was updated.';
 COMMENT ON COLUMN suspected_cheaters.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';

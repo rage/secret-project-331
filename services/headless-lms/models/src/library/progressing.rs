@@ -702,6 +702,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
     let course_id = course_instances::get_course_id(conn, course_instance_id).await?;
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
+    let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
     let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
         course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
@@ -714,6 +715,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
         .collect();
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
+    let all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = crate::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, &course_module_ids).await?;
 
     let course_module_completion_statuses = course_modules
         .into_iter()
@@ -733,6 +735,18 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                             .certificate_configuration
                             .id,
                     );
+                } else {
+                    // If instance-speficic certificate configuration is not found, try to find a configuration that is not instance-specific.
+                    let matching_certificate_configuration = all_certifcate_configurations_requiring_only_one_module_and_no_course_instance
+                        .iter()
+                        .find(|x| x.requirements.course_module_ids.contains(&module.id));
+                    if let Some(matching_certificate_configuration) = matching_certificate_configuration {
+                        certificate_configuration_id = Some(
+                            matching_certificate_configuration
+                                .certificate_configuration
+                                .id,
+                        );
+                    }
                 }
             }
             UserModuleCompletionStatus {

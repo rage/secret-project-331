@@ -1069,6 +1069,20 @@
 <a href="#1068" id="1068">1068</a>
 <a href="#1069" id="1069">1069</a>
 <a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -1773,6 +1787,7 @@
     <span class="kw">let </span>course_id = course_instances::get_course_id(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course = courses::get_course(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course_modules = course_modules::get_by_course_id(conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>course_module_ids = course_modules.iter().map(|x| x.id).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
     <span class="kw">let </span>course_module_completions: HashMap&lt;Uuid, CourseModuleCompletion&gt; =
         course_module_completions::get_all_by_course_instance_and_user_id(
             conn,
@@ -1785,6 +1800,7 @@
         .collect();
 
     <span class="kw">let </span>all_default_certificate_configurations = <span class="kw">crate</span>::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = <span class="kw">crate</span>::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, <span class="kw-2">&amp;</span>course_module_ids).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>course_module_completion_statuses = course_modules
         .into_iter()
@@ -1804,6 +1820,18 @@
                             .certificate_configuration
                             .id,
                     );
+                } <span class="kw">else </span>{
+                    <span class="comment">// If instance-speficic certificate configuration is not found, try to find a configuration that is not instance-specific.
+                    </span><span class="kw">let </span>matching_certificate_configuration = all_certifcate_configurations_requiring_only_one_module_and_no_course_instance
+                        .iter()
+                        .find(|x| x.requirements.course_module_ids.contains(<span class="kw-2">&amp;</span>module.id));
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(matching_certificate_configuration) = matching_certificate_configuration {
+                        certificate_configuration_id = <span class="prelude-val">Some</span>(
+                            matching_certificate_configuration
+                                .certificate_configuration
+                                .id,
+                        );
+                    }
                 }
             }
             UserModuleCompletionStatus {

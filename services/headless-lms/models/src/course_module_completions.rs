@@ -26,6 +26,18 @@ pub struct CourseModuleCompletion {
     pub completion_granter_user_id: Option<Uuid>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModuleAverage {
+    pub id: Uuid,
+    pub course_instance_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub average_duration: u64,
+    pub average_points: f32,
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,
@@ -347,6 +359,31 @@ WHERE course_id = $1
     .fetch_one(conn)
     .await?;
     Ok(res.count.unwrap_or(0))
+}
+
+// Get the student average in the course
+pub async fn get_course_average(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<CourseModuleAverage> {
+    let res = sqlx::query_as!(
+        CourseModuleAverage,
+        r"
+    SELECT course_instance_id,
+        SUM(grade) AS total_score,
+        AVG(grade) AS average_score,
+        COUNT(DISTINCT user_id) AS student_count
+    FROM 
+        course_module_completions
+    WHERE 
+        course_id = $1
+        AND deleted_at IS NULL;
+        ",
+        course_instance_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 /// Gets automatically granted course module completion for the given user on the specified course

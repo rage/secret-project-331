@@ -26,6 +26,10 @@ impl CertificateAllRequirements {
         self.course_module_ids.len() == 1 && self.course_instance_ids.len() == 1
     }
 
+    pub fn requires_only_one_course_module_and_does_not_require_course_instance(&self) -> bool {
+        self.course_module_ids.len() == 1 && self.course_instance_ids.is_empty()
+    }
+
     /** Checks if the user has completed all requirements to be eligible for a certificate. */
     pub async fn has_user_completed_all_requirements(
         &self,

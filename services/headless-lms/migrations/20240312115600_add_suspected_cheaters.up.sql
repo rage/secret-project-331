@@ -101,3 +101,28 @@ COMMENT ON COLUMN exercise_student_average.deleted_at IS 'Timestamp when the rec
 COMMENT ON COLUMN exercise_student_average.average_duration IS 'The average duration a all student used in completing an exercise.';
 COMMENT ON COLUMN exercise_student_average.average_points IS 'The average points all student received from completing an exercise.';
 
+CREATE TABLE cheater_thresholds (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  course_id UUID NOT NULL REFERENCES courses,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  points INTEGER NOT NULL,
+  duration INTEGER NOT NULL
+);
+
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON cheater_thresholds
+FOR EACH ROW
+EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE cheater_thresholds IS 'This table stores threshold for measuring cheaters.';
+COMMENT ON COLUMN cheater_thresholds.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN cheater_thresholds.course_id IS 'The course_id of the course.';
+COMMENT ON COLUMN cheater_thresholds.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN cheater_thresholds.updated_at IS 'Timestamp when the record was updated.';
+COMMENT ON COLUMN cheater_thresholds.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN cheater_thresholds.points IS 'The score threshold of the course.';
+COMMENT ON COLUMN cheater_thresholds.duration IS 'The duration threshold of the course.';
+
+

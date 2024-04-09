@@ -2,6 +2,8 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+enforce_inotify_watches_limit_sufficient
+
 ensure_program_in_path docker
 
 if groups | grep -q '\bdocker\b'; then
@@ -65,7 +67,6 @@ echo "Checking if the ingress works"
 run_command kubectl get pods --namespace ingress-nginx
 echo ""
 run_command kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller
-
 
 echo ""
 echo "Checks done."

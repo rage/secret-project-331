@@ -504,6 +504,8 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: string
+  is_teacher_testing: boolean
+  show_exercise_answers: boolean | null
 }
 
 export interface ExamInstructions {
@@ -965,6 +967,7 @@ export interface CourseInstanceCompletionSummary {
 export interface CustomViewExerciseSubmissions {
   exercise_tasks: CustomViewExerciseTasks
   exercises: Array<Exercise>
+  user_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
 
 export interface CustomViewExerciseTaskGrading {
@@ -1506,7 +1509,8 @@ export interface PageAudioFile {
 
 export interface NewRegrading {
   user_points_update_strategy: UserPointsUpdateStrategy
-  exercise_task_submission_ids: Array<string>
+  ids: Array<string>
+  id_type: NewRegradingIdType
 }
 
 export interface Regrading {
@@ -1530,6 +1534,8 @@ export interface RegradingSubmissionInfo {
   grading_before_regrading: ExerciseTaskGrading
   grading_after_regrading: ExerciseTaskGrading | null
 }
+
+export type NewRegradingIdType = "ExerciseTaskSubmissionId" | "ExerciseId"
 
 export interface RepositoryExercise {
   id: string

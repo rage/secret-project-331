@@ -121,9 +121,10 @@ export type ExerciseEditorIframeState = {
 
 export type CustomViewIframeState = {
   view_type: "custom-view"
-  //exercise_task_id: string // confirm this!!
   user_information: UserInfo
   user_variables?: UserVariablesMap | null
+  course_name: string
+  module_completion_date: string | null
   data: {
     submissions_by_exercise: Array<{
       exercise_id: string

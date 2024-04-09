@@ -40,3 +40,7 @@ export function globalStatsRoute() {
 export function allOrganizationsRoute() {
   return "/organizations"
 }
+
+export function regradingsRoute() {
+  return "/manage/regradings"
+}

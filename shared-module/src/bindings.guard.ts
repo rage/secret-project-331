@@ -147,6 +147,7 @@ import {
   NewProposedBlockEdit,
   NewProposedPageEdits,
   NewRegrading,
+  NewRegradingIdType,
   NewResearchForm,
   NewResearchFormQuestion,
   NewResearchFormQuestionAnswer,
@@ -1050,7 +1051,11 @@ export function isExamEnrollment(obj: unknown): obj is ExamEnrollment {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["exam_id"] === "string" &&
-    typeof typedObj["started_at"] === "string"
+    typeof typedObj["started_at"] === "string" &&
+    typeof typedObj["is_teacher_testing"] === "boolean" &&
+    (typedObj["show_exercise_answers"] === null ||
+      typedObj["show_exercise_answers"] === false ||
+      typedObj["show_exercise_answers"] === true)
   )
 }
 
@@ -1862,7 +1867,11 @@ export function isCustomViewExerciseSubmissions(
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isCustomViewExerciseTasks(typedObj["exercise_tasks"]) as boolean) &&
     Array.isArray(typedObj["exercises"]) &&
-    typedObj["exercises"].every((e: any) => isExercise(e) as boolean)
+    typedObj["exercises"].every((e: any) => isExercise(e) as boolean) &&
+    Array.isArray(typedObj["user_variables"]) &&
+    typedObj["user_variables"].every(
+      (e: any) => isUserCourseInstanceExerciseServiceVariable(e) as boolean,
+    )
   )
 }
 
@@ -2733,8 +2742,9 @@ export function isNewRegrading(obj: unknown): obj is NewRegrading {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (isUserPointsUpdateStrategy(typedObj["user_points_update_strategy"]) as boolean) &&
-    Array.isArray(typedObj["exercise_task_submission_ids"]) &&
-    typedObj["exercise_task_submission_ids"].every((e: any) => typeof e === "string")
+    Array.isArray(typedObj["ids"]) &&
+    typedObj["ids"].every((e: any) => typeof e === "string") &&
+    (isNewRegradingIdType(typedObj["id_type"]) as boolean)
   )
 }
 
@@ -2774,6 +2784,11 @@ export function isRegradingSubmissionInfo(obj: unknown): obj is RegradingSubmiss
     (typedObj["grading_after_regrading"] === null ||
       (isExerciseTaskGrading(typedObj["grading_after_regrading"]) as boolean))
   )
+}
+
+export function isNewRegradingIdType(obj: unknown): obj is NewRegradingIdType {
+  const typedObj = obj as NewRegradingIdType
+  return typedObj === "ExerciseTaskSubmissionId" || typedObj === "ExerciseId"
 }
 
 export function isRepositoryExercise(obj: unknown): obj is RepositoryExercise {

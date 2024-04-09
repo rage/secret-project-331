@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    SELECT DISTINCT ON (a.research_form_question_id, a.user_id)\n        q.course_id,\n        q.research_consent_form_id,\n        a.research_form_question_id,\n        q.question,\n        a.user_id,\n        a.research_consent,\n        a.created_at,\n        a.updated_at\n        FROM course_specific_consent_form_answers a\n    LEFT JOIN course_specific_consent_form_questions q ON a.research_form_question_id = q.id\n    WHERE a.course_id = $1\n    AND a.deleted_at IS NULL\n    AND q.deleted_at IS NULL\n    ORDER BY a.user_id, a.research_form_question_id, a.updated_at DESC\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "research_consent_form_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "research_form_question_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "question",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "research_consent",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false, false, false, false]
+  },
+  "hash": "46dfc070116291407d3ee9d303cdfdd850c3933d9b31759e71da995fcf678ec6"
+}

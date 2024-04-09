@@ -224,6 +224,7 @@ fn models(target: &mut File) {
         regradings::Regrading,
         regradings::RegradingInfo,
         regradings::RegradingSubmissionInfo,
+        regradings::NewRegradingIdType,
         repository_exercises::RepositoryExercise,
         research_forms::NewResearchForm,
         research_forms::NewResearchFormQuestion,

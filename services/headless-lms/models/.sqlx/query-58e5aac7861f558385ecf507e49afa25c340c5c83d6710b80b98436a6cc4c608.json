@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ex.*\nFROM exercises ex\n  JOIN exercise_slides slides ON ex.id = slides.exercise_id\n  JOIN exercise_tasks tasks ON slides.id = tasks.exercise_slide_id\n  JOIN chapters c ON ex.chapter_id = c.id\nwhere tasks.exercise_type = $1\n  AND c.course_module_id = $2\n  AND ex.deleted_at IS NULL\n  AND tasks.deleted_at IS NULL\n  and c.deleted_at IS NULL\n  and slides.deleted_at IS NULL\n        ",
+  "query": "\nSELECT DISTINCT(ex.*)\nFROM exercises ex\n  JOIN exercise_slides slides ON ex.id = slides.exercise_id\n  JOIN exercise_tasks tasks ON slides.id = tasks.exercise_slide_id\n  JOIN chapters c ON ex.chapter_id = c.id\nwhere tasks.exercise_type = $1\n  AND c.course_module_id = $2\n  AND ex.deleted_at IS NULL\n  AND tasks.deleted_at IS NULL\n  and c.deleted_at IS NULL\n  and slides.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -118,5 +118,5 @@
       true
     ]
   },
-  "hash": "2357564991d128aeeb5db65686276b24c3aff7c1914cd2d4ad614c3eed3c449e"
+  "hash": "58e5aac7861f558385ecf507e49afa25c340c5c83d6710b80b98436a6cc4c608"
 }

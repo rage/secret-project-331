@@ -82,7 +82,7 @@
   "grading-pending": "Exercise grading is pending",
   "grading-pending-manual": "Exercise grading is waiting for manual grading",
   "help-text-answer-has-been-reviewed-and-locked": "Your answer has been reviewed and graded. New submissions are no longer allowed.",
-  "help-text-exercise-involves-peer-review": "After you submit this exercise, you will need to peer review {{peer_reviews_to_give}} answers from fellow students, and then you will self review your own answer. Following that, your peers will review your submission before you earn any points.",
+  "help-text-exercise-involves-only-peer-review": "After you submit this exercise, you will need to peer review {{peer_reviews_to_give}} answers from fellow students. Following that, your peers will review your submission before you earn any points.",
   "help-text-exercise-involves-peer-review-and-self-review": "After you submit this exercise, you will need to peer review {{peer_reviews_to_give}} answers from fellow students, and then you will self review your own answer. Following that, your peers will review your submission before you earn any points.",
   "help-text-exercise-involves-only-self-review": "After you submit this exercise, you will need to self review your own answer. Following that, course staff will review your submission before you earn any points.",
   "help-text-increase-peer-review-priority": "Want to speed up the process? Give more peer reviews! The more peer reviews you give, the more we will prioritize giving your answer to other students to review.",

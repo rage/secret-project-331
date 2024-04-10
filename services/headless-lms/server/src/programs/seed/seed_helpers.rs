@@ -637,6 +637,7 @@ pub async fn create_best_peer_review(
         exercise_id,
         true,
         false,
+        false,
     )
     .await?;
     Ok(())

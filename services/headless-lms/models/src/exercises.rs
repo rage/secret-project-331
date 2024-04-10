@@ -724,18 +724,21 @@ pub async fn set_exercise_to_use_exercise_specific_peer_or_self_review_config(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     needs_peer_review: bool,
+    needs_self_review: bool,
     use_course_default_peer_or_self_review_config: bool,
 ) -> ModelResult<Uuid> {
     let id = sqlx::query!(
         "
 UPDATE exercises
 SET use_course_default_peer_or_self_review_config = $1,
-  needs_peer_review = $2
-WHERE id = $3
+  needs_peer_review = $2,
+  needs_self_review = $3
+WHERE id = $4
 RETURNING id;
         ",
         use_course_default_peer_or_self_review_config,
         needs_peer_review,
+        needs_self_review,
         exercise_id
     )
     .fetch_one(conn)

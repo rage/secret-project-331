@@ -22,8 +22,8 @@ test("create peer review", async ({ page, headless }, testInfo) => {
     .first()
     .click()
 
+  await page.getByText("Peer and self review configuration").click()
   await page.getByText("Add peer review").check()
-  // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
   await page.getByText("Use course default peer review config").uncheck()
 
   await page.getByText("Add peer review question").click()
@@ -63,6 +63,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
     .first()
     .click()
 
+  await page.getByText("Peer and self review configuration").click()
   await page.getByText("Use course default peer review config").click()
 
   const [page1] = await Promise.all([

@@ -54,7 +54,7 @@ const getText = (
       })
     }
     if (exercise.needs_peer_review) {
-      return t("help-text-exercise-involves-peer-review", {
+      return t("help-text-exercise-involves-only-peer-review", {
         peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
       })
     }

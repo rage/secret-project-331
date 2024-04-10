@@ -7,7 +7,7 @@ import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
 import ContentRenderer from "../../.."
 import {
   Block,
-  fetchPeerReviewDataByExerciseId,
+  fetchPeerOrSelfReviewDataByExerciseId,
   postPeerOrSelfReviewSubmission,
 } from "../../../../../services/backend"
 import { CourseMaterialPeerOrSelfReviewQuestionAnswer } from "../../../../../shared-module/bindings"
@@ -38,21 +38,21 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   )
 
   const query = useQuery({
-    queryKey: [`exercise-${exerciseId}-peer-review`],
+    queryKey: [`exercise-${exerciseId}-peer-or-self-review`],
     queryFn: () => {
-      return fetchPeerReviewDataByExerciseId(exerciseId)
+      return fetchPeerOrSelfReviewDataByExerciseId(exerciseId)
     },
     // 23 hours in ms. Need to refetch at this time because the given peer review candidate expires in 24 hours, and someone might leave the peer review view open for longer than that
     refetchInterval: 82800000,
   })
 
-  const peerReviewData = query.data?.course_material_peer_or_self_review_data
+  const peerOrSelfReviewData = query.data?.course_material_peer_or_self_review_data
 
   const isValid = useMemo(() => {
-    if (!peerReviewData) {
+    if (!peerOrSelfReviewData) {
       return false
     }
-    return peerReviewData.peer_or_self_review_questions.every((question) => {
+    return peerOrSelfReviewData.peer_or_self_review_questions.every((question) => {
       if (!question.answer_required) {
         return true
       }
@@ -71,17 +71,18 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
 
       return false
     })
-  }, [answers, peerReviewData])
+  }, [answers, peerOrSelfReviewData])
 
-  const submitPeerReviewMutation = useToastMutation(
+  const submitPeerOrSelfReviewMutation = useToastMutation(
     async () => {
       const token = query.data?.token
-      if (!peerReviewData || !peerReviewData.answer_to_review || !token) {
+      if (!peerOrSelfReviewData || !peerOrSelfReviewData.answer_to_review || !token) {
         return
       }
       return await postPeerOrSelfReviewSubmission(exerciseId, {
-        exercise_slide_submission_id: peerReviewData.answer_to_review.exercise_slide_submission_id,
-        peer_or_self_review_config_id: peerReviewData.peer_or_self_review_config.id,
+        exercise_slide_submission_id:
+          peerOrSelfReviewData.answer_to_review.exercise_slide_submission_id,
+        peer_or_self_review_config_id: peerOrSelfReviewData.peer_or_self_review_config.id,
         peer_review_question_answers: Array.from(answers.values()),
         token,
       })
@@ -91,10 +92,11 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       onSuccess: async () => {
         // still old data because we have't refetched yet
         const givenEnoughReviews =
-          (peerReviewData?.peer_or_self_review_config.peer_reviews_to_give ?? Number.MAX_VALUE) <=
-          (peerReviewData?.num_peer_reviews_given ?? 0) + 1
+          (peerOrSelfReviewData?.peer_or_self_review_config.peer_reviews_to_give ??
+            Number.MAX_VALUE) <=
+          (peerOrSelfReviewData?.num_peer_reviews_given ?? 0) + 1
 
-        if (givenEnoughReviews) {
+        if (givenEnoughReviews || selfReview) {
           await parentExerciseQuery.refetch()
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
@@ -108,7 +110,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         // This refetch after the potential exercise refetch because the exercise refetch might close this view and if we refetched this first, we would show an extra intermediate view which would look confusing to the user
         await query.refetch()
 
-        if (!givenEnoughReviews) {
+        if (!givenEnoughReviews && !selfReview) {
           // Will scroll after once the refetch is complete because the refetch might change the heights of some elements and that would invalidate our current scrolling position
           setTimeout(() => {
             document
@@ -132,7 +134,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     return <Spinner variant="medium" />
   }
 
-  if (!peerReviewData?.answer_to_review?.course_material_exercise_tasks) {
+  if (!peerOrSelfReviewData?.answer_to_review?.course_material_exercise_tasks) {
     return (
       <div>
         <div
@@ -161,12 +163,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     >
       {!selfReview && (
         <PeerReviewProgress
-          total={peerReviewData.peer_or_self_review_config.peer_reviews_to_give}
-          attempt={peerReviewData.num_peer_reviews_given}
+          total={peerOrSelfReviewData.peer_or_self_review_config.peer_reviews_to_give}
+          attempt={peerOrSelfReviewData.num_peer_reviews_given}
         />
       )}
 
-      {Boolean(peerReviewData.peer_or_self_review_config.review_instructions) && (
+      {Boolean(peerOrSelfReviewData.peer_or_self_review_config.review_instructions) && (
         <div
           className={css`
             border: 0;
@@ -187,7 +189,10 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           </h4>
 
           <ContentRenderer
-            data={peerReviewData.peer_or_self_review_config.review_instructions as Block<unknown>[]}
+            data={
+              peerOrSelfReviewData.peer_or_self_review_config
+                .review_instructions as Block<unknown>[]
+            }
             editing={false}
             selectedBlockId={null}
             setEdits={function (_value): void {
@@ -199,7 +204,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       )}
 
       <div>
-        {peerReviewData.answer_to_review.course_material_exercise_tasks
+        {peerOrSelfReviewData.answer_to_review.course_material_exercise_tasks
           .sort((a, b) => a.order_number - b.order_number)
           .map((course_material_exercise_task) => {
             return (
@@ -265,7 +270,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         `}
       />
 
-      {peerReviewData.peer_or_self_review_questions
+      {peerOrSelfReviewData.peer_or_self_review_questions
         .sort((a, b) => a.order_number - b.order_number)
         .map((question) => (
           <PeerOrSelfReviewQuestion
@@ -295,8 +300,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         ))}
       <button
         className={cx(exerciseButtonStyles)}
-        disabled={!isValid || !peerReviewData || submitPeerReviewMutation.isPending}
-        onClick={() => submitPeerReviewMutation.mutate()}
+        disabled={!isValid || !peerOrSelfReviewData || submitPeerOrSelfReviewMutation.isPending}
+        onClick={() => submitPeerOrSelfReviewMutation.mutate()}
       >
         {t("submit-button")}
       </button>

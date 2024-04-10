@@ -28,21 +28,35 @@ use super::user_exercise_state_updater::{
 const MAX_PEER_REVIEW_CANDIDATES: i64 = 10;
 
 /// Starts peer review state for the student for this exercise.
-pub async fn start_peer_review_for_user(
+pub async fn start_peer_or_self_review_for_user(
     conn: &mut PgConnection,
     user_exercise_state: UserExerciseState,
+    exercise: &Exercise,
 ) -> ModelResult<()> {
     if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            "Cannot start peer review anymore.".to_string(),
+            "Cannot start peer or self review anymore.".to_string(),
             None,
         ));
     }
+    if !exercise.needs_peer_review && !exercise.needs_self_review {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Exercise does not need peer or self review.".to_string(),
+            None,
+        ));
+    }
+    let new_reviewing_stage = if exercise.needs_peer_review {
+        ReviewingStage::PeerReview
+    } else {
+        ReviewingStage::SelfReview
+    };
+
     let _user_exercise_state = user_exercise_states::update_exercise_progress(
         conn,
         user_exercise_state.id,
-        ReviewingStage::PeerReview,
+        new_reviewing_stage,
     )
     .await?;
     Ok(())
@@ -65,13 +79,37 @@ pub struct CourseMaterialPeerOrSelfReviewQuestionAnswer {
     pub number_data: Option<f32>,
 }
 
-pub async fn create_peer_review_submission_for_user(
+pub async fn create_peer_or_self_review_submission_for_user(
     conn: &mut PgConnection,
     exercise: &Exercise,
     giver_exercise_state: UserExerciseState,
+    receiver_exercise_state: UserExerciseState,
     peer_review_submission: CourseMaterialPeerOrSelfReviewSubmission,
 ) -> ModelResult<UserExerciseState> {
-    let peer_review = peer_or_self_review_configs::get_by_exercise_or_course_id(
+    let is_self_review = giver_exercise_state.user_id == receiver_exercise_state.user_id;
+
+    if is_self_review
+        && (!exercise.needs_self_review
+            || giver_exercise_state.reviewing_stage != ReviewingStage::SelfReview)
+    {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Self review not allowed.".to_string(),
+            None,
+        ));
+    }
+    if !is_self_review
+        && (!exercise.needs_peer_review
+            || giver_exercise_state.reviewing_stage == ReviewingStage::NotStarted)
+    {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Peer review not allowed.".to_string(),
+            None,
+        ));
+    }
+
+    let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
         conn,
         exercise,
         exercise.get_course_id()?,
@@ -80,7 +118,7 @@ pub async fn create_peer_review_submission_for_user(
     let sanitized_answers = validate_and_sanitize_peer_review_submission_answers(
         peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id_as_map(
             conn,
-            peer_review.id,
+            peer_or_self_review_config.id,
         )
         .await?,
         peer_review_submission.peer_review_question_answers,
@@ -99,40 +137,44 @@ pub async fn create_peer_review_submission_for_user(
         .try_into()?;
     let peer_reviews_given = peer_reviews_given_before_this_review + 1;
 
-    let unacceptable_amount_of_peer_reviews =
-        std::cmp::max(peer_review.peer_reviews_to_give, 1) * 15;
-    let suspicious_amount_of_peer_reviews =
-        std::cmp::max(std::cmp::max(peer_review.peer_reviews_to_give, 1) * 2, 4);
-    // To prevent someone from spamming peer reviews
-    if peer_reviews_given > unacceptable_amount_of_peer_reviews {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "You have given too many peer reviews to this exercise".to_string(),
-            None,
-        ));
-    }
-    // If someone has created more peer reviews than usual, apply rate limiting
-    if peer_reviews_given > suspicious_amount_of_peer_reviews {
-        // This is purposefully getting submission time to any peer reviewed exercise to prevent the user from spamming multiple exercises at the same time.
-        let last_submission_time =
-            peer_or_self_review_submissions::get_last_time_user_submitted_peer_review(
-                &mut tx,
-                giver_exercise_state.user_id,
-                giver_exercise_state.exercise_id,
-                giver_exercise_state.get_course_instance_id()?,
-            )
-            .await?;
+    if !is_self_review {
+        let unacceptable_amount_of_peer_reviews =
+            std::cmp::max(peer_or_self_review_config.peer_reviews_to_give, 1) * 15;
+        let suspicious_amount_of_peer_reviews = std::cmp::max(
+            std::cmp::max(peer_or_self_review_config.peer_reviews_to_give, 1) * 2,
+            4,
+        );
+        // To prevent someone from spamming peer reviews
+        if peer_reviews_given > unacceptable_amount_of_peer_reviews {
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "You have given too many peer reviews to this exercise".to_string(),
+                None,
+            ));
+        }
+        // If someone has created more peer reviews than usual, apply rate limiting
+        if peer_reviews_given > suspicious_amount_of_peer_reviews {
+            // This is purposefully getting submission time to any peer reviewed exercise to prevent the user from spamming multiple exercises at the same time.
+            let last_submission_time =
+                peer_or_self_review_submissions::get_last_time_user_submitted_peer_review(
+                    &mut tx,
+                    giver_exercise_state.user_id,
+                    giver_exercise_state.exercise_id,
+                    giver_exercise_state.get_course_instance_id()?,
+                )
+                .await?;
 
-        if let Some(last_submission_time) = last_submission_time {
-            let diff = peer_reviews_given - suspicious_amount_of_peer_reviews;
-            let coefficient = std::cmp::min(std::cmp::max(diff, 1), 10);
-            // Between 30 seconds and 5 minutes
-            if Utc::now() - Duration::seconds(30 * coefficient as i64) < last_submission_time {
-                return Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "You are submitting too fast. Try again later.".to_string(),
-                    None,
-                ));
+            if let Some(last_submission_time) = last_submission_time {
+                let diff = peer_reviews_given - suspicious_amount_of_peer_reviews;
+                let coefficient = std::cmp::min(std::cmp::max(diff, 1), 10);
+                // Between 30 seconds and 5 minutes
+                if Utc::now() - Duration::seconds(30 * coefficient as i64) < last_submission_time {
+                    return Err(ModelError::new(
+                        ModelErrorType::InvalidRequest,
+                        "You are submitting too fast. Try again later.".to_string(),
+                        None,
+                    ));
+                }
             }
         }
     }
@@ -142,7 +184,7 @@ pub async fn create_peer_review_submission_for_user(
         giver_exercise_state.user_id,
         giver_exercise_state.exercise_id,
         giver_exercise_state.get_course_instance_id()?,
-        peer_review.id,
+        peer_or_self_review_config.id,
         peer_review_submission.exercise_slide_submission_id,
     )
     .await?;
@@ -158,17 +200,27 @@ pub async fn create_peer_review_submission_for_user(
         .await?;
     }
 
-    let giver_exercise_state = if peer_reviews_given >= peer_review.peer_reviews_to_give {
+    let giver_exercise_state = if !is_self_review
+        && peer_reviews_given >= peer_or_self_review_config.peer_reviews_to_give
+    {
         update_peer_review_giver_exercise_progress(
             &mut tx,
             exercise,
             giver_exercise_state,
             peer_reviews_given,
-            peer_review.clone(),
+            peer_or_self_review_config.clone(),
         )
         .await?
     } else {
-        giver_exercise_state
+        if is_self_review {
+            user_exercise_state_updater::update_user_exercise_state(
+                &mut tx,
+                giver_exercise_state.id,
+            )
+            .await?
+        } else {
+            giver_exercise_state
+        }
     };
     let exercise_slide_submission = exercise_slide_submissions::get_by_id(
         &mut tx,
@@ -191,7 +243,16 @@ pub async fn create_peer_review_submission_for_user(
         )
         .await?;
     if let Some(entry) = receiver_peer_review_queue_entry {
-        update_peer_review_receiver_exercise_status(&mut tx, exercise, &peer_review, entry).await?;
+        // No need to update the user exercise state again if this is a self review
+        if entry.user_id != giver_exercise_state.user_id {
+            update_peer_review_receiver_exercise_status(
+                &mut tx,
+                exercise,
+                &peer_or_self_review_config,
+                entry,
+            )
+            .await?;
+        }
     }
     // Make it possible for the user to receive a new submission to review
     crate::offered_answers_to_peer_review_temporary::delete_saved_submissions_for_user(

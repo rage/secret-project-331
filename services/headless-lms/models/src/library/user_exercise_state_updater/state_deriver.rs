@@ -192,6 +192,14 @@ fn get_peer_or_self_review_opinion(
         return None;
     }
 
+    if input_data.current_user_exercise_state.reviewing_stage == ReviewingStage::NotStarted {
+        // The user has not started a peer review or a self review, so our opinion is that the user should not receive any points yet.
+        return Some(PeerOrSelfReviewOpinion {
+            score_given: None,
+            reviewing_stage: ReviewingStage::NotStarted,
+        });
+    }
+
     let score_maximum = input_data.exercise.score_maximum;
     if let Some(info) = &input_data.peer_or_self_review_information {
         if input_data.exercise.needs_peer_review {
@@ -518,7 +526,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::PeerReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -559,7 +567,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::PeerReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -606,7 +614,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::PeerReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -648,7 +656,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::PeerReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -695,7 +703,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::PeerReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -737,7 +745,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::PeerReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -833,7 +841,7 @@ mod tests {
             use super::*;
 
             #[test]
-            fn if_self_review_enabled_puts_answer_automatically_to_self_review() {
+            fn if_self_review_enabled_does_not_put_answer_automatically_to_self_review() {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
                 let exercise = create_exercise(CourseOrExamId::Course(id), true, true, true);
                 let user_exercise_state = create_user_exercise_state(
@@ -868,6 +876,46 @@ mod tests {
                     &new_user_exercise_state,
                     None,
                     ActivityProgress::InProgress,
+                    ReviewingStage::NotStarted,
+                );
+            }
+
+            #[test]
+            fn if_peer_and_self_review_enabled_self_review_comes_after_peer_review() {
+                let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
+                let exercise = create_exercise(CourseOrExamId::Course(id), true, true, true);
+                let user_exercise_state = create_user_exercise_state(
+                    &exercise,
+                    None,
+                    ActivityProgress::Initialized,
+                    ReviewingStage::PeerReview,
+                );
+                let new_user_exercise_state =
+                    derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
+                        exercise,
+                        current_user_exercise_state: user_exercise_state,
+                        peer_or_self_review_information: Some(
+                            UserExerciseStateUpdateRequiredDataPeerReviewInformation {
+                                given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
+                                given_self_review_submission: None,
+                                latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![],
+                                peer_review_queue_entry: None,
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
+                                peer_or_self_review_questions: Vec::new(),
+                            },
+                        ),
+                        latest_teacher_grading_decision: None,
+                        user_exercise_slide_state_grading_summary:
+                            UserExerciseSlideStateGradingSummary {
+                                score_given: Some(1.0),
+                                grading_progress: GradingProgress::FullyGraded,
+                            },
+                    })
+                    .unwrap();
+                assert_results(
+                    &new_user_exercise_state,
+                    None,
+                    ActivityProgress::InProgress,
                     ReviewingStage::SelfReview,
                 );
             }
@@ -880,7 +928,7 @@ mod tests {
                     &exercise,
                     None,
                     ActivityProgress::Initialized,
-                    ReviewingStage::NotStarted,
+                    ReviewingStage::SelfReview,
                 );
                 let new_user_exercise_state =
                     derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {
@@ -912,8 +960,9 @@ mod tests {
                 );
             }
 
+            // User has to start the self review themselves by clicking a button.
             #[test]
-            fn moves_to_self_review_if_self_review_but_no_peer_review() {
+            fn does_not_move_to_self_review_if_self_review_but_no_peer_review() {
                 let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
                 let exercise = create_exercise(CourseOrExamId::Course(id), false, true, true);
                 let user_exercise_state = create_user_exercise_state(
@@ -948,7 +997,7 @@ mod tests {
                     &new_user_exercise_state,
                     None,
                     ActivityProgress::InProgress,
-                    ReviewingStage::SelfReview,
+                    ReviewingStage::NotStarted,
                 );
             }
         }
@@ -961,7 +1010,7 @@ mod tests {
                 &exercise,
                 None,
                 ActivityProgress::Initialized,
-                ReviewingStage::NotStarted,
+                ReviewingStage::SelfReview,
             );
             let new_user_exercise_state =
                 derive_new_user_exercise_state(UserExerciseStateUpdateRequiredData {

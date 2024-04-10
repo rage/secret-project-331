@@ -83,6 +83,8 @@
   "help-text-answer-has-been-reviewed-and-locked": "Vastauksesi on arvioitu ja arvosteltu. Uusia palautuksia ei enää hyväksytä",
   "help-text-exercise-involves-peer-review": "Kun olet palauttanut tämän tehtävän, sinun tulee arvioida {{peer_reviews_to_give}} muiden opiskelijoiden vastauksia ja sen jälkeen itsearvioida oma vastauksesi. Tämän jälkeen muut oppilaat arvioivat vastauksesi ennen kun saat pisteet.",
   "help-text-exercise-involves-peer-review-and-self-review": "Kun olet palauttanut tämän tehtävän, sinun tulee arvioida {{peer_reviews_to_give}} muiden opiskelijoiden vastauksia ja sen jälkeen itsearvioida oma vastauksesi. Tämän jälkeen muut oppilaat arvioivat vastauksesi ennen kun saat pisteet.",
+  "start-self-review": "Aloita itsearviointi",
+  "help-text-waiting-for-manual-grading": "Odotetaan että kurssin henkilökunta arvioi vastauksesi.",
   "help-text-exercise-involves-only-self-review": "Kun olet palauttanut tämän tehtävän, sinun tulee itsearvioida oma vastauksesi. Tämän jälkeen kurssin henkilökunta arvioi vastauksesi ennen kuin saat pisteet.",
   "help-text-increase-peer-review-priority": "Jos haluat nopeuttaa tätä prosessia, anna lisää vertaisarvoita nostaaksesi oman vastauksesi prioritettia.",
   "help-text-no-answers-to-peer-review-yet": "Vastauksia ei ole vielä saatavilla vertaisarvoitavaksi. Ole hyvä ja tule myöhemmin takaisin vertaisarvioimaan muiden vastauksia.",

@@ -4,7 +4,7 @@ use url::Url;
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercises::{self, Exercise},
-    library::{self, peer_reviewing::CourseMaterialPeerOrSelfReviewData},
+    library::{self, peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewData},
     peer_or_self_review_questions::{
         delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids,
         upsert_multiple_peer_or_self_review_questions, CmsPeerOrSelfReviewQuestion,
@@ -314,7 +314,7 @@ pub async fn get_course_material_peer_or_self_review_data(
             ) {
                 // Calling library inside a model function. Maybe should be refactored by moving
                 // complicated logic to own library file?
-                let res = library::peer_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
+                let res = library::peer_or_self_reviewing::try_to_select_exercise_slide_submission_for_peer_review(
                     conn,
                     &exercise,
                     user_exercise_state,
@@ -323,7 +323,7 @@ pub async fn get_course_material_peer_or_self_review_data(
                 .await?;
                 Ok(res)
             } else if user_exercise_state.reviewing_stage == ReviewingStage::SelfReview {
-                let res = library::peer_reviewing::select_own_submission_for_self_review(
+                let res = library::peer_or_self_reviewing::select_own_submission_for_self_review(
                     conn,
                     &exercise,
                     user_exercise_state,

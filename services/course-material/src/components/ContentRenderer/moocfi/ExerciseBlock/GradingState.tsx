@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import {
   CourseMaterialPeerOrSelfReviewConfig,
+  Exercise,
   GradingProgress,
   ReviewingStage,
 } from "../../../../shared-module/bindings"
@@ -13,17 +14,19 @@ interface GradingStateProps {
   gradingProgress: GradingProgress
   reviewingStage: ReviewingStage
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
+  exercise: Exercise
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
   reviewingStage,
   peerOrSelfReviewConfig,
+  exercise,
 }) => {
   const { t } = useTranslation()
 
   const text = useMemo(
-    () => getText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, t),
-    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, t],
+    () => getText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, exercise, t),
+    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
   )
 
   if (text === null) {
@@ -41,12 +44,23 @@ const getText = (
   reviewingStage: ReviewingStage,
   gradingProgress: GradingProgress,
   peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
+  exercise: Exercise,
   t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
   if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
-    return t("help-text-exercise-involves-peer-review", {
-      peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
-    })
+    if (exercise.needs_peer_review && exercise.needs_self_review) {
+      return t("help-text-exercise-involves-peer-review-and-self-review", {
+        peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
+      })
+    }
+    if (exercise.needs_peer_review) {
+      return t("help-text-exercise-involves-peer-review", {
+        peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
+      })
+    }
+    if (exercise.needs_self_review) {
+      return t("help-text-exercise-involves-only-self-review")
+    }
   }
   if (reviewingStage === "NotStarted") {
     switch (gradingProgress) {

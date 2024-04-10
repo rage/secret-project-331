@@ -902,7 +902,7 @@ async fn post_update_peer_review_queue_reviews_received(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    models::library::peer_reviewing::update_peer_review_queue_reviews_received(
+    models::library::peer_or_self_reviewing::update_peer_review_queue_reviews_received(
         &mut conn, *course_id,
     )
     .await?;

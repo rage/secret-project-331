@@ -258,7 +258,7 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return validateResponse(response, isCourseMaterialExercise)
 }
 
-export const fetchPeerReviewDataByExerciseId = async (
+export const fetchPeerOrSelfReviewDataByExerciseId = async (
   id: string,
 ): Promise<CourseMaterialPeerOrSelfReviewDataWithToken> => {
   const response = await courseMaterialClient.get(`/exercises/${id}/peer-review`, {
@@ -392,7 +392,7 @@ export const postPeerOrSelfReviewSubmission = async (
   )
 }
 
-export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
+export const postStartPeerOrSelfReview = async (exerciseId: string): Promise<void> => {
   await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
 }
 

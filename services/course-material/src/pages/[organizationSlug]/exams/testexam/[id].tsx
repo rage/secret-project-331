@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
+import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -237,6 +237,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     exam.data.enrollment_data.tag === "NotEnrolled" ||
     exam.data.enrollment_data.tag === "NotYetStarted"
   ) {
+    if (exam.data.enrollment_data.tag === "NotEnrolled") {
+      exam.data.enrollment_data.can_enroll = true
+    }
     return (
       <>
         {examInfo}
@@ -248,7 +251,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             }}
             examEnrollmentData={exam.data.enrollment_data}
             examHasStarted={true}
-            examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
+            examHasEnded={false}
             timeMinutes={exam.data.time_minutes}
           >
             <div

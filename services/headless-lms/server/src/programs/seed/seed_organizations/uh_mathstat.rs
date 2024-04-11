@@ -50,7 +50,7 @@ pub async fn seed_organization_uh_mathstat(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
-        langs_user_id: _,
+        langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -148,6 +148,7 @@ pub async fn seed_organization_uh_mathstat(
         organization_id: uh_mathstat_id,
         admin_user_id,
         student_user_id: student_3_user_id,
+        langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,

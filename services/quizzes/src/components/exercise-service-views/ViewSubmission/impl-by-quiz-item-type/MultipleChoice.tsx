@@ -250,7 +250,7 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         padding: 0.5rem 0px 0.5rem 0.5rem;
       `}
     >
-      <p>{feedback}</p>
+      <ParsedText inline parseLatex parseMarkdown addDotToEnd text={feedback} />
     </div>
   ) : null
 }

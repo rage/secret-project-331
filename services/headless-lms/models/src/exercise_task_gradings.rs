@@ -552,37 +552,27 @@ pub async fn get_user_exercise_task_gradings_by_module_and_exercise_type(
     let res: Vec<CustomViewExerciseTaskGrading> = sqlx::query_as!(
         CustomViewExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  exercise_id,
-  exercise_task_id,
-  feedback_json,
-  feedback_text
-FROM exercise_task_gradings g
-WHERE deleted_at IS NULL
-  AND g.exercise_task_id IN (
-    SELECT distinct (t.id)
-    FROM exercise_tasks t
-    WHERE t.exercise_type = $2
-      AND deleted_at IS NULL
-      AND t.exercise_slide_id IN (
-        SELECT s.exercise_slide_id
-        FROM exercise_slide_submissions s
-        WHERE s.user_id = $1
-          AND s.course_instance_id = $4
-          AND deleted_at IS NULL
-          AND s.exercise_id IN (
-            SELECT id
-            FROM exercises e
-            WHERE e.chapter_id IN (
-                SELECT id
-                FROM chapters c
-                WHERE c.course_module_id = $3
-                AND deleted_at IS NULL
-              )
-          )
-      )
-  )
+SELECT etg.id,
+  etg.created_at,
+  etg.exercise_id,
+  etg.exercise_task_id,
+  etg.feedback_json,
+  etg.feedback_text
+FROM exercise_task_gradings etg
+  JOIN exercise_tasks et ON etg.exercise_task_id = et.id
+  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
+  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+  JOIN exercises e ON ess.exercise_id = e.id
+  JOIN chapters c ON e.chapter_id = c.id
+WHERE etg.deleted_at IS NULL
+  AND et.deleted_at IS NULL
+  AND et.exercise_type = $2
+  AND ess.user_id = $1
+  AND ess.course_instance_id = $4
+  AND ess.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND c.course_module_id = $3
       "#,
         user_id,
         exercise_type,

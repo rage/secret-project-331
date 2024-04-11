@@ -584,16 +584,6 @@
 <a href="#583" id="583">583</a>
 <a href="#584" id="584">584</a>
 <a href="#585" id="585">585</a>
-<a href="#586" id="586">586</a>
-<a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
-<a href="#590" id="590">590</a>
-<a href="#591" id="591">591</a>
-<a href="#592" id="592">592</a>
-<a href="#593" id="593">593</a>
-<a href="#594" id="594">594</a>
-<a href="#595" id="595">595</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::future::BoxFuture;
@@ -1148,37 +1138,27 @@ WHERE deleted_at IS NULL
     <span class="kw">let </span>res: Vec&lt;CustomViewExerciseTaskGrading&gt; = <span class="macro">sqlx::query_as!</span>(
         CustomViewExerciseTaskGrading,
         <span class="string">r#"
-SELECT id,
-  created_at,
-  exercise_id,
-  exercise_task_id,
-  feedback_json,
-  feedback_text
-FROM exercise_task_gradings g
-WHERE deleted_at IS NULL
-  AND g.exercise_task_id IN (
-    SELECT distinct (t.id)
-    FROM exercise_tasks t
-    WHERE t.exercise_type = $2
-      AND deleted_at IS NULL
-      AND t.exercise_slide_id IN (
-        SELECT s.exercise_slide_id
-        FROM exercise_slide_submissions s
-        WHERE s.user_id = $1
-          AND s.course_instance_id = $4
-          AND deleted_at IS NULL
-          AND s.exercise_id IN (
-            SELECT id
-            FROM exercises e
-            WHERE e.chapter_id IN (
-                SELECT id
-                FROM chapters c
-                WHERE c.course_module_id = $3
-                AND deleted_at IS NULL
-              )
-          )
-      )
-  )
+SELECT etg.id,
+  etg.created_at,
+  etg.exercise_id,
+  etg.exercise_task_id,
+  etg.feedback_json,
+  etg.feedback_text
+FROM exercise_task_gradings etg
+  JOIN exercise_tasks et ON etg.exercise_task_id = et.id
+  JOIN exercise_task_submissions ets ON etg.exercise_task_submission_id = ets.id
+  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+  JOIN exercises e ON ess.exercise_id = e.id
+  JOIN chapters c ON e.chapter_id = c.id
+WHERE etg.deleted_at IS NULL
+  AND et.deleted_at IS NULL
+  AND et.exercise_type = $2
+  AND ess.user_id = $1
+  AND ess.course_instance_id = $4
+  AND ess.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND c.course_module_id = $3
       "#</span>,
         user_id,
         exercise_type,

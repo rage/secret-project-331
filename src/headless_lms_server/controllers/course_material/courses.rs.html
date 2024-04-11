@@ -982,6 +982,10 @@
 <a href="#981" id="981">981</a>
 <a href="#982" id="982">982</a>
 <a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
@@ -1663,7 +1667,7 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
 }
 
 <span class="doccomment">/**
-GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses.
+GET `/api/v0/course-material/courses/:id/language-versions` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include draft courses if the course the request for is a draft course and the teacher has a permission to access it.
 */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_all_course_language_versions(
@@ -1675,22 +1679,26 @@ GET `/api/v0/course-material/courses/:id/language-versions` - Returns all langua
     <span class="kw">let </span>token = skip_authorize();
     <span class="kw">let </span>course = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>language_versions =
-        models::courses::get_all_language_versions_of_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course)
-            .<span class="kw">await</span><span class="question-mark">?
-            </span>.into_iter()
-            .filter(|c| !c.is_draft)
-            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">let </span>unfiltered_language_versions =
+        models::courses::get_all_language_versions_of_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>course).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>language_versions = unfiltered_language_versions
+        .clone()
+        .into_iter()
+        .filter(|c| !c.is_draft)
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
     <span class="kw">if </span>!language_versions.iter().any(|c| c.id == course.id) {
         <span class="comment">// The course the language version was requested for is likely a draft course.
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(user_id) = user.map(|u| u.id) {
-            authorize_access_to_course_material(<span class="kw-2">&amp;mut </span>conn, <span class="prelude-val">Some</span>(user_id), <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>access_draft_course_token =
+                authorize_access_to_course_material(<span class="kw-2">&amp;mut </span>conn, <span class="prelude-val">Some</span>(user_id), <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="macro">info!</span>(
-                <span class="string">"Course {} not found in language versions of course {}. Adding it back to the list."</span>,
-                course.id, course.id
+                <span class="string">"Course {} the language version was requested for is a draft course. Including all draft courses in the response."</span>,
+                course.id,
             );
-            language_versions.push(course);
+            <span class="kw">return </span>access_draft_course_token
+                .authorized_ok(web::Json(unfiltered_language_versions));
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::Unauthorized,

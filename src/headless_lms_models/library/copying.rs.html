@@ -1127,6 +1127,38 @@
 <a href="#1126" id="1126">1126</a>
 <a href="#1127" id="1127">1127</a>
 <a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1322,6 +1354,8 @@ WHERE id = $2;
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     copy_peer_review_configs(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    copy_material_references(<span class="kw-2">&amp;mut </span>tx, copied_course.id, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(copied_course)
@@ -1897,6 +1931,36 @@ SELECT uuid_generate_v5($1, id::text),
   processing_strategy,
   accepting_threshold
 FROM peer_review_configs
+WHERE course_id = $2
+AND deleted_at IS NULL;
+    "</span>,
+        namespace_id,
+        parent_id,
+    )
+    .execute(<span class="kw-2">&amp;mut *</span>tx)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">async fn </span>copy_material_references(
+    tx: <span class="kw-2">&amp;mut </span>PgConnection,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -&gt; ModelResult&lt;()&gt; {
+    <span class="comment">// Copy material references
+    </span><span class="macro">sqlx::query!</span>(
+        <span class="string">"
+INSERT INTO material_references (
+    citation_key,
+    course_id,
+    id,
+    reference
+)
+SELECT citation_key,
+  $1,
+  uuid_generate_v5($1, id::text),
+  reference
+FROM material_references
 WHERE course_id = $2
 AND deleted_at IS NULL;
     "</span>,

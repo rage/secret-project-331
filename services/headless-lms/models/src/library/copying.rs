@@ -194,6 +194,8 @@ WHERE id = $2;
 
     copy_peer_review_configs(&mut tx, copied_course.id, course_id).await?;
 
+    copy_material_references(&mut tx, copied_course.id, course_id).await?;
+
     tx.commit().await?;
     Ok(copied_course)
 }
@@ -768,6 +770,36 @@ SELECT uuid_generate_v5($1, id::text),
   processing_strategy,
   accepting_threshold
 FROM peer_review_configs
+WHERE course_id = $2
+AND deleted_at IS NULL;
+    ",
+        namespace_id,
+        parent_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_material_references(
+    tx: &mut PgConnection,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -> ModelResult<()> {
+    // Copy material references
+    sqlx::query!(
+        "
+INSERT INTO material_references (
+    citation_key,
+    course_id,
+    id,
+    reference
+)
+SELECT citation_key,
+  $1,
+  uuid_generate_v5($1, id::text),
+  reference
+FROM material_references
 WHERE course_id = $2
 AND deleted_at IS NULL;
     ",

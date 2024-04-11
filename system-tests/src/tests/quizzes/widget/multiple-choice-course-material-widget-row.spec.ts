@@ -80,7 +80,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-single",
     waitForTheseToBeVisibleAndStable: [
-      frame3.locator(`text="Incorrect. This is not the first answer"`),
+      frame3.getByText(`Incorrect. This is not the first answer.`),
     ],
     screenshotTarget: frame3,
     clearNotifications: true,
@@ -139,7 +139,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame4.locator(`text="Incorrect. This is not the first answer"`),
+      frame4.getByText(`Incorrect. This is not the first answer.`),
     ],
     screenshotTarget: frame4,
     clearNotifications: true,

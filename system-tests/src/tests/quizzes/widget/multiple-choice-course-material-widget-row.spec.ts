@@ -53,7 +53,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-single",
     waitForTheseToBeVisibleAndStable: [
-      frame3.locator(`text="Correct! This is indeed the first answer"`),
+      frame3.locator(`text="Correct! This is indeed the first answer."`),
     ],
     screenshotTarget: frame3,
     clearNotifications: true,
@@ -112,7 +112,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame4.locator(`text="Correct! This is indeed the first answer"`),
+      frame4.locator(`text="Correct! This is indeed the first answer."`),
     ],
     screenshotTarget: frame4,
     clearNotifications: true,

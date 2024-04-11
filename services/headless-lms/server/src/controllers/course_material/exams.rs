@@ -39,6 +39,13 @@ pub async fn enroll(
     let mut conn = pool.acquire().await?;
     let exam = exams::get(&mut conn, *exam_id).await?;
 
+    // enroll if teacher is testing regardless of exams starting time
+    if payload.is_teacher_testing {
+        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+        return token.authorized_ok(web::Json(()));
+    }
+
     // check that the exam is not over
     let now = Utc::now();
     if exam.ended_at_or(now, false) {
@@ -49,12 +56,6 @@ pub async fn enroll(
         ));
     }
 
-    // enroll if teacher is testing regardless of exams starting time
-    if payload.is_teacher_testing {
-        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
-        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
-        return token.authorized_ok(web::Json(()));
-    }
     if exam.started_at_or(now, false) {
         // This check should probably be handled in the authorize function but I'm not sure of
         // the proper action type.

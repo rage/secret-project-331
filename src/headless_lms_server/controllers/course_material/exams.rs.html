@@ -363,6 +363,7 @@
 <a href="#362" id="362">362</a>
 <a href="#363" id="363">363</a>
 <a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::{DateTime, Duration, Utc};
 <span class="kw">use </span>models::{
     exams::{<span class="self">self</span>, ExamEnrollment},
@@ -404,6 +405,13 @@ POST /api/v0/course-material/exams/:id/enroll
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exam = exams::get(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
+    <span class="comment">// enroll if teacher is testing regardless of exams starting time
+    </span><span class="kw">if </span>payload.is_teacher_testing {
+        exams::enroll(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id, payload.is_teacher_testing).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">return </span>token.authorized_ok(web::Json(()));
+    }
+
     <span class="comment">// check that the exam is not over
     </span><span class="kw">let </span>now = Utc::now();
     <span class="kw">if </span>exam.ended_at_or(now, <span class="bool-val">false</span>) {
@@ -414,12 +422,6 @@ POST /api/v0/course-material/exams/:id/enroll
         ));
     }
 
-    <span class="comment">// enroll if teacher is testing regardless of exams starting time
-    </span><span class="kw">if </span>payload.is_teacher_testing {
-        exams::enroll(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>exam_id, user.id, payload.is_teacher_testing).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Exam(<span class="kw-2">*</span>exam_id)).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="kw">return </span>token.authorized_ok(web::Json(()));
-    }
     <span class="kw">if </span>exam.started_at_or(now, <span class="bool-val">false</span>) {
         <span class="comment">// This check should probably be handled in the authorize function but I'm not sure of
         // the proper action type.

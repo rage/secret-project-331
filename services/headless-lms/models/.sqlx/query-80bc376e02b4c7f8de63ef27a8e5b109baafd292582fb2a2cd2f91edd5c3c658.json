@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO material_references (\n    citation_key,\n    course_id,\n    id,\n    reference\n)\nSELECT citation_key,\n  $1,\n  uuid_generate_v5($1, id::text),\n  reference\nFROM material_references\nWHERE course_id = $2\nAND deleted_at IS NULL;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "80bc376e02b4c7f8de63ef27a8e5b109baafd292582fb2a2cd2f91edd5c3c658"
+}

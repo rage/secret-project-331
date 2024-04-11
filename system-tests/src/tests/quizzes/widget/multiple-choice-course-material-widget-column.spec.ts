@@ -56,7 +56,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-single",
     waitForTheseToBeVisibleAndStable: [
-      frame.locator(`text="Correct! This is indeed the first answer"`),
+      frame.locator(`text="Correct! This is indeed the first answer."`),
     ],
     screenshotTarget: frame,
     clearNotifications: true,
@@ -83,9 +83,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-single",
-    waitForTheseToBeVisibleAndStable: [
-      frame.locator(`text="Incorrect. This is not the first answer"`),
-    ],
+    waitForTheseToBeVisibleAndStable: [frame.getByText(`Incorrect. This is not the first answer.`)],
 
     screenshotTarget: frame,
     clearNotifications: true,

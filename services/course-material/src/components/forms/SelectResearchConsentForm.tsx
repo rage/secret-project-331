@@ -51,25 +51,24 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
 
   // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
   useEffect(() => {
-    if (usersInitialAnswers) {
-      const questions = usersInitialAnswers?.reduce(
-        (acc, obj) => ({
-          ...acc,
-          [obj.research_form_question_id]: obj.research_consent,
-        }),
-        {},
-      )
-      setQuestionIdsAndAnswers(questions)
-    } else {
-      const questions = getResearchFormQuestions.data?.reduce(
-        (acc, obj) => ({
-          ...acc,
-          [obj.id]: false,
-        }),
-        {},
-      )
-      setQuestionIdsAndAnswers(questions)
-    }
+    setQuestionIdsAndAnswers((prev) => {
+      let res = prev
+      if (!res) {
+        res = {}
+      }
+      if (usersInitialAnswers) {
+        for (const answer of usersInitialAnswers) {
+          res[answer.research_form_question_id] = answer.research_consent
+        }
+      }
+      // Find out missing questions and add them to the list
+      for (const question of getResearchFormQuestions.data ?? []) {
+        if (Object.prototype.hasOwnProperty.call(res, question.id) === false) {
+          res[question.id] = false
+        }
+      }
+      return res
+    })
   }, [getResearchFormQuestions.data, setQuestionIdsAndAnswers, usersInitialAnswers])
 
   const mutation = useToastMutation(

@@ -38,9 +38,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     queryKey: [formatLanguageVersionsQueryKey(currentCourseId ?? ""), currentCourseId],
     queryFn: () => fetchCourseLanguageVersions(currentCourseId ?? ""),
   })
-  const courseVersionsList = useCourseLanguageVersionsList.data?.filter(
-    (course) => !course.is_draft,
-  )
+  const courseVersionsList = useCourseLanguageVersionsList.data
 
   const langCode = courseVersionsList?.find(
     (course) => course.id === selectedLangCourseId,

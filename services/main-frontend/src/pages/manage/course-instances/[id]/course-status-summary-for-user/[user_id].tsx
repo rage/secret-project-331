@@ -240,9 +240,18 @@ const CourseInstanceExerciseStatusList: React.FC<
             })
             .map(([chapterId, exerciseStatusListUnsorted]) => {
               const chapter = courseStructure.data.chapters.find((ch) => ch.id === chapterId)
-              const exerciseStatusList = exerciseStatusListUnsorted.sort(
-                (a, b) => a.exercise.order_number - b.exercise.order_number,
-              )
+
+              const exerciseStatusList = exerciseStatusListUnsorted
+                .sort((a, b) => a.exercise.order_number - b.exercise.order_number)
+                .sort((a, b) => {
+                  const aPage = courseStructure.data.pages.find((p) => p.id === a.exercise.page_id)
+                  const bPage = courseStructure.data.pages.find((p) => p.id === b.exercise.page_id)
+                  if (aPage && bPage) {
+                    return aPage.order_number - bPage.order_number
+                  }
+                  return 0
+                })
+
               return (
                 <div
                   key={chapterId}

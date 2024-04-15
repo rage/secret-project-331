@@ -122,7 +122,7 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
               {/* eslint-disable-next-line i18next/no-literal-string */}
               <th>grade_before_regrading</th>
               {/* eslint-disable-next-line i18next/no-literal-string */}
-              <th>grade_after_regrading</th>
+              <th>regrading_grade</th>
             </tr>
           </thead>
           <tbody>

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useRouter } from "next/router"
-import { useContext, useEffect, useId, useReducer, useState } from "react"
+import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
@@ -134,6 +134,7 @@ export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exer
 const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
+  const sectionRef = useRef(null)
   const exerciseTitleId = useId()
   const router = useRouter()
   const returnTo = useCurrentPagePathForReturnTo(router.asPath)
@@ -192,6 +193,7 @@ const ExerciseBlock: React.FC<
           signedIn: Boolean(loginState.signedIn),
         })
         await getCourseMaterialExercise.refetch()
+        makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       },
     },
   )
@@ -203,6 +205,7 @@ const ExerciseBlock: React.FC<
         // eslint-disable-next-line i18next/no-literal-string
         throw new Error("No data for the try again view")
       }
+      makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       dispatch({
         type: "tryAgain",
         payload: data,
@@ -223,6 +226,7 @@ const ExerciseBlock: React.FC<
         })
         setAnswers(a)
       }
+      makeSureComponentStaysVisibleAfterChangingView(sectionRef)
     },
     {
       notify: false,
@@ -327,6 +331,7 @@ const ExerciseBlock: React.FC<
         `}
         id={getExerciseBlockBeginningScrollingId(id)}
         aria-labelledby={exerciseTitleId}
+        ref={sectionRef}
       >
         <div>
           <div>
@@ -460,6 +465,7 @@ const ExerciseBlock: React.FC<
                     <div className="points">
                       <CheckCircle size={16} weight="bold" color="#394F77" />
                       <span data-test-id="exercise-points">
+                        {/* eslint-disable-next-line i18next/no-literal-string */}
                         <sup>{points ?? 0}</sup>&frasl;
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </span>
@@ -739,6 +745,29 @@ const ExerciseBlock: React.FC<
       </section>
     </>
   )
+}
+
+/**
+ * The previous view might have been a lot taller than the next view, which would cause the browser to jump down as the view changes and the execise block gets a lot shorter. This function makes sure that the exercise block will stay visible upto half a second after the view has changed.
+ */
+function makeSureComponentStaysVisibleAfterChangingView(ref: React.RefObject<HTMLElement>) {
+  if (!ref.current) {
+    return
+  }
+  function scrollToViewIfNeeded() {
+    if (!ref.current) {
+      return
+    }
+    const boundingBox = ref.current.getBoundingClientRect()
+    if (boundingBox.bottom < 0) {
+      ref.current.scrollIntoView()
+    }
+  }
+  setTimeout(scrollToViewIfNeeded, 100)
+  setTimeout(scrollToViewIfNeeded, 200)
+  setTimeout(scrollToViewIfNeeded, 300)
+  setTimeout(scrollToViewIfNeeded, 400)
+  setTimeout(scrollToViewIfNeeded, 500)
 }
 
 export default withErrorBoundary(ExerciseBlock)

@@ -43,7 +43,8 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      "moocfi/research-consent-checkbox",
+      // eslint-disable-next-line i18next/no-literal-string
+      "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
   const courseId = useContext(CourseContext)?.courseId
@@ -51,7 +52,8 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      "moocfi/research-consent-checkbox",
+      // eslint-disable-next-line i18next/no-literal-string
+      "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
 

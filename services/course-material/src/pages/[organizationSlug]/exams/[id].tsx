@@ -191,7 +191,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {
-              await enrollInExam(examId)
+              await enrollInExam(examId, false)
               exam.refetch()
             }}
             examEnrollmentData={exam.data.enrollment_data}

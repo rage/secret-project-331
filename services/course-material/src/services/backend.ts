@@ -9,6 +9,7 @@ import {
   CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerOrSelfReviewSubmission,
+  CourseModuleCompletion,
   CoursePageWithUserData,
   CustomViewExerciseSubmissions,
   ExamData,
@@ -50,6 +51,7 @@ import {
   isCourseInstance,
   isCourseMaterialExercise,
   isCourseMaterialPeerOrSelfReviewDataWithToken,
+  isCourseModuleCompletion,
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
   isExamData,
@@ -82,6 +84,7 @@ import {
   isObjectMap,
   isString,
   isUnion,
+  isUuid,
   validateResponse,
 } from "../shared-module/utils/fetching"
 
@@ -401,13 +404,47 @@ export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollmen
   return response.data
 }
 
-export const enrollInExam = async (examId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
+export const enrollInExam = async (examId: string, is_teacher_testing: boolean): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exams/${examId}/enroll`,
+    { is_teacher_testing },
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const fetchExam = async (examId: string): Promise<ExamData> => {
   const response = await courseMaterialClient.get(`/exams/${examId}`, { responseType: "json" })
   return validateResponse(response, isExamData)
+}
+
+export const fetchExamForTesting = async (examId: string): Promise<ExamData> => {
+  const response = await courseMaterialClient.get(
+    `/exams/testexam/${examId}/fetch-exam-for-testing`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isExamData)
+}
+
+export const resetExamProgress = async (examId: string): Promise<void> => {
+  const response = await courseMaterialClient.post(`/exams/testexam/${examId}/reset-exam-progress`)
+  return response.data
+}
+
+export const updateShowExerciseAnswers = async (
+  examId: string,
+  showExerciseAnswers: boolean,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exams/testexam/${examId}/update-show-exercise-answers`,
+    { show_exercise_answers: showExerciseAnswers },
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const saveExamAnswer = async (
@@ -584,13 +621,22 @@ export const fetchModuleIdByChapterId = async (chapter_id: string) => {
   const res = await courseMaterialClient.get(`/course-modules/chapter/${chapter_id}`, {
     responseType: "json",
   })
-  return validateResponse(res, isString)
+  return validateResponse(res, isUuid)
 }
 
 export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
-  console.log("in here")
   const res = await courseMaterialClient.get(`/course-modules/course/${course_id}`, {
     responseType: "json",
   })
-  return validateResponse(res, isString)
+  return validateResponse(res, isUuid)
+}
+
+export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
+  courseInstanceId: string,
+  userId: string,
+): Promise<CourseModuleCompletion[]> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
+  )
+  return validateResponse(response, isArray(isCourseModuleCompletion))
 }

@@ -66,6 +66,7 @@ const MultipleChoiceSubmission: React.FC<
   // device width. Sanitized since the value is used in CSS.
   const direction: FlexDirection = sanitizeFlexDirection(
     public_quiz_item.optionDisplayDirection,
+    // eslint-disable-next-line i18next/no-literal-string
     "row",
   )
 
@@ -249,7 +250,7 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         padding: 0.5rem 0px 0.5rem 0.5rem;
       `}
     >
-      <p>{feedback}</p>
+      <ParsedText inline parseLatex parseMarkdown addDotToEnd text={feedback} />
     </div>
   ) : null
 }

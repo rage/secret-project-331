@@ -1,4 +1,5 @@
 pub mod course_instance_export;
+pub mod course_research_form_questions_answers_export;
 pub mod exercise_tasks_export;
 pub mod points;
 pub mod submissions;

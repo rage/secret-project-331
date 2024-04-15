@@ -896,7 +896,7 @@ pub async fn get_exercises_by_module_containing_exercise_type(
     let res: Vec<Exercise> = sqlx::query_as!(
         Exercise,
         r#"
-SELECT ex.*
+SELECT DISTINCT(ex.*)
 FROM exercises ex
   JOIN exercise_slides slides ON ex.id = slides.exercise_id
   JOIN exercise_tasks tasks ON slides.id = tasks.exercise_slide_id

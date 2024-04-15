@@ -286,6 +286,23 @@ async fn get_org_exams(
 }
 
 /**
+GET `/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam
+*/
+#[instrument(skip(pool))]
+pub async fn get_org_exam_with_exam_id(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<OrgExam>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let exam = models::exams::get_organization_exam_with_exam_id(&mut conn, *exam_id).await?;
+
+    token.authorized_ok(web::Json(exam))
+}
+
+/**
 POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
 */
 #[instrument(skip(pool))]
@@ -379,5 +396,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_course_exams),
         )
         .route("/{organization_id}/org_exams", web::get().to(get_org_exams))
+        .route(
+            "/{organization_id}/fetch_org_exam",
+            web::get().to(get_org_exam_with_exam_id),
+        )
         .route("/{organization_id}/exams", web::post().to(create_exam));
 }

@@ -183,21 +183,21 @@ async fn get_research_form_with_course_id(
 }
 
 /**
-PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts questions for the courses research form from Gutenberg research form edit.
+PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
 */
 
 #[instrument(skip(pool, payload))]
-async fn upsert_course_research_form_question(
-    payload: web::Json<NewResearchFormQuestion>,
+async fn upsert_course_research_form_questions(
+    payload: web::Json<Vec<NewResearchFormQuestion>>,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<ResearchFormQuestion>> {
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestion>>> {
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let question = payload;
-    let res = models::research_forms::upsert_research_form_questions(&mut conn, &question).await?;
+
+    let res = models::research_forms::upsert_research_form_questions(&mut conn, &payload).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -253,8 +253,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_id}/pages", web::get().to(get_all_pages))
         .route(
-            "/{courseId}/research-consent-form-question",
-            web::put().to(upsert_course_research_form_question),
+            "/{courseId}/research-consent-form-questions",
+            web::put().to(upsert_course_research_form_questions),
         )
         .route(
             "/{course_id}/research-consent-form",

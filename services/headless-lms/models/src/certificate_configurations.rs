@@ -280,6 +280,65 @@ WHERE cctr.course_instance_id = $1
     Ok(res)
 }
 
+/** Finds all configurations that applies to any instance of a course module and requires only one course module. **/
+pub async fn get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(
+    conn: &mut PgConnection,
+    course_module_ids: &[Uuid],
+) -> ModelResult<Vec<CertificateConfigurationAndRequirements>> {
+    let mut res = Vec::new();
+    let cadidate_certificate_configurations = sqlx::query_as!(
+        CertificateConfiguration,
+        r#"
+SELECT cc.id,
+  cc.created_at,
+  cc.updated_at,
+  cc.deleted_at,
+  cc.certificate_owner_name_y_pos,
+  cc.certificate_owner_name_x_pos,
+  cc.certificate_owner_name_font_size,
+  cc.certificate_owner_name_text_color,
+  cc.certificate_owner_name_text_anchor as "certificate_owner_name_text_anchor: _",
+  cc.certificate_validate_url_y_pos,
+  cc.certificate_validate_url_x_pos,
+  cc.certificate_validate_url_font_size,
+  cc.certificate_validate_url_text_color,
+  cc.certificate_validate_url_text_anchor as "certificate_validate_url_text_anchor: _",
+  cc.certificate_date_y_pos,
+  cc.certificate_date_x_pos,
+  cc.certificate_date_font_size,
+  cc.certificate_date_text_color,
+  cc.certificate_date_text_anchor as "certificate_date_text_anchor: _",
+  cc.certificate_locale,
+  cc.paper_size as "paper_size: _",
+  cc.background_svg_path,
+  cc.background_svg_file_upload_id,
+  cc.overlay_svg_path,
+  cc.overlay_svg_file_upload_id
+FROM certificate_configurations cc
+JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
+WHERE cctr.course_module_id = ANY($1)
+  AND cctr.course_instance_id IS NULL
+  AND cc.deleted_at IS NULL
+  AND cctr.deleted_at IS NULL
+        "#,
+        course_module_ids,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    for certificate_configuration in &cadidate_certificate_configurations {
+        let requirements =
+            get_all_requirements_for_certificate_configuration(conn, certificate_configuration.id)
+                .await?;
+        if requirements.requires_only_one_course_module_and_does_not_require_course_instance() {
+            res.push(CertificateConfigurationAndRequirements {
+                certificate_configuration: certificate_configuration.clone(),
+                requirements,
+            });
+        }
+    }
+    Ok(res)
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseCertificateConfiguration {

@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next"
 import CloseIcon from "../../../../../../../imgs/close.svg"
 import TrashIcon from "../../../../../../../imgs/trash.svg"
 import {
-  fetchPageAudioFiles,
   postPageAudioFile,
   removePageAudioFile,
-} from "../../../../../../../services/backend/pages"
+} from "../../../../../../../services/backend/page-audio-files"
+import { fetchPageAudioFiles } from "../../../../../../../services/backend/pages"
 import Dialog from "../../../../../../../shared-module/components/Dialog"
 import ErrorBanner from "../../../../../../../shared-module/components/ErrorBanner"
 import Spinner from "../../../../../../../shared-module/components/Spinner"
@@ -56,7 +56,6 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     {
       onSuccess: () => {
         getPageAudioFiles.refetch()
-        // onClose()
       },
     },
   )
@@ -72,7 +71,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     },
     {
       notify: true,
-      successMessage: t("audio-addedd-successfully"),
+      successMessage: t("audio-added-successfully"),
       method: "POST",
     },
     {

@@ -20,7 +20,8 @@ export const TwitterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
   return (
     <iframe
       src={window.URL.createObjectURL(blob)}
-      title="Tweet"
+      // eslint-disable-next-line i18next/no-literal-string
+      title={"Twitter"}
       sandbox="allow-scripts allow-same-origin"
       frameBorder="0"
       className={css`

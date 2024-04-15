@@ -30,7 +30,7 @@ import LearningObjectives from "./LearningObjectives"
 import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
-import ResearchConsentCheckBox from "./ResearchConsentCheckbox"
+import ResearchFormQuestion from "./ResearchConsentQuestion"
 import TableBox from "./TableBox"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
@@ -66,6 +66,8 @@ export const blockTypeMapForPages = [
   ["moocfi/author-inner-block", AuthorInnerBlock],
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
+  ["moocfi/partners", PartnersBlock],
+  ["moocfi/top-level-pages", TopLevelPage],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -95,7 +97,7 @@ export const blockTypeMapForTopLevelPages = [
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
 export const blockTypeMapForResearchConsentForm = [
-  ["moocfi/research-consent-checkbox", ResearchConsentCheckBox],
+  ["moocfi/research-consent-question", ResearchFormQuestion],
 ] as Array<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [string, BlockConfiguration<Record<string, any>>]

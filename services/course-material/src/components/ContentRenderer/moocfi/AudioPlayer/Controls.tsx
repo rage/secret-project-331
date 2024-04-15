@@ -53,6 +53,7 @@ const Controls = ({ audioRef, progressBarRef, duration, setTimeProgress }: Contr
       const currentTime = audioRef.current.currentTime
       progressBarRef.current.value = String(currentTime)
       progressBarRef.current.style.setProperty(
+        // eslint-disable-next-line i18next/no-literal-string
         "--range-progress",
         `${(Number(progressBarRef.current.value) / duration) * 100}%`,
       )

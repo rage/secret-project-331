@@ -126,17 +126,14 @@ const SubmissionFeedback: React.FC<{
   const { t } = useTranslation()
 
   let backgroundColor = "#fffaf1"
-  // let borderColor = "#f3e5cb"
   let textColor = "#C25100"
 
   const userScore = itemFeedback.correctnessCoefficient ?? itemFeedback.score
   if (userScore == 1) {
     backgroundColor = "#D5EADF"
-    // borderColor = "#cbf3cd"
     textColor = "#246F46"
   } else if (userScore == 0) {
     backgroundColor = "#fff4f5"
-    // borderColor = "#f3cbcf"
     textColor = "#d52a3c"
   }
 
@@ -156,17 +153,9 @@ const SubmissionFeedback: React.FC<{
   const customItemFeedback = useMemo(() => {
     const customItemFeedback = itemFeedback.quiz_item_feedback?.trim()
     // If feedback on model solution is defined, this feedback takes precedence as the user is allowed to see the model solution and the teacher wants to show a custom message on the model solution
-    let messageOnModelSolution = itemModelSolution?.messageOnModelSolution ?? null
+    const messageOnModelSolution = itemModelSolution?.messageOnModelSolution ?? null
     if (messageOnModelSolution !== null && messageOnModelSolution.trim() !== "") {
-      messageOnModelSolution = messageOnModelSolution.trim()
-      if (
-        !messageOnModelSolution?.endsWith(".") &&
-        !messageOnModelSolution?.endsWith("!") &&
-        !messageOnModelSolution?.endsWith("?")
-      ) {
-        return messageOnModelSolution + "."
-      }
-      return messageOnModelSolution
+      return messageOnModelSolution.trim()
     }
     if (
       customItemFeedback === "" ||
@@ -174,14 +163,6 @@ const SubmissionFeedback: React.FC<{
       customItemFeedback === undefined
     ) {
       return null
-    }
-    if (
-      !customItemFeedback?.endsWith(".") &&
-      !customItemFeedback?.endsWith("!") &&
-      !customItemFeedback?.endsWith("?") &&
-      !customItemFeedback?.endsWith("]")
-    ) {
-      return customItemFeedback + "."
     }
     return customItemFeedback
   }, [itemFeedback.quiz_item_feedback, itemModelSolution?.messageOnModelSolution])
@@ -206,7 +187,7 @@ const SubmissionFeedback: React.FC<{
       <BullhornMegaphone size={20} weight="bold" color="7A3F75" />{" "}
       <span>
         {mapScoreToFeedback(userScore)}{" "}
-        <ParsedText inline parseLatex parseMarkdown text={customItemFeedback} />
+        <ParsedText inline parseLatex parseMarkdown addDotToEnd text={customItemFeedback} />
       </span>
     </div>
   )

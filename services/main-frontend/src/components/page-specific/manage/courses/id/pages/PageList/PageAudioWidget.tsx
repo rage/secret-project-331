@@ -82,6 +82,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   )
 
   const handleUpload = (event: React.ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault()
     if (!event.currentTarget.audioFile) {
       return
     }
@@ -226,6 +227,8 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
           )}
           <form
             onSubmit={handleUpload}
+            method="POST"
+            encType="multipart/form-data"
             className={css`
               margin-top: 20px;
               border: 1px solid #555;

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
-import { useRouter } from "next/router"
-import React, { RefObject } from "react"
+import React, { RefObject, useContext } from "react"
 
+import PageContext from "../../../../contexts/PageContext"
 import { headingFont } from "../../../../shared-module/styles"
 import { AudioFile } from "../../../Page"
 
@@ -13,6 +13,7 @@ interface DisplayTrackProps {
 }
 
 const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: DisplayTrackProps) => {
+  const pageContext = useContext(PageContext)
   const onLoadedMetadata = () => {
     if (audioRef?.current && progressBarRef?.current) {
       const seconds = audioRef?.current?.duration
@@ -20,12 +21,6 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
       progressBarRef.current.max = String(seconds)
     }
   }
-
-  const router = useRouter()
-
-  const title = router.asPath.split("/")[5]
-  let formattedTitle = title.charAt(0).toUpperCase() + title.slice(1)
-  formattedTitle = formattedTitle.replace(/-/g, " ")
 
   return (
     <>
@@ -60,7 +55,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
                 text-overflow: ellipsis;
               `}
             >
-              {formattedTitle}
+              {pageContext.pageData?.title}
             </p>
           </div>
         </div>

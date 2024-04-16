@@ -49,6 +49,7 @@ pub struct CommonCourseData {
     pub organization_id: Uuid,
     pub admin_user_id: Uuid,
     pub student_user_id: Uuid,
+    pub langs_user_id: Uuid,
     pub example_normal_user_ids: Arc<Vec<Uuid>>,
     pub jwt_key: Arc<JwtKey>,
     pub base_url: String,
@@ -65,6 +66,7 @@ pub async fn seed_sample_course(
         organization_id: org,
         admin_user_id: admin,
         student_user_id: student,
+        langs_user_id,
         example_normal_user_ids: users,
         jwt_key,
         base_url,
@@ -1783,6 +1785,15 @@ pub async fn seed_sample_course(
         )
         .await?;
     }
+    course_instance_enrollments::insert_enrollment_and_set_as_current(
+        &mut conn,
+        NewCourseInstanceEnrollment {
+            course_id,
+            course_instance_id: default_instance.id,
+            user_id: langs_user_id,
+        },
+    )
+    .await?;
 
     // feedback
     info!("sample feedback");
@@ -1978,6 +1989,7 @@ pub async fn create_glossary_course(
         organization_id: org_id,
         admin_user_id: admin,
         student_user_id: _,
+        langs_user_id: _,
         example_normal_user_ids: _,
         jwt_key,
         base_url,
@@ -2100,6 +2112,7 @@ pub async fn seed_cs_course_material(
     db_pool: &Pool<Postgres>,
     org: Uuid,
     admin: Uuid,
+    langs_user_id: Uuid,
     base_url: String,
     jwt_key: Arc<JwtKey>,
 ) -> Result<Uuid> {
@@ -2119,7 +2132,7 @@ pub async fn seed_cs_course_material(
         is_test_mode: false,
         copy_user_permissions: false,
     };
-    let (course, front_page, _default_instance, default_module) =
+    let (course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             &mut conn,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
@@ -2950,6 +2963,17 @@ pub async fn seed_cs_course_material(
         },
         base_url.clone(),
         jwt_key.clone(),
+    )
+    .await?;
+
+    // enrollments
+    course_instance_enrollments::insert_enrollment_and_set_as_current(
+        &mut conn,
+        NewCourseInstanceEnrollment {
+            course_id: course.id,
+            course_instance_id: default_instance.id,
+            user_id: langs_user_id,
+        },
     )
     .await?;
 
@@ -4367,6 +4391,7 @@ pub async fn seed_peer_review_course_without_submissions(
         organization_id: org,
         admin_user_id: admin,
         student_user_id: _,
+        langs_user_id: _,
         example_normal_user_ids: _,
         jwt_key,
         base_url,

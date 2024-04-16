@@ -1,4 +1,4 @@
-The TestMyCode exercise service is used for programming exercises.
+The TestMyCode exercise service is used for programming exercises. Handles exercises of the `"tmc"` exercise type.
 
 ## Setup
 

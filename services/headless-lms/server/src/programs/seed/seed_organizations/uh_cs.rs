@@ -7,9 +7,9 @@ use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
-    library::content_management::CreateNewCourseFixedIds,
     library::{
         self,
+        content_management::CreateNewCourseFixedIds,
         progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
     },
     open_university_registration_links, organizations,
@@ -64,7 +64,7 @@ pub async fn seed_organization_uh_cs(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
-        langs_user_id: _,
+        langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -95,6 +95,7 @@ pub async fn seed_organization_uh_cs(
         organization_id: uh_cs_organization_id,
         admin_user_id,
         student_user_id: student_3_user_id,
+        langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
         base_url: base_url.clone(),
@@ -434,6 +435,7 @@ pub async fn seed_organization_uh_cs(
         &db_pool,
         uh_cs_organization_id,
         admin_user_id,
+        langs_user_id,
         base_url.clone(),
         Arc::clone(&jwt_key),
     )

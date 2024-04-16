@@ -208,6 +208,14 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
                 justify-content: center;
                 align-items: center;
                 gap: 0 5px;
+
+                cursor: pointer;
+                filter: brightness(1) contrast(1);
+                transition: filter 0.3s;
+
+                &:hover {
+                  filter: brightness(0.9) contrast(1.1);
+                }
               `}
             >
               <AudioSpeaker />
@@ -216,7 +224,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
                   color: #fff;
                 `}
               >
-                {t("audio-player")}
+                {t("open-audio-player-button")}
               </span>
             </button>
           </AudioNotification>

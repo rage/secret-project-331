@@ -137,7 +137,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                   href: `/manage/pages/${page.id}/history`,
                 },
                 {
-                  label: t("upload-file"),
+                  label: t("upload-audio-file"),
                   // eslint-disable-next-line i18next/no-literal-string
                   onClick: () => {
                     setShowDialog(true)

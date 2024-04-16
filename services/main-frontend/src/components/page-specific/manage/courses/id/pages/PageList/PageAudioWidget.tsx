@@ -18,6 +18,13 @@ import { primaryFont } from "../../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
 import { runCallbackIfEnterPressed } from "../../../../../../../shared-module/utils/accessibility"
 
+const ACCEPTABLE_MIME_TYPES = [
+  "audio/mpeg",
+  "audio/ogg",
+  // Some audio files are detected as video/ogg even though they are audio files
+  "video/ogg",
+]
+
 export interface AudioUploadAttributes {
   id: string | null
   open: boolean
@@ -82,15 +89,16 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   )
 
   const handleUpload = (event: React.ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault()
     if (!event.currentTarget.audioFile) {
       return
     }
     const file: File | null = event.currentTarget.audioFile.files[0]
 
     if (file) {
-      const isNotAcceptedFormat = file.type !== "audio/mpeg" && file.type !== "audio/ogg"
-      if (isNotAcceptedFormat) {
+      if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
         console.error("The audio format is not accepted")
+        throw new Error("The audio format is not accepted")
       }
       uploadAudioFileMutation.mutate(file)
       event.currentTarget.audioFile.value = null
@@ -226,6 +234,8 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
           )}
           <form
             onSubmit={handleUpload}
+            method="POST"
+            encType="multipart/form-data"
             className={css`
               margin-top: 20px;
               border: 1px solid #555;

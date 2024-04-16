@@ -618,7 +618,7 @@
   "updated-definition": "Updated definition",
   "updated-term": "Updated term",
   "upload": "Upload",
-  "upload-file": "Upload file",
+  "upload-audio-file": "Upload audio file",
   "url": "URL",
   "use-this-email-address-on-the-registration-form": "Use this email address on the enrollment form",
   "user-answer-explanation": "This is the data that gets sent to the server to be graded when user answers an exercise. You can fill this data from the answer-exercise view by submitting the exercise.",

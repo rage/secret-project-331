@@ -231,6 +231,7 @@
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -283,7 +284,7 @@
         student_3_user_id,
         student_4_user_id: <span class="kw">_</span>,
         student_5_user_id: <span class="kw">_</span>,
-        langs_user_id: <span class="kw">_</span>,
+        langs_user_id,
     } = seed_users_result;
     <span class="kw">let _ </span>= seed_file_storage_result;
 
@@ -381,6 +382,7 @@
         organization_id: uh_mathstat_id,
         admin_user_id,
         student_user_id: student_3_user_id,
+        langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         base_url,

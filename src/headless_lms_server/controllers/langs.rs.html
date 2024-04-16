@@ -319,6 +319,8 @@
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::controllers::helpers::file_uploading;
 <span class="kw">use </span><span class="kw">crate</span>::domain::langs::{convert::Convert, token::AuthToken};
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -336,7 +338,7 @@
 <span class="doccomment">/**
  * GET /api/v0/langs/course-instances
  *
- * Returns the course instances that the user is currently enrolled on.
+ * Returns the course instances that the user is currently enrolled on that contain TMC exercises.
  */
 </span><span class="attr">#[instrument(skip(pool))]
 </span><span class="kw">async fn </span>get_course_instances(
@@ -346,9 +348,11 @@
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="kw">let </span>course_instances =
-        models::course_instances::get_enrolled_course_instances_for_user(<span class="kw-2">&amp;mut </span>conn, user.id)
-            .<span class="kw">await</span><span class="question-mark">?
-            </span>.convert();
+        models::course_instances::get_enrolled_course_instances_for_user_with_exercise_type(
+            <span class="kw-2">&amp;mut </span>conn, user.id, <span class="string">"tmc"</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?
+        </span>.convert();
 
     <span class="comment">// if the user is enrolled on the course, they should be able to view it regardless of permissions
     </span><span class="kw">let </span>token = skip_authorize();

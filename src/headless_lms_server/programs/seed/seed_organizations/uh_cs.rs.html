@@ -490,6 +490,8 @@
 <a href="#489" id="489">489</a>
 <a href="#490" id="490">490</a>
 <a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
@@ -499,9 +501,9 @@
     course_instances::{<span class="self">self</span>, NewCourseInstance},
     course_modules::{<span class="self">self</span>, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
-    library::content_management::CreateNewCourseFixedIds,
     library::{
         <span class="self">self</span>,
+        content_management::CreateNewCourseFixedIds,
         progressing::{TeacherManualCompletion, TeacherManualCompletionRequest},
     },
     open_university_registration_links, organizations,
@@ -556,7 +558,7 @@
         student_3_user_id,
         student_4_user_id: <span class="kw">_</span>,
         student_5_user_id: <span class="kw">_</span>,
-        langs_user_id: <span class="kw">_</span>,
+        langs_user_id,
     } = seed_users_result;
     <span class="kw">let _ </span>= seed_file_storage_result;
 
@@ -587,6 +589,7 @@
         organization_id: uh_cs_organization_id,
         admin_user_id,
         student_user_id: student_3_user_id,
+        langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
         base_url: base_url.clone(),
@@ -926,6 +929,7 @@
         <span class="kw-2">&amp;</span>db_pool,
         uh_cs_organization_id,
         admin_user_id,
+        langs_user_id,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
     )

@@ -4761,6 +4761,31 @@
 <a href="#4760" id="4760">4760</a>
 <a href="#4761" id="4761">4761</a>
 <a href="#4762" id="4762">4762</a>
+<a href="#4763" id="4763">4763</a>
+<a href="#4764" id="4764">4764</a>
+<a href="#4765" id="4765">4765</a>
+<a href="#4766" id="4766">4766</a>
+<a href="#4767" id="4767">4767</a>
+<a href="#4768" id="4768">4768</a>
+<a href="#4769" id="4769">4769</a>
+<a href="#4770" id="4770">4770</a>
+<a href="#4771" id="4771">4771</a>
+<a href="#4772" id="4772">4772</a>
+<a href="#4773" id="4773">4773</a>
+<a href="#4774" id="4774">4774</a>
+<a href="#4775" id="4775">4775</a>
+<a href="#4776" id="4776">4776</a>
+<a href="#4777" id="4777">4777</a>
+<a href="#4778" id="4778">4778</a>
+<a href="#4779" id="4779">4779</a>
+<a href="#4780" id="4780">4780</a>
+<a href="#4781" id="4781">4781</a>
+<a href="#4782" id="4782">4782</a>
+<a href="#4783" id="4783">4783</a>
+<a href="#4784" id="4784">4784</a>
+<a href="#4785" id="4785">4785</a>
+<a href="#4786" id="4786">4786</a>
+<a href="#4787" id="4787">4787</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4812,6 +4837,7 @@
     <span class="kw">pub </span>organization_id: Uuid,
     <span class="kw">pub </span>admin_user_id: Uuid,
     <span class="kw">pub </span>student_user_id: Uuid,
+    <span class="kw">pub </span>langs_user_id: Uuid,
     <span class="kw">pub </span>example_normal_user_ids: Arc&lt;Vec&lt;Uuid&gt;&gt;,
     <span class="kw">pub </span>jwt_key: Arc&lt;JwtKey&gt;,
     <span class="kw">pub </span>base_url: String,
@@ -4828,6 +4854,7 @@
         organization_id: org,
         admin_user_id: admin,
         student_user_id: student,
+        langs_user_id,
         example_normal_user_ids: users,
         jwt_key,
         base_url,
@@ -6546,6 +6573,15 @@
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
     }
+    course_instance_enrollments::insert_enrollment_and_set_as_current(
+        <span class="kw-2">&amp;mut </span>conn,
+        NewCourseInstanceEnrollment {
+            course_id,
+            course_instance_id: default_instance.id,
+            user_id: langs_user_id,
+        },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// feedback
     </span><span class="macro">info!</span>(<span class="string">"sample feedback"</span>);
@@ -6741,6 +6777,7 @@
         organization_id: org_id,
         admin_user_id: admin,
         student_user_id: <span class="kw">_</span>,
+        langs_user_id: <span class="kw">_</span>,
         example_normal_user_ids: <span class="kw">_</span>,
         jwt_key,
         base_url,
@@ -6863,6 +6900,7 @@
     db_pool: <span class="kw-2">&amp;</span>Pool&lt;Postgres&gt;,
     org: Uuid,
     admin: Uuid,
+    langs_user_id: Uuid,
     base_url: String,
     jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
@@ -6882,7 +6920,7 @@
         is_test_mode: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
     };
-    <span class="kw">let </span>(course, front_page, _default_instance, default_module) =
+    <span class="kw">let </span>(course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
             <span class="kw-2">&amp;mut </span>conn,
             PKeyPolicy::Fixed(CreateNewCourseFixedIds {
@@ -7713,6 +7751,17 @@
         },
         base_url.clone(),
         jwt_key.clone(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// enrollments
+    </span>course_instance_enrollments::insert_enrollment_and_set_as_current(
+        <span class="kw-2">&amp;mut </span>conn,
+        NewCourseInstanceEnrollment {
+            course_id: course.id,
+            course_instance_id: default_instance.id,
+            user_id: langs_user_id,
+        },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9130,6 +9179,7 @@
         organization_id: org,
         admin_user_id: admin,
         student_user_id: <span class="kw">_</span>,
+        langs_user_id: <span class="kw">_</span>,
         example_normal_user_ids: <span class="kw">_</span>,
         jwt_key,
         base_url,

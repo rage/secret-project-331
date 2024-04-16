@@ -228,5 +228,21 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let audio_course = seed_sample_course(
+        Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
+        "Audio course",
+        "audio-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(audio_course),
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

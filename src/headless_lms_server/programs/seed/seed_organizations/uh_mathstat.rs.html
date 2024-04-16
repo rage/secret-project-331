@@ -232,6 +232,22 @@
 <a href="#231" id="231">231</a>
 <a href="#232" id="232">232</a>
 <a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -460,6 +476,22 @@
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(change_path),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>audio_course = seed_sample_course(
+        Uuid::parse_str(<span class="string">"2b80a0cb-ae0c-4f4b-843e-0322a3d18aff"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Audio course"</span>,
+        <span class="string">"audio-course"</span>,
+        uh_data.clone(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(audio_course),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

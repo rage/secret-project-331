@@ -15,7 +15,7 @@ use std::collections::HashSet;
 /**
  * GET /api/v0/langs/course-instances
  *
- * Returns the course instances that the user is currently enrolled on.
+ * Returns the course instances that the user is currently enrolled on that contain TMC exercises.
  */
 #[instrument(skip(pool))]
 async fn get_course_instances(
@@ -25,9 +25,11 @@ async fn get_course_instances(
     let mut conn = pool.acquire().await?;
 
     let course_instances =
-        models::course_instances::get_enrolled_course_instances_for_user(&mut conn, user.id)
-            .await?
-            .convert();
+        models::course_instances::get_enrolled_course_instances_for_user_with_exercise_type(
+            &mut conn, user.id, "tmc",
+        )
+        .await?
+        .convert();
 
     // if the user is enrolled on the course, they should be able to view it regardless of permissions
     let token = skip_authorize();

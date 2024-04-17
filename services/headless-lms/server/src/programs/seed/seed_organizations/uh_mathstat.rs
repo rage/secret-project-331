@@ -228,5 +228,13 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _self_review = seed_sample_course(
+        Uuid::parse_str("3cbaac48-59c4-4e31-9d7e-1f51c017390d")?,
+        "Self review",
+        "self-review",
+        uh_data.clone(),
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

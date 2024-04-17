@@ -91,7 +91,8 @@ const ErrorMessage = styled.div`
 const ErrorNotification = (props: ErrorNotificationProps) => {
   const { t } = useTranslation()
   return (
-    <NotificationWrapper className="toast-notification">
+    // eslint-disable-next-line i18next/no-literal-string
+    <NotificationWrapper className="toast-notification" data-test-id="error-notification">
       <Content>
         <IconWrapper>
           <BellXmark color={baseTheme.colors.red[700]} />

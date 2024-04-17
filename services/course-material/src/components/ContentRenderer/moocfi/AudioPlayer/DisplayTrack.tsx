@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React, { RefObject, useContext } from "react"
+import React, { RefObject, useContext, useMemo } from "react"
 
 import PageContext from "../../../../contexts/PageContext"
 import { headingFont } from "../../../../shared-module/styles"
@@ -22,12 +22,24 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
     }
   }
 
+  const sortedTracks = useMemo(() => {
+    // Sorts mp3 files last, as they're the fallback format
+    return tracks.sort((a, b) => {
+      if (a.mime === "audio/mpeg") {
+        return 1
+      } else if (b.mime === "audio/mpeg") {
+        return -1
+      }
+      return 0
+    })
+  }, [tracks])
+
   return (
     <>
       <div>
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
-          {tracks.map(({ path, mime }: AudioFile) => (
+          {sortedTracks.map(({ path, mime }: AudioFile) => (
             <source key={path} src={path} type={mime} />
           ))}
         </audio>

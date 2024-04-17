@@ -6,6 +6,7 @@ import {
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import toast, { ToastOptions } from "react-hot-toast"
 
 import DeleteNotification from "../components/Notifications/Delete"
@@ -114,6 +115,10 @@ export default function useToastMutation<
       }
     },
     onError: (error: TError, variables: TVariables, context) => {
+      console.groupCollapsed(`Mutation resulted in an error.`)
+      console.warn(`Error: ${error}`)
+      console.warn(error)
+      console.groupEnd()
       if (notificationOptions.notify) {
         // Remove old toasts
         toast.remove()
@@ -122,6 +127,13 @@ export default function useToastMutation<
         if (!errorMessage && (error as any)?.data?.message) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           errorMessage = (error as any).data.message
+        }
+        if (!errorMessage && (error as AxiosError).isAxiosError) {
+          const axiosError = error as AxiosError
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          errorMessage = (axiosError.response?.data as any)?.message
+        } else if (!errorMessage || errorMessage === "") {
+          errorMessage = (error as Error).message
         }
         toast.custom(
           (toast) => {
@@ -136,6 +148,7 @@ export default function useToastMutation<
           {
             ...notificationOptions.toastOptions,
             id: toastId,
+            duration: showToastInfinitely ? Infinity : notificationOptions.toastOptions?.duration,
           },
         )
       }

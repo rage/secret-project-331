@@ -564,58 +564,83 @@ WHERE id = $1
     Ok(res)
 }
 
-pub async fn get_user_exercise_state_by_user_id(
+pub async fn get_user_total_course_points(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_or_exam_id: CourseInstanceOrExamId,
-) -> ModelResult<<UserExerciseState> {
-    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
-    let res = sqlx::query_as!(
-        UserExerciseState,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<f32>> {
+    let res = sqlx::query!(
         r#"
-        SELECT 
-        id,
-        user_id,
-        exercise_id,
-        course_instance_id,
-        exam_id,
-        created_at,
-        updated_at,
-        deleted_at,
-        score_given,
-        grading_progress AS "grading_progress: _",
-        activity_progress AS "activity_progress: _",
-        reviewing_stage AS "reviewing_stage: _",
-        selected_exercise_slide_id
-    FROM 
-        user_exercise_states ues
-    JOIN (
-        SELECT 
-            exercise_id,
-            MAX(updated_at) AS max_updated_at,
-            COUNT(exercise.id) AS exercise_count
-        FROM 
-            user_exercise_states
-        WHERE 
-            user_id = $1
-            AND (course_instance_id = $2 OR exam_id = $3)
-            AND deleted_at IS NULL
-        GROUP BY 
-            exercise_id
-    ) max_dates ON ues.exercise_id = max_dates.exercise_id AND ues.updated_at = max_dates.max_updated_at
-    WHERE 
-        user_id = $1
-        AND (course_instance_id = $2 OR exam_id = $3)
-        AND deleted_at IS NULL
-      "#,
+SELECT SUM(score_given) AS "total_points"
+FROM user_exercise_states
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+  GROUP BY user_id
+        "#,
         user_id,
         course_instance_id,
-        exam_id
     )
-    .fetch_all(conn)
+    .map(|x| x.total_points)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
+
+// TODO: why is map working here instead of just returning the value
+
+// pub async fn get_user_exercise_state_by_user_id(
+//     conn: &mut PgConnection,
+//     user_id: Uuid,
+//     course_instance_or_exam_id: CourseInstanceOrExamId,
+// ) -> ModelResult<<UserExerciseState> {
+//     let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+//     let res = sqlx::query_as!(
+//         UserExerciseState,
+//         r#"
+//         SELECT 
+//         id,
+//         user_id,
+//         exercise_id,
+//         course_instance_id,
+//         exam_id,
+//         created_at,
+//         updated_at,
+//         deleted_at,
+//         score_given,
+//         grading_progress AS "grading_progress: _",
+//         activity_progress AS "activity_progress: _",
+//         reviewing_stage AS "reviewing_stage: _",
+//         selected_exercise_slide_id
+//     FROM 
+//         user_exercise_states ues
+//     JOIN (
+//         SELECT 
+//             exercise_id,
+//             MAX(updated_at) AS max_updated_at,
+//             COUNT(exercise.id) AS exercise_count
+//         FROM 
+//             user_exercise_states
+//         WHERE 
+//             user_id = $1
+//             AND (course_instance_id = $2 OR exam_id = $3)
+//             AND deleted_at IS NULL
+//         GROUP BY 
+//             exercise_id
+//     ) max_dates ON ues.exercise_id = max_dates.exercise_id AND ues.updated_at = max_dates.max_updated_at
+//     WHERE 
+//         user_id = $1
+//         AND (course_instance_id = $2 OR exam_id = $3)
+//         AND deleted_at IS NULL
+//       "#,
+//         user_id,
+//         course_instance_id,
+//         exam_id
+//     )
+//     .fetch_all(conn)
+//     .await?;
+//     Ok(res)
+// }
 
 pub async fn get_users_current_by_exercise(
     conn: &mut PgConnection,

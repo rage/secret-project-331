@@ -34,8 +34,20 @@ pub struct CourseModuleAverage {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub average_duration: u64,
-    pub average_points: f32,
+    pub average_duration: Option<u64>,
+    pub average_points: i32,
+    pub total_points: i32,
+    pub total_student: i32,
+}
+
+// Define the CourseModulePointsAverage struct to match the result of the SQL query
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModulePointsAverage {
+    pub course_instance_id: Uuid,
+    pub average_points: Option<f32>,
+    pub total_points: Option<i32>,
+    pub total_student: Option<i32>,
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
@@ -365,23 +377,24 @@ WHERE course_id = $1
 pub async fn get_course_average(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> ModelResult<CourseModuleAverage> {
+) -> ModelResult<CourseModulePointsAverage> {
     let res = sqlx::query_as!(
-        CourseModuleAverage,
-        r"
+        CourseModulePointsAverage,
+        r#"
     SELECT course_instance_id,
-        SUM(grade) AS total_score,
-        AVG(grade) AS average_score,
-        COUNT(DISTINCT user_id) AS student_count
+        SUM(grade)::integer AS total_points,
+        AVG(grade)::REAL AS average_points,
+        COUNT(DISTINCT user_id)::integer AS total_student
     FROM 
         course_module_completions
     WHERE 
         course_id = $1
-        AND deleted_at IS NULL;
-        ",
+        AND deleted_at IS NULL
+    GROUP BY course_instance_id;
+        "#,
         course_instance_id
     )
-    .fetch_all(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }

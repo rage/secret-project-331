@@ -29,7 +29,7 @@ pub async fn insert(
   user_id: Uuid,
   total_duration: u64,
   score_threshold: f32,
-) -> SuspectedCheaters<()> {
+) -> ModelResult<()> {
   sqlx::query!(
       "
     INSERT INTO suspected_cheaters (
@@ -48,28 +48,66 @@ pub async fn insert(
   Ok(())
 }
 
-pub async fn insert_threshold(
+pub async fn insert_thresholds(
   conn: &mut PgConnection,
-  user_id: Uuid,
+  course_id: Uuid,
   duration: Option<u64>,
   points: f32,
-) -> SuspectedCheaters<()> {
+) -> ModelResult<()> {
   sqlx::query!(
       "
-    INSERT INTO suspected_cheaters (
-      user_id,
+    INSERT INTO cheater_thresholds (
+      course_id,
       duration,
       points
     )
     VALUES ($1, $2, $3)
       ",
-      user_id,
+      course_id,
       duration,
       points
   )
   .execute(conn)
   .await?;
   Ok(())
+}
+
+pub async fn update_thresholds_by_point(
+  conn: &mut PgConnection,
+  course_id: Uuid,
+  points: f32,
+) -> ModelResult<()> {
+  sqlx::query!(
+    "
+      UPDATE cheater_thresholds
+      SET points = $2
+      WHERE course_id = $1
+    ",
+    course_id,
+    points
+  )
+  .execute(conn)
+  .await?;
+  Ok(())
+}
+
+pub async fn get_thresholds_by_id(
+  conn: &mut PgConnection,
+  course_id: Uuid,
+) -> ModelResult<Threshold> {
+  let thresholds = sqlx::query_as!(
+    Threshold,
+    "
+      SELECT *
+      FROM cheater_thresholds
+      WHERE course_id = $1
+      AND deleted_at IS NULL;
+    ",
+      id
+  )
+  .fetch_one(conn)
+  .await?;
+  Ok(thresholds)
 }
 
 pub async fn delete_suspected_cheaters(

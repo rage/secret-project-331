@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test.only("Peer review followed by self review works", async ({ page }) => {
+test("Peer review followed by self review works", async ({ page }) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "All organizations" }).click()
   await page.getByLabel("University of Helsinki, Department of Mathematics and Statistics").click()
@@ -45,6 +45,18 @@ test.only("Peer review followed by self review works", async ({ page }) => {
   const page2 = await page2Promise
   await selectCourseInstanceIfPrompted(page2)
   await page2.getByText("After you submit this").waitFor()
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("1995")
+    .selectOption({ label: "Finland joins  the European Union" })
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("1998")
+    .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("2002")
+    .selectOption({ label: "Finland switches their currency to Euro" })
   await page2.getByRole("button", { name: "Submit" }).click()
   await page2.getByRole("button", { name: "Start peer review" }).click()
   await page2.getByText("No answers available to peer").waitFor()
@@ -55,7 +67,18 @@ test.only("Peer review followed by self review works", async ({ page }) => {
   await page2.getByLabel("Password *").fill("student1")
   await page2.getByRole("button", { name: "Log in" }).click()
   await selectCourseInstanceIfPrompted(page2)
-  // TODO: Where's the anwering?
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("1995")
+    .selectOption({ label: "Finland joins  the European Union" })
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("1998")
+    .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("2002")
+    .selectOption({ label: "Finland switches their currency to Euro" })
   await page2.getByRole("button", { name: "Submit" }).click()
   await page2.getByRole("button", { name: "Start peer review" }).click()
   await page2.getByText("1 / 2 Peer reviews given").click()
@@ -79,7 +102,18 @@ test.only("Peer review followed by self review works", async ({ page }) => {
   await page2.getByLabel("Password *").fill("student2")
   await page2.getByRole("button", { name: "Log in" }).click()
   await selectCourseInstanceIfPrompted(page2)
-  // TODO: where's the answering?
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("1995")
+    .selectOption({ label: "Finland joins  the European Union" })
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("1998")
+    .selectOption({ label: "Finland joins the Economic and Monetary Union of the European Union" })
+  await page2
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByLabel("2002")
+    .selectOption({ label: "Finland switches their currency to Euro" })
   await page2.getByRole("button", { name: "Submit" }).click()
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')

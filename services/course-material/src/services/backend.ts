@@ -275,7 +275,7 @@ export const fetchPeerReviewDataReceivedByExerciseId = async (
   submissionId: string,
 ): Promise<PeerOrSelfReviewsReceived> => {
   const response = await courseMaterialClient.get(
-    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-or-self-reviews-received`,
     {
       responseType: "json",
     },
@@ -387,7 +387,7 @@ export const postPeerOrSelfReviewSubmission = async (
   peerOrSelfReviewSubmission: CourseMaterialPeerOrSelfReviewSubmission,
 ): Promise<void> => {
   await courseMaterialClient.post(
-    `/exercises/${exerciseId}/peer-reviews`,
+    `/exercises/${exerciseId}/peer-or-self-reviews`,
     peerOrSelfReviewSubmission,
     {
       responseType: "json",
@@ -396,7 +396,7 @@ export const postPeerOrSelfReviewSubmission = async (
 }
 
 export const postStartPeerOrSelfReview = async (exerciseId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-or-self-reviews/start`)
 }
 
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {

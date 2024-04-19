@@ -223,7 +223,7 @@ async fn post_submission(
 }
 
 /**
- * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews/start` - Post a signal indicating that
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that
  * the user will start the peer or self reviewing process.
  *
  * This operation is only valid for exercises marked for peer reviews. No further submissions will be
@@ -258,7 +258,7 @@ async fn start_peer_or_self_review(
 }
 
 /**
- * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review or a self review for an
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
  * exercise submission.
  */
 #[instrument(skip(pool))]
@@ -319,11 +319,11 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{exercise_id}", web::get().to(get_exercise))
         .route(
-            "/{exercise_id}/peer-reviews",
+            "/{exercise_id}/peer-or-self-reviews",
             web::post().to(submit_peer_or_self_review),
         )
         .route(
-            "/{exercise_id}/peer-reviews/start",
+            "/{exercise_id}/peer-or-self-reviews/start",
             web::post().to(start_peer_or_self_review),
         )
         .route(
@@ -331,7 +331,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_peer_review_for_exercise),
         )
         .route(
-            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received",
+            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received",
             web::get().to(get_peer_reviews_received),
         )
         .route(

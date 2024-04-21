@@ -598,7 +598,7 @@ WHERE user_id = $1
 //     let res = sqlx::query_as!(
 //         UserExerciseState,
 //         r#"
-//         SELECT 
+//         SELECT
 //         id,
 //         user_id,
 //         exercise_id,
@@ -612,23 +612,23 @@ WHERE user_id = $1
 //         activity_progress AS "activity_progress: _",
 //         reviewing_stage AS "reviewing_stage: _",
 //         selected_exercise_slide_id
-//     FROM 
+//     FROM
 //         user_exercise_states ues
 //     JOIN (
-//         SELECT 
+//         SELECT
 //             exercise_id,
 //             MAX(updated_at) AS max_updated_at,
 //             COUNT(exercise.id) AS exercise_count
-//         FROM 
+//         FROM
 //             user_exercise_states
-//         WHERE 
+//         WHERE
 //             user_id = $1
 //             AND (course_instance_id = $2 OR exam_id = $3)
 //             AND deleted_at IS NULL
-//         GROUP BY 
+//         GROUP BY
 //             exercise_id
 //     ) max_dates ON ues.exercise_id = max_dates.exercise_id AND ues.updated_at = max_dates.max_updated_at
-//     WHERE 
+//     WHERE
 //         user_id = $1
 //         AND (course_instance_id = $2 OR exam_id = $3)
 //         AND deleted_at IS NULL

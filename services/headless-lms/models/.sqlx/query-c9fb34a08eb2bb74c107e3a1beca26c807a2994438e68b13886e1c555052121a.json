@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    INSERT INTO suspected_cheaters (\n      user_id,\n      total_duration,\n      total_points\n    )\n    VALUES ($1, $2, $3)\n      ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Int4", "Int4"]
+    },
+    "nullable": []
+  },
+  "hash": "c9fb34a08eb2bb74c107e3a1beca26c807a2994438e68b13886e1c555052121a"
+}

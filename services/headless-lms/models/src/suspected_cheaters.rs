@@ -22,7 +22,7 @@ pub struct PointDurationData {
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ThresholdData {
-    pub course_id: String,
+    pub course_instance_id: String,
     pub url: String,
     pub data: PointDurationData,
 }
@@ -31,7 +31,7 @@ pub struct ThresholdData {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Threshold {
     pub id: Uuid,
-    pub course_id: Uuid,
+    pub course_instance_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -42,7 +42,7 @@ pub struct Threshold {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    total_duration: i32,
+    total_duration: Option<i32>,
     total_points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
@@ -65,20 +65,20 @@ pub async fn insert(
 
 pub async fn insert_thresholds(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course_instance_id: Uuid,
     duration: Option<i32>,
     points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
     INSERT INTO cheater_thresholds (
-      course_id,
+      course_instance_id,
       duration,
       points
     )
     VALUES ($1, $2, $3)
       ",
-        course_id,
+        course_instance_id,
         duration,
         points
     )
@@ -89,16 +89,16 @@ pub async fn insert_thresholds(
 
 pub async fn update_thresholds_by_point(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course_instance_id: Uuid,
     points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
       UPDATE cheater_thresholds
       SET points = $2
-      WHERE course_id = $1
+      WHERE course_instance_id = $1
     ",
-        course_id,
+        course_instance_id,
         points
     )
     .execute(conn)
@@ -108,17 +108,17 @@ pub async fn update_thresholds_by_point(
 
 pub async fn get_thresholds_by_id(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Threshold> {
     let thresholds = sqlx::query_as!(
         Threshold,
         "
       SELECT *
       FROM cheater_thresholds
-      WHERE course_id = $1
+      WHERE course_instance_id = $1
       AND deleted_at IS NULL;
     ",
-        course_id
+        course_instance_id
     )
     .fetch_one(conn)
     .await?;

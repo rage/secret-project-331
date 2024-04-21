@@ -13,6 +13,7 @@ pub struct SuspectedCheaters {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PointDurationData {
     pub points: i32,
     pub duration: i32,

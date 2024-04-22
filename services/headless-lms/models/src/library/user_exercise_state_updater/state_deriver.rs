@@ -537,7 +537,7 @@ mod tests {
                                 given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -579,7 +579,7 @@ mod tests {
                                 given_self_review_submission: None,
                                 // Average below 2.1
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -625,7 +625,7 @@ mod tests {
                                 given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -668,7 +668,7 @@ mod tests {
                                 given_self_review_submission: None,
                                 // Average below 2.1
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -714,7 +714,7 @@ mod tests {
                                 given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::ManualReviewEverything),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -757,7 +757,7 @@ mod tests {
                                 given_self_review_submission: None,
                                 // Average below 2.1
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(3.0), create_peer_review_question_submission(1.0), create_peer_review_question_submission(1.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::ManualReviewEverything),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -859,7 +859,7 @@ mod tests {
                                 given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -899,8 +899,8 @@ mod tests {
                                 given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: None,
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![],
-                                peer_review_queue_entry: None,
-                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(false)),
+                                peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
                         ),
@@ -939,7 +939,7 @@ mod tests {
                                 given_peer_or_self_review_submissions: vec![create_peer_review_submission(), create_peer_review_submission(), create_peer_review_submission()],
                                 given_self_review_submission: Some(create_peer_review_submission()),
                                 latest_exercise_slide_submission_received_peer_or_self_review_question_submissions: vec![create_peer_review_question_submission(4.0), create_peer_review_question_submission(3.0), create_peer_review_question_submission(4.0)],
-                                peer_review_queue_entry: Some(create_peer_review_queue_entry()),
+                                peer_review_queue_entry: Some(create_peer_review_queue_entry(true)),
                                 peer_or_self_review_config: create_peer_or_self_review_config(PeerReviewProcessingStrategy::AutomaticallyGradeByAverage),
                                 peer_or_self_review_questions: Vec::new(),
                             },
@@ -1194,7 +1194,9 @@ mod tests {
             }
         }
 
-        fn create_peer_review_queue_entry() -> PeerReviewQueueEntry {
+        fn create_peer_review_queue_entry(
+            received_enough_peer_reviews: bool,
+        ) -> PeerReviewQueueEntry {
             let id = Uuid::parse_str("5f464818-1e68-4839-ae86-850b310f508c").unwrap();
             PeerReviewQueueEntry {
                 id,
@@ -1205,7 +1207,7 @@ mod tests {
                 exercise_id: id,
                 course_instance_id: id,
                 receiving_peer_reviews_exercise_slide_submission_id: id,
-                received_enough_peer_reviews: true,
+                received_enough_peer_reviews,
                 peer_review_priority: 100,
                 removed_from_queue_for_unusual_reason: false,
             }

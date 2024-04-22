@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
@@ -48,7 +48,7 @@ test("Peer review followed by self review works", async ({ page }) => {
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByLabel("1995")
-    .selectOption({ label: "Finland joins  the European Union" })
+    .selectOption({ label: "Finland joins the European Union" })
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByLabel("1998")
@@ -70,7 +70,7 @@ test("Peer review followed by self review works", async ({ page }) => {
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByLabel("1995")
-    .selectOption({ label: "Finland joins  the European Union" })
+    .selectOption({ label: "Finland joins the European Union" })
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByLabel("1998")
@@ -81,7 +81,7 @@ test("Peer review followed by self review works", async ({ page }) => {
     .selectOption({ label: "Finland switches their currency to Euro" })
   await page2.getByRole("button", { name: "Submit" }).click()
   await page2.getByRole("button", { name: "Start peer review" }).click()
-  await page2.getByText("1 / 2 Peer reviews given").click()
+  await page2.getByText("0 / 2 Peer reviews given").waitFor()
   await page2.getByRole("heading", { name: "Peer review instructions" }).waitFor()
   await page2.getByText("Here's what you will do: x.").waitFor()
   await page2.getByRole("heading", { name: "Answer submitted by another" }).waitFor()
@@ -105,7 +105,7 @@ test("Peer review followed by self review works", async ({ page }) => {
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByLabel("1995")
-    .selectOption({ label: "Finland joins  the European Union" })
+    .selectOption({ label: "Finland joins the European Union" })
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByLabel("1998")
@@ -117,7 +117,7 @@ test("Peer review followed by self review works", async ({ page }) => {
   await page2.getByRole("button", { name: "Submit" }).click()
   await page2
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByText("Your answer was not correct.")
+    .getByText("Your answer was correct.")
     .waitFor()
   await page2.getByRole("button", { name: "Start peer review" }).click()
   await page2.getByText("Agree", { exact: true }).first().click()
@@ -139,8 +139,22 @@ test("Peer review followed by self review works", async ({ page }) => {
     .click()
   await page2.getByPlaceholder("Write a review").fill("LOL")
   await page2.getByRole("button", { name: "Submit" }).click()
-  await page2.getByRole("button", { name: "Submit" }).waitFor({ state: "hidden" })
-  await expect(page2.getByLabel("Exercise:Best quizzes exercise")).not.toContainText(
-    "Waiting for other students to review your answer.",
-  )
+
+  await page2.getByRole("heading", { name: "Self review", exact: true }).waitFor()
+  await page2.getByRole("heading", { name: "Self review instructions" }).waitFor()
+  await page2.getByText("Here's what you will do: x.").waitFor()
+  await page2.getByPlaceholder("Write a review").fill("I agree with myself. I am the best!")
+  await page2
+    .locator("div")
+    .filter({ hasText: /^Strongly agree$/ })
+    .first()
+    .click()
+  await page2
+    .locator("div")
+    .filter({ hasText: /^Strongly disagree$/ })
+    .nth(1)
+    .click()
+  await page2.getByRole("button", { name: "Submit" }).click()
+  await page2.getByText("Operation successful!").waitFor()
+  await page2.getByText("Waiting for other students to review your answer").waitFor()
 })

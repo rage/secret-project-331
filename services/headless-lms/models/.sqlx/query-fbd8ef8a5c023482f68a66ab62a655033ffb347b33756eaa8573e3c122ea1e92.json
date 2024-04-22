@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT prs.*\nFROM peer_or_self_review_submissions prs\n  JOIN user_exercise_states ues ON (\n    ues.exercise_id = prs.exercise_id\n    AND ues.user_id = prs.user_id\n    AND ues.course_instance_id = prs.course_instance_id\n  )\nWHERE ues.user_id = $1\n  AND prs.exercise_id = $2\n  AND prs.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n        ",
+  "query": "\nSELECT prs.*\nFROM peer_or_self_review_submissions prs\nJOIN exercise_slide_submissions ess ON (ess.id = prs.exercise_slide_submission_id)\nWHERE ess.user_id = $1\n  AND prs.exercise_id = $2\n  AND prs.course_instance_id = $3\n  AND prs.deleted_at IS NULL\n  AND ess.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -50,9 +50,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid"]
+      "Left": ["Uuid", "Uuid", "Uuid"]
     },
     "nullable": [false, false, false, true, false, false, false, false, false]
   },
-  "hash": "62203b0db65a06f30bb32c705b0a62affeeeb4f18892a7cc52ea4a6a514ba31e"
+  "hash": "fbd8ef8a5c023482f68a66ab62a655033ffb347b33756eaa8573e3c122ea1e92"
 }

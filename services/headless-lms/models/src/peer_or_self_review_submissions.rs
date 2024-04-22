@@ -259,24 +259,23 @@ pub async fn get_self_review_submission_by_user_and_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Option<PeerOrSelfReviewSubmission>> {
     let res = sqlx::query_as!(
         PeerOrSelfReviewSubmission,
         "
 SELECT prs.*
 FROM peer_or_self_review_submissions prs
-  JOIN user_exercise_states ues ON (
-    ues.exercise_id = prs.exercise_id
-    AND ues.user_id = prs.user_id
-    AND ues.course_instance_id = prs.course_instance_id
-  )
-WHERE ues.user_id = $1
+JOIN exercise_slide_submissions ess ON (ess.id = prs.exercise_slide_submission_id)
+WHERE ess.user_id = $1
   AND prs.exercise_id = $2
+  AND prs.course_instance_id = $3
   AND prs.deleted_at IS NULL
-  AND ues.deleted_at IS NULL
+  AND ess.deleted_at IS NULL
         ",
         user_id,
-        exercise_id
+        exercise_id,
+        course_instance_id
     )
     .fetch_optional(conn)
     .await?;

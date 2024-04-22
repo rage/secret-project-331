@@ -396,14 +396,14 @@ impl GivePeerReviewClaim {
         let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                format!("Invalid jwt key: {}", err),
+                format!("Invalid claim: {}", err),
                 Some(err.into()),
             )
         })?;
         if claim.expiration_time < Utc::now() {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                "The peer review has expired.".to_string(),
+                "The review has expired.".to_string(),
                 None,
             ));
         }

@@ -23,7 +23,7 @@ CREATE TABLE course_student_average (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  average_duration INTEGER NOT NULL,
+  average_duration INTEGER,
   average_points INTEGER NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -44,7 +44,7 @@ CREATE TABLE suspected_cheaters_exercise_list (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   exercise_id UUID REFERENCES exercises NOT NULL,
-  duration INTEGER NOT NULL,
+  duration INTEGER,
   points INTEGER NOT NULL,
   attempts INTEGER NOT NULL,
   status activity_progress NOT NULL DEFAULT 'initialized'
@@ -68,7 +68,7 @@ CREATE TABLE exercise_student_average (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  average_duration INTEGER NOT NULL,
+  average_duration INTEGER,
   average_points INTEGER NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -88,7 +88,7 @@ CREATE TABLE cheater_thresholds (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   points INTEGER NOT NULL,
-  duration INTEGER NOT NULL
+  duration INTEGER
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON cheater_thresholds FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

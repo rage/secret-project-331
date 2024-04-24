@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      SELECT *\n      FROM suspected_cheaters\n      WHERE id = $1\n      AND deleted_at IS NULL;\n    ",
+  "query": "\n      SELECT *\n      FROM cheater_thresholds\n      WHERE course_instance_id = $1\n      AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -10,7 +10,7 @@
       },
       {
         "ordinal": 1,
-        "name": "user_id",
+        "name": "course_instance_id",
         "type_info": "Uuid"
       },
       {
@@ -30,19 +30,19 @@
       },
       {
         "ordinal": 5,
-        "name": "total_duration",
+        "name": "points",
         "type_info": "Int4"
       },
       {
         "ordinal": 6,
-        "name": "total_points",
+        "name": "duration",
         "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, true, true, false]
+    "nullable": [false, false, false, false, true, false, false]
   },
-  "hash": "f604ff0b17b848a9a5b4eec08857c8a3765ba5766f960c47b6b5e6cadec790b2"
+  "hash": "817b5fa25f0aed6802f3bf5d64116a5c0b85411352d159a46b9ddaac92e5f7bc"
 }

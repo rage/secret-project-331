@@ -459,13 +459,78 @@ async fn insert_threshold(
     let new_threshold = payload.0;
     let duration: Option<i32> = None;
 
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+
     models::suspected_cheaters::insert_thresholds(
         &mut conn,
         course_instance_id,
         duration,
-        new_threshold.data.points,
+        new_threshold.points,
     )
     .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/course-instances/:course_instance_id/suspected_cheaters - post course suspected cheaters information.
+*/
+#[instrument(skip(pool))]
+async fn insert_suspected_cheaters(
+    pool: web::Data<PgPool>,
+    params: web::Path<Uuid>,
+    payload: web::Json<ThresholdData>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let course_instance_id = params.into_inner();
+
+    // Get average score
+    let course_average =
+        models::course_module_completions::get_course_average(&mut conn, course_instance_id)
+            .await?;
+
+    // Get threshold
+    let thresholds =
+        models::suspected_cheaters::get_thresholds_by_id(&mut conn, course_instance_id).await?;
+
+    // Get all completions for the course instance
+    let completions = models::course_module_completions::get_all_by_course_instance_id(
+        &mut conn,
+        course_instance_id,
+    )
+    .await?;
+
+    let average_points = course_average.average_points.unwrap_or(0.0);
+
+    // Iterate through completions, compare grades with average score and thresholds, and insert suspected cheaters
+    for completion in completions {
+        if let Some(grade) = completion.grade {
+            if grade > average_points as i32 && grade > thresholds.points {
+                // Insert suspected cheater
+                models::suspected_cheaters::insert(
+                    &mut conn,
+                    completion.user_id,
+                    None, // Placeholder for duration, assuming it's optional
+                    grade,
+                )
+                .await?;
+            }
+        } else {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Grade is not a numeric value".to_string(),
+                None,
+            ));
+        }
+    }
 
     let token = authorize(
         &mut conn,
@@ -476,60 +541,6 @@ async fn insert_threshold(
     .await?;
     token.authorized_ok(web::Json(()))
 }
-
-/**
- POST /api/v0/main-frontend/course-instances/:course_instance_id/suspected_cheaters - post course suspected cheaters information.
-*/
-// #[instrument(skip(pool))]
-// async fn insert_suspected_cheaters(
-//     pool: web::Data<PgPool>,
-//     params: web::Path<Uuid>,
-//     payload: web::Json<ThresholdData>,
-//     user: AuthUser,
-// ) -> ControllerResult<web::Json<()>> {
-//     let mut conn = pool.acquire().await?;
-
-//     let course_instance_id = params.into_inner();
-
-//     // Get average score
-//     let average_score =
-//         models::course_module_completions::get_course_average(&mut conn, course_instance_id)
-//             .await?;
-
-//     // Get threshold
-//     let thresholds =
-//         models::suspected_cheaters::get_thresholds_by_id(&mut conn, course_instance_id).await?;
-
-//     // Get all completions for the course instance
-//     let completions = models::course_module_completions::get_all_by_course_instance_id(
-//         &mut conn,
-//         course_instance_id,
-//     )
-//     .await?;
-
-//     // Iterate through completions, compare grades with average score and thresholds, and insert suspected cheaters
-//     for completion in completions {
-//         if completion.grade > average_score && completion.grade > thresholds?.points {
-//             // Insert suspected cheater
-//             models::suspected_cheaters::insert(
-//                 &mut conn,
-//                 completion.user_id,
-//                 None, // Placeholder for duration, assuming it's optional
-//                 completion.grade,
-//             )
-//             .await?;
-//         }
-//     }
-
-//     let token = authorize(
-//         &mut conn,
-//         Act::Edit,
-//         Some(user.id),
-//         Res::CourseInstance(course_instance_id),
-//     )
-//     .await?;
-//     token.authorized_ok(web::Json(()))
-// }
 
 /**
 Add a route for each controller in this module.

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      UPDATE cheater_thresholds\n      SET points = $2\n      WHERE course_instance_id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Int4"]
+    },
+    "nullable": []
+  },
+  "hash": "d293021412841c4be92eae951a0ebb44b08ac5cb0f591f73a4a7914099772dab"
+}

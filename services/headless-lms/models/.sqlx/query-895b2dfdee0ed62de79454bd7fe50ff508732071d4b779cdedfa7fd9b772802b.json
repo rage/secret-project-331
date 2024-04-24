@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT course_instance_id,\n        SUM(grade)::integer AS total_points,\n        AVG(grade)::REAL AS average_points,\n        COUNT(DISTINCT user_id)::integer AS total_student\n    FROM \n        course_module_completions\n    WHERE \n        course_id = $1\n        AND deleted_at IS NULL\n    GROUP BY course_instance_id;\n        ",
+  "query": "\n    SELECT course_instance_id,\n        SUM(grade)::integer AS total_points,\n        AVG(grade)::REAL AS average_points,\n        COUNT(DISTINCT user_id)::integer AS total_student\n    FROM\n        course_module_completions\n    WHERE\n        course_id = $1\n        AND deleted_at IS NULL\n    GROUP BY course_instance_id;\n        ",
   "describe": {
     "columns": [
       {
@@ -29,5 +29,5 @@
     },
     "nullable": [false, null, null, null]
   },
-  "hash": "16fa4464e024579f9b7ba18e8d76e9f531ef259a821556c742d5a60d622fe393"
+  "hash": "895b2dfdee0ed62de79454bd7fe50ff508732071d4b779cdedfa7fd9b772802b"
 }

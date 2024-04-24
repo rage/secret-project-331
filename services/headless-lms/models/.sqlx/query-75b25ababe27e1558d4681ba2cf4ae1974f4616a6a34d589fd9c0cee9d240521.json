@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    INSERT INTO cheater_thresholds (\n      course_instance_id,\n      duration,\n      points\n    )\n    VALUES ($1, $2, $3)\n      ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Int4", "Int4"]
+    },
+    "nullable": []
+  },
+  "hash": "75b25ababe27e1558d4681ba2cf4ae1974f4616a6a34d589fd9c0cee9d240521"
+}

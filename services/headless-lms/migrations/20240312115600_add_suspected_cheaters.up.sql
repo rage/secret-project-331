@@ -4,7 +4,7 @@ CREATE TABLE suspected_cheaters (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  total_duration INTEGER NOT NULL,
+  total_duration INTEGER,
   total_points INTEGER NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE

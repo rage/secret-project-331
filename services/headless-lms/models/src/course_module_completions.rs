@@ -385,9 +385,9 @@ pub async fn get_course_average(
         SUM(grade)::integer AS total_points,
         AVG(grade)::REAL AS average_points,
         COUNT(DISTINCT user_id)::integer AS total_student
-    FROM 
+    FROM
         course_module_completions
-    WHERE 
+    WHERE
         course_id = $1
         AND deleted_at IS NULL
     GROUP BY course_instance_id;

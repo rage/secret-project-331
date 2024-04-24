@@ -8,23 +8,15 @@ pub struct SuspectedCheaters {
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub total_duration: i32, // Represented in milliseconds
+    pub total_duration: Option<i32>, // Represented in milliseconds
     pub total_points: i32,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PointDurationData {
-    pub points: i32,
-    pub duration: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ThresholdData {
-    pub course_instance_id: String,
-    pub url: String,
-    pub data: PointDurationData,
+    pub points: i32,
+    pub duration: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

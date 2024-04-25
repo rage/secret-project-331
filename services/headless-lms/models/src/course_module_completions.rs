@@ -388,7 +388,7 @@ pub async fn get_course_average(
     FROM
         course_module_completions
     WHERE
-        course_id = $1
+        course_instance_id = $1
         AND deleted_at IS NULL
     GROUP BY course_instance_id;
         "#,

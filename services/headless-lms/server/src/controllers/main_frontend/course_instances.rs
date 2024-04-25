@@ -485,7 +485,7 @@ async fn insert_threshold(
 async fn insert_suspected_cheaters(
     pool: web::Data<PgPool>,
     params: web::Path<Uuid>,
-    payload: web::Json<ThresholdData>,
+    // payload: web::Json<ThresholdData>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
@@ -513,15 +513,10 @@ async fn insert_suspected_cheaters(
     // Iterate through completions, compare grades with average score and thresholds, and insert suspected cheaters
     for completion in completions {
         if let Some(grade) = completion.grade {
-            if grade > average_points as i32 && grade > thresholds.points {
+            if grade > thresholds.points || grade > average_points as i32 {
                 // Insert suspected cheater
-                models::suspected_cheaters::insert(
-                    &mut conn,
-                    completion.user_id,
-                    None, // Placeholder for duration, assuming it's optional
-                    grade,
-                )
-                .await?;
+                models::suspected_cheaters::insert(&mut conn, completion.user_id, None, grade)
+                    .await?;
             }
         } else {
             return Err(ControllerError::new(
@@ -597,6 +592,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/threshold",
             web::post().to(insert_threshold),
+        )
+        .route(
+            "/{course_instance_id}/suspected-cheaters",
+            web::post().to(insert_suspected_cheaters),
         )
         .route(
             "/{course_instance_id}/reprocess-completions",

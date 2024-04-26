@@ -30,7 +30,7 @@
       },
       {
         "ordinal": 5,
-        "name": "total_duration",
+        "name": "total_duration_seconds",
         "type_info": "Int4"
       },
       {

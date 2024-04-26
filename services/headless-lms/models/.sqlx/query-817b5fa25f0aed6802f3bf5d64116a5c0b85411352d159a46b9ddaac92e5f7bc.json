@@ -35,7 +35,7 @@
       },
       {
         "ordinal": 6,
-        "name": "duration",
+        "name": "duration_seconds",
         "type_info": "Int4"
       }
     ],

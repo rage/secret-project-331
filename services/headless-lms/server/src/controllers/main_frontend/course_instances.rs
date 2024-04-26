@@ -505,7 +505,7 @@ async fn insert_suspected_cheaters(
 
     // all do this for a single student and compare
 
-    let average_duration =
+    let average_duration_seconds =
         models::course_instances::get_course_average_duration(&mut conn, course_instance_id)
             .await?;
 
@@ -566,7 +566,7 @@ async fn insert_suspected_cheaters(
         .await?
         .unwrap_or(0.0);
 
-        let student_duration = models::course_instances::get_student_duration(
+        let student_duration_seconds = models::course_instances::get_student_duration(
             &mut conn,
             completion.user_id,
             course_instance_id,
@@ -577,10 +577,7 @@ async fn insert_suspected_cheaters(
             continue;
         }
 
-        let completion_average_duration = student_duration.average_duration;
-        let average_duration_value = average_duration.average_duration;
-
-        if completion_average_duration > average_duration_value {
+        if student_duration_seconds > average_duration_seconds {
             models::suspected_cheaters::insert(
                 &mut conn,
                 completion.user_id,

@@ -26,11 +26,11 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseAverageDuration {
-    pub average_duration: Option<i64>,
-}
+// #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+// #[cfg_attr(feature = "ts_rs", derive(TS))]
+// pub struct CourseAverageDuration {
+//     pub average_duration_seconds: Option<i64>,
+// }
 
 impl CourseInstance {
     pub fn is_open(&self) -> bool {
@@ -755,35 +755,34 @@ WHERE user_id = $1
 pub async fn get_course_average_duration(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-) -> ModelResult<CourseAverageDuration> {
-    let res = sqlx::query_as!(
-        CourseAverageDuration,
-        r#"
+) -> ModelResult<Option<i64>> {
+    let res = sqlx::query!(
+        "
 SELECT
-    AVG(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at))::int8 AS average_duration
+    AVG(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at))::int8 AS average_duration_seconds
 FROM course_instance_enrollments ce
 JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
 WHERE ce.course_instance_id = $1
     AND ce.deleted_at IS NULL
     AND cmc.deleted_at IS NULL;
-        "#,
+        ",
         course_instance_id
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+
+    Ok(res.average_duration_seconds)
 }
 
 pub async fn get_student_duration(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_instance_id: Uuid,
-) -> ModelResult<CourseAverageDuration> {
-    let res = sqlx::query_as!(
-        CourseAverageDuration,
-        r#"
+) -> ModelResult<Option<i64>> {
+    let res = sqlx::query!(
+        "
 SELECT
-    EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8 AS average_duration
+    COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds
 FROM course_instance_enrollments ce
 JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
 AND cmc.user_id = ce.user_id
@@ -791,13 +790,14 @@ WHERE ce.course_instance_id = $1
     AND ce.user_id = $2
     AND ce.deleted_at IS NULL
     AND cmc.deleted_at IS NULL;
-        "#,
+        ",
         course_instance_id,
         user_id
     )
     .fetch_one(conn)
     .await?;
-    Ok(res)
+
+    Ok(res.student_duration_seconds)
 }
 
 #[cfg(test)]

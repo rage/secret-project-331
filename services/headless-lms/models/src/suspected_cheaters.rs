@@ -8,7 +8,7 @@ pub struct SuspectedCheaters {
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub total_duration: Option<i32>, // Represented in milliseconds
+    pub total_duration_seconds: Option<i32>, // Represented in seconds
     pub total_points: i32,
 }
 
@@ -16,7 +16,7 @@ pub struct SuspectedCheaters {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ThresholdData {
     pub points: i32,
-    pub duration: Option<i32>,
+    pub duration_seconds: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -28,26 +28,26 @@ pub struct Threshold {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub points: i32,
-    pub duration: Option<i32>,
+    pub duration_seconds: Option<i32>,
 }
 
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    total_duration: Option<i32>,
+    total_duration_seconds: Option<i32>,
     total_points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
     INSERT INTO suspected_cheaters (
       user_id,
-      total_duration,
+      total_duration_seconds,
       total_points
     )
     VALUES ($1, $2, $3)
       ",
         user_id,
-        total_duration,
+        total_duration_seconds,
         total_points
     )
     .fetch_one(conn)
@@ -58,20 +58,20 @@ pub async fn insert(
 pub async fn insert_thresholds(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
-    duration: Option<i32>,
+    duration_seconds: Option<i32>,
     points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
     INSERT INTO cheater_thresholds (
       course_instance_id,
-      duration,
+      duration_seconds,
       points
     )
     VALUES ($1, $2, $3)
       ",
         course_instance_id,
-        duration,
+        duration_seconds,
         points
     )
     .execute(conn)

@@ -373,32 +373,6 @@ WHERE course_id = $1
     Ok(res.count.unwrap_or(0))
 }
 
-// Get the student average in the course
-pub async fn get_course_average(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<CourseModulePointsAverage> {
-    let res = sqlx::query_as!(
-        CourseModulePointsAverage,
-        r#"
-    SELECT course_instance_id,
-        SUM(grade)::integer AS total_points,
-        AVG(grade)::REAL AS average_points,
-        COUNT(DISTINCT user_id)::integer AS total_student
-    FROM
-        course_module_completions
-    WHERE
-        course_instance_id = $1
-        AND deleted_at IS NULL
-    GROUP BY course_instance_id;
-        "#,
-        course_instance_id
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 /// Gets automatically granted course module completion for the given user on the specified course
 /// instance. This entry is quaranteed to be unique in database by the index
 /// `course_module_automatic_completion_uniqueness`.

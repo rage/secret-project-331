@@ -512,41 +512,82 @@ async fn insert_suspected_cheaters(
     // let average_points = course_average.average_points.unwrap_or(0.0);
 
     // Iterate through completions, compare grades with average score and thresholds, and insert suspected cheaters
+    // for completion in completions {
+    //     if let Some(_grade) = completion.grade {
+    //         let total_points = models::user_exercise_states::get_user_total_course_points(
+    //             &mut conn,
+    //             user.id,
+    //             course_instance_id,
+    //         )
+    //         .await?
+    //         .unwrap_or(0.0);
+
+    //         let student_duration = models::course_instances::get_student_duration(
+    //             &mut conn,
+    //             completion.user_id,
+    //             course_instance_id,
+    //         )
+    //         .await?;
+
+    //         if total_points as i32 > thresholds.points
+    //             && student_duration.average_duration > average_duration.average_duration
+    //         {
+    //             // Insert suspected cheater
+    //             models::suspected_cheaters::insert(
+    //                 &mut conn,
+    //                 completion.user_id,
+    //                 None,
+    //                 total_points as i32,
+    //             )
+    //             .await?;
+    //         }
+    //     } else {
+    //         return Err(ControllerError::new(
+    //             ControllerErrorType::BadRequest,
+    //             "Grade is not a numeric value".to_string(),
+    //             None,
+    //         ));
+    //     }
+    // }
     for completion in completions {
-        if let Some(_grade) = completion.grade {
-            let total_points = models::user_exercise_states::get_user_total_course_points(
-                &mut conn,
-                user.id,
-                course_instance_id,
-            )
-            .await?
-            .unwrap_or(0.0);
-
-            let student_duration = models::course_instances::get_student_duration(
-                &mut conn,
-                completion.user_id,
-                course_instance_id,
-            )
-            .await?;
-
-            if total_points as i32 > thresholds.points
-                && student_duration.average_duration > average_duration.average_duration
-            {
-                // Insert suspected cheater
-                models::suspected_cheaters::insert(
-                    &mut conn,
-                    completion.user_id,
-                    None,
-                    total_points as i32,
-                )
-                .await?;
-            }
-        } else {
+        if completion.grade.is_none() {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,
                 "Grade is not a numeric value".to_string(),
                 None,
             ));
+        }
+
+        let total_points = models::user_exercise_states::get_user_total_course_points(
+            &mut conn,
+            user.id,
+            course_instance_id,
+        )
+        .await?
+        .unwrap_or(0.0);
+
+        let student_duration = models::course_instances::get_student_duration(
+            &mut conn,
+            completion.user_id,
+            course_instance_id,
+        )
+        .await?;
+
+        if total_points as i32 <= thresholds.points {
+            continue;
+        }
+
+        let completion_average_duration = student_duration.average_duration;
+        let average_duration_value = average_duration.average_duration;
+
+        if completion_average_duration > average_duration_value {
+            models::suspected_cheaters::insert(
+                &mut conn,
+                completion.user_id,
+                None,
+                total_points as i32,
+            )
+            .await?;
         }
     }
 

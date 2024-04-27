@@ -8,7 +8,7 @@ pub struct SuspectedCheaters {
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
-    pub total_duration_seconds: Option<i32>, // Represented in seconds
+    pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
 }
 

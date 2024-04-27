@@ -26,12 +26,6 @@ pub struct CourseInstance {
     pub support_email: Option<String>,
 }
 
-// #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-// #[cfg_attr(feature = "ts_rs", derive(TS))]
-// pub struct CourseAverageDuration {
-//     pub average_duration_seconds: Option<i64>,
-// }
-
 impl CourseInstance {
     pub fn is_open(&self) -> bool {
         self.starts_at.map(|sa| sa < Utc::now()).unwrap_or_default()

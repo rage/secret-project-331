@@ -166,6 +166,7 @@ module.exports = {
             "weight",
             "action",
             "tagName",
+            "templateLock"
           ],
         },
         words: {

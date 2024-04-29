@@ -46,7 +46,11 @@ const ExerciseSlideEditor: React.FC<
         {t("slide-title", { number: attributes.order_number + 1 })}
       </div>
       <div className={gutenbergControlsHidden}>
-        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={INNER_BLOCKS_TEMPLATE} />
+        <InnerBlocks
+          allowedBlocks={ALLOWED_NESTED_BLOCKS}
+          template={INNER_BLOCKS_TEMPLATE}
+          templateLock={false}
+        />
       </div>
       <div>
         <Button variant="secondary" size="medium" onClick={handleAddNewTask}>

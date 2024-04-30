@@ -408,7 +408,7 @@ const createTimeline = async (frame: Locator) => {
   })
 }
 
-test.only("Create quizzes in page", async ({ page }) => {
+test("Create quizzes in page", async ({ page }) => {
   // Create page to course and navigate into the page
   await createPageWithAnExerciseBlock(page)
   // ---------------------------------------------- //

@@ -200,31 +200,38 @@ pub async fn create_peer_or_self_review_submission_for_user(
         .await?;
     }
 
-    // let giver_exercise_state = if !is_self_review
-    //     && peer_reviews_given >= peer_or_self_review_config.peer_reviews_to_give
-    // {
-    //     update_peer_review_giver_exercise_progress(
-    //         &mut tx,
-    //         exercise,
-    //         giver_exercise_state,
-    //         peer_reviews_given,
-    //         peer_or_self_review_config.clone(),
-    //     )
-    //     .await?
-    // } else {
-    //     if is_self_review {
-    //         user_exercise_state_updater::update_user_exercise_state(
-    //             &mut tx,
-    //             giver_exercise_state.id,
-    //         )
-    //         .await?
-    //     } else {
-    //         giver_exercise_state
-    //     }
-    // };
     let giver_exercise_state =
         user_exercise_state_updater::update_user_exercise_state(&mut tx, giver_exercise_state.id)
             .await?;
+
+    if !is_self_review && peer_reviews_given >= peer_or_self_review_config.peer_reviews_to_give {
+        // Update peer review queue entry
+        let users_latest_submission =
+            exercise_slide_submissions::get_users_latest_exercise_slide_submission(
+                &mut tx,
+                giver_exercise_state.get_selected_exercise_slide_id()?,
+                giver_exercise_state.user_id,
+            )
+            .await?;
+        let peer_reviews_received: i32 =
+        peer_or_self_review_submissions::count_peer_or_self_review_submissions_for_exercise_slide_submission(
+            &mut tx,
+            users_latest_submission.id,
+        )
+        .await?
+        .try_into()?;
+        let _peer_review_queue_entry = peer_review_queue_entries::upsert_peer_review_priority(
+            &mut tx,
+            giver_exercise_state.user_id,
+            giver_exercise_state.exercise_id,
+            giver_exercise_state.get_course_instance_id()?,
+            peer_reviews_given,
+            users_latest_submission.id,
+            peer_reviews_received >= peer_or_self_review_config.peer_reviews_to_receive,
+        )
+        .await?;
+    }
+
     let exercise_slide_submission = exercise_slide_submissions::get_by_id(
         &mut tx,
         peer_review_submission.exercise_slide_submission_id,
@@ -297,61 +304,6 @@ fn validate_and_sanitize_peer_review_submission_answers(
         ))
     }
 }
-
-// /// Creates or updates submitter's exercise state and peer review queue entry.
-// async fn update_peer_review_giver_exercise_progress(
-//     conn: &mut PgConnection,
-//     exercise: &Exercise,
-//     user_exercise_state: UserExerciseState,
-//     peer_reviews_given: i32,
-//     peer_review: PeerOrSelfReviewConfig,
-// ) -> ModelResult<UserExerciseState> {
-//     let users_latest_submission =
-//         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
-//             conn,
-//             user_exercise_state.get_selected_exercise_slide_id()?,
-//             user_exercise_state.user_id,
-//         )
-//         .await?;
-//     let peer_reviews_received: i32 =
-//         peer_or_self_review_submissions::count_peer_or_self_review_submissions_for_exercise_slide_submission(
-//             conn,
-//             users_latest_submission.id,
-//         )
-//         .await?
-//         .try_into()?;
-//     let peer_review_queue_entry = peer_review_queue_entries::upsert_peer_review_priority(
-//         conn,
-//         user_exercise_state.user_id,
-//         user_exercise_state.exercise_id,
-//         user_exercise_state.get_course_instance_id()?,
-//         peer_reviews_given,
-//         users_latest_submission.id,
-//         peer_reviews_received >= peer_review.peer_reviews_to_receive,
-//     )
-//     .await?;
-//     let received_peer_or_self_review_question_submissions = crate::peer_or_self_review_question_submissions::get_received_question_submissions_for_exercise_slide_submission(conn, users_latest_submission.id).await?;
-//     let updated_user_exercise_state =
-//         user_exercise_state_updater::update_user_exercise_state_with_some_already_loaded_data(
-//             conn,
-//             user_exercise_state.id,
-//             UserExerciseStateUpdateAlreadyLoadedRequiredData {
-//                 current_user_exercise_state: Some(user_exercise_state),
-//                 exercise: Some(exercise.clone()),
-//                 peer_or_self_review_information: Some(UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
-//                     peer_review_queue_entry: Some(Some(peer_review_queue_entry)),
-//                     latest_exercise_slide_submission_received_peer_or_self_review_question_submissions:
-//                         Some(received_peer_or_self_review_question_submissions),
-//                     latest_exercise_slide_submission: Some(users_latest_submission),
-//                     ..Default::default()
-//                 }),
-//                 ..Default::default()
-//             },
-//         )
-//         .await?;
-
-//     Ok(updated_user_exercise_state)
-// }
 
 async fn update_peer_review_receiver_exercise_status(
     conn: &mut PgConnection,

@@ -94,15 +94,6 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "What is system testing")
 
-  await page.getByText("Add slide").click()
-
-  // The block needs to be focused for the button to work
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100)
-  await page.getByText("Slide 1").click()
-
-  await page.getByText("Add task").click()
-
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
   await page.getByText("Type / to choose a block").click()

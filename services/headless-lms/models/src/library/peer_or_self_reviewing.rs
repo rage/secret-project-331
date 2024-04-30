@@ -200,10 +200,6 @@ pub async fn create_peer_or_self_review_submission_for_user(
         .await?;
     }
 
-    let giver_exercise_state =
-        user_exercise_state_updater::update_user_exercise_state(&mut tx, giver_exercise_state.id)
-            .await?;
-
     if !is_self_review && peer_reviews_given >= peer_or_self_review_config.peer_reviews_to_give {
         // Update peer review queue entry
         let users_latest_submission =
@@ -231,6 +227,10 @@ pub async fn create_peer_or_self_review_submission_for_user(
         )
         .await?;
     }
+
+    let giver_exercise_state =
+        user_exercise_state_updater::update_user_exercise_state(&mut tx, giver_exercise_state.id)
+            .await?;
 
     let exercise_slide_submission = exercise_slide_submissions::get_by_id(
         &mut tx,

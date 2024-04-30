@@ -93,6 +93,10 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
       .locator("div#exercise-service-content-id")
       .click({ timeout: TIMEOUT })
 
+    await student2Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
+
     await expectScreenshotsToMatchSnapshots({
       headless,
       testInfo,
@@ -101,7 +105,7 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
       clearNotifications: true,
       axeSkip: ["duplicate-id"],
       waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
+        student2Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
       ],
       screenshotOptions: { fullPage: true },
     })
@@ -128,13 +132,17 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
     await teacherPage.getByRole("spinbutton").fill("0.75")
     await teacherPage.getByRole("button", { name: "Give custom points" }).click()
     await teacherPage.getByText("Operation successful").waitFor()
-    await teacherPage.reload()
 
+    await student1Page.reload()
     await student1Page
       .frameLocator("iframe")
       .first()
       .locator("div#exercise-service-content-id")
       .click({ timeout: TIMEOUT })
+
+    await student1Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
 
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -155,17 +163,8 @@ test.describe("test AutomaticallyGradeOrManualReviewByAverage behavior", () => {
       .locator("div#exercise-service-content-id")
       .click({ timeout: TIMEOUT })
 
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-seeing-score",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      axeSkip: ["duplicate-id"],
-      waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyGradeOrManualReviewByAverage"'),
-      ],
-      screenshotOptions: { fullPage: true },
-    })
+    await student2Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
   })
 })

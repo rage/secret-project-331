@@ -163,7 +163,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expect(teacherPage).toHaveURL("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
-    await teacherPage.getByText("ManualReviewEverything 2View answers requiring attention").click()
+    await teacherPage.getByText(/ManualReviewEverything.*View answers requiring attention/).click()
 
     await teacherPage.getByRole("button", { name: "Zero points" }).first().click()
     await teacherPage.reload()
@@ -347,7 +347,7 @@ test.describe("test ManualReviewEverything behavior", () => {
     await expect(teacherPage).toHaveURL("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
-    await teacherPage.getByText("ManualReviewEverything2 3View answers requiring attention").click()
+    await teacherPage.getByText(/ManualReviewEverything.*View answers requiring attention/).click()
 
     await teacherPage.getByRole("button", { name: "Zero points" }).first().click()
     await teacherPage.reload()

@@ -288,7 +288,7 @@ async fn submit_peer_or_self_review(
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
     let exercise_slide_submission: models::exercise_slide_submissions::ExerciseSlideSubmission =
         models::exercise_slide_submissions::get_by_id(
-            &mut *conn,
+            &mut conn,
             payload.exercise_slide_submission_id,
         )
         .await?;

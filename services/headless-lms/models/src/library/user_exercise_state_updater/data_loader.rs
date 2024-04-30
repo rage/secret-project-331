@@ -410,25 +410,23 @@ async fn load_given_self_review_submission(
     if let Some(given_self_review_submission) = already_loaded_given_self_review_submission {
         info!("Using already loaded given self review submission");
         Ok(given_self_review_submission)
-    } else {
-        if let Some(course_instance_id) = loaded_user_exercise_state.course_instance_id {
-            info!("Loading given self review submission");
-            Ok(
-                peer_or_self_review_submissions::get_self_review_submission_by_user_and_exercise(
-                    conn,
-                    loaded_user_exercise_state.user_id,
-                    loaded_user_exercise_state.exercise_id,
-                    course_instance_id,
-                )
-                .await?,
+    } else if let Some(course_instance_id) = loaded_user_exercise_state.course_instance_id {
+        info!("Loading given self review submission");
+        Ok(
+            peer_or_self_review_submissions::get_self_review_submission_by_user_and_exercise(
+                conn,
+                loaded_user_exercise_state.user_id,
+                loaded_user_exercise_state.exercise_id,
+                course_instance_id,
             )
-        } else {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "No course instance found: self review is only possible on courses".to_string(),
-                None,
-            ));
-        }
+            .await?,
+        )
+    } else {
+        Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "No course instance found: self review is only possible on courses".to_string(),
+            None,
+        ))
     }
 }
 

@@ -1,70 +1,72 @@
-#!/bin/bash
-set -euo pipefail
-source "$(dirname "$0")/.common"
+#!/usr/bin/env python3
 
-BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
-FOLDER_PATH="$BASEDIR/../"
-RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+import os
+import subprocess
+from pathlib import Path
 
-run_command cd "$RELATIVE_PATH"
+def run_command(command):
+    print(f"Running command: {command}")
+    subprocess.check_call(command, shell=True)
 
-if [[ $(git status --porcelain) ]]; then
-  echo "You have uncommitted changes. Please commit them before running this script."
-  exit 1
-fi
+def update_node_deps(folder, target_name):
+    print(f"cd {folder} ({target_name})")
+    os.chdir(folder)
 
-run_command npm ci
-run_command bin/npm-ci-all
+    try:
+        run_command('npx npm-check --update')
+    except subprocess.CalledProcessError:
+        print(f"Updating dependencies for {target_name} failed. Please do the dependency update manually.")
+        print("Press enter when you're ready. The script will then commit your changes.")
+        input()
 
-function update_node_deps() {
-  folder=$1
-  target_name=$2
-  run_command command cd  "$folder"
+    if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+        run_command('git add package.json package-lock.json')
+        run_command(f'git commit -m "Update dependencies for {target_name} " --no-verify')
 
-  set +e
-  if ! run_command npx npm-check --update; then
-    echo "Updating dependencies for $target_name failed. Please do the dependency update manually."
-    echo "Press enter when you're ready. The script will then commit your changes."
-    read -r
-  fi
-  set -e
+    try:
+        run_command('npm audit fix')
+        run_command('npm audit fix')
+        run_command('npm audit fix')
+    except subprocess.CalledProcessError:
+        pass
 
-  # check if there are any uncommitted changes
-  if [[ $(git status --porcelain) ]]; then
-    git add package.json package-lock.json
-    git commit -m "Update dependencies for $target_name " --no-verify
-  fi
-  set +e
-  run_command npm audit fix
-  run_command npm audit fix
-  run_command npm audit fix
-  set -e
-  if [[ $(git status --porcelain) ]]; then
-    git add package-lock.json
-    git commit -am "npm audit for $target_name" --no-verify
-  fi
-  cd -
-}
+    if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+        run_command('git add package-lock.json')
+        run_command(f'git commit -am "npm audit for {target_name}" --no-verify')
 
-update_node_deps "$RELATIVE_PATH" "repo root"
-update_node_deps "$RELATIVE_PATH/system-tests" "system-tests"
-update_node_deps "$RELATIVE_PATH/services/cms" "cms"
-update_node_deps "$RELATIVE_PATH/services/course-material" "course-material"
-update_node_deps "$RELATIVE_PATH/services/example-exercise" "example-exercise"
-update_node_deps "$RELATIVE_PATH/services/main-frontend" "main-frontend"
-update_node_deps "$RELATIVE_PATH/services/quizzes" "quizzes"
-update_node_deps "$RELATIVE_PATH/services/tmc" "tmc"
-update_node_deps "$RELATIVE_PATH/shared-module" "shared-module"
+    os.chdir('-')
 
-# Update rust deps
-run_command cd services/headless-lms
-run_command cargo upgrade --incompatible allow --pinned allow --recursive true
-if [[ $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "Cargo upgrade" --no-verify
-fi
-run_command cargo update --recursive
-if [[ $(git status --porcelain) ]]; then
-  git add .
-  git commit -m "Cargo update" --no-verify
-fi
+basedir = Path(__file__).parent
+folder_path = basedir / '..'
+relative_path = folder_path.resolve().relative_to(Path.cwd())
+
+os.chdir(relative_path)
+
+if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+    print("You have uncommitted changes. Please commit them before running this script.")
+    exit(1)
+
+run_command('npm ci')
+run_command('bin/npm-ci-all')
+
+update_node_deps(relative_path, "repo root")
+update_node_deps(relative_path / 'system-tests', "system-tests")
+update_node_deps(relative_path / 'services/cms', "cms")
+update_node_deps(relative_path / 'services/course-material', "course-material")
+update_node_deps(relative_path / 'services/example-exercise', "example-exercise")
+update_node_deps(relative_path / 'services/main-frontend', "main-frontend")
+update_node_deps(relative_path / 'services/quizzes', "quizzes")
+update_node_deps(relative_path / 'services/tmc', "tmc")
+update_node_deps(relative_path / 'shared-module', "shared-module")
+
+os.chdir('services/headless-lms')
+run_command('cargo upgrade --incompatible allow --pinned allow --recursive true')
+
+if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+    run_command('git add .')
+    run_command('git commit -m "Cargo upgrade" --no-verify')
+
+run_command('cargo update --recursive')
+
+if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+    run_command('git add .')

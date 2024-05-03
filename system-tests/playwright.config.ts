@@ -42,7 +42,7 @@ const config: PlaywrightTestConfig = {
     navigationTimeout: 15000,
     actionTimeout: 15000,
     headless: true,
-    trace: "retain-on-failure",
+    trace: "retain-on-first-failure",
     baseURL: "http://project-331.local",
     launchOptions: {},
     screenshot: "only-on-failure",

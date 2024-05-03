@@ -13,7 +13,7 @@ license.workspace = true
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.36.0", features = [
+tokio = { version = "1.37.0", features = [
   "fs",
   "io-util",
   "sync",
@@ -24,7 +24,7 @@ futures = "0.3.30"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.7.3", features = [
+sqlx = { version = "0.7.4", features = [
   "postgres",
   "runtime-tokio",
   "tls-rustls",
@@ -33,13 +33,13 @@ sqlx = { version = "0.7.3", features = [
   "json",
 ] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.8.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
-serde = { version = "1.0.197", features = ["derive"] }
+serde = { version = "1.0.200", features = ["derive"] }
 # Date and time library for Rust
-chrono = { version = "0.4.34", features = ["serde"] }
+chrono = { version = "0.4.38", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.114"
+serde_json = "1.0.116"
 # Adds #[derive(x)] macros for more traits
 derive_more = "0.99.17"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
@@ -51,9 +51,9 @@ tracing = "0.1.40"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.0"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.69"
+backtrace = "0.3.71"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "1.0.57"
+thiserror = "1.0.59"
 # generate typescript bindings from rust types
 ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f0d7095c0a5e2984adc86", features = [
   "bytes-impl",
@@ -67,7 +67,7 @@ lettre = "0.11.1"
 # Random number generators and other randomness functionality.
 rand = "0.8.5"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.80"
+anyhow = "1.0.82"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

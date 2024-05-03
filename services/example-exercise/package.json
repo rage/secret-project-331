@@ -8,8 +8,6 @@
     "start": "NODE_ENV=production PORT=3002 node server.js"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
@@ -30,6 +28,8 @@
     "lodash": "^4.17.21",
     "monaco-editor": "^0.46.0",
     "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.0",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^14.0.5",
@@ -55,7 +55,7 @@
     "typescript": "^5.3.3"
   },
   "overrides": {
-    "react": "$react",
-    "react-dom": "$react"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

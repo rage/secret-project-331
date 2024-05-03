@@ -10,8 +10,6 @@
     "test-silent": "jest --silent"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@date-io/date-fns": "^3.0.0",
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.4",
@@ -40,6 +38,8 @@
     "monaco-editor": "^0.46.0",
     "next": "^14.1.0",
     "postcss": "^8.4.35",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.0",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^14.0.5",
@@ -70,7 +70,7 @@
     "typescript": "^5.3.3"
   },
   "overrides": {
-    "react": "$react",
-    "react-dom": "$react"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

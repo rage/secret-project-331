@@ -39,7 +39,7 @@ def update_node_deps(folder, target_name):
         run_command('git add package-lock.json')
         run_command(f'git commit -am "npm audit for {target_name}" --no-verify')
 
-    os.chdir(relative_path)
+    os.chdir(folder_path)
 
 
 os.chdir(relative_path)

@@ -86,21 +86,21 @@ def update_node_deps(folder, target_name):
 
 os.chdir(relative_path)
 
-# if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
-#     print("You have uncommitted changes. Please commit them before running this script.")
-#     exit(1)
+if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+    print("You have uncommitted changes. Please commit them before running this script.")
+    exit(1)
 
-# run_command('npm ci')
-# run_command('bin/npm-ci-all')
+run_command('npm ci')
+run_command('bin/npm-ci-all')
 
-# update_node_deps(relative_path, "repo root")
-# update_node_deps(relative_path / 'system-tests', "system-tests")
-# update_node_deps(relative_path / 'services/cms', "cms")
-# update_node_deps(relative_path / 'services/course-material', "course-material")
-# update_node_deps(relative_path / 'services/example-exercise', "example-exercise")
-# update_node_deps(relative_path / 'services/main-frontend', "main-frontend")
-# update_node_deps(relative_path / 'services/quizzes', "quizzes")
-# update_node_deps(relative_path / 'services/tmc', "tmc")
+update_node_deps(relative_path, "repo root")
+update_node_deps(relative_path / 'system-tests', "system-tests")
+update_node_deps(relative_path / 'services/cms', "cms")
+update_node_deps(relative_path / 'services/course-material', "course-material")
+update_node_deps(relative_path / 'services/example-exercise', "example-exercise")
+update_node_deps(relative_path / 'services/main-frontend', "main-frontend")
+update_node_deps(relative_path / 'services/quizzes', "quizzes")
+update_node_deps(relative_path / 'services/tmc', "tmc")
 update_node_deps(relative_path / 'shared-module', "shared-module")
 
 os.chdir('services/headless-lms')
@@ -114,3 +114,4 @@ run_command('cargo update --recursive')
 
 if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
     run_command('git add .')
+    run_command('git commit -m "Cargo update" --no-verify')

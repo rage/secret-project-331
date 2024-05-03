@@ -4,6 +4,11 @@ import os
 import subprocess
 from pathlib import Path
 
+basedir = Path(__file__).parent
+folder_path = basedir / '..'
+relative_path = folder_path.resolve().relative_to(Path.cwd())
+
+
 def run_command(command):
     print(f"Running command: {command}")
     subprocess.check_call(command, shell=True)
@@ -34,11 +39,8 @@ def update_node_deps(folder, target_name):
         run_command('git add package-lock.json')
         run_command(f'git commit -am "npm audit for {target_name}" --no-verify')
 
-    os.chdir('-')
+    os.chdir(relative_path)
 
-basedir = Path(__file__).parent
-folder_path = basedir / '..'
-relative_path = folder_path.resolve().relative_to(Path.cwd())
 
 os.chdir(relative_path)
 

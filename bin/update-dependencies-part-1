@@ -25,6 +25,7 @@ def update_node_deps(folder, target_name):
             package_json = f.read()
         parsed = json.loads(package_json)
         if 'overrides' in parsed:
+            print("Package.json has overrides, removing them before updating")
             had_overrides = True
             bak = parsed['overrides']
             del parsed['overrides']
@@ -41,6 +42,7 @@ def update_node_deps(folder, target_name):
         input()
 
     if had_overrides:
+        print("Restoring overrides")
         with open('package.json', 'r') as f:
             package_json = f.read()
         parsed = json.loads(package_json)
@@ -49,10 +51,11 @@ def update_node_deps(folder, target_name):
             del parsed['overrides_bak']
             parsed['overrides'] = bak
             # Update version numbers in overrides
-            for [k, _v] in parsed['overrides']:
+            for k in parsed['overrides'].keys():
                 installed_version = parsed['dependencies'][k] or parsed['devDependencies'][k]
                 parsed['overrides'][k] = installed_version
             package_json = json.dumps(parsed, indent=2)
+            print(package_json)
             with open('package.json', 'w') as f:
                 f.write(package_json)
 
@@ -78,9 +81,9 @@ def update_node_deps(folder, target_name):
 
 os.chdir(relative_path)
 
-if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
-    print("You have uncommitted changes. Please commit them before running this script.")
-    exit(1)
+# if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
+#     print("You have uncommitted changes. Please commit them before running this script.")
+#     exit(1)
 
 # run_command('npm ci')
 # run_command('bin/npm-ci-all')

@@ -3,6 +3,7 @@
 import os
 import subprocess
 from pathlib import Path
+import json
 
 basedir = Path(__file__).parent
 folder_path = basedir / '..'
@@ -17,12 +18,45 @@ def update_node_deps(folder, target_name):
     print(f"cd {folder} ({target_name})")
     os.chdir(folder)
 
+    # npm does not handle overrides correctly, so we need to remove the overrides before updating and then we can add them back
+    had_overrides = False
+    if Path('package.json').exists():
+        with open('package.json', 'r') as f:
+            package_json = f.read()
+        parsed = json.loads(package_json)
+        if 'overrides' in parsed:
+            had_overrides = True
+            bak = parsed['overrides']
+            del parsed['overrides']
+            parsed['overrides_bak'] = bak
+            package_json = json.dumps(parsed, indent=2)
+            with open('package.json', 'w') as f:
+                f.write(package_json)
+
     try:
         run_command('npx npm-check --update')
     except subprocess.CalledProcessError:
         print(f"Updating dependencies for {target_name} failed. Please do the dependency update manually.")
         print("Press enter when you're ready. The script will then commit your changes.")
         input()
+
+    if had_overrides:
+        with open('package.json', 'r') as f:
+            package_json = f.read()
+        parsed = json.loads(package_json)
+        if 'overrides_bak' in parsed:
+            bak = parsed['overrides_bak']
+            del parsed['overrides_bak']
+            parsed['overrides'] = bak
+            # Update version numbers in overrides
+            for [k, _v] in parsed['overrides']:
+                installed_version = parsed['dependencies'][k] or parsed['devDependencies'][k]
+                parsed['overrides'][k] = installed_version
+            package_json = json.dumps(parsed, indent=2)
+            with open('package.json', 'w') as f:
+                f.write(package_json)
+
+    run_command('npm install')
 
     if subprocess.run('git status --porcelain', shell=True, capture_output=True).stdout:
         run_command('git add package.json package-lock.json')
@@ -48,11 +82,11 @@ if subprocess.run('git status --porcelain', shell=True, capture_output=True).std
     print("You have uncommitted changes. Please commit them before running this script.")
     exit(1)
 
-run_command('npm ci')
-run_command('bin/npm-ci-all')
+# run_command('npm ci')
+# run_command('bin/npm-ci-all')
 
-update_node_deps(relative_path, "repo root")
-update_node_deps(relative_path / 'system-tests', "system-tests")
+# update_node_deps(relative_path, "repo root")
+# update_node_deps(relative_path / 'system-tests', "system-tests")
 update_node_deps(relative_path / 'services/cms', "cms")
 update_node_deps(relative_path / 'services/course-material', "course-material")
 update_node_deps(relative_path / 'services/example-exercise', "example-exercise")

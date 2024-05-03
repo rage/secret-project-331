@@ -73,6 +73,7 @@ where
         let module_name = module.name.as_deref().unwrap_or("default_module");
         headers.push(format!("{module_name}_grade"));
         headers.push(format!("{module_name}_registered"));
+        headers.push(format!("{module_name}_completion_date"));
     }
 
     // write rows
@@ -100,6 +101,11 @@ where
                 .map(|cm| cm.registered.to_string())
                 .unwrap_or_default();
             csv_row.push(registered);
+            csv_row.push(
+                user_completion
+                    .map(|uc| uc.completion_date.to_string())
+                    .unwrap_or_default(),
+            )
         }
         // To avoid confusion with some people potentially not understanding that '-' means not completed,
         // we'll skip the users that don't have any completions from any modules. The confusion is less likely in cases where there are more than one module, and only in those cases the teachers would see the '-' entries in this file.

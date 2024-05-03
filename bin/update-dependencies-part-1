@@ -52,7 +52,12 @@ def update_node_deps(folder, target_name):
             parsed['overrides'] = bak
             # Update version numbers in overrides
             for k in parsed['overrides'].keys():
-                installed_version = parsed['dependencies'][k] or parsed['devDependencies'][k]
+                if k in parsed['dependencies']:
+                    installed_version = parsed['dependencies'][k]
+                elif k in parsed['devDependencies']:
+                    installed_version = parsed['devDependencies'][k]
+                else:
+                    next
                 parsed['overrides'][k] = installed_version
             package_json = json.dumps(parsed, indent=2)
             print(package_json)
@@ -90,12 +95,12 @@ os.chdir(relative_path)
 
 # update_node_deps(relative_path, "repo root")
 # update_node_deps(relative_path / 'system-tests', "system-tests")
-update_node_deps(relative_path / 'services/cms', "cms")
-update_node_deps(relative_path / 'services/course-material', "course-material")
-update_node_deps(relative_path / 'services/example-exercise', "example-exercise")
-update_node_deps(relative_path / 'services/main-frontend', "main-frontend")
-update_node_deps(relative_path / 'services/quizzes', "quizzes")
-update_node_deps(relative_path / 'services/tmc', "tmc")
+# update_node_deps(relative_path / 'services/cms', "cms")
+# update_node_deps(relative_path / 'services/course-material', "course-material")
+# update_node_deps(relative_path / 'services/example-exercise', "example-exercise")
+# update_node_deps(relative_path / 'services/main-frontend', "main-frontend")
+# update_node_deps(relative_path / 'services/quizzes', "quizzes")
+# update_node_deps(relative_path / 'services/tmc', "tmc")
 update_node_deps(relative_path / 'shared-module', "shared-module")
 
 os.chdir('services/headless-lms')

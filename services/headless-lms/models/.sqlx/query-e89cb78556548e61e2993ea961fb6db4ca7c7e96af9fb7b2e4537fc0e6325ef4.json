@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT completions.completion_registration_attempt_date,\n  completions.course_module_id,\n  completions.created_at,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.user_id\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\nWHERE completions.course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n        ",
+  "query": "\nSELECT completions.completion_registration_attempt_date,\n  completions.course_module_id,\n  completions.created_at,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.user_id,\n  completions.completion_date\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\nWHERE completions.course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -42,12 +42,17 @@
         "ordinal": 7,
         "name": "user_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "completion_date",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [true, false, false, true, false, false, null, false]
+    "nullable": [true, false, false, true, false, false, null, false, false]
   },
-  "hash": "a54dccecd05081f97834f4f8654132d47eeff79664ba79fee7ebbb5ad4368cbf"
+  "hash": "e89cb78556548e61e2993ea961fb6db4ca7c7e96af9fb7b2e4537fc0e6325ef4"
 }

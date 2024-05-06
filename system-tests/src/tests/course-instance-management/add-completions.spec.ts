@@ -115,7 +115,13 @@ test("Manually adding completions works", async ({ page, headless }, testInfo) =
   ])
 
   const completionsCsvContents = await downloadToString(download)
-  expect(completionsCsvContents).toContain("user_id,first_name,last_name,email")
-  expect(completionsCsvContents).toContain("user_2@example.com,4,false,-,,-,")
-  expect(completionsCsvContents).toContain("user_3@example.com,4,false,pass,false,-,")
+  expect(completionsCsvContents).toContain(
+    "user_id,first_name,last_name,email,default_module_grade,default_module_registered,default_module_completion_date",
+  )
+  expect(completionsCsvContents).toMatch(
+    /[^, ]*-[^, ]*-[^, ]*-[^, ]*-[^, ].*,user_2@example\.com,4,false,[^, ]*T[^, ]*,-,,,-,,/,
+  )
+  expect(completionsCsvContents).toMatch(
+    /[^, ]*-[^, ]*-[^, ]*-[^, ]*-[^, ].*,user_3@example\.com,4,false,[^, ]*T[^, ]*,pass,false,[^, ]*T[^, ]*/,
+  )
 })

@@ -29,7 +29,7 @@
   "congratulations-placeholder": "Onnittelulohko",
   "course-instance-enrollment-condition": "Opiskelija on ilmoittautunut johonkin seuraavista kurssitoteutuksista:",
   "course-progress-placeholder": "Kurssin edistyminen lohko",
-  "course-progress-placeholder-explanation": "Tämä lohko sijoitetaan kurssimateriaaliin, johon haluat näyttää kurssin edistymisen.",
+  "course-progress-placeholder-explanation": "Tämä lohko sijoitetaan kurssimateriaaliin, johon haluat näyttää käyttäjälle hänen nykyisen edistymisensä ja pistetilanteensa koko kurssilta.",
   "default": "Oletus",
   "default-question": "Lisää kysymys tähän",
   "delete": "Poista",

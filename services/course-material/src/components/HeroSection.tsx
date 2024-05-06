@@ -148,9 +148,15 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         <span className="chapter">{label}</span>
         <h1
           className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}
-          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+          dangerouslySetInnerHTML={{
+            __html: parseText(title, terms, { glossary: false }).parsedText,
+          }}
         />
-        <span dangerouslySetInnerHTML={{ __html: parseText(subtitle, terms).parsedText }} />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: parseText(subtitle, terms, { glossary: false }).parsedText,
+          }}
+        />
       </TextBox>
     </div>
   )

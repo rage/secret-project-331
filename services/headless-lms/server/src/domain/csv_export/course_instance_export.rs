@@ -103,7 +103,7 @@ where
             csv_row.push(registered);
             csv_row.push(
                 user_completion
-                    .map(|uc| uc.completion_date.to_string())
+                    .map(|uc| uc.completion_date.to_rfc3339())
                     .unwrap_or_default(),
             )
         }

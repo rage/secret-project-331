@@ -594,6 +594,9 @@
 <a href="#593" id="593">593</a>
 <a href="#594" id="594">594</a>
 <a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::Stream;
@@ -797,6 +800,8 @@ WHERE course_instance_id = $1
     </span><span class="kw">pub </span>registered: bool,
     <span class="doccomment">/// ID of the user for the completion.
     </span><span class="kw">pub </span>user_id: Uuid,
+    <span class="comment">// When the user completed the course
+    </span><span class="kw">pub </span>completion_date: DateTime&lt;Utc&gt;,
 }
 
 <span class="doccomment">/// Gets summaries for all completions on the given course instance.
@@ -814,7 +819,8 @@ SELECT completions.completion_registration_attempt_date,
   completions.passed,
   completions.prerequisite_modules_completed,
   (registered.id IS NOT NULL) AS "registered!",
-  completions.user_id
+  completions.user_id,
+  completions.completion_date
 FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id

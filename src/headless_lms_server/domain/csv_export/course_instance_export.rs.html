@@ -168,6 +168,12 @@
 <a href="#167" id="167">167</a>
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>headless_lms_models::course_instances;
@@ -243,6 +249,7 @@
         <span class="kw">let </span>module_name = module.name.as_deref().unwrap_or(<span class="string">"default_module"</span>);
         headers.push(<span class="macro">format!</span>(<span class="string">"{module_name}_grade"</span>));
         headers.push(<span class="macro">format!</span>(<span class="string">"{module_name}_registered"</span>));
+        headers.push(<span class="macro">format!</span>(<span class="string">"{module_name}_completion_date"</span>));
     }
 
     <span class="comment">// write rows
@@ -270,6 +277,11 @@
                 .map(|cm| cm.registered.to_string())
                 .unwrap_or_default();
             csv_row.push(registered);
+            csv_row.push(
+                user_completion
+                    .map(|uc| uc.completion_date.to_rfc3339())
+                    .unwrap_or_default(),
+            )
         }
         <span class="comment">// To avoid confusion with some people potentially not understanding that '-' means not completed,
         // we'll skip the users that don't have any completions from any modules. The confusion is less likely in cases where there are more than one module, and only in those cases the teachers would see the '-' entries in this file.

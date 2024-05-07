@@ -3311,8 +3311,8 @@ pub async fn seed_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -3420,8 +3420,8 @@ pub async fn seed_course_without_submissions(
         AutomaticallyGradeOrManualReviewByAverage,
         2.5,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -3432,8 +3432,8 @@ pub async fn seed_course_without_submissions(
         AutomaticallyGradeByAverage,
         2.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4521,8 +4521,8 @@ pub async fn seed_peer_review_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4579,8 +4579,8 @@ pub async fn seed_peer_review_course_without_submissions(
         AutomaticallyGradeOrManualReviewByAverage,
         2.5,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4637,8 +4637,8 @@ pub async fn seed_peer_review_course_without_submissions(
         AutomaticallyGradeByAverage,
         2.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4695,8 +4695,8 @@ pub async fn seed_peer_review_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 

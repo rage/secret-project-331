@@ -33,7 +33,7 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
     const student2Page = await context2.newPage()
     const _teacherPage = await context3.newPage()
 
-    // User 1 neavigates to exercise and answers
+    // User 1 navigates to exercise and answers
     await answerExercise(student1Page, TEST_PAGE, "a")
     await expectScreenshotsToMatchSnapshots({
       headless,
@@ -48,7 +48,7 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
       screenshotOptions: { fullPage: true },
     })
 
-    // User 2 neavigates to exercise and answers
+    // User 2 navigates to exercise and answers
     await student2Page.goto("http://project-331.local/organizations")
     await answerExercise(student2Page, TEST_PAGE, "b")
 

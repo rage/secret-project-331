@@ -9,8 +9,7 @@ CREATE TABLE suspected_cheaters (
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON suspected_cheaters FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
--- The suspected_cheaters table is a that contains a student that are suspected of cheating because they meet the cheating requirement (i.e. score > threshold && duration > average_duration)
-COMMENT ON TABLE suspected_cheaters IS 'This table stores data regarding student that are suspected of cheating in a course instance.';
+COMMENT ON TABLE suspected_cheaters IS 'Contains a student that are suspected of cheating because they meet the cheating requirement (i.e. score > threshold && duration > average_duration).';
 COMMENT ON COLUMN suspected_cheaters.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN suspected_cheaters.user_id IS 'The user_id of the student being suspected.';
 COMMENT ON COLUMN suspected_cheaters.created_at IS 'Timestamp when the record was created.';
@@ -18,7 +17,7 @@ COMMENT ON COLUMN suspected_cheaters.updated_at IS 'Timestamp when the record wa
 COMMENT ON COLUMN suspected_cheaters.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN suspected_cheaters.total_duration_seconds IS 'The total duration the student spent completing the course.';
 COMMENT ON COLUMN suspected_cheaters.total_points IS 'The total points earned by the student in the course.';
--- The cheater_thresholds table contains thresholds set by the instructor, representing the maximum score or duration a student can surpass before being suspected of cheating.
+-- The cheater_thresholds table starts here.
 CREATE TABLE cheater_thresholds (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   course_instance_id UUID NOT NULL REFERENCES course_instances,

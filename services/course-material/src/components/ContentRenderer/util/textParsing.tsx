@@ -62,15 +62,27 @@ const parseCitation = (data: string) => {
   return converted
 }
 
-const parseText = (content: string | undefined | StringWithHTML, terms: Term[]) => {
+const parseText = (
+  content: string | undefined | StringWithHTML,
+  terms: Term[],
+  options: { glossary: boolean } = { glossary: true },
+) => {
   const sanitizedHTML = sanitizeCourseMaterialHtml(content)
   const { count, converted: parsedLatex } = convertToLatex(sanitizedHTML)
   const parsedCitation = parseCitation(parsedLatex)
-  const parsedGlossary = parseGlossary(parsedCitation, terms ?? [])
 
-  const hasCitationsOrGlossary = parsedLatex !== parsedGlossary
+  let parsedText = parsedCitation
+  let hasCitationsOrGlossary = false
 
-  return { count, parsedText: parsedGlossary, hasCitationsOrGlossary }
+  if (options.glossary) {
+    parsedText = parseGlossary(parsedCitation, terms ?? [])
+  }
+
+  hasCitationsOrGlossary = parsedLatex !== parsedText
+
+  // Sanitation always needs to be the last step because otherwise we might accidentally introduce injection attacks with our custom parsing and modifications to the string
+  parsedText = sanitizeCourseMaterialHtml(parsedText)
+  return { count, parsedText, hasCitationsOrGlossary }
 }
 
 export { parseText }

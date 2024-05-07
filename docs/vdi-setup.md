@@ -4,7 +4,9 @@
 
 1. Go to [https://onify.it.helsinki.fi/](https://onify.it.helsinki.fi/) and select `Order a virtual desktop`.
 2. Select `Basic Linux`.
-3. To get proper resources and an external disk that is required for the environment setup, the university's helpdesk needs to be emailed about it. The MOOC-center has an email thread regarding this, so you can ask in the Rage Research-slack's #secret-project-331 channel for help to email to that thread to get the resources for your virtual desktop.
+3. Put your university username as the name for the virtual desktop.
+4. Ask for the WBS number from redande or hn in slack.
+5. To get proper resources and an external disk that is required for the environment setup, the university's helpdesk needs to be emailed about it. The MOOC-center has an email thread regarding this, so you can ask redande or hn in slack to email to that thread to get the resources for your virtual desktop.
 
 ## Install and set up VMware Horizon Client
 
@@ -13,13 +15,15 @@
 3. Open VMware Horizon Client.
 4. Double click the `New Server`-button.
 5. Enter your university credentials. The dropdown below the credentials-fields should default to `ATKK`, but if it's something else, switch it to `ATKK`.
-6. Select your virtual desktop, probably named `vdi-<your university username>` or `mooc-<your university username>`.
+6. Select your virtual desktop, it should be `vdi-<your university username>`.
 
 **NB!** You can also access the virtual desktop at [vdi.helsinki.fi](https://vdi.helsinki.fi) without installing the VMware Horizon Client, but this isn't recommended as the connection is a lot worse and the website-version has more limited features.
 
 ## Getting sudo
 
 Fill this [form](https://elomake.helsinki.fi/lomakkeet/42471/lomake.html) to request admin rights to your virtual desktop. You can state as the reason for requesting administrative priviledges that developing MOOC-center's software is impossible without admin rights.
+
+- For the _Identification of workstation_, put the name of your virtual desktop. It should be `vdi-<your university username>`.
 
 ## Setting up secret project in the virtual desktop
 
@@ -73,7 +77,5 @@ curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo 
 
 1. Open a terminal and go to `/data/username/Code/secret-project-331`.
 
-2. Install google cloud cli with `sudo snap install google-cloud-cli --classic` and then log into it with `gcloud auth login`.
-
-3. Follow the instructions from the project's `doc/Development.md` to set up the environment.
+2. Follow the instructions from the project's `doc/Development.md` to set up the environment.
    - **NB!** most of the tools and dependencies are already installed during setting up the project space, so you can skip ahead to the section _Running the development environment_

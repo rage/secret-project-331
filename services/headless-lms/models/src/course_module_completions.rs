@@ -201,6 +201,8 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
     pub registered: bool,
     /// ID of the user for the completion.
     pub user_id: Uuid,
+    // When the user completed the course
+    pub completion_date: DateTime<Utc>,
 }
 
 /// Gets summaries for all completions on the given course instance.
@@ -218,7 +220,8 @@ SELECT completions.completion_registration_attempt_date,
   completions.passed,
   completions.prerequisite_modules_completed,
   (registered.id IS NOT NULL) AS "registered!",
-  completions.user_id
+  completions.user_id,
+  completions.completion_date
 FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id

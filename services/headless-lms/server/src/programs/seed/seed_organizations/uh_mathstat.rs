@@ -50,7 +50,7 @@ pub async fn seed_organization_uh_mathstat(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
-        langs_user_id: _,
+        langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -148,6 +148,7 @@ pub async fn seed_organization_uh_mathstat(
         organization_id: uh_mathstat_id,
         admin_user_id,
         student_user_id: student_3_user_id,
+        langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,
@@ -233,6 +234,22 @@ pub async fn seed_organization_uh_mathstat(
         "Self review",
         "self-review",
         uh_data.clone(),
+    )
+    .await?;
+
+    let audio_course = seed_sample_course(
+        Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
+        "Audio course",
+        "audio-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(audio_course),
     )
     .await?;
 

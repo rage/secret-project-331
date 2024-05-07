@@ -15,6 +15,7 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
+    suspected_cheaters::ThresholdData,
     user_exercise_states::UserCourseInstanceProgress,
 };
 
@@ -443,6 +444,111 @@ async fn get_user_progress_for_course_instance(
 }
 
 /**
+ POST /api/v0/main-frontend/course-instances/:course_instance_id/threshold - post course threshold information.
+*/
+#[instrument(skip(pool))]
+async fn insert_threshold(
+    pool: web::Data<PgPool>,
+    params: web::Path<Uuid>,
+    payload: web::Json<ThresholdData>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let course_instance_id = params.into_inner();
+    let new_threshold = payload.0;
+    let duration: Option<i32> = None;
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+
+    models::suspected_cheaters::insert_thresholds(
+        &mut conn,
+        course_instance_id,
+        duration,
+        new_threshold.points,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/course-instances/:course_instance_id/suspected_cheaters - post course suspected cheaters information.
+*/
+#[instrument(skip(pool))]
+async fn insert_suspected_cheaters(
+    pool: web::Data<PgPool>,
+    params: web::Path<(Uuid, Uuid, Uuid)>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let (course_instance_id, user_id, course_module_completion_id) = params.into_inner();
+
+    let average_duration_seconds =
+        models::course_instances::get_course_average_duration(&mut conn, course_instance_id)
+            .await?;
+
+    // Get threshold for a specific course instance
+    let thresholds =
+        models::suspected_cheaters::get_thresholds_by_id(&mut conn, course_instance_id).await?;
+
+    // Get all completions for the a course module completion
+
+    let completion =
+        models::course_module_completions::get_by_id(&mut conn, course_module_completion_id)
+            .await?;
+
+    if completion.grade.is_none() {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Grade is not a numeric value".to_string(),
+            None,
+        ));
+    }
+
+    let total_points = models::user_exercise_states::get_user_total_course_points(
+        &mut conn,
+        user_id,
+        course_instance_id,
+    )
+    .await?
+    .unwrap_or(0.0);
+
+    let student_duration_seconds =
+        models::course_instances::get_student_duration(&mut conn, user_id, course_instance_id)
+            .await?;
+
+    if student_duration_seconds > average_duration_seconds
+        && total_points as i32 <= thresholds.points
+    {
+        models::suspected_cheaters::insert(
+            &mut conn,
+            completion.user_id,
+            None,
+            total_points as i32,
+        )
+        .await?;
+    }
+    // }
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -493,6 +599,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/progress/{user_id}",
             web::get().to(get_user_progress_for_course_instance),
+        )
+        .route(
+            "/{course_instance_id}/threshold",
+            web::post().to(insert_threshold),
+        )
+        .route(
+            "/{course_instance_id}/suspected-cheaters/{user_id}/course-module-completion/{course_module_completion_id}",
+            web::post().to(insert_suspected_cheaters),
         )
         .route(
             "/{course_instance_id}/reprocess-completions",

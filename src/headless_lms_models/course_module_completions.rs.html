@@ -597,6 +597,30 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::Stream;
@@ -623,6 +647,30 @@
     <span class="kw">pub </span>passed: bool,
     <span class="kw">pub </span>prerequisite_modules_completed: bool,
     <span class="kw">pub </span>completion_granter_user_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
+}
+
+<span class="attr">#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseModuleAverage {
+    <span class="kw">pub </span>id: Uuid,
+    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
+    <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
+    <span class="kw">pub </span>average_duration: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    <span class="kw">pub </span>average_points: i32,
+    <span class="kw">pub </span>total_points: i32,
+    <span class="kw">pub </span>total_student: i32,
+}
+
+<span class="comment">// Define the CourseModulePointsAverage struct to match the result of the SQL query
+</span><span class="attr">#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+</span><span class="kw">pub struct </span>CourseModulePointsAverage {
+    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>average_points: <span class="prelude-ty">Option</span>&lt;f32&gt;,
+    <span class="kw">pub </span>total_points: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    <span class="kw">pub </span>total_student: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
 <span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]

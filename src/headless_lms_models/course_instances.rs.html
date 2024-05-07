@@ -875,6 +875,54 @@
 <a href="#874" id="874">874</a>
 <a href="#875" id="875">875</a>
 <a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use crate</span>::{
@@ -1660,6 +1708,54 @@ WHERE user_id = $1
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub async fn </span>get_course_average_duration(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;i64&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+        <span class="string">"
+SELECT
+    AVG(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at))::int8 AS average_duration_seconds
+FROM course_instance_enrollments ce
+JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
+WHERE ce.course_instance_id = $1
+    AND ce.deleted_at IS NULL
+    AND cmc.deleted_at IS NULL;
+        "</span>,
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(res.average_duration_seconds)
+}
+
+<span class="kw">pub async fn </span>get_student_duration(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -&gt; ModelResult&lt;<span class="prelude-ty">Option</span>&lt;i64&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
+        <span class="string">"
+SELECT
+    COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds
+FROM course_instance_enrollments ce
+JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
+AND cmc.user_id = ce.user_id
+WHERE ce.course_instance_id = $1
+    AND ce.user_id = $2
+    AND ce.deleted_at IS NULL
+    AND cmc.deleted_at IS NULL;
+        "</span>,
+        course_instance_id,
+        user_id
+    )
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(res.student_duration_seconds)
 }
 
 <span class="attr">#[cfg(test)]

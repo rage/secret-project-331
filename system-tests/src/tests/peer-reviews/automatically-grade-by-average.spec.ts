@@ -1,8 +1,6 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { answerExercise, fillPeerReview, TIMEOUT } from "./peer_review_utils"
+import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-3"
 
@@ -16,18 +14,18 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
   let context3: BrowserContext
 
   test.beforeEach(async ({ browser }) => {
-    context1 = await browser.newContext({ storageState: "src/states/student1@example.com.json" })
-    context2 = await browser.newContext({ storageState: "src/states/student2@example.com.json" })
-    context3 = await browser.newContext({ storageState: "src/states/student3@example.com.json" })
+    ;[context1, context2, context3] = await Promise.all([
+      browser.newContext({ storageState: "src/states/student1@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student2@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student3@example.com.json" }),
+    ])
   })
 
   test.afterEach(async () => {
-    await context1.close()
-    await context2.close()
-    await context3.close()
+    await Promise.all([context1.close(), context2.close(), context3.close()])
   })
 
-  test.only("AutomaticallyGradeByAverage", async () => {
+  test("AutomaticallyGradeByAverage", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()

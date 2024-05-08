@@ -166,6 +166,6 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await Promise.all([
     page.locator('span.heading:has-text("POINTS")').waitFor(),
-    page.locator('div.points:has-text("1⁄1")').waitFor(),
+    page.locator('div.points:has-text("1/1")').waitFor(),
   ])
 })

@@ -37,6 +37,8 @@ import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
 
+const FORWARD_SLASH = "/"
+
 interface ExerciseBlockAttributes {
   id: string
 }
@@ -464,9 +466,10 @@ const ExerciseBlock: React.FC<
                     <span className="heading">{t("points-label")}</span>
                     <div className="points">
                       <CheckCircle size={16} weight="bold" color="#394F77" />
-                      <span data-test-id="exercise-points">
+                      <span data-testid="exercise-points">
                         {/* eslint-disable-next-line i18next/no-literal-string */}
-                        <sup>{points ?? 0}</sup>&frasl;
+                        <sup>{points ?? 0}</sup>
+                        {FORWARD_SLASH}
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </span>
                     </div>

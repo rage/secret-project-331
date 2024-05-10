@@ -69,6 +69,7 @@ pub mod research_forms;
 pub mod roles;
 pub mod student_countries;
 pub mod study_registry_registrars;
+pub mod suspected_cheaters;
 pub mod teacher_grading_decisions;
 pub mod url_redirections;
 pub mod user_course_instance_exercise_service_variables;

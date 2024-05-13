@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT answers.id AS peer_review_question_submission_id,\n  answers.text_data,\n  answers.number_data,\n  questions.peer_or_self_review_config_id,\n  questions.id AS peer_or_self_review_question_id,\n  questions.order_number,\n  questions.question,\n  questions.question_type AS \"question_type: PeerOrSelfReviewQuestionType\",\n  questions.answer_required,\n  submissions.id AS peer_or_self_review_submission_id\nFROM peer_or_self_review_question_submissions answers\n  JOIN peer_or_self_review_questions questions ON (\n    answers.peer_or_self_review_question_id = questions.id\n  )\n  JOIN peer_or_self_review_submissions submissions ON (\n    answers.peer_or_self_review_submission_id = submissions.id\n  )\nWHERE submissions.user_id = $1\n  AND submissions.exercise_id = $2\n  AND submissions.course_instance_id = $3\n  AND questions.deleted_at IS NULL\n  AND answers.deleted_at IS NULL\n  AND submissions.deleted_at IS NULL\n        ",
+  "query": "\nSELECT answers.id AS peer_review_question_submission_id,\n  answers.text_data,\n  answers.number_data,\n  questions.peer_or_self_review_config_id,\n  questions.id AS peer_or_self_review_question_id,\n  questions.order_number,\n  questions.question,\n  questions.question_type AS \"question_type: PeerOrSelfReviewQuestionType\",\n  questions.answer_required,\n  submissions.id AS peer_or_self_review_submission_id\nFROM peer_or_self_review_question_submissions answers\n  JOIN peer_or_self_review_questions questions ON (\n    answers.peer_or_self_review_question_id = questions.id\n  )\n  JOIN peer_or_self_review_submissions submissions ON (\n    answers.peer_or_self_review_submission_id = submissions.id\n  )\n  JOIN exercise_slide_submissions ess ON (\n    submissions.exercise_slide_submission_id = ess.id\n  )\nWHERE submissions.user_id = $1\n  AND submissions.exercise_id = $2\n  AND submissions.course_instance_id = $3\n  AND questions.deleted_at IS NULL\n  AND answers.deleted_at IS NULL\n  AND submissions.deleted_at IS NULL\n  AND ess.user_id != $1\n        ",
   "describe": {
     "columns": [
       {
@@ -66,5 +66,5 @@
     },
     "nullable": [false, true, true, false, false, false, false, false, false, false]
   },
-  "hash": "92043014cfa0bdb19cbe59ca8bb57709ffaae74c4314bc5b92f9d3bf56f478fd"
+  "hash": "d698c6417b86c08f3aed67d6de15f7765060e595a891843a25e6a397f6fefb1a"
 }

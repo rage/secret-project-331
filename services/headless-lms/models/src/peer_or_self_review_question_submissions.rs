@@ -129,13 +129,13 @@ WHERE peer_or_self_review_submission_id IN (
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "type", rename_all = "kebab-case")]
-pub enum PeerReviewAnswer {
+pub enum PeerOrSelfReviewAnswer {
     NoAnswer,
     Essay { value: String },
     Scale { value: f32 },
 }
 
-impl PeerReviewAnswer {
+impl PeerOrSelfReviewAnswer {
     fn new(
         question_type: PeerOrSelfReviewQuestionType,
         text_data: Option<String>,
@@ -158,7 +158,7 @@ pub struct PeerOrSelfReviewQuestionAndAnswer {
     pub peer_review_question_submission_id: Uuid,
     pub order_number: i32,
     pub question: String,
-    pub answer: PeerReviewAnswer,
+    pub answer: PeerOrSelfReviewAnswer,
     pub answer_required: bool,
 }
 
@@ -166,6 +166,7 @@ pub struct PeerOrSelfReviewQuestionAndAnswer {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerReviewWithQuestionsAndAnswers {
     pub peer_or_self_review_submission_id: Uuid,
+    pub peer_review_giver_user_id: Uuid,
     pub questions_and_answers: Vec<PeerOrSelfReviewQuestionAndAnswer>,
 }
 
@@ -206,15 +207,29 @@ WHERE submissions.exercise_slide_submission_id = $1
         peer_or_self_review_submission_id: x.peer_or_self_review_submission_id,
         order_number: x.order_number,
         question: x.question,
-        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer: PeerOrSelfReviewAnswer::new(x.question_type, x.text_data, x.number_data),
         answer_required: x.answer_required,
     })
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
-    Ok(bundle_peer_or_self_review_questions_and_answers(res))
+    let peer_or_self_review_submission_ids = res
+        .iter()
+        .map(|x| x.peer_or_self_review_submission_id)
+        .collect::<Vec<Uuid>>();
+    let peer_review_submission_id_to_giver_user_id =
+    crate::peer_or_self_review_submissions::get_mapping_from_peer_or_self_review_submission_ids_to_peer_review_giver_user_ids(
+        &mut *conn,
+        &peer_or_self_review_submission_ids,
+    )
+    .await?;
+    Ok(bundle_peer_or_self_review_questions_and_answers(
+        res,
+        peer_review_submission_id_to_giver_user_id,
+    ))
 }
 
-pub async fn get_questions_and_answers_by_user_exercise_instance(
+/** Returns the peer reviews given by this user. Does not return the self reviews given by the user. */
+pub async fn get_given_peer_reviews(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
@@ -239,12 +254,16 @@ FROM peer_or_self_review_question_submissions answers
   JOIN peer_or_self_review_submissions submissions ON (
     answers.peer_or_self_review_submission_id = submissions.id
   )
+  JOIN exercise_slide_submissions ess ON (
+    submissions.exercise_slide_submission_id = ess.id
+  )
 WHERE submissions.user_id = $1
   AND submissions.exercise_id = $2
   AND submissions.course_instance_id = $3
   AND questions.deleted_at IS NULL
   AND answers.deleted_at IS NULL
   AND submissions.deleted_at IS NULL
+  AND ess.user_id != $1
         "#,
         user_id,
         exercise_id,
@@ -257,17 +276,31 @@ WHERE submissions.user_id = $1
         peer_or_self_review_submission_id: x.peer_or_self_review_submission_id,
         order_number: x.order_number,
         question: x.question,
-        answer: PeerReviewAnswer::new(x.question_type, x.text_data, x.number_data),
+        answer: PeerOrSelfReviewAnswer::new(x.question_type, x.text_data, x.number_data),
         answer_required: x.answer_required,
     })
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
-    Ok(bundle_peer_or_self_review_questions_and_answers(res))
+    let peer_or_self_review_submission_ids = res
+        .iter()
+        .map(|x| x.peer_or_self_review_submission_id)
+        .collect::<Vec<Uuid>>();
+    let peer_review_submission_id_to_giver_user_id =
+    crate::peer_or_self_review_submissions::get_mapping_from_peer_or_self_review_submission_ids_to_peer_review_giver_user_ids(
+        &mut *conn,
+        &peer_or_self_review_submission_ids,
+    )
+    .await?;
+    Ok(bundle_peer_or_self_review_questions_and_answers(
+        res,
+        peer_review_submission_id_to_giver_user_id,
+    ))
 }
 
 /// Groups answers to peer reviews by peer review ids.
 fn bundle_peer_or_self_review_questions_and_answers(
     questions_and_answers: Vec<PeerOrSelfReviewQuestionAndAnswer>,
+    peer_review_submission_id_to_giver_user_id: HashMap<Uuid, Uuid>,
 ) -> Vec<PeerReviewWithQuestionsAndAnswers> {
     let mut mapped: HashMap<Uuid, Vec<PeerOrSelfReviewQuestionAndAnswer>> = HashMap::new();
     questions_and_answers.into_iter().for_each(|x| {
@@ -276,10 +309,14 @@ fn bundle_peer_or_self_review_questions_and_answers(
             .or_default()
             .push(x)
     });
+
     mapped
         .into_iter()
         .map(|(id, qa)| PeerReviewWithQuestionsAndAnswers {
             peer_or_self_review_submission_id: id,
+            peer_review_giver_user_id: *(peer_review_submission_id_to_giver_user_id
+                .get(&id)
+                .unwrap_or(&Uuid::nil())),
             questions_and_answers: qa,
         })
         .collect()

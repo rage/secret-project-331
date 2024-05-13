@@ -170,6 +170,7 @@ import {
   PageWithExercises,
   Pagination,
   PaperSize,
+  PeerOrSelfReviewAnswer,
   PeerOrSelfReviewConfig,
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionAndAnswer,
@@ -177,7 +178,6 @@ import {
   PeerOrSelfReviewQuestionType,
   PeerOrSelfReviewsReceived,
   PeerOrSelfReviewSubmission,
-  PeerReviewAnswer,
   PeerReviewProcessingStrategy,
   PeerReviewQueueEntry,
   PeerReviewWithQuestionsAndAnswers,
@@ -726,7 +726,8 @@ export function isCourseModuleCompletionWithRegistrationInfo(
     typeof typedObj["passed"] === "boolean" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     typeof typedObj["registered"] === "boolean" &&
-    typeof typedObj["user_id"] === "string"
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["completion_date"] === "string"
   )
 }
 
@@ -1690,8 +1691,8 @@ export function isAnswerRequiringAttentionWithTasks(
     typedObj["given_peer_reviews"].every(
       (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,
     ) &&
-    Array.isArray(typedObj["received_peer_reviews"]) &&
-    typedObj["received_peer_reviews"].every(
+    Array.isArray(typedObj["received_peer_or_self_reviews"]) &&
+    typedObj["received_peer_or_self_reviews"].every(
       (e: any) => isPeerReviewWithQuestionsAndAnswers(e) as boolean,
     )
   )
@@ -2454,8 +2455,8 @@ export function isPeerOrSelfReviewSubmission(obj: unknown): obj is PeerOrSelfRev
   )
 }
 
-export function isPeerReviewAnswer(obj: unknown): obj is PeerReviewAnswer {
-  const typedObj = obj as PeerReviewAnswer
+export function isPeerOrSelfReviewAnswer(obj: unknown): obj is PeerOrSelfReviewAnswer {
+  const typedObj = obj as PeerOrSelfReviewAnswer
   return (
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["type"] === "no-answer") ||
@@ -2480,7 +2481,7 @@ export function isPeerOrSelfReviewQuestionAndAnswer(
     typeof typedObj["peer_review_question_submission_id"] === "string" &&
     typeof typedObj["order_number"] === "number" &&
     typeof typedObj["question"] === "string" &&
-    (isPeerReviewAnswer(typedObj["answer"]) as boolean) &&
+    (isPeerOrSelfReviewAnswer(typedObj["answer"]) as boolean) &&
     typeof typedObj["answer_required"] === "boolean"
   )
 }
@@ -2527,6 +2528,7 @@ export function isPeerReviewWithQuestionsAndAnswers(
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["peer_or_self_review_submission_id"] === "string" &&
+    typeof typedObj["peer_review_giver_user_id"] === "string" &&
     Array.isArray(typedObj["questions_and_answers"]) &&
     typedObj["questions_and_answers"].every(
       (e: any) => isPeerOrSelfReviewQuestionAndAnswer(e) as boolean,

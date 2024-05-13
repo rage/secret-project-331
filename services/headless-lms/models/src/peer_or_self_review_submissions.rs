@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
@@ -63,6 +65,25 @@ WHERE id = $1
         id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<PeerOrSelfReviewSubmission>> {
+    let res = sqlx::query_as!(
+        PeerOrSelfReviewSubmission,
+        "
+SELECT *
+FROM peer_or_self_review_submissions
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }
@@ -307,4 +328,15 @@ WHERE ess.user_id = $1
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn get_mapping_from_peer_or_self_review_submission_ids_to_peer_review_giver_user_ids(
+    conn: &mut PgConnection,
+    peer_or_self_review_submission_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    let full = get_by_ids(conn, peer_or_self_review_submission_ids).await?;
+    Ok(full
+        .into_iter()
+        .map(|submission: PeerOrSelfReviewSubmission| (submission.id, submission.user_id))
+        .collect())
 }

@@ -297,6 +297,7 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   prerequisite_modules_completed: boolean
   registered: boolean
   user_id: string
+  completion_date: string
 }
 
 export interface CourseModuleCompletion {
@@ -889,7 +890,7 @@ export interface AnswerRequiringAttentionWithTasks {
   exercise_id: string
   tasks: Array<CourseMaterialExerciseTask>
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  received_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
+  received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
 }
 
 export interface AnswersRequiringAttention {
@@ -1331,7 +1332,7 @@ export interface PeerOrSelfReviewSubmission {
   exercise_slide_submission_id: string
 }
 
-export type PeerReviewAnswer =
+export type PeerOrSelfReviewAnswer =
   | { type: "no-answer" }
   | { type: "essay"; value: string }
   | { type: "scale"; value: number }
@@ -1343,7 +1344,7 @@ export interface PeerOrSelfReviewQuestionAndAnswer {
   peer_review_question_submission_id: string
   order_number: number
   question: string
-  answer: PeerReviewAnswer
+  answer: PeerOrSelfReviewAnswer
   answer_required: boolean
 }
 
@@ -1374,6 +1375,7 @@ export interface PeerReviewQueueEntry {
 
 export interface PeerReviewWithQuestionsAndAnswers {
   peer_or_self_review_submission_id: string
+  peer_review_giver_user_id: string
   questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>
 }
 

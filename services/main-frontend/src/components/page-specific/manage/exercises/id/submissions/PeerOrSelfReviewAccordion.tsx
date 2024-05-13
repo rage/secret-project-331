@@ -1,18 +1,19 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  PeerReviewAnswer,
+  PeerOrSelfReviewAnswer,
   PeerReviewWithQuestionsAndAnswers,
 } from "../../../../../../shared-module/bindings"
 import Accordion from "../../../../../../shared-module/components/Accordion"
 import LikertScale from "../../../../../../shared-module/components/PeerReview/LikertScale"
+import useUserInfo from "../../../../../../shared-module/hooks/useUserInfo"
 import { baseTheme } from "../../../../../../shared-module/styles"
 
 export interface PeerReviewAccordionProps {
-  peerReviews: Array<PeerReviewWithQuestionsAndAnswers>
+  peerOrSelfReviews: Array<PeerReviewWithQuestionsAndAnswers>
   title: string
 }
 
@@ -24,10 +25,21 @@ const Question = styled.div`
   color: #1a2333;
 `
 
-const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, title }) => {
-  const { t } = useTranslation()
+// eslint-disable-next-line i18next/no-literal-string
+const Title = styled.h5`
+  border-bottom: 1px solid ${baseTheme.colors.clear[600]};
+  padding: 0 1.5rem 1rem;
+`
 
-  const mapToAnswer = (question: string, answer: PeerReviewAnswer) => {
+const QuestionWrapper = styled.div`
+  margin: 2rem 1.5rem 0rem;
+`
+
+const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerOrSelfReviews, title }) => {
+  const { t } = useTranslation()
+  const userInfo = useUserInfo()
+
+  const mapToAnswer = (question: string, answer: PeerOrSelfReviewAnswer) => {
     switch (answer.type) {
       case "essay":
         return (
@@ -62,6 +74,14 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
     }
   }
 
+  const peerReviews = useMemo(() => {
+    return peerOrSelfReviews.filter((x) => x.peer_review_giver_user_id !== userInfo.data?.user_id)
+  }, [peerOrSelfReviews, userInfo.data?.user_id])
+
+  const selfReviews = useMemo(() => {
+    return peerOrSelfReviews.filter((x) => x.peer_review_giver_user_id === userInfo.data?.user_id)
+  }, [peerOrSelfReviews, userInfo.data?.user_id])
+
   return (
     <Accordion variant="detail">
       <details>
@@ -81,7 +101,7 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
               height: 20px;
             `}
           >
-            {peerReviews.length}
+            {peerOrSelfReviews.length}
           </span>
         </summary>
         <div
@@ -90,30 +110,33 @@ const PeerReviewAccordion: React.FC<PeerReviewAccordionProps> = ({ peerReviews, 
             margin: 0.5rem 0;
           `}
         >
-          {peerReviews.map((peerReview, i) => (
-            <div key={peerReview.peer_or_self_review_submission_id}>
-              <h5
-                className={css`
-                  border-bottom: 1px solid ${baseTheme.colors.clear[600]};
-                  padding: 0 1.5rem 1rem;
-                `}
-              >
-                {t("peer-review-n", { n: i + 1 })}
-              </h5>
-              {peerReview.questions_and_answers.map((x, i) => (
-                <div
-                  key={x.peer_or_self_review_question_id}
-                  className={css`
-                    margin: 2rem 1.5rem 0rem;
-                  `}
-                >
+          {selfReviews.map((selfReview) => (
+            <div key={selfReview.peer_or_self_review_submission_id}>
+              <Title>{t("title-self-review")}</Title>
+              {selfReview.questions_and_answers.map((x, i) => (
+                <QuestionWrapper key={x.peer_or_self_review_question_id}>
                   {mapToAnswer(
                     `${t("question-n", { n: i + 1 })}: ${x.question}${
                       x.answer_required ? " *" : ""
                     }`,
                     x.answer,
                   )}
-                </div>
+                </QuestionWrapper>
+              ))}
+            </div>
+          ))}
+          {peerReviews.map((peerReview, i) => (
+            <div key={peerReview.peer_or_self_review_submission_id}>
+              <Title>{t("peer-review-n", { n: i + 1 })}</Title>
+              {peerReview.questions_and_answers.map((x, i) => (
+                <QuestionWrapper key={x.peer_or_self_review_question_id}>
+                  {mapToAnswer(
+                    `${t("question-n", { n: i + 1 })}: ${x.question}${
+                      x.answer_required ? " *" : ""
+                    }`,
+                    x.answer,
+                  )}
+                </QuestionWrapper>
               ))}
             </div>
           ))}

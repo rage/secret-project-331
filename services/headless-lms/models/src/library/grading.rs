@@ -525,7 +525,7 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub exercise_id: Uuid,
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub given_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
-    pub received_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
+    pub received_peer_or_self_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
 }
 
 /// Gets submissions that require input from the teacher to continue processing.
@@ -555,7 +555,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         )
         .await?;
         let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
-            peer_or_self_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+            peer_or_self_review_question_submissions::get_given_peer_reviews(
                 conn,
                 answer.user_id,
                 answer.exercise_id,
@@ -565,7 +565,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         } else {
             vec![]
         };
-        let received_peer_reviews =
+        let received_peer_or_self_reviews =
             peer_or_self_review_question_submissions::get_questions_and_answers_by_submission_id(
                 conn,
                 answer.submission_id,
@@ -584,7 +584,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             exercise_id: answer.exercise_id,
             tasks,
             given_peer_reviews,
-            received_peer_reviews,
+            received_peer_or_self_reviews,
         };
         answers.push(new_answer);
     }

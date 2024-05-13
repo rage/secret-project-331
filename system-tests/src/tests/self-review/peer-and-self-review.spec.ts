@@ -2,10 +2,6 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
-test.use({
-  storageState: "src/states/admin@example.com.json",
-})
-
 test.describe("Peer review followed by self review works", () => {
   let context1: BrowserContext
   let context2: BrowserContext
@@ -14,10 +10,10 @@ test.describe("Peer review followed by self review works", () => {
 
   test.beforeEach(async ({ browser }) => {
     ;[context1, context2, context3, context4] = await Promise.all([
-      browser.newContext({ storageState: "src/states/admin@example.com.json" }),
+      browser.newContext({ storageState: "src/states/teacher@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student1@example.com.json" }),
       browser.newContext({ storageState: "src/states/student2@example.com.json" }),
       browser.newContext({ storageState: "src/states/student3@example.com.json" }),
-      browser.newContext({ storageState: "src/states/teacher@example.com.json" }),
     ])
   })
 
@@ -26,32 +22,32 @@ test.describe("Peer review followed by self review works", () => {
   })
 
   test("Peer review followed by self review works", async () => {
-    const adminPage = await context1.newPage()
+    const teacherPage = await context1.newPage()
     const student1Page = await context2.newPage()
     const student2Page = await context3.newPage()
     const student3Page = await context4.newPage()
 
-    await test.step(`Configuring the self review exercise`, async () => {
-      await adminPage.goto("http://project-331.local/")
-      await adminPage.getByRole("link", { name: "All organizations" }).click()
-      await adminPage
+    await test.step(`Configuring the self review exercise, using the non-inline course default editor`, async () => {
+      await teacherPage.goto("http://project-331.local/")
+      await teacherPage.getByRole("link", { name: "All organizations" }).click()
+      await teacherPage
         .getByLabel("University of Helsinki, Department of Mathematics and Statistics")
         .click()
-      await adminPage.getByLabel("Manage course 'Self review'").click()
-      await adminPage.getByRole("tab", { name: "Pages" }).click()
-      await adminPage
+      await teacherPage.getByLabel("Manage course 'Self review'").click()
+      await teacherPage.getByRole("tab", { name: "Pages" }).click()
+      await teacherPage
         .getByRole("row", { name: "The timeline /chapter-1/the-" })
         .getByRole("button")
         .first()
         .click()
-      await adminPage.getByText("Peer and self review").click()
-      await adminPage.getByText("Add peer review").click()
-      await adminPage.getByText("Add self review").click()
-      await adminPage.getByRole("button", { name: "Save", exact: true }).click()
-      await adminPage.getByText("Operation successful!").waitFor()
-      await adminPage.getByText("Peer and self review").click()
-      const page1Promise = adminPage.waitForEvent("popup")
-      await adminPage.getByRole("link", { name: "Course default peer review" }).click()
+      await teacherPage.getByText("Peer and self review").click()
+      await teacherPage.getByText("Add peer review").click()
+      await teacherPage.getByText("Add self review").click()
+      await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
+      await teacherPage.getByText("Operation successful!").waitFor()
+      await teacherPage.getByText("Peer and self review").click()
+      const page1Promise = teacherPage.waitForEvent("popup")
+      await teacherPage.getByRole("link", { name: "Course default peer review" }).click()
       const page1 = await page1Promise
       await page1.getByLabel("Add default block").click()
       await page1.getByLabel("Empty block; start writing or").fill("Here's what you will do: x.")

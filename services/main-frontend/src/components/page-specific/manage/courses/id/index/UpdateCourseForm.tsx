@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { has } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,6 +9,8 @@ import Button from "../../../../../../shared-module/components/Button"
 import CheckBox from "../../../../../../shared-module/components/InputFields/CheckBox"
 import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
 import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -19,6 +22,7 @@ interface UpdateCourseFormProps {
   courseDescription: string | null
   isDraft: boolean
   isTest: boolean
+  hasChatbot: boolean
   onSubmitForm: () => void
 }
 
@@ -28,6 +32,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   courseDescription,
   isDraft,
   isTest,
+  hasChatbot,
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
@@ -35,16 +40,24 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [description, setDescription] = useState(courseDescription)
   const [draftStatus, setDraftStatus] = useState(isDraft)
   const [testStatus, setTestStatus] = useState(isTest)
+  const [hasChatbotStatus, setHasChatbotStatus] = useState(hasChatbot)
 
-  const onUpdateCourseForm = async () => {
-    await updateCourse(courseId, {
-      name,
-      description,
-      is_draft: draftStatus,
-      is_test_mode: testStatus,
-    })
-    onSubmitForm()
-  }
+  const updateCourseMutation = useToastMutation(
+    async () => {
+      await updateCourse(courseId, {
+        name,
+        description,
+        is_draft: draftStatus,
+        is_test_mode: testStatus,
+        can_add_chatbot: hasChatbotStatus,
+      })
+      onSubmitForm()
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+  )
 
   return (
     <div
@@ -90,9 +103,23 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
             checked={testStatus}
           />
         </FieldContainer>
+        <OnlyRenderIfPermissions
+          action={{ type: "teach" }}
+          resource={{ type: "global_permissions" }}
+        >
+          <FieldContainer>
+            <CheckBox
+              label={t("can-enable-chatbot")}
+              onChange={() => {
+                setHasChatbotStatus(!hasChatbotStatus)
+              }}
+              checked={hasChatbotStatus}
+            />
+          </FieldContainer>
+        </OnlyRenderIfPermissions>
       </div>
       <div>
-        <Button size="medium" variant="primary" onClick={onUpdateCourseForm}>
+        <Button size="medium" variant="primary" onClick={() => updateCourseMutation.mutate()}>
           {t("button-text-update")}
         </Button>
       </div>

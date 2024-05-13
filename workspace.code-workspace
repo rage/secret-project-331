@@ -66,6 +66,13 @@
     "[rust]": {
       "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },
+    "[sql]": {
+      "editor.defaultFormatter": "mtxr.sqltools"
+    },
+    "sqltools.format": {
+      "linesBetweenQueries": "preserve",
+      "reservedWordCase": "upper",
+    },
     "files.watcherExclude": {
       "**/.git/objects/**": true,
       "**/.git/subtree-cache/**": true,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\n    ",
+  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  can_add_chatbot = $5\nWHERE id = $6\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot\n    ",
   "describe": {
     "columns": [
       {
@@ -77,10 +77,15 @@
         "ordinal": 14,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Uuid", "Varchar", "Varchar", "Varchar", "Uuid", "Uuid", "Bool", "Int4"]
+      "Left": ["Varchar", "Text", "Bool", "Bool", "Bool", "Uuid"]
     },
     "nullable": [
       false,
@@ -97,8 +102,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "5f2094a61c95d6ab4b5e0402e3dc65b420f52e2cb8613676c73548efa6762ab4"
+  "hash": "a8fbeef3a7f1f96b78596c2d30f3bc5d8fc5aabd059173e399f3801e323119a6"
 }

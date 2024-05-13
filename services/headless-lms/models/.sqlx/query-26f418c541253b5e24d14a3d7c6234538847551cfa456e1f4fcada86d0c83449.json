@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
+  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot\n    ",
   "describe": {
     "columns": [
       {
@@ -77,10 +77,26 @@
         "ordinal": 14,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Int4",
+        "Bool"
+      ]
     },
     "nullable": [
       false,
@@ -97,8 +113,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "9b49a1a2d7f0ba69c11599bcf459f7c8a0b39c49ce86f5c211c62fa09a0dfedc"
+  "hash": "26f418c541253b5e24d14a3d7c6234538847551cfa456e1f4fcada86d0c83449"
 }

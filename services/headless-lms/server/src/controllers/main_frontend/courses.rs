@@ -167,6 +167,12 @@ async fn update_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course_update = payload.0;
+    let course_before_update = models::courses::get_course(&mut conn, *course_id).await?;
+    if course_update.can_add_chatbot != course_before_update.can_add_chatbot {
+        // Only global admins can change the chatbot status
+        let _token2 =
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+    }
     let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
     token.authorized_ok(web::Json(course))
 }

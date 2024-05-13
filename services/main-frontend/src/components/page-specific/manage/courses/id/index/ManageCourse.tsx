@@ -150,6 +150,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             courseDescription={course.description}
             isDraft={course.is_draft}
             isTest={course.is_test_mode}
+            hasChatbot={course.can_add_chatbot}
             onSubmitForm={handleOnUpdateCourse}
           />
         </div>

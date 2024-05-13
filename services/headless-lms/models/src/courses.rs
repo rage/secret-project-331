@@ -44,6 +44,7 @@ pub struct Course {
     pub is_draft: bool,
     pub is_test_mode: bool,
     pub base_module_completion_requires_n_submodule_completions: i32,
+    pub can_add_chatbot: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -149,7 +150,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -180,7 +182,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -218,7 +221,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -268,7 +272,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -303,7 +308,8 @@ SELECT
     c.description,
     c.is_draft,
     c.is_test_mode,
-    c.base_module_completion_requires_n_submodule_completions
+    c.base_module_completion_requires_n_submodule_completions,
+    can_add_chatbot
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -363,7 +369,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE id = $1;
     "#,
@@ -465,7 +472,8 @@ SELECT courses.id,
   courses.description,
   courses.is_draft,
   courses.is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -519,10 +527,11 @@ WHERE organization_id = $1
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
-    name: String,
-    description: Option<String>,
-    is_draft: bool,
-    is_test_mode: bool,
+    pub name: String,
+    pub description: Option<String>,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub can_add_chatbot: bool,
 }
 
 pub async fn update_course(
@@ -537,8 +546,9 @@ UPDATE courses
 SET name = $1,
   description = $2,
   is_draft = $3,
-  is_test_mode = $4
-WHERE id = $5
+  is_test_mode = $4,
+  can_add_chatbot = $5
+WHERE id = $6
 RETURNING id,
   name,
   created_at,
@@ -553,12 +563,14 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
     "#,
         course_update.name,
         course_update.description,
         course_update.is_draft,
         course_update.is_test_mode,
+        course_update.can_add_chatbot,
         course_id
     )
     .fetch_one(conn)
@@ -607,7 +619,8 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
     "#,
         course_id
     )
@@ -634,7 +647,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -706,7 +720,8 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",

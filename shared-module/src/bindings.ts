@@ -297,6 +297,7 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   prerequisite_modules_completed: boolean
   registered: boolean
   user_id: string
+  completion_date: string
 }
 
 export interface CourseModuleCompletion {
@@ -403,6 +404,7 @@ export interface Course {
   is_draft: boolean
   is_test_mode: boolean
   base_module_completion_requires_n_submodule_completions: number
+  can_add_chatbot: boolean
 }
 
 export interface CourseCount {
@@ -421,6 +423,7 @@ export interface CourseUpdate {
   description: string | null
   is_draft: boolean
   is_test_mode: boolean
+  can_add_chatbot: boolean
 }
 
 export interface NewCourse {

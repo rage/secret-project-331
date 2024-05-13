@@ -90,7 +90,8 @@ SELECT id,
   course_language_group_id,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

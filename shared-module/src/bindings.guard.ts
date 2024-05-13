@@ -726,7 +726,8 @@ export function isCourseModuleCompletionWithRegistrationInfo(
     typeof typedObj["passed"] === "boolean" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     typeof typedObj["registered"] === "boolean" &&
-    typeof typedObj["user_id"] === "string"
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["completion_date"] === "string"
   )
 }
 
@@ -889,7 +890,8 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["course_language_group_id"] === "string" &&
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
-    typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number"
+    typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
+    typeof typedObj["can_add_chatbot"] === "boolean"
   )
 }
 
@@ -922,7 +924,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["name"] === "string" &&
     (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
     typeof typedObj["is_draft"] === "boolean" &&
-    typeof typedObj["is_test_mode"] === "boolean"
+    typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["can_add_chatbot"] === "boolean"
   )
 }
 

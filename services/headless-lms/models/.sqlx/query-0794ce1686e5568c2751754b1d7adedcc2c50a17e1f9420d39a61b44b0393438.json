@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot\nFROM courses\nWHERE deleted_at IS NULL;\n",
   "describe": {
     "columns": [
       {
@@ -77,10 +77,15 @@
         "ordinal": 14,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Int8", "Int8"]
+      "Left": []
     },
     "nullable": [
       false,
@@ -97,8 +102,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "bd8b8be4b273f284397a59f15b1dd90c29ced3a5eab514f5ea1bd176fcd87ff2"
+  "hash": "0794ce1686e5568c2751754b1d7adedcc2c50a17e1f9420d39a61b44b0393438"
 }

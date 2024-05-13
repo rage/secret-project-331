@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot\nFROM courses\nWHERE course_language_group_id = $1\nAND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -77,6 +77,11 @@
         "ordinal": 14,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -97,8 +102,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "ea5c03dc4b8f731ffdfe0500c443a058e66954fe11aa77db330602a7449073e5"
+  "hash": "89a59904960ddda3769eb19a4b7a55046e71982c372b2fadfe84033ac7eb4c93"
 }

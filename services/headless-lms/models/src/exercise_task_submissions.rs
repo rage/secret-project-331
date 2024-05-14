@@ -370,6 +370,7 @@ FROM exercise_task_submissions
   JOIN exercise_task_gradings ON exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id
   JOIN exercises ON exercise_slide_submissions.exercise_id = exercises.id
 WHERE exercise_slide_submissions.course_id = $1
+  AND exercise_slide_submissions.deleted_at IS NULL
   AND exercise_task_submissions.deleted_at IS NULL
   AND exercise_task_gradings.deleted_at IS NULL
   AND exercises.deleted_at IS NULL;

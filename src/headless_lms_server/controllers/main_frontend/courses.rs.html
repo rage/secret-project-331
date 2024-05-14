@@ -1449,6 +1449,10 @@
 <a href="#1448" id="1448">1448</a>
 <a href="#1449" id="1449">1449</a>
 <a href="#1450" id="1450">1450</a>
+<a href="#1451" id="1451">1451</a>
+<a href="#1452" id="1452">1452</a>
+<a href="#1453" id="1453">1453</a>
+<a href="#1454" id="1454">1454</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>chrono::Utc;
@@ -1474,8 +1478,8 @@
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     pages::Page,
-    peer_review_configs::PeerReviewConfig,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_configs::PeerOrSelfReviewConfig,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -2317,7 +2321,7 @@ Creates redirects if url_path changes.
     course_id: web::Path&lt;Uuid&gt;,
     pool: web::Data&lt;PgPool&gt;,
     user: AuthUser,
-) -&gt; ControllerResult&lt;web::Json&lt;(PeerReviewConfig, Vec&lt;PeerReviewQuestion&gt;)&gt;&gt; {
+) -&gt; ControllerResult&lt;web::Json&lt;(PeerOrSelfReviewConfig, Vec&lt;PeerOrSelfReviewQuestion&gt;)&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
@@ -2327,13 +2331,17 @@ Creates redirects if url_path changes.
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>peer_review =
-        models::peer_review_configs::get_default_for_course_by_course_id(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>peer_review_questions =
-        models::peer_review_questions::get_all_by_peer_review_config_id(<span class="kw-2">&amp;mut </span>conn, peer_review.id)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-    token.authorized_ok(web::Json((peer_review, peer_review_questions)))
+    <span class="kw">let </span>peer_review = models::peer_or_self_review_configs::get_default_for_course_by_course_id(
+        <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>peer_or_self_review_questions =
+        models::peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id(
+            <span class="kw-2">&amp;mut </span>conn,
+            peer_review.id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    token.authorized_ok(web::Json((peer_review, peer_or_self_review_questions)))
 }
 
 <span class="doccomment">/**
@@ -2350,7 +2358,7 @@ Updates reviews received for all the students in the peer review queue for a spe
 ) -&gt; ControllerResult&lt;web::Json&lt;bool&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::GlobalPermissions).<span class="kw">await</span><span class="question-mark">?</span>;
-    models::library::peer_reviewing::update_peer_review_queue_reviews_received(
+    models::library::peer_or_self_reviewing::update_peer_review_queue_reviews_received(
         <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

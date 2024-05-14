@@ -187,6 +187,10 @@
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>headless_lms_utils::document_schema_processor::GutenbergBlock;
 <span class="kw">use </span>url::Url;
@@ -199,7 +203,7 @@
     courses::{<span class="self">self</span>, Course, NewCourse},
     exercise_service_info::ExerciseServiceInfoApi,
     pages::{<span class="self">self</span>, NewPage, Page},
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
     prelude::<span class="kw-2">*</span>,
     SpecFetcher,
 };
@@ -291,37 +295,41 @@
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Create course default peer review config
-    </span><span class="kw">let </span>peer_review_config_id =
-        <span class="kw">crate</span>::peer_review_configs::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, course.id, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    </span><span class="kw">let </span>peer_or_self_review_config_id =
+        <span class="kw">crate</span>::peer_or_self_review_configs::insert(<span class="kw-2">&amp;mut </span>tx, PKeyPolicy::Generate, course.id, <span class="prelude-val">None</span>)
+            .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Create peer review questions for default peer review config
-    </span><span class="kw">crate</span>::peer_review_questions::upsert_multiple_peer_review_questions(
+    </span><span class="kw">crate</span>::peer_or_self_review_questions::upsert_multiple_peer_or_self_review_questions(
         <span class="kw-2">&amp;mut </span>tx,
         <span class="kw-2">&amp;</span>[
-            CmsPeerReviewQuestion {
+            CmsPeerOrSelfReviewQuestion {
                 id: Uuid::new_v4(),
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: <span class="number">0</span>,
                 question: <span class="string">"General comments"</span>.to_string(),
-                question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
+                question_type:
+                    <span class="kw">crate</span>::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Essay,
                 answer_required: <span class="bool-val">false</span>,
                 weight: <span class="number">0.0</span>,
             },
-            CmsPeerReviewQuestion {
+            CmsPeerOrSelfReviewQuestion {
                 id: Uuid::new_v4(),
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: <span class="number">1</span>,
                 question: <span class="string">"The answer was correct"</span>.to_string(),
-                question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Scale,
+                question_type:
+                    <span class="kw">crate</span>::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
                 answer_required: <span class="bool-val">true</span>,
                 weight: <span class="number">0.0</span>,
             },
-            CmsPeerReviewQuestion {
+            CmsPeerOrSelfReviewQuestion {
                 id: Uuid::new_v4(),
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: <span class="number">2</span>,
                 question: <span class="string">"The answer was easy to read"</span>.to_string(),
-                question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Scale,
+                question_type:
+                    <span class="kw">crate</span>::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
                 answer_required: <span class="bool-val">true</span>,
                 weight: <span class="number">0.0</span>,
             },

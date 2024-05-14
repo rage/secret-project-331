@@ -322,6 +322,7 @@
 <a href="#321" id="321">321</a>
 <a href="#322" id="322">322</a>
 <a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*! The doc file generator is used to write example JSON and TypeScript definitions for the docs of return values of API endpoints.
 
 This is done by writing .json and .ts files that can be discovered by the #[generated_doc] attribute macro that is used by API endpoints.
@@ -447,7 +448,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
         StudyRegistryCompletion, StudyRegistryGrade,
     },
     courses::CourseBreadcrumbInfo,
-    exercise_task_submissions::PeerReviewsRecieved,
+    exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::ExerciseStatusSummaryForUser,
     library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry},
     page_audio_files::PageAudioFile,
@@ -455,12 +456,13 @@ This method is mainly useful for external/std types. For example, we cannot writ
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
-    peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::{
-        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+    peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
+    peer_or_self_review_question_submissions::{
+        PeerOrSelfReviewAnswer, PeerOrSelfReviewQuestionAndAnswer,
+        PeerOrSelfReviewQuestionSubmission,
     },
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
-    peer_review_submissions::PeerReviewSubmission,
     proposed_block_edits::EditedBlockStillExistsData,
     research_forms::{ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer},
     student_countries::StudentCountry,
@@ -475,7 +477,7 @@ This method is mainly useful for external/std types. For example, we cannot writ
 </span><span class="kw">use </span>ts_rs::TS;
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">use </span><span class="kw">crate</span>::controllers::course_material::exercises::CourseMaterialPeerReviewDataWithToken;
+<span class="kw">use </span><span class="kw">crate</span>::controllers::course_material::exercises::CourseMaterialPeerOrSelfReviewDataWithToken;
 
 <span class="comment">// Helper function to avoid typing out Example::example()
 </span><span class="kw">fn </span>ex&lt;T: Example&gt;() -&gt; T {

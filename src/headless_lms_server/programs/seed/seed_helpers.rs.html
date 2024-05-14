@@ -638,6 +638,11 @@
 <a href="#637" id="637">637</a>
 <a href="#638" id="638">638</a>
 <a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
@@ -652,8 +657,8 @@
         <span class="self">self</span>, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
         PageUpdateArgs,
     },
-    peer_review_configs::{<span class="self">self</span>, CmsPeerReviewConfig},
-    peer_review_questions::{<span class="self">self</span>, CmsPeerReviewQuestion},
+    peer_or_self_review_configs::{<span class="self">self</span>, CmsPeerOrSelfReviewConfig},
+    peer_or_self_review_questions::{<span class="self">self</span>, CmsPeerOrSelfReviewQuestion},
     user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
 <span class="kw">use </span>headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
@@ -879,9 +884,10 @@
         limit_number_of_tries: <span class="bool-val">false</span>,
         deadline: <span class="prelude-val">None</span>,
         needs_peer_review: <span class="bool-val">false</span>,
-        use_course_default_peer_review_config: <span class="bool-val">false</span>,
-        peer_review_config: <span class="prelude-val">None</span>,
-        peer_review_questions: <span class="prelude-val">None</span>,
+        needs_self_review: <span class="bool-val">false</span>,
+        use_course_default_peer_or_self_review_config: <span class="bool-val">false</span>,
+        peer_or_self_review_config: <span class="prelude-val">None</span>,
+        peer_or_self_review_questions: <span class="prelude-val">None</span>,
     };
     (block, exercise, slides, tasks)
 }
@@ -925,9 +931,10 @@
         limit_number_of_tries: <span class="bool-val">false</span>,
         deadline,
         needs_peer_review,
-        use_course_default_peer_review_config: <span class="bool-val">true</span>,
-        peer_review_config: <span class="prelude-val">None</span>,
-        peer_review_questions: <span class="prelude-val">None</span>,
+        needs_self_review: <span class="bool-val">false</span>,
+        use_course_default_peer_or_self_review_config: <span class="bool-val">true</span>,
+        peer_or_self_review_config: <span class="prelude-val">None</span>,
+        peer_or_self_review_questions: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -982,9 +989,10 @@
         limit_number_of_tries: <span class="bool-val">false</span>,
         deadline,
         needs_peer_review,
-        use_course_default_peer_review_config: <span class="bool-val">true</span>,
-        peer_review_config: <span class="prelude-val">None</span>,
-        peer_review_questions: <span class="prelude-val">None</span>,
+        needs_self_review: <span class="bool-val">false</span>,
+        use_course_default_peer_or_self_review_config: <span class="bool-val">true</span>,
+        peer_or_self_review_config: <span class="prelude-val">None</span>,
+        peer_or_self_review_questions: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -1201,16 +1209,16 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     course_id: Uuid,
     exercise_id: Uuid,
-    processing_strategy: peer_review_configs::PeerReviewProcessingStrategy,
+    processing_strategy: peer_or_self_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
     points_are_all_or_nothing: bool,
     peer_reviews_to_give: i32,
     peer_reviews_to_receive: i32,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
-    <span class="kw">let </span>prc = peer_review_configs::upsert_with_id(
+    <span class="kw">let </span>prc = peer_or_self_review_configs::upsert_with_id(
         conn,
         PKeyPolicy::Generate,
-        <span class="kw-2">&amp;</span>CmsPeerReviewConfig {
+        <span class="kw-2">&amp;</span>CmsPeerOrSelfReviewConfig {
             id: Uuid::new_v4(),
             course_id,
             exercise_id: <span class="prelude-val">Some</span>(exercise_id),
@@ -1219,59 +1227,61 @@
             accepting_threshold,
             processing_strategy,
             points_are_all_or_nothing,
+            review_instructions: <span class="prelude-val">None</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    peer_review_questions::insert(
+    peer_or_self_review_questions::insert(
         conn,
         PKeyPolicy::Generate,
-        <span class="kw-2">&amp;</span>CmsPeerReviewQuestion {
+        <span class="kw-2">&amp;</span>CmsPeerOrSelfReviewQuestion {
             id: Uuid::new_v4(),
-            peer_review_config_id: prc.id,
+            peer_or_self_review_config_id: prc.id,
             order_number: <span class="number">0</span>,
             question: <span class="string">"What are your thoughts on the answer"</span>.to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Essay,
+            question_type: peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Essay,
             answer_required: <span class="bool-val">true</span>,
             weight: <span class="number">0.0</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    peer_review_questions::insert(
+    peer_or_self_review_questions::insert(
         conn,
         PKeyPolicy::Generate,
-        <span class="kw-2">&amp;</span>CmsPeerReviewQuestion {
+        <span class="kw-2">&amp;</span>CmsPeerOrSelfReviewQuestion {
             id: Uuid::new_v4(),
-            peer_review_config_id: prc.id,
+            peer_or_self_review_config_id: prc.id,
             order_number: <span class="number">1</span>,
             question: <span class="string">"Was the answer correct?"</span>.to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            question_type: peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
             answer_required: <span class="bool-val">true</span>,
             weight: <span class="number">0.0</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    peer_review_questions::insert(
+    peer_or_self_review_questions::insert(
         conn,
         PKeyPolicy::Generate,
-        <span class="kw-2">&amp;</span>CmsPeerReviewQuestion {
+        <span class="kw-2">&amp;</span>CmsPeerOrSelfReviewQuestion {
             id: Uuid::new_v4(),
-            peer_review_config_id: prc.id,
+            peer_or_self_review_config_id: prc.id,
             order_number: <span class="number">2</span>,
             question: <span class="string">"Was the answer good?"</span>.to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            question_type: peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
             answer_required: <span class="bool-val">true</span>,
             weight: <span class="number">0.0</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    exercises::set_exercise_to_use_exercise_specific_peer_review_config(
+    exercises::set_exercise_to_use_exercise_specific_peer_or_self_review_config(
         conn,
         exercise_id,
         <span class="bool-val">true</span>,
+        <span class="bool-val">false</span>,
         <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

@@ -586,6 +586,23 @@
 <a href="#585" id="585">585</a>
 <a href="#586" id="586">586</a>
 <a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
 <span class="kw">use </span>futures::{future::BoxFuture, Stream};
@@ -597,8 +614,9 @@
     exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     library::custom_view_exercises::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     prelude::<span class="kw-2">*</span>,
     CourseOrExamId,
 };
@@ -620,9 +638,10 @@
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
-</span><span class="kw">pub struct </span>PeerReviewsRecieved {
-    <span class="kw">pub </span>peer_review_questions: Vec&lt;PeerReviewQuestion&gt;,
-    <span class="kw">pub </span>peer_review_question_submissions: Vec&lt;PeerReviewQuestionSubmission&gt;,
+</span><span class="kw">pub struct </span>PeerOrSelfReviewsReceived {
+    <span class="kw">pub </span>peer_or_self_review_questions: Vec&lt;PeerOrSelfReviewQuestion&gt;,
+    <span class="kw">pub </span>peer_or_self_review_question_submissions: Vec&lt;PeerOrSelfReviewQuestionSubmission&gt;,
+    <span class="kw">pub </span>peer_or_self_review_submissions: Vec&lt;PeerOrSelfReviewSubmission&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -833,41 +852,56 @@ WHERE ets.id = $1
     exercise_id: Uuid,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
-) -&gt; ModelResult&lt;PeerReviewsRecieved&gt; {
+) -&gt; ModelResult&lt;PeerOrSelfReviewsReceived&gt; {
     <span class="kw">let </span>exercise = <span class="kw">crate</span>::exercises::get_by_id(<span class="kw-2">&amp;mut *</span>conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>peer_review_config = <span class="kw">crate</span>::peer_review_configs::get_by_exercise_or_course_id(
-        <span class="kw-2">&amp;mut *</span>conn,
-        <span class="kw-2">&amp;</span>exercise,
-        exercise.course_id.ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                <span class="string">"Peer reviews work only on courses (and not, for example, on exams)"</span>.to_string(),
-                <span class="prelude-val">None</span>,
-            )
-        })<span class="question-mark">?</span>,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>peer_review_questions = <span class="kw">crate</span>::peer_review_questions::get_by_peer_review_configs_id(
-        <span class="kw-2">&amp;mut *</span>conn,
-        peer_review_config.id,
-    )
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>peer_review_question_submissions =
-        <span class="kw">crate</span>::peer_review_question_submissions::get_by_peer_reviews_question_ids(
+    <span class="kw">let </span>peer_or_self_review_config =
+        <span class="kw">crate</span>::peer_or_self_review_configs::get_by_exercise_or_course_id(
             <span class="kw-2">&amp;mut *</span>conn,
-            <span class="kw-2">&amp;</span>peer_review_questions
-                .iter()
-                .map(|x| (x.id))
-                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            <span class="kw-2">&amp;</span>exercise,
+            exercise.course_id.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    <span class="string">"Peer reviews work only on courses (and not, for example, on exams)"
+                        </span>.to_string(),
+                    <span class="prelude-val">None</span>,
+                )
+            })<span class="question-mark">?</span>,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>peer_or_self_review_questions =
+        <span class="kw">crate</span>::peer_or_self_review_questions::get_by_peer_or_self_review_configs_id(
+            <span class="kw-2">&amp;mut *</span>conn,
+            peer_or_self_review_config.id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>peer_or_self_review_question_ids = peer_or_self_review_questions
+        .iter()
+        .map(|x| (x.id))
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
+    <span class="kw">let </span>peer_or_self_review_submissions =
+        <span class="kw">crate</span>::peer_or_self_review_submissions::get_received_peer_or_self_review_submissions_for_user_by_peer_or_self_review_config_id_and_exercise_slide_submission(
+            <span class="kw-2">&amp;mut *</span>conn,
+            user_id,
+            exercise_slide_submission_id,
+            peer_or_self_review_config.id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>peer_or_self_review_question_submissions =
+        <span class="kw">crate</span>::peer_or_self_review_question_submissions::get_by_peer_reviews_question_ids(
+            <span class="kw-2">&amp;mut *</span>conn,
+            <span class="kw-2">&amp;</span>peer_or_self_review_question_ids,
             user_id,
             exercise_slide_submission_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(PeerReviewsRecieved {
-        peer_review_questions,
-        peer_review_question_submissions,
+    <span class="prelude-val">Ok</span>(PeerOrSelfReviewsReceived {
+        peer_or_self_review_questions,
+        peer_or_self_review_question_submissions,
+        peer_or_self_review_submissions,
     })
 }
 

@@ -611,9 +611,9 @@
     exercise_task_submissions::{<span class="self">self</span>, ExerciseTaskSubmission},
     exercise_tasks::{<span class="self">self</span>, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{<span class="self">self</span>, Exercise, ExerciseStatus, GradingProgress},
-    peer_review_configs::PeerReviewProcessingStrategy,
-    peer_review_question_submissions::{
-        <span class="self">self</span>, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
+    peer_or_self_review_configs::PeerReviewProcessingStrategy,
+    peer_or_self_review_question_submissions::{
+        <span class="self">self</span>, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
     },
     prelude::<span class="kw-2">*</span>,
     regradings,
@@ -694,7 +694,7 @@
     <span class="kw">pub </span>peer_review_processing_strategy: PeerReviewProcessingStrategy,
     <span class="kw">pub </span>peer_review_accepting_threshold: f32,
     <span class="doccomment">/// Used to for calculating averages when acting on PeerReviewProcessingStrategy
-    </span><span class="kw">pub </span>received_peer_review_question_submissions: Vec&lt;PeerReviewQuestionSubmission&gt;,
+    </span><span class="kw">pub </span>received_peer_or_self_review_question_submissions: Vec&lt;PeerOrSelfReviewQuestionSubmission&gt;,
 }
 
 <span class="doccomment">/// Inserts user submission to database. Tasks within submission are validated to make sure that
@@ -1122,7 +1122,7 @@
     <span class="kw">pub </span>exercise_id: Uuid,
     <span class="kw">pub </span>tasks: Vec&lt;CourseMaterialExerciseTask&gt;,
     <span class="kw">pub </span>given_peer_reviews: Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;,
-    <span class="kw">pub </span>received_peer_reviews: Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;,
+    <span class="kw">pub </span>received_peer_or_self_reviews: Vec&lt;PeerReviewWithQuestionsAndAnswers&gt;,
 }
 
 <span class="doccomment">/// Gets submissions that require input from the teacher to continue processing.
@@ -1152,7 +1152,7 @@
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>given_peer_reviews = <span class="kw">if let </span><span class="prelude-val">Some</span>(course_instance_id) = answer.course_instance_id {
-            peer_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+            peer_or_self_review_question_submissions::get_given_peer_reviews(
                 conn,
                 answer.user_id,
                 answer.exercise_id,
@@ -1162,8 +1162,8 @@
         </span>} <span class="kw">else </span>{
             <span class="macro">vec!</span>[]
         };
-        <span class="kw">let </span>received_peer_reviews =
-            peer_review_question_submissions::get_questions_and_answers_by_submission_id(
+        <span class="kw">let </span>received_peer_or_self_reviews =
+            peer_or_self_review_question_submissions::get_questions_and_answers_by_submission_id(
                 conn,
                 answer.submission_id,
             )
@@ -1181,7 +1181,7 @@
             exercise_id: answer.exercise_id,
             tasks,
             given_peer_reviews,
-            received_peer_reviews,
+            received_peer_or_self_reviews,
         };
         answers.push(new_answer);
     }

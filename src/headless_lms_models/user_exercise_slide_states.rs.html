@@ -413,6 +413,7 @@
 <a href="#412" id="412">412</a>
 <a href="#413" id="413">413</a>
 <a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{exercises::GradingProgress, prelude::<span class="kw-2">*</span>};
 
 <span class="attr">#[derive(Clone, Debug, Deserialize, Serialize)]
@@ -428,7 +429,8 @@
     <span class="kw">pub </span>grading_progress: GradingProgress,
 }
 
-<span class="kw">pub struct </span>UserExerciseSlideStateGradingSummary {
+<span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>UserExerciseSlideStateGradingSummary {
     <span class="kw">pub </span>score_given: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     <span class="kw">pub </span>grading_progress: GradingProgress,
 }

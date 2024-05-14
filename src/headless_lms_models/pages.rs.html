@@ -3465,6 +3465,45 @@
 <a href="#3464" id="3464">3464</a>
 <a href="#3465" id="3465">3465</a>
 <a href="#3466" id="3466">3466</a>
+<a href="#3467" id="3467">3467</a>
+<a href="#3468" id="3468">3468</a>
+<a href="#3469" id="3469">3469</a>
+<a href="#3470" id="3470">3470</a>
+<a href="#3471" id="3471">3471</a>
+<a href="#3472" id="3472">3472</a>
+<a href="#3473" id="3473">3473</a>
+<a href="#3474" id="3474">3474</a>
+<a href="#3475" id="3475">3475</a>
+<a href="#3476" id="3476">3476</a>
+<a href="#3477" id="3477">3477</a>
+<a href="#3478" id="3478">3478</a>
+<a href="#3479" id="3479">3479</a>
+<a href="#3480" id="3480">3480</a>
+<a href="#3481" id="3481">3481</a>
+<a href="#3482" id="3482">3482</a>
+<a href="#3483" id="3483">3483</a>
+<a href="#3484" id="3484">3484</a>
+<a href="#3485" id="3485">3485</a>
+<a href="#3486" id="3486">3486</a>
+<a href="#3487" id="3487">3487</a>
+<a href="#3488" id="3488">3488</a>
+<a href="#3489" id="3489">3489</a>
+<a href="#3490" id="3490">3490</a>
+<a href="#3491" id="3491">3491</a>
+<a href="#3492" id="3492">3492</a>
+<a href="#3493" id="3493">3493</a>
+<a href="#3494" id="3494">3494</a>
+<a href="#3495" id="3495">3495</a>
+<a href="#3496" id="3496">3496</a>
+<a href="#3497" id="3497">3497</a>
+<a href="#3498" id="3498">3498</a>
+<a href="#3499" id="3499">3499</a>
+<a href="#3500" id="3500">3500</a>
+<a href="#3501" id="3501">3501</a>
+<a href="#3502" id="3502">3502</a>
+<a href="#3503" id="3503">3503</a>
+<a href="#3504" id="3504">3504</a>
+<a href="#3505" id="3505">3505</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -3487,8 +3526,10 @@
     exercise_tasks::ExerciseTask,
     exercises::Exercise,
     page_history::{<span class="self">self</span>, HistoryChangeReason, PageHistoryContent},
-    peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::{normalize_cms_peer_review_questions, CmsPeerReviewQuestion},
+    peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
+    peer_or_self_review_questions::{
+        normalize_cms_peer_or_self_review_questions, CmsPeerOrSelfReviewQuestion,
+    },
     prelude::<span class="kw-2">*</span>,
     user_course_settings::{<span class="self">self</span>, UserCourseSettings},
     CourseOrExamId, SpecFetcher,
@@ -3649,8 +3690,8 @@
     <span class="kw">pub </span>exercises: Vec&lt;CmsPageExercise&gt;,
     <span class="kw">pub </span>exercise_slides: Vec&lt;CmsPageExerciseSlide&gt;,
     <span class="kw">pub </span>exercise_tasks: Vec&lt;CmsPageExerciseTask&gt;,
-    <span class="kw">pub </span>peer_review_configs: Vec&lt;CmsPeerReviewConfig&gt;,
-    <span class="kw">pub </span>peer_review_questions: Vec&lt;CmsPeerReviewQuestion&gt;,
+    <span class="kw">pub </span>peer_or_self_review_configs: Vec&lt;CmsPeerOrSelfReviewConfig&gt;,
+    <span class="kw">pub </span>peer_or_self_review_questions: Vec&lt;CmsPeerOrSelfReviewQuestion&gt;,
     <span class="kw">pub </span>organization_id: Uuid,
 }
 
@@ -3783,8 +3824,8 @@ RETURNING id
             exercises: <span class="macro">vec!</span>[],
             exercise_slides: <span class="macro">vec!</span>[],
             exercise_tasks: <span class="macro">vec!</span>[],
-            peer_review_configs: Vec::new(),
-            peer_review_questions: Vec::new(),
+            peer_or_self_review_configs: Vec::new(),
+            peer_or_self_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
         author,
@@ -3833,8 +3874,8 @@ RETURNING id
             exercises: <span class="macro">vec!</span>[],
             exercise_slides: <span class="macro">vec!</span>[],
             exercise_tasks: <span class="macro">vec!</span>[],
-            peer_review_configs: Vec::new(),
-            peer_review_questions: Vec::new(),
+            peer_or_self_review_configs: Vec::new(),
+            peer_or_self_review_questions: Vec::new(),
         },
         HistoryChangeReason::PageSaved,
         author,
@@ -4244,33 +4285,37 @@ WHERE url_redirections.course_id = $1
 ) -&gt; ModelResult&lt;ContentManagementPage&gt; {
     <span class="kw">let </span>page = get_page(<span class="kw-2">&amp;mut *</span>conn, page_id).<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>peer_review_configs =
-        <span class="kw">crate</span>::peer_review_configs::get_peer_reviews_by_page_id(conn, page.id)
+    <span class="kw">let </span>peer_or_self_review_configs =
+        <span class="kw">crate</span>::peer_or_self_review_configs::get_peer_reviews_by_page_id(conn, page.id)
             .<span class="kw">await</span><span class="question-mark">?
             </span>.into_iter()
             .flat_map(|pr| (pr.exercise_id.map(|id| (id, pr))))
             .collect::&lt;HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
-    <span class="kw">let </span>peer_review_questions = <span class="kw">crate</span>::peer_review_questions::get_by_page_id(conn, page.id)
-        .<span class="kw">await</span><span class="question-mark">?
-        </span>.into_iter()
-        .into_group_map_by(|prq| prq.peer_review_config_id)
-        .into_iter()
-        .collect::&lt;HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
+    <span class="kw">let </span>peer_or_self_review_questions =
+        <span class="kw">crate</span>::peer_or_self_review_questions::get_by_page_id(conn, page.id)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.into_iter()
+            .into_group_map_by(|prq| prq.peer_or_self_review_config_id)
+            .into_iter()
+            .collect::&lt;HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
 
     <span class="kw">let </span>exercises = <span class="kw">crate</span>::exercises::get_exercises_by_page_id(<span class="kw-2">&amp;mut *</span>conn, page.id)
         .<span class="kw">await</span><span class="question-mark">?
         </span>.into_iter()
         .map(|exercise| {
-            <span class="kw">let </span>(a, b) =
-                <span class="kw">if </span>exercise.needs_peer_review &amp;&amp; exercise.use_course_default_peer_review_config {
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else </span>{
-                    <span class="kw">let </span>peer_review_config = peer_review_configs.get(<span class="kw-2">&amp;</span>exercise.id).copied();
-                    <span class="kw">let </span>peer_review_questions = peer_review_config
-                        .and_then(|prc| peer_review_questions.get(<span class="kw-2">&amp;</span>prc.id).cloned());
-                    (peer_review_config, peer_review_questions)
-                };
+            <span class="kw">let </span>(a, b) = <span class="kw">if </span>exercise.needs_peer_review
+                &amp;&amp; exercise.use_course_default_peer_or_self_review_config
+            {
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>peer_or_self_review_config =
+                    peer_or_self_review_configs.get(<span class="kw-2">&amp;</span>exercise.id).cloned();
+                <span class="kw">let </span>peer_or_self_review_questions = peer_or_self_review_config
+                    .as_ref()
+                    .and_then(|prc| peer_or_self_review_questions.get(<span class="kw-2">&amp;</span>prc.id).cloned());
+                (peer_or_self_review_config, peer_or_self_review_questions)
+            };
 
             <span class="prelude-val">Ok</span>(CmsPageExercise::from_exercise_and_peer_review_data(
                 exercise, a, b,
@@ -4304,8 +4349,11 @@ WHERE url_redirections.course_id = $1
         exercises,
         exercise_slides,
         exercise_tasks,
-        peer_review_configs: peer_review_configs.into_values().collect(),
-        peer_review_questions: peer_review_questions.into_values().flatten().collect(),
+        peer_or_self_review_configs: peer_or_self_review_configs.into_values().collect(),
+        peer_or_self_review_questions: peer_or_self_review_questions
+            .into_values()
+            .flatten()
+            .collect(),
         organization_id,
     })
 }
@@ -4351,16 +4399,17 @@ AND pages.deleted_at IS NULL
     <span class="kw">pub </span>limit_number_of_tries: bool,
     <span class="kw">pub </span>deadline: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
     <span class="kw">pub </span>needs_peer_review: bool,
-    <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;CmsPeerReviewConfig&gt;,
-    <span class="kw">pub </span>peer_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt;,
-    <span class="kw">pub </span>use_course_default_peer_review_config: bool,
+    <span class="kw">pub </span>needs_self_review: bool,
+    <span class="kw">pub </span>peer_or_self_review_config: <span class="prelude-ty">Option</span>&lt;CmsPeerOrSelfReviewConfig&gt;,
+    <span class="kw">pub </span>peer_or_self_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;CmsPeerOrSelfReviewQuestion&gt;&gt;,
+    <span class="kw">pub </span>use_course_default_peer_or_self_review_config: bool,
 }
 
 <span class="kw">impl </span>CmsPageExercise {
     <span class="kw">fn </span>from_exercise_and_peer_review_data(
         exercise: Exercise,
-        peer_review_config: <span class="prelude-ty">Option</span>&lt;CmsPeerReviewConfig&gt;,
-        peer_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;CmsPeerReviewQuestion&gt;&gt;,
+        peer_or_self_review_config: <span class="prelude-ty">Option</span>&lt;CmsPeerOrSelfReviewConfig&gt;,
+        peer_or_self_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;CmsPeerOrSelfReviewQuestion&gt;&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             id: exercise.id,
@@ -4371,9 +4420,11 @@ AND pages.deleted_at IS NULL
             limit_number_of_tries: exercise.limit_number_of_tries,
             deadline: exercise.deadline,
             needs_peer_review: exercise.needs_peer_review,
-            use_course_default_peer_review_config: exercise.use_course_default_peer_review_config,
-            peer_review_config,
-            peer_review_questions,
+            needs_self_review: exercise.needs_self_review,
+            use_course_default_peer_or_self_review_config: exercise
+                .use_course_default_peer_or_self_review_config,
+            peer_or_self_review_config,
+            peer_or_self_review_questions,
         }
     }
 }
@@ -4510,8 +4561,9 @@ AND pages.deleted_at IS NULL
     cms_page_update.validate_exercise_data()<span class="question-mark">?</span>;
 
     <span class="kw">for </span>exercise <span class="kw">in </span>cms_page_update.exercises.iter_mut() {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_review_questions) = exercise.peer_review_questions.as_mut() {
-            normalize_cms_peer_review_questions(peer_review_questions);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_or_self_review_questions) = exercise.peer_or_self_review_questions.as_mut()
+        {
+            normalize_cms_peer_or_self_review_questions(peer_or_self_review_questions);
         }
     }
 
@@ -4590,46 +4642,49 @@ RETURNING id,
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Peer reviews
-    </span><span class="kw">let </span>existing_peer_review_config_ids =
-        <span class="kw">crate</span>::peer_review_configs::delete_peer_reviews_by_exrcise_ids(
+    </span><span class="kw">let </span>existing_peer_or_self_review_config_ids =
+        <span class="kw">crate</span>::peer_or_self_review_configs::delete_peer_reviews_by_exrcise_ids(
             <span class="kw-2">&amp;mut </span>tx,
             <span class="kw-2">&amp;</span>existing_exercise_ids,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>(peer_review_configs, peer_review_questions) = cms_page_update
+    <span class="kw">let </span>(peer_or_self_review_configs, peer_or_self_review_questions) = cms_page_update
         .exercises
         .into_iter()
-        .filter(|e| !e.use_course_default_peer_review_config)
-        .flat_map(|e| e.peer_review_config.zip(e.peer_review_questions))
+        .filter(|e| !e.use_course_default_peer_or_self_review_config)
+        .flat_map(|e| {
+            e.peer_or_self_review_config
+                .zip(e.peer_or_self_review_questions)
+        })
         .fold((<span class="macro">vec!</span>[], <span class="macro">vec!</span>[]), |(<span class="kw-2">mut </span>a, <span class="kw-2">mut </span>b), (pr, prq)| {
             a.push(pr);
             b.extend(prq);
             (a, b)
         });
 
-    <span class="kw">let </span>remapped_peer_review_configs = upsert_peer_review_configs(
+    <span class="kw">let </span>remapped_peer_or_self_review_configs = upsert_peer_or_self_review_configs(
         <span class="kw-2">&amp;mut </span>tx,
-        <span class="kw-2">&amp;</span>existing_peer_review_config_ids,
-        <span class="kw-2">&amp;</span>peer_review_configs,
+        <span class="kw-2">&amp;</span>existing_peer_or_self_review_config_ids,
+        <span class="kw-2">&amp;</span>peer_or_self_review_configs,
         <span class="kw-2">&amp;</span>remapped_exercises,
         page_update.retain_ids,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Peer review questions
-    </span><span class="kw">let </span>existing_peer_review_questions =
-        <span class="kw">crate</span>::peer_review_questions::delete_peer_review_questions_by_peer_review_config_ids(
+    </span><span class="kw">let </span>existing_peer_or_self_review_questions =
+        <span class="kw">crate</span>::peer_or_self_review_questions::delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids(
             <span class="kw-2">&amp;mut </span>tx,
-            <span class="kw-2">&amp;</span>existing_peer_review_config_ids,
+            <span class="kw-2">&amp;</span>existing_peer_or_self_review_config_ids,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>remapped_peer_review_questions = upsert_peer_review_questions(
+    <span class="kw">let </span>remapped_peer_or_self_review_questions = upsert_peer_or_self_review_questions(
         <span class="kw-2">&amp;mut </span>tx,
-        <span class="kw-2">&amp;</span>existing_peer_review_questions,
-        <span class="kw-2">&amp;</span>peer_review_questions,
-        <span class="kw-2">&amp;</span>remapped_peer_review_configs,
+        <span class="kw-2">&amp;</span>existing_peer_or_self_review_questions,
+        <span class="kw-2">&amp;</span>peer_or_self_review_questions,
+        <span class="kw-2">&amp;</span>remapped_peer_or_self_review_configs,
         page_update.retain_ids,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -4702,36 +4757,38 @@ RETURNING id,
     <span class="kw">let </span>final_exercises = x
         .iter()
         .map(|e| {
-            <span class="kw">let </span>peer_review_config = remapped_peer_review_configs
+            <span class="kw">let </span>peer_or_self_review_config = remapped_peer_or_self_review_configs
                 .values()
                 .find(|prc| prc.exercise_id == <span class="prelude-val">Some</span>(e.id));
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(prc) = peer_review_config {
-                <span class="kw">let </span>peer_review_questions = remapped_peer_review_questions
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(prc) = peer_or_self_review_config {
+                <span class="kw">let </span>peer_or_self_review_questions = remapped_peer_or_self_review_questions
                     .values()
-                    .filter(|prq| prq.peer_review_config_id == prc.id)
+                    .filter(|prq| prq.peer_or_self_review_config_id == prc.id)
                     .cloned()
                     .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
                 <span class="kw">return </span>CmsPageExercise::from_exercise_and_peer_review_data(
                     e.clone(),
-                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span>prc),
-                    <span class="prelude-val">Some</span>(peer_review_questions),
+                    <span class="prelude-val">Some</span>(prc.clone()),
+                    <span class="prelude-val">Some</span>(peer_or_self_review_questions),
                 );
             }
             CmsPageExercise::from_exercise_and_peer_review_data(e.clone(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>)
         })
         .collect();
     <span class="kw">let </span>final_slides: Vec&lt;CmsPageExerciseSlide&gt; = remapped_exercise_slides.into_values().collect();
-    <span class="kw">let </span>final_peer_reviews: Vec&lt;CmsPeerReviewConfig&gt; =
-        remapped_peer_review_configs.into_values().collect();
-    <span class="kw">let </span>final_peer_review_questions: Vec&lt;CmsPeerReviewQuestion&gt; =
-        remapped_peer_review_questions.into_values().collect();
+    <span class="kw">let </span>final_peer_reviews: Vec&lt;CmsPeerOrSelfReviewConfig&gt; =
+        remapped_peer_or_self_review_configs.into_values().collect();
+    <span class="kw">let </span>final_peer_or_self_review_questions: Vec&lt;CmsPeerOrSelfReviewQuestion&gt; =
+        remapped_peer_or_self_review_questions
+            .into_values()
+            .collect();
     <span class="kw">let </span>history_content = PageHistoryContent {
         content: page.content.clone(),
         exercises: final_exercises,
         exercise_slides: final_slides,
         exercise_tasks: final_tasks,
-        peer_review_configs: final_peer_reviews,
-        peer_review_questions: final_peer_review_questions,
+        peer_or_self_review_configs: final_peer_reviews,
+        peer_or_self_review_questions: final_peer_or_self_review_questions,
     };
     <span class="kw">crate</span>::page_history::insert(
         <span class="kw-2">&amp;mut </span>tx,
@@ -4753,8 +4810,8 @@ RETURNING id,
         exercises: history_content.exercises,
         exercise_slides: history_content.exercise_slides,
         exercise_tasks: history_content.exercise_tasks,
-        peer_review_configs: history_content.peer_review_configs,
-        peer_review_questions: history_content.peer_review_questions,
+        peer_or_self_review_configs: history_content.peer_or_self_review_configs,
+        peer_or_self_review_questions: history_content.peer_or_self_review_questions,
         organization_id,
     })
 }
@@ -4817,7 +4874,8 @@ INSERT INTO exercises(
     limit_number_of_tries,
     deadline,
     needs_peer_review,
-    use_course_default_peer_review_config,
+    needs_self_review,
+    use_course_default_peer_or_self_review_config,
     exercise_language_group_id
   )
 VALUES (
@@ -4834,7 +4892,8 @@ VALUES (
     $11,
     $12,
     $13,
-    $14
+    $14,
+    $15
   ) ON CONFLICT (id) DO
 UPDATE
 SET course_id = $2,
@@ -4848,8 +4907,9 @@ SET course_id = $2,
   limit_number_of_tries = $10,
   deadline = $11,
   needs_peer_review = $12,
-  use_course_default_peer_review_config = $13,
-  exercise_language_group_id = $14,
+  needs_self_review = $13,
+  use_course_default_peer_or_self_review_config = $14,
+  exercise_language_group_id = $15,
   deleted_at = NULL
 RETURNING *;
             "</span>,
@@ -4865,7 +4925,8 @@ RETURNING *;
             exercise_update.limit_number_of_tries,
             exercise_update.deadline,
             exercise_update.needs_peer_review,
-            exercise_update.use_course_default_peer_review_config,
+            exercise_update.needs_self_review,
+            exercise_update.use_course_default_peer_or_self_review_config,
             exercise_language_group_id,
         )
         .fetch_one(<span class="kw-2">&amp;mut *</span>conn)
@@ -5058,20 +5119,20 @@ RETURNING id,
     <span class="prelude-val">Ok</span>(remapped_exercise_tasks)
 }
 
-<span class="kw">pub async fn </span>upsert_peer_review_configs(
+<span class="kw">pub async fn </span>upsert_peer_or_self_review_configs(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     existing_peer_reviews: <span class="kw-2">&amp;</span>[Uuid],
-    peer_reviews: <span class="kw-2">&amp;</span>[CmsPeerReviewConfig],
+    peer_reviews: <span class="kw-2">&amp;</span>[CmsPeerOrSelfReviewConfig],
     remapped_exercises: <span class="kw-2">&amp;</span>HashMap&lt;Uuid, Exercise&gt;,
     retain_ids: bool,
-) -&gt; ModelResult&lt;HashMap&lt;Uuid, CmsPeerReviewConfig&gt;&gt; {
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, CmsPeerOrSelfReviewConfig&gt;&gt; {
     <span class="kw">if </span>peer_reviews.is_empty() {
         <span class="prelude-val">Ok</span>(HashMap::new())
     } <span class="kw">else </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>new_peer_review_config_id_to_old_id = HashMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>new_peer_or_self_review_config_id_to_old_id = HashMap::new();
 
         <span class="kw">let </span><span class="kw-2">mut </span>sql: QueryBuilder&lt;Postgres&gt; = QueryBuilder::new(
-            <span class="string">"INSERT INTO peer_review_configs (
+            <span class="string">"INSERT INTO peer_or_self_review_configs (
         id,
         course_id,
         exercise_id,
@@ -5080,6 +5141,7 @@ RETURNING id,
         processing_strategy,
         accepting_threshold,
         points_are_all_or_nothing,
+        review_instructions,
         deleted_at
       ) "</span>,
         );
@@ -5089,12 +5151,13 @@ RETURNING id,
 
         sql.push_values(peer_reviews.iter().take(<span class="number">1000</span>), |<span class="kw-2">mut </span>x, pr| {
             <span class="kw">let </span>peer_review_exists = existing_peer_reviews.iter().any(|id| <span class="kw-2">*</span>id == pr.id);
-            <span class="kw">let </span>safe_for_db_peer_review_config_id = <span class="kw">if </span>retain_ids || peer_review_exists {
+            <span class="kw">let </span>safe_for_db_peer_or_self_review_config_id = <span class="kw">if </span>retain_ids || peer_review_exists {
                 pr.id
             } <span class="kw">else </span>{
                 Uuid::new_v4()
             };
-            new_peer_review_config_id_to_old_id.insert(safe_for_db_peer_review_config_id, pr.id);
+            new_peer_or_self_review_config_id_to_old_id
+                .insert(safe_for_db_peer_or_self_review_config_id, pr.id);
 
             <span class="kw">let </span>safe_for_db_exercise_id = pr.exercise_id.and_then(|id| {
                 <span class="kw">let </span>res = remapped_exercises.get(<span class="kw-2">&amp;</span>id).map(|e| e.id);
@@ -5105,7 +5168,7 @@ RETURNING id,
                 res
             });
 
-            x.push_bind(safe_for_db_peer_review_config_id)
+            x.push_bind(safe_for_db_peer_or_self_review_config_id)
                 .push_bind(pr.course_id)
                 .push_bind(safe_for_db_exercise_id)
                 .push_bind(pr.peer_reviews_to_give)
@@ -5113,6 +5176,7 @@ RETURNING id,
                 .push_bind(pr.processing_strategy)
                 .push_bind(pr.accepting_threshold)
                 .push_bind(pr.points_are_all_or_nothing)
+                .push_bind(pr.review_instructions.clone())
                 .push(<span class="string">"NULL"</span>);
         });
 
@@ -5134,6 +5198,7 @@ SET course_id = excluded.course_id,
   processing_strategy = excluded.processing_strategy,
   accepting_threshold = excluded.accepting_threshold,
   points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  review_instructions = excluded.review_instructions,
   deleted_at = NULL
 RETURNING id;
 "</span>,
@@ -5148,7 +5213,7 @@ RETURNING id;
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
         <span class="kw">let </span>prs = <span class="macro">sqlx::query_as!</span>(
-            CmsPeerReviewConfig,
+            CmsPeerOrSelfReviewConfig,
             <span class="string">r#"
 SELECT id as "id!",
   course_id as "course_id!",
@@ -5157,8 +5222,9 @@ SELECT id as "id!",
   peer_reviews_to_receive as "peer_reviews_to_receive!",
   processing_strategy AS "processing_strategy!: _",
   accepting_threshold "accepting_threshold!",
-  points_are_all_or_nothing "points_are_all_or_nothing!"
-FROM peer_review_configs
+  points_are_all_or_nothing "points_are_all_or_nothing!",
+  review_instructions
+FROM peer_or_self_review_configs
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
   )
@@ -5172,7 +5238,7 @@ WHERE id IN (
         <span class="kw">let </span><span class="kw-2">mut </span>remapped_peer_reviews = HashMap::new();
 
         <span class="kw">for </span>pr <span class="kw">in </span>prs {
-            <span class="kw">let </span>old_id = new_peer_review_config_id_to_old_id
+            <span class="kw">let </span>old_id = new_peer_or_self_review_config_id_to_old_id
                 .get(<span class="kw-2">&amp;</span>pr.id)
                 .ok_or_else(|| {
                     ModelError::new(
@@ -5188,22 +5254,22 @@ WHERE id IN (
     }
 }
 
-<span class="kw">pub async fn </span>upsert_peer_review_questions(
+<span class="kw">pub async fn </span>upsert_peer_or_self_review_questions(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    existing_peer_review_questions: <span class="kw-2">&amp;</span>[Uuid],
-    peer_review_questions: <span class="kw-2">&amp;</span>[CmsPeerReviewQuestion],
-    remapped_peer_review_config_ids: <span class="kw-2">&amp;</span>HashMap&lt;Uuid, CmsPeerReviewConfig&gt;,
+    existing_peer_or_self_review_questions: <span class="kw-2">&amp;</span>[Uuid],
+    peer_or_self_review_questions: <span class="kw-2">&amp;</span>[CmsPeerOrSelfReviewQuestion],
+    remapped_peer_or_self_review_config_ids: <span class="kw-2">&amp;</span>HashMap&lt;Uuid, CmsPeerOrSelfReviewConfig&gt;,
     retain_ids: bool,
-) -&gt; ModelResult&lt;HashMap&lt;Uuid, CmsPeerReviewQuestion&gt;&gt; {
-    <span class="kw">if </span>peer_review_questions.is_empty() {
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, CmsPeerOrSelfReviewQuestion&gt;&gt; {
+    <span class="kw">if </span>peer_or_self_review_questions.is_empty() {
         <span class="prelude-val">Ok</span>(HashMap::new())
     } <span class="kw">else </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>new_peer_review_question_id_to_old_id = HashMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>new_peer_or_self_review_question_id_to_old_id = HashMap::new();
 
         <span class="kw">let </span><span class="kw-2">mut </span>sql: QueryBuilder&lt;Postgres&gt; = QueryBuilder::new(
-            <span class="string">"INSERT INTO peer_review_questions (
+            <span class="string">"INSERT INTO peer_or_self_review_questions (
         id,
-        peer_review_config_id,
+        peer_or_self_review_config_id,
         order_number,
         question,
         question_type,
@@ -5213,12 +5279,12 @@ WHERE id IN (
       ) "</span>,
         );
 
-        <span class="kw">let </span>peer_review_questions = peer_review_questions
+        <span class="kw">let </span>peer_or_self_review_questions = peer_or_self_review_questions
             .iter()
             .take(<span class="number">1000</span>)
             .map(|prq| {
-                remapped_peer_review_config_ids
-                    .get(<span class="kw-2">&amp;</span>prq.peer_review_config_id)
+                remapped_peer_or_self_review_config_ids
+                    .get(<span class="kw-2">&amp;</span>prq.peer_or_self_review_config_id)
                     .map(|r| (prq, r.id))
                     .ok_or_else(|| {
                         ModelError::new(
@@ -5231,22 +5297,22 @@ WHERE id IN (
             .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;&gt;()<span class="question-mark">?</span>;
 
         sql.push_values(
-            peer_review_questions,
-            |<span class="kw-2">mut </span>x, (prq, peer_review_config_id)| {
-                <span class="kw">let </span>peer_review_question_exists = existing_peer_review_questions
+            peer_or_self_review_questions,
+            |<span class="kw-2">mut </span>x, (prq, peer_or_self_review_config_id)| {
+                <span class="kw">let </span>peer_review_question_exists = existing_peer_or_self_review_questions
                     .iter()
                     .any(|id| <span class="kw-2">*</span>id == prq.id);
-                <span class="kw">let </span>safe_for_db_peer_review_question_id =
+                <span class="kw">let </span>safe_for_db_peer_or_self_review_question_id =
                     <span class="kw">if </span>retain_ids || peer_review_question_exists {
                         prq.id
                     } <span class="kw">else </span>{
                         Uuid::new_v4()
                     };
-                new_peer_review_question_id_to_old_id
-                    .insert(safe_for_db_peer_review_question_id, prq.id);
+                new_peer_or_self_review_question_id_to_old_id
+                    .insert(safe_for_db_peer_or_self_review_question_id, prq.id);
 
-                x.push_bind(safe_for_db_peer_review_question_id)
-                    .push_bind(peer_review_config_id)
+                x.push_bind(safe_for_db_peer_or_self_review_question_id)
+                    .push_bind(peer_or_self_review_config_id)
                     .push_bind(prq.order_number)
                     .push_bind(prq.question.as_str())
                     .push_bind(prq.question_type)
@@ -5259,7 +5325,7 @@ WHERE id IN (
         sql.push(
             <span class="string">" ON CONFLICT (id) DO
 UPDATE
-SET peer_review_config_id = excluded.peer_review_config_id,
+SET peer_or_self_review_config_id = excluded.peer_or_self_review_config_id,
     order_number = excluded.order_number,
     question = excluded.question,
     question_type = excluded.question_type,
@@ -5279,16 +5345,16 @@ RETURNING id;
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
         <span class="kw">let </span>prqs = <span class="macro">sqlx::query_as!</span>(
-            CmsPeerReviewQuestion,
+            CmsPeerOrSelfReviewQuestion,
             <span class="string">r#"
 SELECT id AS "id!",
   answer_required AS "answer_required!",
   order_number AS "order_number!",
-  peer_review_config_id AS "peer_review_config_id!",
+  peer_or_self_review_config_id AS "peer_or_self_review_config_id!",
   question AS "question!",
   question_type AS "question_type!: _",
   weight AS "weight!"
-FROM peer_review_questions
+FROM peer_or_self_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
   )
@@ -5299,10 +5365,10 @@ WHERE id IN (
         .fetch_all(<span class="kw-2">&amp;mut *</span>conn)
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span><span class="kw-2">mut </span>remapped_peer_review_questions = HashMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>remapped_peer_or_self_review_questions = HashMap::new();
 
         <span class="kw">for </span>prq <span class="kw">in </span>prqs {
-            <span class="kw">let </span>old_id = new_peer_review_question_id_to_old_id
+            <span class="kw">let </span>old_id = new_peer_or_self_review_question_id_to_old_id
                 .get(<span class="kw-2">&amp;</span>prq.id)
                 .ok_or_else(|| {
                     ModelError::new(
@@ -5311,10 +5377,10 @@ WHERE id IN (
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;
-            remapped_peer_review_questions.insert(<span class="kw-2">*</span>old_id, prq);
+            remapped_peer_or_self_review_questions.insert(<span class="kw-2">*</span>old_id, prq);
         }
 
-        <span class="prelude-val">Ok</span>(remapped_peer_review_questions)
+        <span class="prelude-val">Ok</span>(remapped_peer_or_self_review_questions)
     }
 }
 
@@ -6764,9 +6830,10 @@ WHERE id = $1
             limit_number_of_tries: <span class="bool-val">false</span>,
             deadline: <span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2125</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()),
             needs_peer_review: <span class="bool-val">false</span>,
-            peer_review_config: <span class="prelude-val">None</span>,
-            peer_review_questions: <span class="prelude-val">None</span>,
-            use_course_default_peer_review_config: <span class="bool-val">false</span>,
+            needs_self_review: <span class="bool-val">false</span>,
+            peer_or_self_review_config: <span class="prelude-val">None</span>,
+            peer_or_self_review_questions: <span class="prelude-val">None</span>,
+            use_course_default_peer_or_self_review_config: <span class="bool-val">false</span>,
         };
         <span class="kw">let </span>e1_s1 = CmsPageExerciseSlide {
             id: Uuid::parse_str(<span class="string">"43380e81-6ff2-4f46-9f38-af0ac6a8421a"</span>).unwrap(),
@@ -6832,34 +6899,42 @@ WHERE id = $1
             .<span class="kw">await
             </span>.unwrap();
 
-        <span class="kw">let </span>pr1 = CmsPeerReviewConfig {
+        <span class="kw">let </span>pr1 = CmsPeerOrSelfReviewConfig {
             id:pr_id,
             exercise_id: <span class="prelude-val">Some</span>(exercise_id),
             course_id: course,
-            processing_strategy: <span class="kw">crate</span>::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            processing_strategy: <span class="kw">crate</span>::peer_or_self_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
             accepting_threshold: <span class="number">0.5</span>,
             peer_reviews_to_give: <span class="number">2</span>,
             peer_reviews_to_receive: <span class="number">1</span>,
             points_are_all_or_nothing: <span class="bool-val">false</span>,
+            review_instructions: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let </span>prq = CmsPeerReviewQuestion {
+        <span class="kw">let </span>prq = CmsPeerOrSelfReviewQuestion {
             id: prq_id,
-            peer_review_config_id: pr_id,
+            peer_or_self_review_config_id: pr_id,
             answer_required: <span class="bool-val">true</span>,
             order_number: <span class="number">0</span>,
             question: <span class="string">"juu"</span>.to_string(),
-            question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
+            question_type:
+                <span class="kw">crate</span>::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Essay,
             weight: <span class="number">0.31</span>,
         };
         <span class="kw">let </span><span class="kw-2">mut </span>remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
-        <span class="kw">let </span>pr_res =
-            upsert_peer_review_configs(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[pr1], <span class="kw-2">&amp;</span>remapped_exercises, <span class="bool-val">false</span>)
+        <span class="kw">let </span>pr_res = upsert_peer_or_self_review_configs(
+            tx.as_mut(),
+            <span class="kw-2">&amp;</span>[],
+            <span class="kw-2">&amp;</span>[pr1],
+            <span class="kw-2">&amp;</span>remapped_exercises,
+            <span class="bool-val">false</span>,
+        )
+        .<span class="kw">await
+        </span>.unwrap();
+        <span class="kw">let </span>prq_res =
+            upsert_peer_or_self_review_questions(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[prq], <span class="kw-2">&amp;</span>pr_res, <span class="bool-val">false</span>)
                 .<span class="kw">await
                 </span>.unwrap();
-        <span class="kw">let </span>prq_res = upsert_peer_review_questions(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[prq], <span class="kw-2">&amp;</span>pr_res, <span class="bool-val">false</span>)
-            .<span class="kw">await
-            </span>.unwrap();
 
         <span class="macro">assert!</span>(pr_res.get(<span class="kw-2">&amp;</span>pr_id).unwrap().accepting_threshold == <span class="number">0.5</span>);
 
@@ -6876,32 +6951,34 @@ WHERE id = $1
             </span>.unwrap();
         <span class="kw">let </span>pr_id = Uuid::parse_str(<span class="string">"9b69dc5e-0eca-4fcd-8fd2-031a3a65da82"</span>).unwrap();
         <span class="kw">let </span>prq_id = Uuid::parse_str(<span class="string">"de18fa14-4ac6-4b57-b9f8-4843fa52d948"</span>).unwrap();
-        <span class="kw">let </span>pr1 = CmsPeerReviewConfig {
+        <span class="kw">let </span>pr1 = CmsPeerOrSelfReviewConfig {
             id:pr_id,
             exercise_id: <span class="prelude-val">Some</span>(exercise_id),
             course_id: course,
-            processing_strategy: <span class="kw">crate</span>::peer_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
+            processing_strategy: <span class="kw">crate</span>::peer_or_self_review_configs::PeerReviewProcessingStrategy::AutomaticallyGradeOrManualReviewByAverage,
             accepting_threshold: <span class="number">0.5</span>,
             peer_reviews_to_give: <span class="number">2</span>,
             peer_reviews_to_receive: <span class="number">1</span>,
             points_are_all_or_nothing: <span class="bool-val">true</span>,
+            review_instructions: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let </span>prq = CmsPeerReviewQuestion {
+        <span class="kw">let </span>prq = CmsPeerOrSelfReviewQuestion {
             id: prq_id,
-            peer_review_config_id: pr_id,
+            peer_or_self_review_config_id: pr_id,
             answer_required: <span class="bool-val">true</span>,
             order_number: <span class="number">0</span>,
             question: <span class="string">"juu"</span>.to_string(),
-            question_type: <span class="kw">crate</span>::peer_review_questions::PeerReviewQuestionType::Essay,
+            question_type:
+                <span class="kw">crate</span>::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Essay,
             weight: <span class="number">0.0</span>,
         };
         <span class="kw">let </span><span class="kw-2">mut </span>remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
         <span class="kw">let </span>pr_res =
-            upsert_peer_review_configs(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[pr1], <span class="kw-2">&amp;</span>remapped_exercises, <span class="bool-val">true</span>)
+            upsert_peer_or_self_review_configs(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[pr1], <span class="kw-2">&amp;</span>remapped_exercises, <span class="bool-val">true</span>)
                 .<span class="kw">await
                 </span>.unwrap();
-        <span class="kw">let </span>prq_res = upsert_peer_review_questions(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[prq], <span class="kw-2">&amp;</span>pr_res, <span class="bool-val">true</span>)
+        <span class="kw">let </span>prq_res = upsert_peer_or_self_review_questions(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[prq], <span class="kw-2">&amp;</span>pr_res, <span class="bool-val">true</span>)
             .<span class="kw">await
             </span>.unwrap();
 
@@ -6920,10 +6997,11 @@ WHERE id = $1
             </span>.unwrap();
         <span class="kw">let </span><span class="kw-2">mut </span>remapped_exercises = HashMap::new();
         remapped_exercises.insert(exercise_id, exercise);
-        <span class="kw">let </span>pr_res = upsert_peer_review_configs(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>remapped_exercises, <span class="bool-val">true</span>)
-            .<span class="kw">await
-            </span>.unwrap();
-        <span class="kw">let </span>prq_res = upsert_peer_review_questions(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>pr_res, <span class="bool-val">true</span>)
+        <span class="kw">let </span>pr_res =
+            upsert_peer_or_self_review_configs(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>remapped_exercises, <span class="bool-val">true</span>)
+                .<span class="kw">await
+                </span>.unwrap();
+        <span class="kw">let </span>prq_res = upsert_peer_or_self_review_questions(tx.as_mut(), <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span>pr_res, <span class="bool-val">true</span>)
             .<span class="kw">await
             </span>.unwrap();
 

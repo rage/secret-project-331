@@ -1014,6 +1014,17 @@
 <a href="#1013" id="1013">1013</a>
 <a href="#1014" id="1014">1014</a>
 <a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>url::Url;
@@ -1026,11 +1037,11 @@
     },
     exercise_slides::{<span class="self">self</span>, CourseMaterialExerciseSlide},
     exercise_tasks,
-    peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
-    peer_review_submissions::PeerReviewSubmission,
     prelude::<span class="kw-2">*</span>,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
@@ -1059,7 +1070,8 @@
     <span class="kw">pub </span>max_tries_per_slide: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>limit_number_of_tries: bool,
     <span class="kw">pub </span>needs_peer_review: bool,
-    <span class="kw">pub </span>use_course_default_peer_review_config: bool,
+    <span class="kw">pub </span>needs_self_review: bool,
+    <span class="kw">pub </span>use_course_default_peer_or_self_review_config: bool,
     <span class="kw">pub </span>exercise_language_group_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
 }
 
@@ -1093,13 +1105,13 @@
     <span class="kw">pub </span>exercise: Exercise,
     <span class="kw">pub </span>user_exercise_state: <span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;,
     <span class="kw">pub </span>exercise_slide_submissions: Vec&lt;ExerciseSlideSubmission&gt;,
-    <span class="kw">pub </span>given_peer_review_submissions: Vec&lt;PeerReviewSubmission&gt;,
-    <span class="kw">pub </span>given_peer_review_question_submissions: Vec&lt;PeerReviewQuestionSubmission&gt;,
-    <span class="kw">pub </span>received_peer_review_submissions: Vec&lt;PeerReviewSubmission&gt;,
-    <span class="kw">pub </span>received_peer_review_question_submissions: Vec&lt;PeerReviewQuestionSubmission&gt;,
+    <span class="kw">pub </span>given_peer_or_self_review_submissions: Vec&lt;PeerOrSelfReviewSubmission&gt;,
+    <span class="kw">pub </span>given_peer_or_self_review_question_submissions: Vec&lt;PeerOrSelfReviewQuestionSubmission&gt;,
+    <span class="kw">pub </span>received_peer_or_self_review_submissions: Vec&lt;PeerOrSelfReviewSubmission&gt;,
+    <span class="kw">pub </span>received_peer_or_self_review_question_submissions: Vec&lt;PeerOrSelfReviewQuestionSubmission&gt;,
     <span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;,
     <span class="kw">pub </span>teacher_grading_decision: <span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;,
-    <span class="kw">pub </span>peer_review_questions: Vec&lt;PeerReviewQuestion&gt;,
+    <span class="kw">pub </span>peer_or_self_review_questions: Vec&lt;PeerOrSelfReviewQuestion&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
@@ -1112,7 +1124,7 @@
     </span><span class="kw">pub </span>exercise_status: <span class="prelude-ty">Option</span>&lt;ExerciseStatus&gt;,
     <span class="attr">#[cfg_attr(feature = <span class="string">"ts_rs"</span>, ts(<span class="kw">type </span>= <span class="string">"Record&lt;string, number&gt;"</span>))]
     </span><span class="kw">pub </span>exercise_slide_submission_counts: HashMap&lt;Uuid, i64&gt;,
-    <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;CourseMaterialPeerReviewConfig&gt;,
+    <span class="kw">pub </span>peer_or_self_review_config: <span class="prelude-ty">Option</span>&lt;CourseMaterialPeerOrSelfReviewConfig&gt;,
     <span class="kw">pub </span>previous_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
     <span class="kw">pub </span>user_course_instance_exercise_service_variables:
         Vec&lt;UserCourseInstanceExerciseServiceVariable&gt;,
@@ -1490,23 +1502,26 @@ WHERE id = $1
         HashMap::new()
     };
 
-    <span class="kw">let </span>peer_review_config = <span class="kw">match </span>(exercise.needs_peer_review, exercise.course_id) {
-        (<span class="bool-val">true</span>, <span class="prelude-val">Some</span>(course_id)) =&gt; {
-            <span class="kw">let </span>prc = <span class="kw">crate</span>::peer_review_configs::get_by_exercise_or_course_id(
+    <span class="kw">let </span>peer_or_self_review_config = <span class="kw">if let </span><span class="prelude-val">Some</span>(course_id) = exercise.course_id {
+        <span class="kw">if </span>exercise.needs_peer_review || exercise.needs_self_review {
+            <span class="kw">let </span>prc = <span class="kw">crate</span>::peer_or_self_review_configs::get_by_exercise_or_course_id(
                 conn, <span class="kw-2">&amp;</span>exercise, course_id,
             )
             .<span class="kw">await
             </span>.optional()<span class="question-mark">?</span>;
-            prc.map(|prc| CourseMaterialPeerReviewConfig {
+            prc.map(|prc| CourseMaterialPeerOrSelfReviewConfig {
                 id: prc.id,
                 course_id: prc.course_id,
                 exercise_id: prc.exercise_id,
                 peer_reviews_to_give: prc.peer_reviews_to_give,
                 peer_reviews_to_receive: prc.peer_reviews_to_receive,
             })
-        }
-        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-    };
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
 
     <span class="kw">let </span>user_course_instance_exercise_service_variables = <span class="kw">match </span>(user_id, instance_or_exam_id) {
         (<span class="prelude-val">Some</span>(user_id), <span class="prelude-val">Some</span>(course_instance_or_exam_id)) =&gt; {
@@ -1521,7 +1536,7 @@ WHERE id = $1
         current_exercise_slide,
         exercise_status,
         exercise_slide_submission_counts,
-        peer_review_config,
+        peer_or_self_review_config,
         user_course_instance_exercise_service_variables,
         previous_exercise_slide_submission,
     })
@@ -1732,22 +1747,25 @@ RETURNING id;
     <span class="prelude-val">Ok</span>(deleted_ids)
 }
 
-<span class="kw">pub async fn </span>set_exercise_to_use_exercise_specific_peer_review_config(
+<span class="kw">pub async fn </span>set_exercise_to_use_exercise_specific_peer_or_self_review_config(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_id: Uuid,
     needs_peer_review: bool,
-    use_course_default_peer_review_config: bool,
+    needs_self_review: bool,
+    use_course_default_peer_or_self_review_config: bool,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>id = <span class="macro">sqlx::query!</span>(
         <span class="string">"
 UPDATE exercises
-SET use_course_default_peer_review_config = $1,
-  needs_peer_review = $2
-WHERE id = $3
+SET use_course_default_peer_or_self_review_config = $1,
+  needs_peer_review = $2,
+  needs_self_review = $3
+WHERE id = $4
 RETURNING id;
         "</span>,
-        use_course_default_peer_review_config,
+        use_course_default_peer_or_self_review_config,
         needs_peer_review,
+        needs_self_review,
         exercise_id
     )
     .fetch_one(conn)
@@ -1785,32 +1803,32 @@ RETURNING id;
         .<span class="kw">await</span><span class="question-mark">?
         </span>.into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    <span class="kw">let </span><span class="kw-2">mut </span>given_peer_review_submissions = <span class="kw">crate</span>::peer_review_submissions::get_all_given_peer_review_submissions_for_user_and_course_instance(<span class="kw-2">&amp;mut *</span>conn, user_id, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>.into_iter()
+    <span class="kw">let </span><span class="kw-2">mut </span>given_peer_or_self_review_submissions = <span class="kw">crate</span>::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course_instance(<span class="kw-2">&amp;mut *</span>conn, user_id, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>.into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    <span class="kw">let </span><span class="kw-2">mut </span>received_peer_review_submissions = <span class="kw">crate</span>::peer_review_submissions::get_all_received_peer_review_submissions_for_user_and_course_instance(<span class="kw-2">&amp;mut *</span>conn, user_id, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>.into_iter()
+    <span class="kw">let </span><span class="kw-2">mut </span>received_peer_or_self_review_submissions = <span class="kw">crate</span>::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course_instance(<span class="kw-2">&amp;mut *</span>conn, user_id, course_instance_id).<span class="kw">await</span><span class="question-mark">?</span>.into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    <span class="kw">let </span>given_peer_review_submission_ids = given_peer_review_submissions
+    <span class="kw">let </span>given_peer_or_self_review_submission_ids = given_peer_or_self_review_submissions
         .values()
         .flatten()
         .map(|x| x.id)
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-    <span class="kw">let </span><span class="kw-2">mut </span>given_peer_review_question_submissions = <span class="kw">crate</span>::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>given_peer_review_submission_ids).<span class="kw">await</span><span class="question-mark">?
+    <span class="kw">let </span><span class="kw-2">mut </span>given_peer_or_self_review_question_submissions = <span class="kw">crate</span>::peer_or_self_review_question_submissions::get_question_submissions_from_from_peer_or_self_review_submission_ids(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>given_peer_or_self_review_submission_ids).<span class="kw">await</span><span class="question-mark">?
         </span>.into_iter()
         .into_group_map_by(|o| {
-            <span class="kw">let </span>peer_review_submission = given_peer_review_submissions.clone().into_iter()
-                .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+            <span class="kw">let </span>peer_review_submission = given_peer_or_self_review_submissions.clone().into_iter()
+                .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_or_self_review_submission_id))
                 .unwrap_or_else(|| (Uuid::nil(), <span class="macro">vec!</span>[]));
             peer_review_submission.<span class="number">0
     </span>});
-    <span class="kw">let </span>received_peer_review_submission_ids = received_peer_review_submissions
+    <span class="kw">let </span>received_peer_or_self_review_submission_ids = received_peer_or_self_review_submissions
         .values()
         .flatten()
         .map(|x| x.id)
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-    <span class="kw">let </span><span class="kw-2">mut </span>received_peer_review_question_submissions = <span class="kw">crate</span>::peer_review_question_submissions::get_question_submissions_from_from_peer_review_submission_ids(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>received_peer_review_submission_ids).<span class="kw">await</span><span class="question-mark">?</span>.into_iter()
+    <span class="kw">let </span><span class="kw-2">mut </span>received_peer_or_self_review_question_submissions = <span class="kw">crate</span>::peer_or_self_review_question_submissions::get_question_submissions_from_from_peer_or_self_review_submission_ids(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>received_peer_or_self_review_submission_ids).<span class="kw">await</span><span class="question-mark">?</span>.into_iter()
     .into_group_map_by(|o| {
-        <span class="kw">let </span>peer_review_submission = received_peer_review_submissions.clone().into_iter()
-            .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_review_submission_id))
+        <span class="kw">let </span>peer_review_submission = received_peer_or_self_review_submissions.clone().into_iter()
+            .find(|(_exercise_id, prs)| prs.iter().any(|p| p.id == o.peer_or_self_review_submission_id))
             .unwrap_or_else(|| (Uuid::nil(), <span class="macro">vec!</span>[]));
         peer_review_submission.<span class="number">0
     </span>});
@@ -1830,13 +1848,16 @@ RETURNING id;
             .find(|(_exercise_id, ues)|  ues.id == tgd.user_exercise_state_id)<span class="question-mark">?</span>;
         <span class="prelude-val">Some</span>((user_exercise_state.<span class="number">0</span>, tgd))
     }).collect::&lt;HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt;&gt;();
-    <span class="kw">let </span>all_peer_review_question_ids = given_peer_review_question_submissions
+    <span class="kw">let </span>all_peer_or_self_review_question_ids = given_peer_or_self_review_question_submissions
         .iter()
-        .chain(received_peer_review_question_submissions.iter())
-        .flat_map(|(_exercise_id, prqs)| prqs.iter().map(|p| p.peer_review_question_id))
+        .chain(received_peer_or_self_review_question_submissions.iter())
+        .flat_map(|(_exercise_id, prqs)| prqs.iter().map(|p| p.peer_or_self_review_question_id))
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-    <span class="kw">let </span>all_peer_review_questions =
-        <span class="kw">crate</span>::peer_review_questions::get_by_ids(<span class="kw-2">&amp;mut *</span>conn, <span class="kw-2">&amp;</span>all_peer_review_question_ids).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>all_peer_or_self_review_questions = <span class="kw">crate</span>::peer_or_self_review_questions::get_by_ids(
+        <span class="kw-2">&amp;mut *</span>conn,
+        <span class="kw-2">&amp;</span>all_peer_or_self_review_question_ids,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="comment">// Map all the data for all the exercises to be summaries of the data for each exercise.
     //
@@ -1850,43 +1871,44 @@ RETURNING id;
             <span class="kw">let </span>exercise_slide_submissions = exercise_slide_submissions
                 .remove(<span class="kw-2">&amp;</span>exercise.id)
                 .unwrap_or_default();
-            <span class="kw">let </span>given_peer_review_submissions = given_peer_review_submissions
+            <span class="kw">let </span>given_peer_or_self_review_submissions = given_peer_or_self_review_submissions
                 .remove(<span class="kw-2">&amp;</span>exercise.id)
                 .unwrap_or_default();
-            <span class="kw">let </span>received_peer_review_submissions = received_peer_review_submissions
+            <span class="kw">let </span>received_peer_or_self_review_submissions = received_peer_or_self_review_submissions
                 .remove(<span class="kw-2">&amp;</span>exercise.id)
                 .unwrap_or_default();
-            <span class="kw">let </span>given_peer_review_question_submissions = given_peer_review_question_submissions
-                .remove(<span class="kw-2">&amp;</span>exercise.id)
-                .unwrap_or_default();
-            <span class="kw">let </span>received_peer_review_question_submissions =
-                received_peer_review_question_submissions
+            <span class="kw">let </span>given_peer_or_self_review_question_submissions =
+                given_peer_or_self_review_question_submissions
+                    .remove(<span class="kw-2">&amp;</span>exercise.id)
+                    .unwrap_or_default();
+            <span class="kw">let </span>received_peer_or_self_review_question_submissions =
+                received_peer_or_self_review_question_submissions
                     .remove(<span class="kw-2">&amp;</span>exercise.id)
                     .unwrap_or_default();
             <span class="kw">let </span>peer_review_queue_entry = peer_review_queue_entries.remove(<span class="kw-2">&amp;</span>exercise.id);
             <span class="kw">let </span>teacher_grading_decision = teacher_grading_decisions.remove(<span class="kw-2">&amp;</span>exercise.id);
-            <span class="kw">let </span>peer_review_question_ids = given_peer_review_question_submissions
+            <span class="kw">let </span>peer_or_self_review_question_ids = given_peer_or_self_review_question_submissions
                 .iter()
-                .chain(received_peer_review_question_submissions.iter())
-                .map(|prqs| prqs.peer_review_question_id)
+                .chain(received_peer_or_self_review_question_submissions.iter())
+                .map(|prqs| prqs.peer_or_self_review_question_id)
                 .unique()
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="kw">let </span>peer_review_questions = all_peer_review_questions
+            <span class="kw">let </span>peer_or_self_review_questions = all_peer_or_self_review_questions
                 .iter()
-                .filter(|prq| peer_review_question_ids.contains(<span class="kw-2">&amp;</span>prq.id))
+                .filter(|prq| peer_or_self_review_question_ids.contains(<span class="kw-2">&amp;</span>prq.id))
                 .cloned()
                 .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
             ExerciseStatusSummaryForUser {
                 exercise,
                 user_exercise_state,
                 exercise_slide_submissions,
-                given_peer_review_submissions,
-                received_peer_review_submissions,
-                given_peer_review_question_submissions,
-                received_peer_review_question_submissions,
+                given_peer_or_self_review_submissions,
+                received_peer_or_self_review_submissions,
+                given_peer_or_self_review_question_submissions,
+                received_peer_or_self_review_question_submissions,
                 peer_review_queue_entry,
                 teacher_grading_decision,
-                peer_review_questions,
+                peer_or_self_review_questions,
             }
         })
         .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();

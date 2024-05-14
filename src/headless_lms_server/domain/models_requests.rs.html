@@ -785,18 +785,18 @@
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
 </span><span class="kw">pub struct </span>GivePeerReviewClaim {
     <span class="kw">pub </span>exercise_slide_submission_id: Uuid,
-    <span class="kw">pub </span>peer_review_config_id: Uuid,
+    <span class="kw">pub </span>peer_or_self_review_config_id: Uuid,
     expiration_time: DateTime&lt;Utc&gt;,
 }
 
 <span class="kw">impl </span>GivePeerReviewClaim {
     <span class="kw">pub fn </span>expiring_in_1_day(
         exercise_slide_submission_id: Uuid,
-        peer_review_config_id: Uuid,
+        peer_or_self_review_config_id: Uuid,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             exercise_slide_submission_id,
-            peer_review_config_id,
+            peer_or_self_review_config_id,
             expiration_time: Utc::now() + Duration::days(<span class="number">1</span>),
         }
     }
@@ -809,14 +809,14 @@
         <span class="kw">let </span>claim: <span class="self">Self </span>= token.verify_with_key(<span class="kw-2">&amp;</span>key.<span class="number">0</span>).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="macro">format!</span>(<span class="string">"Invalid jwt key: {}"</span>, err),
+                <span class="macro">format!</span>(<span class="string">"Invalid claim: {}"</span>, err),
                 <span class="prelude-val">Some</span>(err.into()),
             )
         })<span class="question-mark">?</span>;
         <span class="kw">if </span>claim.expiration_time &lt; Utc::now() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
                 ControllerErrorType::BadRequest,
-                <span class="string">"The peer review has expired."</span>.to_string(),
+                <span class="string">"The review has expired."</span>.to_string(),
                 <span class="prelude-val">None</span>,
             ));
         }

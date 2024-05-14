@@ -77,6 +77,8 @@
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
 <a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">use </span><span class="kw">super</span>::UserExerciseStateUpdateRequiredData;
@@ -91,9 +93,9 @@
             <span class="prelude-val">None</span>,
         ));
     }
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_review_information) = <span class="kw-2">&amp;</span>input_data.peer_review_information {
-        <span class="kw">if </span>peer_review_information
-            .given_peer_review_submissions
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_or_self_review_information) = <span class="kw-2">&amp;</span>input_data.peer_or_self_review_information {
+        <span class="kw">if </span>peer_or_self_review_information
+            .given_peer_or_self_review_submissions
             .iter()
             .any(|prs| prs.deleted_at.is_some())
         {
@@ -105,8 +107,8 @@
             ));
         }
 
-        <span class="kw">if </span>peer_review_information
-            .latest_exercise_slide_submission_received_peer_review_question_submissions
+        <span class="kw">if </span>peer_or_self_review_information
+            .latest_exercise_slide_submission_received_peer_or_self_review_question_submissions
             .iter()
             .any(|prqs| prqs.deleted_at.is_some())
         {
@@ -118,7 +120,9 @@
             ));
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_review_queue_entry) = <span class="kw-2">&amp;</span>peer_review_information.peer_review_queue_entry {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(peer_review_queue_entry) =
+            <span class="kw-2">&amp;</span>peer_or_self_review_information.peer_review_queue_entry
+        {
             <span class="kw">if </span>peer_review_queue_entry.deleted_at.is_some() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(ModelError::new(
               ModelErrorType::Generic,
@@ -129,8 +133,8 @@
             }
         }
 
-        <span class="kw">if </span>peer_review_information
-            .peer_review_config
+        <span class="kw">if </span>peer_or_self_review_information
+            .peer_or_self_review_config
             .deleted_at
             .is_some()
         {

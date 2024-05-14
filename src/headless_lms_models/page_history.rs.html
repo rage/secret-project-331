@@ -156,8 +156,8 @@
 
 <span class="kw">use crate</span>::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
-    peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
+    peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
     prelude::<span class="kw-2">*</span>,
 };
 
@@ -188,8 +188,8 @@
     <span class="kw">pub </span>exercises: Vec&lt;CmsPageExercise&gt;,
     <span class="kw">pub </span>exercise_slides: Vec&lt;CmsPageExerciseSlide&gt;,
     <span class="kw">pub </span>exercise_tasks: Vec&lt;CmsPageExerciseTask&gt;,
-    <span class="kw">pub </span>peer_review_configs: Vec&lt;CmsPeerReviewConfig&gt;,
-    <span class="kw">pub </span>peer_review_questions: Vec&lt;CmsPeerReviewQuestion&gt;,
+    <span class="kw">pub </span>peer_or_self_review_configs: Vec&lt;CmsPeerOrSelfReviewConfig&gt;,
+    <span class="kw">pub </span>peer_or_self_review_questions: Vec&lt;CmsPeerOrSelfReviewQuestion&gt;,
 }
 
 <span class="comment">// Batch refactor pushed past the limit

@@ -4814,7 +4814,7 @@
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{<span class="self">self</span>, NewCoursePage},
-    peer_review_configs::PeerReviewProcessingStrategy::{
+    peer_or_self_review_configs::PeerReviewProcessingStrategy::{
         AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },
@@ -8123,8 +8123,8 @@
         ManualReviewEverything,
         <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -8230,10 +8230,10 @@
         course_id,
         exercise_2_id,
         AutomaticallyGradeOrManualReviewByAverage,
-        <span class="number">2.5</span>,
+        <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -8242,10 +8242,10 @@
         course_id,
         exercise_3_id,
         AutomaticallyGradeByAverage,
-        <span class="number">2.0</span>,
+        <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9334,8 +9334,8 @@
         ManualReviewEverything,
         <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9390,10 +9390,10 @@
         course_id,
         exercise_2_id,
         AutomaticallyGradeOrManualReviewByAverage,
-        <span class="number">2.5</span>,
+        <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9448,10 +9448,10 @@
         course_id,
         exercise_3_id,
         AutomaticallyGradeByAverage,
-        <span class="number">2.0</span>,
+        <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -9508,8 +9508,8 @@
         ManualReviewEverything,
         <span class="number">3.0</span>,
         <span class="bool-val">true</span>,
+        <span class="number">2</span>,
         <span class="number">1</span>,
-        <span class="number">0</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

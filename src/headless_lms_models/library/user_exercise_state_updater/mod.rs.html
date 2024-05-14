@@ -164,6 +164,11 @@
 <a href="#163" id="163">163</a>
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Always update the user_exercise_state table though this module
 //!
 
@@ -176,11 +181,11 @@
     course_modules,
     exercise_slide_submissions::ExerciseSlideSubmission,
     exercises::Exercise,
-    peer_review_configs::PeerReviewConfig,
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_configs::PeerOrSelfReviewConfig,
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
-    peer_review_submissions::PeerReviewSubmission,
     prelude::<span class="kw-2">*</span>,
     teacher_grading_decisions::TeacherGradingDecision,
     user_exercise_slide_states::UserExerciseSlideStateGradingSummary,
@@ -190,11 +195,13 @@
 <span class="kw">use </span>std::default::Default;
 
 <span class="doccomment">/// Visible only in the current module (and submodules) to prevent misuse.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>UserExerciseStateUpdateRequiredData {
     <span class="kw">pub </span>exercise: Exercise,
     <span class="kw">pub </span>current_user_exercise_state: UserExerciseState,
     <span class="doccomment">/// None if peer review is not enabled for the exercise
-    </span><span class="kw">pub </span>peer_review_information: <span class="prelude-ty">Option</span>&lt;UserExerciseStateUpdateRequiredDataPeerReviewInformation&gt;,
+    </span><span class="kw">pub </span>peer_or_self_review_information:
+        <span class="prelude-ty">Option</span>&lt;UserExerciseStateUpdateRequiredDataPeerReviewInformation&gt;,
     <span class="doccomment">/// None if a teacher has not made a grading decision yet.
     </span><span class="kw">pub </span>latest_teacher_grading_decision: <span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;,
     <span class="doccomment">/// The grades summed up from all the user exercise slide states. Note that multiple slides can give points, and they are all aggregated here.
@@ -202,13 +209,15 @@
 }
 
 <span class="doccomment">/// Visible only in the current module (and submodules) to prevent misuse.
+</span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>UserExerciseStateUpdateRequiredDataPeerReviewInformation {
-    <span class="kw">pub </span>given_peer_review_submissions: Vec&lt;PeerReviewSubmission&gt;,
-    <span class="kw">pub </span>latest_exercise_slide_submission_received_peer_review_question_submissions:
-        Vec&lt;PeerReviewQuestionSubmission&gt;,
+    <span class="kw">pub </span>given_peer_or_self_review_submissions: Vec&lt;PeerOrSelfReviewSubmission&gt;,
+    <span class="kw">pub </span>given_self_review_submission: <span class="prelude-ty">Option</span>&lt;PeerOrSelfReviewSubmission&gt;,
+    <span class="kw">pub </span>latest_exercise_slide_submission_received_peer_or_self_review_question_submissions:
+        Vec&lt;PeerOrSelfReviewQuestionSubmission&gt;,
     <span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;,
-    <span class="kw">pub </span>peer_review_config: PeerReviewConfig,
-    <span class="kw">pub </span>peer_review_questions: Vec&lt;PeerReviewQuestion&gt;,
+    <span class="kw">pub </span>peer_or_self_review_config: PeerOrSelfReviewConfig,
+    <span class="kw">pub </span>peer_or_self_review_questions: Vec&lt;PeerOrSelfReviewQuestion&gt;,
 }
 
 <span class="doccomment">/**
@@ -218,7 +227,7 @@ Same as `UserExerciseStateUpdateRequiredData` but public and everything is optio
 </span><span class="kw">pub struct </span>UserExerciseStateUpdateAlreadyLoadedRequiredData {
     <span class="kw">pub </span>exercise: <span class="prelude-ty">Option</span>&lt;Exercise&gt;,
     <span class="kw">pub </span>current_user_exercise_state: <span class="prelude-ty">Option</span>&lt;UserExerciseState&gt;,
-    <span class="kw">pub </span>peer_review_information:
+    <span class="kw">pub </span>peer_or_self_review_information:
         <span class="prelude-ty">Option</span>&lt;UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation&gt;,
     <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether a teacher has made a grading decision or not.
     </span><span class="kw">pub </span>latest_teacher_grading_decision: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;TeacherGradingDecision&gt;&gt;,
@@ -230,14 +239,15 @@ Same as `UserExerciseStateUpdateRequiredDataPeerReviewInformation` but public an
 */
 </span><span class="attr">#[derive(Default)]
 </span><span class="kw">pub struct </span>UserExerciseStateUpdateAlreadyLoadedRequiredDataPeerReviewInformation {
-    <span class="kw">pub </span>given_peer_review_submissions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewSubmission&gt;&gt;,
+    <span class="kw">pub </span>given_peer_or_self_review_submissions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerOrSelfReviewSubmission&gt;&gt;,
+    <span class="kw">pub </span>given_self_review_submission: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;PeerOrSelfReviewSubmission&gt;&gt;,
     <span class="kw">pub </span>latest_exercise_slide_submission: <span class="prelude-ty">Option</span>&lt;ExerciseSlideSubmission&gt;,
-    <span class="kw">pub </span>latest_exercise_slide_submission_received_peer_review_question_submissions:
-        <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewQuestionSubmission&gt;&gt;,
+    <span class="kw">pub </span>latest_exercise_slide_submission_received_peer_or_self_review_question_submissions:
+        <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerOrSelfReviewQuestionSubmission&gt;&gt;,
     <span class="doccomment">/// The outer option is to indicate whether this cached value is provided or not, and the inner option is to tell whether the answer has been added to the the peer review queue or not
     </span><span class="kw">pub </span>peer_review_queue_entry: <span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Option</span>&lt;PeerReviewQueueEntry&gt;&gt;,
-    <span class="kw">pub </span>peer_review_config: <span class="prelude-ty">Option</span>&lt;PeerReviewConfig&gt;,
-    <span class="kw">pub </span>peer_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerReviewQuestion&gt;&gt;,
+    <span class="kw">pub </span>peer_or_self_review_config: <span class="prelude-ty">Option</span>&lt;PeerOrSelfReviewConfig&gt;,
+    <span class="kw">pub </span>peer_or_self_review_questions: <span class="prelude-ty">Option</span>&lt;Vec&lt;PeerOrSelfReviewQuestion&gt;&gt;,
 }
 
 <span class="doccomment">/// Loads all required data and updates user_exercise_state. Also creates completions if needed.

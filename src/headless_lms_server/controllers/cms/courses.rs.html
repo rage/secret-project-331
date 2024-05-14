@@ -269,6 +269,8 @@
 <a href="#268" id="268">268</a>
 <a href="#269" id="269">269</a>
 <a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/cms/courses`.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
@@ -276,8 +278,8 @@
 <span class="kw">use </span>models::{
     course_instances::CourseInstance,
     pages::{Page, PageVisibility},
-    peer_review_configs::{<span class="self">self</span>, CmsPeerReviewConfiguration},
-    peer_review_questions::normalize_cms_peer_review_questions,
+    peer_or_self_review_configs::{<span class="self">self</span>, CmsPeerOrSelfReviewConfiguration},
+    peer_or_self_review_questions::normalize_cms_peer_or_self_review_questions,
 };
 
 <span class="kw">use </span><span class="kw">crate</span>::prelude::models::course_modules::CourseModule;
@@ -329,11 +331,11 @@ BINARY_DATA
 }
 
 <span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>get_course_default_peer_review_configuration(
+</span><span class="kw">async fn </span>get_course_default_peer_or_self_review_configuration(
     course_id: web::Path&lt;Uuid&gt;,
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;CmsPeerReviewConfiguration&gt;&gt; {
+) -&gt; ControllerResult&lt;web::Json&lt;CmsPeerOrSelfReviewConfiguration&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
@@ -343,30 +345,32 @@ BINARY_DATA
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>peer_review_config =
-        models::peer_review_configs::get_course_default_cms_peer_review(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="kw">let </span>peer_review_questions =
-        models::peer_review_questions::get_course_default_cms_peer_review_questions(
-            <span class="kw-2">&amp;mut </span>conn,
-            peer_review_config.id,
+    <span class="kw">let </span>peer_or_self_review_config =
+        models::peer_or_self_review_configs::get_course_default_cms_peer_review(
+            <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
-        peer_review_config,
-        peer_review_questions,
+    <span class="kw">let </span>peer_or_self_review_questions =
+        models::peer_or_self_review_questions::get_course_default_cms_peer_or_self_review_questions(
+            <span class="kw-2">&amp;mut </span>conn,
+            peer_or_self_review_config.id,
+        )
+        .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(CmsPeerOrSelfReviewConfiguration {
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
     }))
 }
 
 <span class="attr">#[instrument(skip(pool))]
-</span><span class="kw">async fn </span>put_course_default_peer_review_configuration(
+</span><span class="kw">async fn </span>put_course_default_peer_or_self_review_configuration(
     course_id: web::Path&lt;Uuid&gt;,
     user: AuthUser,
     pool: web::Data&lt;PgPool&gt;,
-    payload: web::Json&lt;CmsPeerReviewConfiguration&gt;,
-) -&gt; ControllerResult&lt;web::Json&lt;CmsPeerReviewConfiguration&gt;&gt; {
+    payload: web::Json&lt;CmsPeerOrSelfReviewConfiguration&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;CmsPeerOrSelfReviewConfiguration&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(
         <span class="kw-2">&amp;mut </span>conn,
@@ -376,13 +380,13 @@ BINARY_DATA
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>config = payload.<span class="number">0</span>;
-    normalize_cms_peer_review_questions(<span class="kw-2">&amp;mut </span>config.peer_review_questions);
-    <span class="kw">let </span>cms_peer_review_configuration =
-        peer_review_configs::upsert_course_default_cms_peer_review_and_questions(
+    normalize_cms_peer_or_self_review_questions(<span class="kw-2">&amp;mut </span>config.peer_or_self_review_questions);
+    <span class="kw">let </span>cms_peer_or_self_review_configuration =
+        peer_or_self_review_configs::upsert_course_default_cms_peer_review_and_questions(
             <span class="kw-2">&amp;mut </span>conn, <span class="kw-2">&amp;</span>config,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
-    token.authorized_ok(web::Json(cms_peer_review_configuration))
+    token.authorized_ok(web::Json(cms_peer_or_self_review_configuration))
 }
 
 <span class="doccomment">/**
@@ -514,11 +518,11 @@ We add the routes by calling the route method instead of using the route annotat
     cfg.route(<span class="string">"/{course_id}/upload"</span>, web::post().to(add_media))
         .route(
             <span class="string">"/{course_id}/default-peer-review"</span>,
-            web::get().to(get_course_default_peer_review_configuration),
+            web::get().to(get_course_default_peer_or_self_review_configuration),
         )
         .route(
             <span class="string">"/{course_id}/default-peer-review"</span>,
-            web::put().to(put_course_default_peer_review_configuration),
+            web::put().to(put_course_default_peer_or_self_review_configuration),
         )
         .route(<span class="string">"/{course_id}/pages"</span>, web::get().to(get_all_pages))
         .route(

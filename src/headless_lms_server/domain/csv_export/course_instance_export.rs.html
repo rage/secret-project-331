@@ -174,11 +174,15 @@
 <a href="#173" id="173">173</a>
 <a href="#174" id="174">174</a>
 <a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>bytes::Bytes;
 <span class="kw">use </span>headless_lms_models::course_instances;
 
 <span class="kw">use </span>async_trait::async_trait;
+<span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>models::library::progressing;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::csv_export::CsvWriter;
@@ -267,6 +271,8 @@
             <span class="kw">let </span>user_completion = user
                 .completed_modules
                 .iter()
+                <span class="comment">// sort by created at, latest timestamp first
+                </span>.sorted_by(|a, b| b.created_at.cmp(<span class="kw-2">&amp;</span>a.created_at))
                 .find(|cm| cm.course_module_id == module.id);
             <span class="kw">if </span>user_completion.is_some() {
                 has_completed_some_module = <span class="bool-val">true</span>;

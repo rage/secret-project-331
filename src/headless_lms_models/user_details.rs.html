@@ -156,6 +156,12 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::Stream;
@@ -224,18 +230,24 @@ WHERE user_id IN (
     <span class="macro">sqlx::query_as!</span>(
         UserDetail,
         <span class="string">"
-SELECT *
-FROM user_details
-WHERE user_id in (
-    SELECT DISTINCT (user_id)
-    FROM user_exercise_states
-    WHERE course_instance_id IN (
-        SELECT id
-        FROM course_instances
-        WHERE course_id = $1
-      )
-      AND deleted_at IS NULL
-  );
+SELECT distinct (ud.user_id),
+ ud.created_at,
+ ud.updated_at,
+ ud.first_name,
+ ud.last_name,
+ ud.email,
+ ud.search_helper
+FROM user_details ud
+JOIN users u
+  ON u.id = ud.user_id
+JOIN user_exercise_states ues
+  ON ud.user_id = ues.user_id
+JOIN course_instances ci
+  ON ci.id = ues.course_instance_id
+WHERE ci.course_id = $1
+  AND u.deleted_at IS NULL
+  AND ues.deleted_at IS NULL
+  AND ci.deleted_at IS NULL;
         "</span>,
         course_id
     )

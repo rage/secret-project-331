@@ -545,6 +545,14 @@
 <a href="#544" id="544">544</a>
 <a href="#545" id="545">545</a>
 <a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{HashMap, HashSet};
 
 <span class="kw">use </span>futures::{future::BoxFuture, Stream, TryStreamExt};
@@ -606,6 +614,9 @@
     <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
     <span class="kw">pub </span>exercise_type: String,
     <span class="kw">pub </span>private_spec: <span class="prelude-ty">Option</span>&lt;serde_json::Value&gt;,
+    <span class="kw">pub </span>exercise_name: String,
+    <span class="kw">pub </span>course_module_id: Uuid,
+    <span class="kw">pub </span>course_module_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -1070,22 +1081,27 @@ WHERE deleted_at IS NULL
     <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskSpec,
         <span class="string">r#"
-SELECT distinct (t.id),
-  t.created_at,
-  t.updated_at,
-  t.exercise_type,
-  t.private_spec
-from exercise_tasks t
-where t.exercise_slide_id in (
-    SELECT id
-    from exercise_slides s
-    where s.exercise_id in (
-        SELECT id
-        from exercises e
-        where e.course_id = $1
-      )
-  )
-  AND deleted_at IS NULL;
+        SELECT distinct (t.id),
+        t.created_at,
+        t.updated_at,
+        t.exercise_type,
+        t.private_spec,
+        e.name as exercise_name,
+        mod.id as course_module_id,
+        mod.name as course_module_name
+      FROM exercise_tasks t
+      JOIN exercise_slides s
+        ON s.id = t.exercise_slide_id
+      JOIN exercises e
+        ON s.exercise_id = e.id
+      JOIN chapters ch ON e.chapter_id = ch.id
+      JOIN course_modules mod ON mod.id = ch.course_module_id
+        WHERE e.course_id = $1
+        AND e.deleted_at IS NULL
+        AND s.deleted_at IS NULL
+        AND t.deleted_at IS NULL
+        AND ch.deleted_at IS NULL
+        AND mod.deleted_at IS NULL;
         "#</span>,
         course_id
     )

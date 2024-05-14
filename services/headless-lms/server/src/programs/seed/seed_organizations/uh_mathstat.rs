@@ -229,6 +229,22 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let self_review = seed_sample_course(
+        Uuid::parse_str("3cbaac48-59c4-4e31-9d7e-1f51c017390d")?,
+        "Self review",
+        "self-review",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(self_review),
+    )
+    .await?;
+
     let audio_course = seed_sample_course(
         Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
         "Audio course",

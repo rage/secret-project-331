@@ -13,6 +13,7 @@ import Button from "../../shared-module/components/Button"
 import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 import Spinner from "../../shared-module/components/Spinner"
 import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
+import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
@@ -164,15 +165,5 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
     </>
   )
 }
-function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
-  if (!Array.isArray(obj)) {
-    return false
-  }
-  for (const o of obj) {
-    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
-      return false
-    }
-  }
-  return true
-}
+
 export default ResearchFormEditor

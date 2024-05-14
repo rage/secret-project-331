@@ -13,6 +13,7 @@ pub struct UserExerciseSlideState {
     pub grading_progress: GradingProgress,
 }
 
+#[derive(Debug)]
 pub struct UserExerciseSlideStateGradingSummary {
     pub score_given: Option<f32>,
     pub grading_progress: GradingProgress,

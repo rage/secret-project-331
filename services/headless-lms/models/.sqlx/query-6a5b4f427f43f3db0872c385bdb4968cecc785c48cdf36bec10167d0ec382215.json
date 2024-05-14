@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT MAX(created_at) as latest_submission_time\nFROM peer_or_self_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_instance_id = $3\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "latest_submission_time",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [null]
+  },
+  "hash": "6a5b4f427f43f3db0872c385bdb4968cecc785c48cdf36bec10167d0ec382215"
+}

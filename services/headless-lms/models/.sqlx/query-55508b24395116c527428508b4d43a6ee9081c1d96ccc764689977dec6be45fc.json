@@ -1,0 +1,69 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy:_\",\n  points_are_all_or_nothing,\n  review_instructions\nFROM peer_or_self_review_configs\nWHERE id = $1;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "peer_reviews_to_give",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "peer_reviews_to_receive",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "accepting_threshold",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "processing_strategy:_",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_processing_strategy",
+            "kind": {
+              "Enum": [
+                "automatically_grade_by_average",
+                "automatically_grade_or_manual_review_by_average",
+                "manual_review_everything"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "points_are_all_or_nothing",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "review_instructions",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, true, false, false, false, false, false, true]
+  },
+  "hash": "55508b24395116c527428508b4d43a6ee9081c1d96ccc764689977dec6be45fc"
+}

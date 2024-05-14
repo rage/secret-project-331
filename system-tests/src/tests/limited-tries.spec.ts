@@ -63,7 +63,7 @@ test("Limited tries work", async ({ page }) => {
 
   await Promise.all([
     page.locator('span.heading:has-text("POINTS")').waitFor(),
-    page.locator('div.points:has-text("0⁄8")').waitFor(),
+    page.locator('div.points:has-text("0/8")').waitFor(),
   ])
 
   await page.locator('div.tries:has-text("2")').waitFor()

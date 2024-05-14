@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  exercise_id,\n  peer_reviews_to_give,\n  peer_reviews_to_receive,\n  accepting_threshold,\n  processing_strategy AS \"processing_strategy: _\",\n  manual_review_cutoff_in_days,\n  points_are_all_or_nothing,\n  review_instructions\nFROM peer_or_self_review_configs\nWHERE course_id = $1\n  AND exercise_id IS NULL\n  AND deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "peer_reviews_to_give",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "peer_reviews_to_receive",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "accepting_threshold",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 9,
+        "name": "processing_strategy: _",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_processing_strategy",
+            "kind": {
+              "Enum": [
+                "automatically_grade_by_average",
+                "automatically_grade_or_manual_review_by_average",
+                "manual_review_everything"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "manual_review_cutoff_in_days",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "points_are_all_or_nothing",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 12,
+        "name": "review_instructions",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "f4b0c47d2a06ae02e9ff2174d67969b06cd246783b4c1a885b2ce706648a089d"
+}

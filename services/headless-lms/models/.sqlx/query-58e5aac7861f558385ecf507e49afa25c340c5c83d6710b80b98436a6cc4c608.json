@@ -85,13 +85,18 @@
       },
       {
         "ordinal": 16,
-        "name": "use_course_default_peer_review_config",
+        "name": "use_course_default_peer_or_self_review_config",
         "type_info": "Bool"
       },
       {
         "ordinal": 17,
         "name": "exercise_language_group_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 18,
+        "name": "needs_self_review",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -115,7 +120,8 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "58e5aac7861f558385ecf507e49afa25c340c5c83d6710b80b98436a6cc4c608"

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_question_submissions (\n    id,\n    peer_or_self_review_question_id,\n    peer_or_self_review_submission_id,\n    text_data,\n    number_data\n  )\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid", "Varchar", "Float4"]
+    },
+    "nullable": [false]
+  },
+  "hash": "8b86355b3b2df7d09d26531b2b83de805a082b37159798eb089856c3e0c575b9"
+}

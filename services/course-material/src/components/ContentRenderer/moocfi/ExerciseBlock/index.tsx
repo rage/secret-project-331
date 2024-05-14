@@ -13,7 +13,7 @@ import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "../../../../hooks/useCourseMaterialExerciseQuery"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import { postStartPeerReview, postSubmission } from "../../../../services/backend"
+import { postStartPeerOrSelfReview, postSubmission } from "../../../../services/backend"
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
@@ -33,9 +33,11 @@ import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
-import PeerReviewView from "./PeerReviewView"
-import PeerReviewsReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
-import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
+import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
+import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
+import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+
+const FORWARD_SLASH = "/"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -236,8 +238,8 @@ const ExerciseBlock: React.FC<
     getCourseMaterialExercise.data?.exercise.deadline,
   )
 
-  const startPeerReviewMutation = useToastMutation(
-    () => postStartPeerReview(id),
+  const startPeerOrSelfReviewMutation = useToastMutation(
+    () => postStartPeerOrSelfReview(id),
     { notify: false },
     {
       onSuccess: async () => {
@@ -312,6 +314,7 @@ const ExerciseBlock: React.FC<
   const inSubmissionView =
     postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
   const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
+  const needsSelfReview = getCourseMaterialExercise.data.exercise.needs_self_review
 
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
   const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
@@ -463,9 +466,10 @@ const ExerciseBlock: React.FC<
                     <span className="heading">{t("points-label")}</span>
                     <div className="points">
                       <CheckCircle size={16} weight="bold" color="#394F77" />
-                      <span data-test-id="exercise-points">
+                      <span data-testid="exercise-points">
                         {/* eslint-disable-next-line i18next/no-literal-string */}
-                        <sup>{points ?? 0}</sup>&frasl;
+                        <sup>{points ?? 0}</sup>
+                        {FORWARD_SLASH}
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </span>
                     </div>
@@ -525,14 +529,16 @@ const ExerciseBlock: React.FC<
                 {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
-
-          {getCourseMaterialExercise.data.peer_review_config && gradingState && reviewingStage && (
-            <GradingState
-              gradingProgress={gradingState}
-              reviewingStage={reviewingStage}
-              peerReviewConfig={getCourseMaterialExercise.data.peer_review_config}
-            />
-          )}
+          {getCourseMaterialExercise.data.peer_or_self_review_config &&
+            gradingState &&
+            reviewingStage && (
+              <GradingState
+                gradingProgress={gradingState}
+                reviewingStage={reviewingStage}
+                peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
+                exercise={getCourseMaterialExercise.data.exercise}
+              />
+            )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&
@@ -558,10 +564,18 @@ const ExerciseBlock: React.FC<
                 />
               ))}
           {reviewingStage === "PeerReview" && (
-            <PeerReviewView
+            <PeerOrSelfReviewView
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
               exerciseId={id}
               parentExerciseQuery={getCourseMaterialExercise}
+            />
+          )}
+          {reviewingStage === "SelfReview" && (
+            <PeerOrSelfReviewView
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              exerciseId={id}
+              parentExerciseQuery={getCourseMaterialExercise}
+              selfReview
             />
           )}
           {(reviewingStage === "WaitingForPeerReviews" ||
@@ -581,7 +595,7 @@ const ExerciseBlock: React.FC<
                 exerciseSlideSubmissionId &&
                 (reviewingStage === "WaitingForPeerReviews" ||
                   reviewingStage === "ReviewedAndLocked") && (
-                  <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+                  <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
                 )}
             </div>
           )}
@@ -708,10 +722,19 @@ const ExerciseBlock: React.FC<
                     {needsPeerReview && (
                       <button
                         className={cx(exerciseButtonStyles)}
-                        disabled={startPeerReviewMutation.isPending}
-                        onClick={() => startPeerReviewMutation.mutate()}
+                        disabled={startPeerOrSelfReviewMutation.isPending}
+                        onClick={() => startPeerOrSelfReviewMutation.mutate()}
                       >
                         {t("start-peer-review")}
+                      </button>
+                    )}
+                    {!needsPeerReview && needsSelfReview && (
+                      <button
+                        className={cx(exerciseButtonStyles)}
+                        disabled={startPeerOrSelfReviewMutation.isPending}
+                        onClick={() => startPeerOrSelfReviewMutation.mutate()}
+                      >
+                        {t("start-self-review")}
                       </button>
                     )}
                   </div>

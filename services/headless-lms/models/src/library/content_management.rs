@@ -10,7 +10,7 @@ use crate::{
     courses::{self, Course, NewCourse},
     exercise_service_info::ExerciseServiceInfoApi,
     pages::{self, NewPage, Page},
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
     prelude::*,
     SpecFetcher,
 };
@@ -102,37 +102,41 @@ pub async fn create_new_course(
     .await?;
 
     // Create course default peer review config
-    let peer_review_config_id =
-        crate::peer_review_configs::insert(&mut tx, PKeyPolicy::Generate, course.id, None).await?;
+    let peer_or_self_review_config_id =
+        crate::peer_or_self_review_configs::insert(&mut tx, PKeyPolicy::Generate, course.id, None)
+            .await?;
 
     // Create peer review questions for default peer review config
-    crate::peer_review_questions::upsert_multiple_peer_review_questions(
+    crate::peer_or_self_review_questions::upsert_multiple_peer_or_self_review_questions(
         &mut tx,
         &[
-            CmsPeerReviewQuestion {
+            CmsPeerOrSelfReviewQuestion {
                 id: Uuid::new_v4(),
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: 0,
                 question: "General comments".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Essay,
+                question_type:
+                    crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Essay,
                 answer_required: false,
                 weight: 0.0,
             },
-            CmsPeerReviewQuestion {
+            CmsPeerOrSelfReviewQuestion {
                 id: Uuid::new_v4(),
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: 1,
                 question: "The answer was correct".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                question_type:
+                    crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
                 answer_required: true,
                 weight: 0.0,
             },
-            CmsPeerReviewQuestion {
+            CmsPeerOrSelfReviewQuestion {
                 id: Uuid::new_v4(),
-                peer_review_config_id,
+                peer_or_self_review_config_id,
                 order_number: 2,
                 question: "The answer was easy to read".to_string(),
-                question_type: crate::peer_review_questions::PeerReviewQuestionType::Scale,
+                question_type:
+                    crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
                 answer_required: true,
                 weight: 0.0,
             },

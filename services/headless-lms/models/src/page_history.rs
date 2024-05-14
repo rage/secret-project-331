@@ -2,8 +2,8 @@ use serde_json::Value;
 
 use crate::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
-    peer_review_configs::CmsPeerReviewConfig,
-    peer_review_questions::CmsPeerReviewQuestion,
+    peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
+    peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
     prelude::*,
 };
 
@@ -34,8 +34,8 @@ pub struct PageHistoryContent {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
     pub exercise_tasks: Vec<CmsPageExerciseTask>,
-    pub peer_review_configs: Vec<CmsPeerReviewConfig>,
-    pub peer_review_questions: Vec<CmsPeerReviewQuestion>,
+    pub peer_or_self_review_configs: Vec<CmsPeerOrSelfReviewConfig>,
+    pub peer_or_self_review_questions: Vec<CmsPeerOrSelfReviewQuestion>,
 }
 
 // Batch refactor pushed past the limit

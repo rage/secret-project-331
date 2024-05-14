@@ -2,8 +2,8 @@
 import { deepStrictEqual } from "assert"
 
 import { ExerciseAttributes } from "../../src/blocks/Exercise"
-import { ExerciseSlideAttributes } from "../../src/blocks/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../../src/blocks/ExerciseTask/ExerciseTaskEditor"
+import { ExerciseSlideAttributes } from "../../src/blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import { ExerciseTaskAttributes } from "../../src/blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
 import { CmsPageUpdate } from "../../src/shared-module/bindings"
 import {
   denormalizeDocument,
@@ -62,7 +62,8 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
       limit_number_of_tries: true,
       deadline: null,
       needs_peer_review: true,
-      peer_review_config: {
+      needs_self_review: false,
+      peer_or_self_review_config: {
         id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
         course_id: "",
         exercise_id: "dd46fb67-d168-4554-b912-0018f812166d",
@@ -71,11 +72,24 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
         peer_reviews_to_give: 1,
         peer_reviews_to_receive: 1,
         points_are_all_or_nothing: true,
+        review_instructions: [
+          {
+            name: "core/paragraph",
+            isValid: true,
+            clientId: "2450740e-231e-40fc-b18a-576e18b4242d",
+            attributes: {
+              align: "center",
+              content: "These are additional instructions for the peer review or the self review",
+              dropCap: false,
+            },
+            innerBlocks: [],
+          },
+        ],
       },
-      peer_review_questions: [
+      peer_or_self_review_questions: [
         {
           id: "f3c8eadd-75ca-409f-b1c6-31db65701930",
-          peer_review_config_id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
+          peer_or_self_review_config_id: "f0ae5814-927d-4a38-a0c0-db66f08c2bee",
           answer_required: true,
           order_number: 0,
           question: "how about...",
@@ -83,7 +97,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
           weight: 0.3,
         },
       ],
-      use_course_default_peer_review_config: false,
+      use_course_default_peer_or_self_review_config: false,
     },
   ],
   exercise_slides: [
@@ -130,10 +144,11 @@ const exampleUnnormalizedDocumentExerciseAttributes: ExerciseAttributes = {
   max_tries_per_slide: 72,
   limit_number_of_tries: true,
   needs_peer_review: true,
-  peer_review_config:
+  needs_self_review: false,
+  peer_or_self_review_config:
     '[{"id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","course_id":"","exercise_id":"dd46fb67-d168-4554-b912-0018f812166d","processing_strategy":"AutomaticallyGradeOrManualReviewByAverage","accepting_threshold":"0.5","peer_reviews_to_give":"1","peer_reviews_to_receive":"1"}]',
-  peer_review_questions_config:
-    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay","weight":0}]',
+  peer_or_self_review_questions_config:
+    '[{"id":"f3c8eadd-75ca-409f-b1c6-31db65701930","peer_or_self_review_config_id":"f0ae5814-927d-4a38-a0c0-db66f08c2bee","answer_required":"true","order_number":"0","question":"how about...","question_type":"Essay","weight":0}]',
   use_course_default_peer_review: false,
 }
 
@@ -175,25 +190,44 @@ const exampleUnnormalizedDocument: UnnormalizedDocument = {
       attributes: exampleUnnormalizedDocumentExerciseAttributes,
       innerBlocks: [
         {
-          // When denormalizing in tests, this is inferred from exercise slide id so that the whole operation is reversible
-          clientId: "a9d527a3-2728-4ca2-bd6f-f443914d8052",
-          name: "moocfi/exercise-slide",
-          attributes: exampleUnnormalizedDocumentExerciseSlideAttributes,
+          name: "moocfi/exercise-settings",
           isValid: true,
+          clientId: "be53c60f-1476-585e-9def-4cae02ae20da",
+          attributes: {},
+          innerBlocks: [],
+        },
+        {
+          name: "moocfi/exercise-slides",
+          isValid: true,
+          clientId: "c68d8f6e-a3de-5fbf-bf86-04d68ba5aad1",
+          attributes: {},
           innerBlocks: [
             {
-              // When denormalizing in tests, this is inferred from exercise task id so that the whole operation is reversible
-              clientId: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
-              name: "moocfi/exercise-task",
-              attributes: exampleUnnormalizedDocumentExerciseTaskAttributes,
+              // When denormalizing in tests, this is inferred from exercise slide id so that the whole operation is reversible
+              clientId: "a9d527a3-2728-4ca2-bd6f-f443914d8052",
+              name: "moocfi/exercise-slide",
+              attributes: exampleUnnormalizedDocumentExerciseSlideAttributes,
               isValid: true,
               innerBlocks: [
                 {
-                  name: "core/paragraph",
+                  // When denormalizing in tests, this is inferred from exercise task id so that the whole operation is reversible
+                  clientId: "b5d31a4f-2720-4582-93e7-13c4c0c2a9df",
+                  name: "moocfi/exercise-task",
+                  attributes: exampleUnnormalizedDocumentExerciseTaskAttributes,
                   isValid: true,
-                  clientId: "c484685c-addf-49d6-a8aa-0efc5bc91d83",
-                  attributes: { align: "center", content: "Example assignment", dropCap: false },
-                  innerBlocks: [],
+                  innerBlocks: [
+                    {
+                      name: "core/paragraph",
+                      isValid: true,
+                      clientId: "c484685c-addf-49d6-a8aa-0efc5bc91d83",
+                      attributes: {
+                        align: "center",
+                        content: "Example assignment",
+                        dropCap: false,
+                      },
+                      innerBlocks: [],
+                    },
+                  ],
                 },
               ],
             },

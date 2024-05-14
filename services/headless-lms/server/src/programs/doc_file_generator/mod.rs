@@ -123,7 +123,7 @@ use headless_lms_models::{
         StudyRegistryCompletion, StudyRegistryGrade,
     },
     courses::CourseBreadcrumbInfo,
-    exercise_task_submissions::PeerReviewsRecieved,
+    exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::ExerciseStatusSummaryForUser,
     library::global_stats::{GlobalCourseModuleStatEntry, GlobalStatEntry},
     page_audio_files::PageAudioFile,
@@ -131,12 +131,13 @@ use headless_lms_models::{
     page_visit_datum_summary_by_courses_countries::PageVisitDatumSummaryByCoursesCountries,
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
-    peer_review_configs::CourseMaterialPeerReviewConfig,
-    peer_review_question_submissions::{
-        PeerReviewAnswer, PeerReviewQuestionAndAnswer, PeerReviewQuestionSubmission,
+    peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
+    peer_or_self_review_question_submissions::{
+        PeerOrSelfReviewAnswer, PeerOrSelfReviewQuestionAndAnswer,
+        PeerOrSelfReviewQuestionSubmission,
     },
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     peer_review_queue_entries::PeerReviewQueueEntry,
-    peer_review_submissions::PeerReviewSubmission,
     proposed_block_edits::EditedBlockStillExistsData,
     research_forms::{ResearchForm, ResearchFormQuestion, ResearchFormQuestionAnswer},
     student_countries::StudentCountry,
@@ -151,7 +152,7 @@ use std::{collections::HashMap, fs};
 use ts_rs::TS;
 use uuid::Uuid;
 
-use crate::controllers::course_material::exercises::CourseMaterialPeerReviewDataWithToken;
+use crate::controllers::course_material::exercises::CourseMaterialPeerOrSelfReviewDataWithToken;
 
 // Helper function to avoid typing out Example::example()
 fn ex<T: Example>() -> T {

@@ -66,18 +66,24 @@ pub fn stream_users_details_having_user_exercise_states_on_course(
     sqlx::query_as!(
         UserDetail,
         "
-SELECT *
-FROM user_details
-WHERE user_id in (
-    SELECT DISTINCT (user_id)
-    FROM user_exercise_states
-    WHERE course_instance_id IN (
-        SELECT id
-        FROM course_instances
-        WHERE course_id = $1
-      )
-      AND deleted_at IS NULL
-  );
+SELECT distinct (ud.user_id),
+ ud.created_at,
+ ud.updated_at,
+ ud.first_name,
+ ud.last_name,
+ ud.email,
+ ud.search_helper
+FROM user_details ud
+JOIN users u
+  ON u.id = ud.user_id
+JOIN user_exercise_states ues
+  ON ud.user_id = ues.user_id
+JOIN course_instances ci
+  ON ci.id = ues.course_instance_id
+WHERE ci.course_id = $1
+  AND u.deleted_at IS NULL
+  AND ues.deleted_at IS NULL
+  AND ci.deleted_at IS NULL;
         ",
         course_id
     )

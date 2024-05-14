@@ -60,6 +60,9 @@ where
         "updated_at".to_string(),
         "exercise_type".to_string(),
         "private_spec".to_string(),
+        "exercise_name".to_string(),
+        "course_module_id".to_string(),
+        "course_module_name".to_owned(),
     ]);
 
     let mut stream = exercise_tasks::stream_course_exercise_tasks(conn, course_id);
@@ -74,6 +77,11 @@ where
             next.private_spec
                 .map(|o| o.to_string())
                 .unwrap_or_else(|| "".to_string()),
+            next.exercise_name.to_string(),
+            next.course_module_id.to_string(),
+            next.course_module_name
+                .map(|o| o.to_string())
+                .unwrap_or_else(|| "Default module".to_string()),
         ];
         writer.write_record(csv_row);
     }

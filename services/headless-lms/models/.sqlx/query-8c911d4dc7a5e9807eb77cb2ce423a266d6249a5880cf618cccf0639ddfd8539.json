@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_details\nWHERE user_id in (\n    SELECT DISTINCT (user_id)\n    FROM user_exercise_states\n    WHERE course_instance_id IN (\n        SELECT id\n        FROM course_instances\n        WHERE course_id = $1\n      )\n      AND deleted_at IS NULL\n  );\n        ",
+  "query": "\nSELECT distinct (ud.user_id),\n ud.created_at,\n ud.updated_at,\n ud.first_name,\n ud.last_name,\n ud.email,\n ud.search_helper\nFROM user_details ud\nJOIN users u\n  ON u.id = ud.user_id\nJOIN user_exercise_states ues\n  ON ud.user_id = ues.user_id\nJOIN course_instances ci\n  ON ci.id = ues.course_instance_id\nWHERE ci.course_id = $1\n  AND u.deleted_at IS NULL\n  AND ues.deleted_at IS NULL\n  AND ci.deleted_at IS NULL;\n        ",
   "describe": {
     "columns": [
       {
@@ -44,5 +44,5 @@
     },
     "nullable": [false, false, false, true, true, false, true]
   },
-  "hash": "6cec1b04cf71dd7bb136282cc8fa0394824a1f2109be65e2d4ed0b685eabafa2"
+  "hash": "8c911d4dc7a5e9807eb77cb2ce423a266d6249a5880cf618cccf0639ddfd8539"
 }

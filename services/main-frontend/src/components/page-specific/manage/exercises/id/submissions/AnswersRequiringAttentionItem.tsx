@@ -19,7 +19,7 @@ import { primaryFont } from "../../../../../../shared-module/styles"
 import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
 
-import PeerReviewAccordion from "./PeerReviewAccordion"
+import PeerReviewAccordion from "./PeerOrSelfReviewAccordion"
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
@@ -426,13 +426,13 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         `}
       >
         <PeerReviewAccordion
-          peerReviews={answerRequiringAttention.received_peer_reviews}
-          title={t("received-peer-reviews-from-other-students")}
+          peerOrSelfReviews={answerRequiringAttention.received_peer_or_self_reviews}
+          title={t("received-reviews")}
         />
       </div>
       <div>
         <PeerReviewAccordion
-          peerReviews={answerRequiringAttention.given_peer_reviews}
+          peerOrSelfReviews={answerRequiringAttention.given_peer_reviews}
           title={t("given-peer-reviews-to-other-students")}
         />
       </div>

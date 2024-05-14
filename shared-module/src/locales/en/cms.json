@@ -1,6 +1,7 @@
 {
   "add-peer-review": "Add peer review",
   "add-peer-review-question": "Add peer review question",
+  "add-self-review": "Add self review",
   "add-slide": "Add slide",
   "add-task": "Add task",
   "answer-required": "Answer required",
@@ -86,6 +87,7 @@
   "partially-transparent-background": "Make background image partially transparent",
   "partners-block": "Partners Block",
   "partners-block-description": "Partners block is use to display all partner's logo in the landing page",
+  "peer-and-self-review-configuration": "Peer and self review configuration",
   "peer-review-accepting-threshold": "Peer review accepting threshold",
   "peer-review-processing-strategy": "Peer review processing strategy",
   "peer-review-question": "Peer review question",
@@ -111,6 +113,7 @@
   "table-box-description": "This is a custom table block with colored background",
   "table-width-customizer": "Table width customizer",
   "task": "Task",
+  "title-additional-review-instructions": "Additional review instructions",
   "title-assignment": "Assignment",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
   "title-research-form-question": "Research form question",

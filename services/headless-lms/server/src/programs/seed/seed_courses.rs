@@ -26,7 +26,7 @@ use headless_lms_models::{
     page_history::HistoryChangeReason,
     pages::CmsPageUpdate,
     pages::{self, NewCoursePage},
-    peer_review_configs::PeerReviewProcessingStrategy::{
+    peer_or_self_review_configs::PeerReviewProcessingStrategy::{
         AutomaticallyGradeByAverage, AutomaticallyGradeOrManualReviewByAverage,
         ManualReviewEverything,
     },
@@ -3335,8 +3335,8 @@ pub async fn seed_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -3442,10 +3442,10 @@ pub async fn seed_course_without_submissions(
         course_id,
         exercise_2_id,
         AutomaticallyGradeOrManualReviewByAverage,
-        2.5,
+        3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -3454,10 +3454,10 @@ pub async fn seed_course_without_submissions(
         course_id,
         exercise_3_id,
         AutomaticallyGradeByAverage,
-        2.0,
+        3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4546,8 +4546,8 @@ pub async fn seed_peer_review_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4602,10 +4602,10 @@ pub async fn seed_peer_review_course_without_submissions(
         course_id,
         exercise_2_id,
         AutomaticallyGradeOrManualReviewByAverage,
-        2.5,
+        3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4660,10 +4660,10 @@ pub async fn seed_peer_review_course_without_submissions(
         course_id,
         exercise_3_id,
         AutomaticallyGradeByAverage,
-        2.0,
+        3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 
@@ -4720,8 +4720,8 @@ pub async fn seed_peer_review_course_without_submissions(
         ManualReviewEverything,
         3.0,
         true,
+        2,
         1,
-        0,
     )
     .await?;
 

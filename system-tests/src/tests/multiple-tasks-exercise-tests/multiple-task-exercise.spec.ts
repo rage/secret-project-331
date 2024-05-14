@@ -14,7 +14,7 @@ test("Exercise score updates gradually", async ({ page }) => {
   await page.getByText("First question.").waitFor()
   await page.getByText("Second question.").waitFor()
   await page.getByText("Third question.").waitFor()
-  await expect(page.locator('[data-test-id="exercise-points"]')).toContainText("0⁄3")
+  await expect(page.getByTestId("exercise-points")).toContainText("0/3")
 
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -30,7 +30,7 @@ test("Exercise score updates gradually", async ({ page }) => {
     .click()
   await page.getByRole("button", { name: "Submit" }).click()
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
-  await expect(page.locator('[data-test-id="exercise-points"]')).toContainText("2⁄3")
+  await expect(page.getByTestId("exercise-points")).toContainText("2/3")
 
   await page.getByRole("button", { name: "Try again" }).click()
   await page
@@ -48,7 +48,7 @@ test("Exercise score updates gradually", async ({ page }) => {
   await page.getByRole("button", { name: "Submit" }).click()
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
   // Points should stay the same since previous answer was more correct
-  await expect(page.locator('[data-test-id="exercise-points"]')).toContainText("2⁄3")
+  await expect(page.getByTestId("exercise-points")).toContainText("2/3")
 
   await page.getByRole("button", { name: "Try again" }).click()
   await page
@@ -65,5 +65,5 @@ test("Exercise score updates gradually", async ({ page }) => {
     .click()
   await page.getByRole("button", { name: "Submit" }).click()
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible()
-  await expect(page.locator('[data-test-id="exercise-points"]')).toContainText("3⁄3")
+  await expect(page.getByTestId("exercise-points")).toContainText("3/3")
 })

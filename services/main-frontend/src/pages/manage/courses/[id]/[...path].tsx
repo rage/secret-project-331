@@ -14,6 +14,7 @@ import CoursePages from "../../../../components/page-specific/manage/courses/id/
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
 import References from "../../../../components/page-specific/manage/courses/id/references"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
+import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCountAnswersRequiringAttentionHook"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
 import TabLink from "../../../../shared-module/components/Navigation/TabLinks/TabLink"
@@ -93,7 +94,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         >
           {t("link-change-requests")}
         </TabLink>
-        <TabLink url={"exercises"} isActive={path === "exercises"}>
+        <TabLink
+          url={"exercises"}
+          isActive={path === "exercises"}
+          countHook={useCountAnswersRequiringAttentionHook(courseId)}
+        >
           {t("link-exercises")}
         </TabLink>
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>

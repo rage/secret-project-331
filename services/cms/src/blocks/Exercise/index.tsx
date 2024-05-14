@@ -15,11 +15,20 @@ export interface ExerciseAttributes {
   max_tries_per_slide?: number
   limit_number_of_tries: boolean
   needs_peer_review: boolean
-  peer_review_config: string
-  peer_review_questions_config: string
+  needs_self_review: boolean
+  peer_or_self_review_config: string
+  peer_or_self_review_questions_config: string
   use_course_default_peer_review: boolean
 }
 
+/**
+ * How the exercise block works:
+ * The exercise block is the most complicated block in the system. This complexity is not accidental, but rather a result of the requirements for this block.
+ *
+ * ## TODO: decribe the inner blocks structure (https://github.com/WordPress/gutenberg/issues/6808)
+ *
+ * ## TODO: describe how attributes are handled: normalization and denormalization
+ */
 const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
   title: "Exercise",
   description: "Exercise",
@@ -51,11 +60,15 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
       type: "boolean",
       default: false,
     },
-    peer_review_config: {
+    needs_self_review: {
+      type: "boolean",
+      default: false,
+    },
+    peer_or_self_review_config: {
       type: "string",
       default: "null",
     },
-    peer_review_questions_config: {
+    peer_or_self_review_questions_config: {
       type: "string",
       default: "null",
     },

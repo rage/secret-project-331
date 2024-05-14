@@ -1,9 +1,10 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
-import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 
-import { fillPeerReview, TIMEOUT } from "./peer_review_utils"
+import { answerExercise, fillPeerReview } from "./peer_review_utils"
+
+const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1"
 
 test.describe("test ManualReviewEverything behavior", () => {
   test.use({
@@ -13,405 +14,113 @@ test.describe("test ManualReviewEverything behavior", () => {
   let context1: BrowserContext
   let context2: BrowserContext
   let context3: BrowserContext
+  let context4: BrowserContext
 
   test.beforeEach(async ({ browser }) => {
-    context1 = await browser.newContext({ storageState: "src/states/student1@example.com.json" })
-    context2 = await browser.newContext({ storageState: "src/states/student2@example.com.json" })
-    context3 = await browser.newContext({ storageState: "src/states/teacher@example.com.json" })
+    ;[context1, context2, context3, context4] = await Promise.all([
+      browser.newContext({ storageState: "src/states/student1@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student2@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student3@example.com.json" }),
+      browser.newContext({ storageState: "src/states/teacher@example.com.json" }),
+    ])
   })
 
   test.afterEach(async () => {
-    await context1.close()
-    await context2.close()
-    await context3.close()
+    await Promise.all([context1.close(), context2.close(), context3.close(), context4.close()])
   })
-
-  test("ManualReviewEverything > Single submissions", async ({ headless }, testInfo) => {
+  test("ManualReviewEverything", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
-    const teacherPage = await context3.newPage()
+    const student3Page = await context3.newPage()
+    const teacherPage = await context4.newPage()
 
-    // Student 1 submits an answer
-    await student1Page.goto("http://project-331.local/organizations")
-    await student1Page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await expect(student1Page).toHaveURL("http://project-331.local/org/uh-cs")
-    await student1Page
-      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
-      .click()
-    await expect(student1Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course",
-    )
-    await selectCourseInstanceIfPrompted(student1Page)
-    await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await expect(student1Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
-    )
-    await student1Page.getByRole("link", { name: "1 Page One" }).click()
-    await expect(student1Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1",
-    )
-    await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
-    await student1Page.getByRole("button", { name: "Submit" }).click()
-    await student1Page.getByText("Try again").waitFor()
+    // User 1 navigates to exercise and answers
+    await answerExercise(student1Page, TEST_PAGE, "a")
+    await expect(student1Page.getByTestId("exercise-points")).toContainText("0/1")
 
-    // Student 2 submits an answer
+    // User 2 navigates to exercise and answers
     await student2Page.goto("http://project-331.local/organizations")
-    await student2Page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await expect(student2Page).toHaveURL("http://project-331.local/org/uh-cs")
-    await student2Page
-      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
-      .click()
-    await expect(student2Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course",
+    await answerExercise(student2Page, TEST_PAGE, "b")
+    await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
+
+    // Two students review each other's answers
+    await fillPeerReview(student1Page, ["Strongly disagree", "Strongly disagree"])
+    await fillPeerReview(student2Page, ["Strongly agree", "Strongly agree"])
+    await student1Page.getByText("No answers available to peer review yet. ").waitFor()
+    await student2Page.getByText("No answers available to peer review yet. ").waitFor()
+
+    // User 3 navigates to exercise and answers, and gives peer reviews to first two students
+    await student3Page.goto("http://project-331.local/organizations")
+    await answerExercise(student3Page, TEST_PAGE, "b")
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("0/1")
+    await fillPeerReview(student3Page, ["Neither agree nor disagree", "Neither agree nor disagree"])
+    await fillPeerReview(
+      student3Page,
+      ["Neither agree nor disagree", "Neither agree nor disagree"],
+      false,
     )
-    await selectCourseInstanceIfPrompted(student2Page)
-    await student2Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await expect(student2Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
-    )
-    await student2Page.getByRole("link", { name: "1 Page One" }).click()
-    await expect(student2Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-1",
-    )
-    await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
-    await student2Page.getByRole("button", { name: "Submit" }).click()
-    await student2Page.getByText("Try again").waitFor()
+    await student3Page.getByText("Waiting for other students to review your answer.").waitFor()
 
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
+    // Then the first two students review the third student's answer
+    await fillPeerReview(student1Page, ["Agree", "Strongly agree"], false, true)
+    await fillPeerReview(student2Page, ["Strongly agree", "Agree"], false, true)
 
-    // Student 1 starts peer review
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-before-filling-peer-review-single-submission",
-      screenshotTarget: student1Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
+    // Now all students should see that the teacher is reviewing their answer
+    await student1Page.reload()
+    await expect(student1Page.getByTestId("exercise-points")).toContainText("0/1")
+    await student1Page.getByText("Waiting for course staff to review your answer.").waitFor()
+    await student2Page.reload()
+    await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
+    await student2Page.getByText("Waiting for course staff to review your answer.").waitFor()
+    await student3Page.reload()
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("0/1")
+    await student3Page.getByText("Waiting for course staff to review your answer.").waitFor()
 
-    await fillPeerReview(student1Page, ["Agree", "Agree"])
-
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-after-filling-peer-review-single-submission",
-      screenshotTarget: student1Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    // Student 2 starts peer review
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-before-filling-peer-review-single-submission",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything"')],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
-    await fillPeerReview(student2Page, ["Disagree", "Disagree"])
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-after-filling-peer-review-single-submission",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything"')],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
-
-    // Teacher checks answers requiring attention
+    // Teacher reviews answers
     await teacherPage.goto("http://project-331.local/organizations")
     await teacherPage
       .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
       .click()
-    await expect(teacherPage).toHaveURL("http://project-331.local/org/uh-cs")
-    await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
-    await teacherPage.getByRole("tab", { name: "Exercises" }).click()
-    await teacherPage.getByText("ManualReviewEverything 2View answers requiring attention").click()
-
-    await teacherPage.getByRole("button", { name: "Zero points" }).first().click()
-    await teacherPage.reload()
-
-    await teacherPage.getByRole("button", { name: "Full points" }).first().click()
-    await teacherPage.reload()
-
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    // Student 1 views his reviews and grading
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-checking-their-peer-reviews-single-submission",
-      screenshotTarget: student1Page,
-      axeSkip: ["heading-order", "duplicate-id"],
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    // Student 2 views his reviews and grading
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-checking-their-peer-reviews-single-submission",
-      screenshotTarget: student2Page,
-      axeSkip: ["heading-order", "duplicate-id"],
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything"')],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
-  })
-
-  test("ManualReviewEverything > Multiple submissions", async ({ headless }, testInfo) => {
-    test.slow()
-    const student1Page = await context1.newPage()
-    const student2Page = await context2.newPage()
-    const teacherPage = await context3.newPage()
-
-    // student 1 submits an answer
-    await student1Page.goto("http://project-331.local/organizations")
-    await student1Page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await expect(student1Page).toHaveURL("http://project-331.local/org/uh-cs")
-    await student1Page
-      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
-      .click()
-    await expect(student1Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course",
-    )
-    await selectCourseInstanceIfPrompted(student1Page)
-    await student1Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await expect(student1Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
-    )
-    await student1Page.getByRole("link", { name: "4 Page Four" }).click()
-    await expect(student1Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-4",
-    )
-    await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
-    await student1Page.getByRole("button", { name: "Submit" }).click()
-    await student1Page.getByText("Try again").waitFor()
-
-    await student1Page.getByRole("button", { name: "try again" }).click()
-    await student1Page.frameLocator("iframe").getByRole("checkbox", { name: "a" }).click()
-    await student1Page.getByRole("button", { name: "Submit" }).click()
-    await student1Page.getByText("Try again").waitFor()
-
-    // student 2 submits an answer
-    await student2Page.goto("http://project-331.local/organizations")
-    await student2Page
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await expect(student2Page).toHaveURL("http://project-331.local/org/uh-cs")
-    await student2Page
-      .getByRole("link", { name: "Navigate to course 'Peer review Course'" })
-      .click()
-    await expect(student2Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course",
-    )
-    await selectCourseInstanceIfPrompted(student2Page)
-    await student2Page.getByRole("link", { name: "Chapter 1 The Basics" }).click()
-    await expect(student2Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1",
-    )
-    await student2Page.getByRole("link", { name: "4 Page Four" }).click()
-    await expect(student2Page).toHaveURL(
-      "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-4",
-    )
-    await student2Page.frameLocator("iframe").getByRole("checkbox", { name: "b" }).click()
-    await student2Page.getByRole("button", { name: "Submit" }).click()
-    await student2Page.getByText("Try again").waitFor()
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    // student 2 starts a peer review
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-before-filling-peer-review-1-multiple-submission",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
-      screenshotOptions: { fullPage: true },
-    })
-
-    await fillPeerReview(student2Page, ["Disagree", "Disagree"])
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-after-filling-peer-review-1-multiple-submission",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
-      screenshotOptions: { fullPage: true },
-    })
-
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    // student 1 starts a peer review
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-before-filling-peer-review-multiple-submission",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
-      screenshotOptions: { fullPage: true },
-    })
-    await fillPeerReview(student1Page, ["Agree", "Agree"])
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-after-filling-peer-review-multiple-submission",
-      screenshotTarget: student1Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything2"')],
-      screenshotOptions: { fullPage: true },
-    })
-
-    // teacher checks the answers
-    await teacherPage.goto("http://project-331.local/organizations")
-    await teacherPage
-      .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
-      .click()
-    await expect(teacherPage).toHaveURL("http://project-331.local/org/uh-cs")
-    await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
-    await teacherPage.getByRole("tab", { name: "Exercises" }).click()
-    await teacherPage.getByText("ManualReviewEverything2 3View answers requiring attention").click()
-
-    await teacherPage.getByRole("button", { name: "Zero points" }).first().click()
-    await teacherPage.reload()
-
-    await teacherPage.getByRole("button", { name: "Full points" }).first().click()
-    await teacherPage.reload()
-
-    // Student 1 seeing the score
-
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-checking-their-peer-reviews-multiple-submission",
-      screenshotTarget: student1Page,
-      axeSkip: ["heading-order", "duplicate-id"],
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student1Page.locator('text="ManualReviewEverything2"')],
-      screenshotOptions: { fullPage: true },
-    })
-
-    // Student 2 seeing the score
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-checking-their-peer-reviews-multiple-submission",
-      screenshotTarget: student2Page,
-      axeSkip: ["heading-order", "duplicate-id"],
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [student2Page.locator('text="ManualReviewEverything2"')],
-      screenshotOptions: { fullPage: true },
-    })
-
-    // Check Course status summary
+    await teacherPage.getByRole("link", { name: "Navigate to course 'Peer review Course'" }).click()
     await teacherPage.goto("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
-    await teacherPage.getByRole("tab", { name: "Course instances" }).click()
-    await teacherPage
-      .getByRole("listitem")
-      .filter({
-        hasText: "Default",
-        hasNotText: "Non-default instance",
-      })
-      .getByRole("link", { name: "View points" })
-      .click()
-    await teacherPage.getByText("d7d6246c-45a8-4ff4-bf4d-31dedfaac159").click()
-    await teacherPage.getByText(`Exercise: ManualReviewEverything2 (1 submissions)`).waitFor()
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "course-status-summary",
-      screenshotTarget: teacherPage,
-      clearNotifications: true,
-    })
+    await teacherPage.getByRole("tab", { name: "Exercises" }).click()
+    await teacherPage.getByText("ManualReviewEverything 3View answers requiring attention").click()
+
+    // Make sure the iframe above is loaded so that it does not cause scrolling
+    await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()
+    const frame = await getLocatorForNthExerciseServiceIframe(teacherPage, "example-exercise", 1)
+    await frame.getByText("a").waitFor()
+
+    await teacherPage.getByRole("button", { name: "Custom points" }).nth(0).click()
+    await teacherPage.getByRole("spinbutton").fill("0.25")
+    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    await teacherPage.getByText("Operation successful").waitFor()
+    await teacherPage.getByRole("button", { name: "Custom points" }).nth(1).click()
+    await teacherPage.getByRole("spinbutton").fill("0.25")
+    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    await teacherPage.getByText("Operation successful").waitFor()
+    await teacherPage.getByRole("button", { name: "Custom points" }).nth(2).click()
+    await teacherPage.getByRole("spinbutton").fill("0.25")
+    await teacherPage.getByRole("button", { name: "Give custom points" }).click()
+    await teacherPage.getByText("Operation successful").waitFor()
+
+    // Now all students should see their results.
+    await student1Page.reload()
+    await expect(student1Page.getByTestId("exercise-points")).toContainText("0.25/1")
+    await student1Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
+    await student2Page.reload()
+    await expect(student2Page.getByTestId("exercise-points")).toContainText("0.25/1")
+    await student2Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
+    await student3Page.reload()
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("0.25/1")
+    await student3Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
   })
 })

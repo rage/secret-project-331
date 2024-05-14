@@ -25,6 +25,7 @@ interface MessageChannelIFrameProps {
   title: string
   showBorders?: boolean
   disableSandbox?: boolean
+  headingBeforeIframe?: string
 }
 
 // const IFRAME_TITLE = "Exercise type specific content"
@@ -35,7 +36,7 @@ const MessageChannelIFrame: React.FC<
   url,
   postThisStateToIFrame,
   onMessageFromIframe,
-
+  headingBeforeIframe,
   title,
   showBorders = false,
   disableSandbox = false,
@@ -199,6 +200,17 @@ const MessageChannelIFrame: React.FC<
         border-radius: 0.625rem;
       `}
     >
+      {headingBeforeIframe && (
+        <h4
+          className={css`
+            padding-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 20px;
+          `}
+        >
+          {headingBeforeIframe}
+        </h4>
+      )}
       <iframe
         sandbox={disableSandbox ? undefined : "allow-scripts allow-forms allow-downloads"}
         className={css`

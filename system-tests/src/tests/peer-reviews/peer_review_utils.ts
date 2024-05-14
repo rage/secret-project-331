@@ -13,11 +13,16 @@ export const fillPeerReview = async (
   page: Page,
   options: string[],
   startPeerReview: boolean = true,
+  refresh = false,
 ) => {
   await test.step("Fill peer review", async () => {
     // eslint-disable-next-line playwright/no-conditional-in-test
     if (startPeerReview) {
       await page.getByRole("button", { name: "Start peer review" }).click()
+    }
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (refresh) {
+      await page.getByRole("button", { name: "Refresh" }).click()
     }
 
     // Check that the assignment is showing in the peer review page.

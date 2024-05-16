@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use futures::future::BoxFuture;
-use headless_lms_utils::numbers::f32_to_two_decimals;
+use headless_lms_utils::numbers::f32_to_three_decimals;
 use url::Url;
 
 use crate::{
@@ -370,7 +370,7 @@ pub async fn update_grading(
         exercise.score_maximum as f32 / exercise_task_count,
     );
     // Scores are rounded to two decimals
-    let score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);
+    let score_given_rounded = f32_to_three_decimals(score_given_with_all_decimals);
     let grading = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"

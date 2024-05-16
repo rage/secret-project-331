@@ -587,7 +587,7 @@
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>futures::future::BoxFuture;
-<span class="kw">use </span>headless_lms_utils::numbers::f32_to_two_decimals;
+<span class="kw">use </span>headless_lms_utils::numbers::f32_to_three_decimals;
 <span class="kw">use </span>url::Url;
 
 <span class="kw">use crate</span>::{
@@ -956,7 +956,7 @@ WHERE id = $2
         exercise.score_maximum <span class="kw">as </span>f32 / exercise_task_count,
     );
     <span class="comment">// Scores are rounded to two decimals
-    </span><span class="kw">let </span>score_given_rounded = f32_to_two_decimals(score_given_with_all_decimals);
+    </span><span class="kw">let </span>score_given_rounded = f32_to_three_decimals(score_given_with_all_decimals);
     <span class="kw">let </span>grading = <span class="macro">sqlx::query_as!</span>(
         ExerciseTaskGrading,
         <span class="string">r#"

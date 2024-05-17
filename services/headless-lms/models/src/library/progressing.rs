@@ -12,11 +12,88 @@ use crate::{
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, exams, open_university_registration_links,
     prelude::*,
-    user_course_settings,
+    suspected_cheaters, user_course_settings,
     user_details::UserDetail,
     user_exercise_states,
     users::{self, User},
 };
+
+// #[instrument(skip(pool))]
+// async fn insert_suspected_cheaters(
+//     pool: web::Data<PgPool>,
+//     params: web::Path<Uuid>,
+//     // payload: web::Json<ThresholdData>,
+//     user: AuthUser,
+// ) -> ControllerResult<web::Json<()>> {
+//     let mut conn = pool.acquire().await?;
+
+//     let course_instance_id = params.into_inner();
+
+//     // Get threshold
+//     let thresholds =
+//         models::suspected_cheaters::get_thresholds_by_id(&mut conn, course_instance_id).await?;
+
+//     // Get all completions for the course instance
+//     let completions = models::course_module_completions::get_all_by_course_instance_id(
+//         &mut conn,
+//         course_instance_id,
+//     )
+//     .await?;
+
+//     // all do this for a single student and compare
+
+//     let average_duration_seconds =
+//         models::course_instances::get_course_average_duration(&mut conn, course_instance_id)
+//             .await?;
+
+//     for completion in completions {
+//         if completion.grade.is_none() {
+//             return Err(ControllerError::new(
+//                 ControllerErrorType::BadRequest,
+//                 "Grade is not a numeric value".to_string(),
+//                 None,
+//             ));
+//         }
+
+//         let total_points = models::user_exercise_states::get_user_total_course_points(
+//             &mut conn,
+//             user.id,
+//             course_instance_id,
+//         )
+//         .await?
+//         .unwrap_or(0.0);
+
+//         let student_duration_seconds = models::course_instances::get_student_duration(
+//             &mut conn,
+//             completion.user_id,
+//             course_instance_id,
+//         )
+//         .await?;
+
+//         if total_points as i32 <= thresholds.points {
+//             continue;
+//         }
+
+//         if student_duration_seconds > average_duration_seconds {
+//             models::suspected_cheaters::insert(
+//                 &mut conn,
+//                 completion.user_id,
+//                 None,
+//                 total_points as i32,
+//             )
+//             .await?;
+//         }
+//     }
+
+//     let token = authorize(
+//         &mut conn,
+//         Act::Edit,
+//         Some(user.id),
+//         Res::CourseInstance(course_instance_id),
+//     )
+//     .await?;
+//     token.authorized_ok(web::Json(()))
+// }
 
 /// Checks whether the course module can be completed automatically and creates an entry for completion
 /// if the user meets the criteria. Also re-checks module completion prerequisites if the module is
@@ -48,6 +125,51 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             submodule_completions_required,
         )
         .await?;
+
+        let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
+
+        // all do this for a single student and compare
+
+        let average_duration_seconds =
+            course_instances::get_course_average_duration(conn, course_instance_id).await?;
+
+        let completions =
+            course_module_completions::get_all_by_course_instance_id(conn, course_instance_id)
+                .await?;
+
+        for completion in completions {
+            if completion.grade.is_none() {
+                return Err(ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Grade is not a numeric value".to_string(),
+                    None,
+                ));
+            }
+
+            let total_points = user_exercise_states::get_user_total_course_points(
+                conn,
+                user_id,
+                course_instance_id,
+            )
+            .await?
+            .unwrap_or(0.0);
+
+            let student_duration_seconds = course_instances::get_student_duration(
+                conn,
+                completion.user_id,
+                course_instance_id,
+            )
+            .await?;
+
+            if total_points as i32 <= thresholds.points {
+                continue;
+            }
+
+            if student_duration_seconds > average_duration_seconds {
+                suspected_cheaters::insert(conn, completion.user_id, None, total_points as i32)
+                    .await?;
+            }
+        }
     }
     Ok(())
 }

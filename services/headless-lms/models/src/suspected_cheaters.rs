@@ -141,10 +141,29 @@ pub async fn get_suspected_cheaters_by_id(
         "
       SELECT *
       FROM suspected_cheaters
-      WHERE id = $1
+      WHERE user_id = $1
       AND deleted_at IS NULL;
     ",
         id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheaters)
+}
+
+pub async fn get_all_suspected_cheaters_in_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<SuspectedCheaters>> {
+    let cheaters = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+      SELECT *
+      FROM suspected_cheaters
+      WHERE course_id = $1
+      AND deleted_at IS NULL;
+    ",
+        course_instance_id
     )
     .fetch_one(conn)
     .await?;

@@ -4,9 +4,10 @@ import { NextApiRequest, NextApiResponse } from "next"
 import { OldQuiz } from "../../../types/oldQuizTypes"
 import { ModelSolutionQuiz } from "../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../types/quizTypes/privateSpec"
-import { isSpecRequest } from "../../shared-module/bindings.guard"
 import { isOldQuiz } from "../../util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "../../util/migration/modelSolutionSpecQuiz"
+
+import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   try {

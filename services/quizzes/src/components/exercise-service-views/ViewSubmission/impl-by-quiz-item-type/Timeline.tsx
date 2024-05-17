@@ -7,10 +7,11 @@ import { useTranslation } from "react-i18next"
 import { UserItemAnswerTimeline } from "../../../../../types/quizTypes/answer"
 import { ModelSolutionQuizItemTimeline } from "../../../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
+
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const TimelineWrapper = styled.section`
   *,

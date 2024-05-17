@@ -246,7 +246,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["system-tests/**/*", "**.test.tsx", "**.test.ts"],
+      files: ["system-tests/**/*", "**.test.tsx", "**.test.ts", "storybook/**/*"],
       rules: {
         "i18next/no-literal-string": "off",
       },

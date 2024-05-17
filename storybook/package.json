@@ -18,8 +18,8 @@
     "@storybook/test": "^8.1.1",
     "@vitejs/plugin-react": "^4.2.1",
     "prop-types": "^15.8.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "storybook": "^8.1.1",
     "vite": "^5.2.11"
   },
@@ -29,9 +29,9 @@
   },
   "dependencies": {
     "@emotion/css": "^11.11.2",
-    "@emotion/styled": "^11.11.0",
+    "@emotion/styled": "^11.11.5",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
-    "i18next": "^23.7.18",
-    "react-i18next": "^14.0.1"
+    "i18next": "^23.11.4",
+    "react-i18next": "^14.1.1"
   }
 }

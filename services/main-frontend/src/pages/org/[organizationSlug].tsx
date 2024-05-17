@@ -6,14 +6,15 @@ import MainFrontendBreadCrumbs from "../../components/MainFrontendBreadCrumbs"
 import CourseList from "../../components/page-specific/org/organizationSlug/CourseList"
 import ExamList from "../../components/page-specific/org/organizationSlug/ExamList"
 import useOrganizationQueryBySlug from "../../hooks/useOrganizationQueryBySlug"
-import DebugModal from "../../shared-module/components/DebugModal"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
-import Spinner from "../../shared-module/components/Spinner"
+
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import Spinner from "@/shared-module/common/components/Spinner"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface OrganizationPageProps {
   query: SimplifiedUrlQuery<"organizationSlug">

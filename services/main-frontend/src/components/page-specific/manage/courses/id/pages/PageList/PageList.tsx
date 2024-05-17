@@ -4,12 +4,6 @@ import { useTranslation } from "react-i18next"
 
 import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
 import { deletePage } from "../../../../../../../services/backend/pages"
-import { Chapter, Page } from "../../../../../../../shared-module/bindings"
-import Button from "../../../../../../../shared-module/components/Button"
-import Dialog from "../../../../../../../shared-module/components/Dialog"
-import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, typography } from "../../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
 import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageListItem, {
@@ -19,6 +13,13 @@ import PageListItem, {
   MOVING_NOT_ALLOWED,
 } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
+
+import { Chapter, Page } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, typography } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   data: Page[]

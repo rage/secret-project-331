@@ -1,7 +1,8 @@
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../shared-module/bindings"
-import { isExerciseService } from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
+
+import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import { isExerciseService } from "@/shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchExerciseServices = async (): Promise<Array<ExerciseService>> => {
   const response = await mainFrontendClient.get(`/exercise-services/`)

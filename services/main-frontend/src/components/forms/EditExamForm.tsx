@@ -1,12 +1,12 @@
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Exam, NewExam } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import CheckBox from "../../shared-module/components/InputFields/CheckBox"
-import DateTimeLocal from "../../shared-module/components/InputFields/DateTimeLocal"
-import TextField from "../../shared-module/components/InputFields/TextField"
-import { dateToDateTimeLocalString } from "../../shared-module/utils/time"
+import { Exam, NewExam } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface EditExamFormProps {
   initialData: Exam

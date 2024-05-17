@@ -17,16 +17,17 @@ import CourseStatsPage from "../../../../components/page-specific/manage/courses
 import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCountAnswersRequiringAttentionHook"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
-import TabLink from "../../../../shared-module/components/Navigation/TabLinks/TabLink"
-import TabLinkNavigation from "../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
-import TabLinkPanel from "../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+
+import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface CourseManagementPagesProps {
   courseId: string
 }

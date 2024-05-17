@@ -5,12 +5,13 @@ import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { PlaygroundSettings } from "../../../pages/playground-tabs"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import TextAreaField from "../../../shared-module/components/InputFields/TextAreaField"
-import Spinner from "../../../shared-module/components/Spinner"
-import { monospaceFont } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { monospaceFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>

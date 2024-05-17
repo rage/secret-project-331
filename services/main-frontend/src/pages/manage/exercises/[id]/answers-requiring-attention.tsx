@@ -5,17 +5,18 @@ import { useTranslation } from "react-i18next"
 
 import AnswersRequiringAttentionList from "../../../../components/page-specific/manage/exercises/id/submissions/AnswersRequiringAttentionList"
 import { fetchAnswersRequiringAttention } from "../../../../services/backend/answers-requiring-attention"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Pagination from "../../../../shared-module/components/Pagination"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
-import { primaryFont } from "../../../../shared-module/styles"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Pagination from "@/shared-module/common/components/Pagination"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { primaryFont } from "@/shared-module/common/styles"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">

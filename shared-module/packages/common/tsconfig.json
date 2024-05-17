@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "types": ["jest"],
     "typeRoots": ["./src/types", "types", "../node_modules/@types", "node_modules/@types"],
     "jsx": "preserve",
     "lib": ["dom", "es2017"],

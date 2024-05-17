@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
-import React, { useContext } from "react"
+import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
@@ -16,7 +16,7 @@ interface ExerciseTaskProps {
   canPostSubmission: boolean
   exerciseTask: CourseMaterialExerciseTask
   isExam: boolean
-  postThisStateToIFrame: IframeState | undefined
+  postThisStateToIFrame: ExerciseIframeState | undefined
   setAnswer: (answer: { valid: boolean; data: unknown }) => void
   exerciseNumber: number
 }
@@ -35,6 +35,15 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 
+  const areAllParagraphsEmpty = useMemo(
+    () =>
+      currentExerciseTaskAssignment?.every(
+        (paragraph) =>
+          paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
+      ),
+    [currentExerciseTaskAssignment],
+  )
+
   if (!postThisStateToIFrame) {
     return null
   }
@@ -46,13 +55,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
-  const areAllParagraphsEmpty = () =>
-    currentExerciseTaskAssignment?.every(
-      (paragraph) =>
-        paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
-    )
-
-  const isEmpty = currentExerciseTaskAssignment.length > 0 && areAllParagraphsEmpty()
+  const isEmpty = currentExerciseTaskAssignment.length === 0 || areAllParagraphsEmpty
 
   return (
     <div>

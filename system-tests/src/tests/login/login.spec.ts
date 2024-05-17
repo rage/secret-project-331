@@ -8,7 +8,7 @@ import {
 
 import { logout } from "../../utils/logout"
 
-test.describe("Login session with Playwright", async () => {
+test.describe("Login session with Playwright", () => {
   /// Login state to use
   test.use({ storageState: "src/states/admin@example.com.json" })
 
@@ -28,7 +28,7 @@ test.describe("Login session with Playwright", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 
@@ -54,7 +54,7 @@ test.describe("Login session with Playwright", async () => {
   })
 })
 
-test.describe("Login return_to", async () => {
+test.describe("Login return_to", () => {
   test.beforeEach(
     async ({
       page,
@@ -63,7 +63,7 @@ test.describe("Login return_to", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 

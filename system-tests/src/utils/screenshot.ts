@@ -351,11 +351,34 @@ export async function takeScreenshotAndComparetoSnapshot(
       let yCoordinateRightNTimes = 0
       let totalTries = 0
       do {
-        const observedYCoordinate = await page.evaluate(() => window.scrollY)
+        const observedYCoordinate = await page.mainFrame().evaluate(() => window.scrollY)
         if (observedYCoordinate === savedYCoordinate) {
           yCoordinateRightNTimes++
         } else {
-          await page.evaluate((savedYCoordinate) => {
+          if (totalTries > 90) {
+            console.warn(
+              `Observed y coordinate ${observedYCoordinate} is not the same as the saved y coordinate ${savedYCoordinate}`,
+            )
+            const maximumPossibleCoordinate = await page.mainFrame().evaluate(() => {
+              return document.documentElement.scrollHeight - window.innerHeight
+            })
+            console.info(`Maximum possible y coordinate is ${maximumPossibleCoordinate}`)
+            if (savedYCoordinate > maximumPossibleCoordinate) {
+              console.error(
+                `Saved y coordinate ${savedYCoordinate} is greater than the maximum possible y coordinate ${maximumPossibleCoordinate}`,
+              )
+              console.error(`Saving the current y coordinate to the image`)
+              await savePageYCoordinateToImage(
+                pathToImage,
+                page,
+                useCoordinatesFromTheBottomForSavingYCoordinates,
+              )
+              throw new Error(
+                "Tried to scroll the browser further than is possible. The page is too short. Saved a new more reasonable coordinate to the image.",
+              )
+            }
+          }
+          await page.mainFrame().evaluate((savedYCoordinate) => {
             window.scrollTo(0, savedYCoordinate)
           }, savedYCoordinate)
           yCoordinateRightNTimes = 0

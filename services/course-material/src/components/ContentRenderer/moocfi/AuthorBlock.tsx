@@ -11,6 +11,7 @@ interface InfoBoxBlockAttributes {
   backgroundColor: string
 }
 
+// eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   background: #f7f8f9;
   padding: 2rem 2rem 1rem 2rem;

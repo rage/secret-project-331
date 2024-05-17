@@ -8,10 +8,12 @@
 import {
   AnswerExerciseIframeState,
   CurrentStateMessage,
+  CustomViewIframeState,
   ExerciseEditorIframeState,
+  ExerciseIframeState,
+  ExtendedIframeState,
   FileUploadMessage,
   HeightChangedMessage,
-  IframeState,
   IframeViewType,
   MessageFromIframe,
   MessageToIframe,
@@ -75,6 +77,9 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
       typedObj["message"] === "set-state" &&
       (isExerciseEditorIframeState(typedObj) as boolean)) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "set-state" &&
+      (isCustomViewIframeState(typedObj) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "upload-result" &&
       ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["success"] === true &&
@@ -107,7 +112,10 @@ export function isSetStateMessage(obj: unknown): obj is SetStateMessage {
       (isViewSubmissionIframeState(typedObj) as boolean)) ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["message"] === "set-state" &&
-      (isExerciseEditorIframeState(typedObj) as boolean))
+      (isExerciseEditorIframeState(typedObj) as boolean)) ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["message"] === "set-state" &&
+      (isCustomViewIframeState(typedObj) as boolean))
   )
 }
 
@@ -219,12 +227,58 @@ export function isExerciseEditorIframeState(obj: unknown): obj is ExerciseEditor
   )
 }
 
-export function isIframeState(obj: unknown): obj is IframeState {
-  const typedObj = obj as IframeState
+export function isCustomViewIframeState(obj: unknown): obj is CustomViewIframeState {
+  const typedObj = obj as CustomViewIframeState
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typedObj["view_type"] === "custom-view" &&
+    ((typedObj["user_information"] !== null && typeof typedObj["user_information"] === "object") ||
+      typeof typedObj["user_information"] === "function") &&
+    typeof typedObj["user_information"]["user_id"] === "string" &&
+    (typedObj["user_information"]["first_name"] === null ||
+      typeof typedObj["user_information"]["first_name"] === "string") &&
+    (typedObj["user_information"]["last_name"] === null ||
+      typeof typedObj["user_information"]["last_name"] === "string") &&
+    (typeof typedObj["user_variables"] === "undefined" ||
+      typedObj["user_variables"] === null ||
+      (isUserVariablesMap(typedObj["user_variables"]) as boolean)) &&
+    typeof typedObj["course_name"] === "string" &&
+    (typedObj["module_completion_date"] === null ||
+      typeof typedObj["module_completion_date"] === "string") &&
+    ((typedObj["data"] !== null && typeof typedObj["data"] === "object") ||
+      typeof typedObj["data"] === "function") &&
+    Array.isArray(typedObj["data"]["submissions_by_exercise"]) &&
+    typedObj["data"]["submissions_by_exercise"].every(
+      (e: any) =>
+        ((e !== null && typeof e === "object") || typeof e === "function") &&
+        typeof e["exercise_id"] === "string" &&
+        typeof e["exercise_name"] === "string" &&
+        Array.isArray(e["exercise_tasks"]) &&
+        e["exercise_tasks"].every(
+          (e: any) =>
+            ((e !== null && typeof e === "object") || typeof e === "function") &&
+            typeof e["task_id"] === "string",
+        ),
+    )
+  )
+}
+
+export function isExerciseIframeState(obj: unknown): obj is ExerciseIframeState {
+  const typedObj = obj as ExerciseIframeState
   return (
     (isAnswerExerciseIframeState(typedObj) as boolean) ||
     (isViewSubmissionIframeState(typedObj) as boolean) ||
     (isExerciseEditorIframeState(typedObj) as boolean)
+  )
+}
+
+export function isExtendedIframeState(obj: unknown): obj is ExtendedIframeState {
+  const typedObj = obj as ExtendedIframeState
+  return (
+    (isAnswerExerciseIframeState(typedObj) as boolean) ||
+    (isViewSubmissionIframeState(typedObj) as boolean) ||
+    (isExerciseEditorIframeState(typedObj) as boolean) ||
+    (isCustomViewIframeState(typedObj) as boolean)
   )
 }
 

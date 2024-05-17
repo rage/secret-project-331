@@ -8,7 +8,7 @@ import {
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
-test.describe("Uploading media as admin", async () => {
+test.describe("Uploading media as admin", () => {
   // As Admin
   test.use({
     storageState: "src/states/admin@example.com.json",
@@ -22,7 +22,7 @@ test.describe("Uploading media as admin", async () => {
       PlaywrightWorkerArgs &
       PlaywrightWorkerOptions) => {
       // Executed before each test
-      await page.goto("http://project-331.local")
+      await page.goto("http://project-331.local/organizations")
     },
   )
 

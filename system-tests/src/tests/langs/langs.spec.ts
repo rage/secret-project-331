@@ -6,15 +6,26 @@ test.use({
   storageState: "src/states/langs@example.com.json",
 })
 
-test("get course instances", async ({ page, request }) => {
-  // not enrolled to any course instance yet
+test("get course instances with tmc exercises", async ({ page, request }) => {
+  // langs user is enrolled to one course with tmc exercises in the seed
   const initialResponse = await request.get(`/api/v0/langs/course-instances`, {
     headers: { Authorization: "Bearer langs@example.com" },
   })
-  expect(await initialResponse.json()).toStrictEqual([])
+  const expectedCourseInstances = [
+    {
+      course_description: "The definitive introduction to course material.",
+      course_id: "d6b52ddc-6c34-4a59-9a59-7e8594441007",
+      course_name: "Introduction to Course Material",
+      course_slug: "introduction-to-course-material",
+      id: "8e6c35cd-43f2-4982-943b-11e3ffb1b2f8",
+      instance_description: null,
+      instance_name: null,
+    },
+  ]
+  expect(await initialResponse.json()).toStrictEqual(expectedCourseInstances)
 
-  // enroll
-  await page.goto("http://project-331.local/")
+  // enroll to a course with no tmc exercises
+  await page.goto("http://project-331.local/organizations")
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
     .click()
@@ -23,19 +34,9 @@ test("get course instances", async ({ page, request }) => {
     .click()
   await selectCourseInstanceIfPrompted(page)
 
-  // not enrolled to any course instance yet
   const response = await request.get(`/api/v0/langs/course-instances`, {
     headers: { Authorization: "Bearer langs@example.com" },
   })
-  expect(await response.json()).toStrictEqual([
-    {
-      course_description: "An example course.",
-      course_id: "06a7ccbd-8958-4834-918f-ad7b24e583fd",
-      id: "48399008-6523-43c5-8fd6-59ecc731a426",
-      course_name: "Introduction to Computer Science",
-      course_slug: "introduction-to-computer-science",
-      instance_description: null,
-      instance_name: null,
-    },
-  ])
+  // the new course instance is not displayed on the list because it has no tmc exercises
+  expect(await response.json()).toStrictEqual(expectedCourseInstances)
 })

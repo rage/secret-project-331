@@ -43,6 +43,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     }
     const totalCountsByCountryObject = totalCountsByCountry.reduce(
       (acc, d) => {
+        // eslint-disable-next-line i18next/no-literal-string
         acc[d.country ?? "null"] = d.num_visitors
         return acc
       },
@@ -104,7 +105,9 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
                 },
               ],
               tooltip: {
+                // eslint-disable-next-line i18next/no-literal-string
                 trigger: "item",
+                // eslint-disable-next-line i18next/no-literal-string
                 formatter: "{b}: {c}",
               },
             }}

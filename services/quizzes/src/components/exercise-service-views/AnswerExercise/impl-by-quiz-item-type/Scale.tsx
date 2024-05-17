@@ -63,7 +63,7 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
             }
           `}
         >
-          <MarkdownText text={quizItem.title} />
+          <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />
         </div>
       )}
       <div

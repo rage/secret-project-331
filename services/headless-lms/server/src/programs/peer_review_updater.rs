@@ -46,7 +46,7 @@ pub async fn main() -> anyhow::Result<()> {
             let course_id = exercise.course_id;
             if let Some(course_id) = course_id {
                 let exercise_config =
-                    headless_lms_models::peer_review_configs::get_by_exercise_or_course_id(
+                    headless_lms_models::peer_or_self_review_configs::get_by_exercise_or_course_id(
                         &mut conn, exercise, course_id,
                     )
                     .await?;

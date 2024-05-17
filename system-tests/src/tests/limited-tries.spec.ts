@@ -7,7 +7,7 @@ test.use({
 })
 
 test("Limited tries work", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -40,7 +40,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.getByText("Operation successful!").waitFor()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -63,7 +63,7 @@ test("Limited tries work", async ({ page }) => {
 
   await Promise.all([
     page.locator('span.heading:has-text("POINTS")').waitFor(),
-    page.locator('div.points:has-text("0⁄8")').waitFor(),
+    page.locator('div.points:has-text("0/8")').waitFor(),
   ])
 
   await page.locator('div.tries:has-text("2")').waitFor()

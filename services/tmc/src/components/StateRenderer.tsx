@@ -13,8 +13,8 @@ import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission from "./ViewSubmission"
 
 interface Props {
-  state: IframeState | null
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  state: ExerciseIframeState | null
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
 }

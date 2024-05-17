@@ -1,5 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
-import { ExerciseTaskGradingResult, RepositoryExercise } from "./bindings"
+import { ExerciseTaskGradingResult, RepositoryExercise, UserInfo } from "./bindings"
 import { GradingRequest, GradingResult } from "./exercise-service-protocol-types-2"
 import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
 
@@ -41,7 +41,7 @@ export interface SetLanguageMessage {
 
 export type SetStateMessage = {
   message: "set-state"
-} & IframeState
+} & ExtendedIframeState
 
 export type UploadResultMessage = {
   message: "upload-result"
@@ -119,13 +119,35 @@ export type ExerciseEditorIframeState = {
   data: { private_spec: unknown }
 }
 
+export type CustomViewIframeState = {
+  view_type: "custom-view"
+  user_information: UserInfo
+  user_variables?: UserVariablesMap | null
+  course_name: string
+  module_completion_date: string | null
+  data: {
+    submissions_by_exercise: Array<{
+      exercise_id: string
+      exercise_name: string
+      exercise_tasks: Array<{
+        task_id: string
+        public_spec: unknown
+        user_answer: unknown
+        grading: unknown
+      }>
+    }>
+  }
+}
+
 /** Defines the allowed data formats for the set-state-message */
-export type IframeState =
+export type ExerciseIframeState =
   | AnswerExerciseIframeState
   | ViewSubmissionIframeState
   | ExerciseEditorIframeState
 
-export type IframeViewType = IframeState["view_type"]
+export type ExtendedIframeState = ExerciseIframeState | CustomViewIframeState
+
+export type IframeViewType = ExerciseIframeState["view_type"]
 
 // To workaround a bug in ts-auto-guard
 export type NonGenericGradingRequest = GradingRequest<unknown, unknown>

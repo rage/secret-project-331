@@ -6,7 +6,7 @@ import { uploadFilesFromIframe } from "../../../services/backend/playground-exam
 import MessageChannelIFrame from "../../../shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
-  IframeState,
+  ExerciseIframeState,
   MessageToIframe,
   UserInformation,
 } from "../../../shared-module/common/exercise-service-protocol-types"
@@ -69,7 +69,7 @@ const PlaygroundExerciseIframe: React.FC<
               public_spec: publicSpecQuery.data,
               previous_submission: userAnswer,
             },
-          } as IframeState
+          } as ExerciseIframeState
         }
         onMessageFromIframe={async (msg, responsePort) => {
           if (isMessageFromIframe(msg)) {

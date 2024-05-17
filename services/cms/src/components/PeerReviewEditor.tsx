@@ -7,10 +7,12 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
-import { getCoursesDefaultCmsPeerReviewConfiguration } from "../services/backend/courses"
+import { getCoursesDefaultCmsPeerOrSelfReviewConfiguration } from "../services/backend/courses"
 import {
-  CmsPeerReviewConfig,
-  CmsPeerReviewQuestion,
+  CmsPeerOrSelfReviewConfig,
+  CmsPeerOrSelfReviewQuestion,
+  PeerOrSelfReviewQuestion,
+  PeerOrSelfReviewQuestionType,
   PeerReviewProcessingStrategy,
   PeerReviewQuestion,
   PeerReviewQuestionType,
@@ -99,6 +101,7 @@ export interface PeerReviewEditorExtraProps {
   exerciseId?: string
   courseId: string
   courseGlobalEditor: boolean
+  instructionsEditor: React.ReactNode
 }
 
 export type PeerReviewEditorProps = React.HTMLAttributes<HTMLDivElement> &
@@ -111,9 +114,11 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   attributes: exerciseAttributes,
   setAttributes: setExerciseAttributes,
   courseGlobalEditor,
+  instructionsEditor,
 }) => {
   const { t } = useTranslation()
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
+  const selfReviewEnabled = exerciseAttributes.needs_self_review ?? false
 
   useEffect(() => {
     if (
@@ -124,34 +129,39 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }
   })
 
-  const defaultCmsPeerReviewConfig = useQuery({
+  const defaultCmsPeerOrSelfReviewConfig = useQuery({
     queryKey: [`course-default-peer-review-config-${courseId}`],
-    queryFn: () => getCoursesDefaultCmsPeerReviewConfiguration(courseId),
+    queryFn: () => getCoursesDefaultCmsPeerOrSelfReviewConfiguration(courseId),
   })
 
-  let parsedPeerReviewConfig: CmsPeerReviewConfig | null = JSON.parse(
-    exerciseAttributes.peer_review_config ?? "null",
+  let parsedPeerOrSelfReviewConfig: CmsPeerOrSelfReviewConfig | null = JSON.parse(
+    exerciseAttributes.peer_or_self_review_config ?? "null",
   )
 
-  if (parsedPeerReviewConfig === null) {
-    const defaultConfig = defaultPeerReviewConfig(exerciseId, courseId)
-    parsedPeerReviewConfig = defaultConfig
+  if (parsedPeerOrSelfReviewConfig === null) {
+    const defaultConfig = defaultPeerOrSelfReviewConfig(exerciseId, courseId)
+    parsedPeerOrSelfReviewConfig = defaultConfig
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_config: JSON.stringify(defaultConfig),
+      peer_or_self_review_config: JSON.stringify(defaultConfig),
     })
   }
 
-  const parsedPeerReviewQuestionConfig: CmsPeerReviewQuestion[] = useMemo(() => {
-    const res = JSON.parse(exerciseAttributes.peer_review_questions_config ?? "[]")
+  const parsedPeerOrSelfReviewQuestionConfig: CmsPeerOrSelfReviewQuestion[] = useMemo(() => {
+    const res = JSON.parse(exerciseAttributes.peer_or_self_review_questions_config ?? "[]")
     if (res === null || res === undefined) {
       return []
     }
     return res
-  }, [exerciseAttributes.peer_review_questions_config])
+  }, [exerciseAttributes.peer_or_self_review_questions_config])
 
-  const peerReviewQuestionTypeoptions: { label: string; value: PeerReviewQuestionType }[] = [
+  const peerOrSelfReviewQuestionTypeoptions: {
+    label: string
+    value: PeerOrSelfReviewQuestionType
+  }[] = [
+    // eslint-disable-next-line i18next/no-literal-string
     { label: t("essay"), value: "Essay" },
+    // eslint-disable-next-line i18next/no-literal-string
     { label: t("likert-scale"), value: "Scale" },
   ]
 
@@ -160,37 +170,52 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     value: PeerReviewProcessingStrategy
   }[] = [
     {
+      // eslint-disable-next-line i18next/no-literal-string
       label: "Automatically grade by average",
+      // eslint-disable-next-line i18next/no-literal-string
       value: "AutomaticallyGradeByAverage",
     },
     {
+      // eslint-disable-next-line i18next/no-literal-string
       label: "Automatically grade or manual review by average",
+      // eslint-disable-next-line i18next/no-literal-string
       value: "AutomaticallyGradeOrManualReviewByAverage",
     },
     {
+      // eslint-disable-next-line i18next/no-literal-string
       label: "Manual review everything",
+      // eslint-disable-next-line i18next/no-literal-string
       value: "ManualReviewEverything",
     },
   ]
 
-  const handlePeerReviewValueChange = (value: string, field: keyof CmsPeerReviewConfig) => {
-    let peerReviewConfig
+  const handlePeerReviewValueChange = (value: string, field: keyof CmsPeerOrSelfReviewConfig) => {
+    let peerOrSelfReviewConfig
     switch (field) {
       case "processing_strategy":
-        peerReviewConfig = { ...parsedPeerReviewConfig, processing_strategy: value }
+        peerOrSelfReviewConfig = { ...parsedPeerOrSelfReviewConfig, processing_strategy: value }
         break
       case "accepting_threshold":
-        peerReviewConfig = { ...parsedPeerReviewConfig, accepting_threshold: Number(value) }
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          accepting_threshold: Number(value),
+        }
         break
       case "peer_reviews_to_give":
-        peerReviewConfig = { ...parsedPeerReviewConfig, peer_reviews_to_give: Number(value) }
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          peer_reviews_to_give: Number(value),
+        }
         break
       case "peer_reviews_to_receive":
-        peerReviewConfig = { ...parsedPeerReviewConfig, peer_reviews_to_receive: Number(value) }
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
+          peer_reviews_to_receive: Number(value),
+        }
         break
       case "points_are_all_or_nothing":
-        peerReviewConfig = {
-          ...parsedPeerReviewConfig,
+        peerOrSelfReviewConfig = {
+          ...parsedPeerOrSelfReviewConfig,
           points_are_all_or_nothing: value === "true",
         }
         break
@@ -199,118 +224,102 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_config: JSON.stringify(peerReviewConfig),
-      peer_review_questions_config: JSON.stringify(parsedPeerReviewQuestionConfig),
+      peer_or_self_review_config: JSON.stringify(peerOrSelfReviewConfig),
+      peer_or_self_review_questions_config: JSON.stringify(parsedPeerOrSelfReviewQuestionConfig),
     })
   }
 
-  const handlePeerReviewQuestionValueChange = (
+  const handlePeerOrSelfReviewQuestionValueChange = (
     id: string,
     event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement>,
-    field: keyof CmsPeerReviewQuestion,
+    field: keyof CmsPeerOrSelfReviewQuestion,
   ) => {
-    const peerReviewQuestions: CmsPeerReviewQuestion[] = parsedPeerReviewQuestionConfig
-      .map((prq) => {
-        if (prq.id === id) {
-          switch (field) {
-            case "question":
-              return { ...prq, question: event.target.value }
-            case "question_type":
-              return { ...prq, question_type: event.target.value as PeerReviewQuestionType }
-            case "answer_required":
-              // @ts-expect-error: in this case the event is from a checkbox
-              return { ...prq, answer_required: Boolean(event.target.checked) }
-            case "weight": {
-              let newWeight = Number(event.target.value)
-              if (newWeight < 0 || newWeight > 1) {
-                newWeight = 0
+    const peerOrSelfReviewQuestions: CmsPeerOrSelfReviewQuestion[] =
+      parsedPeerOrSelfReviewQuestionConfig
+        .map((prq) => {
+          if (prq.id === id) {
+            switch (field) {
+              case "question":
+                return { ...prq, question: event.target.value }
+              case "question_type":
+                return { ...prq, question_type: event.target.value as PeerOrSelfReviewQuestionType }
+              case "answer_required":
+                // @ts-expect-error: in this case the event is from a checkbox
+                return { ...prq, answer_required: Boolean(event.target.checked) }
+              case "weight": {
+                let newWeight = Number(event.target.value)
+                if (newWeight < 0 || newWeight > 1) {
+                  newWeight = 0
+                }
+                return { ...prq, weight: newWeight }
               }
-              return { ...prq, weight: newWeight }
+              default:
+                return prq
             }
-            default:
-              return prq
+          } else {
+            return prq
           }
-        } else {
-          return prq
-        }
-      })
-      .sort((o1, o2) => o1.order_number - o2.order_number)
+        })
+        .sort((o1, o2) => o1.order_number - o2.order_number)
 
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_config: JSON.stringify(parsedPeerReviewConfig),
-      peer_review_questions_config: JSON.stringify(peerReviewQuestions),
+      peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
+      peer_or_self_review_questions_config: JSON.stringify(peerOrSelfReviewQuestions),
     })
   }
 
-  const toggleUsePeerReviewConfig = (checked: boolean) => {
-    const prc: CmsPeerReviewConfig = {
-      id: v4(),
-      course_id: courseId,
-      exercise_id: exerciseId ?? null,
-      processing_strategy: "AutomaticallyGradeOrManualReviewByAverage",
-      accepting_threshold: 2.1,
-      peer_reviews_to_give: 3,
-      peer_reviews_to_receive: 2,
-      points_are_all_or_nothing: true,
-    }
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_review_config: checked ? JSON.stringify(prc) : "null",
-      peer_review_questions_config: "[]",
-      use_course_default_peer_review: true,
-      needs_peer_review: checked,
-    })
-  }
-
-  const toggleUseDefaultPeerReviewConfig = (checked: boolean) => {
-    const prc = defaultPeerReviewConfig(exerciseId, courseId)
+  const toggleUseDefaultPeerOrSelfReviewConfig = (checked: boolean) => {
+    const prc = defaultPeerOrSelfReviewConfig(exerciseId, courseId)
 
     setExerciseAttributes({
       ...exerciseAttributes,
       use_course_default_peer_review: checked,
-      peer_review_config: checked ? "null" : JSON.stringify(prc),
-      peer_review_questions_config: checked ? "null" : "[]",
+      // eslint-disable-next-line i18next/no-literal-string
+      peer_or_self_review_config: checked ? "null" : JSON.stringify(prc),
+      // eslint-disable-next-line i18next/no-literal-string
+      peer_or_self_review_questions_config: checked ? "null" : "[]",
     })
   }
 
-  const addPeerReviewQuestion = (peerReviewId: string) => {
-    if (exerciseAttributes.peer_review_questions_config === undefined) {
-      setExerciseAttributes({ ...exerciseAttributes, peer_review_questions_config: "[]" })
+  const addPeerOrSelfReviewQuestion = (peerReviewId: string) => {
+    if (exerciseAttributes.peer_or_self_review_questions_config === undefined) {
+      setExerciseAttributes({ ...exerciseAttributes, peer_or_self_review_questions_config: "[]" })
     }
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_questions_config: JSON.stringify([
-        ...parsedPeerReviewQuestionConfig,
+      peer_or_self_review_questions_config: JSON.stringify([
+        ...parsedPeerOrSelfReviewQuestionConfig,
         {
           id: v4(),
-          question: "Insert question here",
+          question: t("default-question"),
+          // eslint-disable-next-line i18next/no-literal-string
           question_type: "Essay",
-          peer_review_config_id: peerReviewId,
+          peer_or_self_review_config_id: peerReviewId,
           answer_required: true,
-          order_number: parsedPeerReviewQuestionConfig.length,
+          order_number: parsedPeerOrSelfReviewQuestionConfig.length,
           weight: 0,
-        } satisfies CmsPeerReviewQuestion,
+        } satisfies CmsPeerOrSelfReviewQuestion,
       ]),
-      peer_review_config: JSON.stringify(parsedPeerReviewConfig),
+      peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
     })
   }
 
-  const deletePeerReviewQuestion = (peerReviewQuestionId: string) => {
+  const deletePeerOrSelfReviewQuestion = (peerOrSelfReviewQuestionId: string) => {
     setExerciseAttributes({
       ...exerciseAttributes,
-      peer_review_questions_config: JSON.stringify(
-        parsedPeerReviewQuestionConfig
-          .filter((x) => x.id !== peerReviewQuestionId)
+      peer_or_self_review_questions_config: JSON.stringify(
+        parsedPeerOrSelfReviewQuestionConfig
+          .filter((x) => x.id !== peerOrSelfReviewQuestionId)
           .map((prq, idx) => {
-            return { ...prq, order_number: idx } as PeerReviewQuestion
+            return { ...prq, order_number: idx } as PeerOrSelfReviewQuestion
           }),
       ),
-      peer_review_config: JSON.stringify(parsedPeerReviewConfig),
+      peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
     })
   }
 
-  if (defaultCmsPeerReviewConfig.isPending) {
+  if (defaultCmsPeerOrSelfReviewConfig.isPending) {
     return <Spinner variant="medium" />
   }
 
@@ -326,25 +335,38 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         `}
       >
         {!courseGlobalEditor && (
-          <CheckBox
-            label={t("add-peer-review")}
-            onChangeByValue={(checked, _name) => toggleUsePeerReviewConfig(checked)}
-            checked={peerReviewEnabled}
-          />
+          <>
+            <CheckBox
+              label={t("add-peer-review")}
+              onChangeByValue={(checked, _name) =>
+                setExerciseAttributes({ needs_peer_review: checked })
+              }
+              checked={peerReviewEnabled}
+            />
+            <CheckBox
+              label={t("add-self-review")}
+              onChangeByValue={(checked, _name) =>
+                setExerciseAttributes({ needs_self_review: checked })
+              }
+              checked={selfReviewEnabled}
+            />
+          </>
         )}
-        {peerReviewEnabled && (
+        {(peerReviewEnabled || selfReviewEnabled) && (
           <div>
             {!courseGlobalEditor && (
               <CheckBox
                 label={t("use-course-default-peer-review-config")}
-                onChangeByValue={(checked) => toggleUseDefaultPeerReviewConfig(checked)}
+                onChangeByValue={(checked) => toggleUseDefaultPeerOrSelfReviewConfig(checked)}
                 checked={exerciseAttributes.use_course_default_peer_review}
               />
             )}
             {exerciseAttributes.use_course_default_peer_review && (
               <div>
                 <a
-                  href={`/cms/courses/${defaultCmsPeerReviewConfig.data.peer_review_config.course_id}/default-peer-review`}
+                  href={editCourseDefaultPeerOrSelfReviewConfigRoute(
+                    defaultCmsPeerOrSelfReviewConfig.data.peer_or_self_review_config.course_id,
+                  )}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -359,6 +381,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     display: flex;
                     gap: 5px 5px;
                     justify-content: space-between;
+
+                    h2 {
+                      margin-bottom: 2rem;
+                    }
                   `}
                 >
                   <TextField
@@ -369,8 +395,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     min={0}
                     label={t("peer-reviews-to-receive")}
                     required
-                    value={parsedPeerReviewConfig.peer_reviews_to_receive}
+                    value={parsedPeerOrSelfReviewConfig.peer_reviews_to_receive}
                     onChangeByValue={(value) => {
+                      // eslint-disable-next-line i18next/no-literal-string
                       handlePeerReviewValueChange(value, "peer_reviews_to_receive")
                     }}
                   />
@@ -381,9 +408,10 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     type={"number"}
                     min={0}
                     required
-                    value={parsedPeerReviewConfig.peer_reviews_to_give}
+                    value={parsedPeerOrSelfReviewConfig.peer_reviews_to_give}
                     label={t("peer-reviews-to-give")}
                     onChangeByValue={(value) =>
+                      // eslint-disable-next-line i18next/no-literal-string
                       handlePeerReviewValueChange(value, "peer_reviews_to_give")
                     }
                   />
@@ -395,28 +423,32 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     width: 100%;
                   `}
                 >
-                  {parsedPeerReviewConfig.peer_reviews_to_receive >=
-                    parsedPeerReviewConfig.peer_reviews_to_give &&
+                  {parsedPeerOrSelfReviewConfig.peer_reviews_to_receive >=
+                    parsedPeerOrSelfReviewConfig.peer_reviews_to_give &&
                     t("peer-reviews-to-receive-and-give-error-message")}
                 </p>
                 <SelectField
                   id={`peer-review-processing-strategy-${id}`}
                   label={t("peer-review-processing-strategy")}
                   onChangeByValue={(value) => {
+                    // eslint-disable-next-line i18next/no-literal-string
                     handlePeerReviewValueChange(value, "processing_strategy")
                   }}
                   options={peerReviewProcessingStrategyOptions}
-                  defaultValue={parsedPeerReviewConfig.processing_strategy}
+                  defaultValue={parsedPeerOrSelfReviewConfig.processing_strategy}
                 />
                 <CheckBox
                   label={t("label-points-are-all-or-nothing")}
-                  checked={parsedPeerReviewConfig.points_are_all_or_nothing}
+                  checked={parsedPeerOrSelfReviewConfig.points_are_all_or_nothing}
                   onChangeByValue={(checked) =>
+                    // eslint-disable-next-line i18next/no-literal-string
                     handlePeerReviewValueChange(checked.toString(), "points_are_all_or_nothing")
                   }
-                  disabled={parsedPeerReviewConfig.processing_strategy === "ManualReviewEverything"}
+                  disabled={
+                    parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"
+                  }
                 />
-                {!parsedPeerReviewConfig.points_are_all_or_nothing && (
+                {!parsedPeerOrSelfReviewConfig.points_are_all_or_nothing && (
                   <div
                     className={css`
                       margin-bottom: 1rem;
@@ -434,15 +466,20 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   step="0.01"
                   min={0}
                   required
-                  disabled={parsedPeerReviewConfig.processing_strategy === "ManualReviewEverything"}
-                  value={parsedPeerReviewConfig.accepting_threshold}
+                  disabled={
+                    parsedPeerOrSelfReviewConfig.processing_strategy === "ManualReviewEverything"
+                  }
+                  value={parsedPeerOrSelfReviewConfig.accepting_threshold}
                   onChangeByValue={(value) => {
+                    // eslint-disable-next-line i18next/no-literal-string
                     handlePeerReviewValueChange(value, "accepting_threshold")
                   }}
                 />
+                <h2>{t("title-additional-review-instructions")}</h2>
+                {instructionsEditor}
                 <h2>{t("configure-review-answers-option")}</h2>
-                {parsedPeerReviewQuestionConfig &&
-                  parsedPeerReviewQuestionConfig
+                {parsedPeerOrSelfReviewQuestionConfig &&
+                  parsedPeerOrSelfReviewQuestionConfig
                     .sort((o1, o2) => o1.order_number - o2.order_number)
                     .map(({ id, question, question_type, answer_required, weight }) => (
                       <List key={id} id={id}>
@@ -450,24 +487,26 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           <StyledSelectField
                             label={t("peer-review-question-type")}
                             onChange={(e) => {
-                              handlePeerReviewQuestionValueChange(id, e, "question_type")
+                              // eslint-disable-next-line i18next/no-literal-string
+                              handlePeerOrSelfReviewQuestionValueChange(id, e, "question_type")
                             }}
                             defaultValue={question_type}
-                            options={peerReviewQuestionTypeoptions}
+                            options={peerOrSelfReviewQuestionTypeoptions}
                             id={`peer-review-question-${id}`}
                             onBlur={() => null}
                           />
                           {question_type === "Scale" &&
-                            parsedPeerReviewConfig?.points_are_all_or_nothing === false && (
+                            parsedPeerOrSelfReviewConfig?.points_are_all_or_nothing === false && (
                               <TextField
-                                label="Weight"
+                                label={t("label-weight")}
                                 type="number"
                                 min={0}
                                 max={1}
                                 step={0.01}
                                 value={weight}
                                 onChange={(e) => {
-                                  handlePeerReviewQuestionValueChange(id, e, "weight")
+                                  // eslint-disable-next-line i18next/no-literal-string
+                                  handlePeerOrSelfReviewQuestionValueChange(id, e, "weight")
                                 }}
                                 className={css`
                                   margin-bottom: 0;
@@ -479,7 +518,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                           <TextAreaField
                             label={t("peer-review-question")}
                             onChange={(event) => {
-                              handlePeerReviewQuestionValueChange(id, event, "question")
+                              // eslint-disable-next-line i18next/no-literal-string
+                              handlePeerOrSelfReviewQuestionValueChange(id, event, "question")
                             }}
                             defaultValue={question}
                             autoResize={true}
@@ -494,7 +534,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                                 margin-top: 0.5rem;
                               `}
                               onChange={(e) =>
-                                handlePeerReviewQuestionValueChange(id, e, "answer_required")
+                                // eslint-disable-next-line i18next/no-literal-string
+                                handlePeerOrSelfReviewQuestionValueChange(id, e, "answer_required")
                               }
                             />
                           ) : (
@@ -509,7 +550,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                         </StyledQuestion>
                         <DeleteBtn
                           aria-label={t("delete")}
-                          onClick={() => deletePeerReviewQuestion(id)}
+                          onClick={() => deletePeerOrSelfReviewQuestion(id)}
                           className={css`
                             display: flex;
                             justify-content: center;
@@ -524,8 +565,8 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                   variant="primary"
                   size="medium"
                   onClick={() => {
-                    if (parsedPeerReviewConfig) {
-                      addPeerReviewQuestion(parsedPeerReviewConfig.id)
+                    if (parsedPeerOrSelfReviewConfig) {
+                      addPeerOrSelfReviewQuestion(parsedPeerOrSelfReviewConfig.id)
                     } else {
                       console.error("Parsed peer review config is null")
                     }
@@ -542,19 +583,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   )
 }
 
-function defaultPeerReviewConfig(
+function defaultPeerOrSelfReviewConfig(
   exerciseId: string | null | undefined,
   courseId: string,
-): CmsPeerReviewConfig {
+): CmsPeerOrSelfReviewConfig {
   return {
     id: v4(),
     exercise_id: exerciseId ? exerciseId : null,
     course_id: courseId,
+    // eslint-disable-next-line i18next/no-literal-string
     processing_strategy: "AutomaticallyGradeOrManualReviewByAverage",
     accepting_threshold: 2.1,
     peer_reviews_to_give: 3,
     peer_reviews_to_receive: 2,
     points_are_all_or_nothing: true,
+    review_instructions: [],
   }
 }
 

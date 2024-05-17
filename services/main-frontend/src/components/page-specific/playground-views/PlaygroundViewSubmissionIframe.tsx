@@ -6,7 +6,7 @@ import { ExerciseTaskGradingResult } from "../../../shared-module/common/binding
 import MessageChannelIFrame from "../../../shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
-  IframeState,
+  ExerciseIframeState,
   UserInformation,
 } from "../../../shared-module/common/exercise-service-protocol-types"
 import { isMessageFromIframe } from "../../../shared-module/common/exercise-service-protocol-types.guard"
@@ -56,7 +56,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
   if (gradingQuery.isPending || gradingQuery.isError) {
     return <>{t("error-no-grading")}</>
   }
-  const iframeState: IframeState = {
+  const iframeState: ExerciseIframeState = {
     // eslint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,

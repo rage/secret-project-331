@@ -10,7 +10,7 @@ test.use({
 test("multiple-choice course material row test", async ({ page, headless }, testInfo) => {
   test.slow()
   // Go to http://project-331.local/
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -53,7 +53,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-single",
     waitForTheseToBeVisibleAndStable: [
-      frame3.locator(`text="Correct! This is indeed the first answer"`),
+      frame3.locator(`text="Correct! This is indeed the first answer."`),
     ],
     screenshotTarget: frame3,
     clearNotifications: true,
@@ -80,7 +80,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-single",
     waitForTheseToBeVisibleAndStable: [
-      frame3.locator(`text="Incorrect. This is not the first answer"`),
+      frame3.getByText(`Incorrect. This is not the first answer.`),
     ],
     screenshotTarget: frame3,
     clearNotifications: true,
@@ -112,7 +112,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame4.locator(`text="Correct! This is indeed the first answer"`),
+      frame4.locator(`text="Correct! This is indeed the first answer."`),
     ],
     screenshotTarget: frame4,
     clearNotifications: true,
@@ -139,7 +139,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-multi",
     waitForTheseToBeVisibleAndStable: [
-      frame4.locator(`text="Incorrect. This is not the first answer"`),
+      frame4.getByText(`Incorrect. This is not the first answer.`),
     ],
     screenshotTarget: frame4,
     clearNotifications: true,

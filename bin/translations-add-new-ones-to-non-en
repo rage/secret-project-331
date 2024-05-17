@@ -1,6 +1,4 @@
-#!/bin/bash
-set -euo pipefail
-source "$(dirname "$0")/.common"
+#!/usr/bin/env python3
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 TRANSLATIONS_EN_PATH="$BASEDIR/../shared-module/common/src/locales/en"
@@ -8,23 +6,34 @@ TRANSLATIONS_EN_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$TRANSLATIONS_E
 FOLDERS_PATH="$BASEDIR/../shared-module/common/src/locales"
 FOLDERS_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDERS_PATH")
 
-ensure_program_in_path jq
-ensure_program_in_path find
-ensure_program_in_path sponge
+BASEDIR = os.path.dirname(os.path.realpath(__file__))
+TRANSLATIONS_EN_PATH = os.path.join(BASEDIR, "../shared-module/src/locales/en")
+TRANSLATIONS_EN_RELATIVE_PATH = os.path.relpath(TRANSLATIONS_EN_PATH)
+FOLDERS_PATH = os.path.join(BASEDIR, "../shared-module/src/locales")
+FOLDERS_RELATIVE_PATH = os.path.relpath(FOLDERS_PATH)
 
-EN_PATHS=$(find "$TRANSLATIONS_EN_RELATIVE_PATH" -name '*.json')
-# Find all localization folders that are not the source en folder
-FOLDERS_PATH=$(find "$FOLDERS_RELATIVE_PATH" -maxdepth 1 -mindepth 1 -type d ! -name 'en')
+def ensure_program_in_path(program):
+    if not any(os.access(os.path.join(path, program), os.X_OK) for path in os.environ["PATH"].split(os.pathsep)):
+        raise Exception(f"{program} not found in PATH")
 
-for original_file in $EN_PATHS; do
-  for target_folder in $FOLDERS_PATH; do
-    target_folder_language=$(basename "$target_folder")
-    target_file="${original_file/\/en\//\/$target_folder_language\/}"
-    echo "Adding translations $original_file > $target_file"
-    echo "> jq -s 'add' \"$original_file\" \"$target_file\" | sponge \"$target_file\""
-    jq --sort-keys -s 'add' "$original_file" "$target_file" | sponge "$target_file"
-  done
-done
+ensure_program_in_path('jq')
+ensure_program_in_path('sponge')
 
-echo ""
-echo "Important: remember to translate the new strings before adding them to version control"
+EN_PATHS = glob.glob(f"{TRANSLATIONS_EN_RELATIVE_PATH}/*.json")
+FOLDERS_PATH = [name for name in glob.glob(f"{FOLDERS_RELATIVE_PATH}/*") if os.path.isdir(name) and not name.endswith('/en')]
+
+for original_file in EN_PATHS:
+  for target_folder in FOLDERS_PATH:
+    target_folder_language = os.path.basename(target_folder)
+    target_file = original_file.replace("/en/", f"/{target_folder_language}/")
+    print(f"Adding translations {original_file} > {target_file}")
+    with open(original_file) as f1, open(target_file) as f2:
+      data1 = json.load(f1)
+      data2 = json.load(f2)
+      missing_keys = [key for key in data1 if key not in data2]
+      for key in missing_keys:
+        data2[key] = data1[key]
+    with open(target_file, 'w') as f:
+      json.dump(data2, f, indent=2, ensure_ascii=False)
+
+print("\nImportant: remember to translate the new strings before adding them to version control")

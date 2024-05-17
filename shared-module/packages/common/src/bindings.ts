@@ -297,6 +297,7 @@ export interface CourseModuleCompletionWithRegistrationInfo {
   prerequisite_modules_completed: boolean
   registered: boolean
   user_id: string
+  completion_date: string
 }
 
 export interface CourseModuleCompletion {
@@ -504,6 +505,8 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: string
+  is_teacher_testing: boolean
+  show_exercise_answers: boolean | null
 }
 
 export interface ExamInstructions {
@@ -556,6 +559,7 @@ export interface ExerciseServiceInfoApi {
   grade_endpoint_path: string
   public_spec_endpoint_path: string
   model_solution_spec_endpoint_path: string
+  has_custom_view?: boolean
 }
 
 export interface ExerciseService {
@@ -575,6 +579,7 @@ export interface ExerciseServiceIframeRenderingInfo {
   name: string
   slug: string
   public_iframe_url: string
+  has_custom_view: boolean
 }
 
 export interface ExerciseServiceNewOrUpdate {
@@ -645,9 +650,10 @@ export interface ExerciseSlideSubmissionInfo {
   exercise_slide_submission: ExerciseSlideSubmission
 }
 
-export interface PeerReviewsRecieved {
-  peer_review_questions: Array<PeerReviewQuestion>
-  peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+export interface PeerOrSelfReviewsReceived {
+  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
+  peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
+  peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
 }
 
 export interface CourseMaterialExerciseSlide {
@@ -748,7 +754,7 @@ export interface CourseMaterialExercise {
   current_exercise_slide: CourseMaterialExerciseSlide
   exercise_status: ExerciseStatus | null
   exercise_slide_submission_counts: Record<string, number>
-  peer_review_config: CourseMaterialPeerReviewConfig | null
+  peer_or_self_review_config: CourseMaterialPeerOrSelfReviewConfig | null
   previous_exercise_slide_submission: ExerciseSlideSubmission | null
   user_course_instance_exercise_service_variables: Array<UserCourseInstanceExerciseServiceVariable>
 }
@@ -770,7 +776,8 @@ export interface Exercise {
   max_tries_per_slide: number | null
   limit_number_of_tries: boolean
   needs_peer_review: boolean
-  use_course_default_peer_review_config: boolean
+  needs_self_review: boolean
+  use_course_default_peer_or_self_review_config: boolean
   exercise_language_group_id: string | null
 }
 
@@ -785,13 +792,13 @@ export interface ExerciseStatusSummaryForUser {
   exercise: Exercise
   user_exercise_state: UserExerciseState | null
   exercise_slide_submissions: Array<ExerciseSlideSubmission>
-  given_peer_review_submissions: Array<PeerReviewSubmission>
-  given_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
-  received_peer_review_submissions: Array<PeerReviewSubmission>
-  received_peer_review_question_submissions: Array<PeerReviewQuestionSubmission>
+  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
+  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   peer_review_queue_entry: PeerReviewQueueEntry | null
   teacher_grading_decision: TeacherGradingDecision | null
-  peer_review_questions: Array<PeerReviewQuestion>
+  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
 }
 
 export interface GlobalStatEntry {
@@ -883,7 +890,7 @@ export interface AnswerRequiringAttentionWithTasks {
   exercise_id: string
   tasks: Array<CourseMaterialExerciseTask>
   given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  received_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
+  received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
 }
 
 export interface AnswersRequiringAttention {
@@ -915,28 +922,28 @@ export interface StudentExerciseTaskSubmissionResult {
   exercise_task_exercise_service_slug: string
 }
 
-export interface CourseMaterialPeerReviewData {
-  answer_to_review: CourseMaterialPeerReviewDataAnswerToReview | null
-  peer_review_config: PeerReviewConfig
-  peer_review_questions: Array<PeerReviewQuestion>
+export interface CourseMaterialPeerOrSelfReviewData {
+  answer_to_review: CourseMaterialPeerOrSelfReviewDataAnswerToReview | null
+  peer_or_self_review_config: PeerOrSelfReviewConfig
+  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
   num_peer_reviews_given: number
 }
 
-export interface CourseMaterialPeerReviewDataAnswerToReview {
+export interface CourseMaterialPeerOrSelfReviewDataAnswerToReview {
   exercise_slide_submission_id: string
   course_material_exercise_tasks: Array<CourseMaterialExerciseTask>
 }
 
-export interface CourseMaterialPeerReviewQuestionAnswer {
-  peer_review_question_id: string
+export interface CourseMaterialPeerOrSelfReviewQuestionAnswer {
+  peer_or_self_review_question_id: string
   text_data: string | null
   number_data: number | null
 }
 
-export interface CourseMaterialPeerReviewSubmission {
+export interface CourseMaterialPeerOrSelfReviewSubmission {
   exercise_slide_submission_id: string
-  peer_review_config_id: string
-  peer_review_question_answers: Array<CourseMaterialPeerReviewQuestionAnswer>
+  peer_or_self_review_config_id: string
+  peer_review_question_answers: Array<CourseMaterialPeerOrSelfReviewQuestionAnswer>
   token: string
 }
 
@@ -947,6 +954,43 @@ export interface CompletionRegistrationLink {
 export interface CourseInstanceCompletionSummary {
   course_modules: Array<CourseModule>
   users_with_course_module_completions: Array<UserWithModuleCompletions>
+}
+
+export interface CustomViewExerciseSubmissions {
+  exercise_tasks: CustomViewExerciseTasks
+  exercises: Array<Exercise>
+  user_variables: Array<UserCourseInstanceExerciseServiceVariable>
+}
+
+export interface CustomViewExerciseTaskGrading {
+  id: string
+  created_at: string
+  exercise_id: string
+  exercise_task_id: string
+  feedback_json: unknown | null
+  feedback_text: string | null
+}
+
+export interface CustomViewExerciseTasks {
+  exercise_tasks: Array<CustomViewExerciseTaskSpec>
+  task_submissions: Array<CustomViewExerciseTaskSubmission>
+  task_gradings: Array<CustomViewExerciseTaskGrading>
+}
+
+export interface CustomViewExerciseTaskSpec {
+  id: string
+  public_spec: unknown | null
+  order_number: number
+}
+
+export interface CustomViewExerciseTaskSubmission {
+  id: string
+  created_at: string
+  exercise_slide_submission_id: string
+  exercise_slide_id: string
+  exercise_task_id: string
+  exercise_task_grading_id: string | null
+  data_json: unknown | null
 }
 
 export interface ManualCompletionPreview {
@@ -1059,9 +1103,10 @@ export interface CmsPageExercise {
   limit_number_of_tries: boolean
   deadline: string | null
   needs_peer_review: boolean
-  peer_review_config: CmsPeerReviewConfig | null
-  peer_review_questions: Array<CmsPeerReviewQuestion> | null
-  use_course_default_peer_review_config: boolean
+  needs_self_review: boolean
+  peer_or_self_review_config: CmsPeerOrSelfReviewConfig | null
+  peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion> | null
+  use_course_default_peer_or_self_review_config: boolean
 }
 
 export interface CmsPageExerciseSlide {
@@ -1094,8 +1139,8 @@ export interface ContentManagementPage {
   exercises: Array<CmsPageExercise>
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
-  peer_review_configs: Array<CmsPeerReviewConfig>
-  peer_review_questions: Array<CmsPeerReviewQuestion>
+  peer_or_self_review_configs: Array<CmsPeerOrSelfReviewConfig>
+  peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion>
   organization_id: string
 }
 
@@ -1229,7 +1274,7 @@ export interface PageDetailsUpdate {
   url_path: string
 }
 
-export interface CmsPeerReviewConfig {
+export interface CmsPeerOrSelfReviewConfig {
   id: string
   course_id: string
   exercise_id: string | null
@@ -1238,14 +1283,15 @@ export interface CmsPeerReviewConfig {
   accepting_threshold: number
   processing_strategy: PeerReviewProcessingStrategy
   points_are_all_or_nothing: boolean
+  review_instructions: unknown | null
 }
 
-export interface CmsPeerReviewConfiguration {
-  peer_review_config: CmsPeerReviewConfig
-  peer_review_questions: Array<CmsPeerReviewQuestion>
+export interface CmsPeerOrSelfReviewConfiguration {
+  peer_or_self_review_config: CmsPeerOrSelfReviewConfig
+  peer_or_self_review_questions: Array<CmsPeerOrSelfReviewQuestion>
 }
 
-export interface CourseMaterialPeerReviewConfig {
+export interface CourseMaterialPeerOrSelfReviewConfig {
   id: string
   course_id: string
   exercise_id: string | null
@@ -1258,7 +1304,7 @@ export type PeerReviewProcessingStrategy =
   | "AutomaticallyGradeOrManualReviewByAverage"
   | "ManualReviewEverything"
 
-export interface PeerReviewConfig {
+export interface PeerOrSelfReviewConfig {
   id: string
   created_at: string
   updated_at: string
@@ -1271,9 +1317,10 @@ export interface PeerReviewConfig {
   processing_strategy: PeerReviewProcessingStrategy
   manual_review_cutoff_in_days: number
   points_are_all_or_nothing: boolean
+  review_instructions: unknown | null
 }
 
-export interface PeerReviewSubmission {
+export interface PeerOrSelfReviewSubmission {
   id: string
   created_at: string
   updated_at: string
@@ -1281,33 +1328,33 @@ export interface PeerReviewSubmission {
   user_id: string
   exercise_id: string
   course_instance_id: string
-  peer_review_config_id: string
+  peer_or_self_review_config_id: string
   exercise_slide_submission_id: string
 }
 
-export type PeerReviewAnswer =
+export type PeerOrSelfReviewAnswer =
   | { type: "no-answer" }
   | { type: "essay"; value: string }
   | { type: "scale"; value: number }
 
-export interface PeerReviewQuestionAndAnswer {
-  peer_review_config_id: string
-  peer_review_question_id: string
-  peer_review_submission_id: string
+export interface PeerOrSelfReviewQuestionAndAnswer {
+  peer_or_self_review_config_id: string
+  peer_or_self_review_question_id: string
+  peer_or_self_review_submission_id: string
   peer_review_question_submission_id: string
   order_number: number
   question: string
-  answer: PeerReviewAnswer
+  answer: PeerOrSelfReviewAnswer
   answer_required: boolean
 }
 
-export interface PeerReviewQuestionSubmission {
+export interface PeerOrSelfReviewQuestionSubmission {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
-  peer_review_question_id: string
-  peer_review_submission_id: string
+  peer_or_self_review_question_id: string
+  peer_or_self_review_submission_id: string
   text_data: string | null
   number_data: number | null
 }
@@ -1327,34 +1374,35 @@ export interface PeerReviewQueueEntry {
 }
 
 export interface PeerReviewWithQuestionsAndAnswers {
-  peer_review_submission_id: string
-  questions_and_answers: Array<PeerReviewQuestionAndAnswer>
+  peer_or_self_review_submission_id: string
+  peer_review_giver_user_id: string
+  questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>
 }
 
-export interface CmsPeerReviewQuestion {
+export interface CmsPeerOrSelfReviewQuestion {
   id: string
-  peer_review_config_id: string
+  peer_or_self_review_config_id: string
   order_number: number
   question: string
-  question_type: PeerReviewQuestionType
+  question_type: PeerOrSelfReviewQuestionType
   answer_required: boolean
   weight: number
 }
 
-export interface PeerReviewQuestion {
+export interface PeerOrSelfReviewQuestion {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
-  peer_review_config_id: string
+  peer_or_self_review_config_id: string
   order_number: number
   question: string
-  question_type: PeerReviewQuestionType
+  question_type: PeerOrSelfReviewQuestionType
   answer_required: boolean
   weight: number
 }
 
-export type PeerReviewQuestionType = "Essay" | "Scale"
+export type PeerOrSelfReviewQuestionType = "Essay" | "Scale"
 
 export interface PendingRole {
   id: string
@@ -1457,7 +1505,8 @@ export interface PageAudioFile {
 
 export interface NewRegrading {
   user_points_update_strategy: UserPointsUpdateStrategy
-  exercise_task_submission_ids: Array<string>
+  ids: Array<string>
+  id_type: NewRegradingIdType
 }
 
 export interface Regrading {
@@ -1481,6 +1530,8 @@ export interface RegradingSubmissionInfo {
   grading_before_regrading: ExerciseTaskGrading
   grading_after_regrading: ExerciseTaskGrading | null
 }
+
+export type NewRegradingIdType = "ExerciseTaskSubmissionId" | "ExerciseId"
 
 export interface RepositoryExercise {
   id: string
@@ -1822,8 +1873,8 @@ export type ExamEnrollmentData =
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
 
-export interface CourseMaterialPeerReviewDataWithToken {
-  course_material_peer_review_data: CourseMaterialPeerReviewData
+export interface CourseMaterialPeerOrSelfReviewDataWithToken {
+  course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData
   token: string | null
 }
 

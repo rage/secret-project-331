@@ -145,7 +145,8 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
               // eslint-disable-next-line i18next/no-literal-string
               value="accept"
               label={t("button-text-accept")}
-              name={"accept-or-reject-proposal"}
+              // eslint-disable-next-line i18next/no-literal-string
+              name="accept-or-reject-proposal"
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.delete(block.id)
@@ -166,7 +167,8 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
               // eslint-disable-next-line i18next/no-literal-string
               value="edit"
               label={t("edit-and-accept")}
-              name={"accept-or-reject-proposal"}
+              // eslint-disable-next-line i18next/no-literal-string
+              name="accept-or-reject-proposal"
               onChange={() => {
                 setEditingBlocks((eb) => {
                   eb.add(block.id)
@@ -186,7 +188,8 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             // eslint-disable-next-line i18next/no-literal-string
             value="reject"
             label={t("button-text-reject")}
-            name={"accept-or-reject-proposal"}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="accept-or-reject-proposal"
             onChange={() => {
               setEditingBlocks((eb) => {
                 eb.delete(block.id)

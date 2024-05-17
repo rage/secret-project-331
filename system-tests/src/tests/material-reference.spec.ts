@@ -9,7 +9,7 @@ test.use({
 
 test("material reference tests", async ({ page, headless }, testInfo) => {
   test.slow()
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),

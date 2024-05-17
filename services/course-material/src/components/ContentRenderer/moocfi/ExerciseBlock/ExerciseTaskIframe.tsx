@@ -9,9 +9,10 @@ import { isMessageFromIframe } from "../../../../shared-module/common/exercise-s
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string
   url: string
-  postThisStateToIFrame: IframeState | null
+  postThisStateToIFrame: ExerciseIframeState | null
   setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
   title: string
+  headingBeforeIframe?: string
 }
 
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
@@ -19,6 +20,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   postThisStateToIFrame,
   setAnswer,
   title,
+  headingBeforeIframe,
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
@@ -27,6 +29,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
 
   return (
     <MessageChannelIFrame
+      headingBeforeIframe={headingBeforeIframe}
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (messageContainer, _responsePort) => {

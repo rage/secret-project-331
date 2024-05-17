@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -14,11 +13,8 @@ import { organizationCoursesPageHref } from "../../../../shared-module/common/ut
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
-  const getOrganizations = useQuery({
-    queryKey: [`organizations`],
-    queryFn: () => fetchOrganizations(),
-    gcTime: 60000,
-  })
+
+  const allOrganizationsQuery = useAllOrganizationsQuery()
 
   return (
     <div
@@ -45,7 +41,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
             margin-bottom: 1rem;
           `}
         >
-          {getOrganizations.data.map((organization) => (
+          {allOrganizationsQuery.data.map((organization) => (
             <a
               key={organization.id}
               href={organizationCoursesPageHref(organization.slug)}
@@ -149,7 +145,7 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
           ))}
         </div>
       )}
-      <DebugModal data={getOrganizations.data} />
+      <DebugModal data={allOrganizationsQuery.data} />
     </div>
   )
 }

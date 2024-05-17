@@ -46,7 +46,7 @@ const Scale: React.FC<
             font-weight: 500;
           `}
         >
-          <MarkdownText text={public_quiz_item.title} />
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
         </div>
       )}
       <div

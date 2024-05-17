@@ -5,8 +5,8 @@ use crate::prelude::*;
 use models::{
     course_instances::CourseInstance,
     pages::{Page, PageVisibility},
-    peer_review_configs::{self, CmsPeerReviewConfiguration},
-    peer_review_questions::normalize_cms_peer_review_questions,
+    peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfiguration},
+    peer_or_self_review_questions::normalize_cms_peer_or_self_review_questions,
 };
 
 use crate::prelude::models::course_modules::CourseModule;
@@ -58,11 +58,11 @@ async fn add_media(
 }
 
 #[instrument(skip(pool))]
-async fn get_course_default_peer_review_configuration(
+async fn get_course_default_peer_or_self_review_configuration(
     course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
+) -> ControllerResult<web::Json<CmsPeerOrSelfReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -72,30 +72,32 @@ async fn get_course_default_peer_review_configuration(
     )
     .await?;
 
-    let peer_review_config =
-        models::peer_review_configs::get_course_default_cms_peer_review(&mut conn, *course_id)
-            .await?;
-
-    let peer_review_questions =
-        models::peer_review_questions::get_course_default_cms_peer_review_questions(
-            &mut conn,
-            peer_review_config.id,
+    let peer_or_self_review_config =
+        models::peer_or_self_review_configs::get_course_default_cms_peer_review(
+            &mut conn, *course_id,
         )
         .await?;
 
-    token.authorized_ok(web::Json(CmsPeerReviewConfiguration {
-        peer_review_config,
-        peer_review_questions,
+    let peer_or_self_review_questions =
+        models::peer_or_self_review_questions::get_course_default_cms_peer_or_self_review_questions(
+            &mut conn,
+            peer_or_self_review_config.id,
+        )
+        .await?;
+
+    token.authorized_ok(web::Json(CmsPeerOrSelfReviewConfiguration {
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
     }))
 }
 
 #[instrument(skip(pool))]
-async fn put_course_default_peer_review_configuration(
+async fn put_course_default_peer_or_self_review_configuration(
     course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-    payload: web::Json<CmsPeerReviewConfiguration>,
-) -> ControllerResult<web::Json<CmsPeerReviewConfiguration>> {
+    payload: web::Json<CmsPeerOrSelfReviewConfiguration>,
+) -> ControllerResult<web::Json<CmsPeerOrSelfReviewConfiguration>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -105,13 +107,13 @@ async fn put_course_default_peer_review_configuration(
     )
     .await?;
     let mut config = payload.0;
-    normalize_cms_peer_review_questions(&mut config.peer_review_questions);
-    let cms_peer_review_configuration =
-        peer_review_configs::upsert_course_default_cms_peer_review_and_questions(
+    normalize_cms_peer_or_self_review_questions(&mut config.peer_or_self_review_questions);
+    let cms_peer_or_self_review_configuration =
+        peer_or_self_review_configs::upsert_course_default_cms_peer_review_and_questions(
             &mut conn, &config,
         )
         .await?;
-    token.authorized_ok(web::Json(cms_peer_review_configuration))
+    token.authorized_ok(web::Json(cms_peer_or_self_review_configuration))
 }
 
 /**
@@ -181,21 +183,21 @@ async fn get_research_form_with_course_id(
 }
 
 /**
-PUT `/api/v0/cms/courses/:course_id/research-consent-form-question` - Upserts questions for the courses research form from Gutenberg research form edit.
+PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
 */
 
 #[instrument(skip(pool, payload))]
-async fn upsert_course_research_form_question(
-    payload: web::Json<NewResearchFormQuestion>,
+async fn upsert_course_research_form_questions(
+    payload: web::Json<Vec<NewResearchFormQuestion>>,
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<ResearchFormQuestion>> {
+) -> ControllerResult<web::Json<Vec<ResearchFormQuestion>>> {
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    let question = payload;
-    let res = models::research_forms::upsert_research_form_questions(&mut conn, &question).await?;
+
+    let res = models::research_forms::upsert_research_form_questions(&mut conn, &payload).await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -243,16 +245,16 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{course_id}/upload", web::post().to(add_media))
         .route(
             "/{course_id}/default-peer-review",
-            web::get().to(get_course_default_peer_review_configuration),
+            web::get().to(get_course_default_peer_or_self_review_configuration),
         )
         .route(
             "/{course_id}/default-peer-review",
-            web::put().to(put_course_default_peer_review_configuration),
+            web::put().to(put_course_default_peer_or_self_review_configuration),
         )
         .route("/{course_id}/pages", web::get().to(get_all_pages))
         .route(
-            "/{courseId}/research-consent-form-question",
-            web::put().to(upsert_course_research_form_question),
+            "/{courseId}/research-consent-form-questions",
+            web::put().to(upsert_course_research_form_questions),
         )
         .route(
             "/{course_id}/research-consent-form",

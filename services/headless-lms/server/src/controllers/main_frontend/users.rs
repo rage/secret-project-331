@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use models::{
-    course_instance_enrollments::CourseInstanceEnrollmentsInfo,
+    course_instance_enrollments::CourseInstanceEnrollmentsInfo, courses::Course,
     research_forms::ResearchFormQuestionAnswer, user_research_consents::UserResearchConsent,
     users::User,
 };
@@ -112,11 +112,42 @@ async fn get_all_research_form_answers_with_user_id(
     token.authorized_ok(web::Json(res))
 }
 
+/**
+GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
+*/
+#[instrument(skip(pool))]
+async fn get_my_courses(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<Course>>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let courses_enrolled_to =
+        models::courses::all_courses_user_enrolled_to(&mut conn, user.id).await?;
+
+    let courses_with_roles =
+        models::courses::all_courses_with_roles_for_user(&mut conn, user.id).await?;
+
+    let combined = courses_enrolled_to
+        .clone()
+        .into_iter()
+        .chain(
+            courses_with_roles
+                .into_iter()
+                .filter(|c| !courses_enrolled_to.iter().any(|c2| c.id == c2.id)),
+        )
+        .collect();
+
+    token.authorized_ok(web::Json(combined))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
         web::get().to(get_all_research_form_answers_with_user_id),
     )
+    .route("/my-courses", web::get().to(get_my_courses))
     .route(
         "/get-user-research-consent",
         web::get().to(get_research_consent_by_user_id),

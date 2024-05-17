@@ -10,7 +10,6 @@ import withErrorBoundary from "../../../../shared-module/common/utils/withErrorB
 import { quizTheme } from "../../../../styles/QuizStyles"
 import { FlexDirection, sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import { orderArrayWithId } from "../../../../util/randomizer"
-import MarkdownText from "../../../MarkdownText"
 import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
@@ -67,6 +66,7 @@ const MultipleChoiceSubmission: React.FC<
   // device width. Sanitized since the value is used in CSS.
   const direction: FlexDirection = sanitizeFlexDirection(
     public_quiz_item.optionDisplayDirection,
+    // eslint-disable-next-line i18next/no-literal-string
     "row",
   )
 
@@ -99,7 +99,9 @@ const MultipleChoiceSubmission: React.FC<
           margin: 0.5rem 0;
         `}
       >
-        {public_quiz_item.body && <MarkdownText text={public_quiz_item.body} />}
+        {public_quiz_item.body && (
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
+        )}
       </p>
       <div
         className={css`
@@ -248,7 +250,7 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         padding: 0.5rem 0px 0.5rem 0.5rem;
       `}
     >
-      <p>{feedback}</p>
+      <ParsedText inline parseLatex parseMarkdown addDotToEnd text={feedback} />
     </div>
   ) : null
 }

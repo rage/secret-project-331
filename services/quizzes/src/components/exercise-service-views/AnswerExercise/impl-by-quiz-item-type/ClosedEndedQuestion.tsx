@@ -54,8 +54,12 @@ const ClosedEndedQuestion: React.FC<
 
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
-      <div>{quizItem.title && <MarkdownText text={quizItem.title} />}</div>
-      <div>{quizItem.body && <MarkdownText text={quizItem.body} />}</div>
+      <div>
+        {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
+      </div>
+      <div>
+        {quizItem.body && <ParsedText inline parseLatex parseMarkdown text={quizItem.body} />}
+      </div>
       <div>
         <TextField
           id={fieldId}

@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 test("blocks render correctly", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.click(
@@ -23,6 +23,8 @@ test("blocks render correctly", async ({ page, headless }, testInfo) => {
   await page.getByText("Content rendering").click()
 
   await page.getByText("100px wide").waitFor()
+
+  await expect(page.getByText("crashed")).toBeHidden()
 
   await expectScreenshotsToMatchSnapshots({
     // TODO: these should be removed

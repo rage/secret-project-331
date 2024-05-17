@@ -12,8 +12,8 @@ use headless_lms_models::{
         self, CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate, NewPage,
         PageUpdateArgs,
     },
-    peer_review_configs::{self, CmsPeerReviewConfig},
-    peer_review_questions::{self, CmsPeerReviewQuestion},
+    peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfig},
+    peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
     user_exercise_slide_states, user_exercise_states, PKeyPolicy,
 };
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
@@ -239,9 +239,10 @@ pub fn example_exercise_flexible(
         limit_number_of_tries: false,
         deadline: None,
         needs_peer_review: false,
-        use_course_default_peer_review_config: false,
-        peer_review_config: None,
-        peer_review_questions: None,
+        needs_self_review: false,
+        use_course_default_peer_or_self_review_config: false,
+        peer_or_self_review_config: None,
+        peer_or_self_review_questions: None,
     };
     (block, exercise, slides, tasks)
 }
@@ -285,9 +286,10 @@ pub fn quizzes_exercise(
         limit_number_of_tries: false,
         deadline,
         needs_peer_review,
-        use_course_default_peer_review_config: true,
-        peer_review_config: None,
-        peer_review_questions: None,
+        needs_self_review: false,
+        use_course_default_peer_or_self_review_config: true,
+        peer_or_self_review_config: None,
+        peer_or_self_review_questions: None,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -342,9 +344,10 @@ pub fn tmc_exercise(
         limit_number_of_tries: false,
         deadline,
         needs_peer_review,
-        use_course_default_peer_review_config: true,
-        peer_review_config: None,
-        peer_review_questions: None,
+        needs_self_review: false,
+        use_course_default_peer_or_self_review_config: true,
+        peer_or_self_review_config: None,
+        peer_or_self_review_questions: None,
     };
     let exercise_slide = CmsPageExerciseSlide {
         id: exercise_slide_id,
@@ -561,16 +564,16 @@ pub async fn create_best_peer_review(
     conn: &mut PgConnection,
     course_id: Uuid,
     exercise_id: Uuid,
-    processing_strategy: peer_review_configs::PeerReviewProcessingStrategy,
+    processing_strategy: peer_or_self_review_configs::PeerReviewProcessingStrategy,
     accepting_threshold: f32,
     points_are_all_or_nothing: bool,
     peer_reviews_to_give: i32,
     peer_reviews_to_receive: i32,
 ) -> Result<()> {
-    let prc = peer_review_configs::upsert_with_id(
+    let prc = peer_or_self_review_configs::upsert_with_id(
         conn,
         PKeyPolicy::Generate,
-        &CmsPeerReviewConfig {
+        &CmsPeerOrSelfReviewConfig {
             id: Uuid::new_v4(),
             course_id,
             exercise_id: Some(exercise_id),
@@ -579,59 +582,61 @@ pub async fn create_best_peer_review(
             accepting_threshold,
             processing_strategy,
             points_are_all_or_nothing,
+            review_instructions: None,
         },
     )
     .await?;
 
-    peer_review_questions::insert(
+    peer_or_self_review_questions::insert(
         conn,
         PKeyPolicy::Generate,
-        &CmsPeerReviewQuestion {
+        &CmsPeerOrSelfReviewQuestion {
             id: Uuid::new_v4(),
-            peer_review_config_id: prc.id,
+            peer_or_self_review_config_id: prc.id,
             order_number: 0,
             question: "What are your thoughts on the answer".to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Essay,
+            question_type: peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Essay,
             answer_required: true,
             weight: 0.0,
         },
     )
     .await?;
 
-    peer_review_questions::insert(
+    peer_or_self_review_questions::insert(
         conn,
         PKeyPolicy::Generate,
-        &CmsPeerReviewQuestion {
+        &CmsPeerOrSelfReviewQuestion {
             id: Uuid::new_v4(),
-            peer_review_config_id: prc.id,
+            peer_or_self_review_config_id: prc.id,
             order_number: 1,
             question: "Was the answer correct?".to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            question_type: peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
             answer_required: true,
             weight: 0.0,
         },
     )
     .await?;
 
-    peer_review_questions::insert(
+    peer_or_self_review_questions::insert(
         conn,
         PKeyPolicy::Generate,
-        &CmsPeerReviewQuestion {
+        &CmsPeerOrSelfReviewQuestion {
             id: Uuid::new_v4(),
-            peer_review_config_id: prc.id,
+            peer_or_self_review_config_id: prc.id,
             order_number: 2,
             question: "Was the answer good?".to_string(),
-            question_type: peer_review_questions::PeerReviewQuestionType::Scale,
+            question_type: peer_or_self_review_questions::PeerOrSelfReviewQuestionType::Scale,
             answer_required: true,
             weight: 0.0,
         },
     )
     .await?;
 
-    exercises::set_exercise_to_use_exercise_specific_peer_review_config(
+    exercises::set_exercise_to_use_exercise_specific_peer_or_self_review_config(
         conn,
         exercise_id,
         true,
+        false,
         false,
     )
     .await?;

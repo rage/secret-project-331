@@ -11,6 +11,7 @@ use crate::{
     exercise_slides::{self, CourseMaterialExerciseSlide},
     exercise_task_gradings::{self, ExerciseTaskGrading},
     exercise_task_submissions::{self, ExerciseTaskSubmission},
+    library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
     user_exercise_states::{self, CourseInstanceOrExamId},
     CourseOrExamId,
@@ -58,6 +59,9 @@ pub struct ExerciseTaskSpec {
     pub updated_at: DateTime<Utc>,
     pub exercise_type: String,
     pub private_spec: Option<serde_json::Value>,
+    pub exercise_name: String,
+    pub course_module_id: Uuid,
+    pub course_module_name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -487,6 +491,34 @@ WHERE deleted_at IS NULL
     Ok(res)
 }
 
+pub async fn get_all_exercise_tasks_by_module_and_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+    module_id: Uuid,
+) -> ModelResult<Vec<CustomViewExerciseTaskSpec>> {
+    let res: Vec<CustomViewExerciseTaskSpec> = sqlx::query_as!(
+        CustomViewExerciseTaskSpec,
+        r#"
+    SELECT distinct (et.id),
+        et.public_spec,
+        et.order_number
+    FROM exercise_tasks et
+    JOIN exercise_slides es ON es.id = et.exercise_slide_id
+    JOIN exercises e ON es.exercise_id = e.id JOIN chapters c ON e.chapter_id = c.id
+    WHERE et.exercise_type = $1 AND c.course_module_id = $2
+      AND et.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+      AND c.deleted_at IS NULL;
+        "#,
+        exercise_type,
+        module_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub fn stream_course_exercise_tasks(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -494,22 +526,27 @@ pub fn stream_course_exercise_tasks(
     sqlx::query_as!(
         ExerciseTaskSpec,
         r#"
-SELECT distinct (t.id),
-  t.created_at,
-  t.updated_at,
-  t.exercise_type,
-  t.private_spec
-from exercise_tasks t
-where t.exercise_slide_id in (
-    SELECT id
-    from exercise_slides s
-    where s.exercise_id in (
-        SELECT id
-        from exercises e
-        where e.course_id = $1
-      )
-  )
-  AND deleted_at IS NULL;
+        SELECT distinct (t.id),
+        t.created_at,
+        t.updated_at,
+        t.exercise_type,
+        t.private_spec,
+        e.name as exercise_name,
+        mod.id as course_module_id,
+        mod.name as course_module_name
+      FROM exercise_tasks t
+      JOIN exercise_slides s
+        ON s.id = t.exercise_slide_id
+      JOIN exercises e
+        ON s.exercise_id = e.id
+      JOIN chapters ch ON e.chapter_id = ch.id
+      JOIN course_modules mod ON mod.id = ch.course_module_id
+        WHERE e.course_id = $1
+        AND e.deleted_at IS NULL
+        AND s.deleted_at IS NULL
+        AND t.deleted_at IS NULL
+        AND ch.deleted_at IS NULL
+        AND mod.deleted_at IS NULL;
         "#,
         course_id
     )

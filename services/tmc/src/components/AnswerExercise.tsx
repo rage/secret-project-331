@@ -10,7 +10,7 @@ import AnswerEditorExercise from "./AnswerEditorExercise"
 
 interface Props {
   initialPublicSpec: PublicSpec
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
 }

@@ -23,8 +23,8 @@ use models::{
     page_visit_datum_summary_by_courses_device_types::PageVisitDatumSummaryByCourseDeviceTypes,
     page_visit_datum_summary_by_pages::PageVisitDatumSummaryByPages,
     pages::Page,
-    peer_review_configs::PeerReviewConfig,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_configs::PeerOrSelfReviewConfig,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
     user_exercise_states::ExerciseUserCounts,
 };
 
@@ -32,6 +32,7 @@ use crate::{
     domain::{
         csv_export::{
             course_instance_export::CourseInstancesExportOperation,
+            course_research_form_questions_answers_export::CourseResearchFormExportOperation,
             exercise_tasks_export::CourseExerciseTasksExportOperation, general_export,
             submissions::CourseSubmissionExportOperation, users_export::UsersExportOperation,
         },
@@ -865,7 +866,7 @@ async fn get_course_default_peer_review(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<(PeerReviewConfig, Vec<PeerReviewQuestion>)>> {
+) -> ControllerResult<web::Json<(PeerOrSelfReviewConfig, Vec<PeerOrSelfReviewQuestion>)>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -875,13 +876,17 @@ async fn get_course_default_peer_review(
     )
     .await?;
 
-    let peer_review =
-        models::peer_review_configs::get_default_for_course_by_course_id(&mut conn, *course_id)
-            .await?;
-    let peer_review_questions =
-        models::peer_review_questions::get_all_by_peer_review_config_id(&mut conn, peer_review.id)
-            .await?;
-    token.authorized_ok(web::Json((peer_review, peer_review_questions)))
+    let peer_review = models::peer_or_self_review_configs::get_default_for_course_by_course_id(
+        &mut conn, *course_id,
+    )
+    .await?;
+    let peer_or_self_review_questions =
+        models::peer_or_self_review_questions::get_all_by_peer_or_self_review_config_id(
+            &mut conn,
+            peer_review.id,
+        )
+        .await?;
+    token.authorized_ok(web::Json((peer_review, peer_or_self_review_questions)))
 }
 
 /**
@@ -898,7 +903,7 @@ async fn post_update_peer_review_queue_reviews_received(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::GlobalPermissions).await?;
-    models::library::peer_reviewing::update_peer_review_queue_reviews_received(
+    models::library::peer_or_self_reviewing::update_peer_review_queue_reviews_received(
         &mut conn, *course_id,
     )
     .await?;
@@ -1050,6 +1055,44 @@ pub async fn course_instances_export(
             Utc::now().format("%Y-%m-%d")
         ),
         CourseInstancesExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
+GET `/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`
+
+gets SCV course specific research form questions and user answers for course
+*/
+#[instrument(skip(pool))]
+pub async fn course_consent_form_answers_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - User Consents {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CourseResearchFormExportOperation {
             course_id: *course_id,
         },
         token,
@@ -1379,6 +1422,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/export-course-instances",
             web::get().to(course_instances_export),
+        )
+        .route(
+            "/{course_id}/export-course-user-consents",
+            web::get().to(course_consent_form_answers_export),
         )
         .route(
             "/{course_id}/page-visit-datum-summary",

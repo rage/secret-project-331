@@ -8,7 +8,7 @@ import { ExerciseEditorState, IframeState } from "../util/stateInterfaces"
 
 interface Props {
   state: ExerciseEditorState
-  setState: (updater: (state: IframeState | null) => IframeState | null) => void
+  setState: (updater: (state: ExerciseIframeState | null) => ExerciseIframeState | null) => void
 }
 
 const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState }) => {

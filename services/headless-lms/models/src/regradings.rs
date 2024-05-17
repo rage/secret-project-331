@@ -22,7 +22,15 @@ pub struct Regrading {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewRegrading {
     user_points_update_strategy: UserPointsUpdateStrategy,
-    exercise_task_submission_ids: Vec<Uuid>,
+    ids: Vec<Uuid>,
+    id_type: NewRegradingIdType,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub enum NewRegradingIdType {
+    ExerciseTaskSubmissionId,
+    ExerciseId,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -76,12 +84,36 @@ RETURNING id
     )
     .fetch_one(&mut *tx)
     .await?;
+
+    let exercise_task_submission_ids = match new_regrading.id_type {
+        NewRegradingIdType::ExerciseTaskSubmissionId => new_regrading.ids,
+        NewRegradingIdType::ExerciseId => {
+            let mut ids = Vec::new();
+            for id in new_regrading.ids {
+                let exercise = crate::exercises::get_by_id(&mut tx, id).await?;
+                let submission_ids = if exercise.exam_id.is_some() {
+                    // On exams only the last submission is considered.
+                    // That's why we will only regrade those.
+                    exercise_task_submissions::get_latest_submission_ids_by_exercise_id(
+                        &mut tx,
+                        exercise.id,
+                    )
+                    .await?
+                } else {
+                    exercise_task_submissions::get_ids_by_exercise_id(&mut tx, exercise.id).await?
+                };
+                ids.extend(submission_ids);
+            }
+            ids
+        }
+    };
+
     info!(
         "Adding {:?} exercise task submissions to the regrading.",
-        new_regrading.exercise_task_submission_ids.len()
+        exercise_task_submission_ids.len()
     );
-    for id in new_regrading.exercise_task_submission_ids {
-        let exercise_task_submission = exercise_task_submissions::get_by_id(&mut tx, id).await?;
+    for id in &exercise_task_submission_ids {
+        let exercise_task_submission = exercise_task_submissions::get_by_id(&mut tx, *id).await?;
         let grading_before_regrading_id = exercise_task_submission
             .exercise_task_grading_id
             .ok_or_else(|| {
@@ -95,7 +127,7 @@ RETURNING id
             &mut tx,
             PKeyPolicy::Generate,
             res.id,
-            id,
+            *id,
             grading_before_regrading_id,
         )
         .await?;

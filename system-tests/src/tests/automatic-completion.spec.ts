@@ -8,7 +8,7 @@ test.use({
 })
 
 test("Registers automatic completion", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
@@ -63,7 +63,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByText("To the registration form").click()
   await expect(page).toHaveURL("https://www.example.com")
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })
@@ -95,7 +95,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page.getByRole("button", { name: "Save" }).click()
   await page.getByRole("button", { name: "Save changes" }).click()
 
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .getByRole("link", { name: "University of Helsinki, Department of Computer Science" })

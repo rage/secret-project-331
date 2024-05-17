@@ -5,8 +5,8 @@ import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
-test("create peer review", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+test("create peer review", async ({ page }) => {
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -22,8 +22,8 @@ test("create peer review", async ({ page, headless }, testInfo) => {
     .first()
     .click()
 
+  await page.getByText("Peer and self review configuration").click()
   await page.getByText("Add peer review").check()
-  // Uncheck text=Use course global peer reviewCourse default peer review config >> input[type="checkbox"]
   await page.getByText("Use course default peer review config").uncheck()
 
   await page.getByText("Add peer review question").click()
@@ -32,20 +32,10 @@ test("create peer review", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Save").nth(3).click()
   await page.getByText(`Operation successful`).waitFor()
-
-  await expectScreenshotsToMatchSnapshots({
-    headless,
-    testInfo,
-    snapshotName: "peer-review-editor-after-save",
-    waitForTheseToBeVisibleAndStable: [page.locator(`text="Peer review question type"`)],
-    screenshotTarget: page,
-    clearNotifications: true,
-    axeSkip: ["aria-allowed-attr", "aria-allowed-role"],
-  })
 })
 
 test("default peer review editing", async ({ page, headless }, testInfo) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await page
     .locator(
@@ -63,6 +53,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
     .first()
     .click()
 
+  await page.getByText("Peer and self review configuration").click()
   await page.getByText("Use course default peer review config").click()
 
   const [page1] = await Promise.all([
@@ -95,12 +86,5 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   await showNextToastsInfinitely(page1)
   await page1.getByText("Save").click()
   await page1.getByText(`Operation successful`).waitFor()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page1,
-    headless,
-    testInfo,
-    snapshotName: "default-peer-review-editor-after-save",
-    waitForTheseToBeVisibleAndStable: [page1.locator('text="Add peer review question"')],
-  })
   await showToastsNormally(page1)
 })

@@ -12,7 +12,7 @@ test.use({
 })
 
 test("Creating a course an returning an exercise works", async ({ page }) => {
-  await page.goto("http://project-331.local/")
+  await page.goto("http://project-331.local/organizations")
 
   await Promise.all([
     page.getByText("University of Helsinki, Department of Computer Science").click(),
@@ -94,15 +94,6 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   // Fill [placeholder="Exercise name"]
   await page.fill('[placeholder="Exercise name"]', "What is system testing")
 
-  await page.getByText("Add slide").click()
-
-  // The block needs to be focused for the button to work
-  // eslint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(100)
-  await page.getByText("Slide 1").click()
-
-  await page.getByText("Add task").click()
-
   await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
 
   await page.getByText("Type / to choose a block").click()
@@ -175,6 +166,6 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
 
   await Promise.all([
     page.locator('span.heading:has-text("POINTS")').waitFor(),
-    page.locator('div.points:has-text("1⁄1")').waitFor(),
+    page.locator('div.points:has-text("1/1")').waitFor(),
   ])
 })

@@ -357,6 +357,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 placeholder={t("ects-credits")}
                 type="number"
+                // eslint-disable-next-line i18next/no-literal-string
                 step="any"
                 {...register("ects_credits", {
                   valueAsNumber: true,

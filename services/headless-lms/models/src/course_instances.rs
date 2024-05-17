@@ -541,6 +541,45 @@ WHERE cie.user_id = $1
     Ok(course_instances)
 }
 
+pub async fn get_enrolled_course_instances_for_user_with_exercise_type(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_type: &str,
+) -> ModelResult<Vec<CourseInstanceWithCourseInfo>> {
+    let course_instances = sqlx::query_as!(
+        CourseInstanceWithCourseInfo,
+        r#"
+SELECT DISTINCT ON (ci.id)
+    c.id AS course_id,
+    c.slug AS course_slug,
+    c.name AS course_name,
+    c.description AS course_description,
+    ci.id AS course_instance_id,
+    ci.name AS course_instance_name,
+    ci.description AS course_instance_description
+FROM course_instances AS ci
+  JOIN course_instance_enrollments AS cie ON ci.id = cie.course_instance_id
+  LEFT JOIN courses AS c ON ci.course_id = c.id
+  LEFT JOIN exercises AS e ON e.course_id = c.id
+  LEFT JOIN exercise_slides AS es ON es.exercise_id = e.id
+  LEFT JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
+WHERE cie.user_id = $1
+  AND et.exercise_type = $2
+  AND ci.deleted_at IS NULL
+  AND cie.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND es.deleted_at IS NULL
+  AND et.deleted_at IS NULL
+"#,
+        user_id,
+        exercise_type,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(course_instances)
+}
+
 /// Deletes submissions, peer reviews, points and etc. for a course and user. Main purpose is for teachers who are testing their course with their own accounts.
 pub async fn reset_progress_on_course_instance_for_user(
     conn: &mut PgConnection,
@@ -593,7 +632,7 @@ WHERE user_id = $1
     .await?;
     sqlx::query!(
         "
-UPDATE peer_review_submissions
+UPDATE peer_or_self_review_submissions
 SET deleted_at = now()
 WHERE user_id = $1
   AND course_instance_id = $2
@@ -606,11 +645,11 @@ WHERE user_id = $1
     .await?;
     sqlx::query!(
         "
-UPDATE peer_review_question_submissions
+UPDATE peer_or_self_review_question_submissions
 SET deleted_at = now()
-WHERE peer_review_submission_id IN (
+WHERE peer_or_self_review_submission_id IN (
     SELECT id
-    FROM peer_review_submissions
+    FROM peer_or_self_review_submissions
     WHERE user_id = $1
       AND course_instance_id = $2
   )
@@ -746,10 +785,61 @@ WHERE user_id = $1
     Ok(())
 }
 
+pub async fn get_course_average_duration(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<i64>> {
+    let res = sqlx::query!(
+        "
+SELECT
+    AVG(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at))::int8 AS average_duration_seconds
+FROM course_instance_enrollments ce
+JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
+WHERE ce.course_instance_id = $1
+    AND ce.deleted_at IS NULL
+    AND cmc.deleted_at IS NULL;
+        ",
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res.average_duration_seconds)
+}
+
+pub async fn get_student_duration(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<i64>> {
+    let res = sqlx::query!(
+        "
+SELECT
+    COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds
+FROM course_instance_enrollments ce
+JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
+AND cmc.user_id = ce.user_id
+WHERE ce.course_instance_id = $1
+    AND ce.user_id = $2
+    AND ce.deleted_at IS NULL
+    AND cmc.deleted_at IS NULL;
+        ",
+        course_instance_id,
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res.student_duration_seconds)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::test_helper::*;
+    use crate::{
+        course_instance_enrollments::NewCourseInstanceEnrollment, exercise_tasks::NewExerciseTask,
+        test_helper::*,
+    };
 
     #[tokio::test]
     async fn allows_only_one_instance_per_course_without_name() {
@@ -778,5 +868,57 @@ mod test {
         insert(tx2.as_mut(), PKeyPolicy::Generate, instance)
             .await
             .unwrap();
+    }
+
+    #[tokio::test]
+    async fn gets_enrolled_course_instances_for_user_with_exercise_type() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:chapter_id, page:page_id, :exercise, slide:exercise_slide_id);
+
+        // enroll user on course
+        crate::course_instance_enrollments::insert_enrollment_and_set_as_current(
+            tx.as_mut(),
+            NewCourseInstanceEnrollment {
+                course_id,
+                user_id,
+                course_instance_id: instance.id,
+            },
+        )
+        .await
+        .unwrap();
+        let course_instances =
+            get_enrolled_course_instances_for_user_with_exercise_type(tx.as_mut(), user_id, "tmc")
+                .await
+                .unwrap();
+        assert!(
+            course_instances.is_empty(),
+            "user should not be enrolled on any course with tmc exercises"
+        );
+
+        // insert tmc exercise task
+        crate::exercise_tasks::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            NewExerciseTask {
+                assignment: Vec::new(),
+                exercise_slide_id,
+                exercise_type: "tmc".to_string(),
+                model_solution_spec: None,
+                private_spec: None,
+                public_spec: None,
+                order_number: 1,
+            },
+        )
+        .await
+        .unwrap();
+        let course_instances =
+            get_enrolled_course_instances_for_user_with_exercise_type(tx.as_mut(), user_id, "tmc")
+                .await
+                .unwrap();
+        assert_eq!(
+            course_instances.len(),
+            1,
+            "user should be enrolled on one course with tmc exercises"
+        );
+        tx.rollback().await;
     }
 }

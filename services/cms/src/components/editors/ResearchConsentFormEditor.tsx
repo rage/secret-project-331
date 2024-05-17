@@ -42,7 +42,8 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [content, setContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      "moocfi/research-consent-checkbox",
+      // eslint-disable-next-line i18next/no-literal-string
+      "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
   const courseId = useContext(CourseContext)?.courseId
@@ -50,7 +51,8 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
   const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
     modifyBlocks((data.content ?? []) as BlockInstance[], [
       ...allowedResearchFormCoreBlocks,
-      "moocfi/research-consent-checkbox",
+      // eslint-disable-next-line i18next/no-literal-string
+      "moocfi/research-consent-question",
     ]) as BlockInstance[],
   )
 
@@ -162,15 +164,5 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
     </>
   )
 }
-function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
-  if (!Array.isArray(obj)) {
-    return false
-  }
-  for (const o of obj) {
-    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
-      return false
-    }
-  }
-  return true
-}
+
 export default ResearchFormEditor

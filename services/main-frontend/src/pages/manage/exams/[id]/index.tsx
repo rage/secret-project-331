@@ -22,6 +22,18 @@ interface OrganizationPageProps {
 const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = ({ query }) => {
   const { t } = useTranslation()
   const getExam = useQuery({ queryKey: [`exam-${query.id}`], queryFn: () => fetchExam(query.id) })
+  const organizationId = useQuery({
+    queryKey: [`organizations-${query.id}`],
+    queryFn: () => fetchOrgExam(query.id),
+  }).data?.organization_id
+
+  const organizationSlug = useQuery({
+    queryKey: [`organizations-${organizationId}`],
+    queryFn: () => fetchOrganization(organizationId ?? ""),
+    enabled: !!organizationId,
+  }).data?.slug
+
+  const [editExamFormOpen, setEditExamFormOpen] = useState(false)
   const [newCourse, setNewCourse] = useState("")
   const setCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
@@ -37,6 +49,7 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
       },
     },
   )
+
   const unsetCourseMutation = useToastMutation(
     ({ examId, courseId }: { examId: string; courseId: string }) => {
       return unsetCourse(examId, courseId)
@@ -51,7 +64,6 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
       },
     },
   )
-
   return (
     <div
       className={css`
@@ -95,6 +107,36 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
               <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}>
                 {t("link-export-submissions")}
               </a>
+            </li>
+            <li>
+              <a href={`/org/${organizationSlug}/exams/testexam/${getExam.data.id}`}>
+                {t("link-test-exam")}
+              </a>
+            </li>
+            <li>
+              <div
+                className={css`
+                  margin-bottom: 1rem;
+                `}
+              >
+                <EditExamDialog
+                  initialData={getExam.data || null}
+                  examId={getExam.data.id}
+                  organizationId={organizationId || ""}
+                  open={editExamFormOpen}
+                  close={() => {
+                    setEditExamFormOpen(!setEditExamFormOpen)
+                    getExam.refetch()
+                  }}
+                />
+              </div>
+              <Button
+                size="medium"
+                variant="primary"
+                onClick={() => setEditExamFormOpen(!editExamFormOpen)}
+              >
+                {t("edit-exam")}
+              </Button>
             </li>
           </ul>
           <h2>{t("courses")}</h2>

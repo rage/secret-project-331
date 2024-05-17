@@ -113,6 +113,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           {publicSpecQuery.isSuccess && (
             <StyledPre>
+              {/* eslint-disable-next-line i18next/no-literal-string */}
               {JSON.stringify(publicSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
             </StyledPre>
           )}
@@ -137,6 +138,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           {modelSolutionSpecQuery.isSuccess && (
             <StyledPre>
+              {/* eslint-disable-next-line i18next/no-literal-string */}
               {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
             </StyledPre>
           )}

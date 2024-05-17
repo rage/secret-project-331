@@ -1,8 +1,6 @@
-import { BrowserContext, test } from "@playwright/test"
+import { BrowserContext, expect, test } from "@playwright/test"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
-
-import { answerExercise, fillPeerReview, TIMEOUT } from "./peer_review_utils"
+import { answerExercise, fillPeerReview } from "./peer_review_utils"
 
 const TEST_PAGE = "http://project-331.local/org/uh-cs/courses/peer-review-course/chapter-1/page-3"
 
@@ -16,135 +14,71 @@ test.describe("test AutomaticallyGradeByAverage behavior", () => {
   let context3: BrowserContext
 
   test.beforeEach(async ({ browser }) => {
-    context1 = await browser.newContext({ storageState: "src/states/student1@example.com.json" })
-    context2 = await browser.newContext({ storageState: "src/states/student2@example.com.json" })
-    context3 = await browser.newContext({ storageState: "src/states/teacher@example.com.json" })
+    ;[context1, context2, context3] = await Promise.all([
+      browser.newContext({ storageState: "src/states/student1@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student2@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student3@example.com.json" }),
+    ])
   })
 
   test.afterEach(async () => {
-    await context1.close()
-    await context2.close()
-    await context3.close()
+    await Promise.all([context1.close(), context2.close(), context3.close()])
   })
 
-  test("AutomaticallyGradeByAverage > Accepts", async ({ headless }, testInfo) => {
+  test("AutomaticallyGradeByAverage", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
-    const _teacherPage = await context3.newPage()
+    const student3Page = await context3.newPage()
 
-    // User 1 neavigates to exercise and answers
+    // User 1 navigates to exercise and answers
     await answerExercise(student1Page, TEST_PAGE, "a")
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-after-submission",
-      screenshotTarget: student1Page,
-      clearNotifications: true,
-      waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyGradeByAverage"'),
-      ],
-      scrollToYCoordinate: 0,
-      screenshotOptions: { fullPage: true },
-    })
+    await expect(student1Page.getByTestId("exercise-points")).toContainText("0/1")
 
-    // User 2 neavigates to exercise and answers
-    await student2Page.goto("http://project-331.local/")
+    // User 2 navigates to exercise and answers
+    await student2Page.goto("http://project-331.local/organizations")
     await answerExercise(student2Page, TEST_PAGE, "b")
+    await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
 
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-after-submission",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      axeSkip: ["duplicate-id"],
-      waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyGradeByAverage"'),
-      ],
-      screenshotOptions: { fullPage: true },
-    })
+    // Two students review each other's answers
+    await fillPeerReview(student1Page, ["Strongly disagree", "Strongly disagree"])
+    await fillPeerReview(student2Page, ["Strongly agree", "Strongly agree"])
+    await student1Page.getByText("No answers available to peer review yet. ").waitFor()
+    await student2Page.getByText("No answers available to peer review yet. ").waitFor()
 
-    // User 1 writes reviews
-    await fillPeerReview(student1Page, ["Agree", "Agree"])
+    // User 3 navigates to exercise and answers, and gives peer reviews to first two students
+    await student3Page.goto("http://project-331.local/organizations")
+    await answerExercise(student3Page, TEST_PAGE, "b")
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("0/1")
+    await fillPeerReview(student3Page, ["Neither agree nor disagree", "Neither agree nor disagree"])
+    await fillPeerReview(
+      student3Page,
+      ["Neither agree nor disagree", "Neither agree nor disagree"],
+      false,
+    )
+    await student3Page.getByText("Waiting for other students to review your answer.").waitFor()
 
-    // User 2 writes reviews
-    await fillPeerReview(student2Page, ["Disagree", "Disagree"])
+    // Then the first two students review the third student's answer
+    await fillPeerReview(student1Page, ["Agree", "Strongly agree"], false, true)
+    await fillPeerReview(student2Page, ["Strongly agree", "Agree"], false, true)
 
+    // Now all the students should see their results.
+    await student1Page.reload()
+    await expect(student1Page.getByTestId("exercise-points")).toContainText("1/1")
     await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
 
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-after-peer-review",
-      screenshotTarget: student1Page,
-      clearNotifications: true,
-      axeSkip: ["duplicate-id"],
-      waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyGradeByAverage"'),
-      ],
-      screenshotOptions: { fullPage: true },
-    })
-
+    await student2Page.reload()
+    await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
     await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
 
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-after-peer-review",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      axeSkip: ["duplicate-id"],
-      waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyGradeByAverage"'),
-      ],
-      screenshotOptions: { fullPage: true },
-    })
-
-    await student1Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-1-seeing-score",
-      screenshotTarget: student1Page,
-      clearNotifications: true,
-      axeSkip: ["duplicate-id"],
-      waitForTheseToBeVisibleAndStable: [
-        student1Page.locator('text="AutomaticallyGradeByAverage"'),
-      ],
-      screenshotOptions: { fullPage: true },
-    })
-
-    await student2Page
-      .frameLocator("iframe")
-      .first()
-      .locator("div#exercise-service-content-id")
-      .click({ timeout: TIMEOUT })
-
-    await expectScreenshotsToMatchSnapshots({
-      headless,
-      testInfo,
-      snapshotName: "student-2-seeing-score",
-      screenshotTarget: student2Page,
-      clearNotifications: true,
-      axeSkip: ["duplicate-id"],
-      waitForTheseToBeVisibleAndStable: [
-        student2Page.locator('text="AutomaticallyGradeByAverage"'),
-      ],
-      screenshotOptions: { fullPage: true },
-    })
+    await student3Page.reload()
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
+    await student3Page
+      .getByText("Your answer has been reviewed and graded. New submissions are no longer allowed.")
+      .waitFor()
   })
 })

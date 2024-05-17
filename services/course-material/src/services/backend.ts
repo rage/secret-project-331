@@ -7,9 +7,11 @@ import {
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
   CourseMaterialExercise,
-  CourseMaterialPeerReviewDataWithToken,
-  CourseMaterialPeerReviewSubmission,
+  CourseMaterialPeerOrSelfReviewDataWithToken,
+  CourseMaterialPeerOrSelfReviewSubmission,
+  CourseModuleCompletion,
   CoursePageWithUserData,
+  CustomViewExerciseSubmissions,
   ExamData,
   ExamEnrollment,
   IsChapterFrontPage,
@@ -25,7 +27,7 @@ import {
   PageNavigationInformation,
   PageSearchResult,
   PageWithExercises,
-  PeerReviewsRecieved,
+  PeerOrSelfReviewsReceived,
   ResearchForm,
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
@@ -48,8 +50,10 @@ import {
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
   isCourseMaterialExercise,
-  isCourseMaterialPeerReviewDataWithToken,
+  isCourseMaterialPeerOrSelfReviewDataWithToken,
+  isCourseModuleCompletion,
   isCoursePageWithUserData,
+  isCustomViewExerciseSubmissions,
   isExamData,
   isIsChapterFrontPage,
   isMaterialReference,
@@ -60,7 +64,7 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
-  isPeerReviewsRecieved,
+  isPeerOrSelfReviewsReceived,
   isResearchForm,
   isResearchFormQuestion,
   isResearchFormQuestionAnswer,
@@ -80,6 +84,7 @@ import {
   isObjectMap,
   isString,
   isUnion,
+  isUuid,
   validateResponse,
 } from "../shared-module/common/utils/fetching"
 
@@ -256,26 +261,26 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return validateResponse(response, isCourseMaterialExercise)
 }
 
-export const fetchPeerReviewDataByExerciseId = async (
+export const fetchPeerOrSelfReviewDataByExerciseId = async (
   id: string,
-): Promise<CourseMaterialPeerReviewDataWithToken> => {
+): Promise<CourseMaterialPeerOrSelfReviewDataWithToken> => {
   const response = await courseMaterialClient.get(`/exercises/${id}/peer-review`, {
     responseType: "json",
   })
-  return validateResponse(response, isCourseMaterialPeerReviewDataWithToken)
+  return validateResponse(response, isCourseMaterialPeerOrSelfReviewDataWithToken)
 }
 
 export const fetchPeerReviewDataReceivedByExerciseId = async (
   id: string,
   submissionId: string,
-): Promise<PeerReviewsRecieved> => {
+): Promise<PeerOrSelfReviewsReceived> => {
   const response = await courseMaterialClient.get(
-    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-or-self-reviews-received`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isPeerReviewsRecieved)
+  return validateResponse(response, isPeerOrSelfReviewsReceived)
 }
 
 export const fetchChaptersPagesWithExercises = async (
@@ -377,17 +382,21 @@ export const postProposedEdits = async (
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
 }
 
-export const postPeerReviewSubmission = async (
+export const postPeerOrSelfReviewSubmission = async (
   exerciseId: string,
-  peerReviewSubmission: CourseMaterialPeerReviewSubmission,
+  peerOrSelfReviewSubmission: CourseMaterialPeerOrSelfReviewSubmission,
 ): Promise<void> => {
-  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews`, peerReviewSubmission, {
-    responseType: "json",
-  })
+  await courseMaterialClient.post(
+    `/exercises/${exerciseId}/peer-or-self-reviews`,
+    peerOrSelfReviewSubmission,
+    {
+      responseType: "json",
+    },
+  )
 }
 
-export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
+export const postStartPeerOrSelfReview = async (exerciseId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-or-self-reviews/start`)
 }
 
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {
@@ -395,13 +404,47 @@ export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollmen
   return response.data
 }
 
-export const enrollInExam = async (examId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exams/${examId}/enroll`, { responseType: "json" })
+export const enrollInExam = async (examId: string, is_teacher_testing: boolean): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exams/${examId}/enroll`,
+    { is_teacher_testing },
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const fetchExam = async (examId: string): Promise<ExamData> => {
   const response = await courseMaterialClient.get(`/exams/${examId}`, { responseType: "json" })
   return validateResponse(response, isExamData)
+}
+
+export const fetchExamForTesting = async (examId: string): Promise<ExamData> => {
+  const response = await courseMaterialClient.get(
+    `/exams/testexam/${examId}/fetch-exam-for-testing`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(response, isExamData)
+}
+
+export const resetExamProgress = async (examId: string): Promise<void> => {
+  const response = await courseMaterialClient.post(`/exams/testexam/${examId}/reset-exam-progress`)
+  return response.data
+}
+
+export const updateShowExerciseAnswers = async (
+  examId: string,
+  showExerciseAnswers: boolean,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/exams/testexam/${examId}/update-show-exercise-answers`,
+    { show_exercise_answers: showExerciseAnswers },
+    {
+      responseType: "json",
+    },
+  )
 }
 
 export const saveExamAnswer = async (
@@ -558,4 +601,42 @@ export const postResearchFormUserAnswer = async (
     answer,
   )
   return validateResponse(response, isString)
+}
+
+export const fetchCourseModuleExercisesAndSubmissionsByType = async (
+  courseModuleId: string,
+  exercise_type: string,
+  courseInstanceId: string,
+): Promise<CustomViewExerciseSubmissions> => {
+  const res = await courseMaterialClient.get(
+    `/course-modules/${courseModuleId}/exercise-tasks/${exercise_type}/${courseInstanceId}`,
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isCustomViewExerciseSubmissions)
+}
+
+export const fetchModuleIdByChapterId = async (chapter_id: string) => {
+  const res = await courseMaterialClient.get(`/course-modules/chapter/${chapter_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(res, isUuid)
+}
+
+export const fetchDefaultModuleIdByCourseId = async (course_id: string) => {
+  const res = await courseMaterialClient.get(`/course-modules/course/${course_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(res, isUuid)
+}
+
+export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
+  courseInstanceId: string,
+  userId: string,
+): Promise<CourseModuleCompletion[]> => {
+  const response = await courseMaterialClient.get(
+    `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
+  )
+  return validateResponse(response, isArray(isCourseModuleCompletion))
 }

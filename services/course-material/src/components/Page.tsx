@@ -72,16 +72,18 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const { t } = useTranslation()
   const router = useRouter()
 
-  const [showAndEditForm, setshowAndEditForm] = useState<boolean>(false)
+  const [showResearchConsentForm, setShowResearchConsentForm] = useState<boolean>(false)
   const [shouldAnswerResearchForm, setShouldAnswerResearchForm] = useState<boolean>(false)
   const [hasAnsweredForm, setHasAnsweredForm] = useState<boolean>(false)
   const researchFormQueryParam = useQueryParameter("show_research_form")
-  const [shouldFetchResearchFormData, setShouldFetchResearchFormData] = useState<boolean>(false)
+  const loginContext = useContext(LoginStateContext)
+  const waitingForCourseSettingsToBeFilled =
+    pageContext.settings?.current_course_instance_id === null ||
+    pageContext.settings?.current_course_instance_id === undefined
 
   useEffect(() => {
     if (researchFormQueryParam) {
-      setshowAndEditForm(true)
-      setShouldFetchResearchFormData(true)
+      setShowResearchConsentForm(true)
       const newPathObject = {
         ...router,
       }
@@ -92,22 +94,35 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     }
   }, [router, researchFormQueryParam])
 
-  const getUserAnswers = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
-    queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
-    enabled: !!shouldFetchResearchFormData,
-  })
-  const getResearchConsentForm = useQuery({
+  const researchConsentFormQuery = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form`],
     queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!shouldFetchResearchFormData,
+    enabled: loginContext.signedIn === true && Boolean(courseId),
+  })
+
+  const researchConsentFormAnswerQuery = useQuery({
+    queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
+    queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
+    enabled: loginContext.signedIn === true && Boolean(courseId),
   })
 
   useEffect(() => {
-    if (getUserAnswers.data?.length === 0 && !shouldAnswerResearchForm && !hasAnsweredForm) {
+    if (
+      researchConsentFormQuery.data !== null &&
+      researchConsentFormAnswerQuery.data?.length === 0 &&
+      !shouldAnswerResearchForm &&
+      !hasAnsweredForm &&
+      !waitingForCourseSettingsToBeFilled
+    ) {
       setShouldAnswerResearchForm(true)
     }
-  }, [getUserAnswers.data?.length, hasAnsweredForm, shouldAnswerResearchForm])
+  }, [
+    researchConsentFormAnswerQuery.data?.length,
+    hasAnsweredForm,
+    shouldAnswerResearchForm,
+    researchConsentFormQuery.data,
+    waitingForCourseSettingsToBeFilled,
+  ])
 
   const getPageAudioFiles = useQuery({
     queryKey: [`page-${pageId}-audio-files`, courseId, isMaterialPage],
@@ -156,23 +171,22 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           <CourseSettingsModal
             onClose={() => {
               onRefresh()
-              setShouldFetchResearchFormData(true)
             }}
           />
         )}
-        {getResearchConsentForm.isSuccess &&
-          getResearchConsentForm.data !== null &&
-          (showAndEditForm || shouldAnswerResearchForm) && (
+        {researchConsentFormQuery.isSuccess &&
+          researchConsentFormQuery.data !== null &&
+          (showResearchConsentForm || shouldAnswerResearchForm) && (
             <SelectResearchConsentForm
-              editForm={showAndEditForm}
+              editForm={showResearchConsentForm}
               shouldAnswerResearchForm={shouldAnswerResearchForm}
-              usersInitialAnswers={getUserAnswers.data}
-              researchForm={getResearchConsentForm.data}
+              usersInitialAnswers={researchConsentFormAnswerQuery.data}
+              researchForm={researchConsentFormQuery.data}
               onClose={() => {
-                setshowAndEditForm(false)
+                setShowResearchConsentForm(false)
                 setShouldAnswerResearchForm(false)
                 setHasAnsweredForm(true)
-                if (showAndEditForm) {
+                if (showResearchConsentForm) {
                   router.back()
                 }
               }}
@@ -193,6 +207,14 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
                 justify-content: center;
                 align-items: center;
                 gap: 0 5px;
+
+                cursor: pointer;
+                filter: brightness(1) contrast(1);
+                transition: filter 0.3s;
+
+                &:hover {
+                  filter: brightness(0.9) contrast(1.1);
+                }
               `}
             >
               <AudioSpeaker />
@@ -201,7 +223,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
                   color: #fff;
                 `}
               >
-                {t("audio-player")}
+                {t("open-audio-player-button")}
               </span>
             </button>
           </AudioNotification>

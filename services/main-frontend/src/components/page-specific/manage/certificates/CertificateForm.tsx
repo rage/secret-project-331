@@ -45,6 +45,16 @@ export interface CertificateFields {
   clearCurrentOverlaySvg: boolean
 }
 
+const ANCHOR_OPTIONS: { value: CertificateTextAnchor; label: string }[] = [
+  { value: "start", label: "Start" },
+  { value: "middle", label: "Middle" },
+  { value: "end", label: "End" },
+]
+const PAPER_SIZE_OPTIONS: { value: PaperSize; label: string }[] = [
+  { value: "vertical-a4", label: "Vertical A4" },
+  { value: "horizontal-a4", label: "Horizontal A4" },
+]
+
 const CertificateForm: React.FC<Props> = ({
   configurationAndRequirements,
   onClickSave,
@@ -52,6 +62,7 @@ const CertificateForm: React.FC<Props> = ({
 }) => {
   const configuration = configurationAndRequirements?.certificate_configuration
   const { t } = useTranslation()
+  /* eslint-disable i18next/no-literal-string */
   const {
     register,
     handleSubmit,
@@ -81,19 +92,11 @@ const CertificateForm: React.FC<Props> = ({
       clearCurrentOverlaySvg: false,
     },
   })
+  /* eslint-enable i18next/no-literal-string */
   const onSubmitWrapper = handleSubmit((data) => {
     onClickSave(data)
   })
 
-  const anchorOptions: { value: CertificateTextAnchor; label: string }[] = [
-    { value: "start", label: "Start" },
-    { value: "middle", label: "Middle" },
-    { value: "end", label: "End" },
-  ]
-  const paperSizeOptions: { value: PaperSize; label: string }[] = [
-    { value: "vertical-a4", label: "Vertical A4" },
-    { value: "horizontal-a4", label: "Horizontal A4" },
-  ]
   return (
     <form
       onSubmit={onSubmitWrapper}
@@ -106,13 +109,13 @@ const CertificateForm: React.FC<Props> = ({
       <TextField
         id={"locale"}
         error={errors.locale}
-        label={"Locale"}
+        label={t("label-locale")}
         {...register("locale", { required: t("required-field") })}
       />
       <SelectField
         id={"paperSize"}
-        options={paperSizeOptions}
-        label="Paper size"
+        options={PAPER_SIZE_OPTIONS}
+        label={t("label-paper-size")}
         {...register("paperSize")}
       />
       <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
@@ -121,8 +124,8 @@ const CertificateForm: React.FC<Props> = ({
           error={errors.backgroundSvg}
           label={
             configuration
-              ? `Background SVG (currently ${configuration.background_svg_path})`
-              : `Background SVG`
+              ? t("label-background-svg-current", { path: configuration.background_svg_path })
+              : t("label-background-svg")
           }
           {...register(
             "backgroundSvg",
@@ -131,6 +134,7 @@ const CertificateForm: React.FC<Props> = ({
           )}
           // required for new configurations
           required={configuration === null}
+          // eslint-disable-next-line i18next/no-literal-string
           accept={".svg"}
         />
         <FileField
@@ -139,17 +143,18 @@ const CertificateForm: React.FC<Props> = ({
           label={
             configuration
               ? configuration.overlay_svg_path
-                ? `Overlay SVG (currently ${configuration.overlay_svg_path})`
-                : "Overlay SVG (optional, currently not set)"
-              : "Overlay SVG"
+                ? t("label-overlay-svg-current", { path: configuration.overlay_svg_path })
+                : t("label-overlay-svg-optional")
+              : t("label-overlay-svg")
           }
           {...register("overlaySvg")}
+          // eslint-disable-next-line i18next/no-literal-string
           accept={".svg"}
         />
       </MaskOverThisInSystemTests>
       <CheckBox
         id={"clearCurrentOverlaySvg"}
-        label={"Delete current overlay SVG"}
+        label={t("label-delete-current-overlay-svg")}
         {...register("clearCurrentOverlaySvg")}
         // disabled if no current overlay SVG
         disabled={configuration?.overlay_svg_path === null}
@@ -160,31 +165,31 @@ const CertificateForm: React.FC<Props> = ({
         <TextField
           id={"ownerNamePosX"}
           error={errors.ownerNamePosX}
-          label={"Position (X)"}
+          label={t("label-position-x")}
           {...register("ownerNamePosX", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNamePosY"}
           error={errors.ownerNamePosY}
-          label={"Position (Y)"}
+          label={t("label-position-y")}
           {...register("ownerNamePosY", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNameFontSize"}
           error={errors.ownerNameFontSize}
-          label={"Font size"}
+          label={t("label-font-size")}
           {...register("ownerNameFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"ownerNameTextColor"}
           error={errors.ownerNameTextColor}
-          label={"Text color"}
+          label={t("label-text-color")}
           {...register("ownerNameTextColor", { required: t("required-field") })}
         />
         <SelectField
           id={"ownerNameTextAnchor"}
-          options={anchorOptions}
-          label="Text anchor"
+          options={ANCHOR_OPTIONS}
+          label={t("label-text-anchor")}
           {...register("ownerNameTextAnchor")}
         />
       </div>
@@ -194,31 +199,31 @@ const CertificateForm: React.FC<Props> = ({
         <TextField
           id={"validateUrlPosX"}
           error={errors.validateUrlPosX}
-          label={"Position (X)"}
+          label={t("label-position-x")}
           {...register("validateUrlPosX", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlPosY"}
           error={errors.validateUrlPosY}
-          label={"Position (Y)"}
+          label={t("label-position-y")}
           {...register("validateUrlPosY", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlFontSize"}
           error={errors.validateUrlFontSize}
-          label={"Font size"}
+          label={t("label-font-size")}
           {...register("validateUrlFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"validateUrlTextColor"}
           error={errors.validateUrlTextColor}
-          label={"Text color"}
+          label={t("label-text-color")}
           {...register("validateUrlTextColor", { required: t("required-field") })}
         />
         <SelectField
           id={"validateUrlTextAnchor"}
-          options={anchorOptions}
-          label="Text anchor"
+          options={ANCHOR_OPTIONS}
+          label={t("label-text-anchor")}
           {...register("validateUrlTextAnchor")}
         />
       </div>
@@ -228,31 +233,31 @@ const CertificateForm: React.FC<Props> = ({
         <TextField
           id={"datePosX"}
           error={errors.datePosX}
-          label={"Position (X)"}
+          label={t("label-position-x")}
           {...register("datePosX", { required: t("required-field") })}
         />
         <TextField
           id={"datePosY"}
           error={errors.datePosY}
-          label={"Position (Y)"}
+          label={t("label-position-y")}
           {...register("datePosY", { required: t("required-field") })}
         />
         <TextField
           id={"dateFontSize"}
           error={errors.dateFontSize}
-          label={"Font size"}
+          label={t("label-font-size")}
           {...register("dateFontSize", { required: t("required-field") })}
         />
         <TextField
           id={"dateTextColor"}
           error={errors.dateTextColor}
-          label={"Text color"}
+          label={t("label-text-color")}
           {...register("dateTextColor", { required: t("required-field") })}
         />
         <SelectField
           id={"dateTextAnchor"}
-          options={anchorOptions}
-          label="Text anchor"
+          options={ANCHOR_OPTIONS}
+          label={t("label-text-anchor")}
           {...register("dateTextAnchor")}
         />
       </div>

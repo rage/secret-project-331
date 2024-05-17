@@ -11,9 +11,12 @@ import CourseChapterGrid from "./CourseChapterGrid"
 import CourseObjectiveSection from "./CourseObjectiveSection"
 import CourseProgress from "./CourseProgress"
 import Exercise from "./Exercise"
+import ExerciseSettings from "./Exercise/ExerciseSettings"
+import ExerciseSlide from "./Exercise/ExerciseSlide"
+import ExerciseSlides from "./Exercise/ExerciseSlides"
+import ExerciseTask from "./Exercise/ExerciseTask"
+import ExerciseCustomView from "./ExerciseCustomView"
 import ExerciseInChapter from "./ExerciseInChapter"
-import ExerciseSlide from "./ExerciseSlide"
-import ExerciseTask from "./ExerciseTask"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import HightlightBox from "./HighlightBox"
@@ -27,7 +30,7 @@ import LearningObjectives from "./LearningObjectives"
 import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
-import ResearchConsentCheckBox from "./ResearchConsentCheckbox"
+import ResearchFormQuestion from "./ResearchConsentQuestion"
 import TableBox from "./TableBox"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
@@ -44,6 +47,8 @@ export const blockTypeMapForPages = [
   ["moocfi/exercise-slide", ExerciseSlide],
   ["moocfi/exercise-task", ExerciseTask],
   ["moocfi/exercise", Exercise],
+  ["moocfi/exercise-slides", ExerciseSlides],
+  ["moocfi/exercise-settings", ExerciseSettings],
   ["moocfi/exercises-in-chapter", ExerciseInChapter],
   ["moocfi/glossary", Glossary],
   ["moocfi/hero-section", HeroSection],
@@ -60,6 +65,9 @@ export const blockTypeMapForPages = [
   ["moocfi/author", Author],
   ["moocfi/author-inner-block", AuthorInnerBlock],
   ["moocfi/conditional-block", ConditionalBlock],
+  ["moocfi/exercise-custom-view-block", ExerciseCustomView],
+  ["moocfi/partners", PartnersBlock],
+  ["moocfi/top-level-pages", TopLevelPage],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -77,6 +85,8 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/landing-page-copy-text", LandingPageCopyText],
   ["moocfi/iframe", Iframe],
   ["moocfi/map", Map],
+  ["moocfi/conditional-block", ConditionalBlock],
+  ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -87,7 +97,7 @@ export const blockTypeMapForTopLevelPages = [
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
 export const blockTypeMapForResearchConsentForm = [
-  ["moocfi/research-consent-checkbox", ResearchConsentCheckBox],
+  ["moocfi/research-consent-question", ResearchFormQuestion],
 ] as Array<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [string, BlockConfiguration<Record<string, any>>]

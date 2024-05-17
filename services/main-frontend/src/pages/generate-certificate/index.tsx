@@ -36,6 +36,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
     fetchCertificate(certificateConfigurationId).then((certificate) => {
       if (certificate !== null) {
         // found existing certificate, redirect
+        // eslint-disable-next-line i18next/no-literal-string
         router.replace(`/certificates/validate/${certificate.verification_id}`)
       }
     })
@@ -79,7 +80,7 @@ const ModuleCertificate: React.FC<React.PropsWithChildren<void>> = () => {
           <hr />
           <TextField
             required
-            label={"Your name"}
+            label={t("your-name")}
             value={nameOnCertificate}
             onChange={(event) => setNameOnCertificate(event.target.value)}
           ></TextField>

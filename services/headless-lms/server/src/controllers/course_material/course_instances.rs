@@ -6,6 +6,7 @@ use models::{
     course_background_question_answers::NewCourseBackgroundQuestionAnswer,
     course_background_questions::CourseBackgroundQuestionsAndAnswers,
     course_instance_enrollments::CourseInstanceEnrollment,
+    course_module_completions::CourseModuleCompletion,
     library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
 };
@@ -149,6 +150,36 @@ async fn save_course_settings(
 }
 
 /**
+GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
+*/
+#[instrument(skip(pool))]
+
+async fn get_all_get_all_course_module_completions_for_user_by_course_instance_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseModuleCompletion>>> {
+    let (course_instance_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::CourseInstance(course_instance_id),
+    )
+    .await?;
+
+    let res = models::course_module_completions::get_all_by_course_instance_and_user_id(
+        &mut conn,
+        course_instance_id,
+        user_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
 */
 #[instrument(skip(pool))]
@@ -189,6 +220,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{course_instance_id}/module-completions",
         web::get().to(get_module_completions_for_course_instance),
+    )
+    .route(
+        "/{course_instance_id}/course-module-completions/{user_id}",
+        web::get().to(get_all_get_all_course_module_completions_for_user_by_course_instance_id),
     )
     .route(
         "/{course_instance_id}/background-questions-and-answers",

@@ -8,8 +8,10 @@ use crate::{
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    library::custom_view_exercises::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     prelude::*,
     CourseOrExamId,
 };
@@ -31,9 +33,10 @@ pub struct ExerciseTaskSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewsRecieved {
-    pub peer_review_questions: Vec<PeerReviewQuestion>,
-    pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+pub struct PeerOrSelfReviewsReceived {
+    pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
+    pub peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
+    pub peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -244,41 +247,56 @@ pub async fn get_peer_reviews_received(
     exercise_id: Uuid,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<PeerReviewsRecieved> {
+) -> ModelResult<PeerOrSelfReviewsReceived> {
     let exercise = crate::exercises::get_by_id(&mut *conn, exercise_id).await?;
-    let peer_review_config = crate::peer_review_configs::get_by_exercise_or_course_id(
-        &mut *conn,
-        &exercise,
-        exercise.course_id.ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Peer reviews work only on courses (and not, for example, on exams)".to_string(),
-                None,
-            )
-        })?,
-    )
-    .await?;
-    let peer_review_questions = crate::peer_review_questions::get_by_peer_review_configs_id(
-        &mut *conn,
-        peer_review_config.id,
-    )
-    .await?;
-
-    let peer_review_question_submissions =
-        crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(
+    let peer_or_self_review_config =
+        crate::peer_or_self_review_configs::get_by_exercise_or_course_id(
             &mut *conn,
-            &peer_review_questions
-                .iter()
-                .map(|x| (x.id))
-                .collect::<Vec<_>>(),
+            &exercise,
+            exercise.course_id.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Peer reviews work only on courses (and not, for example, on exams)"
+                        .to_string(),
+                    None,
+                )
+            })?,
+        )
+        .await?;
+    let peer_or_self_review_questions =
+        crate::peer_or_self_review_questions::get_by_peer_or_self_review_configs_id(
+            &mut *conn,
+            peer_or_self_review_config.id,
+        )
+        .await?;
+
+    let peer_or_self_review_question_ids = peer_or_self_review_questions
+        .iter()
+        .map(|x| (x.id))
+        .collect::<Vec<_>>();
+
+    let peer_or_self_review_submissions =
+        crate::peer_or_self_review_submissions::get_received_peer_or_self_review_submissions_for_user_by_peer_or_self_review_config_id_and_exercise_slide_submission(
+            &mut *conn,
+            user_id,
+            exercise_slide_submission_id,
+            peer_or_self_review_config.id,
+        )
+        .await?;
+
+    let peer_or_self_review_question_submissions =
+        crate::peer_or_self_review_question_submissions::get_by_peer_reviews_question_ids(
+            &mut *conn,
+            &peer_or_self_review_question_ids,
             user_id,
             exercise_slide_submission_id,
         )
         .await?;
 
-    Ok(PeerReviewsRecieved {
-        peer_review_questions,
-        peer_review_question_submissions,
+    Ok(PeerOrSelfReviewsReceived {
+        peer_or_self_review_questions,
+        peer_or_self_review_question_submissions,
+        peer_or_self_review_submissions,
     })
 }
 
@@ -352,6 +370,7 @@ FROM exercise_task_submissions
   JOIN exercise_task_gradings ON exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id
   JOIN exercises ON exercise_slide_submissions.exercise_id = exercises.id
 WHERE exercise_slide_submissions.course_id = $1
+  AND exercise_slide_submissions.deleted_at IS NULL
   AND exercise_task_submissions.deleted_at IS NULL
   AND exercise_task_gradings.deleted_at IS NULL
   AND exercises.deleted_at IS NULL;
@@ -453,4 +472,134 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
         res.push(course_material_exercise_task);
     }
     Ok(res)
+}
+
+pub async fn get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
+    conn: &mut PgConnection,
+    exercise_type: &str,
+    course_module_id: Uuid,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<CustomViewExerciseTasks> {
+    let task_submissions =
+        crate::exercise_task_submissions::get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
+            &mut *conn,
+            user_id,
+            exercise_type,
+            course_module_id,
+            course_instance_id,
+        )
+        .await?;
+    let task_gradings =
+        crate::exercise_task_gradings::get_user_exercise_task_gradings_by_module_and_exercise_type(
+            &mut *conn,
+            user_id,
+            exercise_type,
+            course_module_id,
+            course_instance_id,
+        )
+        .await?;
+
+    let exercise_tasks = crate::exercise_tasks::get_all_exercise_tasks_by_module_and_exercise_type(
+        &mut *conn,
+        exercise_type,
+        course_module_id,
+    )
+    .await?;
+    let res: CustomViewExerciseTasks = CustomViewExerciseTasks {
+        exercise_tasks,
+        task_submissions,
+        task_gradings,
+    };
+    Ok(res)
+}
+
+/// get all submissions for user and course module and exercise type
+pub async fn get_user_latest_exercise_task_submissions_by_course_module_and_exercise_type(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_type: &str,
+    module_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Vec<CustomViewExerciseTaskSubmission>> {
+    let res: Vec<CustomViewExerciseTaskSubmission> = sqlx::query_as!(
+        CustomViewExerciseTaskSubmission,
+        r#"
+        SELECT DISTINCT ON (g.exercise_task_id)
+        g.id,
+        g.created_at,
+        g.exercise_slide_submission_id,
+        g.exercise_slide_id,
+        g.exercise_task_id,
+        g.exercise_task_grading_id,
+        g.data_json
+      FROM exercise_task_submissions g
+        JOIN exercise_tasks et ON et.id = g.exercise_task_id
+        JOIN exercise_slide_submissions ess ON ess.id = g.exercise_slide_submission_id
+        JOIN exercises e ON e.id = ess.exercise_id
+        JOIN chapters c ON c.id = e.chapter_id
+      WHERE ess.user_id = $1
+      AND ess.course_instance_id = $2
+      AND et.exercise_type = $3
+      AND c.course_module_id = $4
+      AND g.deleted_at IS NULL
+      AND et.deleted_at IS NULL
+      AND ess.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+      AND c.deleted_at IS NULL
+      ORDER BY g.exercise_task_id, g.created_at DESC
+      "#,
+        user_id,
+        course_instance_id,
+        exercise_type,
+        module_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_ids_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM exercise_task_submissions
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE exercise_id = $1
+)
+",
+        &exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.iter().map(|x| x.id).collect())
+}
+
+/// Similar to get_ids_by_exercise_id but returns the record with the highest created_at for a user_id
+pub async fn get_latest_submission_ids_by_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM exercise_task_submissions
+WHERE exercise_slide_submission_id IN (SELECT id
+    FROM (SELECT DISTINCT ON (user_id, exercise_id) *
+        FROM exercise_slide_submissions
+        WHERE exercise_id = $1
+        AND deleted_at IS NULL
+        ORDER BY user_id, exercise_id, created_at DESC) a )
+    AND deleted_at IS NULL
+",
+        &exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.iter().map(|x| x.id).collect())
 }

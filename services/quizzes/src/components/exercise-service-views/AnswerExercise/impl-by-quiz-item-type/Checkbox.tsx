@@ -60,7 +60,7 @@ const Checkbox: React.FC<
           margin: 0.5rem;
         `}
       >
-        {quizItem.title && <MarkdownText text={quizItem.title} />}
+        {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
       </div>
     </div>
   )

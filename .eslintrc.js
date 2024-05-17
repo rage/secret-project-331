@@ -246,7 +246,13 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["system-tests/**/*", "**.test.tsx", "**.test.ts", "storybook/**/*"],
+      files: [
+        "system-tests/**/*",
+        "**.test.tsx",
+        "**.test.ts",
+        "storybook/**/*",
+        "shared-module/packages/create-exercise-service/**/*",
+      ],
       rules: {
         "i18next/no-literal-string": "off",
       },

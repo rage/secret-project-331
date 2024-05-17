@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import watcher from "@parcel/watcher"
 import { exec as execOriginal } from "child_process"
 import { readdir, stat } from "fs/promises"

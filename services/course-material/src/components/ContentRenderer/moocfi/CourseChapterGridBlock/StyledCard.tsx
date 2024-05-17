@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 
-import { ChapterWithStatus } from "../../../../shared-module/bindings"
-import { cardMaxWidth } from "../../../../shared-module/styles/constants"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
-
 import ChapterGridCard from "./ChapterGridCard"
+
+import { ChapterWithStatus } from "@/shared-module/common/bindings"
+import { cardMaxWidth } from "@/shared-module/common/styles/constants"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { stringToRandomNumber } from "@/shared-module/common/utils/strings"
 
 const COLORS_ARRAY = [
   "#215887",

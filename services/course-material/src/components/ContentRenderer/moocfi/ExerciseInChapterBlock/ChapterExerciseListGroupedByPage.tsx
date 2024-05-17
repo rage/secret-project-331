@@ -2,14 +2,15 @@ import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
 import { fetchUserCourseInstanceChapterExercisesProgress } from "../../../../services/backend"
-import { PageWithExercises } from "../../../../shared-module/bindings"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import ExerciseBox from "../../../../shared-module/components/ExerciseList/ExerciseBox"
-import PageBox from "../../../../shared-module/components/ExerciseList/PageBox"
-import Spinner from "../../../../shared-module/components/Spinner"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "../../../../shared-module/utils/nullability"
 import { coursePageSectionRoute } from "../../../../utils/routing"
+
+import { PageWithExercises } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import ExerciseBox from "@/shared-module/common/components/ExerciseList/ExerciseBox"
+import PageBox from "@/shared-module/common/components/ExerciseList/PageBox"
+import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface ChapterExerciseListGroupedByPageProps {
   chapterId: string

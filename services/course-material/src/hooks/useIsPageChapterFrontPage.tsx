@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { isPageChapterFrontPage } from "../services/backend"
-import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
+
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const useIsPageChapterFrontPage = (pageId: string | undefined) => {
   const isChapterFrontPageQuery = useQuery({

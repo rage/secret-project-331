@@ -1,10 +1,10 @@
+import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
+import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
+
 import {
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
   PeerOrSelfReviewQuestion as PeerOrSelfReviewQuestionType,
-} from "../../../../../../shared-module/bindings"
-
-import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
-import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
+} from "@/shared-module/common/bindings"
 
 export interface PeerOrSelfReviewQuestionProps {
   question: PeerOrSelfReviewQuestionType

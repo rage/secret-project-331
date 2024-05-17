@@ -5,6 +5,7 @@ use crate::prelude::*;
 pub struct SuspectedCheaters {
     pub id: Uuid,
     pub user_id: Uuid,
+    pub course_instance_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
@@ -34,6 +35,7 @@ pub struct Threshold {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
+    course_instance_id: Uuid,
     total_duration_seconds: Option<i32>,
     total_points: i32,
 ) -> ModelResult<()> {
@@ -42,13 +44,15 @@ pub async fn insert(
     INSERT INTO suspected_cheaters (
       user_id,
       total_duration_seconds,
-      total_points
+      total_points,
+      course_instance_id
     )
-    VALUES ($1, $2, $3)
+    VALUES ($1, $2, $3, $4)
       ",
         user_id,
         total_duration_seconds,
-        total_points
+        total_points,
+        course_instance_id
     )
     .fetch_one(conn)
     .await?;

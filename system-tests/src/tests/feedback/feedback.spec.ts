@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { feedbackTooltipClass } from "../../shared-module/common/styles/constants"
+import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"

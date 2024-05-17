@@ -2,7 +2,7 @@ import KaTex from "katex"
 
 import "katex/dist/katex.min.css"
 import { BlockRendererProps } from ".."
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface TextAttributes {
   text: string

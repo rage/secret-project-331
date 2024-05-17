@@ -5,16 +5,13 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchBackgroundQuestionsAndAnswers } from "../../services/backend"
-import {
-  CourseInstance,
-  NewCourseBackgroundQuestionAnswer,
-} from "../../shared-module/common/bindings"
-import Button from "../../shared-module/common/components/Button"
-import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
-import CheckBox from "../../shared-module/common/components/InputFields/CheckBox"
-import RadioButton from "../../shared-module/common/components/InputFields/RadioButton"
-import { baseTheme } from "../../shared-module/common/styles"
-import { assertNotNullOrUndefined } from "../../shared-module/common/utils/nullability"
+import { CourseInstance, NewCourseBackgroundQuestionAnswer } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
+import RadioButton from "../../shared-module/components/InputFields/RadioButton"
+import { baseTheme } from "../../shared-module/styles"
+import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 
 const FieldContainer = styled.div`
   margin-bottom: 1.5rem;
@@ -190,7 +187,9 @@ const SelectCourseInstanceForm: React.FC<
               </>
             </div>
           )}
-        {additionalQuestionsQuery.error && <ErrorBanner error={additionalQuestionsQuery.error} />}
+        {additionalQuestionsQuery.error && (
+          <ErrorBanner variant="readOnly" error={additionalQuestionsQuery.error} />
+        )}
         <div>
           <Button
             size="medium"

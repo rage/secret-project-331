@@ -4,10 +4,10 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import BreakFromCentered from "../../../../../shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../shared-module/common/components/Spinner"
-import { baseTheme } from "../../../../../shared-module/common/styles/theme"
+import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
+import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
@@ -75,6 +75,7 @@ export const VimeoEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>>
       )}
       {!embedHtml && !fetching && (
         <ErrorBanner
+          variant="readOnly"
           error={t("could-not-fetch-embed", {
             provider: props.providerNameSlug,
             url: props.url ?? "undefined",

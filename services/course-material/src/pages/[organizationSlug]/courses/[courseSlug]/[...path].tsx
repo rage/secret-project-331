@@ -14,14 +14,14 @@ import PageContext, {
 import useScrollToSelector from "../../../../hooks/useScrollToSelector"
 import pageStateReducer from "../../../../reducers/pageStateReducer"
 import { fetchCoursePageByPath } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import { PageMarginOffset } from "../../../../shared-module/common/components/layout/PageMarginOffset"
-import useQueryParameter from "../../../../shared-module/common/hooks/useQueryParameter"
-import basePath from "../../../../shared-module/common/utils/base-path"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/common/utils/constants"
-import dontRenderUntilQueryParametersReady from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import { PageMarginOffset } from "../../../../shared-module/components/layout/PageMarginOffset"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import basePath from "../../../../shared-module/utils/base-path"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/utils/constants"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 const PagePage: React.FC = () => {
   const layoutContext = useContext(LayoutContext)
@@ -122,7 +122,7 @@ const PagePage: React.FC = () => {
     if ((getCoursePageByPath.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
-    return <ErrorBanner error={getCoursePageByPath.error} />
+    return <ErrorBanner variant={"readOnly"} error={getCoursePageByPath.error} />
   }
 
   if (getCoursePageByPath.isPending) {

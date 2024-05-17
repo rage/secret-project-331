@@ -4,7 +4,7 @@ import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { headingFont } from "../../shared-module/common/styles"
+import { headingFont } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 
 const ALLOWED_NESTED_BLOCKS = [

@@ -9,19 +9,17 @@ import LayoutContext from "../../contexts/LayoutContext"
 import PageContext, { getDefaultPageState } from "../../contexts/PageContext"
 import useCourseLanguageVersions from "../../hooks/useCourseLanguageVersions"
 import { PageState } from "../../reducers/pageStateReducer"
-import Centered from "../../shared-module/common/components/Centering/Centered"
-import Footer from "../../shared-module/common/components/Footer"
-import LanguageSelection, {
-  LanguageOption,
-} from "../../shared-module/common/components/LanguageSelection"
+import Centered from "../../shared-module/components/Centering/Centered"
+import Footer from "../../shared-module/components/Footer"
+import LanguageSelection, { LanguageOption } from "../../shared-module/components/LanguageSelection"
 import {
   NavBar,
   NavContainer,
   NavItem,
   NavItems,
-} from "../../shared-module/common/components/Navigation/NavBar"
-import ietfLanguageTagToHumanReadableName from "../../shared-module/common/utils/ietfLanguageTagToHumanReadableName"
-import withNoSsr from "../../shared-module/common/utils/withNoSsr"
+} from "../../shared-module/components/Navigation/NavBar"
+import ietfLanguageTagToHumanReadableName from "../../shared-module/utils/ietfLanguageTagToHumanReadableName"
+import withNoSsr from "../../shared-module/utils/withNoSsr"
 import SearchDialog from "../SearchDialog"
 import { useFigureOutNewUrl } from "../modals/ChooseCourseLanguage"
 import UserNavigationControls from "../navigation/UserNavigationControls"
@@ -35,7 +33,7 @@ interface LayoutProps {
 }
 
 const DynamicToaster = dynamic(
-  () => import("../../shared-module/common/components/Notifications/ToasterNotifications"),
+  () => import("../../shared-module/components/Notifications/ToasterNotifications"),
   { ssr: false },
 )
 

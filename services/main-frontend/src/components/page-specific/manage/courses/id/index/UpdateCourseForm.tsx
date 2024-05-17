@@ -4,10 +4,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
-import Button from "../../../../../../shared-module/common/components/Button"
-import CheckBox from "../../../../../../shared-module/common/components/InputFields/CheckBox"
-import TextAreaField from "../../../../../../shared-module/common/components/InputFields/TextAreaField"
-import TextField from "../../../../../../shared-module/common/components/InputFields/TextField"
+import Button from "../../../../../../shared-module/components/Button"
+import CheckBox from "../../../../../../shared-module/components/InputFields/CheckBox"
+import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

@@ -5,10 +5,10 @@ import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
-import { CourseMaterialExerciseTask } from "../../../../shared-module/common/bindings"
-import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
-import { IframeState } from "../../../../shared-module/common/exercise-service-protocol-types"
-import { baseTheme, headingFont } from "../../../../shared-module/common/styles"
+import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import { baseTheme, headingFont } from "../../../../shared-module/styles"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 

@@ -49,10 +49,10 @@ import { useTranslation } from "react-i18next"
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import SelectField from "../../shared-module/common/components/InputFields/SelectField"
-import SuccessNotification from "../../shared-module/common/components/Notifications/Success"
-import Spinner from "../../shared-module/common/components/Spinner"
-import { primaryFont } from "../../shared-module/common/styles"
+import SelectField from "../../shared-module/components/InputFields/SelectField"
+import SuccessNotification from "../../shared-module/components/Notifications/Success"
+import Spinner from "../../shared-module/components/Spinner"
+import { primaryFont } from "../../shared-module/styles"
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,

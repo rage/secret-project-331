@@ -5,8 +5,8 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../shared-module/common/styles"
-import { updateQueryStringParameter } from "../../shared-module/common/utils/urlManipulation"
+import { baseTheme } from "../../shared-module/styles"
+import { updateQueryStringParameter } from "../../shared-module/utils/urlManipulation"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {

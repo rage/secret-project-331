@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { SpecRequest } from "../../shared-module/common/bindings"
-import { isSpecRequest } from "../../shared-module/common/bindings.guard"
+import { SpecRequest } from "../../shared-module/bindings"
+import { isSpecRequest } from "../../shared-module/bindings.guard"
 import {
   ClientErrorResponse,
   ModelSolutionApi,

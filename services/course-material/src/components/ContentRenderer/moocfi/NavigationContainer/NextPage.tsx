@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchPageNavigationData } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import NextSectionLink from "../../../../shared-module/common/components/NextSectionLink"
-import Spinner from "../../../../shared-module/common/components/Spinner"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import NextSectionLink from "../../../../shared-module/components/NextSectionLink"
+import Spinner from "../../../../shared-module/components/Spinner"
 import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
 
 export interface NextPageProps {
@@ -49,7 +49,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   }, [getPageRoutingData.data])
 
   if (getPageRoutingData.isError) {
-    return <ErrorBanner error={getPageRoutingData.error} />
+    return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
   }
   if (getPageRoutingData.isPending) {
     return <Spinner variant={"medium"} />

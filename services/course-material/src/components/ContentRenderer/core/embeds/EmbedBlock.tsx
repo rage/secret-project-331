@@ -2,7 +2,7 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { EmbedAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { MentimeterEmbedBlock } from "./variants/MentimeterEmbedBlock"
 import { SpotifyEmbedBlock } from "./variants/SpotifyEmbedBlock"

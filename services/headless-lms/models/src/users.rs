@@ -220,39 +220,36 @@ pub async fn update_email_for_user(
     new_email: String,
 ) -> ModelResult<()> {
     info!("Updating user (Upstream id: {upstream_id})");
+    let mut tx = conn.begin().await?;
+
     let user = sqlx::query_as!(
         User,
         "SELECT * FROM users WHERE upstream_id = $1",
         upstream_id
     )
-    .fetch_optional(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
-    if let Some(user) = user {
-        let mut tx = conn.begin().await?;
 
-        sqlx::query!(
-            "UPDATE user_details SET email = $1 WHERE user_id = $2",
-            new_email,
-            user.id,
-        )
-        .execute(&mut *tx)
-        .await?;
+    sqlx::query!(
+        "UPDATE user_details SET email = $1 WHERE user_id = $2",
+        new_email,
+        user.id,
+    )
+    .execute(&mut *tx)
+    .await?;
 
-        let email_domain = new_email.trim().split('@').last();
-        sqlx::query!(
-            "UPDATE users SET email_domain = $1 WHERE id = $2",
-            email_domain,
-            user.id,
-        )
-        .execute(&mut *tx)
-        .await?;
+    let email_domain = new_email.trim().split('@').last();
+    sqlx::query!(
+        "UPDATE users SET email_domain = $1 WHERE id = $2",
+        email_domain,
+        user.id,
+    )
+    .execute(&mut *tx)
+    .await?;
 
-        tx.commit().await?;
+    tx.commit().await?;
 
-        info!("Email change succeeded");
-    } else {
-        info!("User not in database, skipping");
-    }
+    info!("Email change succeeded");
     Ok(())
 }
 

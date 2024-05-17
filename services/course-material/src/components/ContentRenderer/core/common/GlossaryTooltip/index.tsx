@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { Term } from "../../../../../shared-module/common/bindings"
-import withErrorBoundary from "../../../../../shared-module/common/utils/withErrorBoundary"
+import { Term } from "../../../../../shared-module/bindings"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 interface TooltipProps {
   term: Term

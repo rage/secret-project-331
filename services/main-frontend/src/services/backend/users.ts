@@ -3,14 +3,14 @@ import {
   CourseInstanceEnrollmentsInfo,
   ResearchFormQuestionAnswer,
   UserResearchConsent,
-} from "../../shared-module/common/bindings"
+} from "../../shared-module/bindings"
 import {
   isCourse,
   isCourseInstanceEnrollmentsInfo,
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
-} from "../../shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
+} from "../../shared-module/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export async function getCourseInstanceEnrollmentsInfo(

@@ -2,8 +2,8 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserModuleCompletionStatus } from "../../../../shared-module/common/bindings"
-import Button from "../../../../shared-module/common/components/Button"
+import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
 
 const COMPLETION_REGISTRATION_BASE_PATH = `/completion-registration`
 

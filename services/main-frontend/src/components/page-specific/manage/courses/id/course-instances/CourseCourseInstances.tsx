@@ -7,11 +7,11 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseInstances } from "../../../../../../services/backend/courses"
-import Button from "../../../../../../shared-module/common/components/Button"
-import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/common/components/Spinner"
-import { queryClient } from "../../../../../../shared-module/common/services/appQueryClient"
-import { baseTheme, headingFont } from "../../../../../../shared-module/common/styles"
+import Button from "../../../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import { queryClient } from "../../../../../../shared-module/services/appQueryClient"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -43,7 +43,9 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
 
   return (
     <>
-      {getCourseInstances.isError && <ErrorBanner error={getCourseInstances.error} />}
+      {getCourseInstances.isError && (
+        <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
+      )}
       {getCourseInstances.isPending && <Spinner variant={"medium"} />}
       {getCourseInstances.isSuccess && (
         <div>

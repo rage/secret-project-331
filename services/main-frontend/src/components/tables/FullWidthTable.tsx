@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 
-import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
 
 export const FullWidthTableRow = styled.tr`
   background: #ffffff;

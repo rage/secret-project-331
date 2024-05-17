@@ -6,15 +6,14 @@ import { useTranslation } from "react-i18next"
 
 import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "../../../../../../hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../../../../../../services/backend/courses"
-import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/common/components/Spinner"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
 import {
   baseTheme,
   fontWeights,
   headingFont,
   monospaceFont,
-} from "../../../../../../shared-module/common/styles"
+} from "../../../../../../shared-module/styles"
 
 export interface ExerciseListProps {
   courseId: string
@@ -25,11 +24,11 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
   const getCourseExercises = useCourseExercisesAndCountAnswersRequitingAttentionQuery(courseId)
   const courseStructure = useCourseStructure(courseId)
   if (getCourseExercises.isError) {
-    return <ErrorBanner error={getCourseExercises.error} />
+    return <ErrorBanner variant={"readOnly"} error={getCourseExercises.error} />
   }
 
   if (courseStructure.isError) {
-    return <ErrorBanner error={courseStructure.error} />
+    return <ErrorBanner variant={"readOnly"} error={courseStructure.error} />
   }
 
   if (getCourseExercises.isPending || courseStructure.isPending) {

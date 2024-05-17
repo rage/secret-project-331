@@ -10,12 +10,12 @@ import {
   fetchStudentCountry,
   postStudentCountry,
 } from "../../../services/backend"
-import SelectField from "../../../shared-module/common/components/InputFields/SelectField"
-import Spinner from "../../../shared-module/common/components/Spinner"
-import useToastMutation from "../../../shared-module/common/hooks/useToastMutation"
-import useUserInfo from "../../../shared-module/common/hooks/useUserInfo"
-import { baseTheme } from "../../../shared-module/common/styles"
-import { assertNotNullOrUndefined } from "../../../shared-module/common/utils/nullability"
+import SelectField from "../../../shared-module/components/InputFields/SelectField"
+import Spinner from "../../../shared-module/components/Spinner"
+import useToastMutation from "../../../shared-module/hooks/useToastMutation"
+import useUserInfo from "../../../shared-module/hooks/useUserInfo"
+import { baseTheme } from "../../../shared-module/styles"
+import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
 
 import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"

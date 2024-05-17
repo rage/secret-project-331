@@ -3,8 +3,11 @@ import {
   Exam,
   ExamCourseInfo,
   NewExam,
+  Organization,
   OrgExam,
-} from "../../shared-module/common/bindings"
+} from "../../shared-module/bindings"
+import { isOrganization } from "../../shared-module/bindings.guard"
+import { validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const createExam = async (organizationId: string, data: NewExam) => {

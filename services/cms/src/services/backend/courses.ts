@@ -6,20 +6,15 @@ import {
   Page,
   ResearchForm,
   ResearchFormQuestion,
-} from "../../shared-module/common/bindings"
+} from "../../shared-module/bindings"
 import {
   isCmsPeerOrSelfReviewConfiguration,
   isCourseModule,
   isPage,
   isResearchForm,
   isResearchFormQuestion,
-} from "../../shared-module/common/bindings.guard"
-import {
-  isArray,
-  isNull,
-  isUnion,
-  validateResponse,
-} from "../../shared-module/common/utils/fetching"
+} from "../../shared-module/bindings.guard"
+import { isArray, isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

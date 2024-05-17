@@ -6,14 +6,14 @@ import {
   CertificateConfigurationAndRequirements,
   CertificateTextAnchor,
   PaperSize,
-} from "../../../../shared-module/common/bindings"
-import Button from "../../../../shared-module/common/components/Button"
-import CheckBox from "../../../../shared-module/common/components/InputFields/CheckBox"
-import FileField from "../../../../shared-module/common/components/InputFields/FileField"
-import SelectField from "../../../../shared-module/common/components/InputFields/SelectField"
-import TextField from "../../../../shared-module/common/components/InputFields/TextField"
-import MaskOverThisInSystemTests from "../../../../shared-module/common/components/system-tests/MaskOverThisInSystemTests"
-import { baseTheme } from "../../../../shared-module/common/styles"
+} from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
+import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
+import FileField from "../../../../shared-module/components/InputFields/FileField"
+import SelectField from "../../../../shared-module/components/InputFields/SelectField"
+import TextField from "../../../../shared-module/components/InputFields/TextField"
+import MaskOverThisInSystemTests from "../../../../shared-module/components/system-tests/MaskOverThisInSystemTests"
+import { baseTheme } from "../../../../shared-module/styles"
 
 interface Props {
   generatingCertificatesEnabled: boolean

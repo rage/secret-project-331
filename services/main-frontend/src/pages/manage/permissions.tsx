@@ -3,8 +3,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "../../components/PermissionPage"
-import { withSignedIn } from "../../shared-module/common/contexts/LoginStateContext"
-import { respondToOrLarger } from "../../shared-module/common/styles/respond"
+import { withSignedIn } from "../../shared-module/contexts/LoginStateContext"
+import { respondToOrLarger } from "../../shared-module/styles/respond"
 
 const GlobalPermissions: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()

@@ -2,9 +2,9 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../../contexts/PageContext"
-import BreakFromCentered from "../../../../shared-module/common/components/Centering/BreakFromCentered"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
+import Spinner from "../../../../shared-module/components/Spinner"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ChapterGrid from "./ChapterGrid"
 

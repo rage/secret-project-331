@@ -34,8 +34,8 @@ import {
   PublicSpecQuizItemScale,
   PublicSpecQuizItemTimeline,
 } from "../../../../types/quizTypes/publicSpec"
-import { UserInformation } from "../../../shared-module/common/exercise-service-protocol-types"
-import { baseTheme } from "../../../shared-module/common/styles"
+import { UserInformation } from "../../../shared-module/exercise-service-protocol-types"
+import { baseTheme } from "../../../shared-module/styles"
 import { COLUMN } from "../../../util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "../../../util/css-sanitization"
 import FlexWrapper from "../../FlexWrapper"

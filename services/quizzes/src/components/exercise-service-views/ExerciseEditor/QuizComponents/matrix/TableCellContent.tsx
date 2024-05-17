@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import { baseTheme } from "../../../../../shared-module/common/styles"
+import { baseTheme } from "../../../../../shared-module/styles"
 
 interface CellInputStyleProps {
   row: number

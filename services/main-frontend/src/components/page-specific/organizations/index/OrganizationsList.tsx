@@ -2,14 +2,14 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchOrganizations } from "../../../../services/backend/organizations"
-import DebugModal from "../../../../shared-module/common/components/DebugModal"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import UHNoBG from "../../../../shared-module/common/img/uh_without_background.svg"
-import { baseTheme, typography } from "../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
-import { organizationCoursesPageHref } from "../../../../shared-module/common/utils/cross-routing"
+import useAllOrganizationsQuery from "../../../../hooks/useAllOrganizationsQuery"
+import DebugModal from "../../../../shared-module/components/DebugModal"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import UHNoBG from "../../../../shared-module/img/uh_without_background.svg"
+import { baseTheme, typography } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import { organizationCoursesPageHref } from "../../../../shared-module/utils/cross-routing"
 
 const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -33,9 +33,11 @@ const OrganizationsList: React.FC<React.PropsWithChildren<unknown>> = () => {
       >
         {t("organizations-heading")}
       </h1>
-      {getOrganizations.isError && <ErrorBanner error={getOrganizations.error} />}
-      {getOrganizations.isPending && <Spinner variant={"medium"} />}
-      {getOrganizations.isSuccess && (
+      {allOrganizationsQuery.isError && (
+        <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
+      )}
+      {allOrganizationsQuery.isPending && <Spinner variant={"medium"} />}
+      {allOrganizationsQuery.isSuccess && (
         <div
           className={css`
             margin-bottom: 1rem;

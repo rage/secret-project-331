@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemEssay } from "../../../../../types/quizTypes/publicSpec"
-import { wordCount } from "../../../../shared-module/common/utils/strings"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import { wordCount } from "../../../../shared-module/utils/strings"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
 

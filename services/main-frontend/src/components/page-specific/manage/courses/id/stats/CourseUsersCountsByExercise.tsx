@@ -5,12 +5,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchCourseUsersCountByExercise } from "../../../../../../services/backend/courses"
-import DebugModal from "../../../../../../shared-module/common/components/DebugModal"
-import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/common/components/Spinner"
-import { baseTheme } from "../../../../../../shared-module/common/styles"
-import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../../../shared-module/common/utils/withErrorBoundary"
+import DebugModal from "../../../../../../shared-module/components/DebugModal"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../../shared-module/styles"
+import { dontRenderUntilQueryParametersReady } from "../../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../../../shared-module/utils/withErrorBoundary"
 
 import Echarts from "./Echarts"
 
@@ -28,7 +28,7 @@ const CourseUsersCountsByExercise: React.FC<
   })
 
   if (query.isError) {
-    return <ErrorBanner error={query.error} />
+    return <ErrorBanner variant="readOnly" error={query.error} />
   }
 
   if (query.isPending || !query.data) {

@@ -3,7 +3,7 @@ import { renderToString } from "react-dom/server"
 import "katex/dist/katex.min.css"
 
 import { StringWithHTML } from "../../../../types"
-import { Term } from "../../../shared-module/common/bindings"
+import { Term } from "../../../shared-module/bindings"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 import Tooltip from "../core/common/GlossaryTooltip"
 

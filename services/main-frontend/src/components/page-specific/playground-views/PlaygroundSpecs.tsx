@@ -5,12 +5,12 @@ import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { PlaygroundSettings } from "../../../pages/playground-tabs"
-import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
-import TextAreaField from "../../../shared-module/common/components/InputFields/TextAreaField"
-import Spinner from "../../../shared-module/common/components/Spinner"
-import { monospaceFont } from "../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../shared-module/common/styles/respond"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import TextAreaField from "../../../shared-module/components/InputFields/TextAreaField"
+import Spinner from "../../../shared-module/components/Spinner"
+import { monospaceFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -103,7 +103,9 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           <p>{t("public-spec-explanation")}</p>
 
-          {publicSpecQuery.isError && <ErrorBanner error={publicSpecQuery.error} />}
+          {publicSpecQuery.isError && (
+            <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
+          )}
           {publicSpecQuery.isPending && publicSpecQuery.isFetching && (
             <Spinner variant={"medium"} />
           )}
@@ -128,7 +130,9 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           <p>{t("model-solution-spec-explanation")}</p>
 
-          {modelSolutionSpecQuery.isError && <ErrorBanner error={modelSolutionSpecQuery.error} />}
+          {modelSolutionSpecQuery.isError && (
+            <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
+          )}
           {modelSolutionSpecQuery.isPending && modelSolutionSpecQuery.isFetching && (
             <Spinner variant={"medium"} />
           )}

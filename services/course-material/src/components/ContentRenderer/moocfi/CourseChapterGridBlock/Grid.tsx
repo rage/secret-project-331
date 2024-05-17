@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
-import { ChapterWithStatus } from "../../../../shared-module/common/bindings"
-import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
+import { ChapterWithStatus } from "../../../../shared-module/bindings"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 import StyledCard from "./StyledCard"
 

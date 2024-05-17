@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 import React, { useContext } from "react"
 
-import Spinner from "../shared-module/common/components/Spinner"
-import IframeHeightContext from "../shared-module/common/contexts/IframeHeightContext"
+import Spinner from "../shared-module/components/Spinner"
+import IframeHeightContext from "../shared-module/contexts/IframeHeightContext"
 
 const DynamicallyLoadingComponentPlaceholder = () => {
   let iframeHeight = useContext(IframeHeightContext).height

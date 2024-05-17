@@ -3,18 +3,18 @@ import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { useTranslation } from "react-i18next"
 
 import { fetchPageUrl } from "../../../../services/backend"
-import { ChapterWithStatus } from "../../../../shared-module/common/bindings"
-import Card from "../../../../shared-module/common/components/Card"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import Circle from "../../../../shared-module/common/img/card-defualt-bg/circle.svg"
-import Cross from "../../../../shared-module/common/img/card-defualt-bg/cross.svg"
-import DotCircle from "../../../../shared-module/common/img/card-defualt-bg/dot-circle.svg"
-import Equal from "../../../../shared-module/common/img/card-defualt-bg/equal.svg"
-import Intersection from "../../../../shared-module/common/img/card-defualt-bg/intersection.svg"
-import PixelSquare from "../../../../shared-module/common/img/card-defualt-bg/pixel-square.svg"
-import QuadrupleCircle from "../../../../shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
-import Triangle from "../../../../shared-module/common/img/card-defualt-bg/triangle.svg"
+import { ChapterWithStatus } from "../../../../shared-module/bindings"
+import Card from "../../../../shared-module/components/Card"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import Circle from "../../../../shared-module/img/card-defualt-bg/circle.svg"
+import Cross from "../../../../shared-module/img/card-defualt-bg/cross.svg"
+import DotCircle from "../../../../shared-module/img/card-defualt-bg/dot-circle.svg"
+import Equal from "../../../../shared-module/img/card-defualt-bg/equal.svg"
+import Intersection from "../../../../shared-module/img/card-defualt-bg/intersection.svg"
+import PixelSquare from "../../../../shared-module/img/card-defualt-bg/pixel-square.svg"
+import QuadrupleCircle from "../../../../shared-module/img/card-defualt-bg/quadruple-circle.svg"
+import Triangle from "../../../../shared-module/img/card-defualt-bg/triangle.svg"
 import { coursePageRoute } from "../../../../utils/routing"
 
 interface ChapterProps {
@@ -66,7 +66,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   })
 
   if (getChapterPageUrl.isError) {
-    return <ErrorBanner error={getChapterPageUrl.error} />
+    return <ErrorBanner variant={"readOnly"} error={getChapterPageUrl.error} />
   }
 
   if (getChapterPageUrl.isPending) {

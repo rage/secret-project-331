@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
 
-import { baseTheme, headingFont } from "../../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../../shared-module/common/styles/respond"
+import { baseTheme, headingFont } from "../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../shared-module/styles/respond"
 
 const highlightItemStyle = css`
   align-items: center;

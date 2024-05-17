@@ -4,8 +4,8 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import {
   GradingRequest,
   GradingResult,
-} from "../../shared-module/common/exercise-service-protocol-types-2"
-import { isNonGenericGradingRequest } from "../../shared-module/common/exercise-service-protocol-types.guard"
+} from "../../shared-module/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "../../shared-module/exercise-service-protocol-types.guard"
 import { Alternative, Answer } from "../../util/stateInterfaces"
 
 export default (req: NextApiRequest, res: NextApiResponse) => {

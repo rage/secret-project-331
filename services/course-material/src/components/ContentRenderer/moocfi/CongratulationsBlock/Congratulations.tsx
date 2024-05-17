@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import ConfettiBg from "../../../../img/confetti-bg.svg"
 import BackgroundImage from "../../../../img/congratulation-bg.svg"
-import { UserModuleCompletionStatus } from "../../../../shared-module/common/bindings"
-import { headingFont } from "../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
+import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
+import { headingFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 
 import ModuleCard from "./ModuleCard"
 

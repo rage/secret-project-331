@@ -7,9 +7,9 @@ import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { ClientErrorResponse, downloadStream } from "../../lib"
-import { RepositoryExercise, SpecRequest } from "../../shared-module/common/bindings"
-import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "../../shared-module/common/utils/exerciseServices"
-import { isObjectMap } from "../../shared-module/common/utils/fetching"
+import { RepositoryExercise, SpecRequest } from "../../shared-module/bindings"
+import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "../../shared-module/utils/exerciseServices"
+import { isObjectMap } from "../../shared-module/utils/fetching"
 import {
   compressProject,
   extractProject,

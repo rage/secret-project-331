@@ -8,16 +8,16 @@ import {
   fetchEmailTemplateWithId,
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
-import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/common/bindings"
-import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../shared-module/common/components/Spinner"
-import { withSignedIn } from "../../../shared-module/common/contexts/LoginStateContext"
-import useStateQuery from "../../../shared-module/common/hooks/useStateQuery"
+import { EmailTemplate, EmailTemplateUpdate } from "../../../shared-module/bindings"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+import useStateQuery from "../../../shared-module/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import { assertNotNullOrUndefined } from "../../../shared-module/common/utils/nullability"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { assertNotNullOrUndefined } from "../../../shared-module/utils/nullability"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 const EditorLoading = <Spinner variant="medium" />
 
@@ -55,8 +55,8 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
   if (templateQuery.state === "error" || instanceQuery.isError) {
     return (
       <>
-        <ErrorBanner error={templateQuery.error} />
-        <ErrorBanner error={instanceQuery.error} />
+        <ErrorBanner variant={"readOnly"} error={templateQuery.error} />
+        <ErrorBanner variant={"readOnly"} error={instanceQuery.error} />
       </>
     )
   }

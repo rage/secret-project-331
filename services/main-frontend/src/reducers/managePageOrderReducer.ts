@@ -3,7 +3,7 @@ import { produce } from "immer"
 import { WritableDraft } from "immer/src/types/types-external"
 import { Dictionary, groupBy, mapValues, max, orderBy } from "lodash"
 
-import { Chapter, CourseStructure, Page } from "../shared-module/common/bindings"
+import { Chapter, CourseStructure, Page } from "../shared-module/bindings"
 
 interface ManagePageOrderLoading {
   state: "loading"

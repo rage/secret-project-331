@@ -4,8 +4,8 @@ import React from "react"
 
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
-import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import {
   QUIZ_TITLE_STYLE,

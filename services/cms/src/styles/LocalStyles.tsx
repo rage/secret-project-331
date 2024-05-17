@@ -6,8 +6,8 @@ import {
   PrimaryButtonStyles,
   SecondaryButtonStyles,
   TertiaryButtonStyles,
-} from "../shared-module/common/components/Button"
-import { primaryFont } from "../shared-module/common/styles"
+} from "../shared-module/components/Button"
+import { primaryFont } from "../shared-module/styles"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const localCss = css`

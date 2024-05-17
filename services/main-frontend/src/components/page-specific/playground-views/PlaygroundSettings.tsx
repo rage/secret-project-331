@@ -6,13 +6,13 @@ import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { DEFAULT_SERVICE_INFO_URL, PlaygroundSettings } from "../../../pages/playground-tabs"
-import { ExerciseServiceInfoApi } from "../../../shared-module/common/bindings"
-import Button from "../../../shared-module/common/components/Button"
-import DebugModal from "../../../shared-module/common/components/DebugModal"
-import CheckBox from "../../../shared-module/common/components/InputFields/CheckBox"
-import TextField from "../../../shared-module/common/components/InputFields/TextField"
-import { baseTheme } from "../../../shared-module/common/styles"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import { ExerciseServiceInfoApi } from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
+import DebugModal from "../../../shared-module/components/DebugModal"
+import CheckBox from "../../../shared-module/components/InputFields/CheckBox"
+import TextField from "../../../shared-module/components/InputFields/TextField"
+import { baseTheme } from "../../../shared-module/styles"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlayGroundSettingsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>

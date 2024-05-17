@@ -4,11 +4,11 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
-import Button from "../../../../shared-module/common/components/Button"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import OnlyRenderIfPermissions from "../../../../shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
+import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
+import Spinner from "../../../../shared-module/components/Spinner"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
 
 interface Props {
@@ -39,7 +39,7 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
   const loginStateContext = useContext(LoginStateContext)
 
   if (getOrgExams.isError) {
-    return <ErrorBanner error={getOrgExams.error} />
+    return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
   }
 
   if (getOrgExams.isPending) {

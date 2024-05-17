@@ -1,7 +1,7 @@
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
 
 interface InfoBoxBlockAttributes {

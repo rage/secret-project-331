@@ -3,19 +3,19 @@ import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 
-import { SIDEBAR_WIDTH_PX } from "../../components/Layout"
-import CourseContext from "../../contexts/CourseContext"
-import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "../../shared-module/common/components/MessageChannelIFrame"
-import Spinner from "../../shared-module/common/components/Spinner"
-import LoginStateContext from "../../shared-module/common/contexts/LoginStateContext"
-import { IframeState } from "../../shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "../../shared-module/common/exercise-service-protocol-types.guard"
-import useMedia from "../../shared-module/common/hooks/useMedia"
-import useUserInfo from "../../shared-module/common/hooks/useUserInfo"
-import { respondToOrLarger } from "../../shared-module/common/styles/respond"
-import getGuestPseudonymousUserId from "../../shared-module/common/utils/getGuestPseudonymousUserId"
-import withNoSsr from "../../shared-module/common/utils/withNoSsr"
+import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
+import CourseContext from "../../../contexts/CourseContext"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import MessageChannelIFrame from "../../../shared-module/components/MessageChannelIFrame"
+import Spinner from "../../../shared-module/components/Spinner"
+import LoginStateContext from "../../../shared-module/contexts/LoginStateContext"
+import { ExerciseIframeState } from "../../../shared-module/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../shared-module/exercise-service-protocol-types.guard"
+import useMedia from "../../../shared-module/hooks/useMedia"
+import useUserInfo from "../../../shared-module/hooks/useUserInfo"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
+import getGuestPseudonymousUserId from "../../../shared-module/utils/getGuestPseudonymousUserId"
+import withNoSsr from "../../../shared-module/utils/withNoSsr"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
@@ -55,7 +55,9 @@ const ExerciseTaskIFrameEditor: React.FC<
   }, [privateSpec])
 
   if (!url || url.trim() === "") {
-    return <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} />
+    return (
+      <ErrorBanner variant="readOnly" error={t("error-cannot-render-exercise-task-missing-url")} />
+    )
   }
 
   if (!userInfo.data) {

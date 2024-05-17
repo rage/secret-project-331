@@ -2,7 +2,7 @@
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 import { MediaItem, UploadMediaOptions } from "@wordpress/media-utils"
 
-import { validateFile } from "../../../shared-module/common/utils/files"
+import { validateFile } from "../../../shared-module/utils/files"
 
 import { MediaUploadType, uploadFileFromPage } from "."
 

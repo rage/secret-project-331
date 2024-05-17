@@ -2,12 +2,12 @@ import {
   AnswersRequiringAttention,
   NewTeacherGradingDecision,
   UserExerciseState,
-} from "../../shared-module/common/bindings"
+} from "../../shared-module/bindings"
 import {
   isAnswersRequiringAttention,
   isUserExerciseState,
-} from "../../shared-module/common/bindings.guard"
-import { validateResponse } from "../../shared-module/common/utils/fetching"
+} from "../../shared-module/bindings.guard"
+import { validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const fetchAnswersRequiringAttention = async (

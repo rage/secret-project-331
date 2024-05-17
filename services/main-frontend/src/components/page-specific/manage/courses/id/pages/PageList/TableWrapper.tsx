@@ -2,8 +2,8 @@ import { css, cx } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../../../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../../../../shared-module/common/styles/respond"
+import { baseTheme } from "../../../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
 
 const TableWrapper: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
   children,

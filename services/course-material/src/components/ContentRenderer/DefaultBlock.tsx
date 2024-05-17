@@ -1,8 +1,8 @@
 import { css } from "@emotion/css"
 
 import { BlockAttributes } from "../../../types/GutenbergBlockAttributes"
-import { baseTheme } from "../../shared-module/common/styles"
-import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
+import { baseTheme } from "../../shared-module/styles"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 
 import { BlockRendererProps } from "."
 

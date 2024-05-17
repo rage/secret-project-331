@@ -10,12 +10,12 @@ import {
   CompletionPolicy,
   ModifiedModule,
   NewModule,
-} from "../../../../../../shared-module/common/bindings"
-import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/common/components/Spinner"
-import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
-import { baseTheme } from "../../../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../../../shared-module/common/styles/respond"
+} from "../../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme } from "../../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import BottomPanel from "../../../../../BottomPanel"
 
 import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
@@ -522,7 +522,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }
 
   if (courseStructureQuery.isError) {
-    return <ErrorBanner error={courseStructureQuery.error} />
+    return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
   } else if (courseStructureQuery.isPending) {
     return <Spinner variant={"medium"} />
   }

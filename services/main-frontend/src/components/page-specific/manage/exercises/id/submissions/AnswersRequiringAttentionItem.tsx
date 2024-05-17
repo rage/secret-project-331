@@ -11,12 +11,12 @@ import {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
   TeacherDecisionType,
-} from "../../../../../../shared-module/common/bindings"
-import Button from "../../../../../../shared-module/common/components/Button"
-import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
-import ArrowDown from "../../../../../../shared-module/common/img/caret-arrow-down.svg"
-import { primaryFont } from "../../../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../../../shared-module/common/styles/respond"
+} from "../../../../../../shared-module/bindings"
+import Button from "../../../../../../shared-module/components/Button"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import ArrowDown from "../../../../../../shared-module/img/caret-arrow-down.svg"
+import { primaryFont } from "../../../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
 
 import PeerReviewAccordion from "./PeerOrSelfReviewAccordion"

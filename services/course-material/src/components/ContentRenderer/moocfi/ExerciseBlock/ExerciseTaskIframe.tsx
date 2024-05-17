@@ -1,10 +1,10 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "../../../../shared-module/common/components/MessageChannelIFrame"
-import { IframeState } from "../../../../shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "../../../../shared-module/common/exercise-service-protocol-types.guard"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
+import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
+import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string
@@ -24,7 +24,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
-    return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} />
+    return <ErrorBanner error={t("cannot-render-exercise-task-missing-url")} variant="readOnly" />
   }
 
   return (

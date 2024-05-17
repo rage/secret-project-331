@@ -2,9 +2,9 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../../../contexts/PageContext"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import Glossary from "./Glossary"
 
@@ -17,7 +17,7 @@ const GlossaryBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   if (pageContext.pageData.course_id === null) {
-    return <ErrorBanner error={t("block-invalid-without-course")} />
+    return <ErrorBanner variant="readOnly" error={t("block-invalid-without-course")} />
   }
 
   return <Glossary courseId={pageContext.pageData.course_id} />

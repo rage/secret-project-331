@@ -17,20 +17,18 @@ import { postStartPeerOrSelfReview, postSubmission } from "../../../../services/
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
-} from "../../../../shared-module/common/bindings"
-import BreakFromCentered from "../../../../shared-module/common/components/Centering/BreakFromCentered"
-import Centered from "../../../../shared-module/common/components/Centering/Centered"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import HideTextInSystemTests from "../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
-import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
-import { useDateStringAsDateNullable } from "../../../../shared-module/common/hooks/useDateStringAsDate"
-import useToastMutation from "../../../../shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/common/styles"
-import { dateDiffInDays } from "../../../../shared-module/common/utils/dateUtil"
-import { useCurrentPagePathForReturnTo } from "../../../../shared-module/common/utils/redirectBackAfterLoginOrSignup"
-import { loginRoute, signUpRoute } from "../../../../shared-module/common/utils/routes"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+} from "../../../../shared-module/bindings"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/useDateStringAsDate"
+import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
+import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
+import { useCurrentPagePathForReturnTo } from "../../../../shared-module/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "../../../../shared-module/utils/routes"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
@@ -255,7 +253,7 @@ const ExerciseBlock: React.FC<
   }
 
   if (getCourseMaterialExercise.isError) {
-    return <ErrorBanner error={getCourseMaterialExercise.error} />
+    return <ErrorBanner variant={"readOnly"} error={getCourseMaterialExercise.error} />
   }
   if (getCourseMaterialExercise.isPending) {
     return <Spinner variant={"medium"} />
@@ -320,7 +318,6 @@ const ExerciseBlock: React.FC<
 
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
   const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
-
   return (
     <>
       {/* Exercises are so important part of the pages that we will use section to make it easy-to-find
@@ -741,9 +738,7 @@ const ExerciseBlock: React.FC<
                       </button>
                     )}
                   </div>
-                )}
-              {postSubmissionMutation.isError && (
-                <ErrorBanner error={postSubmissionMutation.error} />
+                </div>
               )}
             {postSubmissionMutation.isError && (
               <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />

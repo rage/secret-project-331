@@ -2,11 +2,11 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { UploadResultMessage } from "../shared-module/common/exercise-service-protocol-types"
-import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/common/utils/constants"
-import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "../shared-module/common/utils/withNoSsr"
-import { IframeState } from "../util/stateInterfaces"
+import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
+import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+import withNoSsr from "../shared-module/utils/withNoSsr"
+import { ExerciseIframeState } from "../util/stateInterfaces"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"

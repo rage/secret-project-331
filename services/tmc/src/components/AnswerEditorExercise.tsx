@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../shared-module/common/components/Button"
-import { UploadResultMessage } from "../shared-module/common/exercise-service-protocol-types"
+import Button from "../shared-module/components/Button"
+import { UploadResultMessage } from "../shared-module/exercise-service-protocol-types"
 import { PublicSpec } from "../util/stateInterfaces"
 
 interface Props {

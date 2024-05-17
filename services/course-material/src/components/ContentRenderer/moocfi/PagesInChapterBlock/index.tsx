@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import useQueryParameter from "../../../../shared-module/common/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import PagesInChapter from "./PagesInChapter"
 
@@ -23,7 +23,7 @@ const PagesInChapterBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const chapterId = pageContext.pageData.chapter_id
 
   if (!chapterId) {
-    return <ErrorBanner error={t("error-page-does-not-belong-to-chapter")} />
+    return <ErrorBanner variant={"readOnly"} error={t("error-page-does-not-belong-to-chapter")} />
   }
 
   return (

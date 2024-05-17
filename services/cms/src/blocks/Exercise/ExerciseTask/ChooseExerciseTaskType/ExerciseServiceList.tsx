@@ -1,11 +1,11 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
-import { ExerciseServiceIframeRenderingInfo } from "../../../shared-module/common/bindings"
-import Button from "../../../shared-module/common/components/Button"
-import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../shared-module/common/components/Spinner"
+import useAllExerciseServices from "../../../../hooks/useAllExerciseServices"
+import { ExerciseServiceIframeRenderingInfo } from "../../../../shared-module/bindings"
+import Button from "../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void
@@ -16,7 +16,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
   const { t } = useTranslation()
 
   if (exerciseServicesQuery.isError) {
-    return <ErrorBanner error={exerciseServicesQuery.error} />
+    return <ErrorBanner variant={"readOnly"} error={exerciseServicesQuery.error} />
   }
 
   if (exerciseServicesQuery.isPending) {

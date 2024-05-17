@@ -8,20 +8,14 @@ import {
   PageDetailsUpdate,
   PageHistory,
   PageInfo,
-} from "../../shared-module/common/bindings"
+} from "../../shared-module/bindings"
 import {
   isPage,
   isPageAudioFile,
   isPageHistory,
   isPageInfo,
-} from "../../shared-module/common/bindings.guard"
-import {
-  isArray,
-  isNumber,
-  isString,
-  validateResponse,
-} from "../../shared-module/common/utils/fetching"
-import { validateFile } from "../../shared-module/common/utils/files"
+} from "../../shared-module/bindings.guard"
+import { isArray, isNumber, isString, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const postNewPage = async (data: NewPage): Promise<Page> => {

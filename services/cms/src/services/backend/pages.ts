@@ -3,13 +3,13 @@ import {
   ContentManagementPage,
   PageInfo,
   PageNavigationInformation,
-} from "../../shared-module/common/bindings"
+} from "../../shared-module/bindings"
 import {
   isContentManagementPage,
   isPageInfo,
   isPageNavigationInformation,
-} from "../../shared-module/common/bindings.guard"
-import { isNull, isUnion, validateResponse } from "../../shared-module/common/utils/fetching"
+} from "../../shared-module/bindings.guard"
+import { isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

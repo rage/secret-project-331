@@ -5,7 +5,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import TableBoxWidthCustomizer from "../../components/blocks/TableBoxWidthCustomizer"
-import { baseTheme, headingFont } from "../../shared-module/common/styles"
+import { baseTheme, headingFont } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 
 import { TableBoxAttributes } from "."

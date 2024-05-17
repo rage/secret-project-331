@@ -1,6 +1,6 @@
 import handler from "../../src/pages/api/grade"
-import { ExerciseTaskGradingResult } from "../../src/shared-module/common/bindings"
-import { isExerciseTaskGradingResult } from "../../src/shared-module/common/bindings.guard"
+import { ExerciseTaskGradingResult } from "../../src/shared-module/bindings"
+import { isExerciseTaskGradingResult } from "../../src/shared-module/bindings.guard"
 
 import { oldGenerateMultipleChoiceRequest } from "./utils/oldQuizGenerator"
 import testClient from "./utils/testClient"

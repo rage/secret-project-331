@@ -1,6 +1,6 @@
 import React from "react"
 
-import { Term } from "../shared-module/common/bindings"
+import { Term } from "../shared-module/bindings"
 
 export interface GlossaryState {
   terms: Term[]

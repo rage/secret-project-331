@@ -3,9 +3,9 @@ import styled from "@emotion/styled"
 import { UseMutationResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseTaskGradingResult } from "../../../shared-module/common/bindings"
-import DebugModal from "../../../shared-module/common/components/DebugModal"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import { ExerciseTaskGradingResult } from "../../../shared-module/bindings"
+import DebugModal from "../../../shared-module/components/DebugModal"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface PlaygroundAnswersProps {
   userAnswer: unknown

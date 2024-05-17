@@ -1,8 +1,8 @@
 /* eslint-disable i18next/no-literal-string */
 
-import { ExerciseRepository, NewExerciseRepository } from "../../shared-module/common/bindings"
-import { isExerciseRepository } from "../../shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
+import { ExerciseRepository, NewExerciseRepository } from "../../shared-module/bindings"
+import { isExerciseRepository } from "../../shared-module/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const addExerciseRepository = async (

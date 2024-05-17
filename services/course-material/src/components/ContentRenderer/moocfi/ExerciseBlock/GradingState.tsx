@@ -7,7 +7,7 @@ import {
   Exercise,
   GradingProgress,
   ReviewingStage,
-} from "../../../../shared-module/common/bindings"
+} from "../../../../shared-module/bindings"
 import YellowBox from "../../../YellowBox"
 
 interface GradingStateProps {

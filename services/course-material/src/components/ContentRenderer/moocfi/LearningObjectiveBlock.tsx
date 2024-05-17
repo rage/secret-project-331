@@ -7,9 +7,9 @@ import PageContext from "../../../contexts/PageContext"
 import useIsPageChapterFrontPage from "../../../hooks/useIsPageChapterFrontPage"
 import Check from "../../../img/checkmark.svg"
 import { Block } from "../../../services/backend"
-import { baseTheme, headingFont } from "../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../shared-module/common/styles/respond"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import { baseTheme, headingFont } from "../../../shared-module/styles"
+import { respondToOrLarger } from "../../../shared-module/styles/respond"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { sanitizeCourseMaterialHtml } from "../../../utils/sanitizeCourseMaterialHtml"
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.

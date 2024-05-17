@@ -10,7 +10,7 @@ import {
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
   getnumberOfPeopleStartedCourse,
 } from "../services/backend/global-stats"
-import { withSignedIn } from "../shared-module/common/contexts/LoginStateContext"
+import { withSignedIn } from "../shared-module/contexts/LoginStateContext"
 
 const StatsPage = () => {
   const { t } = useTranslation()

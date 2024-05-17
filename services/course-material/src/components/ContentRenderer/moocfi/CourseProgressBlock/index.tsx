@@ -5,11 +5,11 @@ import { useTranslation } from "react-i18next"
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
 import { fetchUserCourseProgress } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import GenericInfobox from "../../../../shared-module/common/components/GenericInfobox"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import LoginStateContext from "../../../../shared-module/common/contexts/LoginStateContext"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import GenericInfobox from "../../../../shared-module/components/GenericInfobox"
+import Spinner from "../../../../shared-module/components/Spinner"
+import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import CourseProgress from "./CourseProgress"
 
@@ -37,7 +37,9 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
 
   return (
     <>
-      {getUserCourseProgress.isError && <ErrorBanner error={getUserCourseProgress.error} />}
+      {getUserCourseProgress.isError && (
+        <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
+      )}
       {getUserCourseProgress.isPending && <Spinner variant={"medium"} />}
       {getUserCourseProgress.isSuccess && (
         <CourseProgress userCourseInstanceProgress={getUserCourseProgress.data} />

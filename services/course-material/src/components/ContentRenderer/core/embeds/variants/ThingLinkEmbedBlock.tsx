@@ -2,8 +2,8 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import BreakFromCentered from "../../../../../shared-module/common/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../../../../shared-module/common/styles/theme"
+import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
+import { baseTheme } from "../../../../../shared-module/styles/theme"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 const THINGLINK = "thinglink"

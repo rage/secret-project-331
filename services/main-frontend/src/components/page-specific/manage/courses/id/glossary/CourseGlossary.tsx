@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
 import { deleteTerm, updateTerm } from "../../../../../../services/backend/glossary"
-import Button from "../../../../../../shared-module/common/components/Button"
-import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
-import TextAreaField from "../../../../../../shared-module/common/components/InputFields/TextAreaField"
-import TextField from "../../../../../../shared-module/common/components/InputFields/TextField"
-import Spinner from "../../../../../../shared-module/common/components/Spinner"
-import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont } from "../../../../../../shared-module/common/styles"
+import Button from "../../../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
+import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -76,7 +76,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       >
         {t("manage-glossary")}
       </h1>
-      {glossary.isError && <ErrorBanner error={glossary.error} />}
+      {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
       {glossary.isPending && <Spinner variant={"medium"} />}
       <div>
         <TextField

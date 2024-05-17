@@ -3,10 +3,10 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import dontRenderUntilQueryParametersReady from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import TopLevelPages from "./TopLevelPage"
 
@@ -21,7 +21,7 @@ const TopLevelPageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unk
   const courseId = pageContext.pageData.course_id
 
   if (!courseId) {
-    return <ErrorBanner error={t("error-page-does-not-belong-to-chapter")} />
+    return <ErrorBanner variant={"readOnly"} error={t("error-page-does-not-belong-to-chapter")} />
   }
   return (
     <div>

@@ -6,15 +6,15 @@ import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postSaveCourseSettings } from "../../services/backend"
-import { NewCourseBackgroundQuestionAnswer } from "../../shared-module/common/bindings"
-import Dialog from "../../shared-module/common/components/Dialog"
-import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../shared-module/common/components/Spinner"
-import LoginStateContext from "../../shared-module/common/contexts/LoginStateContext"
-import useToastMutation from "../../shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, primaryFont, typography } from "../../shared-module/common/styles"
-import { LANGUAGE_COOKIE_KEY } from "../../shared-module/common/utils/constants"
-import withErrorBoundary from "../../shared-module/common/utils/withErrorBoundary"
+import { NewCourseBackgroundQuestionAnswer } from "../../shared-module/bindings"
+import Dialog from "../../shared-module/components/Dialog"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Spinner from "../../shared-module/components/Spinner"
+import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../shared-module/hooks/useToastMutation"
+import { baseTheme, fontWeights, primaryFont, typography } from "../../shared-module/styles"
+import { LANGUAGE_COOKIE_KEY } from "../../shared-module/utils/constants"
+import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
@@ -138,7 +138,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   if (pageState.pageData?.course_id === null) {
     // No course id
     // eslint-disable-next-line i18next/no-literal-string
-    return <ErrorBanner error={"No course ID defined"} />
+    return <ErrorBanner variant={"readOnly"} error={"No course ID defined"} />
   }
 
   if (!open) {
@@ -151,7 +151,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           padding: 2rem 3rem;
         `}
       >
-        {!!submitError && <ErrorBanner error={submitError} />}
+        {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}
         <h1
           className={css`
             font-weight: ${fontWeights.medium};
@@ -169,7 +169,9 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           setDialogLanguage={setDialogLanguage}
           dialogLanguage={dialogLanguage}
         />
-        {getCourseInstances.isError && <ErrorBanner error={getCourseInstances.error} />}
+        {getCourseInstances.isError && (
+          <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
+        )}
         {getCourseInstances.isPending && <Spinner variant={"medium"} />}
         {getCourseInstances.isSuccess && (
           <SelectCourseInstanceForm

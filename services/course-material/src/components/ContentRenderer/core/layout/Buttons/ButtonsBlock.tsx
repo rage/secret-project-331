@@ -6,8 +6,8 @@ import {
   ButtonAttributes,
   ButtonsAttributes,
 } from "../../../../../../types/GutenbergBlockAttributes"
-import Button from "../../../../../shared-module/common/components/Button"
-import withErrorBoundary from "../../../../../shared-module/common/utils/withErrorBoundary"
+import Button from "../../../../../shared-module/components/Button"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
 import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 

@@ -13,19 +13,19 @@ import {
   getAllExerciseStatusSummariesForUserAndCourseInstance,
   getUserProgressForCourseInstance,
 } from "../../../../../services/backend/course-instances"
-import { ExerciseStatusSummaryForUser } from "../../../../../shared-module/common/bindings"
-import Accordion from "../../../../../shared-module/common/components/Accordion"
-import BooleanAsText from "../../../../../shared-module/common/components/BooleanAsText"
-import DebugModal from "../../../../../shared-module/common/components/DebugModal"
-import ErrorBanner from "../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../shared-module/common/components/Spinner"
-import HideTextInSystemTests from "../../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
-import { withSignedIn } from "../../../../../shared-module/common/contexts/LoginStateContext"
+import { ExerciseStatusSummaryForUser } from "../../../../../shared-module/bindings"
+import Accordion from "../../../../../shared-module/components/Accordion"
+import BooleanAsText from "../../../../../shared-module/components/BooleanAsText"
+import DebugModal from "../../../../../shared-module/components/DebugModal"
+import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../shared-module/components/Spinner"
+import HideTextInSystemTests from "../../../../../shared-module/components/system-tests/HideTextInSystemTests"
+import { withSignedIn } from "../../../../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import { dateToString } from "../../../../../shared-module/common/utils/time"
-import withErrorBoundary from "../../../../../shared-module/common/utils/withErrorBoundary"
+} from "../../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { dateToString } from "../../../../../shared-module/utils/time"
+import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 export interface CourseInstancePointsListProps {
   query: SimplifiedUrlQuery<string>
@@ -63,6 +63,7 @@ const CourseInstanceExerciseStatusList: React.FC<
   ) {
     return (
       <ErrorBanner
+        variant={"readOnly"}
         error={
           exerciseStatusSummariesQuery.error ||
           courseStructure.error ||

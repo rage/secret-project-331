@@ -1,6 +1,6 @@
-import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/common/bindings"
-import { isExamInstructions } from "../../shared-module/common/bindings.guard"
-import { validateResponse } from "../../shared-module/common/utils/fetching"
+import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/bindings"
+import { isExamInstructions } from "../../shared-module/bindings.guard"
+import { validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

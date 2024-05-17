@@ -3,7 +3,7 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { SpacerAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 const SpacerBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SpacerAttributes>>> = ({
   data,

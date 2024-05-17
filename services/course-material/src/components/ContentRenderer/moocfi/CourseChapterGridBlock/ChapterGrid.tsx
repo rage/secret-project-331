@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchChaptersInTheCourse } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import useQueryParameter from "../../../../shared-module/common/hooks/useQueryParameter"
-import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/common/styles"
-import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
-import dontRenderUntilQueryParametersReady from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import { stringToRandomNumber } from "../../../../shared-module/common/utils/strings"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+import dontRenderUntilQueryParametersReady from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { stringToRandomNumber } from "../../../../shared-module/utils/strings"
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "../../../LandingPageHeroSection"
 
 import Grid from "./Grid"
@@ -62,7 +62,9 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
       >
         {t("course-overview")}
       </h2>
-      {getChaptersInCourse.isError && <ErrorBanner error={getChaptersInCourse.error} />}
+      {getChaptersInCourse.isError && (
+        <ErrorBanner variant={"readOnly"} error={getChaptersInCourse.error} />
+      )}
       {getChaptersInCourse.isPending && <Spinner variant={"medium"} />}
       {getChaptersInCourse.isSuccess && (
         <>

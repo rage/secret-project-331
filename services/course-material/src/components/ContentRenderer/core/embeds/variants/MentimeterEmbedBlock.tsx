@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { fetchMentimeterEmbed } from "../../../../../services/backend"
-import ErrorBanner from "../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../shared-module/common/components/Spinner"
-import { baseTheme } from "../../../../../shared-module/common/styles"
+import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../shared-module/components/Spinner"
+import { baseTheme } from "../../../../../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
 export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
@@ -76,6 +76,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
       )}
       {!embedHtml && !fetching && (
         <ErrorBanner
+          variant="readOnly"
           error={t("could-not-fetch-embed", {
             provider: props.providerNameSlug,
             url: props.url ?? "undefined",

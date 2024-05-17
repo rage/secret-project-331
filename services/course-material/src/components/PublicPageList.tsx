@@ -4,8 +4,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchAllCoursePages } from "../services/backend"
-import ErrorBanner from "../shared-module/common/components/ErrorBanner"
-import Spinner from "../shared-module/common/components/Spinner"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
+import Spinner from "../shared-module/components/Spinner"
 import { coursePageRoute } from "../utils/routing"
 
 interface PublicPageListProps {
@@ -25,7 +25,9 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
 
   return (
     <>
-      {getAllCoursePages.isError && <ErrorBanner error={getAllCoursePages.error} />}
+      {getAllCoursePages.isError && (
+        <ErrorBanner variant={"readOnly"} error={getAllCoursePages.error} />
+      )}
       {getAllCoursePages.isPending && <Spinner variant={"medium"} />}
       {getAllCoursePages.isSuccess && (
         <>

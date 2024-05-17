@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next"
 
 import RegisterCompletion from "../../../components/page-specific/register-completion/RegisterCompletion"
 import { fetchUserCompletionInformation } from "../../../services/backend/course-modules"
-import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../shared-module/common/components/Spinner"
-import { withSignedIn } from "../../../shared-module/common/contexts/LoginStateContext"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 const REDIRECT = "redirect"
 
@@ -35,12 +35,15 @@ const CompletionPage: React.FC<React.PropsWithChildren<CompletionPageProps>> = (
     return (
       <ErrorBanner
         error={t("error-registering-to-the-uh-open-university-not-enabled-for-this-course-module")}
+        variant={"readOnly"}
       />
     )
   }
   return (
     <>
-      {userCompletionInformation.isError && <ErrorBanner error={userCompletionInformation.error} />}
+      {userCompletionInformation.isError && (
+        <ErrorBanner error={userCompletionInformation.error} variant={"readOnly"} />
+      )}
       {userCompletionInformation.isPending && <Spinner variant={"medium"} />}
       {userCompletionInformation.isSuccess && (
         <RegisterCompletion

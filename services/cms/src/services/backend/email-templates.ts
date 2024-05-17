@@ -1,6 +1,6 @@
-import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/common/bindings"
-import { isEmailTemplate } from "../../shared-module/common/bindings.guard"
-import { validateResponse } from "../../shared-module/common/utils/fetching"
+import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
+import { isEmailTemplate } from "../../shared-module/bindings.guard"
+import { validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

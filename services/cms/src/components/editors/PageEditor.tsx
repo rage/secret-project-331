@@ -18,14 +18,14 @@ import { EditorContentDispatch, editorContentReducer } from "../../contexts/Edit
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { fetchNextPageRoutingData } from "../../services/backend/pages"
-import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/common/bindings"
-import Button from "../../shared-module/common/components/Button"
-import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
-import DebugModal from "../../shared-module/common/components/DebugModal"
-import ErrorBanner from "../../shared-module/common/components/ErrorBanner"
-import Menu from "../../shared-module/common/components/Navigation/NavBar/Menu/Menu"
-import Spinner from "../../shared-module/common/components/Spinner"
-import { pageRoute } from "../../shared-module/common/utils/routes"
+import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
+import Button from "../../shared-module/components/Button"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
+import DebugModal from "../../shared-module/components/DebugModal"
+import ErrorBanner from "../../shared-module/components/ErrorBanner"
+import Menu from "../../shared-module/components/Navigation/NavBar/Menu/Menu"
+import Spinner from "../../shared-module/components/Spinner"
+import { pageRoute } from "../../shared-module/utils/routes"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -227,7 +227,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </BreakFromCentered>
       <div className="editor__component">
         <div>
-          {saveMutation.isError && <ErrorBanner error={saveMutation.error} />}
+          {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>

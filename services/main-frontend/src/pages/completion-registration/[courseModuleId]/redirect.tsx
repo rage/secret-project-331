@@ -3,12 +3,12 @@ import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { fetchCompletionRegistrationLink } from "../../../services/backend/course-modules"
-import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../shared-module/common/components/Spinner"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 export interface CompletionRedirectPageProps {
   query: SimplifiedUrlQuery<"courseModuleId">
@@ -41,6 +41,7 @@ const CompletionRedirectPage: React.FC<React.PropsWithChildren<CompletionRedirec
               ? userCompletionInformation.error
               : t("completion-registration-link-not-found")
           }
+          variant={"readOnly"}
         />
       )}
       {userCompletionInformation.isPending && <Spinner variant={"medium"} />}

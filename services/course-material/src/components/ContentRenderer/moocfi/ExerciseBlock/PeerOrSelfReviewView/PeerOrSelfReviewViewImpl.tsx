@@ -10,15 +10,15 @@ import {
   fetchPeerOrSelfReviewDataByExerciseId,
   postPeerOrSelfReviewSubmission,
 } from "../../../../../services/backend"
-import { CourseMaterialPeerReviewQuestionAnswer } from "../../../../../shared-module/common/bindings"
-import ErrorBanner from "../../../../../shared-module/common/components/ErrorBanner"
-import PeerReviewProgress from "../../../../../shared-module/common/components/PeerReview/PeerReviewProgress"
-import Spinner from "../../../../../shared-module/common/components/Spinner"
-import LoginStateContext from "../../../../../shared-module/common/contexts/LoginStateContext"
-import useToastMutation from "../../../../../shared-module/common/hooks/useToastMutation"
-import { narrowContainerWidthPx } from "../../../../../shared-module/common/styles/constants"
-import getGuestPseudonymousUserId from "../../../../../shared-module/common/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/common/utils/typeMappter"
+import { CourseMaterialPeerOrSelfReviewQuestionAnswer } from "../../../../../shared-module/bindings"
+import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
+import PeerReviewProgress from "../../../../../shared-module/components/PeerReview/PeerReviewProgress"
+import Spinner from "../../../../../shared-module/components/Spinner"
+import LoginStateContext from "../../../../../shared-module/contexts/LoginStateContext"
+import useToastMutation from "../../../../../shared-module/hooks/useToastMutation"
+import { narrowContainerWidthPx } from "../../../../../shared-module/styles/constants"
+import getGuestPseudonymousUserId from "../../../../../shared-module/utils/getGuestPseudonymousUserId"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "../../../../../shared-module/utils/typeMappter"
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 
 import PeerOrSelfReviewQuestion from "./PeerOrSelfReviewQuestion"
@@ -126,7 +126,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   )
 
   if (query.isError) {
-    return <ErrorBanner error={query.error} />
+    return <ErrorBanner variant={"readOnly"} error={query.error} />
   }
 
   // Uses isFetching instead of isPending because we want there to be a visual indication when the refresh button is clicked

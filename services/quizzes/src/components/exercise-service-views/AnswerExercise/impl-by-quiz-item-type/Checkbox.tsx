@@ -3,8 +3,8 @@ import React from "react"
 
 import { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
-import MarkdownText from "../../../MarkdownText"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import ParsedText from "../../../ParsedText"
 
 import { QuizItemComponentProps } from "."
 

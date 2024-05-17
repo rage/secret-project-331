@@ -1,8 +1,8 @@
 import React from "react"
 
-import { AnswerRequiringAttentionWithTasks } from "../../../../../../shared-module/common/bindings"
-import Centered from "../../../../../../shared-module/common/components/Centering/Centered"
-import DebugModal from "../../../../../../shared-module/common/components/DebugModal"
+import { AnswerRequiringAttentionWithTasks } from "../../../../../../shared-module/bindings"
+import Centered from "../../../../../../shared-module/components/Centering/Centered"
+import DebugModal from "../../../../../../shared-module/components/DebugModal"
 
 import AnswersRequiringAttentionItem from "./AnswersRequiringAttentionItem"
 

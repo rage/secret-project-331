@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { headingFont } from "../../../../../../shared-module/common/styles"
+import { headingFont } from "../../../../../../shared-module/styles"
 
 import { Agree, NeitherAgreeNorDisagree, StronglyDisagree } from "./LikertSvgs"
 

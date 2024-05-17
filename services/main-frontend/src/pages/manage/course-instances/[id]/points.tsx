@@ -7,16 +7,16 @@ import { useTranslation } from "react-i18next"
 import ChapterPointsDashboard from "../../../../components/page-specific/manage/course-instances/id/ChapterPointsDashboard"
 import FullWidthTable, { FullWidthTableRow } from "../../../../components/tables/FullWidthTable"
 import { getPoints } from "../../../../services/backend/course-instances"
-import { UserDetail } from "../../../../shared-module/common/bindings"
-import ErrorBanner from "../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../shared-module/common/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/common/contexts/LoginStateContext"
-import { respondToOrLarger } from "../../../../shared-module/common/styles/respond"
+import { UserDetail } from "../../../../shared-module/bindings"
+import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../shared-module/components/Spinner"
+import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
-import { roundDown } from "../../../../shared-module/common/utils/numbers"
-import withErrorBoundary from "../../../../shared-module/common/utils/withErrorBoundary"
+} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { roundDown } from "../../../../shared-module/utils/numbers"
+import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 export interface CourseInstancePointsListProps {
   query: SimplifiedUrlQuery<"id">
@@ -93,7 +93,7 @@ const CourseInstancePointsList: React.FC<
       >
         {t("point-summary")}: {courseInstanceId}
       </h2>
-      {getPointsList.isError && <ErrorBanner error={getPointsList.error} />}
+      {getPointsList.isError && <ErrorBanner variant={"readOnly"} error={getPointsList.error} />}
       {getPointsList.isPending && <Spinner variant={"medium"} />}
       {getPointsList.isSuccess && (
         <>

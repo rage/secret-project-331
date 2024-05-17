@@ -5,9 +5,9 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
-import BreakFromCentered from "../../shared-module/common/components/Centering/BreakFromCentered"
-import Centered from "../../shared-module/common/components/Centering/Centered"
-import CheckBox from "../../shared-module/common/components/InputFields/CheckBox"
+import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
+import Centered from "../../shared-module/components/Centering/Centered"
+import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 import BlockWrapper from "../BlockWrapper"
 

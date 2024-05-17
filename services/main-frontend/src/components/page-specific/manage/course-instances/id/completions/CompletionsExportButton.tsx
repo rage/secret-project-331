@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../../../../../shared-module/common/styles"
+import { baseTheme } from "../../../../../../shared-module/styles"
 
 interface Props {
   courseInstanceId: string

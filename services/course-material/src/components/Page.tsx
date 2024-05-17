@@ -15,13 +15,14 @@ import {
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
 } from "../services/backend"
-import { NewProposedBlockEdit } from "../shared-module/common/bindings"
-import ErrorBanner from "../shared-module/common/components/ErrorBanner"
-import Spinner from "../shared-module/common/components/Spinner"
-import useQueryParameter from "../shared-module/common/hooks/useQueryParameter"
-import { baseTheme } from "../shared-module/common/styles"
-import { assertNotNullOrUndefined } from "../shared-module/common/utils/nullability"
-import withErrorBoundary from "../shared-module/common/utils/withErrorBoundary"
+import { NewProposedBlockEdit } from "../shared-module/bindings"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
+import Spinner from "../shared-module/components/Spinner"
+import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../shared-module/hooks/useQueryParameter"
+import { baseTheme } from "../shared-module/styles"
+import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
+import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
@@ -141,7 +142,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   }
 
   if (glossary.isError) {
-    return <ErrorBanner error={glossary.error} />
+    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
   }
   const glossaryState: GlossaryState = { terms: glossary.data }
 
@@ -150,7 +151,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   }
 
   if (getPageAudioFiles.isError) {
-    return <ErrorBanner error={getPageAudioFiles.error} />
+    return <ErrorBanner variant={"readOnly"} error={getPageAudioFiles.error} />
   }
 
   if (getPageAudioFiles.isSuccess) {

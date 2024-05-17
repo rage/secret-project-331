@@ -9,13 +9,13 @@ import {
   teacherResetCourseProgressForEveryone,
   teacherResetCourseProgressForThemselves,
 } from "../../../../../../services/backend/courses"
-import { Course } from "../../../../../../shared-module/common/bindings"
-import Button from "../../../../../../shared-module/common/components/Button"
-import Dialog from "../../../../../../shared-module/common/components/Dialog"
-import OnlyRenderIfPermissions from "../../../../../../shared-module/common/components/OnlyRenderIfPermissions"
-import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, typography } from "../../../../../../shared-module/common/styles"
-import { courseMaterialFrontPageHref } from "../../../../../../shared-module/common/utils/cross-routing"
+import { Course } from "../../../../../../shared-module/bindings"
+import Button from "../../../../../../shared-module/components/Button"
+import Dialog from "../../../../../../shared-module/components/Dialog"
+import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
+import { courseMaterialFrontPageHref } from "../../../../../../shared-module/utils/cross-routing"
 
 import UpdateCourseForm from "./UpdateCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"

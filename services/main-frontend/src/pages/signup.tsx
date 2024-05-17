@@ -7,18 +7,18 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
-import Button from "../shared-module/common/components/Button"
-import ErrorBanner from "../shared-module/common/components/ErrorBanner"
-import TextField from "../shared-module/common/components/InputFields/TextField"
-import LoginStateContext from "../shared-module/common/contexts/LoginStateContext"
-import useQueryParameter from "../shared-module/common/hooks/useQueryParameter"
-import useToastMutation from "../shared-module/common/hooks/useToastMutation"
-import { createUser } from "../shared-module/common/services/backend/auth"
-import { baseTheme, headingFont } from "../shared-module/common/styles"
+import Button from "../shared-module/components/Button"
+import ErrorBanner from "../shared-module/components/ErrorBanner"
+import TextField from "../shared-module/components/InputFields/TextField"
+import LoginStateContext from "../shared-module/contexts/LoginStateContext"
+import useQueryParameter from "../shared-module/hooks/useQueryParameter"
+import useToastMutation from "../shared-module/hooks/useToastMutation"
+import { createUser } from "../shared-module/services/backend/auth"
+import { baseTheme, headingFont } from "../shared-module/styles"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
-} from "../shared-module/common/utils/redirectBackAfterLoginOrSignup"
+} from "../shared-module/utils/redirectBackAfterLoginOrSignup"
 
 interface FormFields {
   first_name: string
@@ -304,7 +304,9 @@ const CreateAccountForm: React.FC<React.PropsWithChildren<unknown>> = () => {
           {t("sign-in-if-you-have-an-account")}
         </a>
       </span>
-      {createAccountMutation.isError && <ErrorBanner error={createAccountMutation.error} />}
+      {createAccountMutation.isError && (
+        <ErrorBanner variant={"text"} error={createAccountMutation.error} />
+      )}
     </Wrapper>
   )
 }

@@ -9,9 +9,9 @@ import { useMediaQuery } from "usehooks-ts"
 import PageContext from "../contexts/PageContext"
 import useHeadingData from "../hooks/useHeadingData"
 import useIsPageChapterFrontPage from "../hooks/useIsPageChapterFrontPage"
-import useShouldHideStuffFromSystemTestScreenshots from "../shared-module/common/hooks/useShouldHideStuffForSystemTestScreenshots"
-import { baseTheme } from "../shared-module/common/styles/theme"
-import { isElementFullyInViewport } from "../shared-module/common/utils/dom"
+import useShouldHideStuffFromSystemTestScreenshots from "../shared-module/hooks/useShouldHideStuffForSystemTestScreenshots"
+import { baseTheme } from "../shared-module/styles/theme"
+import { isElementFullyInViewport } from "../shared-module/utils/dom"
 import { courseMaterialBlockClass } from "../utils/constants"
 
 const HERO_SECTION_Y_OFFSET_PX = 700

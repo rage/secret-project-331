@@ -1,7 +1,7 @@
 import React from "react"
 
 import ContentRenderer, { BlockRendererProps } from ".."
-import withErrorBoundary from "../../../shared-module/common/utils/withErrorBoundary"
+import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 interface InnerBlocksProps {
   /** For convinience, this takes the props from the parent block directly  */

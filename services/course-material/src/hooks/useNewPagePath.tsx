@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { fetchPageByCourseIdAndLanguageGroupId } from "../services/backend"
-import { assertNotNullOrUndefined } from "../shared-module/common/utils/nullability"
+import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
 
 const useNewPagePath = (
   course_id: string | undefined,

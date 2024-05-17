@@ -5,13 +5,13 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { markAsRead } from "../../../../../../services/backend/feedback"
-import { Feedback } from "../../../../../../shared-module/common/bindings"
-import Accordion from "../../../../../../shared-module/common/components/Accordion"
-import Button from "../../../../../../shared-module/common/components/Button"
-import TimeComponent from "../../../../../../shared-module/common/components/TimeComponent"
-import HideTextInSystemTests from "../../../../../../shared-module/common/components/system-tests/HideTextInSystemTests"
-import useToastMutation from "../../../../../../shared-module/common/hooks/useToastMutation"
-import { primaryFont, typography } from "../../../../../../shared-module/common/styles"
+import { Feedback } from "../../../../../../shared-module/bindings"
+import Accordion from "../../../../../../shared-module/components/Accordion"
+import Button from "../../../../../../shared-module/components/Button"
+import TimeComponent from "../../../../../../shared-module/components/TimeComponent"
+import HideTextInSystemTests from "../../../../../../shared-module/components/system-tests/HideTextInSystemTests"
+import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+import { primaryFont, typography } from "../../../../../../shared-module/styles"
 
 export interface FeedbackViewProps {
   feedback: Feedback

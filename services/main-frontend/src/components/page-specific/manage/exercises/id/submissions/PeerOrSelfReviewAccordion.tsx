@@ -6,10 +6,11 @@ import { useTranslation } from "react-i18next"
 import {
   PeerOrSelfReviewAnswer,
   PeerReviewWithQuestionsAndAnswers,
-} from "../../../../../../shared-module/common/bindings"
-import Accordion from "../../../../../../shared-module/common/components/Accordion"
-import LikertScale from "../../../../../../shared-module/common/components/PeerReview/LikertScale"
-import { baseTheme } from "../../../../../../shared-module/common/styles"
+} from "../../../../../../shared-module/bindings"
+import Accordion from "../../../../../../shared-module/components/Accordion"
+import LikertScale from "../../../../../../shared-module/components/PeerReview/LikertScale"
+import useUserInfo from "../../../../../../shared-module/hooks/useUserInfo"
+import { baseTheme } from "../../../../../../shared-module/styles"
 
 export interface PeerReviewAccordionProps {
   peerOrSelfReviews: Array<PeerReviewWithQuestionsAndAnswers>

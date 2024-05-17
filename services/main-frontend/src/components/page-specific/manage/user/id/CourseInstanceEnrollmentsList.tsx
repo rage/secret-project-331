@@ -4,10 +4,10 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import { getCourseInstanceEnrollmentsInfo } from "../../../../../services/backend/users"
-import Button from "../../../../../shared-module/common/components/Button"
-import ErrorBanner from "../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../shared-module/common/components/Spinner"
-import { dateToString } from "../../../../../shared-module/common/utils/time"
+import Button from "../../../../../shared-module/components/Button"
+import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../shared-module/components/Spinner"
+import { dateToString } from "../../../../../shared-module/utils/time"
 
 export interface CourseInstanceEnrollmentsListProps {
   userId: string
@@ -22,7 +22,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
     queryFn: () => getCourseInstanceEnrollmentsInfo(userId),
   })
   if (courseInstanceEnrollmentsQuery.isError) {
-    return <ErrorBanner error={courseInstanceEnrollmentsQuery.error} />
+    return <ErrorBanner variant="readOnly" error={courseInstanceEnrollmentsQuery.error} />
   }
   if (courseInstanceEnrollmentsQuery.isPending) {
     return <Spinner variant="medium" />
@@ -52,7 +52,10 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
           return (
             <ErrorBanner
               key={enrollment.course_instance_id}
-              error="Could not find course or course instance or user course settings for this enrollment."
+              variant="readOnly"
+              error={t(
+                "could-not-find-course-course-instance-or-user-course-settings-for-enrollment",
+              )}
             />
           )
         }

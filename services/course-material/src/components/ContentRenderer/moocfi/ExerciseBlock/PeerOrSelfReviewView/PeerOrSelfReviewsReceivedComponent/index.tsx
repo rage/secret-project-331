@@ -8,9 +8,10 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseId } from "../../../../../../services/backend"
-import ErrorBanner from "../../../../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/common/components/Spinner"
-import { baseTheme, headingFont } from "../../../../../../shared-module/common/styles"
+import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../../../../shared-module/components/Spinner"
+import useUserInfo from "../../../../../../shared-module/hooks/useUserInfo"
+import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
@@ -170,8 +171,8 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     return <Spinner variant={"medium"} />
   }
 
-  if (getPeerReviewReceived.isError) {
-    return <ErrorBanner error={getPeerReviewReceived.error} />
+  if (peerOrSelfReviewsReceivedQuery.isError) {
+    return <ErrorBanner variant={"readOnly"} error={peerOrSelfReviewsReceivedQuery.error} />
   }
 
   const numReceivedReviews = (data["peer"]?.length ?? 0) + (data["self"]?.length ?? 0)

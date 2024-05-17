@@ -1,6 +1,6 @@
-import { CourseInstance } from "../../shared-module/common/bindings"
-import { isCourseInstance } from "../../shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/common/utils/fetching"
+import { CourseInstance } from "../../shared-module/bindings"
+import { isCourseInstance } from "../../shared-module/bindings.guard"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 
 import { cmsClient } from "./cmsClient"
 

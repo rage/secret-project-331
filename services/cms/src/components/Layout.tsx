@@ -4,21 +4,21 @@ import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
 
-import Centered from "../shared-module/common/components/Centering/Centered"
-import Footer from "../shared-module/common/components/Footer"
-import LanguageSelection from "../shared-module/common/components/LanguageSelection"
-import LoginControls from "../shared-module/common/components/LoginControls"
+import Centered from "../shared-module/components/Centering/Centered"
+import Footer from "../shared-module/components/Footer"
+import LanguageSelection from "../shared-module/components/LanguageSelection"
+import LoginControls from "../shared-module/components/LoginControls"
 import {
   Menu,
   NavBar,
   NavContainer,
   NavItem,
   NavItems,
-} from "../shared-module/common/components/Navigation/NavBar"
-import { PageMarginOffset } from "../shared-module/common/components/layout/PageMarginOffset"
-import { respondToOrLarger } from "../shared-module/common/styles/respond"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/common/utils/constants"
-import withNoSsr from "../shared-module/common/utils/withNoSsr"
+} from "../shared-module/components/Navigation/NavBar"
+import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
+import { respondToOrLarger } from "../shared-module/styles/respond"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
+import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import EditorBreadcrumbs from "./breadcrumbs/EditorBreadcrumbs"
 
@@ -31,7 +31,7 @@ type LayoutProps = {
 }
 
 const DynamicToaster = dynamic(
-  () => import("../shared-module/common/components/Notifications/ToasterNotifications"),
+  () => import("../shared-module/components/Notifications/ToasterNotifications"),
   { ssr: false },
 )
 

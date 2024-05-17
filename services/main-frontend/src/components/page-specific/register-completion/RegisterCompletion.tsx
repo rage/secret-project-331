@@ -3,10 +3,10 @@ import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { UserCompletionInformation } from "../../../shared-module/common/bindings"
-import Button from "../../../shared-module/common/components/Button"
-import GenericInfobox from "../../../shared-module/common/components/GenericInfobox"
-import { baseTheme, typography } from "../../../shared-module/common/styles"
+import { UserCompletionInformation } from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
+import GenericInfobox from "../../../shared-module/components/GenericInfobox"
+import { baseTheme, typography } from "../../../shared-module/styles"
 
 const MY_STUDYINFO = "https://opintopolku.fi/oma-opintopolku/"
 

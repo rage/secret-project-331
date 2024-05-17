@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import React, { useId } from "react"
 
-import { primaryFont } from "../../../../../shared-module/common/styles"
+import { primaryFont } from "../../../../../shared-module/styles"
 
 interface ToggleCardProps {
   state: boolean

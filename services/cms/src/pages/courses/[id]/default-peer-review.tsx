@@ -11,17 +11,19 @@ import {
   putCoursesDefaultCmsPeerOrSelfReviewConfiguration,
 } from "../../../services/backend/courses"
 import {
-  CmsPeerReviewConfig,
-  CmsPeerReviewConfiguration,
-  CmsPeerReviewQuestion,
-} from "../../../shared-module/common/bindings"
-import Button from "../../../shared-module/common/components/Button"
-import ErrorBanner from "../../../shared-module/common/components/ErrorBanner"
-import Spinner from "../../../shared-module/common/components/Spinner"
-import useToastMutation from "../../../shared-module/common/hooks/useToastMutation"
+  CmsPeerOrSelfReviewConfig,
+  CmsPeerOrSelfReviewConfiguration,
+  CmsPeerOrSelfReviewQuestion,
+} from "../../../shared-module/bindings"
+import Button from "../../../shared-module/components/Button"
+import ErrorBanner from "../../../shared-module/components/ErrorBanner"
+import Spinner from "../../../shared-module/components/Spinner"
+import useToastMutation from "../../../shared-module/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/common/utils/dontRenderUntilQueryParametersReady"
+} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -90,8 +92,32 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     { onSuccess: () => peerOrSelfReviewConfigurationQuery.refetch() },
   )
 
-  if (getCmsPeerReviewConfiguration.isError) {
-    return <ErrorBanner error={getCmsPeerReviewConfiguration.error} />
+  const parsedAdditionalInstructions: BlockInstance[] = useMemo(() => {
+    const parsedConfig = JSON.parse(
+      attributes.peer_or_self_review_config ?? "{}",
+    ) as CmsPeerOrSelfReviewConfig
+    const additionalInstructions = parsedConfig?.review_instructions
+    if (isBlockInstanceArray(additionalInstructions)) {
+      return additionalInstructions
+    }
+    return []
+  }, [attributes.peer_or_self_review_config])
+
+  const updateAdditionalInstructions = useCallback((newValue: BlockInstance[]) => {
+    setAttributes((prev) => {
+      const newConfig = JSON.parse(
+        prev.peer_or_self_review_config ?? "{}",
+      ) as CmsPeerOrSelfReviewConfig
+      newConfig.review_instructions = newValue
+      return {
+        ...prev,
+        peer_or_self_review_config: JSON.stringify(newConfig),
+      }
+    })
+  }, [])
+
+  if (peerOrSelfReviewConfigurationQuery.isError) {
+    return <ErrorBanner error={peerOrSelfReviewConfigurationQuery.error} variant="text" />
   }
 
   if (peerOrSelfReviewConfigurationQuery.isPending) {

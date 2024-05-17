@@ -81,8 +81,18 @@ export interface CheckboxProps extends InputHTMLAttributes<HTMLInputElement> {
   labelIsRawHtml?: boolean
 }
 
-const CheckBox: React.FC<CheckboxProps> = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ onChangeByValue, onChange, className, checked, ...rest }, ref) => {
+const CheckBox = forwardRef<HTMLInputElement, CheckboxProps>(
+  (
+    {
+      onChangeByValue,
+      onChange,
+      className,
+      checked,
+      labelIsRawHtml = false,
+      ...rest
+    }: CheckboxProps,
+    ref,
+  ) => {
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {

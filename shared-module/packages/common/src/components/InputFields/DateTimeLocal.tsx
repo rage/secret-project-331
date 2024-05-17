@@ -19,8 +19,8 @@ export interface TimePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string
 }
 
-const DateTimeLocal: React.FC<TimePickerProps> = forwardRef<HTMLInputElement, TimePickerProps>(
-  ({ onChangeByValue, onChange, className, defaultValue, ...rest }, ref) => {
+const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
+  ({ onChangeByValue, onChange, className, defaultValue, ...rest }: TimePickerProps, ref) => {
     const [value, setValue] = useState<string>(defaultValue ?? "")
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {

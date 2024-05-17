@@ -110,13 +110,20 @@ const DetailTag = styled.div`
   }
 `
 
-export interface ErrorBannerProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface BannerExtraProps {
+  variant: "text" | "link" | "readOnly"
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: unknown | string
 }
 
-const ErrorBanner: React.FC<ErrorBannerProps> = ({ error: unknownError }) => {
+export type BannerProps = React.HTMLAttributes<HTMLDivElement> & BannerExtraProps
+
+const ErrorBanner: React.FC<React.PropsWithChildren<React.PropsWithChildren<BannerProps>>> = (
+  props,
+) => {
   const { t } = useTranslation()
 
+  const { error: unknownError } = props
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const anyError = unknownError as any
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

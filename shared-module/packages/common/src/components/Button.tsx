@@ -259,63 +259,36 @@ export const LabelButton = styled.label`
   ${BASE_BUTTON_STYLES}
 `
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    { variant = "primary", size = "medium", transform = "uppercase", ...rest },
-    ref?: Ref<HTMLButtonElement>,
-  ) => {
-    switch (variant) {
-      case "primary":
-        return (
-          <PrimaryButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-      case "secondary":
-        return (
-          <SecondaryButton
-            ref={ref}
-            variant={variant}
-            size={size}
-            transform={transform}
-            {...rest}
-          />
-        )
-      case "reject":
-        return (
-          <RejectButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-      case "tertiary":
-        return (
-          <TertiaryButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-      case "outlined":
-        return (
-          <SecondaryButton
-            ref={ref}
-            variant={variant}
-            size={size}
-            transform={transform}
-            {...rest}
-          />
-        )
-      case "blue":
-        return (
-          <BlueButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-      case "white":
-        return (
-          <WhiteButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-      case "icon":
-        return (
-          <IconButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-      default:
-        return (
-          <PrimaryButton ref={ref} variant={variant} size={size} transform={transform} {...rest} />
-        )
-    }
-  },
-)
+/* BUTTON VARIANT
+PrimaryButton
+SecondaryButton
+GhostButton
+TertiaryButton
+IconButton
+Link */
+
+const Button = forwardRef((props: ButtonProps, ref?: Ref<HTMLButtonElement>) => {
+  switch (props.variant) {
+    case "primary":
+      return <PrimaryButton ref={ref} {...props} />
+    case "secondary":
+      return <SecondaryButton ref={ref} {...props} />
+    case "reject":
+      return <RejectButton ref={ref} {...props} />
+    case "tertiary":
+      return <TertiaryButton ref={ref} {...props} />
+    case "outlined":
+      return <SecondaryButton ref={ref} {...props} />
+    case "blue":
+      return <BlueButton ref={ref} {...props} />
+    case "white":
+      return <WhiteButton ref={ref} {...props} />
+    case "icon":
+      return <IconButton ref={ref} {...props} />
+    default:
+      return <PrimaryButton ref={ref} {...props} />
+  }
+})
 
 // eslint-disable-next-line i18next/no-literal-string
 Button.displayName = "Button"

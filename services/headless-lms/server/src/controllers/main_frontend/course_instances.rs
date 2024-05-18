@@ -433,6 +433,7 @@ async fn get_user_progress_for_course_instance(
         Res::CourseInstance(course_instance_id),
     )
     .await?;
+
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(
             &mut conn,
@@ -449,25 +450,34 @@ async fn get_user_progress_for_course_instance(
 #[instrument(skip(pool))]
 async fn get_all_suspected_cheaters(
     user: AuthUser,
-    params: web::Path<(Uuid, Uuid)>,
+    params: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<SuspectedCheater>>> {
-    let (course_instance_id, user_id) = params.into_inner();
+) -> ControllerResult<web::Json<Vec<SuspectedCheaters>>> {
+    let course_instance_id = params.into_inner();
+    println!(
+        "@@@@@@@@new_course_instance_id in gac: {:?}",
+        course_instance_id
+    );
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
-        Act::ViewUserProgressOrDetails,
+        Act::Teach,
         Some(user.id),
         Res::CourseInstance(course_instance_id),
     )
     .await?;
+
+    // let course_instance =
+    //     course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+
     let course_cheaters =
         models::suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
             &mut conn,
             course_instance_id,
         )
         .await?;
-    // add course_instance_id to Suspected_Cheaters
+
+    println!("@@@@@@new_course_cheaters: {:?}", course_cheaters);
     token.authorized_ok(web::Json(course_cheaters))
 }
 
@@ -486,6 +496,8 @@ async fn insert_threshold(
     let course_instance_id = params.into_inner();
     let new_threshold = payload.0;
     let duration: Option<i32> = None;
+
+    println!("@@@@@@new_threshold: {:?}", new_threshold);
 
     let token = authorize(
         &mut conn,

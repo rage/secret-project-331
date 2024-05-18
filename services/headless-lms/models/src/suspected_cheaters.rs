@@ -64,23 +64,30 @@ pub async fn insert_thresholds(
     course_instance_id: Uuid,
     duration_seconds: Option<i32>,
     points: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
+) -> ModelResult<Threshold> {
+    let threshold = sqlx::query_as!(
+        Threshold,
         "
-    INSERT INTO cheater_thresholds (
-      course_instance_id,
-      duration_seconds,
-      points
-    )
-    VALUES ($1, $2, $3)
-      ",
+        INSERT INTO cheater_thresholds (
+            course_instance_id,
+            duration_seconds,
+            points
+        )
+        VALUES ($1, $2, $3)
+        ON CONFLICT (course_instance_id)
+        DO UPDATE SET
+            duration_seconds = EXCLUDED.duration_seconds,
+            points = EXCLUDED.points
+        RETURNING *
+        ",
         course_instance_id,
         duration_seconds,
-        points
+        points,
     )
-    .execute(conn)
+    .fetch_one(conn)
     .await?;
-    Ok(())
+
+    Ok(threshold)
 }
 
 pub async fn update_thresholds_by_point(
@@ -109,7 +116,13 @@ pub async fn get_thresholds_by_id(
     let thresholds = sqlx::query_as!(
         Threshold,
         "
-      SELECT *
+      SELECT id,
+      course_instance_id,
+      duration_seconds,
+      points,
+      created_at,
+      updated_at,
+      deleted_at
       FROM cheater_thresholds
       WHERE course_instance_id = $1
       AND deleted_at IS NULL;
@@ -157,19 +170,17 @@ pub async fn get_suspected_cheaters_by_id(
 
 pub async fn get_all_suspected_cheaters_in_course_instance(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    _course_instance_id: Uuid,
 ) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
         "
       SELECT *
       FROM suspected_cheaters
-      WHERE course_id = $1
-      AND deleted_at IS NULL;
-    ",
-        course_instance_id
+      WHERE deleted_at IS NULL;
+    "
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
     Ok(cheaters)
 }

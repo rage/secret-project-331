@@ -235,6 +235,8 @@ fn models(target: &mut File) {
         roles::RoleUser,
         roles::UserRole,
         student_countries::StudentCountry,
+        suspected_cheaters::SuspectedCheaters,
+        suspected_cheaters::ThresholdData,
 
         teacher_grading_decisions::NewTeacherGradingDecision,
         teacher_grading_decisions::TeacherDecisionType,

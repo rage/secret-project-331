@@ -1632,6 +1632,22 @@ export interface StudentCountry {
   deleted_at: string | null
 }
 
+export interface SuspectedCheaters {
+  id: string
+  user_id: string
+  course_instance_id: string
+  created_at: string
+  deleted_at: string | null
+  updated_at: string | null
+  total_duration_seconds: number | null
+  total_points: number
+}
+
+export interface ThresholdData {
+  points: number
+  duration_seconds: number | null
+}
+
 export interface NewTeacherGradingDecision {
   user_exercise_state_id: string
   exercise_id: string

@@ -210,12 +210,14 @@ import {
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
+  SuspectedCheaters,
   TeacherDecisionType,
   TeacherGradingDecision,
   TeacherManualCompletion,
   TeacherManualCompletionRequest,
   Term,
   TermUpdate,
+  ThresholdData,
   UploadResult,
   User,
   UserCompletionInformation,
@@ -2950,6 +2952,31 @@ export function isStudentCountry(obj: unknown): obj is StudentCountry {
     typeof typedObj["country_code"] === "string" &&
     typeof typedObj["created_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
+  )
+}
+
+export function isSuspectedCheaters(obj: unknown): obj is SuspectedCheaters {
+  const typedObj = obj as SuspectedCheaters
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    (typedObj["updated_at"] === null || typeof typedObj["updated_at"] === "string") &&
+    (typedObj["total_duration_seconds"] === null ||
+      typeof typedObj["total_duration_seconds"] === "number") &&
+    typeof typedObj["total_points"] === "number"
+  )
+}
+
+export function isThresholdData(obj: unknown): obj is ThresholdData {
+  const typedObj = obj as ThresholdData
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["points"] === "number" &&
+    (typedObj["duration_seconds"] === null || typeof typedObj["duration_seconds"] === "number")
   )
 }
 

@@ -77,7 +77,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const resetExamMutation = useToastMutation(
     () => resetExamProgress(examId),
     {
-      notify: false,
+      notify: true,
+      method: "POST",
     },
     {
       onSuccess: async () => {

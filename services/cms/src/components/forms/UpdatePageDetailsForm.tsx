@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import TextField from "../../shared-module/components/InputFields/TextField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

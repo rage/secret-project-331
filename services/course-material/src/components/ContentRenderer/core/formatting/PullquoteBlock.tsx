@@ -2,11 +2,12 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
+
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const FONT_SIZES: { [key: string]: string } = {
   small: "18px",

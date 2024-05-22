@@ -1,6 +1,8 @@
 import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
+import { courseMaterialClient } from "./courseMaterialClient"
+
 import {
   ChaptersWithStatus,
   Course,
@@ -43,7 +45,7 @@ import {
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserModuleCompletionStatus,
-} from "../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isChaptersWithStatus,
   isCourse,
@@ -76,7 +78,7 @@ import {
   isUserCourseInstanceProgress,
   isUserCourseSettings,
   isUserModuleCompletionStatus,
-} from "../shared-module/bindings.guard"
+} from "@/shared-module/common/bindings.guard"
 import {
   isArray,
   isNull,
@@ -86,9 +88,7 @@ import {
   isUnion,
   isUuid,
   validateResponse,
-} from "../shared-module/utils/fetching"
-
-import { courseMaterialClient } from "./courseMaterialClient"
+} from "@/shared-module/common/utils/fetching"
 
 export const fetchCourseById = async (courseId: string): Promise<Course> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })

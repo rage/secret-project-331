@@ -11,14 +11,15 @@ import {
   fetchModuleIdByChapterId,
   getAllCourseModuleCompletionsForUserAndCourseInstance,
 } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {
   CustomViewIframeState,
   UserVariablesMap,
-} from "../../../../shared-module/exercise-service-protocol-types"
-import useUserInfo from "../../../../shared-module/hooks/useUserInfo"
-import { assertNotNullOrUndefined } from "../../../../shared-module/utils/nullability"
+} from "@/shared-module/common/exercise-service-protocol-types"
+import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CustomViewIframeProps {
   exerciseServiceSlug: string

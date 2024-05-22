@@ -3,8 +3,9 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import MyCourses from "../components/page-specific/index/MyCourses"
-import OnlyRenderIfPermissions from "../shared-module/components/OnlyRenderIfPermissions"
-import { withSignedIn } from "../shared-module/contexts/LoginStateContext"
+
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import {
   allOrganizationsRoute,
   globalPermissionsRoute,
@@ -12,8 +13,8 @@ import {
   manageExerciseServicesRoute,
   regradingsRoute,
   searchUsersRoute,
-} from "../shared-module/utils/routes"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/routes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const FrontPage = () => {
   const { t } = useTranslation()

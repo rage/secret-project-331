@@ -4,11 +4,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { createExam, createExamDuplicate } from "../../../../../../services/backend/exams"
-import { NewExam, OrgExam } from "../../../../../../shared-module/bindings"
-import Dialog from "../../../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewExamForm from "../../../../../forms/NewExamForm"
+
+import { NewExam, OrgExam } from "@/shared-module/common/bindings"
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface ExamDialogProps {
   organizationId: string

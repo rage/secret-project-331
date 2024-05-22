@@ -3,9 +3,10 @@ import React, { useContext } from "react"
 import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
 import useUserModuleCompletions from "../../../hooks/useUserModuleCompletions"
-import { UserCourseSettings } from "../../../shared-module/bindings"
-import LoginStateContext from "../../../shared-module/contexts/LoginStateContext"
 import InnerBlocks from "../util/InnerBlocks"
+
+import { UserCourseSettings } from "@/shared-module/common/bindings"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 
 interface ConditionalBlockProps {
   module_completion: string[]

@@ -6,16 +6,17 @@ import React, { useContext } from "react"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import PageContext from "../../contexts/PageContext"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
-import { respondToOrLarger } from "../../shared-module/styles/respond"
-import {
-  CMS_EDITOR_SIDEBAR_THRESHOLD,
-  CMS_EDITOR_SIDEBAR_WIDTH,
-} from "../../shared-module/utils/constants"
 import BlockWrapper from "../BlockWrapper"
 
 import { HeroSectionAttributes } from "."
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import {
+  CMS_EDITOR_SIDEBAR_THRESHOLD,
+  CMS_EDITOR_SIDEBAR_WIDTH,
+} from "@/shared-module/common/utils/constants"
 
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>

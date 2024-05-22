@@ -5,10 +5,11 @@ import { useTranslation } from "react-i18next"
 
 import useTime from "../../../../hooks/useTime"
 import { fetchPageNavigationData } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import NextSectionLink from "../../../../shared-module/components/NextSectionLink"
-import Spinner from "../../../../shared-module/components/Spinner"
 import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import NextSectionLink from "@/shared-module/common/components/NextSectionLink"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 export interface NextPageProps {
   chapterId: string | null

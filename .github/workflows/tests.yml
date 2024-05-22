@@ -76,7 +76,7 @@ jobs:
         run: npm run test
         working-directory: ./services/cms
 
-  shared-module:
+  shared-module-common:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -84,10 +84,10 @@ jobs:
         run: npm ci
       - name: npm ci
         run: npm ci
-        working-directory: ./shared-module
+        working-directory: ./shared-module/packages/common
       - name: Run tests
         run: npm run test
-        working-directory: ./shared-module
+        working-directory: ./shared-module/packages/common
 
   quizzes:
     runs-on: ubuntu-latest

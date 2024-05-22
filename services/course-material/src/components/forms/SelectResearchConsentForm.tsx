@@ -10,14 +10,15 @@ import {
   fetchResearchFormQuestionsWithCourseId,
   postResearchFormUserAnswer,
 } from "../../services/backend"
-import { ResearchForm, ResearchFormQuestionAnswer } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import Dialog from "../../shared-module/components/Dialog"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import useUserInfo from "../../shared-module/hooks/useUserInfo"
-import { baseTheme } from "../../shared-module/styles"
-import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import ContentRenderer from "../ContentRenderer"
+
+import { ResearchForm, ResearchFormQuestionAnswer } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
+import { baseTheme } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ResearchConsentFormProps {
   onClose: () => void

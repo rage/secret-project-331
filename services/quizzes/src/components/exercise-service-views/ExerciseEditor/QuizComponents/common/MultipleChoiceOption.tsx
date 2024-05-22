@@ -5,13 +5,14 @@ import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
-import Button from "../../../../../shared-module/components/Button"
-import CheckBox from "../../../../../shared-module/components/InputFields/CheckBox"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
-import ArrowDown from "../../../../../shared-module/img/caret-arrow-down.svg"
-import ArrowUp from "../../../../../shared-module/img/caret-arrow-up.svg"
-import { primaryFont } from "../../../../../shared-module/styles"
-import { nullIfEmptyString } from "../../../../../shared-module/utils/strings"
+
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
+import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
+import { primaryFont } from "@/shared-module/common/styles"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
 const OptionCard = styled.div`
   height: 50px;

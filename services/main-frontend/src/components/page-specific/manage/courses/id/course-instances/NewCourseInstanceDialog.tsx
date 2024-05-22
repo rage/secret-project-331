@@ -2,12 +2,13 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { newCourseInstance } from "../../../../../../services/backend/courses"
-import { CourseInstanceForm } from "../../../../../../shared-module/bindings"
-import Dialog from "../../../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
+
+import { CourseInstanceForm } from "@/shared-module/common/bindings"
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface NewCourseLanguageVersionDialogProps {
   showDialog: boolean

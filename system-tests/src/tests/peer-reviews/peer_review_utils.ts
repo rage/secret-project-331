@@ -1,8 +1,9 @@
 import { Page } from "playwright"
 import { expect, test } from "playwright/test"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/utils/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
 
 /**
  *

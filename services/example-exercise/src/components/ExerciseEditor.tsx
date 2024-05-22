@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { State } from "../pages/iframe"
-import { CurrentStateMessage } from "../shared-module/exercise-service-protocol-types"
 import { Alternative } from "../util/stateInterfaces"
 
 import ButtonEditor from "./ButtonEditor"
+
+import { CurrentStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
 
 const CURRENT_STATE = "current-state"
 interface Props {

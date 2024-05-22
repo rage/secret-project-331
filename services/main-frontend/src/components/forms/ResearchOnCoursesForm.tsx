@@ -4,12 +4,13 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postUserResearchConsent } from "../../services/backend/users"
-import Button from "../../shared-module/components/Button"
-import Dialog from "../../shared-module/components/Dialog"
-import RadioButton from "../../shared-module/components/InputFields/RadioButton"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import { baseTheme, fontWeights, headingFont } from "../../shared-module/styles"
-import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
+
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ResearchOnCoursesFormProps {
   afterSubmit?: () => void

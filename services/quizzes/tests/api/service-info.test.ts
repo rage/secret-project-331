@@ -1,10 +1,11 @@
 import request from "supertest"
 
 import handler from "../../src/pages/api/service-info"
-import { ExerciseServiceInfoApi } from "../../src/shared-module/bindings"
-import { isExerciseServiceInfoApi } from "../../src/shared-module/bindings.guard"
 
 import testClient from "./utils/testClient"
+
+import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
+import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
 
 describe("service-info", () => {
   it("exists", async () => {

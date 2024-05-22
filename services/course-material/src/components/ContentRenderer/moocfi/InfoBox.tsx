@@ -2,10 +2,11 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../shared-module/components/Centering/Centered"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface InfoBoxBlockAttributes {
   backgroundColor: string

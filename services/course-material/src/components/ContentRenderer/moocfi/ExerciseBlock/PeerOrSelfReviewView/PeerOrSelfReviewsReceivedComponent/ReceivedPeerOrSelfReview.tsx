@@ -3,13 +3,13 @@ import * as React from "react"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import Essay from "./Essay"
+import Likert from "./Likert"
+
 import {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
-} from "../../../../../../shared-module/bindings"
-
-import Essay from "./Essay"
-import Likert from "./Likert"
+} from "@/shared-module/common/bindings"
 interface ReviewProps {
   orderNumber: number
   reviews: PeerOrSelfReviewQuestionSubmission[]

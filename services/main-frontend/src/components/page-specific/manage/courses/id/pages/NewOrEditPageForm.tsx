@@ -4,11 +4,12 @@ import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { postNewPage, updatePageDetails } from "../../../../../../services/backend/pages"
-import { Page } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import { normalizePath } from "../../../../../../utils/normalizePath"
+
+import { Page } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const PathFieldWithPrefixElement = styled.div`
   display: flex;

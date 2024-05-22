@@ -1,8 +1,8 @@
-import { WithSidebar } from "../shared-module/components/Centering/BreakFromCentered"
+import { WithSidebar } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
-} from "../shared-module/utils/constants"
+} from "@/shared-module/common/utils/constants"
 
 /* eslint-disable i18next/no-literal-string */
 const breakFromCenteredProps: WithSidebar = {

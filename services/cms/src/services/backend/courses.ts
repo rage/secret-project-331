@@ -1,3 +1,5 @@
+import { cmsClient } from "./cmsClient"
+
 import {
   CmsPeerOrSelfReviewConfiguration,
   CourseModule,
@@ -6,17 +8,15 @@ import {
   Page,
   ResearchForm,
   ResearchFormQuestion,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isCmsPeerOrSelfReviewConfiguration,
   isCourseModule,
   isPage,
   isResearchForm,
   isResearchFormQuestion,
-} from "../../shared-module/bindings.guard"
-import { isArray, isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
-
-import { cmsClient } from "./cmsClient"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, isNull, isUnion, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const getCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
   courseId: string,

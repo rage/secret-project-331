@@ -6,11 +6,12 @@ import { useTranslation } from "react-i18next"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
 import PageContext from "../../../contexts/PageContext"
-import Accordion from "../../../shared-module/components/Accordion"
-import CheckBox from "../../../shared-module/components/InputFields/CheckBox"
-import TextField from "../../../shared-module/components/InputFields/TextField"
-import { baseTheme } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
+
+import Accordion from "@/shared-module/common/components/Accordion"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 

@@ -2,9 +2,9 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { RefObject } from "react"
 
-import { headingFont } from "../../../../shared-module/styles"
-
 import { styledRangeInput } from "./RangeComponentStyle"
+
+import { headingFont } from "@/shared-module/common/styles"
 
 const ProgressBarWrapper = styled.div`
   display: flex;

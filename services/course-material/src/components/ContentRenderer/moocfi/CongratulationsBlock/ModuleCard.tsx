@@ -6,10 +6,11 @@ import { useTranslation } from "react-i18next"
 import FailedIcon from "../../../../img/failed-icon.svg"
 import Badge from "../../../../img/grade-badge.svg"
 import PassedIcon from "../../../../img/passed-icon.svg"
-import { UserModuleCompletionStatus } from "../../../../shared-module/bindings"
-import { baseTheme, headingFont, monospaceFont, typography } from "../../../../shared-module/styles"
 
 import CongratulationsLinks from "./CongratulationsLinks"
+
+import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
+import { baseTheme, headingFont, monospaceFont, typography } from "@/shared-module/common/styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`

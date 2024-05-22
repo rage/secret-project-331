@@ -1,8 +1,9 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query"
 
 import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../services/backend/courses"
-import { ExerciseAnswersInCourseRequiringAttentionCount } from "../shared-module/bindings"
-import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
+
+import { ExerciseAnswersInCourseRequiringAttentionCount } from "@/shared-module/common/bindings"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 type OptionsType = Omit<
   UseQueryOptions<Array<ExerciseAnswersInCourseRequiringAttentionCount>>,

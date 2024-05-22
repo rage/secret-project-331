@@ -3,10 +3,11 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { postNewReferences } from "../../../../../../services/backend/courses"
-import { MaterialReference, NewMaterialReference } from "../../../../../../shared-module/bindings"
-import Dialog from "../../../../../../shared-module/components/Dialog"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 import NewReferenceForm from "../../../../../forms/NewReferenceForm"
+
+import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
+import Dialog from "@/shared-module/common/components/Dialog"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface NewReferenceModalProps {
   onClose: () => void

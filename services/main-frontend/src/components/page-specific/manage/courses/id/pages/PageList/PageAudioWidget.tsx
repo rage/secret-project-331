@@ -10,13 +10,14 @@ import {
   removePageAudioFile,
 } from "../../../../../../../services/backend/page-audio-files"
 import { fetchPageAudioFiles } from "../../../../../../../services/backend/pages"
-import Dialog from "../../../../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../../shared-module/components/Spinner"
-import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
-import { primaryFont } from "../../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
-import { runCallbackIfEnterPressed } from "../../../../../../../shared-module/utils/accessibility"
+
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { primaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 
 const ACCEPTABLE_MIME_TYPES = [
   "audio/mpeg",

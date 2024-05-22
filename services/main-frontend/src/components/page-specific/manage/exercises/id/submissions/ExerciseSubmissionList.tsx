@@ -4,13 +4,8 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseSlideSubmission } from "../../../../../../shared-module/bindings"
-import {
-  baseTheme,
-  fontWeights,
-  headingFont,
-  secondaryFont,
-} from "../../../../../../shared-module/styles"
+import { ExerciseSlideSubmission } from "@/shared-module/common/bindings"
+import { baseTheme, fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 
 interface Props {
   exerciseSubmissions: ExerciseSlideSubmission[]

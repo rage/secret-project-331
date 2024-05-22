@@ -1,8 +1,8 @@
-import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
-import { isEmailTemplate } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
-
 import { cmsClient } from "./cmsClient"
+
+import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import { isEmailTemplate } from "@/shared-module/common/bindings.guard"
+import { validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise<EmailTemplate> => {
   const response = await cmsClient.get(`/email-templates/${emailTemplateId}`, {

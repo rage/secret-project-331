@@ -5,10 +5,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import TableBoxWidthCustomizer from "../../components/blocks/TableBoxWidthCustomizer"
-import { baseTheme, headingFont } from "../../shared-module/styles"
 import BlockWrapper from "../BlockWrapper"
 
 import { TableBoxAttributes } from "."
+
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const ALLOWED_NESTED_BLOCKS = ["core/table"]
 

@@ -8,12 +8,13 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseId } from "../../../../../../services/backend"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import useUserInfo from "../../../../../../shared-module/hooks/useUserInfo"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }

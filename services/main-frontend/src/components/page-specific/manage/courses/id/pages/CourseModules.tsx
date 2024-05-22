@@ -6,20 +6,17 @@ import { v4 } from "uuid"
 
 import { submitChanges as submitModuleChanges } from "../../../../../../services/backend/course-modules"
 import { fetchCourseStructure } from "../../../../../../services/backend/courses"
-import {
-  CompletionPolicy,
-  ModifiedModule,
-  NewModule,
-} from "../../../../../../shared-module/bindings"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme } from "../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import BottomPanel from "../../../../../BottomPanel"
 
 import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseModuleForm"
 import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
+
+import { CompletionPolicy, ModifiedModule, NewModule } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"

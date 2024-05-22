@@ -9,11 +9,12 @@ import {
   PublicQuizItemOption,
   PublicSpecQuizItemMultiplechoiceDropdown,
 } from "../../../../../types/quizTypes/publicSpec"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const SelectIcon = () => {
   return (

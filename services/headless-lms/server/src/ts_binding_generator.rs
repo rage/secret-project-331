@@ -14,7 +14,8 @@ macro_rules! export {
 
 #[test]
 fn ts_binding_generator() {
-    let mut target = File::create("../../../shared-module/src/bindings.ts").unwrap();
+    let mut target =
+        File::create("../../../shared-module/packages/common/src/bindings.ts").unwrap();
     domain(&mut target);
     models(&mut target);
     controllers(&mut target);

@@ -1,5 +1,7 @@
 import { isBoolean } from "lodash"
 
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   CertificateConfigurationAndRequirements,
   CourseInstance,
@@ -13,7 +15,7 @@ import {
   Points,
   TeacherManualCompletionRequest,
   UserCourseInstanceProgress,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isCertificateConfigurationAndRequirements,
   isCourseInstance,
@@ -24,9 +26,8 @@ import {
   isManualCompletionPreview,
   isPoints,
   isUserCourseInstanceProgress,
-} from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchCourseInstance = async (courseInstanceId: string): Promise<CourseInstance> => {
   const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}`)

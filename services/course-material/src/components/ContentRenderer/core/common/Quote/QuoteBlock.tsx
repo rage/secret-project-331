@@ -4,9 +4,10 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { QuoteAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
+
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = (props) => {
   const { citation, value, anchor, align } = props.data.attributes

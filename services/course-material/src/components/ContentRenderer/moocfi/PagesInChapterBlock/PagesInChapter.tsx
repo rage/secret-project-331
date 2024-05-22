@@ -4,11 +4,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchChaptersPagesExcludeFrontpage } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import PagesInChapterBox from "../../../../shared-module/components/PagesInChapterBox"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../shared-module/utils/constants"
 import { coursePageRoute } from "../../../../utils/routing"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 
 export interface PagesInChapterProps {
   chapterId: string

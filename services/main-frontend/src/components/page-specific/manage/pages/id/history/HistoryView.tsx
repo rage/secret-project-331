@@ -4,13 +4,14 @@ import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchHistoryForPage } from "../../../../../../services/backend/pages"
-import { PageHistory } from "../../../../../../shared-module/bindings"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import MonacoDiffEditor from "../../../../../../shared-module/components/monaco/MonacoDiffEditor"
-import replaceUuidsWithPlaceholdersInText from "../../../../../../shared-module/utils/testing/replaceUuidsWithPlaceholders"
 
 import HistoryList from "./HistoryList"
+
+import { PageHistory } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import MonacoDiffEditor from "@/shared-module/common/components/monaco/MonacoDiffEditor"
+import replaceUuidsWithPlaceholdersInText from "@/shared-module/common/utils/testing/replaceUuidsWithPlaceholders"
 
 interface Props {
   pageId: string

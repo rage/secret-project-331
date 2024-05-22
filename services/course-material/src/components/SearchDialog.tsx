@@ -8,11 +8,12 @@ import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
 import { searchPagesWithPhrase, searchPagesWithWords } from "../services/backend"
-import { PageSearchResult } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-import Dialog from "../shared-module/components/Dialog"
-import { baseTheme } from "../shared-module/styles"
 import { sanitizeCourseMaterialHtml } from "../utils/sanitizeCourseMaterialHtml"
+
+import { PageSearchResult } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import { baseTheme } from "@/shared-module/common/styles"
 
 export interface SearchDialogProps {
   courseId: string

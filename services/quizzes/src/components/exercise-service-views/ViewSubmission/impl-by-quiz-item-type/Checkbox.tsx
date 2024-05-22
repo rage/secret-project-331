@@ -4,10 +4,11 @@ import React from "react"
 
 import { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
-import { baseTheme } from "../../../../shared-module/styles"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
+
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface StyledProps {
   checked: boolean

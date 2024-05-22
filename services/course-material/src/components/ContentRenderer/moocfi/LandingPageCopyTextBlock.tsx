@@ -2,11 +2,12 @@ import styled from "@emotion/styled"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../shared-module/components/Centering/Centered"
-import { baseTheme } from "../../../shared-module/styles"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`

@@ -1,10 +1,11 @@
 import { isBoolean } from "lodash"
 
-import { PageAudioFile } from "../../shared-module/bindings"
-import { isPageAudioFile } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
-import { validateFile } from "../../shared-module/utils/files"
 import { mainFrontendClient } from "../mainFrontendClient"
+
+import { PageAudioFile } from "@/shared-module/common/bindings"
+import { isPageAudioFile } from "@/shared-module/common/bindings.guard"
+import { validateResponse } from "@/shared-module/common/utils/fetching"
+import { validateFile } from "@/shared-module/common/utils/files"
 
 export const postPageAudioFile = async (pageId: string, file: File): Promise<boolean> => {
   // eslint-disable-next-line i18next/no-literal-string

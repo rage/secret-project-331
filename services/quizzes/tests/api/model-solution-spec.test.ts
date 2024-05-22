@@ -1,5 +1,4 @@
 import handler from "../../src/pages/api/model-solution"
-import { SpecRequest } from "../../src/shared-module/bindings"
 import {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,
@@ -7,6 +6,8 @@ import {
 
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "./utils/privateSpecGenerator"
 import testClient from "./utils/testClient"
+
+import { SpecRequest } from "@/shared-module/common/bindings"
 
 const client = testClient(handler)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/model-solution"

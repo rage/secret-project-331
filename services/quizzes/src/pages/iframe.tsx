@@ -14,26 +14,27 @@ import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import { PublicSpecQuiz } from "../../types/quizTypes/publicSpec"
 import Renderer from "../components/exercise-service-views/Renderer"
-import { StudentExerciseTaskSubmissionResult } from "../shared-module/bindings"
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import {
-  forgivingIsSetStateMessage,
-  UserInformation,
-} from "../shared-module/exercise-service-protocol-types"
-import {
-  isAnswerExerciseIframeState,
-  isExerciseEditorIframeState,
-  isSetLanguageMessage,
-  isViewSubmissionIframeState,
-} from "../shared-module/exercise-service-protocol-types.guard"
-import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { migrateQuiz } from "../util/migrate"
 import { isOldQuiz } from "../util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "../util/migration/modelSolutionSpecQuiz"
 import { migratePrivateSpecQuiz } from "../util/migration/privateSpecQuiz"
 import migratePublicSpecQuiz from "../util/migration/publicSpecQuiz"
 import migrateQuizAnswer from "../util/migration/userAnswerSpec"
+
+import { StudentExerciseTaskSubmissionResult } from "@/shared-module/common/bindings"
+import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
+import {
+  forgivingIsSetStateMessage,
+  UserInformation,
+} from "@/shared-module/common/exercise-service-protocol-types"
+import {
+  isAnswerExerciseIframeState,
+  isExerciseEditorIframeState,
+  isSetLanguageMessage,
+  isViewSubmissionIframeState,
+} from "@/shared-module/common/exercise-service-protocol-types.guard"
+import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface SubmissionData {
   submission_result: StudentExerciseTaskSubmissionResult

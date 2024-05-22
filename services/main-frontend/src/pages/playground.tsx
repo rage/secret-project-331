@@ -9,16 +9,17 @@ import {
   savePlaygroundExample,
   updatePlaygroundExample,
 } from "../services/backend/playground-examples"
-import { PlaygroundExample } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import TextField from "../shared-module/components/InputFields/TextField"
-import MessageChannelIFrame from "../shared-module/components/MessageChannelIFrame"
-import Spinner from "../shared-module/components/Spinner"
-import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { monospaceFont } from "../shared-module/styles"
-import { narrowContainerWidthPx } from "../shared-module/styles/constants"
-import getGuestPseudonymousUserId from "../shared-module/utils/getGuestPseudonymousUserId"
+
+import { PlaygroundExample } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { monospaceFont } from "@/shared-module/common/styles"
+import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
+import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"

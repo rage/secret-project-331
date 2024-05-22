@@ -3,8 +3,9 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { SeparatorAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
+
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const SeparatorBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<SeparatorAttributes>>

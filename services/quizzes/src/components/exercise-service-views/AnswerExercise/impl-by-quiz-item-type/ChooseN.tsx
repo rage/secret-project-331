@@ -4,8 +4,6 @@ import React from "react"
 
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import {
   QUIZ_TITLE_STYLE,
@@ -14,6 +12,9 @@ import {
 } from "./AnswerQuizStyles"
 
 import { QuizItemComponentProps } from "."
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ChooseN: React.FunctionComponent<
   React.PropsWithChildren<QuizItemComponentProps<PublicSpecQuizItemChooseN, UserItemAnswerChooseN>>

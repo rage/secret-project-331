@@ -8,11 +8,12 @@ import {
   TableAttributes,
 } from "../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../contexts/GlossaryContext"
-import { baseTheme } from "../../../../shared-module/styles"
-import { stringToNumberOrPlaceholder } from "../../../../shared-module/utils/numbers"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 import { parseText } from "../../util/textParsing"
+
+import { baseTheme } from "@/shared-module/common/styles"
+import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttributes>>> = ({
   data,

@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+echo "This command creates a new job from a cronjob. Give it a cronjob name to run the job it once."
+echo -e "${BLUE}Tip: if you changed some code you'll need to restart bin/dev or bin/test to see your changes.${RESET_EVERYTHING}"
+
+POD_NAME=$(kubectl get pods -l app=headless-lms -o name --sort-by=.metadata.creationTimestamp | tac | head -n 1)
+[ -z "$POD_NAME" ] && { echo "Failed to find the headless-lms pod. Note that you'll need to have either bin/dev or bin/test running for this to work."; exit 1; }
+
+# check if first argument is a cronjob name
+if [ -z "${1:-}" ]; then
+  echo -e "${RED}Error: you need to give a cronjob name as the first argument.${RESET_EVERYTHING}"
+  echo ""
+  echo "List of available cronjobs:"
+  run_command kubectl get cronjobs
+  exit 1
+fi
+
+CRONJOB_NAME="$1"
+JOB_NAME="$CRONJOB_NAME-$(date --iso-8601=ns | sha256sum | cut -d ' ' -f 1 | cut -c -10)"
+
+run_command kubectl create job --from=cronjob/"$CRONJOB_NAME" "$JOB_NAME"
+
+echo ""
+echo -e "${GREEN}✅ The job $JOB_NAME has been created. You should see its output in the bin/dev or bin/test terminal.${RESET_EVERYTHING}"
+
+echo -e "${GREEN}Alternatively, you should be able to see the logs with ${BOLD}kubectl logs -f job.batch/$JOB_NAME${RESET_EVERYTHING}"

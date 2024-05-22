@@ -5,13 +5,14 @@ import { useTranslation } from "react-i18next"
 
 import CourseInstanceEnrollmentsList from "../../../components/page-specific/manage/user/id/CourseInstanceEnrollmentsList"
 import { getUserDetails } from "../../../services/backend/user-details"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface UserPageProps {
   query: SimplifiedUrlQuery<"id">

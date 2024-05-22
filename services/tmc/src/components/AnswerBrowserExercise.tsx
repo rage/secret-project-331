@@ -3,8 +3,9 @@ import _ from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../shared-module/components/Button"
 import { ExerciseFile, ExerciseIframeState, PublicSpec } from "../util/stateInterfaces"
+
+import Button from "@/shared-module/common/components/Button"
 
 interface Props {
   initialPublicSpec: PublicSpec & { type: "browser" }

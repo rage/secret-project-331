@@ -6,12 +6,13 @@ import {
   fetchEditProposals,
   processProposal,
 } from "../../../../../../services/backend/proposedEdits"
-import { BlockProposalInfo } from "../../../../../../shared-module/bindings"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { fontWeights, typography } from "../../../../../../shared-module/styles/typography"
 
 import EditProposalView from "./EditProposalView"
+
+import { BlockProposalInfo } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { fontWeights, typography } from "@/shared-module/common/styles/typography"
 
 interface Props {
   courseId: string

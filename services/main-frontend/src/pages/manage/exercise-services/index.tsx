@@ -8,16 +8,17 @@ import {
   addExerciseService,
   fetchExerciseServices,
 } from "../../../services/backend/exercise-services"
-import { ExerciseServiceNewOrUpdate } from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../shared-module/hooks/useToastMutation"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { canSave } from "../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../utils/convert"
 import { prepareExerciseServiceForBackend } from "../../../utils/prepareServiceForBackend.ts"
+
+import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ExerciseServicePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()

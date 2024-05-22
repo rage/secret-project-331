@@ -1,6 +1,6 @@
-import { ExerciseServiceIframeRenderingInfo } from "../../../../shared-module/bindings"
-
 import ExerciseServiceList from "./ExerciseServiceList"
+
+import { ExerciseServiceIframeRenderingInfo } from "@/shared-module/common/bindings"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void

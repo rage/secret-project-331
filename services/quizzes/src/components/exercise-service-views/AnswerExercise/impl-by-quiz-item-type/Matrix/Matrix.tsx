@@ -4,9 +4,10 @@ import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { QuizItemComponentProps } from ".."
 import { UserItemAnswerMatrix } from "../../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publicSpec"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 
 import MatrixCell from "./MatrixCell"
+
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MatrixTableContainer = styled.table`
   margin: auto;

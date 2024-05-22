@@ -9,15 +9,16 @@ import {
   postNewEmailTemplateForCourseInstance,
 } from "../../../../services/backend/course-instances"
 import { deleteEmailTemplate } from "../../../../services/backend/email-templates"
-import Button from "../../../../shared-module/components/Button"
-import Dialog from "../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
+
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseInstanceEmailTemplatesProps {
   query: SimplifiedUrlQuery<"id">

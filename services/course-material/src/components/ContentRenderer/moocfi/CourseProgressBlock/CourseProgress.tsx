@@ -3,13 +3,13 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserCourseInstanceProgress } from "../../../../shared-module/bindings"
-import Progress from "../../../../shared-module/components/CourseProgress"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-
 import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
+
+import { UserCourseInstanceProgress } from "@/shared-module/common/bindings"
+import Progress from "@/shared-module/common/components/CourseProgress"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface CourseProgressProps {
   userCourseInstanceProgress: UserCourseInstanceProgress[]

@@ -1,8 +1,20 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "typeRoots": ["types", "./node_modules/@types"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "typeRoots": [
+      "types",
+      "./node_modules/@types"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -16,6 +28,12 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "src/shared-module"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/shared-module"
+  ]
 }

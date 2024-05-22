@@ -2,13 +2,13 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { NewProposedBlockEdit } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-
 import EditProposalDialog from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTooltip from "./FeedbackTooltip"
 import SelectionListener from "./SelectionListener"
+
+import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 
 interface Props {
   courseId: string

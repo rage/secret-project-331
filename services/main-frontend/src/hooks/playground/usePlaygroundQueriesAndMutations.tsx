@@ -3,17 +3,17 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import { v4 } from "uuid"
 
+import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
+
 import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
   PlaygroundViewsMessage,
   SpecRequest,
-} from "../../shared-module/bindings"
-import { isExerciseServiceInfoApi } from "../../shared-module/bindings.guard"
-import { GradingRequest } from "../../shared-module/exercise-service-protocol-types-2"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
-
-import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
+} from "@/shared-module/common/bindings"
+import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
+import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "wss://")

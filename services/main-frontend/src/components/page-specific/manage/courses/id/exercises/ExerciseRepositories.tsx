@@ -6,12 +6,13 @@ import {
   deleteExerciseRepository,
   getExerciseRepositories,
 } from "../../../../../../services/backend/exercise-repositories"
-import Button from "../../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
 
 import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
 import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
+
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface Props {
   courseId: string | null

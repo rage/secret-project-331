@@ -2,7 +2,7 @@
 import { css } from "@emotion/css"
 import React, { useEffect, useState } from "react"
 
-import useShouldHideStuffFromSystemTestScreenshots from "../../shared-module/hooks/useShouldHideStuffForSystemTestScreenshots"
+import useShouldHideStuffFromSystemTestScreenshots from "@/shared-module/common/hooks/useShouldHideStuffForSystemTestScreenshots"
 
 const ScrollIndicator: React.FC<React.PropsWithChildren<unknown>> = () => {
   const shouldHideStuffFromSystemTestScreenshots = useShouldHideStuffFromSystemTestScreenshots()

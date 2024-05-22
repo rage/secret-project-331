@@ -4,13 +4,14 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import { baseTheme } from "../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
 import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
+
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const LIST_BLOCK_CLASS_NAME = "course-material-list-block"
 

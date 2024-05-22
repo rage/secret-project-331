@@ -3,9 +3,10 @@ import React, { useContext } from "react"
 import { BlockRendererProps } from ".."
 import { CheckboxContext } from "../../../contexts/CheckboxContext"
 import { GlossaryContext } from "../../../contexts/GlossaryContext"
-import CheckBox from "../../../shared-module/components/InputFields/CheckBox"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import { parseText } from "../util/textParsing"
+
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface CheckBoxAttributes {
   content: string

@@ -4,12 +4,13 @@ import { deepStrictEqual } from "assert"
 import { ExerciseAttributes } from "../../src/blocks/Exercise"
 import { ExerciseSlideAttributes } from "../../src/blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../../src/blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
-import { CmsPageUpdate } from "../../src/shared-module/bindings"
 import {
   denormalizeDocument,
   normalizeDocument,
   UnnormalizedDocument,
 } from "../../src/utils/documentSchemaProcessor"
+
+import { CmsPageUpdate } from "@/shared-module/common/bindings"
 
 const exampleCMSPageUpdate: CmsPageUpdate = {
   content: [

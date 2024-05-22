@@ -5,9 +5,10 @@ import PageContext from "../../contexts/PageContext"
 import useCourseInfo from "../../hooks/useCourseInfo"
 import useCourseLanguageVersions from "../../hooks/useCourseLanguageVersions"
 import useNewPagePath from "../../hooks/useNewPagePath"
-import Language from "../../shared-module/components/LanguageSelection/Language"
-import { baseTheme } from "../../shared-module/styles"
 import languageCodesToNamesList from "../modals/LanguageCodesToNames.json"
+
+import Language from "@/shared-module/common/components/LanguageSelection/Language"
+import { baseTheme } from "@/shared-module/common/styles"
 
 export const formatLanguageVersionsQueryKey = (courseId: string): string => {
   // eslint-disable-next-line i18next/no-literal-string

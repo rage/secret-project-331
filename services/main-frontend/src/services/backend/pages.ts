@@ -1,5 +1,7 @@
 import { isBoolean } from "lodash"
 
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   HistoryRestoreData,
   NewPage,
@@ -8,15 +10,19 @@ import {
   PageDetailsUpdate,
   PageHistory,
   PageInfo,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isPage,
   isPageAudioFile,
   isPageHistory,
   isPageInfo,
-} from "../../shared-module/bindings.guard"
-import { isArray, isNumber, isString, validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import {
+  isArray,
+  isNumber,
+  isString,
+  validateResponse,
+} from "@/shared-module/common/utils/fetching"
 
 export const postNewPage = async (data: NewPage): Promise<Page> => {
   const response = await mainFrontendClient.post("/pages", data)

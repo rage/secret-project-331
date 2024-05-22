@@ -2,13 +2,14 @@ import { Namespace, TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import YellowBox from "../../../YellowBox"
+
 import {
   CourseMaterialPeerOrSelfReviewConfig,
   Exercise,
   GradingProgress,
   ReviewingStage,
-} from "../../../../shared-module/bindings"
-import YellowBox from "../../../YellowBox"
+} from "@/shared-module/common/bindings"
 
 interface GradingStateProps {
   gradingProgress: GradingProgress

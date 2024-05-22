@@ -14,21 +14,6 @@ import useCourseMaterialExerciseQuery, {
 } from "../../../../hooks/useCourseMaterialExerciseQuery"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
 import { postStartPeerOrSelfReview, postSubmission } from "../../../../services/backend"
-import {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "../../../../shared-module/bindings"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/useDateStringAsDate"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
-import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
-import { useCurrentPagePathForReturnTo } from "../../../../shared-module/utils/redirectBackAfterLoginOrSignup"
-import { loginRoute, signUpRoute } from "../../../../shared-module/utils/routes"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
@@ -36,6 +21,22 @@ import GradingState from "./GradingState"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+
+import {
+  CourseMaterialExercise,
+  StudentExerciseSlideSubmission,
+} from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
+import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const FORWARD_SLASH = "/"
 

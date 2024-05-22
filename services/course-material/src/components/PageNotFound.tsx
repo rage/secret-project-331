@@ -1,9 +1,9 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-
 import PublicPageList from "./PublicPageList"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 
 interface PageNotFoundProps {
   path: string

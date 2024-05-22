@@ -6,12 +6,13 @@ import { useTranslation } from "react-i18next"
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { EmailTemplate, EmailTemplateUpdate } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import Spinner from "../../shared-module/components/Spinner"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
+
+import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 interface EmailEditorProps {
   data: EmailTemplate

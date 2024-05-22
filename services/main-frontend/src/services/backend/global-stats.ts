@@ -1,10 +1,11 @@
-import { GlobalCourseModuleStatEntry, GlobalStatEntry } from "../../shared-module/bindings"
+import { mainFrontendClient } from "../mainFrontendClient"
+
+import { GlobalCourseModuleStatEntry, GlobalStatEntry } from "@/shared-module/common/bindings"
 import {
   isGlobalCourseModuleStatEntry,
   isGlobalStatEntry,
-} from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const getNumberOfPeopleCompletedACourse = async (): Promise<GlobalStatEntry[]> => {
   const response = await mainFrontendClient.get(`/global-stats/number-of-people-completed-a-course`)

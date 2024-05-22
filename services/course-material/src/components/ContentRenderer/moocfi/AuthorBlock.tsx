@@ -3,9 +3,10 @@ import { t } from "i18next"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import { baseTheme } from "../../../shared-module/styles"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
+
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface InfoBoxBlockAttributes {
   backgroundColor: string

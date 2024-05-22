@@ -4,10 +4,11 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import { getCourseInstanceEnrollmentsInfo } from "../../../../../services/backend/users"
-import Button from "../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../shared-module/components/Spinner"
-import { dateToString } from "../../../../../shared-module/utils/time"
+
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 export interface CourseInstanceEnrollmentsListProps {
   userId: string

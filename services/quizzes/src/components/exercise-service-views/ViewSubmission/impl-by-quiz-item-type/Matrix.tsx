@@ -6,9 +6,10 @@ import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMatrix } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicSpec"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemSubmissionComponentProps } from "."
+
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MatrixTableContainer = styled.table`
   margin: auto;

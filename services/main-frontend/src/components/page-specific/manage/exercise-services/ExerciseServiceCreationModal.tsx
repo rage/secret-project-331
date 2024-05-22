@@ -2,12 +2,13 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseServiceNewOrUpdate } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import Dialog from "../../../../shared-module/components/Dialog"
-import { validURL } from "../../../../shared-module/utils/validation"
-
 import ContentArea from "./ContentArea"
+
+import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import { validURL } from "@/shared-module/common/utils/validation"
+
 interface ExerciseServiceCreationModelProps {
   onChange: (key: string) => (value: string) => void
   onChangeName: (value: string) => void

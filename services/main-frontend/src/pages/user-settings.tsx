@@ -7,7 +7,8 @@ import ResearchOnCoursesForm from "../components/forms/ResearchOnCoursesForm"
 import useUserResearchConsentQuery from "../hooks/useUserResearchConsentQuery"
 import { getCourseBreadCrumbInfo } from "../services/backend/courses"
 import { getAllResearchConsentAnswersByUserId } from "../services/backend/users"
-import Button from "../shared-module/components/Button"
+
+import Button from "@/shared-module/common/components/Button"
 
 interface Slug {
   name: string

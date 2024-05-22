@@ -5,15 +5,16 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
-import Button from "../../shared-module/components/Button"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import {
-  CMS_EDITOR_SIDEBAR_THRESHOLD,
-  CMS_EDITOR_SIDEBAR_WIDTH,
-} from "../../shared-module/utils/constants"
 import BlockWrapper from "../BlockWrapper"
 
 import { LandingPageHeroSectionAttributes } from "."
+
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import {
+  CMS_EDITOR_SIDEBAR_THRESHOLD,
+  CMS_EDITOR_SIDEBAR_WIDTH,
+} from "@/shared-module/common/utils/constants"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
 const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [

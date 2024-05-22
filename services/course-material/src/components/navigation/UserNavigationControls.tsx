@@ -3,16 +3,17 @@ import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../shared-module/components/Button"
-import { Menu } from "../../shared-module/components/Navigation/NavBar"
-import OnlyRenderIfPermissions from "../../shared-module/components/OnlyRenderIfPermissions"
-import Spinner from "../../shared-module/components/Spinner"
-import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import { logout } from "../../shared-module/services/backend/auth"
-import { baseTheme } from "../../shared-module/styles"
-import { useCurrentPagePathForReturnTo } from "../../shared-module/utils/redirectBackAfterLoginOrSignup"
-import { manageCourseRoute } from "../../shared-module/utils/routes"
 import CourseSettingsModal from "../modals/CourseSettingsModal"
+
+import Button from "@/shared-module/common/components/Button"
+import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { logout } from "@/shared-module/common/services/backend/auth"
+import { baseTheme } from "@/shared-module/common/styles"
+import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserNavigationControlsProps {
   styles?: ClassNamesArg[]

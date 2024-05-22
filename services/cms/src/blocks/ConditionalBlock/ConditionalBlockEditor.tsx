@@ -8,11 +8,12 @@ import { useTranslation } from "react-i18next"
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances } from "../../services/backend/course-instances"
 import { fetchCourseModulesByCourseId } from "../../services/backend/courses"
-import CheckBox from "../../shared-module/components/InputFields/CheckBox"
-import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
+
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",

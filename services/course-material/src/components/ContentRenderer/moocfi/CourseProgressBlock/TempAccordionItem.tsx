@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import { animated, useSpring } from "react-spring"
 
-import ArrowDown from "../../../../shared-module/img/caret-arrow-down.svg"
-import ArrowUp from "../../../../shared-module/img/caret-arrow-up.svg"
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
-import { runCallbackIfEnterPressed } from "../../../../shared-module/utils/accessibility"
+import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
+import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 
 // This should be replaced once the issues with the shared module one are resolved.
 // (it seems to only render child components)

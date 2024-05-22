@@ -27,8 +27,6 @@ import {
   PublicSpecQuizItemTimeline,
 } from "../../../../../types/quizTypes/publicSpec"
 import useQuizzesUserAnswerOutputState from "../../../../hooks/useQuizzesUserAnswerServiceOutputState"
-import { UserInformation } from "../../../../shared-module/exercise-service-protocol-types"
-import { UpdateFunction } from "../../../../shared-module/hooks/exerciseServiceHooks/useExerciseServiceOutputState"
 import { COLUMN, QUIZ_ITEM_CLASS } from "../../../../util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import FlexWrapper from "../../../FlexWrapper"
@@ -43,6 +41,9 @@ import MultipleChoiceDropdown from "./MultipleChoiceDropdown"
 import Scale from "./Scale"
 import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
+
+import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
+import { UpdateFunction } from "@/shared-module/common/hooks/exerciseServiceHooks/useExerciseServiceOutputState"
 
 interface WidgetProps {
   publicSpec: PublicSpecQuiz

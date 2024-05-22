@@ -1,13 +1,14 @@
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   BlockProposalInfo,
   EditProposalInfo,
   GetEditProposalsQuery,
   PageProposal,
   ProposalCount,
-} from "../../shared-module/bindings"
-import { isPageProposal, isProposalCount } from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings"
+import { isPageProposal, isProposalCount } from "@/shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchEditProposals = async (
   courseId: string,

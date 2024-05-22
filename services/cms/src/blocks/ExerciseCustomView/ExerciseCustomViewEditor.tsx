@@ -3,13 +3,14 @@ import { BlockEditProps } from "@wordpress/blocks"
 import { useTranslation } from "react-i18next"
 
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"
-import Button from "../../shared-module/components/Button"
-import DebugModal from "../../shared-module/components/DebugModal"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ExerciseCustomViewAttributes } from "."
+
+import Button from "@/shared-module/common/components/Button"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 const ExerciseCustomViewEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseCustomViewAttributes>>

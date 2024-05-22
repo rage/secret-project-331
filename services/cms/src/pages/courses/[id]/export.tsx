@@ -4,13 +4,14 @@ import { useTranslation } from "react-i18next"
 
 import { getAllPagesForACourse } from "../../../services/backend/courses"
 import { fetchPageInfo, fetchPageWithId } from "../../../services/backend/pages"
-import Button from "../../../shared-module/components/Button"
-import useToastMutation from "../../../shared-module/hooks/useToastMutation"
+import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
+
+import Button from "@/shared-module/common/components/Button"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { dateToString } from "../../../shared-module/utils/time"
-import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 interface ExportPageProps {
   // courseId

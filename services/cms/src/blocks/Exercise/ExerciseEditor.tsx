@@ -7,13 +7,14 @@ import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import ExerciseBlockContext from "../../contexts/ExerciseBlockContext"
-import Button from "../../shared-module/components/Button"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../shared-module/components/Centering/Centered"
-import { baseTheme, primaryFont, typography } from "../../shared-module/styles"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 import { ExerciseAttributes } from "."
+
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 

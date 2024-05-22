@@ -6,14 +6,10 @@ import { useTranslation } from "react-i18next"
 
 import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "../../../../../../hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import {
-  baseTheme,
-  fontWeights,
-  headingFont,
-  monospaceFont,
-} from "../../../../../../shared-module/styles"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, fontWeights, headingFont, monospaceFont } from "@/shared-module/common/styles"
 
 export interface ExerciseListProps {
   courseId: string

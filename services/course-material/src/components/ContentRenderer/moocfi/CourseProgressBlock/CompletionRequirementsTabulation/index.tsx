@@ -1,9 +1,9 @@
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../../../../shared-module/styles"
-
 import HighlightItem from "./HilightItem"
+
+import { baseTheme } from "@/shared-module/common/styles"
 
 const HilightContainer = styled.div`
   display: flex;

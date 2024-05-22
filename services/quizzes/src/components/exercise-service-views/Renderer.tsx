@@ -3,10 +3,11 @@ import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
 import { State } from "../../pages/iframe"
-import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/utils/constants"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
-import withNoSsr from "../../shared-module/utils/withNoSsr"
 import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
+
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 // Dynamic imports for different view types to keep the bundle size down
 const ExerciseEditor = dynamic(() => import("./ExerciseEditor"), {

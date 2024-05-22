@@ -4,18 +4,18 @@ import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { ReactNode } from "react"
 
-import Centered from "../shared-module/components/Centering/Centered"
-import Footer from "../shared-module/components/Footer"
-import LanguageSelection from "../shared-module/components/LanguageSelection"
-import LoginControls from "../shared-module/components/LoginControls"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import Footer from "@/shared-module/common/components/Footer"
+import LanguageSelection from "@/shared-module/common/components/LanguageSelection"
+import LoginControls from "@/shared-module/common/components/LoginControls"
 import {
   NavBar,
   NavContainer,
   NavItem,
   NavItems,
-} from "../shared-module/components/Navigation/NavBar"
-import Menu from "../shared-module/components/Navigation/NavBar/Menu/Menu"
-import withNoSsr from "../shared-module/utils/withNoSsr"
+} from "@/shared-module/common/components/Navigation/NavBar"
+import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
 
@@ -25,7 +25,7 @@ type LayoutProps = {
 }
 
 const DynamicToaster = dynamic(
-  () => import("../shared-module/components/Notifications/ToasterNotifications"),
+  () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
   { ssr: false },
 )
 

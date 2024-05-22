@@ -3,9 +3,9 @@ import { UseQueryResult } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme } from "../../../../../shared-module/styles"
-
 import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
+
+import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PeerOrSelfReviewViewProps {
   exerciseNumber: number

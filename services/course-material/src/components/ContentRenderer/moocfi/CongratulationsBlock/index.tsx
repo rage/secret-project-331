@@ -2,12 +2,13 @@ import React, { useContext } from "react"
 
 import PageContext from "../../../../contexts/PageContext"
 import useUserModuleCompletions from "../../../../hooks/useUserModuleCompletions"
-import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import Congratulations from "./Congratulations"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
   const pageContext = useContext(PageContext)

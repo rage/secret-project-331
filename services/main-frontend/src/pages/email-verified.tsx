@@ -3,8 +3,8 @@ import { Envelope } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import Button from "../shared-module/components/Button"
-import { baseTheme } from "../shared-module/styles"
+import Button from "@/shared-module/common/components/Button"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const EmailVerifiedPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()

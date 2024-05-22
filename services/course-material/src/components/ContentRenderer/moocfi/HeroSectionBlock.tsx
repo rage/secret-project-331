@@ -2,9 +2,10 @@ import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
 import PageContext from "../../../contexts/PageContext"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import HeroSection, { HeroSectionProps } from "../../HeroSection"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeroSectionProps>>> = (
   props,
 ) => {

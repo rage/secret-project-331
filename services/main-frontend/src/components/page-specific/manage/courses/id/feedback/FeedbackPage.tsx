@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
 import { fetchFeedback, markAsRead } from "../../../../../../services/backend/feedback"
-import { Feedback } from "../../../../../../shared-module/bindings"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { PaginationInfo } from "../../../../../../shared-module/hooks/usePaginationInfo"
 
 import FeedbackView from "./FeedbackView"
+
+import { Feedback } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
 
 interface Props {
   courseId: string

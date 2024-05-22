@@ -4,11 +4,12 @@ import React from "react"
 import { UserItemAnswerChooseN } from "../../../../../types/quizTypes/answer"
 import { ModelSolutionQuizItemChooseN } from "../../../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItemChooseN } from "../../../../../types/quizTypes/publicSpec"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
 
 import { QuizItemSubmissionComponentProps } from "."
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MultipleChoiceClickableFeedback: React.FC<
   React.PropsWithChildren<

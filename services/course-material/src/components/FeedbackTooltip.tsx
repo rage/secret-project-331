@@ -1,10 +1,10 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import SpeechBalloon from "../shared-module/components/SpeechBalloon"
-import { feedbackTooltipClass } from "../shared-module/styles/constants"
-
 import { SelectionPosition } from "./FeedbackHandler"
+
+import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
+import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
 
 interface FeedbackProps {
   selectionRect: SelectionPosition

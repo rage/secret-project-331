@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 
-import { ChapterWithStatus } from "../../../../shared-module/bindings"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-
 import StyledCard from "./StyledCard"
+
+import { ChapterWithStatus } from "@/shared-module/common/bindings"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface GridProps {
   chapters: ChapterWithStatus[]

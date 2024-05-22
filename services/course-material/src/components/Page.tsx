@@ -15,14 +15,6 @@ import {
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
 } from "../services/backend"
-import { NewProposedBlockEdit } from "../shared-module/bindings"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import Spinner from "../shared-module/components/Spinner"
-import LoginStateContext from "../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../shared-module/hooks/useQueryParameter"
-import { baseTheme } from "../shared-module/styles"
-import { assertNotNullOrUndefined } from "../shared-module/utils/nullability"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
 import AudioSpeaker from "./../img/audio-player/audio-speaker.svg"
@@ -35,6 +27,15 @@ import ReferenceList from "./ReferencesList"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
+
+import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import { baseTheme } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface Props {
   onRefresh: () => void

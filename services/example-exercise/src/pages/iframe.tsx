@@ -3,15 +3,16 @@ import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
 import Renderer from "../components/Renderer"
-import { ExerciseTaskGradingResult } from "../shared-module/bindings"
-import HeightTrackingContainer from "../shared-module/components/HeightTrackingContainer"
-import { forgivingIsSetStateMessage } from "../shared-module/exercise-service-protocol-types"
-import { isSetLanguageMessage } from "../shared-module/exercise-service-protocol-types.guard"
-import useExerciseServiceParentConnection from "../shared-module/hooks/useExerciseServiceParentConnection"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "../util/stateInterfaces"
 
 import { ExerciseFeedback } from "./api/grade"
+
+import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
+import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
+import { forgivingIsSetStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
+import { isSetLanguageMessage } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface SubmissionData {
   grading: ExerciseTaskGradingResult

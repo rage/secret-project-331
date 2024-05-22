@@ -4,7 +4,8 @@ import dynamic from "next/dynamic"
 import React, { useEffect, useState } from "react"
 
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import Spinner from "../../shared-module/components/Spinner"
+
+import Spinner from "@/shared-module/common/components/Spinner"
 
 interface PeerReviewAdditionalInstructionsEditorProps {
   content: BlockInstance[]

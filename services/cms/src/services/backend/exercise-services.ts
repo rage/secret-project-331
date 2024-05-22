@@ -1,11 +1,14 @@
-import { ExamInstructions, ExerciseServiceIframeRenderingInfo } from "../../shared-module/bindings"
+import { cmsClient } from "./cmsClient"
+
+import {
+  ExamInstructions,
+  ExerciseServiceIframeRenderingInfo,
+} from "@/shared-module/common/bindings"
 import {
   isExamInstructions,
   isExerciseServiceIframeRenderingInfo,
-} from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
-
-import { cmsClient } from "./cmsClient"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchExamsInstructions = async (examId: string): Promise<ExamInstructions> => {
   const response = await cmsClient.get(`/exams/${examId}/edit`, {

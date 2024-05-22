@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import TextField from "../../../../shared-module/components/InputFields/TextField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 type inputType = "number" | "text"
 interface ContentAreaProps {

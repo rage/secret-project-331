@@ -4,8 +4,9 @@ import { Trans, useTranslation } from "react-i18next"
 
 import { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
-import { headingFont } from "../../../../shared-module/styles"
 import { createEmptyQuizItem } from "../utils/general"
+
+import { headingFont } from "@/shared-module/common/styles"
 
 export interface QuizOption {
   type: QuizItemType

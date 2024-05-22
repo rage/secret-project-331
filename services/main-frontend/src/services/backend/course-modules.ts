@@ -1,3 +1,5 @@
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   CompletionRegistrationLink,
   CourseModule,
@@ -5,14 +7,13 @@ import {
   ModuleUpdates,
   NewModule,
   UserCompletionInformation,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isCompletionRegistrationLink,
   isCourseModule,
   isUserCompletionInformation,
-} from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import { validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchCourseModule = async (id: string): Promise<CourseModule> => {
   const response = await mainFrontendClient.get(`/course-modules/${id}`)

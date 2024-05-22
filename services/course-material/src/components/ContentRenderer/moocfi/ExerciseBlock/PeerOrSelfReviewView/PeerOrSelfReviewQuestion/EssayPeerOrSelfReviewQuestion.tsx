@@ -1,9 +1,9 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import TextArea from "../../../../../../shared-module/components/InputFields/TextAreaField"
-
 import { PeerOrSelfReviewQuestionProps } from "."
+
+import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
 
 const EssayPeerOrSelfReviewQuestion: React.FC<
   React.PropsWithChildren<PeerOrSelfReviewQuestionProps>

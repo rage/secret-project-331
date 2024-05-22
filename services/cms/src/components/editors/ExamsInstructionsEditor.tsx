@@ -5,11 +5,12 @@ import { useTranslation } from "react-i18next"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { ExamInstructions, ExamInstructionsUpdate } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import Spinner from "../../shared-module/components/Spinner"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
+
+import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 interface ExamsInstructionsEditorProps {
   data: ExamInstructions

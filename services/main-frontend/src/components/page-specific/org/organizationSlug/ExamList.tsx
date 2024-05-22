@@ -4,12 +4,13 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
-import Button from "../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
-import Spinner from "../../../../shared-module/components/Spinner"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
 import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
+
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 
 interface Props {
   organizationId: string

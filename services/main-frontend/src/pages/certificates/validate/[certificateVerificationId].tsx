@@ -3,13 +3,14 @@ import { useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { fetchCertificateImage } from "../../../services/backend/certificates"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
+
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface Props {
   query: SimplifiedUrlQuery<string>

@@ -3,10 +3,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { postProposedEdits } from "../services/backend"
-import { NewProposedBlockEdit } from "../shared-module/bindings"
-import Button from "../shared-module/components/Button"
-import useToastMutation from "../shared-module/hooks/useToastMutation"
-import { baseTheme } from "../shared-module/styles"
+
+import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
   courseId: string

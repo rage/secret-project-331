@@ -4,11 +4,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchUserChapterInstanceChapterProgress } from "../../../../services/backend"
-import Progress from "../../../../shared-module/components/CourseProgress"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
 import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
+
+import Progress from "@/shared-module/common/components/CourseProgress"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface ChapterProgressProps {
   chapterId: string

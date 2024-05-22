@@ -5,14 +5,15 @@ import { useTranslation } from "react-i18next"
 import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
 import { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import { FlexDirection, sanitizeFlexDirection } from "../../../../util/css-sanitization"
 import { orderArrayWithId } from "../../../../util/randomizer"
 import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const gradingOption = css`
   align-items: center;

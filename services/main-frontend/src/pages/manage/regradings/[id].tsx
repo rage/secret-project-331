@@ -5,14 +5,15 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "../../../components/tables/FullWidthTable"
 import { fetchRegradingInfo } from "../../../services/backend/regradings"
-import ProgressBar from "../../../shared-module/components/CourseProgress/ProgressBar"
-import DebugModal from "../../../shared-module/components/DebugModal"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../shared-module/hooks/useQueryParameter"
-import dontRenderUntilQueryParametersReady from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { dateToString } from "../../../shared-module/utils/time"
+
+import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import { dateToString } from "@/shared-module/common/utils/time"
 
 const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()

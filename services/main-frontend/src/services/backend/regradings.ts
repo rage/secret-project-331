@@ -1,10 +1,11 @@
 import { isNumber } from "lodash"
 
-import { NewRegrading, Regrading, RegradingInfo } from "../../shared-module/bindings"
-import { isRegrading, isRegradingInfo } from "../../shared-module/bindings.guard"
-import { PaginationInfo } from "../../shared-module/hooks/usePaginationInfo"
-import { isArray, isUuid, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
+
+import { NewRegrading, Regrading, RegradingInfo } from "@/shared-module/common/bindings"
+import { isRegrading, isRegradingInfo } from "@/shared-module/common/bindings.guard"
+import { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
+import { isArray, isUuid, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchAllRegradings = async (pagination: PaginationInfo): Promise<Regrading[]> => {
   const response = await mainFrontendClient.get(`/regradings`, {

@@ -1,14 +1,15 @@
 import { css } from "@emotion/css"
 import React, { useRef, useState } from "react"
 
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { AudioFile } from "../../../Page"
 
 import CloseIcon from "./../../../../img/close.svg"
 import Controls from "./Controls"
 import DisplayTrack from "./DisplayTrack"
 import ProgressBar from "./ProgressBar"
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface AudioFileProps {
   tracks: AudioFile[]

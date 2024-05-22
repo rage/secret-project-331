@@ -20,7 +20,7 @@ CREATE TABLE rejected_exercise_task_submissions (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  rejected_exercise_slide_id_submission_id UUID NOT NULL REFERENCES rejected_exercise_slide_submissions(id),
+  rejected_exercise_slide_submission_id UUID NOT NULL REFERENCES rejected_exercise_slide_submissions(id),
   data_json JSONB NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -30,4 +30,5 @@ COMMENT ON COLUMN rejected_exercise_task_submissions.id IS 'A unique, stable ide
 COMMENT ON COLUMN rejected_exercise_task_submissions.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN rejected_exercise_task_submissions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN rejected_exercise_task_submissions.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN rejected_exercise_task_submissions.rejected_exercise_slide_submission_id IS 'The rejected exercise slide submission that this task submission is related to';
 COMMENT ON COLUMN rejected_exercise_task_submissions.data_json IS 'The contents of the failed sumbission';

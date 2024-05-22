@@ -202,6 +202,7 @@ async fn post_submission(
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
+    let submission = payload.0;
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let token = authorize(
@@ -215,11 +216,17 @@ async fn post_submission(
         &mut conn,
         user.id,
         exercise,
-        payload.0,
+        &submission,
         jwt_key.into_inner(),
     )
-    .await?;
-    token.authorized_ok(web::Json(result))
+    .await;
+    return match result {
+        Ok(res) => token.authorized_ok(web::Json(res)),
+        Err(err) => {
+            // TODO: insert into failed submissions
+            Err(err)
+        }
+    };
 }
 
 /**

@@ -1,0 +1,55 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT prq.id as id,\n  prq.peer_or_self_review_config_id as peer_or_self_review_config_id,\n  prq.order_number as order_number,\n  prq.question as question,\n  prq.question_type AS \"question_type: _\",\n  prq.answer_required as answer_required,\n  prq.weight\nfrom pages p\n  join exercises e on p.id = e.page_id\n  join peer_or_self_review_configs pr on e.id = pr.exercise_id\n  join peer_or_self_review_questions prq on pr.id = prq.peer_or_self_review_config_id\nwhere p.id = $1\n  AND p.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND pr.deleted_at IS NULL\n  AND prq.deleted_at IS NULL;\n  ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "peer_or_self_review_config_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "order_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "question",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "question_type: _",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_question_type",
+            "kind": {
+              "Enum": ["essay", "scale"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "answer_required",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "weight",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, false, false, false, false]
+  },
+  "hash": "0d353d5b070ffc575805e7e1a5fe3b7197543c9bebc0f657780cdf428bac46d5"
+}

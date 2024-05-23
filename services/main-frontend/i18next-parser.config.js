@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const configTemplate = require("./src/shared-module/utils/i18next-parser.config.template")
+const configTemplate = require("@/shared-module/common/utils/i18next-parser.config.template")
 
 const config = {
   ...configTemplate,

@@ -4,11 +4,12 @@ import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import CheckBox from "../../shared-module/components/InputFields/CheckBox"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ResearchConsentQuestionAttributes } from "."
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 
 const ResearchConsentCheckBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>

@@ -1,10 +1,10 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import MessageChannelIFrame from "../../../../shared-module/components/MessageChannelIFrame"
-import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
-import { isMessageFromIframe } from "../../../../shared-module/exercise-service-protocol-types.guard"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 
 interface ExerciseTaskIframeProps {
   exerciseServiceSlug: string
@@ -12,6 +12,7 @@ interface ExerciseTaskIframeProps {
   postThisStateToIFrame: ExerciseIframeState | null
   setAnswer: ((answer: { valid: boolean; data: unknown }) => void) | null
   title: string
+  headingBeforeIframe?: string
 }
 
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
@@ -19,6 +20,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   postThisStateToIFrame,
   setAnswer,
   title,
+  headingBeforeIframe,
 }) => {
   const { t } = useTranslation()
   if (!url || url.trim() === "") {
@@ -27,6 +29,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
 
   return (
     <MessageChannelIFrame
+      headingBeforeIframe={headingBeforeIframe}
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (messageContainer, _responsePort) => {

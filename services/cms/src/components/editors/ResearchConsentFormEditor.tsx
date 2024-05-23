@@ -8,14 +8,16 @@ import { blockTypeMapForResearchConsentForm } from "../../blocks"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { NewResearchForm, ResearchForm } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import Spinner from "../../shared-module/components/Spinner"
-import { assertNotNullOrUndefined } from "../../shared-module/utils/nullability"
+import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
+
+import { NewResearchForm, ResearchForm } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ResearchFormEditorProps {
   data: ResearchForm
@@ -164,15 +166,5 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
     </>
   )
 }
-function isBlockInstanceArray(obj: unknown): obj is BlockInstance[] {
-  if (!Array.isArray(obj)) {
-    return false
-  }
-  for (const o of obj) {
-    if (typeof o.name !== "string" || typeof o.clientId !== "string") {
-      return false
-    }
-  }
-  return true
-}
+
 export default ResearchFormEditor

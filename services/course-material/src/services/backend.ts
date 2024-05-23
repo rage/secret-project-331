@@ -1,14 +1,16 @@
 import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
+import { courseMaterialClient } from "./courseMaterialClient"
+
 import {
   ChaptersWithStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
   CourseMaterialExercise,
-  CourseMaterialPeerReviewDataWithToken,
-  CourseMaterialPeerReviewSubmission,
+  CourseMaterialPeerOrSelfReviewDataWithToken,
+  CourseMaterialPeerOrSelfReviewSubmission,
   CourseModuleCompletion,
   CoursePageWithUserData,
   CustomViewExerciseSubmissions,
@@ -27,7 +29,7 @@ import {
   PageNavigationInformation,
   PageSearchResult,
   PageWithExercises,
-  PeerReviewsRecieved,
+  PeerOrSelfReviewsReceived,
   ResearchForm,
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
@@ -43,14 +45,14 @@ import {
   UserCourseInstanceProgress,
   UserCourseSettings,
   UserModuleCompletionStatus,
-} from "../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isChaptersWithStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
   isCourseMaterialExercise,
-  isCourseMaterialPeerReviewDataWithToken,
+  isCourseMaterialPeerOrSelfReviewDataWithToken,
   isCourseModuleCompletion,
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
@@ -64,7 +66,7 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
-  isPeerReviewsRecieved,
+  isPeerOrSelfReviewsReceived,
   isResearchForm,
   isResearchFormQuestion,
   isResearchFormQuestionAnswer,
@@ -76,7 +78,7 @@ import {
   isUserCourseInstanceProgress,
   isUserCourseSettings,
   isUserModuleCompletionStatus,
-} from "../shared-module/bindings.guard"
+} from "@/shared-module/common/bindings.guard"
 import {
   isArray,
   isNull,
@@ -86,9 +88,7 @@ import {
   isUnion,
   isUuid,
   validateResponse,
-} from "../shared-module/utils/fetching"
-
-import { courseMaterialClient } from "./courseMaterialClient"
+} from "@/shared-module/common/utils/fetching"
 
 export const fetchCourseById = async (courseId: string): Promise<Course> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}`, { responseType: "json" })
@@ -261,26 +261,26 @@ export const fetchExerciseById = async (id: string): Promise<CourseMaterialExerc
   return validateResponse(response, isCourseMaterialExercise)
 }
 
-export const fetchPeerReviewDataByExerciseId = async (
+export const fetchPeerOrSelfReviewDataByExerciseId = async (
   id: string,
-): Promise<CourseMaterialPeerReviewDataWithToken> => {
+): Promise<CourseMaterialPeerOrSelfReviewDataWithToken> => {
   const response = await courseMaterialClient.get(`/exercises/${id}/peer-review`, {
     responseType: "json",
   })
-  return validateResponse(response, isCourseMaterialPeerReviewDataWithToken)
+  return validateResponse(response, isCourseMaterialPeerOrSelfReviewDataWithToken)
 }
 
 export const fetchPeerReviewDataReceivedByExerciseId = async (
   id: string,
   submissionId: string,
-): Promise<PeerReviewsRecieved> => {
+): Promise<PeerOrSelfReviewsReceived> => {
   const response = await courseMaterialClient.get(
-    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-reviews-received`,
+    `/exercises/${id}/exercise-slide-submission/${submissionId}/peer-or-self-reviews-received`,
     {
       responseType: "json",
     },
   )
-  return validateResponse(response, isPeerReviewsRecieved)
+  return validateResponse(response, isPeerOrSelfReviewsReceived)
 }
 
 export const fetchChaptersPagesWithExercises = async (
@@ -382,17 +382,21 @@ export const postProposedEdits = async (
   await courseMaterialClient.post(`/proposed-edits/${courseId}`, newProposedEdits)
 }
 
-export const postPeerReviewSubmission = async (
+export const postPeerOrSelfReviewSubmission = async (
   exerciseId: string,
-  peerReviewSubmission: CourseMaterialPeerReviewSubmission,
+  peerOrSelfReviewSubmission: CourseMaterialPeerOrSelfReviewSubmission,
 ): Promise<void> => {
-  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews`, peerReviewSubmission, {
-    responseType: "json",
-  })
+  await courseMaterialClient.post(
+    `/exercises/${exerciseId}/peer-or-self-reviews`,
+    peerOrSelfReviewSubmission,
+    {
+      responseType: "json",
+    },
+  )
 }
 
-export const postStartPeerReview = async (exerciseId: string): Promise<void> => {
-  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-reviews/start`)
+export const postStartPeerOrSelfReview = async (exerciseId: string): Promise<void> => {
+  await courseMaterialClient.post(`/exercises/${exerciseId}/peer-or-self-reviews/start`)
 }
 
 export const fetchExamEnrollment = async (examId: string): Promise<ExamEnrollment | null> => {

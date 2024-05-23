@@ -9,32 +9,36 @@
       "path": "./services/cms"
     },
     {
-      "name": "Headless LMS",
-      "path": "./services/headless-lms"
-    },
-    {
       "name": "Course material",
       "path": "./services/course-material"
-    },
-    {
-      "name": "Main frontend",
-      "path": "./services/main-frontend"
     },
     {
       "name": "Example exercise",
       "path": "./services/example-exercise"
     },
     {
-      "name": "System tests",
-      "path": "./system-tests"
+      "name": "Headless LMS",
+      "path": "./services/headless-lms"
+    },
+    {
+      "name": "Main frontend",
+      "path": "./services/main-frontend"
+    },
+    {
+      "name": "Quizzes",
+      "path": "./services/quizzes"
     },
     {
       "name": "Shared module",
       "path": "./shared-module"
     },
     {
-      "name": "Quizzes",
-      "path": "./services/quizzes"
+      "name": "Storybook",
+      "path": "./storybook"
+    },
+    {
+      "name": "System tests",
+      "path": "./system-tests"
     },
     {
       "name": "TMC",
@@ -124,7 +128,8 @@
     "search.exclude": {
       "**/node_modules": true,
       "*.tsbuildinfo": true,
-    }
+    },
+    "rust-analyzer.showUnlinkedFileNotification": false
   },
   "launch": {
     "configurations": [],

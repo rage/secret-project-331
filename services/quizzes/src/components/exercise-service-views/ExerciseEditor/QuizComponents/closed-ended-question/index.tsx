@@ -6,15 +6,16 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import Accordion from "../../../../../shared-module/components/Accordion"
-import Button from "../../../../../shared-module/components/Button"
-import RadioButton from "../../../../../shared-module/components/InputFields/RadioButton"
-import SelectField from "../../../../../shared-module/components/InputFields/SelectField"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
-import { primaryFont } from "../../../../../shared-module/styles"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"
+
+import Accordion from "@/shared-module/common/components/Accordion"
+import Button from "@/shared-module/common/components/Button"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { primaryFont } from "@/shared-module/common/styles"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const Unsupported: React.FC = () => {
   const { t } = useTranslation()

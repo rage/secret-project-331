@@ -4,12 +4,13 @@ import { SetStateAction } from "react"
 import { BlockRendererProps } from "../.."
 import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { Block } from "../../../../services/backend"
-import { NewProposedBlockEdit } from "../../../../shared-module/bindings"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../styles/colorMapper"
 
 import ColumnBlock from "./ColumnBlock"
+
+import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = ({
   data,

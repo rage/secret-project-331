@@ -1,5 +1,5 @@
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "../shared-module/bindings"
-import { validURL } from "../shared-module/utils/validation"
+import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import { validURL } from "@/shared-module/common/utils/validation"
 
 export const prepareExerciseServiceForBackend = (
   service: ExerciseServiceNewOrUpdate | ExerciseService,

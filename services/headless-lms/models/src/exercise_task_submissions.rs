@@ -9,8 +9,9 @@ use crate::{
     exercise_services, exercise_slide_submissions,
     exercise_tasks::{CourseMaterialExerciseTask, ExerciseTask},
     library::custom_view_exercises::{CustomViewExerciseTaskSubmission, CustomViewExerciseTasks},
-    peer_review_question_submissions::PeerReviewQuestionSubmission,
-    peer_review_questions::PeerReviewQuestion,
+    peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
+    peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     prelude::*,
     CourseOrExamId,
 };
@@ -32,9 +33,10 @@ pub struct ExerciseTaskSubmission {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PeerReviewsRecieved {
-    pub peer_review_questions: Vec<PeerReviewQuestion>,
-    pub peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+pub struct PeerOrSelfReviewsReceived {
+    pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
+    pub peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
+    pub peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -245,41 +247,56 @@ pub async fn get_peer_reviews_received(
     exercise_id: Uuid,
     exercise_slide_submission_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<PeerReviewsRecieved> {
+) -> ModelResult<PeerOrSelfReviewsReceived> {
     let exercise = crate::exercises::get_by_id(&mut *conn, exercise_id).await?;
-    let peer_review_config = crate::peer_review_configs::get_by_exercise_or_course_id(
-        &mut *conn,
-        &exercise,
-        exercise.course_id.ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Peer reviews work only on courses (and not, for example, on exams)".to_string(),
-                None,
-            )
-        })?,
-    )
-    .await?;
-    let peer_review_questions = crate::peer_review_questions::get_by_peer_review_configs_id(
-        &mut *conn,
-        peer_review_config.id,
-    )
-    .await?;
-
-    let peer_review_question_submissions =
-        crate::peer_review_question_submissions::get_by_peer_reviews_question_ids(
+    let peer_or_self_review_config =
+        crate::peer_or_self_review_configs::get_by_exercise_or_course_id(
             &mut *conn,
-            &peer_review_questions
-                .iter()
-                .map(|x| (x.id))
-                .collect::<Vec<_>>(),
+            &exercise,
+            exercise.course_id.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Peer reviews work only on courses (and not, for example, on exams)"
+                        .to_string(),
+                    None,
+                )
+            })?,
+        )
+        .await?;
+    let peer_or_self_review_questions =
+        crate::peer_or_self_review_questions::get_by_peer_or_self_review_configs_id(
+            &mut *conn,
+            peer_or_self_review_config.id,
+        )
+        .await?;
+
+    let peer_or_self_review_question_ids = peer_or_self_review_questions
+        .iter()
+        .map(|x| (x.id))
+        .collect::<Vec<_>>();
+
+    let peer_or_self_review_submissions =
+        crate::peer_or_self_review_submissions::get_received_peer_or_self_review_submissions_for_user_by_peer_or_self_review_config_id_and_exercise_slide_submission(
+            &mut *conn,
+            user_id,
+            exercise_slide_submission_id,
+            peer_or_self_review_config.id,
+        )
+        .await?;
+
+    let peer_or_self_review_question_submissions =
+        crate::peer_or_self_review_question_submissions::get_by_peer_reviews_question_ids(
+            &mut *conn,
+            &peer_or_self_review_question_ids,
             user_id,
             exercise_slide_submission_id,
         )
         .await?;
 
-    Ok(PeerReviewsRecieved {
-        peer_review_questions,
-        peer_review_question_submissions,
+    Ok(PeerOrSelfReviewsReceived {
+        peer_or_self_review_questions,
+        peer_or_self_review_question_submissions,
+        peer_or_self_review_submissions,
     })
 }
 
@@ -353,6 +370,7 @@ FROM exercise_task_submissions
   JOIN exercise_task_gradings ON exercise_task_submissions.exercise_task_grading_id = exercise_task_gradings.id
   JOIN exercises ON exercise_slide_submissions.exercise_id = exercises.id
 WHERE exercise_slide_submissions.course_id = $1
+  AND exercise_slide_submissions.deleted_at IS NULL
   AND exercise_task_submissions.deleted_at IS NULL
   AND exercise_task_gradings.deleted_at IS NULL
   AND exercises.deleted_at IS NULL;

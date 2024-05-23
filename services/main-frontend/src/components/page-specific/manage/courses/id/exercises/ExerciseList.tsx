@@ -1,20 +1,15 @@
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { groupBy, mapValues } from "lodash"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "../../../../../../hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
 import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
-import { fetchCourseExercisesAndCountOfAnswersRequiringAttention } from "../../../../../../services/backend/courses"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import {
-  baseTheme,
-  fontWeights,
-  headingFont,
-  monospaceFont,
-} from "../../../../../../shared-module/styles"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, fontWeights, headingFont, monospaceFont } from "@/shared-module/common/styles"
 
 export interface ExerciseListProps {
   courseId: string
@@ -22,10 +17,7 @@ export interface ExerciseListProps {
 
 const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseExercises = useQuery({
-    queryKey: [`courses-${courseId}-exercises-and-count-of-answers-requiring-attention`],
-    queryFn: () => fetchCourseExercisesAndCountOfAnswersRequiringAttention(courseId),
-  })
+  const getCourseExercises = useCourseExercisesAndCountAnswersRequitingAttentionQuery(courseId)
   const courseStructure = useCourseStructure(courseId)
   if (getCourseExercises.isError) {
     return <ErrorBanner variant={"readOnly"} error={getCourseExercises.error} />

@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemEssay } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 interface EssayEditorProps {
   quizItemId: string

@@ -15,19 +15,21 @@ import CoursePages from "../../../../components/page-specific/manage/courses/id/
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
 import References from "../../../../components/page-specific/manage/courses/id/references"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
+import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCountAnswersRequiringAttentionHook"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
-import useCourseQuery from "../../../../hooks/useCourseQuery"
-import TabLink from "../../../../shared-module/components/Navigation/TabLinks/TabLink"
-import TabLinkNavigation from "../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
-import TabLinkPanel from "../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
+
+import useCourseQuery from "@/hooks/useCourseQuery"
+import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import {
   dontRenderUntilQueryParametersReady,
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 export interface CourseManagementPagesProps {
   courseId: string
 }
@@ -97,7 +99,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         >
           {t("link-change-requests")}
         </TabLink>
-        <TabLink url={"exercises"} isActive={path === "exercises"}>
+        <TabLink
+          url={"exercises"}
+          isActive={path === "exercises"}
+          countHook={useCountAnswersRequiringAttentionHook(courseId)}
+        >
           {t("link-exercises")}
         </TabLink>
         <TabLink url={"course-instances"} isActive={path === "course-instances"}>

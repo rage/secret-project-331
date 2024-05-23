@@ -1,16 +1,16 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { has } from "lodash"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
-import Button from "../../../../../../shared-module/components/Button"
-import CheckBox from "../../../../../../shared-module/components/InputFields/CheckBox"
-import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import OnlyRenderIfPermissions from "../../../../../../shared-module/components/OnlyRenderIfPermissions"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
+
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

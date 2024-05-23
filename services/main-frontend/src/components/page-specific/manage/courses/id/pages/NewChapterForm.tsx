@@ -4,13 +4,14 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { postNewChapter, updateChapter } from "../../../../../../services/backend/chapters"
-import { Chapter, NewChapter } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
-import CheckboxFieldWrapper from "../../../../../../shared-module/components/InputFields/CheckboxFieldWrapper"
-import DateTimeLocal from "../../../../../../shared-module/components/InputFields/DateTimeLocal"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { dateToDateTimeLocalString } from "../../../../../../shared-module/utils/time"
+
+import { Chapter, NewChapter } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
+import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewChapterFormProps {
   courseId: string

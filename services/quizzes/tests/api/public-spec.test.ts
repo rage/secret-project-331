@@ -1,5 +1,4 @@
 import handler from "../../src/pages/api/public-spec"
-import { SpecRequest } from "../../src/shared-module/bindings"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
@@ -42,6 +41,8 @@ import {
   VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
 import testClient from "./utils/testClient"
+
+import { SpecRequest } from "@/shared-module/common/bindings"
 
 const client = testClient(handler)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"

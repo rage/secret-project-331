@@ -5,11 +5,12 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { getCourse } from "../../../../../../services/backend/courses"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 import { PermissionPage } from "../../../../../PermissionPage"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

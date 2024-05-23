@@ -6,15 +6,6 @@ import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
 import { fetchCourseInstances, postSaveCourseSettings } from "../../services/backend"
-import { NewCourseBackgroundQuestionAnswer } from "../../shared-module/bindings"
-import Dialog from "../../shared-module/components/Dialog"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
-import LoginStateContext from "../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import { baseTheme, fontWeights, primaryFont, typography } from "../../shared-module/styles"
-import { LANGUAGE_COOKIE_KEY } from "../../shared-module/utils/constants"
-import withErrorBoundary from "../../shared-module/utils/withErrorBoundary"
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
@@ -23,6 +14,16 @@ import {
   useFigureOutNewLangCode,
   useFigureOutNewUrl,
 } from "./ChooseCourseLanguage"
+
+import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
+import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseSettingsModalProps {
   onClose: () => void

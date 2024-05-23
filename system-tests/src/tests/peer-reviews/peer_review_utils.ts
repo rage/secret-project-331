@@ -1,8 +1,9 @@
 import { Page } from "playwright"
 import { expect, test } from "playwright/test"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "../../shared-module/utils/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
 
 /**
  *
@@ -13,11 +14,16 @@ export const fillPeerReview = async (
   page: Page,
   options: string[],
   startPeerReview: boolean = true,
+  refresh = false,
 ) => {
   await test.step("Fill peer review", async () => {
     // eslint-disable-next-line playwright/no-conditional-in-test
     if (startPeerReview) {
       await page.getByRole("button", { name: "Start peer review" }).click()
+    }
+    // eslint-disable-next-line playwright/no-conditional-in-test
+    if (refresh) {
+      await page.getByRole("button", { name: "Refresh" }).click()
     }
 
     // Check that the assignment is showing in the peer review page.

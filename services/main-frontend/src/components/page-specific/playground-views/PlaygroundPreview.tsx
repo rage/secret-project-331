@@ -9,21 +9,22 @@ import { useTranslation } from "react-i18next"
 
 import { UseParsedPrivateSpecResult } from "../../../hooks/playground/useParsedPrivateSpec"
 import { PlaygroundSettings } from "../../../pages/playground-tabs"
-import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import DebugModal from "../../../shared-module/components/DebugModal"
-import CheckBox from "../../../shared-module/components/InputFields/CheckBox"
-import {
-  CurrentStateMessage,
-  IframeViewType,
-  UserInformation,
-} from "../../../shared-module/exercise-service-protocol-types"
-import { baseTheme } from "../../../shared-module/styles"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 
 import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
+
+import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import {
+  CurrentStateMessage,
+  IframeViewType,
+  UserInformation,
+} from "@/shared-module/common/exercise-service-protocol-types"
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 

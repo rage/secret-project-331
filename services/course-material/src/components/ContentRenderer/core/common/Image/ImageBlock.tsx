@@ -6,8 +6,9 @@ import Zoom from "react-medium-image-zoom"
 import { BlockRendererProps } from "../../.."
 import { ImageAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import { parseText } from "../../../util/textParsing"
+
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
   data,

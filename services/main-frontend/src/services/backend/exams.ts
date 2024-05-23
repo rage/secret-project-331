@@ -1,3 +1,5 @@
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   CourseExam,
   Exam,
@@ -5,10 +7,9 @@ import {
   NewExam,
   Organization,
   OrgExam,
-} from "../../shared-module/bindings"
-import { isOrganization } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings"
+import { isOrganization } from "@/shared-module/common/bindings.guard"
+import { validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const createExam = async (organizationId: string, data: NewExam) => {
   await mainFrontendClient.post(`/organizations/${organizationId}/exams`, data)

@@ -3,6 +3,7 @@ use bytes::Bytes;
 use headless_lms_models::course_instances;
 
 use async_trait::async_trait;
+use itertools::Itertools;
 use models::library::progressing;
 
 use crate::domain::csv_export::CsvWriter;
@@ -91,6 +92,8 @@ where
             let user_completion = user
                 .completed_modules
                 .iter()
+                // sort by created at, latest timestamp first
+                .sorted_by(|a, b| b.created_at.cmp(&a.created_at))
                 .find(|cm| cm.course_module_id == module.id);
             if user_completion.is_some() {
                 has_completed_some_module = true;

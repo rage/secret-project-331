@@ -4,11 +4,12 @@ import { useTranslation } from "react-i18next"
 
 import useCourseBreadcrumbInfoQuery from "../hooks/useCourseBreadcrumbInfoQuery"
 import useOrganizationQueryBySlug from "../hooks/useOrganizationQueryBySlug"
-import Breadcrumbs, { BreadcrumbPiece } from "../shared-module/components/Breadcrumbs"
-import BreakFromCentered from "../shared-module/components/Centering/BreakFromCentered"
-import { PageMarginOffset } from "../shared-module/components/layout/PageMarginOffset"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../shared-module/utils/constants"
-import { manageCourseRoute, organizationFrontPageRoute } from "../shared-module/utils/routes"
+
+import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import { manageCourseRoute, organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 interface MainFrontendBreadCrumbsProps {
   organizationSlug: string | null

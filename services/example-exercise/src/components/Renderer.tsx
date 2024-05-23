@@ -3,13 +3,14 @@ import { useTranslation } from "react-i18next"
 
 import { ExerciseFeedback } from "../pages/api/grade"
 import { State } from "../pages/iframe"
-import { EXERCISE_SERVICE_CONTENT_ID } from "../shared-module/utils/constants"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
-import withNoSsr from "../shared-module/utils/withNoSsr"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission from "./ViewSubmission"
+
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 interface RendererProps {
   state: State | null

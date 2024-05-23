@@ -1,6 +1,6 @@
 import styled from "@emotion/styled"
 
-import { baseTheme } from "../shared-module/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 
 const YellowBox = styled.div`
   padding: 1rem;

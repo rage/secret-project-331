@@ -49,10 +49,6 @@ import { useTranslation } from "react-i18next"
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
 import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
-import SelectField from "../../shared-module/components/InputFields/SelectField"
-import SuccessNotification from "../../shared-module/components/Notifications/Success"
-import Spinner from "../../shared-module/components/Spinner"
-import { primaryFont } from "../../shared-module/styles"
 import {
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
@@ -63,6 +59,11 @@ import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVari
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
+
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { primaryFont } from "@/shared-module/common/styles"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -78,6 +79,7 @@ interface GutenbergEditorProps {
    */
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
+  showSidebar?: boolean
 }
 
 const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> = ({
@@ -90,6 +92,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   inspectorButtons,
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
+  showSidebar = true,
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
@@ -246,98 +249,100 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             onInput={handleInput}
             onChange={handleChanges}
           >
-            <div className="editor__sidebar">
-              <div
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  height: 100%;
-                `}
-              >
+            {showSidebar && (
+              <div className="editor__sidebar">
                 <div
                   className={css`
                     display: flex;
-                    flex-grow: 1;
-                    overflow-y: auto;
-                    overflow-x: hidden;
+                    flex-direction: column;
+                    height: 100%;
                   `}
                 >
-                  {sidebarView === "block-props" && (
-                    <div
-                      className={css`
-                        width: 100%;
-                        .block-editor-block-inspector {
+                  <div
+                    className={css`
+                      display: flex;
+                      flex-grow: 1;
+                      overflow-y: auto;
+                      overflow-x: hidden;
+                    `}
+                  >
+                    {sidebarView === "block-props" && (
+                      <div
+                        className={css`
                           width: 100%;
-                        }
-                      `}
-                    >
-                      <BlockInspector />
-                    </div>
-                  )}
-                  {sidebarView === "block-list" && (
-                    <div
-                      className={css`
-                        height: fit-content;
-                        width: 100%;
-                      `}
-                    >
-                      <ListView
-                        showNestedBlocks
-                        showBlockMovers
-                        __experimentalFeatures
-                        __experimentalPersistentListViewFeatures
-                        __experimentalHideContainerBlockActions
-                      />
-                    </div>
-                  )}
-                  {sidebarView === "block-menu" && (
-                    <div
-                      className={css`
-                        .block-editor-inserter__main-area {
-                          overflow-x: hidden;
-                        }
-                        .components-search-control {
-                          font-family: ${primaryFont} !important;
-                        }
-                      `}
-                    >
-                      <BlockLibrary />
-                    </div>
-                  )}
-                </div>
-                <div
-                  className={css`
-                    margin: 1rem;
-                    margin-bottom: 0;
-                  `}
-                >
-                  <SelectField
-                    id={"select-sidebar-view"}
-                    value={sidebarView}
-                    label={t("editor-select-sidebar-view")}
-                    options={[
-                      // eslint-disable-next-line i18next/no-literal-string
-                      { value: "block-props", label: t("block-props") },
-                      // eslint-disable-next-line i18next/no-literal-string
-                      { value: "block-list", label: t("block-list") },
-                      // eslint-disable-next-line i18next/no-literal-string
-                      { value: "block-menu", label: t("block-menu") },
-                    ]}
-                    onChangeByValue={(val) => setSidebarView(val)}
-                  />
-                </div>
-                {inspectorButtons && (
+                          .block-editor-block-inspector {
+                            width: 100%;
+                          }
+                        `}
+                      >
+                        <BlockInspector />
+                      </div>
+                    )}
+                    {sidebarView === "block-list" && (
+                      <div
+                        className={css`
+                          height: fit-content;
+                          width: 100%;
+                        `}
+                      >
+                        <ListView
+                          showNestedBlocks
+                          showBlockMovers
+                          __experimentalFeatures
+                          __experimentalPersistentListViewFeatures
+                          __experimentalHideContainerBlockActions
+                        />
+                      </div>
+                    )}
+                    {sidebarView === "block-menu" && (
+                      <div
+                        className={css`
+                          .block-editor-inserter__main-area {
+                            overflow-x: hidden;
+                          }
+                          .components-search-control {
+                            font-family: ${primaryFont} !important;
+                          }
+                        `}
+                      >
+                        <BlockLibrary />
+                      </div>
+                    )}
+                  </div>
                   <div
                     className={css`
                       margin: 1rem;
-                      margin-top: 0;
+                      margin-bottom: 0;
                     `}
                   >
-                    {inspectorButtons}
+                    <SelectField
+                      id={"select-sidebar-view"}
+                      value={sidebarView}
+                      label={t("editor-select-sidebar-view")}
+                      options={[
+                        // eslint-disable-next-line i18next/no-literal-string
+                        { value: "block-props", label: t("block-props") },
+                        // eslint-disable-next-line i18next/no-literal-string
+                        { value: "block-list", label: t("block-list") },
+                        // eslint-disable-next-line i18next/no-literal-string
+                        { value: "block-menu", label: t("block-menu") },
+                      ]}
+                      onChangeByValue={(val) => setSidebarView(val)}
+                    />
                   </div>
-                )}
+                  {inspectorButtons && (
+                    <div
+                      className={css`
+                        margin: 1rem;
+                        margin-top: 0;
+                      `}
+                    >
+                      {inspectorButtons}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
             <div className="editor__content">
               <BlockTools>
                 <div className="editor-styles-wrapper">

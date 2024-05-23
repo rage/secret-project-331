@@ -898,7 +898,7 @@ HttpResponse::Ok()
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             <span class="kw-2">&amp;mut </span>exercise_with_user_state,
-            StudentExerciseSlideSubmission {
+            <span class="kw-2">&amp;</span>StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
                 exercise_task_submissions: <span class="macro">vec!</span>[StudentExerciseTaskSubmission {
                     exercise_task_id: et,

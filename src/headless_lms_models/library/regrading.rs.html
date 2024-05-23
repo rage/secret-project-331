@@ -1956,7 +1956,7 @@
         <span class="kw">let </span>grading = <span class="kw">crate</span>::library::grading::grade_user_submission(
             conn,
             <span class="kw-2">&amp;mut </span>exercise_with_user_state,
-            submission,
+            <span class="kw-2">&amp;</span>submission,
             GradingPolicy::Fixed(mock_results),
             |<span class="kw">_</span>| <span class="macro">unimplemented!</span>(),
             |<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">unimplemented!</span>(),

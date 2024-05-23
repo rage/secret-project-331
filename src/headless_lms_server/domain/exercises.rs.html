@@ -208,7 +208,7 @@
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
     exercise: Exercise,
-    submission: StudentExerciseSlideSubmission,
+    submission: <span class="kw-2">&amp;</span>StudentExerciseSlideSubmission,
     jwt_key: Arc&lt;JwtKey&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;StudentExerciseSlideSubmissionResult, ControllerError&gt; {
     enforce_deadline(conn, <span class="kw-2">&amp;</span>exercise).<span class="kw">await</span><span class="question-mark">?</span>;

@@ -702,7 +702,7 @@
 </span><span class="kw">pub async fn </span>create_user_exercise_slide_submission(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_with_user_state: <span class="kw-2">&amp;</span>ExerciseWithUserState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+    user_exercise_slide_submission: <span class="kw-2">&amp;</span>StudentExerciseSlideSubmission,
 ) -&gt; ModelResult&lt;ExerciseSlideSubmissionWithTasks&gt; {
     <span class="kw">let </span>selected_exercise_slide_id = exercise_with_user_state
         .user_exercise_state()
@@ -740,7 +740,7 @@
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let </span>user_exercise_task_submissions = user_exercise_slide_submission.exercise_task_submissions;
+    <span class="kw">let </span>user_exercise_task_submissions = <span class="kw-2">&amp;</span>user_exercise_slide_submission.exercise_task_submissions;
     <span class="kw">let </span><span class="kw-2">mut </span>exercise_slide_submission_tasks =
         Vec::with_capacity(user_exercise_task_submissions.len());
     <span class="kw">for </span>task_submission <span class="kw">in </span>user_exercise_task_submissions {
@@ -759,7 +759,7 @@
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,
-            task_submission.data_json,
+            <span class="kw-2">&amp;</span>task_submission.data_json,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="kw">let </span>submission = exercise_task_submissions::get_by_id(<span class="kw-2">&amp;mut </span>tx, submission_id).<span class="kw">await</span><span class="question-mark">?</span>;
@@ -829,7 +829,7 @@
 <span class="kw">pub async fn </span>grade_user_submission(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     exercise_with_user_state: <span class="kw-2">&amp;mut </span>ExerciseWithUserState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+    user_exercise_slide_submission: <span class="kw-2">&amp;</span>StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
     fetch_service_info: <span class="kw">impl </span>Fn(Url) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, ModelResult&lt;ExerciseServiceInfoApi&gt;&gt;,
     send_grading_request: <span class="kw">impl </span>Fn(

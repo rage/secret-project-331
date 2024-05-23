@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["insert_rejected_exercise_slide_submission","insert_rejected_exercise_task_submission"],"struct":["RejectedExerciseSlideSubmission"]};

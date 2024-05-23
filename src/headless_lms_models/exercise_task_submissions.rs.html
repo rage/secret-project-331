@@ -737,7 +737,7 @@ RETURNING id
     exercise_slide_submission_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
-    data_json: Value,
+    data_json: <span class="kw-2">&amp;</span>Value,
 ) -&gt; ModelResult&lt;Uuid&gt; {
     <span class="kw">let </span>res = <span class="macro">sqlx::query!</span>(
         <span class="string">"

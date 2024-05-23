@@ -105,7 +105,7 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
 pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_with_user_state: &ExerciseWithUserState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+    user_exercise_slide_submission: &StudentExerciseSlideSubmission,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
     let selected_exercise_slide_id = exercise_with_user_state
         .user_exercise_state()
@@ -143,7 +143,7 @@ pub async fn create_user_exercise_slide_submission(
         },
     )
     .await?;
-    let user_exercise_task_submissions = user_exercise_slide_submission.exercise_task_submissions;
+    let user_exercise_task_submissions = &user_exercise_slide_submission.exercise_task_submissions;
     let mut exercise_slide_submission_tasks =
         Vec::with_capacity(user_exercise_task_submissions.len());
     for task_submission in user_exercise_task_submissions {
@@ -162,7 +162,7 @@ pub async fn create_user_exercise_slide_submission(
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,
-            task_submission.data_json,
+            &task_submission.data_json,
         )
         .await?;
         let submission = exercise_task_submissions::get_by_id(&mut tx, submission_id).await?;
@@ -232,7 +232,7 @@ pub enum GradingPolicy {
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
     exercise_with_user_state: &mut ExerciseWithUserState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+    user_exercise_slide_submission: &StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(

@@ -1,0 +1,2 @@
+DROP TABLE rejected_exercise_task_submissions;
+DROP TABLE rejected_exercise_slide_submissions;

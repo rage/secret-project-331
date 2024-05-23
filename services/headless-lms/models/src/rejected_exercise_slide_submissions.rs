@@ -32,7 +32,7 @@ RETURNING id
     .await?;
 
     for task in &rejected_submission.exercise_task_submissions {
-        insert_rejected_exercise_task_submission(&mut *tx, task, res.id).await?;
+        insert_rejected_exercise_task_submission(&mut tx, task, res.id).await?;
     }
 
     tx.commit().await?;

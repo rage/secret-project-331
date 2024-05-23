@@ -955,7 +955,7 @@ mod test {
         let grading = crate::library::grading::grade_user_submission(
             conn,
             &mut exercise_with_user_state,
-            submission,
+            &submission,
             GradingPolicy::Fixed(mock_results),
             |_| unimplemented!(),
             |_, _, _| unimplemented!(),

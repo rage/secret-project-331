@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO rejected_exercise_task_submissions (rejected_exercise_slide_submission_id, data_json)\nVALUES ($1, $2)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Jsonb"]
+    },
+    "nullable": [false]
+  },
+  "hash": "cec6fa9b6a186076ff43935930627abd3db4f13c50f37c4998d67bafc26b6c46"
+}

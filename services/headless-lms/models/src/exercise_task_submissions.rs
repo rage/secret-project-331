@@ -131,7 +131,7 @@ pub async fn insert(
     exercise_slide_submission_id: Uuid,
     exercise_slide_id: Uuid,
     exercise_task_id: Uuid,
-    data_json: Value,
+    data_json: &Value,
 ) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "

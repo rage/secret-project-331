@@ -1,10 +1,10 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../../../../../shared-module/components/Button"
-import FileField from "../../../../../../shared-module/components/InputFields/FileField"
-import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+import Button from "@/shared-module/common/components/Button"
+import FileField from "@/shared-module/common/components/InputFields/FileField"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 interface Props {
   closeEditor: () => void

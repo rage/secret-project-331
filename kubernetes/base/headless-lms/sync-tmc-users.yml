@@ -21,13 +21,7 @@ spec:
           containers:
             - name: sync-tmc-users
               image: headless-lms
-              command:
-                [
-                  "cargo",
-                  "run",
-                  "--",
-                  "sync-tmc-users",
-                ]
+              command: ["bin/run", "sync-tmc-users"]
               resources:
                 requests:
                   memory: 100Mi

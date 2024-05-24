@@ -16,6 +16,7 @@ COPY --from=builder /bins /app
 COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/wait-for-db.sh /app/
 COPY --from=builder /app/wait-for-db-migrations.sh /app/
+COPY --from=builder /app/bin/run /app/bin/run
 
 # Used in the test mode
 RUN mkdir uploads && chown -R user uploads
@@ -28,4 +29,4 @@ COPY --from=builder /icu4x.postcard /icu4x.postcard
 
 USER user
 
-CMD [ "./headless-lms-entrypoint", "start-server" ]
+CMD [ "bin/run", "start-server" ]

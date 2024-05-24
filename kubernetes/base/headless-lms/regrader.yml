@@ -21,7 +21,7 @@ spec:
       containers:
         - name: regrader
           image: headless-lms
-          command: ["cargo", "run", "--", "regrader"]
+          command: ["bin/run", "regrader"]
           resources:
             requests:
               memory: 100Mi

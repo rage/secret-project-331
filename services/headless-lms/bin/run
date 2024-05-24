@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/.."
+ABSOLUTE_PATH=$(realpath "$FOLDER_PATH")
+
+# Cd to the root of the headless-lms folder
+echo "\$ cd $ABSOLUTE_PATH"
+cd "$ABSOLUTE_PATH" || exit
+
+
+if [ "$#" -eq 0 ]; then
+  echo "Error: Please give the program name as an argument e.g. \"bin/run start-server\""
+  exit 1
+fi
+
+if [ -f "headless-lms-entrypoint" ]; then
+  # This happens in production and in bin/test
+  echo "\$ ./headless-lms-entrypoint $*"
+  exec ./headless-lms-entrypoint "$*"
+else
+  # This happens in bin/dev
+  echo "\$ cargo run -- $*"
+  exec cargo run -- "$*"
+fi

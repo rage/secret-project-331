@@ -21,13 +21,7 @@ spec:
           containers:
             - name: open-university-registration-link-fetcher
               image: headless-lms
-              command:
-                [
-                  "cargo",
-                  "run",
-                  "--",
-                  "open-university-registration-link-fetcher",
-                ]
+              command: ["bin/run", "open-university-registration-link-fetcher"]
               resources:
                 requests:
                   memory: 100Mi

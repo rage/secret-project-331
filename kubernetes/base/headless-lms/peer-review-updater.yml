@@ -21,13 +21,7 @@ spec:
           containers:
             - name: peer-review-updater
               image: headless-lms
-              command:
-                [
-                  "cargo",
-                  "run",
-                  "--",
-                  "peer-review-updater",
-                ]
+              command: ["bin/run", "peer-review-updater"]
               resources:
                 requests:
                   memory: 100Mi

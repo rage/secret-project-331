@@ -21,7 +21,7 @@ spec:
           containers:
             - name: calculate-page-visit-stats
               image: headless-lms
-              command: ["cargo", "run", "--", "calculate-page-visit-stats"]
+              command: ["bin/run", "calculate-page-visit-stats"]
               resources:
                 requests:
                   memory: 100Mi

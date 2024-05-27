@@ -30,11 +30,7 @@
           "Custom": {
             "name": "exercise_repository_status",
             "kind": {
-              "Enum": [
-                "pending",
-                "success",
-                "failure"
-              ]
+              "Enum": ["pending", "success", "failure"]
             }
           }
         }
@@ -46,18 +42,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": ["Uuid"]
     },
-    "nullable": [
-      false,
-      false,
-      true,
-      true,
-      false,
-      true
-    ]
+    "nullable": [false, false, true, true, false, true]
   },
   "hash": "8359aee706ee7461e8bf4896f78a9bbde8cf436a8cd497797964868173c5df09"
 }

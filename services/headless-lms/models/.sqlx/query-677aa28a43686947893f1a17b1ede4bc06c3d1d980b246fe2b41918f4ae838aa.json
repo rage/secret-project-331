@@ -19,10 +19,7 @@
           "Custom": {
             "name": "history_change_reason",
             "kind": {
-              "Enum": [
-                "page-saved",
-                "history-restored"
-              ]
+              "Enum": ["page-saved", "history-restored"]
             }
           }
         },
@@ -30,9 +27,7 @@
         "Uuid"
       ]
     },
-    "nullable": [
-      false
-    ]
+    "nullable": [false]
   },
   "hash": "677aa28a43686947893f1a17b1ede4bc06c3d1d980b246fe2b41918f4ae838aa"
 }

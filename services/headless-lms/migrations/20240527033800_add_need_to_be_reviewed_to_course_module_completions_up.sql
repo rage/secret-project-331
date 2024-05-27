@@ -1,1 +1,1 @@
-ALTER TABLE course_module_completions DROP need_to_be_reviewed;
+ALTER TABLE course_module_completions DROP IF EXISTS need_to_be_reviewed;

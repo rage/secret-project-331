@@ -119,8 +119,8 @@ pub async fn check_and_insert_suspected_cheaters(
             )
             .await?;
 
-            // course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true)
-            //     .await?;
+            course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true)
+                .await?;
         }
     }
 

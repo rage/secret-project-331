@@ -70,25 +70,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid",
-        "Int8",
-        "Int8"
-      ]
+      "Left": ["Uuid", "Int8", "Int8"]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      true,
-      false,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false
-    ]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
   },
   "hash": "f801f26dc4e64a8b5d153887f13f858752e27b44b003ccbb2e539e7958d39875"
 }

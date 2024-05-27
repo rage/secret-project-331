@@ -24,6 +24,7 @@ pub struct CourseModuleCompletion {
     pub passed: bool,
     pub prerequisite_modules_completed: bool,
     pub completion_granter_user_id: Option<Uuid>,
+    // pub needs_to_be_reviewed: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -442,6 +443,24 @@ WHERE id = $2 AND deleted_at IS NULL
     .await?;
     Ok(res.rows_affected() > 0)
 }
+
+// pub async fn update_needs_to_be_reviewed(
+//     conn: &mut PgConnection,
+//     id: Uuid,
+//     needs_to_be_updated: bool,
+// ) -> ModelResult<bool> {
+//     let res = sqlx::query!(
+//         "
+// UPDATE course_module_completions SET needs_to_be_reviewed = $1
+// WHERE id = $2 AND deleted_at IS NULL
+//         ",
+//         needs_to_be_reviewed,
+//         id
+//     )
+//     .execute(conn)
+//     .await?;
+//     Ok(res.rows_affected() > 0)
+// }
 
 /// Checks whether the user has any completions for the given course module on the specified
 /// course instance.

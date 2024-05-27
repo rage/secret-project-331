@@ -12,7 +12,8 @@ use crate::{
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, exams, open_university_registration_links,
     prelude::*,
-    suspected_cheaters, user_course_settings,
+    suspected_cheaters::{self, Threshold},
+    user_course_settings,
     user_details::UserDetail,
     user_exercise_states,
     users::{self, User},
@@ -50,56 +51,82 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         .await?;
 
         let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
-
-        // all do this for a single student and compare
-
         let average_duration_seconds =
             course_instances::get_course_average_duration(conn, course_instance_id).await?;
 
-        let completions =
-            course_module_completions::get_all_by_course_instance_id(conn, course_instance_id)
+        check_and_insert_suspected_cheaters(
+            conn,
+            user_id,
+            course_instance_id,
+            &thresholds,
+            average_duration_seconds,
+        )
+        .await?;
+    }
+    Ok(())
+}
+
+pub async fn check_and_insert_suspected_cheaters(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    thresholds: &Threshold,
+    average_duration_seconds: Option<i64>,
+) -> ModelResult<()> {
+    //Fetch all course_module completion and check for suspected cheating
+    let course_module_completions =
+        course_module_completions::get_all_by_course_instance_and_user_id(
+            conn,
+            course_instance_id,
+            user_id,
+        )
+        .await?;
+    //if course_module_completion needs_to_be_reviewed is true, so an early return
+
+    for completion in course_module_completions {
+        // Early return if needs_to_be_reviewed is false
+        // if completion.needs_to_be_reviewed == Some(false)
+        //     || completion.needs_to_be_reviewed.is_none()
+        // {
+        //     continue;
+        // }
+
+        if completion.grade.is_none() {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Grade is not a numeric value".to_string(),
+                None,
+            ));
+        }
+
+        let total_points =
+            user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
+                .await?
+                .unwrap_or(0.0);
+
+        let student_duration_seconds =
+            course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
                 .await?;
 
-        for completion in completions {
-            if completion.grade.is_none() {
-                return Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Grade is not a numeric value".to_string(),
-                    None,
-                ));
-            }
+        if total_points as i32 <= thresholds.points {
+            continue;
+        }
 
-            let total_points = user_exercise_states::get_user_total_course_points(
-                conn,
-                user_id,
-                course_instance_id,
-            )
-            .await?
-            .unwrap_or(0.0);
-
-            let student_duration_seconds = course_instances::get_student_duration(
+        if student_duration_seconds > average_duration_seconds {
+            suspected_cheaters::insert(
                 conn,
                 completion.user_id,
                 course_instance_id,
+                None,
+                total_points as i32,
             )
             .await?;
 
-            if total_points as i32 <= thresholds.points {
-                continue;
-            }
-
-            if student_duration_seconds > average_duration_seconds {
-                suspected_cheaters::insert(
-                    conn,
-                    completion.user_id,
-                    course_instance_id,
-                    None,
-                    total_points as i32,
-                )
-                .await?;
-            }
+            // course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true)
+            //     .await?;
         }
     }
+
     Ok(())
 }
 

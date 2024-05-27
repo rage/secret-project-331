@@ -10,20 +10,21 @@ import {
   getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
   putCoursesDefaultCmsPeerOrSelfReviewConfiguration,
 } from "../../../services/backend/courses"
+import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
+
 import {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewConfiguration,
   CmsPeerOrSelfReviewQuestion,
-} from "../../../shared-module/bindings"
-import Button from "../../../shared-module/components/Button"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import useToastMutation from "../../../shared-module/hooks/useToastMutation"
+} from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
-import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
 interface PeerReviewManagerProps {
   // courseId

@@ -21,7 +21,7 @@ spec:
           containers:
             - name: ended-exams-processor
               image: headless-lms
-              command: ["cargo", "run", "--", "ended-exams-processor"]
+              command: ["bin/run", "ended-exams-processor"]
               resources:
                 requests:
                   memory: 100Mi

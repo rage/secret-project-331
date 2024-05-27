@@ -6,13 +6,14 @@ import { v4, v5 } from "uuid"
 import { ExerciseAttributes } from "../blocks/Exercise"
 import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+
 import {
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
   CmsPeerOrSelfReviewConfig,
-} from "../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 
 /**
  * Only id is allowed in normalized exercises. This is because:

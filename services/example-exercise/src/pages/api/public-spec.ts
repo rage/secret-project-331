@@ -1,9 +1,10 @@
 /* eslint-disable i18next/no-literal-string */
 import { NextApiRequest, NextApiResponse } from "next"
 
-import { SpecRequest } from "../../shared-module/bindings"
-import { isSpecRequest } from "../../shared-module/bindings.guard"
 import { Alternative, ClientErrorResponse, PublicAlternative } from "../../util/stateInterfaces"
+
+import { SpecRequest } from "@/shared-module/common/bindings"
+import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 
 export default (req: NextApiRequest, res: NextApiResponse): void => {
   if (req.method !== "POST") {

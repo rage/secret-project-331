@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test"
 
-import { feedbackTooltipClass } from "../../shared-module/styles/constants"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import expectUrlPathWithRandomUuid from "../../utils/expect"
 import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
 import { login } from "../../utils/login"
 import { logout } from "../../utils/logout"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+
+import { feedbackTooltipClass } from "@/shared-module/common/styles/constants"
 
 test.use({
   storageState: "src/states/user@example.com.json",

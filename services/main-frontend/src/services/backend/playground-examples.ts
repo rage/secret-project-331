@@ -1,13 +1,14 @@
-import { PlaygroundExample, PlaygroundExampleData } from "../../shared-module/bindings"
-import { isPlaygroundExample } from "../../shared-module/bindings.guard"
+import { filesClient } from "../filesClient"
+import { mainFrontendClient } from "../mainFrontendClient"
+
+import { PlaygroundExample, PlaygroundExampleData } from "@/shared-module/common/bindings"
+import { isPlaygroundExample } from "@/shared-module/common/bindings.guard"
 import {
   isArray,
   isObjectMap,
   isString,
   validateResponse,
-} from "../../shared-module/utils/fetching"
-import { filesClient } from "../filesClient"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/utils/fetching"
 
 export const fetchPlaygroundExamples = async (): Promise<Array<PlaygroundExample>> => {
   const response = await mainFrontendClient.get(`/playground_examples`)

@@ -5,12 +5,13 @@ import { useTranslation } from "react-i18next"
 
 import createPendingChangeRequestCountHook from "../../../../../../hooks/count/usePendingChangeRequestCount"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import TabLink from "../../../../../../shared-module/components/Navigation/TabLinks/TabLink"
-import TabLinkNavigation from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkNavigation"
-import TabLinkPanel from "../../../../../../shared-module/components/Navigation/TabLinks/TabLinkPanel"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import EditProposalList from "./EditProposalList"
+
+import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const ChangeRequestsPage: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

@@ -7,13 +7,14 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import VisibleBlockWrapper from "../../components/blocks/VisibleBlockWrapper"
-import Button from "../../shared-module/components/Button"
-import TextField from "../../shared-module/components/InputFields/TextField"
 import BlockWrapper from "../BlockWrapper"
 
 import IFramePlaceHolder from "./IframePlaceholder"
 
 import { IFRAME_BLOCK_DEFAULT_HEIGHT_PX, IframeAttributes } from "."
+
+import Button from "@/shared-module/common/components/Button"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttributes>>> = ({
   clientId,

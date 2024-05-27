@@ -7,11 +7,6 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseInstances } from "../../../../../../services/backend/courses"
-import Button from "../../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { queryClient } from "../../../../../../shared-module/services/appQueryClient"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -24,6 +19,12 @@ import {
 import ModuleCompletionReprocessButton from "./ModuleCompletionReprocessButton"
 import NewCourseInstanceDialog from "./NewCourseInstanceDialog"
 import PointExportButton from "./PointExportButton"
+
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { queryClient } from "@/shared-module/common/services/appQueryClient"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

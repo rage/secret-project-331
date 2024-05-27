@@ -16,16 +16,17 @@ import {
   deleteExerciseService,
   updateExerciseService,
 } from "../../../../services/backend/exercise-services"
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import Dialog from "../../../../shared-module/components/Dialog"
-import TimeComponent from "../../../../shared-module/components/TimeComponent"
-import { validURL } from "../../../../shared-module/utils/validation"
 import { canSave } from "../../../../utils/canSaveExerciseService"
 import { convertToSlug } from "../../../../utils/convert"
 import { prepareExerciseServiceForBackend } from "../../../../utils/prepareServiceForBackend.ts"
 
 import ContentArea from "./ContentArea"
+
+import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import TimeComponent from "@/shared-module/common/components/TimeComponent"
+import { validURL } from "@/shared-module/common/utils/validation"
 
 interface ExerciseServiceCardProps {
   id: string

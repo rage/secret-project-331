@@ -2,8 +2,9 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
 import InnerBlocks from "../util/InnerBlocks"
+
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AsideBlockProps {
   backgroundColor: string

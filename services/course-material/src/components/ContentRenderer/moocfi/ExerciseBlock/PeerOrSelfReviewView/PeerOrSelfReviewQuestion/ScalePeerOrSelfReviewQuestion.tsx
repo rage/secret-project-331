@@ -1,6 +1,6 @@
-import LikertScale from "../../../../../../shared-module/components/PeerReview/LikertScale"
-
 import { PeerOrSelfReviewQuestionProps } from "."
+
+import LikertScale from "@/shared-module/common/components/PeerReview/LikertScale"
 
 const ScalePeerOrSelfReviewQuestion: React.FC<
   React.PropsWithChildren<PeerOrSelfReviewQuestionProps>

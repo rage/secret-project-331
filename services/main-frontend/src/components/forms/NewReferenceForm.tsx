@@ -4,9 +4,9 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { NewMaterialReference } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
+import { NewMaterialReference } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Cite = require("citation-js")

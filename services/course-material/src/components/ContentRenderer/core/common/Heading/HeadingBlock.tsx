@@ -5,12 +5,13 @@ import { DetailedHTMLProps, HTMLAttributes } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../../../../../shared-module/utils/constants"
-import withErrorBoundary from "../../../../../shared-module/utils/withErrorBoundary"
 import colorMapper from "../../../../../styles/colorMapper"
 import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingAttributes>>> = ({
   data,

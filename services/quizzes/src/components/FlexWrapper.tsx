@@ -1,8 +1,9 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { respondToOrLarger } from "../shared-module/styles/respond"
 import { FlexDirection } from "../util/css-sanitization"
+
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface FlexWrapperProps {
   wideScreenDirection: FlexDirection

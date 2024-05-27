@@ -2,9 +2,10 @@ import React from "react"
 
 import useCourseQuery from "../../../../../../hooks/useCourseQuery"
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
 import ManageCourse from "../index/ManageCourse"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,

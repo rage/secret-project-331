@@ -4,7 +4,6 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
 
 import CourseSubmissionsByDay from "./CourseSubmissionsByDay"
 import CourseSubmissionsByWeekdayAndHour from "./CourseSubmissionsByWeekdayAndHour"
@@ -19,6 +18,8 @@ import MostVisitedPages from "./MostVisitedPages"
 import TopReferrers from "./TopReferrers"
 import TopUtmCampaigns from "./TopUtmCampaigns"
 import TopUtmSources from "./TopUtmSources"
+
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const StatHeading = styled.h2`
   font-size: 1.8rem;

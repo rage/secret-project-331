@@ -1,9 +1,9 @@
 import { QueryObserverResult } from "@tanstack/react-query"
 import React from "react"
 
-import { ExerciseService } from "../../../../shared-module/bindings"
-
 import ExerciseServiceCard from "./ExerciseServiceCard"
+
+import { ExerciseService } from "@/shared-module/common/bindings"
 
 interface ExerciseServiceEditorProps {
   exerciseServices: ExerciseService[]

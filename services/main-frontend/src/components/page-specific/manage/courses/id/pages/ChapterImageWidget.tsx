@@ -2,9 +2,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { removeChapterImage, setChapterImage } from "../../../../../../services/backend/chapters"
-import { Chapter } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
 import UploadImageForm from "../../../../../forms/UploadImageForm"
+
+import { Chapter } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
 
 export interface ChapterImageControlsProps {
   chapter: Chapter

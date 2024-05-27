@@ -4,9 +4,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchGlossary } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   courseId: string

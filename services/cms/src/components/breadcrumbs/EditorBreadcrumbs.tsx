@@ -2,11 +2,12 @@ import { useRouter } from "next/router"
 import React from "react"
 
 import usePageInfo from "../../hooks/usePageInfo"
-import Breadcrumbs from "../../shared-module/components/Breadcrumbs"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Spinner from "../../shared-module/components/Spinner"
 import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
+
+import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
   const router = useRouter()

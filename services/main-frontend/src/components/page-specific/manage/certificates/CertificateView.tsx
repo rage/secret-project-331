@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { CertificateConfigurationAndRequirements } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import MaskOverThisInSystemTests from "../../../../shared-module/components/system-tests/MaskOverThisInSystemTests"
-import { baseTheme } from "../../../../shared-module/styles"
+import { CertificateConfigurationAndRequirements } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
+import { baseTheme } from "@/shared-module/common/styles"
 
 interface Props {
   configurationAndRequirements: CertificateConfigurationAndRequirements

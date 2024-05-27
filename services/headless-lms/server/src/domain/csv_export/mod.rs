@@ -426,7 +426,7 @@ mod test {
         headless_lms_models::library::grading::grade_user_submission(
             tx,
             &mut exercise_with_user_state,
-            StudentExerciseSlideSubmission {
+            &StudentExerciseSlideSubmission {
                 exercise_slide_id: ex_slide,
                 exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                     exercise_task_id: et,

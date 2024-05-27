@@ -8,18 +8,19 @@ import { useTranslation } from "react-i18next"
 
 import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
 import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../shared-module/components/Centering/Centered"
-import DebugModal from "../../../shared-module/components/DebugModal"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { baseTheme, primaryFont, typography } from "../../../shared-module/styles"
-import { runCallbackIfEnterPressed } from "../../../shared-module/utils/accessibility"
 import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
 import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
 
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
+import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 

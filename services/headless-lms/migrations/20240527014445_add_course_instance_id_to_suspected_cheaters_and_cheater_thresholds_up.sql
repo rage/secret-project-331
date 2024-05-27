@@ -9,5 +9,5 @@ ADD course_instance_id UUID NOT NULL REFERENCES course_instances(id);
 ALTER TABLE cheater_thresholds
 ADD course_instance_id UUID NOT NULL REFERENCES course_instances(id);
 -- Create a unique index on the course_instance_id column in cheater_thresholds table
-CREATE UNIQUE INDEX unique_course_instance_id ON cheater_thresholds (course_instance_id)
+CREATE UNIQUE INDEX unique_course_instance_id ON cheater_thresholds (course_instance_id, id)
 WHERE deleted_at IS NULL;

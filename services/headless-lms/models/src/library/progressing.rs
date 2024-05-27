@@ -85,12 +85,9 @@ pub async fn check_and_insert_suspected_cheaters(
 
     for completion in course_module_completions {
         // Early return if needs_to_be_reviewed is false
-        // if completion.needs_to_be_reviewed == Some(false)
-        //     || completion.needs_to_be_reviewed.is_none()
-        // {
+        // if !completion.needs_to_be_reviewed {
         //     continue;
         // }
-
         if completion.grade.is_none() {
             return Err(ModelError::new(
                 ModelErrorType::InvalidRequest,

@@ -1,0 +1,1 @@
+ALTER TABLE course_module_completions DROP need_to_be_reviewed;

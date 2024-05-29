@@ -497,8 +497,6 @@ async fn insert_threshold(
     let new_threshold = payload.0;
     let duration: Option<i32> = None;
 
-    println!("@@@@@@new_threshold: {:?}", new_threshold);
-
     let token = authorize(
         &mut conn,
         Act::Edit,

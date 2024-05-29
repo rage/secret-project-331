@@ -87,6 +87,11 @@
         "ordinal": 16,
         "name": "completion_granter_user_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 17,
+        "name": "needs_to_be_reviewed",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -109,7 +114,8 @@
       false,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "d0002830dc115e4fd039530ef6e3edf90c1b12f5b39eb6e8cceb524b1f6dfb1a"

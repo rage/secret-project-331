@@ -84,16 +84,8 @@ pub async fn check_and_insert_suspected_cheaters(
     //if course_module_completion needs_to_be_reviewed is true, so an early return
 
     for completion in course_module_completions {
-        // Early return if needs_to_be_reviewed is false
-        // if !completion.needs_to_be_reviewed {
-        //     continue;
-        // }
         if completion.grade.is_none() {
-            return Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Grade is not a numeric value".to_string(),
-                None,
-            ));
+            continue;
         }
 
         let total_points =
@@ -105,11 +97,12 @@ pub async fn check_and_insert_suspected_cheaters(
             course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
                 .await?;
 
+        //skip because the student is not a cheater
         if total_points as i32 <= thresholds.points {
             continue;
         }
 
-        if student_duration_seconds > average_duration_seconds {
+        if student_duration_seconds < average_duration_seconds {
             suspected_cheaters::insert(
                 conn,
                 completion.user_id,

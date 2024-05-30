@@ -36,20 +36,6 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
     )
     .await?;
     if completion_exists {
-        let course = courses::get_course(conn, course_module.course_id).await?;
-        let course_instance =
-            course_instances::get_course_instance(conn, course_instance_id).await?;
-        let submodule_completions_required = course
-            .base_module_completion_requires_n_submodule_completions
-            .try_into()?;
-        update_module_completion_prerequisite_statuses_for_user(
-            conn,
-            user_id,
-            &course_instance,
-            submodule_completions_required,
-        )
-        .await?;
-
         let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
         let average_duration_seconds =
             course_instances::get_course_average_duration(conn, course_instance_id).await?;
@@ -61,6 +47,19 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             &thresholds,
             average_duration_seconds,
             course_module,
+        )
+        .await?;
+        let course = courses::get_course(conn, course_module.course_id).await?;
+        let course_instance =
+            course_instances::get_course_instance(conn, course_instance_id).await?;
+        let submodule_completions_required = course
+            .base_module_completion_requires_n_submodule_completions
+            .try_into()?;
+        update_module_completion_prerequisite_statuses_for_user(
+            conn,
+            user_id,
+            &course_instance,
+            submodule_completions_required,
         )
         .await?;
     }

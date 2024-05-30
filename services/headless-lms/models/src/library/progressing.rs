@@ -85,7 +85,11 @@ pub async fn check_and_insert_suspected_cheaters(
     .await?;
 
     if completion.grade.is_none() {
-        return Ok(());
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Grade is not a numeric value.".to_string(),
+            None,
+        ));
     }
 
     let total_points =

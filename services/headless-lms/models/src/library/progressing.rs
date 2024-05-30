@@ -50,19 +50,19 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         )
         .await?;
 
-        // let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
-        // let average_duration_seconds =
-        //     course_instances::get_course_average_duration(conn, course_instance_id).await?;
+        let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
+        let average_duration_seconds =
+            course_instances::get_course_average_duration(conn, course_instance_id).await?;
 
-        // check_and_insert_suspected_cheaters(
-        //     conn,
-        //     user_id,
-        //     course_instance_id,
-        //     &thresholds,
-        //     average_duration_seconds,
-        //     course_module,
-        // )
-        // .await?;
+        check_and_insert_suspected_cheaters(
+            conn,
+            user_id,
+            course_instance_id,
+            &thresholds,
+            average_duration_seconds,
+            course_module,
+        )
+        .await?;
     }
     Ok(())
 }

@@ -36,19 +36,6 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
     )
     .await?;
     if completion_exists {
-        let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
-        let average_duration_seconds =
-            course_instances::get_course_average_duration(conn, course_instance_id).await?;
-
-        check_and_insert_suspected_cheaters(
-            conn,
-            user_id,
-            course_instance_id,
-            &thresholds,
-            average_duration_seconds,
-            course_module,
-        )
-        .await?;
         let course = courses::get_course(conn, course_module.course_id).await?;
         let course_instance =
             course_instances::get_course_instance(conn, course_instance_id).await?;
@@ -60,6 +47,20 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             user_id,
             &course_instance,
             submodule_completions_required,
+        )
+        .await?;
+
+        let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
+        let average_duration_seconds =
+            course_instances::get_course_average_duration(conn, course_instance_id).await?;
+
+        check_and_insert_suspected_cheaters(
+            conn,
+            user_id,
+            course_instance_id,
+            &thresholds,
+            average_duration_seconds,
+            course_module,
         )
         .await?;
     }
@@ -100,13 +101,10 @@ pub async fn check_and_insert_suspected_cheaters(
         course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
             .await?;
 
-    //skip because the student is not a cheater
-    if total_points as i32 <= thresholds.points {
-        return Ok(());
-    }
-
     // TODO: Compare duration to duration set by teachers
-    if student_duration_seconds < average_duration_seconds {
+    if student_duration_seconds < average_duration_seconds
+        && total_points as i32 >= thresholds.points
+    {
         suspected_cheaters::insert(
             conn,
             completion.user_id,

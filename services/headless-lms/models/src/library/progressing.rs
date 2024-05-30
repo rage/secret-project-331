@@ -60,6 +60,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             course_instance_id,
             &thresholds,
             average_duration_seconds,
+            course_module,
         )
         .await?;
     }
@@ -72,49 +73,47 @@ pub async fn check_and_insert_suspected_cheaters(
     course_instance_id: Uuid,
     thresholds: &Threshold,
     average_duration_seconds: Option<i64>,
+    course_module: &CourseModule,
 ) -> ModelResult<()> {
     //Fetch all course_module completion and check for suspected cheating
-    let course_module_completions =
-        course_module_completions::get_all_by_course_instance_and_user_id(
-            conn,
-            course_instance_id,
-            user_id,
-        )
-        .await?;
-    //if course_module_completion needs_to_be_reviewed is true, so an early return
+    let completion = course_module_completions::get_latest_by_course_module_instance_and_user_ids(
+        conn,
+        course_module.id,
+        course_instance_id,
+        user_id,
+    )
+    .await?;
 
-    for completion in course_module_completions {
-        if completion.grade.is_none() {
-            continue;
-        }
+    if completion.grade.is_none() {
+        return Ok(());
+    }
 
-        let total_points =
-            user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
-                .await?
-                .unwrap_or(0.0);
+    let total_points =
+        user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
+            .await?
+            .unwrap_or(0.0);
 
-        let student_duration_seconds =
-            course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
-                .await?;
-
-        //skip because the student is not a cheater
-        if total_points as i32 <= thresholds.points {
-            continue;
-        }
-
-        if student_duration_seconds < average_duration_seconds {
-            suspected_cheaters::insert(
-                conn,
-                completion.user_id,
-                course_instance_id,
-                None,
-                total_points as i32,
-            )
+    let student_duration_seconds =
+        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
             .await?;
 
-            course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true)
-                .await?;
-        }
+    //skip because the student is not a cheater
+    if total_points as i32 <= thresholds.points {
+        return Ok(());
+    }
+
+    // TODO: Compare duration to duration set by teachers
+    if student_duration_seconds < average_duration_seconds {
+        suspected_cheaters::insert(
+            conn,
+            completion.user_id,
+            course_instance_id,
+            None,
+            total_points as i32,
+        )
+        .await?;
+
+        course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true).await?;
     }
 
     Ok(())

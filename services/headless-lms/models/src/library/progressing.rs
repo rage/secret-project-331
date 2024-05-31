@@ -54,15 +54,13 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             .await
             .optional()?
         {
-            let average_duration_seconds =
-                course_instances::get_course_average_duration(conn, course_instance_id).await?;
+            //let average_duration_seconds = course_instances::get_course_average_duration(conn, course_instance_id).await?;
 
             check_and_insert_suspected_cheaters(
                 conn,
                 user_id,
                 course_instance_id,
                 &thresholds,
-                average_duration_seconds,
                 completion,
             )
             .await?;
@@ -76,26 +74,17 @@ pub async fn check_and_insert_suspected_cheaters(
     user_id: Uuid,
     course_instance_id: Uuid,
     thresholds: &Threshold,
-    average_duration_seconds: Option<i64>,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
-    if completion.grade.is_none() {
-        return Ok(());
-    }
-
     let total_points =
         user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
             .await?
             .unwrap_or(0.0);
 
-    let student_duration_seconds =
-        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
-            .await?;
+    // let student_duration_seconds = course_instances::get_student_duration(conn, completion.user_id, course_instance_id).await?;
 
     // TODO: Compare duration to duration set by teachers
-    if student_duration_seconds < average_duration_seconds
-        && total_points as i32 >= thresholds.points
-    {
+    if total_points as i32 >= thresholds.points {
         suspected_cheaters::insert(
             conn,
             completion.user_id,
@@ -894,9 +883,14 @@ pub async fn get_completion_registration_link_and_save_attempt(
 
 #[cfg(test)]
 mod tests {
+    use user_exercise_states::{ReviewingStage, UserExerciseStateUpdate};
+
     use super::*;
 
-    use crate::test_helper::*;
+    use crate::{
+        exercises::{ActivityProgress, GradingProgress},
+        test_helper::*,
+    };
 
     mod grant_automatic_completion_if_eligible {
         use super::*;
@@ -1136,6 +1130,146 @@ mod tests {
                 course_module_2,
             )
         }
+    }
+
+    #[tokio::test]
+    async fn tags_suspected_cheater() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_instance_id: instance.id,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: None,
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        suspected_cheaters::insert_thresholds(tx.as_mut(), instance.id, None, 10)
+            .await
+            .unwrap();
+        update_automatic_completion_status_and_grant_if_eligible(
+            tx.as_mut(),
+            &course_module,
+            instance.id,
+            user,
+        )
+        .await
+        .unwrap();
+
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
+            tx.as_mut(),
+            instance.id,
+        )
+        .await
+        .unwrap();
+        assert_eq!(cheaters[0].user_id, user);
+    }
+
+    #[tokio::test]
+    async fn doesnt_tag_suspected_cheater() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(9.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_instance_id: instance.id,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(9),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        suspected_cheaters::insert_thresholds(tx.as_mut(), instance.id, None, 10)
+            .await
+            .unwrap();
+        update_automatic_completion_status_and_grant_if_eligible(
+            tx.as_mut(),
+            &course_module,
+            instance.id,
+            user,
+        )
+        .await
+        .unwrap();
+
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
+            tx.as_mut(),
+            instance.id,
+        )
+        .await
+        .unwrap();
+        assert!(cheaters.is_empty());
     }
 
     // TODO: New automatic completion tests?

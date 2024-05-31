@@ -54,7 +54,7 @@ pub async fn insert(
         total_points,
         course_instance_id
     )
-    .fetch_one(conn)
+    .execute(conn)
     .await?;
     Ok(())
 }
@@ -170,15 +170,17 @@ pub async fn get_suspected_cheaters_by_id(
 
 pub async fn get_all_suspected_cheaters_in_course_instance(
     conn: &mut PgConnection,
-    _course_instance_id: Uuid,
+    course_instance_id: Uuid,
 ) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
         "
-      SELECT *
-      FROM suspected_cheaters
-      WHERE deleted_at IS NULL;
-    "
+SELECT *
+FROM suspected_cheaters
+WHERE course_instance_id = $1
+    AND deleted_at IS NULL;
+    ",
+        course_instance_id
     )
     .fetch_all(conn)
     .await?;

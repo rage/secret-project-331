@@ -801,10 +801,10 @@ WHERE ce.course_instance_id = $1
         ",
         course_instance_id
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(res.average_duration_seconds)
+    Ok(res.map(|r| r.average_duration_seconds).unwrap_or_default())
 }
 
 pub async fn get_student_duration(
@@ -827,10 +827,10 @@ WHERE ce.course_instance_id = $1
         course_instance_id,
         user_id
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(res.student_duration_seconds)
+    Ok(res.map(|r| r.student_duration_seconds).unwrap_or_default())
 }
 
 #[cfg(test)]

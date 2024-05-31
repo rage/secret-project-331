@@ -50,19 +50,23 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         )
         .await?;
 
-        let thresholds = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id).await?;
-        let average_duration_seconds =
-            course_instances::get_course_average_duration(conn, course_instance_id).await?;
+        if let Some(thresholds) = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id)
+            .await
+            .optional()?
+        {
+            let average_duration_seconds =
+                course_instances::get_course_average_duration(conn, course_instance_id).await?;
 
-        check_and_insert_suspected_cheaters(
-            conn,
-            user_id,
-            course_instance_id,
-            &thresholds,
-            average_duration_seconds,
-            completion,
-        )
-        .await?;
+            check_and_insert_suspected_cheaters(
+                conn,
+                user_id,
+                course_instance_id,
+                &thresholds,
+                average_duration_seconds,
+                completion,
+            )
+            .await?;
+        }
     }
     Ok(())
 }
@@ -895,6 +899,7 @@ mod tests {
     use crate::test_helper::*;
 
     mod grant_automatic_completion_if_eligible {
+        use super::*;
         use crate::{
             chapters::NewChapter,
             course_modules::{
@@ -904,8 +909,6 @@ mod tests {
             library::content_management,
             user_exercise_states::{self, ReviewingStage, UserExerciseStateUpdate},
         };
-
-        use super::*;
 
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {

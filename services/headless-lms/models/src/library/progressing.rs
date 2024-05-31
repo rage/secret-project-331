@@ -28,14 +28,14 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<()> {
-    let completion_exists = create_automatic_course_module_completion_if_eligible(
+    let completion = create_automatic_course_module_completion_if_eligible(
         conn,
         course_module,
         course_instance_id,
         user_id,
     )
     .await?;
-    if completion_exists {
+    if let Some(completion) = completion {
         let course = courses::get_course(conn, course_module.course_id).await?;
         let course_instance =
             course_instances::get_course_instance(conn, course_instance_id).await?;
@@ -60,7 +60,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             course_instance_id,
             &thresholds,
             average_duration_seconds,
-            course_module,
+            completion,
         )
         .await?;
     }
@@ -73,23 +73,10 @@ pub async fn check_and_insert_suspected_cheaters(
     course_instance_id: Uuid,
     thresholds: &Threshold,
     average_duration_seconds: Option<i64>,
-    course_module: &CourseModule,
+    completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
-    //Fetch all course_module completion and check for suspected cheating
-    let completion = course_module_completions::get_latest_by_course_module_instance_and_user_ids(
-        conn,
-        course_module.id,
-        course_instance_id,
-        user_id,
-    )
-    .await?;
-
     if completion.grade.is_none() {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Grade is not a numeric value.".to_string(),
-            None,
-        ));
+        return Ok(());
     }
 
     let total_points =
@@ -120,15 +107,15 @@ pub async fn check_and_insert_suspected_cheaters(
     Ok(())
 }
 
-/// Creates completion for the user if eligible and previous one doesn't exist. Returns a boolean indicating
-/// whether a completion exists after calling this function.
+/// Creates completion for the user if eligible and previous one doesn't exist. Returns an Option containing
+/// the completion if one exists after calling this function.
 #[instrument(skip(conn))]
 async fn create_automatic_course_module_completion_if_eligible(
     conn: &mut PgConnection,
     course_module: &CourseModule,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<bool> {
+) -> ModelResult<Option<CourseModuleCompletion>> {
     let existing_completion =
         course_module_completions::get_automatic_completion_by_course_module_instance_and_user_ids(
             conn,
@@ -138,9 +125,9 @@ async fn create_automatic_course_module_completion_if_eligible(
         )
         .await
         .optional()?;
-    if existing_completion.is_some() {
+    if let Some(existing_completion) = existing_completion {
         // If user already has a completion, do not attempt to create a new one.
-        Ok(true)
+        Ok(Some(existing_completion))
     } else {
         let eligible = user_is_eligible_for_automatic_completion(
             conn,
@@ -154,7 +141,7 @@ async fn create_automatic_course_module_completion_if_eligible(
             let user = users::get_by_id(conn, user_id).await?;
             let user_details =
                 crate::user_details::get_user_details_by_user_id(conn, user.id).await?;
-            let _completion_id = course_module_completions::insert(
+            let completion = course_module_completions::insert(
                 conn,
                 PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
@@ -174,10 +161,10 @@ async fn create_automatic_course_module_completion_if_eligible(
             )
             .await?;
             info!("Created a completion");
-            Ok(true)
+            Ok(Some(completion))
         } else {
             // Can't grant automatic completion; no-op.
-            Ok(false)
+            Ok(None)
         }
     }
 }
@@ -400,14 +387,14 @@ pub async fn process_all_course_instance_completions(
     for user_id in users {
         let mut num_completions = 0;
         for course_module in course_modules.iter() {
-            let completion_exists = create_automatic_course_module_completion_if_eligible(
+            let completion = create_automatic_course_module_completion_if_eligible(
                 &mut tx,
                 course_module,
                 course_instance_id,
                 user_id,
             )
             .await?;
-            if completion_exists {
+            if completion.is_some() {
                 num_completions += 1;
             }
         }

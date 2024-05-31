@@ -87,8 +87,9 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     new_course_module_completion: &NewCourseModuleCompletion,
     completion_granter: CourseModuleCompletionGranter,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
         "
 INSERT INTO course_module_completions (
     id,
@@ -120,7 +121,7 @@ VALUES (
     $12,
     $13
   )
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         new_course_module_completion.course_id,
@@ -138,7 +139,7 @@ RETURNING id
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.id)
+    Ok(res)
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModuleCompletion> {

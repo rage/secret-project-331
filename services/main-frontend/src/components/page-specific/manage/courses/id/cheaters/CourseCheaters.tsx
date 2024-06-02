@@ -23,14 +23,14 @@ const Header = styled.div`
   width: 100%;
 `
 
-const cheaters = [
-  // eslint-disable-next-line i18next/no-literal-string
-  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 40, duration: 200 },
-  // eslint-disable-next-line i18next/no-literal-string
-  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 30, duration: 290 },
-  // eslint-disable-next-line i18next/no-literal-string
-  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 6, duration: 195 },
-]
+// const cheaters = [
+//   // eslint-disable-next-line i18next/no-literal-string
+//   { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 40, duration: 200 },
+//   // eslint-disable-next-line i18next/no-literal-string
+//   { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 30, duration: 290 },
+//   // eslint-disable-next-line i18next/no-literal-string
+//   { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 6, duration: 195 },
+// ]
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -38,7 +38,8 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const { t } = useTranslation()
 
   const [points, setPoints] = useState<number>()
-  const [duration, setDuration] = useState<number | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [duration, setDuration] = useState<number>()
 
   console.log("courseId", courseId)
 
@@ -55,7 +56,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
 
     const threshold = {
       points: points,
-      duration_seconds: duration,
+      duration_seconds: duration ?? 0,
     }
 
     return postThresholdMutation.mutate(threshold)
@@ -159,9 +160,10 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       >
         {t("cheaters-list")}
       </h5>
-      {suspectedCheaters.isError && (
+      {suspectedCheaters.isPending && (
         <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
       )}
+      {suspectedCheaters.isError && <Spinner variant={"medium"} />}
       {suspectedCheaters.isSuccess && suspectedCheaters.data && (
         <table
           className={css`

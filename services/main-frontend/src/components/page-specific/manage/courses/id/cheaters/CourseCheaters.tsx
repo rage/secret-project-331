@@ -9,14 +9,15 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 import {
   fetchSuspectedCheaters,
   postNewThreshold,
-} from "../../../../../../services/backend/course-instances" //
-import { ThresholdData } from "../../../../../../shared-module/bindings" //
-import Button from "../../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, headingFont, primaryFont } from "../../../../../../shared-module/styles"
+} from "../../../../../../services/backend/course-instances"
+
+import { ThresholdData } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const Header = styled.div`
   width: 100%;
@@ -36,7 +37,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
 }) => {
   const { t } = useTranslation()
 
-  const [points, setPoints] = useState<string>("")
+  const [points, setPoints] = useState<number>()
   const [duration, setDuration] = useState<number | null>(null)
 
   console.log("courseId", courseId)
@@ -49,10 +50,11 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const handleCreateNewThreshold = async () => {
     if (!points) {
       console.log("Invalid Threshold")
+      return
     }
 
     const threshold = {
-      points: Number(points),
+      points: points,
       duration_seconds: duration,
     }
 
@@ -129,29 +131,27 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           type="number"
           label={t("points")}
           placeholder={t("points")}
-          value={points}
-          onChangeByValue={(value) => setPoints(value)}
+          value={points?.toString() ?? ""}
+          onChangeByValue={(value: string) => {
+            const parsed = parseInt(value)
+            if (isNaN(parsed)) {
+              // empty
+              setPoints(undefined)
+              return
+            }
+            setPoints(parsed)
+          }}
         />
         <Button
           className="threshold-btn"
           variant="primary"
           size="medium"
-          disabled={points == "" || postThresholdMutation.isPending}
+          disabled={!points || postThresholdMutation.isPending}
           onClick={handleCreateNewThreshold}
         >
           {t("set-threshold")}
         </Button>
       </div>
-      {/* {suspectedCheaters.isError && (
-        <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
-      )}
-      {suspectedCheaters.isPending && <Spinner variant={"medium"} />}
-      {suspectedCheaters.isSuccess &&
-        suspectedCheaters.data
-          .sort((a, b) => a.created_at.localeCompare(b.created_at))
-          .map((cheater) => {
-            return <div key={cheater.id}>{cheater.user_id}</div>
-          })} */}
       <h5
         className={css`
           font-weight: 500;
@@ -159,7 +159,10 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       >
         {t("cheaters-list")}
       </h5>
-      {cheaters && (
+      {suspectedCheaters.isError && (
+        <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
+      )}
+      {suspectedCheaters.isSuccess && suspectedCheaters.data && (
         <table
           className={css`
             width: 100%;
@@ -191,12 +194,12 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             <th>{t("points")}</th>
             <th>{t("duration")}</th>
           </tr>
-          {cheaters?.map(({ id, points, duration }) => {
+          {suspectedCheaters.data?.map(({ id, total_points, total_duration_seconds }) => {
             return (
               <tr key={id}>
                 <td>{id}</td>
-                <td>{points}</td>
-                <td>{duration}</td>
+                <td>{total_points}</td>
+                <td>{total_duration_seconds}</td>
               </tr>
             )
           })}

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useRouter } from "next/router"
-import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
+import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
@@ -33,6 +33,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
@@ -249,6 +250,13 @@ const ExerciseBlock: React.FC<
     },
   )
 
+  const exerciseNameIsLong = useMemo(() => {
+    if (!getCourseMaterialExercise.data) {
+      return false
+    }
+    return getCourseMaterialExercise.data.exercise.name.length > 35
+  }, [getCourseMaterialExercise.data])
+
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
@@ -341,30 +349,35 @@ const ExerciseBlock: React.FC<
             <div
               className={css`
                 display: flex;
+                gap: 5px;
                 align-items: center;
                 margin-bottom: 1.5rem;
                 padding: 1.5rem 1.2rem;
                 background: #718dbf;
                 border-radius: 1rem 1rem 0 0;
                 color: white;
+                flex-direction: column;
+
+                ${respondToOrLarger.xxs} {
+                  flex-direction: row;
+                }
               `}
             >
               <h2
                 id={exerciseTitleId}
                 className={css`
-                  font-size: 1.7rem;
+                  font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
                   font-weight: 500;
                   font-family: ${headingFont} !important;
+                  word-break: break-word;
                   overflow: hidden;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;
+                  margin-top: -2px;
                 `}
               >
                 <div
                   className={css`
                     font-weight: 500;
                     font-size: 18px;
-                    line-height: 19px;
                     margin-bottom: 0.25rem;
                     color: #1b222c;
                   `}
@@ -373,7 +386,15 @@ const ExerciseBlock: React.FC<
                 </div>
                 <div
                   className={css`
-                    line-height: 31px;
+                    line-height: 20px;
+                    overflow: hidden;
+                    max-height: 80px;
+                    /* Prevents some characters, like 3, from clipping */
+                    padding-bottom: 0.2rem;
+
+                    ${respondToOrLarger.xs} {
+                      max-height: 60px;
+                    }
                   `}
                 >
                   {getCourseMaterialExercise.data.exercise.name}
@@ -381,7 +402,7 @@ const ExerciseBlock: React.FC<
               </h2>
               <div
                 className={css`
-                  flex: 1;
+                  flex-grow: 1;
                 `}
               />
               <div
@@ -393,11 +414,11 @@ const ExerciseBlock: React.FC<
                   border-radius: 10px;
                   background: #f0f0f0;
                   height: 60px;
-                  min-width: 80px;
                   padding: 8px 16px 6px 16px;
-                  width: auto;
+
                   color: #57606f;
                   display: flex;
+                  justify-content: center;
                   flex-direction: columns;
                   gap: 16px;
                   box-shadow:
@@ -442,6 +463,11 @@ const ExerciseBlock: React.FC<
 
                   p {
                     font-size: 16px;
+                  }
+
+                  width: 100%;
+                  ${respondToOrLarger.xxs} {
+                    width: auto;
                   }
                 `}
               >

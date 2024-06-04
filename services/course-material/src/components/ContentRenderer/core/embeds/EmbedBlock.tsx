@@ -20,12 +20,33 @@ const EmbedBlock: React.FC<React.PropsWithChildren<BlockRendererProps<EmbedAttri
 
   return (
     <div>
-      {type === "youtube" && <YoutubeEmbedBlock {...props.data.attributes} />}
+      {type === "youtube" && (
+        <YoutubeEmbedBlock
+          dontAllowBlockToBeWiderThanContainerWidth={
+            props.dontAllowBlockToBeWiderThanContainerWidth ?? false
+          }
+          {...props.data.attributes}
+        />
+      )}
       {type === "twitter" && <TwitterEmbedBlock {...props.data.attributes} />}
       {type === "spotify" && <SpotifyEmbedBlock {...props.data.attributes} />}
-      {type === "vimeo" && <VimeoEmbedBlock {...props.data.attributes} />}
+      {type === "vimeo" && (
+        <VimeoEmbedBlock
+          dontAllowBlockToBeWiderThanContainerWidth={
+            props.dontAllowBlockToBeWiderThanContainerWidth ?? false
+          }
+          {...props.data.attributes}
+        />
+      )}
       {type === "mentimeter" && <MentimeterEmbedBlock {...props.data.attributes} />}
-      {type === "thinglink" && <ThingLinkEmbedBlock {...props.data.attributes} />}
+      {type === "thinglink" && (
+        <ThingLinkEmbedBlock
+          dontAllowBlockToBeWiderThanContainerWidth={
+            props.dontAllowBlockToBeWiderThanContainerWidth ?? false
+          }
+          {...props.data.attributes}
+        />
+      )}
     </div>
   )
 }

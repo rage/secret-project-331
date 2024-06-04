@@ -86,6 +86,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             selectedBlockId={null}
             setEdits={(map) => map}
             isExam={isExam}
+            dontAllowBlockToBeWiderThanContainerWidth={true}
           />
         </div>
       )}

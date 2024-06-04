@@ -14,7 +14,9 @@ import { baseTheme } from "@/shared-module/common/styles/theme"
 
 const VIMEO_MAX_WIDTH = 780
 
-export const VimeoEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
+export const VimeoEmbedBlock: React.FC<
+  React.PropsWithChildren<EmbedAttributes & { dontAllowBlockToBeWiderThanContainerWidth: boolean }>
+> = (props) => {
   const [embedHtml, setEmbedHtml] = useState(undefined)
   const [fetching, setFetching] = useState(true)
   const { t } = useTranslation()
@@ -41,7 +43,10 @@ export const VimeoEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>>
     <>
       {fetching && <Spinner variant="medium" />}
       {embedHtml && !fetching && (
-        <BreakFromCentered sidebar={false}>
+        <BreakFromCentered
+          sidebar={false}
+          disabled={props.dontAllowBlockToBeWiderThanContainerWidth}
+        >
           <figure
             className={css`
               width: 100%;

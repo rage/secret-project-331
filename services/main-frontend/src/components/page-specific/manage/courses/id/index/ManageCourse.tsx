@@ -95,6 +95,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         >
           {course.name}
           {course.is_draft && ` (${t("draft")})`}
+          {course.is_unlisted && ` (${t("unlisted")})`}
           {course.deleted_at && ` (${t("deleted")})`}
         </h1>
         <p>

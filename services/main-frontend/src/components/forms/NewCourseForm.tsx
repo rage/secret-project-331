@@ -82,6 +82,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         teacher_in_charge_name: teacherInChargeName,
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: copyCourseUserPermissions,
       }
       if (courseId) {
@@ -115,6 +116,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         description,
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: copyCourseUserPermissions,
       })
       setName("")

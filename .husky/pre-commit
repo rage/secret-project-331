@@ -1,6 +1,9 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Makes the check faster, and the database does not have to be running to commit
+export SQLX_OFFLINE=1
+
 npx lint-staged -c ./.husky/lint-staged.config.js
 
 # Save the last time this was succesfully ran so that we can detect in post-commit if this script was skipped with --no-verify

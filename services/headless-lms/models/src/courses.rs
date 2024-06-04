@@ -43,6 +43,7 @@ pub struct Course {
     pub course_language_group_id: Uuid,
     pub is_draft: bool,
     pub is_test_mode: bool,
+    pub is_unlisted: bool,
     pub base_module_completion_requires_n_submodule_completions: i32,
 }
 
@@ -71,6 +72,7 @@ pub struct NewCourse {
     pub description: String,
     pub is_draft: bool,
     pub is_test_mode: bool,
+    pub is_unlisted: bool,
     /// If true, copies all user permissions from the original course to the new one.
     pub copy_user_permissions: bool,
 }
@@ -149,6 +151,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE deleted_at IS NULL;
@@ -180,6 +183,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.deleted_at IS NULL
@@ -218,6 +222,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.deleted_at IS NULL
@@ -268,6 +273,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE course_language_group_id = $1
@@ -303,6 +309,7 @@ SELECT
     c.description,
     c.is_draft,
     c.is_test_mode,
+    c.is_unlisted,
     c.base_module_completion_requires_n_submodule_completions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
@@ -363,6 +370,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id = $1;
@@ -465,11 +473,15 @@ SELECT courses.id,
   courses.description,
   courses.is_draft,
   courses.is_test_mode,
+  courses.is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.organization_id = $1
   AND (
-    courses.is_draft IS FALSE
+    (
+      courses.is_draft IS FALSE
+      AND courses.is_unlisted IS FALSE
+    )
     OR EXISTS (
       SELECT id
       FROM roles
@@ -523,6 +535,7 @@ pub struct CourseUpdate {
     description: Option<String>,
     is_draft: bool,
     is_test_mode: bool,
+    is_unlisted: bool,
 }
 
 pub async fn update_course(
@@ -537,8 +550,9 @@ UPDATE courses
 SET name = $1,
   description = $2,
   is_draft = $3,
-  is_test_mode = $4
-WHERE id = $5
+  is_test_mode = $4,
+  is_unlisted = $5
+WHERE id = $6
 RETURNING id,
   name,
   created_at,
@@ -553,12 +567,14 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "#,
         course_update.name,
         course_update.description,
         course_update.is_draft,
         course_update.is_test_mode,
+        course_update.is_unlisted,
         course_id
     )
     .fetch_one(conn)
@@ -607,6 +623,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "#,
         course_id
@@ -634,6 +651,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE slug = $1
@@ -706,6 +724,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
@@ -816,6 +835,7 @@ mod test {
                 description: "description".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                is_unlisted: false,
                 copy_user_permissions: false,
             }
         }

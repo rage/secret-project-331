@@ -64,6 +64,7 @@ pub mod playground_examples;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
 pub mod regradings;
+pub mod rejected_exercise_slide_submissions;
 pub mod repository_exercises;
 pub mod research_forms;
 pub mod roles;

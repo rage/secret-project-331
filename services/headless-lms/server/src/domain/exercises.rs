@@ -18,7 +18,7 @@ pub async fn process_submission(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: Exercise,
-    submission: StudentExerciseSlideSubmission,
+    submission: &StudentExerciseSlideSubmission,
     jwt_key: Arc<JwtKey>,
 ) -> Result<StudentExerciseSlideSubmissionResult, ControllerError> {
     enforce_deadline(conn, &exercise).await?;

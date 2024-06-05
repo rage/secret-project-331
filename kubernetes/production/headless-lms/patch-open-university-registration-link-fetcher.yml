@@ -1,3 +1,0 @@
-- op: replace
-  path: "/spec/jobTemplate/spec/template/spec/containers/0/command"
-  value: ["./headless-lms-entrypoint", "open-university-registration-link-fetcher"]

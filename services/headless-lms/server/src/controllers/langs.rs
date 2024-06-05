@@ -244,7 +244,7 @@ async fn submit_exercise(
         &mut conn,
         user.id,
         exercise,
-        StudentExerciseSlideSubmission {
+        &StudentExerciseSlideSubmission {
             exercise_slide_id: submission.exercise_slide_id,
             exercise_task_submissions: vec![StudentExerciseTaskSubmission {
                 exercise_task_id: submission.exercise_task_id,

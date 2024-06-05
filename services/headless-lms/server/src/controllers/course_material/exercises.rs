@@ -202,6 +202,7 @@ async fn post_submission(
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
+    let submission = payload.0;
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let token = authorize(
@@ -214,12 +215,36 @@ async fn post_submission(
     let result = domain::exercises::process_submission(
         &mut conn,
         user.id,
-        exercise,
-        payload.0,
+        exercise.clone(),
+        &submission,
         jwt_key.into_inner(),
     )
-    .await?;
-    token.authorized_ok(web::Json(result))
+    .await;
+    return match result {
+        Ok(res) => token.authorized_ok(web::Json(res)),
+        Err(err) => {
+            match models::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
+                &mut conn,
+                &submission,
+                user.id,
+            )
+            .await {
+                Ok(_) => {
+                    warn!(
+                        "Submission was rejected but it was saved for debugging purposes. User id: {}, Exercise id: {}",
+                        user.id, exercise.id
+                    );
+                },
+                Err(_) => {
+                    error!(
+                        "Submission was rejected and saving it for debugging purposes failed. User id: {}, Exercise id: {}",
+                        user.id, exercise.id
+                    );
+                },
+            }
+            Err(err)
+        }
+    };
 }
 
 /**

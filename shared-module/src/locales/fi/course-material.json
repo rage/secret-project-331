@@ -100,6 +100,8 @@
   "label-country": "Maa",
   "label-course-instance": "Kurssiversio",
   "label-exercise": "Tehtävä",
+  "label-exercise-name": "Tehtävän nimi",
+  "label-feedback": "Palaute",
   "language-language": "Kieli: {{language}}",
   "link-text-open-accessible-view-of-this-content": "Avaa saavutettava näkymä tästä sisällöstä",
   "loading": "Lataa",

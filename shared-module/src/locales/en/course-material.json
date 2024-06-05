@@ -98,6 +98,8 @@
   "label-country": "Country",
   "label-course-instance": "Course instance",
   "label-exercise": "Exercise",
+  "label-exercise-name": "Exercise name",
+  "label-feedback": "Feedback",
   "language-language": "Language: {{language}}",
   "link-text-open-accessible-view-of-this-content": "Open an accessible view of this content.",
   "loading": "Loading",

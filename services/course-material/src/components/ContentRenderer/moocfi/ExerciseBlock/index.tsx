@@ -386,7 +386,7 @@ const ExerciseBlock: React.FC<
                 </div>
                 <div
                   className={css`
-                    line-height: 20px;
+                    line-height: 30px;
                     overflow: hidden;
                     max-height: 80px;
                     /* Prevents some characters, like 3, from clipping */
@@ -485,9 +485,22 @@ const ExerciseBlock: React.FC<
                   </div>
                 )}
                 {isExam && points === null ? (
-                  <>
-                    {t("max-points")}: {getCourseMaterialExercise.data.exercise.score_maximum}
-                  </>
+                  <div
+                    className={css`
+                      display: flex;
+                      flex-direction: column;
+                    `}
+                  >
+                    <div>{t("max-points")}</div>{" "}
+                    <div
+                      className={css`
+                        font-size: 1rem;
+                        margin-top: 3px;
+                      `}
+                    >
+                      {getCourseMaterialExercise.data.exercise.score_maximum}
+                    </div>
+                  </div>
                 ) : (
                   <div>
                     <span className="heading">{t("points-label")}</span>

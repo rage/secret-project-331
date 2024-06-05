@@ -129,6 +129,7 @@ export interface PrivateSpecQuizItemMatrix {
   type: "matrix"
   id: string
   order: number
+  title?: string | null
   optionCells: string[][] | null
   successMessage: string | null
   failureMessage: string | null
@@ -150,6 +151,7 @@ export interface PrivateSpecQuizItemTimeline {
   type: "timeline"
   id: string
   order: number
+  title?: string | null
   successMessage: string | null
   failureMessage: string | null
   timelineItems: PrivateSpecQuizItemTimelineItem[] | null

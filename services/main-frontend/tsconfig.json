@@ -5,7 +5,7 @@
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "typeRoots": ["types", "./shared-module/src/types", "./node_modules/@types"],
+    "typeRoots": ["types", "./shared-module/packages/common/src/types", "./node_modules/@types"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

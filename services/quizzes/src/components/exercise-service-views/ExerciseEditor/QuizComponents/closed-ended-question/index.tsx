@@ -191,9 +191,19 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       )
     })
 
+  const { selected: totalNumberOfQuizItems } = useQuizzesExerciseServiceOutputState<number>(
+    (quiz) => {
+      return quiz?.items.length ?? 0
+    },
+  )
+
   if (!selected) {
-    return <></>
+    return null
   }
+
+  const showTitleEditor =
+    (totalNumberOfQuizItems && totalNumberOfQuizItems > 1) || !!selected?.title
+
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
     setTestStrings(
       testStrings.map((content, idx) => {
@@ -211,6 +221,20 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-open-name")}>
+      {showTitleEditor && (
+        <ParsedTextField
+          value={selected.title ?? null}
+          onChange={(title) => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+              draft.title = title
+            })
+          }}
+          label={t("title")}
+        />
+      )}
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton

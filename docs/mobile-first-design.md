@@ -8,7 +8,7 @@ In summary mobile first design is to start the design process from the smallest 
 
 ## In practice
 
-Use [respondToOrLarger](secret-project-331/shared-module/src/styles/respond.ts) in your css. Its a helper tool to easily implement media-queries in to your css. **Always** first design how the component looks in a mobile viewport and inside media-query block implement the design if the screen gets bigger.
+Use [respondToOrLarger](secret-project-331/shared-module/packages/common/src/styles/respond.ts) in your css. Its a helper tool to easily implement media-queries in to your css. **Always** first design how the component looks in a mobile viewport and inside media-query block implement the design if the screen gets bigger.
 
 eg.
 

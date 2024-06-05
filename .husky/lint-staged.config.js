@@ -22,6 +22,6 @@ module.exports = {
     `./bin/check-no-test-only-in-system-tests`,
     "npx tsc -p system-tests --noEmit",
   ],
-  "shared-module/src/locales/**/*.json": () => ["./bin/translations-sort"],
+  "shared-module/packages/common/src/locales/**/*.json": () => ["./bin/translations-sort"],
   ".github/workflows/**/*.{yaml,yml}": () => ["actionlint"],
 }

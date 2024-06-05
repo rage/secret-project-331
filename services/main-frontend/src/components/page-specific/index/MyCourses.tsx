@@ -43,6 +43,7 @@ const MyCourses: React.FC = () => {
             key={course.id}
             title={course.name}
             isDraft={course.is_draft}
+            isUnlisted={course.is_unlisted}
             description={course.description ?? t("no-description-available")}
             languageCode={course.language_code}
             // eslint-disable-next-line i18next/no-literal-string

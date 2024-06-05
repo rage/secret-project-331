@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND id IN (\n    SELECT current_course_id\n    FROM user_course_settings\n    WHERE deleted_at IS NULL\n      AND user_id = $1\n  )\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE deleted_at IS NULL;\n",
   "describe": {
     "columns": [
       {
@@ -75,12 +75,17 @@
       },
       {
         "ordinal": 14,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": []
     },
     "nullable": [
       false,
@@ -97,8 +102,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "c29beafcfca9c0256cdec3e35a39b58b584943c381f4c41a829501dd53a0b6eb"
+  "hash": "197a084c6d805765dd54a024da011ec213c196308f46ef2fb598bba3a5e443a6"
 }

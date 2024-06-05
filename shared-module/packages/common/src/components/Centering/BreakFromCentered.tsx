@@ -3,6 +3,7 @@ import React from "react"
 
 interface NoSidebar {
   sidebar: false
+  disabled?: boolean
 }
 
 export interface WithSidebar {
@@ -10,6 +11,7 @@ export interface WithSidebar {
   sidebarPosition: "left" | "right"
   sidebarWidth: string
   sidebarThreshold?: string
+  disabled?: boolean
 }
 
 export type BreakFromCenteredProps = NoSidebar | WithSidebar
@@ -17,6 +19,9 @@ export type BreakFromCenteredProps = NoSidebar | WithSidebar
 const BreakFromCentered: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<BreakFromCenteredProps>>
 > = (props) => {
+  if (props.disabled) {
+    return <>{props.children}</>
+  }
   // 100vw unfortunately does not take into account the scrollbar width, so we need to calculate its width and substract it from the width of the page
   let scrollbarWidth = 0
   if (typeof window !== "undefined") {

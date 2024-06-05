@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  ",
+  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.is_unlisted,\n    c.base_module_completion_requires_n_submodule_completions\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
   "describe": {
     "columns": [
       {
@@ -75,12 +75,17 @@
       },
       {
         "ordinal": 14,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": ["Uuid", "Int8", "Int8"]
     },
     "nullable": [
       false,
@@ -97,8 +102,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "eacbff7bf42744f9246cd682dadbba105d53a3f37cace5a67bb0184ca1e38f56"
+  "hash": "1eccfb026fe12444a38b2281553f48e44834da058d475d9a9176c01e24814319"
 }

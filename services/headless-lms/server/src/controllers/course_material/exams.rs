@@ -1,7 +1,11 @@
 use chrono::{DateTime, Duration, Utc};
+use headless_lms_models::exercises::Exercise;
 use models::{
     exams::{self, ExamEnrollment},
+    exercises,
     pages::{self, Page},
+    teacher_grading_decisions::{self, TeacherGradingDecision},
+    user_exercise_states,
 };
 
 use crate::prelude::*;
@@ -110,6 +114,11 @@ pub enum ExamEnrollmentData {
     NotYetStarted,
     /// The exam is still open but the student has run out of time.
     StudentTimeUp,
+    // Exam is still open but student can view published grading results
+    StudentCanViewGrading {
+        gradings: Vec<(TeacherGradingDecision, Exercise)>,
+        enrollment: ExamEnrollment,
+    },
 }
 
 /**
@@ -164,6 +173,52 @@ pub async fn fetch_exam_for_user(
     let enrollment = if let Some(enrollment) =
         exams::get_enrollment(&mut conn, *exam_id, user.id).await?
     {
+        // Get the grading results, if the student has any
+        let teachers_grading_decisions_list =
+            teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_exam_id(
+                &mut conn, user.id, *exam_id,
+            )
+            .await?;
+        let teacher_grading_decisions = teachers_grading_decisions_list.clone();
+        let mut grading_decision_and_exercise_list: Vec<(TeacherGradingDecision, Exercise)> =
+            Vec::new();
+
+        // Check if student has any published grading results they can view at the exam page
+        for grading_decision in teachers_grading_decisions_list.into_iter() {
+            if let Some(hidden) = grading_decision.hidden {
+                if !hidden {
+                    // Get the corresponding exercise for the grading result
+                    for grading in teacher_grading_decisions.into_iter() {
+                        let user_exercise_state = user_exercise_states::get_by_id(
+                            &mut conn,
+                            grading.user_exercise_state_id,
+                        )
+                        .await?;
+                        let exercise =
+                            exercises::get_by_id(&mut conn, user_exercise_state.exercise_id)
+                                .await?;
+                        grading_decision_and_exercise_list.push((grading, exercise));
+                    }
+
+                    let token =
+                        authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+                    return token.authorized_ok(web::Json(ExamData {
+                        id: exam.id,
+                        name: exam.name,
+                        instructions: exam.instructions,
+                        starts_at,
+                        ends_at,
+                        ended,
+                        time_minutes: exam.time_minutes,
+                        enrollment_data: ExamEnrollmentData::StudentCanViewGrading {
+                            gradings: grading_decision_and_exercise_list,
+                            enrollment,
+                        },
+                        language: exam.language,
+                    }));
+                }
+            }
+        }
         // user has started the exam
         if Utc::now() < ends_at
             && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())

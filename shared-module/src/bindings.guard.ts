@@ -3319,7 +3319,17 @@ export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "NotYetStarted") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["tag"] === "StudentTimeUp")
+      typedObj["tag"] === "StudentTimeUp") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "StudentCanViewGrading" &&
+      Array.isArray(typedObj["gradings"]) &&
+      typedObj["gradings"].every(
+        (e: any) =>
+          Array.isArray(e) &&
+          (isTeacherGradingDecision(e[0]) as boolean) &&
+          (isExercise(e[1]) as boolean),
+      ) &&
+      (isExamEnrollment(typedObj["enrollment"]) as boolean))
   )
 }
 

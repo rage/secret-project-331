@@ -1880,6 +1880,11 @@ export type ExamEnrollmentData =
   | { tag: "NotEnrolled"; can_enroll: boolean }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
+  | {
+      tag: "StudentCanViewGrading"
+      gradings: Array<[TeacherGradingDecision, Exercise]>
+      enrollment: ExamEnrollment
+    }
 
 export interface CourseMaterialPeerReviewDataWithToken {
   course_material_peer_review_data: CourseMaterialPeerReviewData

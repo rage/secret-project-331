@@ -228,6 +228,39 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     )
   }
 
+  if (exam.data.enrollment_data.tag === "StudentCanViewGrading") {
+    return (
+      <>
+        {examInfo}
+        {exam.data.enrollment_data.gradings.map(
+          (grade) =>
+            !grade[0].hidden && (
+              <div
+                key={grade[0].id}
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                  padding: 10px;
+                  border: 2px solid gray;
+                  margin: 10px;
+                `}
+              >
+                <div>
+                  {t("label-exercise-name")}: {grade[1].name}
+                </div>
+                <div>
+                  {t("label-feedback")}: {grade[0].justification}
+                </div>
+                <div>
+                  {t("points")}: {grade[0].score_given}
+                </div>
+              </div>
+            ),
+        )}
+      </>
+    )
+  }
+
   const endsAt = exam.data.ends_at
     ? min([
         addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes),

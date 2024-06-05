@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
+  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  is_unlisted = $5\nWHERE id = $6\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\n    ",
   "describe": {
     "columns": [
       {
@@ -75,12 +75,17 @@
       },
       {
         "ordinal": 14,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": ["Varchar", "Text", "Bool", "Bool", "Bool", "Uuid"]
     },
     "nullable": [
       false,
@@ -97,8 +102,9 @@
       true,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "9b49a1a2d7f0ba69c11599bcf459f7c8a0b39c49ce86f5c211c62fa09a0dfedc"
+  "hash": "7866794b059a927d7dfabad56a9845c6689125e61fe0008f3def8893a1fd20a0"
 }

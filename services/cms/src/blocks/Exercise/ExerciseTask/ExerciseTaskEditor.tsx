@@ -22,7 +22,30 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
+const ALLOWED_NESTED_BLOCKS = [
+  "core/paragraph",
+  "core/image",
+  "core/heading",
+  "core/list",
+  "core/list-item",
+  "core/quote",
+  "core/audio",
+  "core/code",
+  "core/columns",
+  "core/column", // core/column is child of core/columns
+  "core/embed", // This is used by youtube, twitter etc.
+  "core/file",
+  "core/html",
+  "core/preformatted",
+  "core/pullquote",
+  "core/separator",
+  "core/block",
+  "core/spacer",
+  "core/table",
+  "core/verse",
+  "moocfi/latex",
+  "moocfi/iframe",
+]
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;

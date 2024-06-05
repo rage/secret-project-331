@@ -76,6 +76,8 @@ export interface ContentRendererProps {
   isExam: boolean
   /// This wrapper div providing styles must be skipped for innerblocks because list block's inner blocks cannot contain any div elements. See: https://dequeuniversity.com/rules/axe/4.4/list
   dontAddWrapperDivMeantForMostOutermostContentRenderer?: boolean
+  // e.g. makes embed blocks less wide inside exercise task blocks.
+  dontAllowBlockToBeWiderThanContainerWidth?: boolean
 }
 
 /**
@@ -248,6 +250,9 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               setEdits={props.setEdits}
               isExam={props.isExam}
               wrapperClassName={wrapperClassName}
+              dontAllowBlockToBeWiderThanContainerWidth={
+                props.dontAllowBlockToBeWiderThanContainerWidth
+              }
             />
           )
         }
@@ -262,6 +267,9 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
               setEdits={props.setEdits}
               isExam={props.isExam}
               wrapperClassName={wrapperClassName}
+              dontAllowBlockToBeWiderThanContainerWidth={
+                props.dontAllowBlockToBeWiderThanContainerWidth
+              }
             />
           </div>
         )

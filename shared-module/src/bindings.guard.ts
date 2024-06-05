@@ -1286,6 +1286,7 @@ export function isExerciseSlideSubmissionAndUserExerciseState(
   const typedObj = obj as ExerciseSlideSubmissionAndUserExerciseState
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isExercise(typedObj["exercise"]) as boolean) &&
     (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean) &&
     (isUserExerciseState(typedObj["user_exercise_state"]) as boolean) &&
     (typedObj["teacher_grading_decision"] === null ||
@@ -2957,7 +2958,7 @@ export function isNewTeacherGradingDecision(obj: unknown): obj is NewTeacherGrad
     (isTeacherDecisionType(typedObj["action"]) as boolean) &&
     (typedObj["manual_points"] === null || typeof typedObj["manual_points"] === "number") &&
     (typedObj["justification"] === null || typeof typedObj["justification"] === "string") &&
-    (typedObj["hidden"] === null || typedObj["hidden"] === false || typedObj["hidden"] === true)
+    typeof typedObj["hidden"] === "boolean"
   )
 }
 

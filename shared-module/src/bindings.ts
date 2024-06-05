@@ -650,6 +650,7 @@ export interface ExerciseSlideSubmissionInfo {
 }
 
 export interface ExerciseSlideSubmissionAndUserExerciseState {
+  exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
   user_exercise_state: UserExerciseState
   teacher_grading_decision: TeacherGradingDecision | null
@@ -1642,7 +1643,7 @@ export interface NewTeacherGradingDecision {
   action: TeacherDecisionType
   manual_points: number | null
   justification: string | null
-  hidden: boolean | null
+  hidden: boolean
 }
 
 export type TeacherDecisionType =

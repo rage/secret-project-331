@@ -13,3 +13,11 @@ export const fetchExerciseSubmissions = async (
   )
   return validateResponse(response, isExerciseSubmissions)
 }
+
+export interface Block<T> {
+  name: string
+  isValid: boolean
+  clientId: string
+  attributes: T
+  innerBlocks: Block<unknown>[]
+}

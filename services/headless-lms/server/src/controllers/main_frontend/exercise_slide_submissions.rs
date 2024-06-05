@@ -161,7 +161,6 @@ async fn add_teacher_grading(
     let user_exercise_state_id = payload.user_exercise_state_id;
     let manual_points = payload.manual_points;
     let justification = &payload.justification;
-    let hidden = payload.hidden;
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -170,6 +169,7 @@ async fn add_teacher_grading(
         Res::Exercise(exercise_id),
     )
     .await?;
+
     let points_given;
     if *action == TeacherDecisionType::FullPoints {
         let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
@@ -177,7 +177,18 @@ async fn add_teacher_grading(
     } else if *action == TeacherDecisionType::ZeroPoints {
         points_given = 0.0;
     } else if *action == TeacherDecisionType::CustomPoints {
+        let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
+        let max_points = exercise.score_maximum as f32;
+
         points_given = manual_points.unwrap_or(0.0);
+
+        if max_points < points_given {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Cannot give more points than maximum score".to_string(),
+                None,
+            ));
+        }
     } else if *action == TeacherDecisionType::SuspectedPlagiarism {
         points_given = 0.0;
     } else {
@@ -202,14 +213,9 @@ async fn add_teacher_grading(
         points_given,
         Some(user.id),
         justification.clone(),
-        hidden,
+        true,
     )
     .await?;
-
-    if !hidden {
-        user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state_id)
-            .await?;
-    }
 
     tx.commit().await?;
 

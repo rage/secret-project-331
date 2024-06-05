@@ -143,3 +143,69 @@ WHERE user_exercise_state_id IN (
     .await?;
     Ok(res)
 }
+
+pub async fn get_all_latest_grading_decisions_by_user_id_and_exam_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exam_id: Uuid,
+) -> ModelResult<Vec<TeacherGradingDecision>> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+SELECT DISTINCT ON (user_exercise_state_id)
+  id,
+  user_exercise_state_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden
+FROM teacher_grading_decisions
+WHERE user_exercise_state_id IN (
+    SELECT user_exercise_states.id
+    FROM user_exercise_states
+    WHERE user_exercise_states.user_id = $1
+      AND user_exercise_states.exam_id = $2
+      AND user_exercise_states.deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+  ORDER BY user_exercise_state_id, created_at DESC
+      "#,
+        user_id,
+        exam_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn update_teacher_grading_decision_hidden_field(
+    conn: &mut PgConnection,
+    teacher_grading_decision_id: Uuid,
+    hidden: bool,
+) -> ModelResult<TeacherGradingDecision> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+        UPDATE teacher_grading_decisions
+        SET hidden = $1
+        WHERE id = $2
+        RETURNING id,
+          user_exercise_state_id,
+          created_at,
+          updated_at,
+          deleted_at,
+          score_given,
+          teacher_decision AS "teacher_decision: _",
+          justification,
+          hidden;
+              "#,
+        hidden,
+        teacher_grading_decision_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

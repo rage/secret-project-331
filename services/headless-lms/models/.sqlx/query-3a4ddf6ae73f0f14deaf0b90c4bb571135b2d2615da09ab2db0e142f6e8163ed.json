@@ -1,0 +1,65 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE teacher_grading_decisions\n        SET hidden = $1\n        WHERE id = $2\n        RETURNING id,\n          user_exercise_state_id,\n          created_at,\n          updated_at,\n          deleted_at,\n          score_given,\n          teacher_decision AS \"teacher_decision: _\",\n          justification,\n          hidden;\n              ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_exercise_state_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "score_given",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 6,
+        "name": "teacher_decision: _",
+        "type_info": {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "justification",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Bool", "Uuid"]
+    },
+    "nullable": [false, false, false, false, true, false, false, true, false]
+  },
+  "hash": "3a4ddf6ae73f0f14deaf0b90c4bb571135b2d2615da09ab2db0e142f6e8163ed"
+}

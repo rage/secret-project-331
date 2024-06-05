@@ -2,7 +2,9 @@ import {
   CourseExam,
   Exam,
   ExamCourseInfo,
+  Exercise,
   ExerciseSlideSubmission,
+  ExerciseSlideSubmissionAndUserExerciseState,
   ExerciseSlideSubmissionAndUserExerciseStateList,
   NewExam,
   Organization,
@@ -10,10 +12,11 @@ import {
   UserExerciseState,
 } from "../../shared-module/bindings"
 import {
+  isExercise,
   isExerciseSlideSubmissionAndUserExerciseStateList,
   isOrganization,
 } from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
+import { isArray, validateResponse } from "../../shared-module/utils/fetching"
 import { mainFrontendClient } from "../mainFrontendClient"
 
 export const createExam = async (organizationId: string, data: NewExam) => {
@@ -67,13 +70,36 @@ export interface GradingInfo {
   total_pages: number
 }
 
-export const fetchExerciseSubmissionsWithExamId = async (
+export const fetchExerciseSubmissionsAndUserExerciseStatesWithExamId = async (
   examId: string,
+  page: number,
+  limit: number,
+): Promise<Array<ExerciseSlideSubmissionAndUserExerciseStateList>> => {
+  const response = await mainFrontendClient.get(
+    `/exams/${examId}/submissions-with-exam-id?page=${page}&limit=${limit}`,
+  )
+  return validateResponse(response, isArray(isExerciseSlideSubmissionAndUserExerciseStateList))
+}
+
+export const fetchExerciseSubmissionsAndUserExerciseStatesWithExerciseId = async (
+  exerciseId: string,
   page: number,
   limit: number,
 ): Promise<ExerciseSlideSubmissionAndUserExerciseStateList> => {
   const response = await mainFrontendClient.get(
-    `/exams/${examId}/submissions?page=${page}&limit=${limit}`,
+    `/exams/${exerciseId}/submissions?page=${page}&limit=${limit}`,
   )
   return validateResponse(response, isExerciseSlideSubmissionAndUserExerciseStateList)
+}
+
+export const fetchExercisesWithExamId = async (examId: string): Promise<Array<Exercise>> => {
+  const response = await mainFrontendClient.get(`/exams/${examId}/exam-exercises`)
+  return validateResponse(response, isArray(isExercise))
+}
+
+export const releaseGrades = async (
+  examId: string,
+  submissions: Array<ExerciseSlideSubmissionAndUserExerciseState>,
+) => {
+  await mainFrontendClient.post(`/exams/${examId}/release-grades`, submissions)
 }

@@ -10,7 +10,7 @@ use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_tasks::CourseMaterialExerciseTask,
-    exercises::{Exercise, GradingProgress},
+    exercises::{self, Exercise, GradingProgress},
     prelude::*,
     teacher_grading_decisions::{self, TeacherGradingDecision},
     user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
@@ -114,15 +114,16 @@ pub struct ExerciseSlideSubmissionInfo {
     pub exercise_slide_submission: ExerciseSlideSubmission,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionAndUserExerciseState {
+    pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
     pub user_exercise_state: UserExerciseState,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
     pub data: Vec<ExerciseSlideSubmissionAndUserExerciseState>,
@@ -485,9 +486,27 @@ AND deleted_at IS NULL
     Ok(count.count.unwrap_or(0).try_into()?)
 }
 
-pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exam_id(
+pub async fn exercise_slide_submission_count_with_exercise_id(
     conn: &mut PgConnection,
-    exam_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        "
+SELECT COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+AND deleted_at IS NULL
+",
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
     pagination: Pagination,
 ) -> ModelResult<Vec<ExerciseSlideSubmissionAndUserExerciseState>> {
     let submissions = sqlx::query_as!(
@@ -505,12 +524,12 @@ pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exam_i
         user_id,
         user_points_update_strategy AS "user_points_update_strategy: _"
     FROM exercise_slide_submissions
-    WHERE exam_id = $1
+    WHERE exercise_id = $1
       AND deleted_at IS NULL
       AND created_at in (SELECT MAX(created_at) FROM exercise_slide_submissions GROUP BY user_id, exercise_slide_id)
     LIMIT $2 OFFSET $3
         "#,
-        exam_id,
+        exercise_id,
         pagination.limit(),
         pagination.offset(),
     )
@@ -524,12 +543,15 @@ pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exam_i
             sub.user_id,
             sub.exercise_id,
             None,
-            Some(exam_id),
+            Some(sub.exam_id.unwrap()),
         )
         .await?;
 
         let decision = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id(conn, res.id).await?;
+
+        let exercise = exercises::get_by_id(conn, exercise_id).await?;
         let data = ExerciseSlideSubmissionAndUserExerciseState {
+            exercise,
             exercise_slide_submission: sub,
             user_exercise_state: res,
             teacher_grading_decision: decision,

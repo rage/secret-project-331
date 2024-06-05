@@ -4786,6 +4786,11 @@
 <a href="#4785" id="4785">4785</a>
 <a href="#4786" id="4786">4786</a>
 <a href="#4787" id="4787">4787</a>
+<a href="#4788" id="4788">4788</a>
+<a href="#4789" id="4789">4789</a>
+<a href="#4790" id="4790">4790</a>
+<a href="#4791" id="4791">4791</a>
+<a href="#4792" id="4792">4792</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4873,6 +4878,7 @@
         description: <span class="string">"Sample course."</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, _front_page, default_instance, default_module) =
@@ -6795,6 +6801,7 @@
         description: <span class="string">"Sample course."</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
     };
 
@@ -6918,6 +6925,7 @@
         description: <span class="string">"The definitive introduction to course material."</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, front_page, default_instance, default_module) =
@@ -7794,6 +7802,7 @@
         description: <span class="string">"Sample course."</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
     };
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(
@@ -9198,6 +9207,7 @@
         description: <span class="string">"Sample course."</span>.to_string(),
         is_draft: <span class="bool-val">false</span>,
         is_test_mode: <span class="bool-val">false</span>,
+        is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
     };
 

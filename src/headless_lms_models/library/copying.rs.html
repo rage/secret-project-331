@@ -1159,6 +1159,10 @@
 <a href="#1158" id="1158">1158</a>
 <a href="#1159" id="1159">1159</a>
 <a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1207,9 +1211,10 @@ INSERT INTO courses (
     copied_from,
     course_language_group_id,
     is_draft,
+    is_unlisted,
     base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id,
   name,
   created_at,
@@ -1224,6 +1229,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "</span>,
         new_course.name,
@@ -1234,6 +1240,7 @@ RETURNING id,
         parent_course.id,
         course_language_group_id,
         new_course.is_draft,
+        new_course.is_unlisted,
         parent_course.base_module_completion_requires_n_submodule_completions,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
@@ -2314,6 +2321,7 @@ AND deleted_at IS NULL;
                 description: <span class="string">""</span>.to_string(),
                 is_draft: <span class="bool-val">true</span>,
                 is_test_mode: <span class="bool-val">false</span>,
+                is_unlisted: <span class="bool-val">false</span>,
                 copy_user_permissions: <span class="bool-val">false</span>,
             }
         }

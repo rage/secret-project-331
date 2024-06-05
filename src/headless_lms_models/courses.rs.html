@@ -822,6 +822,26 @@
 <a href="#821" id="821">821</a>
 <a href="#822" id="822">822</a>
 <a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>headless_lms_utils::{
     file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME, ApplicationConfiguration,
 };
@@ -867,6 +887,7 @@
     <span class="kw">pub </span>course_language_group_id: Uuid,
     <span class="kw">pub </span>is_draft: bool,
     <span class="kw">pub </span>is_test_mode: bool,
+    <span class="kw">pub </span>is_unlisted: bool,
     <span class="kw">pub </span>base_module_completion_requires_n_submodule_completions: i32,
 }
 
@@ -895,6 +916,7 @@
     <span class="kw">pub </span>description: String,
     <span class="kw">pub </span>is_draft: bool,
     <span class="kw">pub </span>is_test_mode: bool,
+    <span class="kw">pub </span>is_unlisted: bool,
     <span class="doccomment">/// If true, copies all user permissions from the original course to the new one.
     </span><span class="kw">pub </span>copy_user_permissions: bool,
 }
@@ -973,6 +995,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE deleted_at IS NULL;
@@ -1004,6 +1027,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.deleted_at IS NULL
@@ -1042,6 +1066,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.deleted_at IS NULL
@@ -1092,6 +1117,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE course_language_group_id = $1
@@ -1127,6 +1153,7 @@ SELECT
     c.description,
     c.is_draft,
     c.is_test_mode,
+    c.is_unlisted,
     c.base_module_completion_requires_n_submodule_completions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
@@ -1187,6 +1214,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id = $1;
@@ -1289,11 +1317,15 @@ SELECT courses.id,
   courses.description,
   courses.is_draft,
   courses.is_test_mode,
+  courses.is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.organization_id = $1
   AND (
-    courses.is_draft IS FALSE
+    (
+      courses.is_draft IS FALSE
+      AND courses.is_unlisted IS FALSE
+    )
     OR EXISTS (
       SELECT id
       FROM roles
@@ -1347,6 +1379,7 @@ WHERE organization_id = $1
     description: <span class="prelude-ty">Option</span>&lt;String&gt;,
     is_draft: bool,
     is_test_mode: bool,
+    is_unlisted: bool,
 }
 
 <span class="kw">pub async fn </span>update_course(
@@ -1361,8 +1394,9 @@ UPDATE courses
 SET name = $1,
   description = $2,
   is_draft = $3,
-  is_test_mode = $4
-WHERE id = $5
+  is_test_mode = $4,
+  is_unlisted = $5
+WHERE id = $6
 RETURNING id,
   name,
   created_at,
@@ -1377,12 +1411,14 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "#</span>,
         course_update.name,
         course_update.description,
         course_update.is_draft,
         course_update.is_test_mode,
+        course_update.is_unlisted,
         course_id
     )
     .fetch_one(conn)
@@ -1431,6 +1467,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "#</span>,
         course_id
@@ -1458,6 +1495,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE slug = $1
@@ -1530,6 +1568,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
@@ -1640,6 +1679,7 @@ WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
                 description: <span class="string">"description"</span>.to_string(),
                 is_draft: <span class="bool-val">false</span>,
                 is_test_mode: <span class="bool-val">false</span>,
+                is_unlisted: <span class="bool-val">false</span>,
                 copy_user_permissions: <span class="bool-val">false</span>,
             }
         }

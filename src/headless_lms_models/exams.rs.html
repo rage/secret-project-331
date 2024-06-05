@@ -490,6 +490,7 @@
 <a href="#489" id="489">489</a>
 <a href="#490" id="490">490</a>
 <a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>chrono::Duration;
 
 <span class="kw">use crate</span>::{courses::Course, prelude::<span class="kw-2">*</span>};
@@ -582,6 +583,7 @@ SELECT id,
   course_language_group_id,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id

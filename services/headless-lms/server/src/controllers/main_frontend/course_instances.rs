@@ -454,10 +454,7 @@ async fn get_all_suspected_cheaters(
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<SuspectedCheaters>>> {
     let course_instance_id = params.into_inner();
-    println!(
-        "@@@@@@@@new_course_instance_id in gac: {:?}",
-        course_instance_id
-    );
+
     let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
@@ -467,9 +464,6 @@ async fn get_all_suspected_cheaters(
     )
     .await?;
 
-    // let course_instance =
-    //     course_instances::get_course_instance(&mut conn, course_instance_id).await?;
-
     let course_cheaters =
         models::suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
             &mut conn,
@@ -477,7 +471,6 @@ async fn get_all_suspected_cheaters(
         )
         .await?;
 
-    println!("@@@@@@new_course_cheaters: {:?}", course_cheaters);
     token.authorized_ok(web::Json(course_cheaters))
 }
 
@@ -495,7 +488,7 @@ async fn insert_threshold(
 
     let course_instance_id = params.into_inner();
     let new_threshold = payload.0;
-    let duration: Option<i32> = None;
+    let duration: Option<i32> = new_threshold.duration_seconds;
 
     let token = authorize(
         &mut conn,

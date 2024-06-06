@@ -23,25 +23,13 @@ const Header = styled.div`
   width: 100%;
 `
 
-// const cheaters = [
-//   // eslint-disable-next-line i18next/no-literal-string
-//   { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 40, duration: 200 },
-//   // eslint-disable-next-line i18next/no-literal-string
-//   { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 30, duration: 290 },
-//   // eslint-disable-next-line i18next/no-literal-string
-//   { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", points: 6, duration: 195 },
-// ]
-
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
   const { t } = useTranslation()
 
   const [points, setPoints] = useState<number>()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [duration, setDuration] = useState<number>()
-
-  console.log("courseId", courseId)
 
   const suspectedCheaters = useQuery({
     queryKey: [`suspected-cheaters-${courseId}`],
@@ -136,11 +124,25 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           onChangeByValue={(value: string) => {
             const parsed = parseInt(value)
             if (isNaN(parsed)) {
-              // empty
               setPoints(undefined)
               return
             }
             setPoints(parsed)
+          }}
+        />
+        <TextField
+          className="duration-threshold"
+          type="number"
+          label={t("duration")}
+          placeholder={t("duration")}
+          value={duration?.toString() ?? ""}
+          onChangeByValue={(value: string) => {
+            const parsed = parseInt(value)
+            if (isNaN(parsed)) {
+              setDuration(undefined)
+              return
+            }
+            setDuration(parsed)
           }}
         />
         <Button

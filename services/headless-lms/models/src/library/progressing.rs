@@ -81,15 +81,21 @@ pub async fn check_and_insert_suspected_cheaters(
             .await?
             .unwrap_or(0.0);
 
-    // let student_duration_seconds = course_instances::get_student_duration(conn, completion.user_id, course_instance_id).await?;
+    let student_duration_seconds =
+        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
+            .await?
+            .unwrap_or(0);
 
-    // TODO: Compare duration to duration set by teachers
-    if total_points as i32 >= thresholds.points {
+    let duration_threshold = thresholds.duration_seconds.unwrap_or(0);
+
+    if (total_points as i32) >= thresholds.points
+        && (student_duration_seconds as i32) < duration_threshold
+    {
         suspected_cheaters::insert(
             conn,
             completion.user_id,
             course_instance_id,
-            None,
+            Some(student_duration_seconds as i32),
             total_points as i32,
         )
         .await?;

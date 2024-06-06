@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { Gear } from "@vectopus/atlas-icons-react"
+import { ExclamationTriangle, Gear } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -22,16 +22,8 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 const Header = styled.div`
   width: 100%;
 `
-const cheaters = [
-  // eslint-disable-next-line i18next/no-literal-string
-  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", total_points: 40, total_duration_seconds: 200 },
-  // eslint-disable-next-line i18next/no-literal-string
-  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", total_points: 30, total_duration_seconds: 290 },
-  // eslint-disable-next-line i18next/no-literal-string
-  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", total_points: 6, total_duration_seconds: 195 },
-]
 
-const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
   const { t } = useTranslation()
@@ -187,7 +179,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
       )}
       {suspectedCheaters.isError && <Spinner variant={"medium"} />}
-      {suspectedCheaters.isSuccess && suspectedCheaters.data && (
+      {suspectedCheaters.isSuccess && suspectedCheaters.data.length ? (
         <table
           className={css`
             width: 100%;
@@ -219,7 +211,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             <th>{t("points")}</th>
             <th>{t("duration")}</th>
           </tr>
-          {cheaters?.map(({ id, total_points, total_duration_seconds }, index) => {
+          {suspectedCheaters.data?.map(({ id, total_points, total_duration_seconds }, index) => {
             const everySecondListItem = index % 2 === 1
             return (
               <tr
@@ -235,9 +227,31 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             )
           })}
         </table>
+      ) : (
+        <div
+          className={css`
+            background: #e4e5e6;
+            padding: 1.25rem;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+            color: ${baseTheme.colors.gray[700]};
+
+            span {
+              margin-left: 0.4rem;
+            }
+          `}
+        >
+          <div>
+            <ExclamationTriangle size={16} weight="bold" />
+            <span>{t("list-cheaters-of-cheaters-empty-state")}</span>
+          </div>
+        </div>
       )}
     </>
   )
 }
 
-export default CourseGlossary
+export default CourseCheaters

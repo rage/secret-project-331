@@ -22,6 +22,14 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 const Header = styled.div`
   width: 100%;
 `
+const cheaters = [
+  // eslint-disable-next-line i18next/no-literal-string
+  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", total_points: 40, total_duration_seconds: 200 },
+  // eslint-disable-next-line i18next/no-literal-string
+  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", total_points: 30, total_duration_seconds: 290 },
+  // eslint-disable-next-line i18next/no-literal-string
+  { id: "ed0518ce-11b2-48a3-98f1-377515b57ddf", total_points: 6, total_duration_seconds: 195 },
+]
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -99,12 +107,18 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           }
 
           .points-threshold {
-            width: 160px;
+            width: 10rem;
+            margin-bottom: 1.25rem;
+            margin-right: 1.25rem;
+          }
+
+          .duration-threshold {
+            width: 10rem;
             margin-bottom: 1.25rem;
           }
 
           .threshold-btn {
-            margin-top: 1.25rem;
+            margin-top: 0.5rem;
           }
         `}
       >
@@ -115,41 +129,47 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           </h5>
           <p className="description">{t("configure-threshold-description")}</p>
         </Header>
-        <TextField
-          className="points-threshold"
-          type="number"
-          label={t("points")}
-          placeholder={t("points")}
-          value={points?.toString() ?? ""}
-          onChangeByValue={(value: string) => {
-            const parsed = parseInt(value)
-            if (isNaN(parsed)) {
-              setPoints(undefined)
-              return
-            }
-            setPoints(parsed)
-          }}
-        />
-        <TextField
-          className="duration-threshold"
-          type="number"
-          label={t("duration")}
-          placeholder={t("duration")}
-          value={duration?.toString() ?? ""}
-          onChangeByValue={(value: string) => {
-            const parsed = parseInt(value)
-            if (isNaN(parsed)) {
-              setDuration(undefined)
-              return
-            }
-            setDuration(parsed)
-          }}
-        />
+        <div
+          className={css`
+            display: flex;
+          `}
+        >
+          <TextField
+            className="points-threshold"
+            type="number"
+            label={t("points")}
+            placeholder={t("points")}
+            value={points?.toString() ?? ""}
+            onChangeByValue={(value: string) => {
+              const parsed = parseInt(value)
+              if (isNaN(parsed)) {
+                setPoints(undefined)
+                return
+              }
+              setPoints(parsed)
+            }}
+          />
+          <TextField
+            className="duration-threshold"
+            type="number"
+            label={t("duration")}
+            placeholder={t("duration")}
+            value={duration?.toString() ?? ""}
+            onChangeByValue={(value: string) => {
+              const parsed = parseInt(value)
+              if (isNaN(parsed)) {
+                setDuration(undefined)
+                return
+              }
+              setDuration(parsed)
+            }}
+          />
+        </div>
         <Button
           className="threshold-btn"
           variant="primary"
           size="medium"
-          disabled={!points || postThresholdMutation.isPending}
+          disabled={(!points && !duration) || postThresholdMutation.isPending}
           onClick={handleCreateNewThreshold}
         >
           {t("set-threshold")}
@@ -158,6 +178,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       <h5
         className={css`
           font-weight: 500;
+          margin-bottom: 0.8rem;
         `}
       >
         {t("cheaters-list")}
@@ -174,22 +195,22 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             text-align: left;
             border-collapse: collapse;
             font-family: ${headingFont};
-
-            tr {
-              border-bottom: 2px solid ${baseTheme.colors.gray[100]};
-            }
+            border: 1px solid ${baseTheme.colors.gray[100]};
 
             th {
               color: ${baseTheme.colors.gray[500]};
               padding: 0.4rem 0;
               font-weight: 600;
               font-size: 15px;
+              border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+              padding: 0.8rem;
             }
 
             td {
-              color: ${baseTheme.colors.gray[400]};
+              color: ${baseTheme.colors.gray[500]};
               padding: 0.4rem 0;
               font-size: 18px;
+              padding: 0.8rem;
             }
           `}
         >
@@ -198,9 +219,15 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             <th>{t("points")}</th>
             <th>{t("duration")}</th>
           </tr>
-          {suspectedCheaters.data?.map(({ id, total_points, total_duration_seconds }) => {
+          {cheaters?.map(({ id, total_points, total_duration_seconds }, index) => {
+            const everySecondListItem = index % 2 === 1
             return (
-              <tr key={id}>
+              <tr
+                key={id}
+                className={css`
+                  background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
+                `}
+              >
                 <td>{id}</td>
                 <td>{total_points}</td>
                 <td>{total_duration_seconds}</td>

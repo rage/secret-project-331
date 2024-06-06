@@ -1,5 +1,6 @@
 use actix_http::header;
 use futures::prelude::stream::TryStreamExt;
+use futures::Stream;
 use reqwest::header::HeaderMap;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -67,29 +68,22 @@ async fn send_chat_request_and_parse_stream(
     api_key: &str,
     url: &str,
     payload: &ChatRequest,
-) -> ControllerResult<Vec<ResponseChunk>> {
+) -> anyhow::Result<impl Stream<Item = ResponseChunk>> {
     let client = Client::new();
 
     let mut headers = HeaderMap::new();
     headers.insert(
         "api-key",
-        api_key.parse().map_err(|_e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Invalid API key".to_string(),
-                None,
-            )
-        })?,
+        api_key
+            .parse()
+            .map_err(|_e| anyhow::anyhow!("Invalid API key"))?,
     );
     headers.insert(
         header::CONTENT_TYPE,
-        "application/json".to_string().parse().map_err(|_e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Invalid header value".to_string(),
-                None,
-            )
-        })?,
+        "application/json"
+            .to_string()
+            .parse()
+            .map_err(|_e| anyhow::anyhow!("Internal error"))?,
     );
 
     let request = client.post(url).headers(headers).json(payload).send();
@@ -101,34 +95,30 @@ async fn send_chat_request_and_parse_stream(
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e));
     let reader = StreamReader::new(stream);
     let mut lines = reader.lines();
-    let mut response_chunks = Vec::new();
 
-    while let Some(line) = lines.next_line().await.unwrap() {
-        if !line.starts_with("data: ") {
-            continue;
-        }
-        let json_str = line.trim_start_matches("data: ");
-        if json_str.trim() == "[DONE]" {
-            return todo!("Handle DONE");
-        }
-        let response_chunk = serde_json::from_str::<ResponseChunk>(json_str);
-        match response_chunk {
-            Ok(response_chunk) => response_chunks.push(response_chunk),
-            Err(e) => {
-                return Err(ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    format!("Failed to parse chat response: {}", e),
-                    None,
-                ))
+    let response_stream = async_stream::stream! {
+        while let Some(line) = lines.next_line().await.unwrap() {
+            if !line.starts_with("data: ") {
+                continue;
             }
-        };
-    }
+            let json_str = line.trim_start_matches("data: ");
+            if json_str.trim() == "[DONE]" {
+                // TODO: Handle DONE
+                break;
+            }
+            let response_chunk = serde_json::from_str::<ResponseChunk>(json_str);
+            match response_chunk {
+                Ok(response_chunk) => yield response_chunk,
+                Err(e) => {
+                    warn!("Failed to parse response chunk: {}", e);
+                }
+            };
+        }
 
-    Err(ControllerError::new(
-        ControllerErrorType::InternalServerError,
-        "Chat response did not end".to_string(),
-        None,
-    ))
+        panic!("Unexpected end of stream")
+    };
+
+    Ok(response_stream)
 }
 
 #[tokio::main]

@@ -28,36 +28,38 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
     let completion = create_automatic_course_module_completion_if_eligible(
-        conn,
+        &mut tx,
         course_module,
         course_instance_id,
         user_id,
     )
     .await?;
     if let Some(completion) = completion {
-        let course = courses::get_course(conn, course_module.course_id).await?;
+        let course = courses::get_course(&mut tx, course_module.course_id).await?;
         let course_instance =
-            course_instances::get_course_instance(conn, course_instance_id).await?;
+            course_instances::get_course_instance(&mut tx, course_instance_id).await?;
         let submodule_completions_required = course
             .base_module_completion_requires_n_submodule_completions
             .try_into()?;
         update_module_completion_prerequisite_statuses_for_user(
-            conn,
+            &mut tx,
             user_id,
             &course_instance,
             submodule_completions_required,
         )
         .await?;
 
-        if let Some(thresholds) = suspected_cheaters::get_thresholds_by_id(conn, course_instance_id)
-            .await
-            .optional()?
+        if let Some(thresholds) =
+            suspected_cheaters::get_thresholds_by_id(&mut tx, course_instance_id)
+                .await
+                .optional()?
         {
             //let average_duration_seconds = course_instances::get_course_average_duration(conn, course_instance_id).await?;
 
             check_and_insert_suspected_cheaters(
-                conn,
+                &mut tx,
                 user_id,
                 course_instance_id,
                 &thresholds,
@@ -66,6 +68,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             .await?;
         }
     }
+    tx.commit().await?;
     Ok(())
 }
 

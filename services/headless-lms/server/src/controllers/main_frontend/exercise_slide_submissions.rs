@@ -148,7 +148,7 @@ async fn get_user_exercise_state_info(
 }
 
 /**
-PUT `/api/v0/main-frontend/exercise-slide-submissions/add_teacher_grading"` - Given a teacher grading decision, updates an answer by giving it a manual score given.
+PUT `/api/v0/main-frontend/exercise-slide-submissions/add_teacher_grading"` - Adds a new teacher grading decision, without updating user exercise state
 */
 #[instrument(skip(pool))]
 async fn add_teacher_grading(
@@ -171,12 +171,7 @@ async fn add_teacher_grading(
     .await?;
 
     let points_given;
-    if *action == TeacherDecisionType::FullPoints {
-        let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
-        points_given = exercise.score_maximum as f32;
-    } else if *action == TeacherDecisionType::ZeroPoints {
-        points_given = 0.0;
-    } else if *action == TeacherDecisionType::CustomPoints {
+    if *action == TeacherDecisionType::CustomPoints {
         let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
         let max_points = exercise.score_maximum as f32;
 
@@ -189,8 +184,6 @@ async fn add_teacher_grading(
                 None,
             ));
         }
-    } else if *action == TeacherDecisionType::SuspectedPlagiarism {
-        points_given = 0.0;
     } else {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,

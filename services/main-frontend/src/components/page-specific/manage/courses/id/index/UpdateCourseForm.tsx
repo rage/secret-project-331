@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
 
+import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -15,28 +16,20 @@ const FieldContainer = styled.div`
 `
 
 interface UpdateCourseFormProps {
-  courseId: string
-  courseName: string
-  courseDescription: string | null
-  isDraft: boolean
-  isTest: boolean
+  course: Course
   onSubmitForm: () => void
 }
 
 const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>> = ({
-  courseId,
-  courseName,
-  courseDescription,
-  isDraft,
-  isTest,
+  course,
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
-  const [name, setName] = useState(courseName)
-  const [description, setDescription] = useState(courseDescription)
-  const [draftStatus, setDraftStatus] = useState(isDraft)
-  const [testStatus, setTestStatus] = useState(isTest)
-  const [isUnlisted, setIsUnlisted] = useState(false)
+  const [name, setName] = useState(course.name)
+  const [description, setDescription] = useState(course.description)
+  const [draftStatus, setDraftStatus] = useState(course.is_draft)
+  const [testStatus, setTestStatus] = useState(course.is_test_mode)
+  const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
 
   const onUpdateCourseForm = async () => {
     let unlisted = isUnlisted
@@ -44,7 +37,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
       // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
       unlisted = false
     }
-    await updateCourse(courseId, {
+    await updateCourse(course.id, {
       name,
       description,
       is_draft: draftStatus,

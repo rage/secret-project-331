@@ -156,3 +156,38 @@ function ensure_tmc_langs_cli_downloaded() {
       run_command "$path_to_downloader"
   fi
 }
+
+
+function make_sure_skaffold_local_env_patch_files_exists() {
+  file_contents=$(cat <<EOF
+  # 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
+# 🌟                                                                     🌟
+# 🌟  NOTE: This file is for patching environment variables during       🌟
+# 🌟  local development only. Do NOT commit any changes made to this     🌟
+# 🌟  file.                                                              🌟
+# 🌟                                                                     🌟
+# 🌟 If this file does not exist, it is automatically created in         🌟
+# 🌟 .bin/common                                                         🌟
+# 🌟                                                                     🌟
+# 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
+apiVersion: v1
+kind: Secret
+metadata:
+  name: headless-lms-secrets
+type: Opaque
+data:
+  # Add here the env values you want to change only on your local environment.
+  # Use bin/base64-encode to encode the values.
+  EXAMPLE_PATCHED_SECRET: "d2F0"
+EOF
+)
+  files_to_create=(
+    "$(relativize_path "../kubernetes/dev/headless-lms/env-local-patch.secret.yml")"
+    "$(relativize_path "../kubernetes/test/headless-lms/env-local-patch.secret.yml")"
+  )
+  for file in "${files_to_create[@]}"; do
+    if [ ! -f "$file" ]; then
+      echo "$file_contents" > "$file"
+    fi
+  done
+}

@@ -2,10 +2,10 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "../../../../../../shared-module/components/Button"
-import { baseTheme, headingFont, typography } from "../../../../../../shared-module/styles"
-
 import ChatbotConfigurationForm from "./ChatbotConfigurationForm"
+
+import Button from "@/shared-module/common/components/Button"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 
 const ChatBotPage = () => {
   const { t } = useTranslation()

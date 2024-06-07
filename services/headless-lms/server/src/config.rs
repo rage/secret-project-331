@@ -49,6 +49,8 @@ impl ServerConfigBuilder {
                 base_url: env::var("BASE_URL").context("BASE_URL must be defined")?,
                 test_mode: env::var("TEST_MODE").is_ok(),
                 development_uuid_login: env::var("DEVELOPMENT_UUID_LOGIN").is_ok(),
+                chatbot_azure_api_key: env::var("CHATBOT_AZURE_API_KEY").ok(),
+                chatbot_azure_api_endpoint: env::var("CHATBOT_AZURE_API_ENDPOINT").ok(),
             },
             redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
             jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,

@@ -3,10 +3,10 @@ import type { AppProps } from "next/app"
 import Head from "next/head"
 import React, { useEffect } from "react"
 
-import useLanguage from "../shared-module/hooks/useLanguage"
-import GlobalStyles from "../shared-module/styles/GlobalStyles"
-import generateWebVitalsReporter from "../shared-module/utils/generateWebVitalsReporter"
-import initI18n from "../shared-module/utils/initI18n"
+import useLanguage from "@/shared-module/common/hooks/useLanguage"
+import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
+import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
+import initI18n from "@/shared-module/common/utils/initI18n"
 
 injectGlobal`
 html {

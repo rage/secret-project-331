@@ -1,17 +1,19 @@
 /* eslint-disable i18next/no-literal-string */
 
 import { BlockInstance } from "@wordpress/blocks"
-import { v4 } from "uuid"
+import { v4, v5 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
-import { ExerciseSlideAttributes } from "../blocks/ExerciseSlide/ExerciseSlideEditor"
-import { ExerciseTaskAttributes } from "../blocks/ExerciseTask/ExerciseTaskEditor"
+import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
+import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+
 import {
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
   CmsPageUpdate,
-} from "../shared-module/bindings"
+  CmsPeerOrSelfReviewConfig,
+} from "@/shared-module/common/bindings"
 
 /**
  * Only id is allowed in normalized exercises. This is because:
@@ -52,6 +54,23 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     }
     const originalExerciseBlock = block as BlockInstance<ExerciseAttributes>
     const exerciseAttributes = block.attributes as ExerciseAttributes
+    const peerOrSelfReviewConfig =
+      exerciseAttributes.peer_or_self_review_config === "null" ||
+      exerciseAttributes.peer_or_self_review_config === null
+        ? null
+        : (JSON.parse(exerciseAttributes.peer_or_self_review_config) as CmsPeerOrSelfReviewConfig)
+
+    const execiseSettingsBlock = block.innerBlocks.find(
+      (block2) => block2.name === "moocfi/exercise-settings",
+    )
+    if (execiseSettingsBlock === undefined) {
+      throw new Error(
+        "Exercise block is missing the settings block. It should not be possible to remove that one.",
+      )
+    }
+    if (peerOrSelfReviewConfig) {
+      peerOrSelfReviewConfig.review_instructions = execiseSettingsBlock.innerBlocks
+    }
 
     exercises.push({
       id: exerciseAttributes.id,
@@ -62,21 +81,25 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
       deadline: null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
-      peer_review_config:
-        exerciseAttributes.peer_review_config === "null" ||
-        exerciseAttributes.peer_review_config === null
+      needs_self_review: exerciseAttributes.needs_self_review,
+      peer_or_self_review_config: peerOrSelfReviewConfig,
+      peer_or_self_review_questions:
+        exerciseAttributes.peer_or_self_review_questions_config === "null" ||
+        exerciseAttributes.peer_or_self_review_config === null
           ? null
-          : JSON.parse(exerciseAttributes.peer_review_config),
-      peer_review_questions:
-        exerciseAttributes.peer_review_questions_config === "null" ||
-        exerciseAttributes.peer_review_config === null
-          ? null
-          : JSON.parse(exerciseAttributes.peer_review_questions_config),
-      use_course_default_peer_review_config: exerciseAttributes.use_course_default_peer_review,
+          : JSON.parse(exerciseAttributes.peer_or_self_review_questions_config),
+      use_course_default_peer_or_self_review_config:
+        exerciseAttributes.use_course_default_peer_review,
     })
     exerciseCount = exerciseCount + 1
     let exerciseSlideCount = 0
-    block.innerBlocks.forEach((block2) => {
+    const slidesBlock = block.innerBlocks.find((block2) => block2.name === "moocfi/exercise-slides")
+    if (slidesBlock === undefined) {
+      throw new Error(
+        "Exercise block is missing slides. It should not be possible to remove that one.",
+      )
+    }
+    slidesBlock.innerBlocks.forEach((block2) => {
       if (block2.name !== "moocfi/exercise-slide") {
         return
       }
@@ -113,6 +136,20 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     return newBlock
   })
 
+  // Verify exercise blocks don't have other attributes than id
+  const exerciseBlocks = normalizedBlocks.filter((block) => block.name === "moocfi/exercise")
+  exerciseBlocks.forEach((block) => {
+    const attributes = block.attributes
+    if (Object.prototype.hasOwnProperty.call(attributes, "id") === false) {
+      throw new Error("Exercise block is missing id attribute")
+    }
+    if (Object.keys(attributes).length !== 1) {
+      throw new Error(
+        `Exercise block has more attributes than just id. This is not allowed. Found attributes: ${JSON.stringify(attributes)}`,
+      )
+    }
+  })
+
   return {
     content: normalizedBlocks,
     chapter_id: args.chapterId,
@@ -143,7 +180,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     const normalizedBlock = block as BlockInstance<NormalizedExerciseBlockAttributes>
 
     const slides = input.exercise_slides.filter((x) => x.exercise_id === exercise.id)
-    const innerBlocks = slides.map((slide) => {
+    const slidesInnerBlocks = slides.map((slide) => {
       const tasks = input.exercise_tasks.filter((x) => x.exercise_slide_id === slide.id)
       const denormalizedSlide: BlockInstance<ExerciseSlideAttributes> = {
         // Using slide id in tests ensures that this operation is reversible
@@ -177,9 +214,29 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
       return denormalizedSlide
     })
 
+    const settingsInnerBlocks =
+      (exercise.peer_or_self_review_config?.review_instructions as BlockInstance[]) ?? []
+
     const exerciseBlock: BlockInstance<ExerciseAttributes> = {
       ...normalizedBlock,
-      innerBlocks,
+      innerBlocks: [
+        {
+          name: "moocfi/exercise-settings",
+          isValid: true,
+          // Deterministic client id but derived from exercise id so that it's different for each exercise
+          clientId: v5("9ab7c78a-4b3a-4695-bca1-cb93de0dabec", exercise.id),
+          attributes: {},
+          innerBlocks: settingsInnerBlocks,
+        },
+        {
+          name: "moocfi/exercise-slides",
+          isValid: true,
+          // Deterministic client id but derived from exercise id so that it's different for each exercise
+          clientId: v5("335f1f8e-4fd3-4a5f-888f-87efd6ef4595", exercise.id),
+          attributes: {},
+          innerBlocks: slidesInnerBlocks,
+        },
+      ],
       attributes: {
         id: normalizedBlock.attributes.id,
         name: exercise.name,
@@ -187,15 +244,16 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         max_tries_per_slide: exercise.max_tries_per_slide ?? undefined,
         limit_number_of_tries: exercise.limit_number_of_tries,
         needs_peer_review: exercise.needs_peer_review,
-        peer_review_config:
-          exercise.needs_peer_review && !exercise.use_course_default_peer_review_config
-            ? JSON.stringify(exercise.peer_review_config)
+        needs_self_review: exercise.needs_self_review,
+        peer_or_self_review_config:
+          exercise.needs_peer_review && !exercise.use_course_default_peer_or_self_review_config
+            ? JSON.stringify(exercise.peer_or_self_review_config)
             : "null",
-        peer_review_questions_config:
-          exercise.needs_peer_review && !exercise.use_course_default_peer_review_config
-            ? JSON.stringify(exercise.peer_review_questions)
+        peer_or_self_review_questions_config:
+          exercise.needs_peer_review && !exercise.use_course_default_peer_or_self_review_config
+            ? JSON.stringify(exercise.peer_or_self_review_questions)
             : "null",
-        use_course_default_peer_review: exercise.use_course_default_peer_review_config,
+        use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,
       },
     }
 

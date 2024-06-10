@@ -21,7 +21,7 @@ spec:
       containers:
         - name: service-info-fetcher
           image: headless-lms
-          command: ["cargo", "run", "--", "service-info-fetcher"]
+          command: ["bin/run", "service-info-fetcher"]
           resources:
             requests:
               memory: 100Mi

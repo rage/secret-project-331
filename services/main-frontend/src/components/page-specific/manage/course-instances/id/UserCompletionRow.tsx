@@ -3,11 +3,12 @@ import { times } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { FullWidthTableRow } from "../../../../tables/FullWidthTable"
+
 import {
   CourseModule,
   CourseModuleCompletionWithRegistrationInfo,
-} from "../../../../../shared-module/bindings"
-import { FullWidthTableRow } from "../../../../tables/FullWidthTable"
+} from "@/shared-module/common/bindings"
 
 export interface UserCompletionRowProps {
   sortedCourseModules: Array<CourseModule>

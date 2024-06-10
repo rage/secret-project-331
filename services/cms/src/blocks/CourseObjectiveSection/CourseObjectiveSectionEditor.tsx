@@ -3,15 +3,16 @@ import { InnerBlocks, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../shared-module/styles"
-import {
-  CMS_EDITOR_SIDEBAR_THRESHOLD,
-  CMS_EDITOR_SIDEBAR_WIDTH,
-} from "../../shared-module/utils/constants"
 import BlockWrapper from "../BlockWrapper"
 
 import { CourseObjectiveSectionAttributes } from "."
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "@/shared-module/common/styles"
+import {
+  CMS_EDITOR_SIDEBAR_THRESHOLD,
+  CMS_EDITOR_SIDEBAR_WIDTH,
+} from "@/shared-module/common/utils/constants"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
 const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [

@@ -5,13 +5,14 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchTopLevelPages } from "../../../../services/backend"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import TopLevelPage from "../../../../shared-module/components/TopLevelPage"
-import useQueryParameter from "../../../../shared-module/hooks/useQueryParameter"
-import { headingFont } from "../../../../shared-module/styles"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 import { coursePageRoute } from "../../../../utils/routing"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import TopLevelPage from "@/shared-module/common/components/TopLevelPage"
+import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import { headingFont } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface TopLevelPagesProps {
   courseId: string

@@ -8,19 +8,21 @@ use crate::{
     prelude::*,
 };
 use models::{
-    exercise_task_submissions::PeerReviewsRecieved,
+    exercise_task_submissions::PeerOrSelfReviewsReceived,
     exercises::CourseMaterialExercise,
     library::{
         grading::{StudentExerciseSlideSubmission, StudentExerciseSlideSubmissionResult},
-        peer_reviewing::{CourseMaterialPeerReviewData, CourseMaterialPeerReviewSubmission},
+        peer_or_self_reviewing::{
+            CourseMaterialPeerOrSelfReviewData, CourseMaterialPeerOrSelfReviewSubmission,
+        },
     },
     user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct CourseMaterialPeerReviewDataWithToken {
-    pub course_material_peer_review_data: CourseMaterialPeerReviewData,
+pub struct CourseMaterialPeerOrSelfReviewDataWithToken {
+    pub course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData,
     pub token: Option<String>,
 }
 
@@ -111,10 +113,10 @@ async fn get_peer_review_for_exercise(
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
-) -> ControllerResult<web::Json<CourseMaterialPeerReviewDataWithToken>> {
+) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
-    let course_material_peer_review_data =
-        models::peer_review_configs::get_course_material_peer_review_data(
+    let course_material_peer_or_self_review_data =
+        models::peer_or_self_review_configs::get_course_material_peer_or_self_review_data(
             &mut conn,
             user.id,
             *exercise_id,
@@ -129,11 +131,13 @@ async fn get_peer_review_for_exercise(
     )
     .await?;
     let give_peer_review_claim =
-        if let Some(to_review) = &course_material_peer_review_data.answer_to_review {
+        if let Some(to_review) = &course_material_peer_or_self_review_data.answer_to_review {
             Some(
                 GivePeerReviewClaim::expiring_in_1_day(
                     to_review.exercise_slide_submission_id,
-                    course_material_peer_review_data.peer_review_config.id,
+                    course_material_peer_or_self_review_data
+                        .peer_or_self_review_config
+                        .id,
                 )
                 .sign(&jwt_key),
             )
@@ -141,8 +145,8 @@ async fn get_peer_review_for_exercise(
             None
         };
 
-    let res = CourseMaterialPeerReviewDataWithToken {
-        course_material_peer_review_data,
+    let res = CourseMaterialPeerOrSelfReviewDataWithToken {
+        course_material_peer_or_self_review_data,
         token: give_peer_review_claim,
     };
     token.authorized_ok(web::Json(res))
@@ -156,7 +160,7 @@ async fn get_peer_reviews_received(
     pool: web::Data<PgPool>,
     params: web::Path<(Uuid, Uuid)>,
     user: AuthUser,
-) -> ControllerResult<web::Json<PeerReviewsRecieved>> {
+) -> ControllerResult<web::Json<PeerOrSelfReviewsReceived>> {
     let mut conn = pool.acquire().await?;
     let (exercise_id, exercise_slide_submission_id) = params.into_inner();
     let peer_review_data = models::exercise_task_submissions::get_peer_reviews_received(
@@ -198,6 +202,7 @@ async fn post_submission(
     payload: web::Json<StudentExerciseSlideSubmission>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<StudentExerciseSlideSubmissionResult>> {
+    let submission = payload.0;
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let token = authorize(
@@ -210,36 +215,56 @@ async fn post_submission(
     let result = domain::exercises::process_submission(
         &mut conn,
         user.id,
-        exercise,
-        payload.0,
+        exercise.clone(),
+        &submission,
         jwt_key.into_inner(),
     )
-    .await?;
-    token.authorized_ok(web::Json(result))
+    .await;
+    return match result {
+        Ok(res) => token.authorized_ok(web::Json(res)),
+        Err(err) => {
+            match models::rejected_exercise_slide_submissions::insert_rejected_exercise_slide_submission(
+                &mut conn,
+                &submission,
+                user.id,
+            )
+            .await {
+                Ok(_) => {
+                    warn!(
+                        "Submission was rejected but it was saved for debugging purposes. User id: {}, Exercise id: {}",
+                        user.id, exercise.id
+                    );
+                },
+                Err(_) => {
+                    error!(
+                        "Submission was rejected and saving it for debugging purposes failed. User id: {}, Exercise id: {}",
+                        user.id, exercise.id
+                    );
+                },
+            }
+            Err(err)
+        }
+    };
 }
 
 /**
- * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews/start` - Post a signal indicating that
- * the user will start peer reviewing process.
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that
+ * the user will start the peer or self reviewing process.
  *
  * This operation is only valid for exercises marked for peer reviews. No further submissions will be
  * accepted after posting to this endpoint.
  */
 #[instrument(skip(pool))]
-async fn start_peer_review(
+async fn start_peer_or_self_review(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    // Authorization
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
-    models::library::peer_reviewing::start_peer_review_for_user(&mut conn, user_exercise_state)
-        .await?;
-
     let token = authorize(
         &mut conn,
         Act::View,
@@ -247,18 +272,25 @@ async fn start_peer_review(
         Res::Exercise(*exercise_id),
     )
     .await?;
+    models::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
+        &mut conn,
+        user_exercise_state,
+        &exercise,
+    )
+    .await?;
+
     token.authorized_ok(web::Json(true))
 }
 
 /**
- * POST `/api/v0/course-material/exercises/:exercise_id/peer-reviews - Post a peer review for an
+ * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
  * exercise submission.
  */
 #[instrument(skip(pool))]
-async fn submit_peer_review(
+async fn submit_peer_or_self_review(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
-    payload: web::Json<CourseMaterialPeerReviewSubmission>,
+    payload: web::Json<CourseMaterialPeerOrSelfReviewSubmission>,
     user: AuthUser,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<bool>> {
@@ -268,7 +300,7 @@ async fn submit_peer_review(
     // The validation prevents users from chaging which answer they peer review.
     let claim = GivePeerReviewClaim::validate(&payload.token, &jwt_key)?;
     if claim.exercise_slide_submission_id != payload.exercise_slide_submission_id
-        || claim.peer_review_config_id != payload.peer_review_config_id
+        || claim.peer_or_self_review_config_id != payload.peer_or_self_review_config_id
     {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -277,12 +309,25 @@ async fn submit_peer_review(
         ));
     }
 
-    let user_exercise_state =
+    let giver_user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
-    models::library::peer_reviewing::create_peer_review_submission_for_user(
+    let exercise_slide_submission: models::exercise_slide_submissions::ExerciseSlideSubmission =
+        models::exercise_slide_submissions::get_by_id(
+            &mut conn,
+            payload.exercise_slide_submission_id,
+        )
+        .await?;
+    let receiver_user_exercise_state = user_exercise_states::get_users_current_by_exercise(
+        &mut conn,
+        exercise_slide_submission.user_id,
+        &exercise,
+    )
+    .await?;
+    models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
         &mut conn,
         &exercise,
-        user_exercise_state,
+        giver_user_exercise_state,
+        receiver_user_exercise_state,
         payload.0,
     )
     .await?;
@@ -300,19 +345,19 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/{exercise_id}", web::get().to(get_exercise))
         .route(
-            "/{exercise_id}/peer-reviews",
-            web::post().to(submit_peer_review),
+            "/{exercise_id}/peer-or-self-reviews",
+            web::post().to(submit_peer_or_self_review),
         )
         .route(
-            "/{exercise_id}/peer-reviews/start",
-            web::post().to(start_peer_review),
+            "/{exercise_id}/peer-or-self-reviews/start",
+            web::post().to(start_peer_or_self_review),
         )
         .route(
             "/{exercise_id}/peer-review",
             web::get().to(get_peer_review_for_exercise),
         )
         .route(
-            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-reviews-received",
+            "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received",
             web::get().to(get_peer_reviews_received),
         )
         .route(

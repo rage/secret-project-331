@@ -166,6 +166,7 @@ module.exports = {
             "weight",
             "action",
             "tagName",
+            "templateLock",
           ],
         },
         words: {
@@ -245,7 +246,13 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["system-tests/**/*", "**.test.tsx", "**.test.ts"],
+      files: [
+        "system-tests/**/*",
+        "**.test.tsx",
+        "**.test.ts",
+        "storybook/**/*",
+        "shared-module/packages/create-exercise-service/**/*",
+      ],
       rules: {
         "i18next/no-literal-string": "off",
       },

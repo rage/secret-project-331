@@ -50,7 +50,7 @@ pub async fn seed_organization_uh_mathstat(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
-        langs_user_id: _,
+        langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
 
@@ -83,6 +83,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: false,
     };
     let (
@@ -128,6 +129,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: false,
     };
     library::content_management::create_new_course(
@@ -148,6 +150,7 @@ pub async fn seed_organization_uh_mathstat(
         organization_id: uh_mathstat_id,
         admin_user_id,
         student_user_id: student_3_user_id,
+        langs_user_id,
         example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,
@@ -173,6 +176,7 @@ pub async fn seed_organization_uh_mathstat(
             description: "Just a draft.".to_string(),
             is_draft: false,
             is_test_mode: false,
+            is_unlisted: false,
             copy_user_permissions: false,
         },
         true,
@@ -225,6 +229,38 @@ pub async fn seed_organization_uh_mathstat(
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(change_path),
+    )
+    .await?;
+
+    let self_review = seed_sample_course(
+        Uuid::parse_str("3cbaac48-59c4-4e31-9d7e-1f51c017390d")?,
+        "Self review",
+        "self-review",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(self_review),
+    )
+    .await?;
+
+    let audio_course = seed_sample_course(
+        Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
+        "Audio course",
+        "audio-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(audio_course),
     )
     .await?;
 

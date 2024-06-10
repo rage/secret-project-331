@@ -1,17 +1,18 @@
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   Course,
   CourseInstanceEnrollmentsInfo,
   ResearchFormQuestionAnswer,
   UserResearchConsent,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isCourse,
   isCourseInstanceEnrollmentsInfo,
   isResearchFormQuestionAnswer,
   isUserResearchConsent,
-} from "../../shared-module/bindings.guard"
-import { isArray, validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export async function getCourseInstanceEnrollmentsInfo(
   userId: string,

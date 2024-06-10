@@ -29,8 +29,6 @@ test("Testing exam works", async ({ page }) => {
   await page.getByRole("option", { name: "Exercise", exact: true }).click()
   await page.getByPlaceholder("Exercise name").fill("Exercise name")
 
-  await page.getByRole("button", { name: "Add slide" }).click()
-  await page.getByRole("button", { name: "Add task" }).click()
   await page.getByLabel("Edit").click()
   await page.getByRole("button", { name: "Quizzes" }).click()
   await page
@@ -83,14 +81,26 @@ test("Testing exam works", async ({ page }) => {
 
   //Show exercise answers
   await page.getByLabel("show answers").check()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
   await expect(
     page
       .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
       .getByText("Your answer was correct."),
   ).toBeVisible()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
 
   //Hide exercise answers
   await page.getByLabel("show answers").uncheck()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
+  await page
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .locator("div")
+    .filter({ hasText: /^Correct answer$/ })
+    .first()
+    .waitFor()
   await expect(
     page
       .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
@@ -98,7 +108,14 @@ test("Testing exam works", async ({ page }) => {
   ).toBeHidden()
 
   //Reset exam progress
-  await page.getByRole("button", { name: "Reset" }).click()
+  await page.getByRole("button", { name: "Reset exam progress" }).click()
+  await page.getByText("Operation successful!").waitFor()
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(100)
+  await page
+    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+    .getByRole("button", { name: "Correct answer" })
+    .waitFor()
   await page.getByRole("button", { name: "Submit" }).isDisabled()
 
   await page

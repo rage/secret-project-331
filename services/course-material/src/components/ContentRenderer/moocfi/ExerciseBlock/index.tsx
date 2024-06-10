@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, PlusHeart } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useRouter } from "next/router"
-import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
+import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
@@ -13,29 +13,33 @@ import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "../../../../hooks/useCourseMaterialExerciseQuery"
 import exerciseBlockPostThisStateToIFrameReducer from "../../../../reducers/exerciseBlockPostThisStateToIFrameReducer"
-import { postStartPeerReview, postSubmission } from "../../../../services/backend"
-import {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "../../../../shared-module/bindings"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { useDateStringAsDateNullable } from "../../../../shared-module/hooks/useDateStringAsDate"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "../../../../shared-module/styles"
-import { dateDiffInDays } from "../../../../shared-module/utils/dateUtil"
-import { useCurrentPagePathForReturnTo } from "../../../../shared-module/utils/redirectBackAfterLoginOrSignup"
-import { loginRoute, signUpRoute } from "../../../../shared-module/utils/routes"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+import { postStartPeerOrSelfReview, postSubmission } from "../../../../services/backend"
 import YellowBox from "../../../YellowBox"
 
 import ExerciseTask from "./ExerciseTask"
 import GradingState from "./GradingState"
-import PeerReviewView from "./PeerReviewView"
-import PeerReviewsReceived from "./PeerReviewView/PeerReviewsReceivedComponent/index"
-import WaitingForPeerReviews from "./PeerReviewView/WaitingForPeerReviews"
+import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
+import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
+import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+
+import {
+  CourseMaterialExercise,
+  StudentExerciseSlideSubmission,
+} from "@/shared-module/common/bindings"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
+import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+const FORWARD_SLASH = "/"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -236,8 +240,8 @@ const ExerciseBlock: React.FC<
     getCourseMaterialExercise.data?.exercise.deadline,
   )
 
-  const startPeerReviewMutation = useToastMutation(
-    () => postStartPeerReview(id),
+  const startPeerOrSelfReviewMutation = useToastMutation(
+    () => postStartPeerOrSelfReview(id),
     { notify: false },
     {
       onSuccess: async () => {
@@ -245,6 +249,13 @@ const ExerciseBlock: React.FC<
       },
     },
   )
+
+  const exerciseNameIsLong = useMemo(() => {
+    if (!getCourseMaterialExercise.data) {
+      return false
+    }
+    return getCourseMaterialExercise.data.exercise.name.length > 35
+  }, [getCourseMaterialExercise.data])
 
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
@@ -312,6 +323,7 @@ const ExerciseBlock: React.FC<
   const inSubmissionView =
     postThisStateToIFrame?.every((x) => x.view_type === "view-submission") ?? false
   const needsPeerReview = getCourseMaterialExercise.data.exercise.needs_peer_review
+  const needsSelfReview = getCourseMaterialExercise.data.exercise.needs_self_review
 
   const reviewingStage = getCourseMaterialExercise.data.exercise_status?.reviewing_stage
   const gradingState = getCourseMaterialExercise.data.exercise_status?.grading_progress
@@ -337,30 +349,35 @@ const ExerciseBlock: React.FC<
             <div
               className={css`
                 display: flex;
+                gap: 5px;
                 align-items: center;
                 margin-bottom: 1.5rem;
                 padding: 1.5rem 1.2rem;
                 background: #718dbf;
                 border-radius: 1rem 1rem 0 0;
                 color: white;
+                flex-direction: column;
+
+                ${respondToOrLarger.xxs} {
+                  flex-direction: row;
+                }
               `}
             >
               <h2
                 id={exerciseTitleId}
                 className={css`
-                  font-size: 1.7rem;
+                  font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
                   font-weight: 500;
                   font-family: ${headingFont} !important;
+                  word-break: break-word;
                   overflow: hidden;
-                  text-overflow: ellipsis;
-                  white-space: nowrap;
+                  margin-top: -2px;
                 `}
               >
                 <div
                   className={css`
                     font-weight: 500;
                     font-size: 18px;
-                    line-height: 19px;
                     margin-bottom: 0.25rem;
                     color: #1b222c;
                   `}
@@ -369,7 +386,15 @@ const ExerciseBlock: React.FC<
                 </div>
                 <div
                   className={css`
-                    line-height: 31px;
+                    line-height: 30px;
+                    overflow: hidden;
+                    max-height: 80px;
+                    /* Prevents some characters, like 3, from clipping */
+                    padding-bottom: 0.2rem;
+
+                    ${respondToOrLarger.xs} {
+                      max-height: 60px;
+                    }
                   `}
                 >
                   {getCourseMaterialExercise.data.exercise.name}
@@ -377,7 +402,7 @@ const ExerciseBlock: React.FC<
               </h2>
               <div
                 className={css`
-                  flex: 1;
+                  flex-grow: 1;
                 `}
               />
               <div
@@ -389,11 +414,11 @@ const ExerciseBlock: React.FC<
                   border-radius: 10px;
                   background: #f0f0f0;
                   height: 60px;
-                  min-width: 80px;
                   padding: 8px 16px 6px 16px;
-                  width: auto;
+
                   color: #57606f;
                   display: flex;
+                  justify-content: center;
                   flex-direction: columns;
                   gap: 16px;
                   box-shadow:
@@ -439,6 +464,11 @@ const ExerciseBlock: React.FC<
                   p {
                     font-size: 16px;
                   }
+
+                  width: 100%;
+                  ${respondToOrLarger.xxs} {
+                    width: auto;
+                  }
                 `}
               >
                 {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
@@ -455,17 +485,31 @@ const ExerciseBlock: React.FC<
                   </div>
                 )}
                 {isExam && points === null ? (
-                  <>
-                    {t("max-points")}: {getCourseMaterialExercise.data.exercise.score_maximum}
-                  </>
+                  <div
+                    className={css`
+                      display: flex;
+                      flex-direction: column;
+                    `}
+                  >
+                    <div>{t("max-points")}</div>{" "}
+                    <div
+                      className={css`
+                        font-size: 1rem;
+                        margin-top: 3px;
+                      `}
+                    >
+                      {getCourseMaterialExercise.data.exercise.score_maximum}
+                    </div>
+                  </div>
                 ) : (
                   <div>
                     <span className="heading">{t("points-label")}</span>
                     <div className="points">
                       <CheckCircle size={16} weight="bold" color="#394F77" />
-                      <span data-test-id="exercise-points">
+                      <span data-testid="exercise-points">
                         {/* eslint-disable-next-line i18next/no-literal-string */}
-                        <sup>{points ?? 0}</sup>&frasl;
+                        <sup>{points ?? 0}</sup>
+                        {FORWARD_SLASH}
                         <sub>{getCourseMaterialExercise.data.exercise.score_maximum}</sub>
                       </span>
                     </div>
@@ -525,14 +569,16 @@ const ExerciseBlock: React.FC<
                 {t("Deadline-passed-n-days-ago", { days: dateDiffInDays(exerciseDeadline) })}
               </DeadlineText>
             ))}
-
-          {getCourseMaterialExercise.data.peer_review_config && gradingState && reviewingStage && (
-            <GradingState
-              gradingProgress={gradingState}
-              reviewingStage={reviewingStage}
-              peerReviewConfig={getCourseMaterialExercise.data.peer_review_config}
-            />
-          )}
+          {getCourseMaterialExercise.data.peer_or_self_review_config &&
+            gradingState &&
+            reviewingStage && (
+              <GradingState
+                gradingProgress={gradingState}
+                reviewingStage={reviewingStage}
+                peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
+                exercise={getCourseMaterialExercise.data.exercise}
+              />
+            )}
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
             reviewingStage !== "SelfReview" &&
@@ -558,10 +604,18 @@ const ExerciseBlock: React.FC<
                 />
               ))}
           {reviewingStage === "PeerReview" && (
-            <PeerReviewView
+            <PeerOrSelfReviewView
               exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
               exerciseId={id}
               parentExerciseQuery={getCourseMaterialExercise}
+            />
+          )}
+          {reviewingStage === "SelfReview" && (
+            <PeerOrSelfReviewView
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              exerciseId={id}
+              parentExerciseQuery={getCourseMaterialExercise}
+              selfReview
             />
           )}
           {(reviewingStage === "WaitingForPeerReviews" ||
@@ -581,7 +635,7 @@ const ExerciseBlock: React.FC<
                 exerciseSlideSubmissionId &&
                 (reviewingStage === "WaitingForPeerReviews" ||
                   reviewingStage === "ReviewedAndLocked") && (
-                  <PeerReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
+                  <PeerOrSelfReviewsReceived id={id} submissionId={exerciseSlideSubmissionId} />
                 )}
             </div>
           )}
@@ -708,10 +762,19 @@ const ExerciseBlock: React.FC<
                     {needsPeerReview && (
                       <button
                         className={cx(exerciseButtonStyles)}
-                        disabled={startPeerReviewMutation.isPending}
-                        onClick={() => startPeerReviewMutation.mutate()}
+                        disabled={startPeerOrSelfReviewMutation.isPending}
+                        onClick={() => startPeerOrSelfReviewMutation.mutate()}
                       >
                         {t("start-peer-review")}
+                      </button>
+                    )}
+                    {!needsPeerReview && needsSelfReview && (
+                      <button
+                        className={cx(exerciseButtonStyles)}
+                        disabled={startPeerOrSelfReviewMutation.isPending}
+                        onClick={() => startPeerOrSelfReviewMutation.mutate()}
+                      >
+                        {t("start-self-review")}
                       </button>
                     )}
                   </div>

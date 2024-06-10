@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE peer_or_self_review_configs\nSET deleted_at = now()\nWHERE exercise_id = ANY ($1)\nAND deleted_at IS NULL\nRETURNING id;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray"]
+    },
+    "nullable": [false]
+  },
+  "hash": "21cf57babb132e5550a3cbfb60127eba0f10063189ec1642a8bd64961417b7af"
+}

@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 
-import { baseTheme } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const ColorPalette: React.FC<React.PropsWithChildren<unknown>> = () => {
   return (

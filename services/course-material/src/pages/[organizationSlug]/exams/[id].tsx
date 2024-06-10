@@ -13,18 +13,19 @@ import LayoutContext from "../../../contexts/LayoutContext"
 import PageContext, { CoursePageDispatch, getDefaultPageState } from "../../../contexts/PageContext"
 import useTime from "../../../hooks/useTime"
 import pageStateReducer from "../../../reducers/pageStateReducer"
-import { Block, enrollInExam, fetchExam } from "../../../services/backend"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../shared-module/components/system-tests/HideTextInSystemTests"
-import { withSignedIn } from "../../../shared-module/contexts/LoginStateContext"
-import { baseTheme } from "../../../shared-module/styles"
-import { respondToOrLarger } from "../../../shared-module/styles/respond"
+
+import { Block, enrollInExam, fetchExam } from "@/services/backend"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExamProps {
   // "organizationSlug"
@@ -246,7 +247,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                 `}
               >
                 <div>
-                  {t("label-exercise-name")}: {grade[1].name}
+                  {t("label-name")}: {grade[1].name}
                 </div>
                 <div>
                   {t("label-feedback")}: {grade[0].justification}

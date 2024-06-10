@@ -5,7 +5,8 @@ import React from "react"
 
 import { PrivateSpecQuiz, PrivateSpecQuizItem } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import Button from "../../../../../shared-module/components/Button"
+
+import Button from "@/shared-module/common/components/Button"
 
 interface EditorCardProps {
   title: string

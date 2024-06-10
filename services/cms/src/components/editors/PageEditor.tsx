@@ -18,20 +18,22 @@ import { EditorContentDispatch, editorContentReducer } from "../../contexts/Edit
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { fetchNextPageRoutingData } from "../../services/backend/pages"
-import { CmsPageUpdate, ContentManagementPage, Page } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import BreakFromCentered from "../../shared-module/components/Centering/BreakFromCentered"
-import DebugModal from "../../shared-module/components/DebugModal"
-import ErrorBanner from "../../shared-module/components/ErrorBanner"
-import Menu from "../../shared-module/components/Navigation/NavBar/Menu/Menu"
-import Spinner from "../../shared-module/components/Spinner"
-import { pageRoute } from "../../shared-module/utils/routes"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
+import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
+
+import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import DebugModal from "@/shared-module/common/components/DebugModal"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { pageRoute } from "@/shared-module/common/utils/routes"
 
 interface PageEditorProps {
   data: Page
@@ -85,34 +87,41 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const [currentlySaving, setCurrentlySaving] = useState(false)
   const handleOnSave = async () => {
     setCurrentlySaving(true)
-    saveMutation.mutate(
-      normalizeDocument({
-        chapterId: data.chapter_id,
-        content: removeUnsupportedBlockType(content),
-        title,
-        urlPath: data.url_path,
-      }),
-      {
-        onSuccess: (data) => {
-          contentDispatch({
-            type: "setContent",
-            payload: denormalizeDocument({
-              content: data.page.content,
-              exercises: data.exercises,
-              exercise_slides: data.exercise_slides,
-              exercise_tasks: data.exercise_tasks,
-              url_path: data.page.url_path,
-              title: data.page.title,
-              chapter_id: data.page.chapter_id,
-            }).content,
-          })
-          setNeedToRunMigrationsAndValidations(true)
-        },
-        onSettled: () => {
-          setCurrentlySaving(false)
-        },
+    const dataToSave = normalizeDocument({
+      chapterId: data.chapter_id,
+      content: removeUnsupportedBlockType(content),
+      title,
+      urlPath: data.url_path,
+    })
+    // Make sure peer review configs are valid
+    for (const exercise of dataToSave.exercises) {
+      if (exercise.peer_or_self_review_config) {
+        exercise.peer_or_self_review_config =
+          makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray(
+            exercise.peer_or_self_review_config,
+          )
+      }
+    }
+    saveMutation.mutate(dataToSave, {
+      onSuccess: (data) => {
+        contentDispatch({
+          type: "setContent",
+          payload: denormalizeDocument({
+            content: data.page.content,
+            exercises: data.exercises,
+            exercise_slides: data.exercise_slides,
+            exercise_tasks: data.exercise_tasks,
+            url_path: data.page.url_path,
+            title: data.page.title,
+            chapter_id: data.page.chapter_id,
+          }).content,
+        })
+        setNeedToRunMigrationsAndValidations(true)
       },
-    )
+      onSettled: () => {
+        setCurrentlySaving(false)
+      },
+    })
   }
 
   let mediaUpload

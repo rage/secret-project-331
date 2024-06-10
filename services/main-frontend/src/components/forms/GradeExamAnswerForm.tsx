@@ -10,13 +10,14 @@ import {
   fetchGradingInfo,
   fetchSubmissionInfo,
 } from "../../services/backend/submissions"
-import { NewTeacherGradingDecision } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import TextAreaField from "../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../shared-module/components/InputFields/TextField"
-import usePaginationInfo from "../../shared-module/hooks/usePaginationInfo"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import dontRenderUntilQueryParametersReady from "../../shared-module/utils/dontRenderUntilQueryParametersReady"
+
+import { NewTeacherGradingDecision } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
 interface GradeExamAnswerProps {
   submissionId: string

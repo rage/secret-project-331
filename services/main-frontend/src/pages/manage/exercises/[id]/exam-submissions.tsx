@@ -4,22 +4,22 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import useExamSubmissionsInfo from "../../../../hooks/useExamSubmissionsInfo"
-import Breadcrumbs, { BreadcrumbPiece } from "../../../../shared-module/components/Breadcrumbs"
-import Button from "../../../../shared-module/components/Button"
-import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import Pagination from "../../../../shared-module/components/Pagination"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { PageMarginOffset } from "../../../../shared-module/components/layout/PageMarginOffset"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
-import { baseTheme, fontWeights, headingFont } from "../../../../shared-module/styles"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../../shared-module/utils/constants"
-import {
-  dontRenderUntilQueryParametersReady,
+
+import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Pagination from "@/shared-module/common/components/Pagination"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">

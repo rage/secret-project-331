@@ -4,13 +4,14 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ManagePageOrderAction } from "../../../../../../../reducers/managePageOrderReducer"
-import { Chapter, Page } from "../../../../../../../shared-module/bindings"
-import Dialog from "../../../../../../../shared-module/components/Dialog"
-import DropdownMenu from "../../../../../../../shared-module/components/DropdownMenu"
-import { baseTheme } from "../../../../../../../shared-module/styles"
 import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageAudioWidget from "./PageAudioWidget"
+
+import { Chapter, Page } from "@/shared-module/common/bindings"
+import Dialog from "@/shared-module/common/components/Dialog"
+import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
+import { baseTheme } from "@/shared-module/common/styles"
 
 export const MOVING_ALLOWED: MovePolicy = "allowed"
 export const MOVING_NOT_ALLOWED: MovePolicy = "not-allowed"
@@ -137,7 +138,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                   href: `/manage/pages/${page.id}/history`,
                 },
                 {
-                  label: t("upload-file"),
+                  label: t("upload-audio-file"),
                   // eslint-disable-next-line i18next/no-literal-string
                   onClick: () => {
                     setShowDialog(true)

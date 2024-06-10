@@ -6,15 +6,16 @@ import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import { fetchCourseReferences } from "../../../../../../services/backend/courses"
-import { MaterialReference } from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
-import ErrorBanner from "../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../shared-module/components/Spinner"
-import { baseTheme, headingFont } from "../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
 
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
+
+import { MaterialReference } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Cite = require("citation-js")

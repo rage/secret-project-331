@@ -3,16 +3,17 @@ import styled from "@emotion/styled"
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Course, NewCourse } from "../../shared-module/bindings"
-import Button from "../../shared-module/components/Button"
-import CheckBox from "../../shared-module/components/InputFields/CheckBox"
-import RadioButton from "../../shared-module/components/InputFields/RadioButton"
-import SelectField from "../../shared-module/components/InputFields/SelectField"
-import TextArea from "../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../shared-module/components/InputFields/TextField"
-import useToastMutation from "../../shared-module/hooks/useToastMutation"
-import { normalizeIETFLanguageTag } from "../../shared-module/utils/strings"
 import { normalizePath } from "../../utils/normalizePath"
+
+import { Course, NewCourse } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
@@ -81,6 +82,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         teacher_in_charge_name: teacherInChargeName,
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: copyCourseUserPermissions,
       }
       if (courseId) {
@@ -114,6 +116,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         description,
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: copyCourseUserPermissions,
       })
       setName("")

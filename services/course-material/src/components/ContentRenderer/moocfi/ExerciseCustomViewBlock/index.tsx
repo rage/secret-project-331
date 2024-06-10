@@ -2,10 +2,11 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import CustomViewIframe from "./CustomViewIframe"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExerciseCustomViewBlockAttributes {
   exercise_type: string | undefined

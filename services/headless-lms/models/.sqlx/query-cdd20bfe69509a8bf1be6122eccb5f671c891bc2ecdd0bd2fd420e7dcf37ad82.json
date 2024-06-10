@@ -1,0 +1,110 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  slug,\n  courses.created_at,\n  courses.updated_at,\n  courses.deleted_at,\n  name,\n  description,\n  organization_id,\n  language_code,\n  copied_from,\n  content_search_language::text,\n  course_language_group_id,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\n  JOIN course_exams ON courses.id = course_exams.course_id\nWHERE course_exams.exam_id = $1\n  AND courses.deleted_at IS NULL\n  AND course_exams.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 5,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "language_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "content_search_language",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 11,
+        "name": "course_language_group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 12,
+        "name": "is_draft",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "is_test_mode",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 14,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      true,
+      null,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "cdd20bfe69509a8bf1be6122eccb5f671c891bc2ecdd0bd2fd420e7dcf37ad82"
+}

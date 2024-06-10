@@ -90,7 +90,7 @@ pub const TEST_HELPER_EXERCISE_SERVICE_NAME: &str = "exercise_type";
 /// Helper macro that can be used to conveniently insert data that has some prerequisites.
 /// The macro accepts variable arguments in the following order:
 ///
-/// tx, user, org, course, instance, course_module, page, chapter, exercise, slide, task
+/// tx, user, org, course, instance, course_module, chapter, page, exercise, slide, task
 ///
 /// Arguments can be given in either of two forms:
 ///
@@ -103,7 +103,7 @@ pub const TEST_HELPER_EXERCISE_SERVICE_NAME: &str = "exercise_type";
 /// would use existing variables tx and u to insert and declare variables for an organization and course named org and course.
 macro_rules! insert_data {
     // these rules transform individual arguments like "user" into "user: user"
-    // arg before ; has no name
+    // arg before potential ; has no name
     ($($name:ident: $var:ident, )* :$ident:ident, $($tt:tt)*) => {
         insert_data!($($name: $var, )* $ident: $ident, $($tt)*);
     };
@@ -172,6 +172,7 @@ macro_rules! insert_data {
                 description: "description".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                is_unlisted: false,
                 copy_user_permissions: false,
             },
             $user,
@@ -291,7 +292,8 @@ macro_rules! insert_data {
 pub use crate::insert_data;
 
 // checks that correct usage of the macro compiles
+#[allow(unused)]
 async fn _test() {
-    insert_data!(:tx, user:u, org:o, course: c, instance: _instance, course_module: m, chapter: c, :page, exercise: e, :slide, task: task);
-    println!("{task}")
+    insert_data!(tx:t, user:u, org:o, course:c, instance:i, course_module:m, chapter:c, page:p, exercise:e, slide:s, task:tsk);
+    insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 }

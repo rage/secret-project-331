@@ -1,16 +1,17 @@
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   ExerciseSlideSubmissionInfo,
   NewTeacherGradingDecision,
   TeacherGradingDecision,
   UserExerciseState,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isExerciseSlideSubmissionInfo,
   isTeacherGradingDecision,
   isUserExerciseState,
-} from "../../shared-module/bindings.guard"
-import { validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import { validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const fetchSubmissionInfo = async (
   submissionId: string,

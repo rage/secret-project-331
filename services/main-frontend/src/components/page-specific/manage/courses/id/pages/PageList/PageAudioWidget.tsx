@@ -6,17 +6,25 @@ import { useTranslation } from "react-i18next"
 import CloseIcon from "../../../../../../../imgs/close.svg"
 import TrashIcon from "../../../../../../../imgs/trash.svg"
 import {
-  fetchPageAudioFiles,
   postPageAudioFile,
   removePageAudioFile,
-} from "../../../../../../../services/backend/pages"
-import Dialog from "../../../../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../../../../../shared-module/components/Spinner"
-import useToastMutation from "../../../../../../../shared-module/hooks/useToastMutation"
-import { primaryFont } from "../../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../../shared-module/styles/respond"
-import { runCallbackIfEnterPressed } from "../../../../../../../shared-module/utils/accessibility"
+} from "../../../../../../../services/backend/page-audio-files"
+import { fetchPageAudioFiles } from "../../../../../../../services/backend/pages"
+
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { primaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
+
+const ACCEPTABLE_MIME_TYPES = [
+  "audio/mpeg",
+  "audio/ogg",
+  // Some audio files are detected as video/ogg even though they are audio files
+  "video/ogg",
+]
 
 export interface AudioUploadAttributes {
   id: string | null
@@ -56,7 +64,6 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     {
       onSuccess: () => {
         getPageAudioFiles.refetch()
-        // onClose()
       },
     },
   )
@@ -83,15 +90,16 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   )
 
   const handleUpload = (event: React.ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault()
     if (!event.currentTarget.audioFile) {
       return
     }
     const file: File | null = event.currentTarget.audioFile.files[0]
 
     if (file) {
-      const isNotAcceptedFormat = file.type !== "audio/mpeg" && file.type !== "audio/ogg"
-      if (isNotAcceptedFormat) {
+      if (!ACCEPTABLE_MIME_TYPES.includes(file.type)) {
         console.error("The audio format is not accepted")
+        throw new Error("The audio format is not accepted")
       }
       uploadAudioFileMutation.mutate(file)
       event.currentTarget.audioFile.value = null
@@ -227,6 +235,8 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
           )}
           <form
             onSubmit={handleUpload}
+            method="POST"
+            encType="multipart/form-data"
             className={css`
               margin-top: 20px;
               border: 1px solid #555;

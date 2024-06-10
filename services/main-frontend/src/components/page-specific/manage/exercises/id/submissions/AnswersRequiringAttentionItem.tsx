@@ -7,19 +7,20 @@ import { useTranslation } from "react-i18next"
 import { usePopper } from "react-popper"
 
 import { updateAnswerRequiringAttention } from "../../../../../../services/backend/answers-requiring-attention"
+import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
+
+import PeerReviewAccordion from "./PeerOrSelfReviewAccordion"
+
 import {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
   TeacherDecisionType,
-} from "../../../../../../shared-module/bindings"
-import Button from "../../../../../../shared-module/components/Button"
-import useToastMutation from "../../../../../../shared-module/hooks/useToastMutation"
-import ArrowDown from "../../../../../../shared-module/img/caret-arrow-down.svg"
-import { primaryFont } from "../../../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../../../shared-module/styles/respond"
-import SubmissionIFrame from "../../../../submissions/id/SubmissionIFrame"
-
-import PeerReviewAccordion from "./PeerReviewAccordion"
+} from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
+import { primaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   answerRequiringAttention: AnswerRequiringAttentionWithTasks
@@ -428,13 +429,13 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         `}
       >
         <PeerReviewAccordion
-          peerReviews={answerRequiringAttention.received_peer_reviews}
-          title={t("received-peer-reviews-from-other-students")}
+          peerOrSelfReviews={answerRequiringAttention.received_peer_or_self_reviews}
+          title={t("received-reviews")}
         />
       </div>
       <div>
         <PeerReviewAccordion
-          peerReviews={answerRequiringAttention.given_peer_reviews}
+          peerOrSelfReviews={answerRequiringAttention.given_peer_reviews}
           title={t("given-peer-reviews-to-other-students")}
         />
       </div>

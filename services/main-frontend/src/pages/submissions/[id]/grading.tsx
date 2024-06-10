@@ -7,18 +7,19 @@ import GradeExamAnswerForm from "../../../components/forms/GradeExamAnswerForm"
 import SubmissionIFrame from "../../../components/page-specific/submissions/id/SubmissionIFrame"
 import { Block } from "../../../services/backend/exercises"
 import { fetchSubmissionInfo } from "../../../services/backend/submissions"
-import { CourseMaterialExerciseTask } from "../../../shared-module/bindings"
-import Breadcrumbs, { BreadcrumbPiece } from "../../../shared-module/components/Breadcrumbs"
-import BreakFromCentered from "../../../shared-module/components/Centering/BreakFromCentered"
-import Centered from "../../../shared-module/components/Centering/Centered"
-import ErrorBanner from "../../../shared-module/components/ErrorBanner"
-import Spinner from "../../../shared-module/components/Spinner"
-import { PageMarginOffset } from "../../../shared-module/components/layout/PageMarginOffset"
-import { fontWeights, headingFont } from "../../../shared-module/styles"
-import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../shared-module/utils/constants"
+
+import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
+import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
+import { fontWeights, headingFont } from "@/shared-module/common/styles"
+import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../shared-module/utils/dontRenderUntilQueryParametersReady"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
 interface SubmissionPageProps {
   query: SimplifiedUrlQuery<"id">

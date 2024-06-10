@@ -2,12 +2,15 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../../../../shared-module/styles/theme"
 import aspectRatioFromClassName from "../../../../../utils/aspectRatioFromClassName"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
 
-export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "@/shared-module/common/styles/theme"
+
+export const YoutubeEmbedBlock: React.FC<
+  React.PropsWithChildren<EmbedAttributes> & { dontAllowBlockToBeWiderThanContainerWidth: boolean }
+> = (props) => {
   const { t } = useTranslation()
   const { url } = props
   let video = ""
@@ -26,7 +29,7 @@ export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
   }
 
   return (
-    <BreakFromCentered sidebar={false}>
+    <BreakFromCentered sidebar={false} disabled={props.dontAllowBlockToBeWiderThanContainerWidth}>
       <figure
         className={css`
           width: 100%;

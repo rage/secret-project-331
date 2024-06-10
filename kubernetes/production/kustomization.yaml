@@ -13,37 +13,6 @@ patches:
       version: v1
       kind: Ingress
       name: project-331-other-domains
-  # Patch to use --release param in cargo command
-  - path: headless-lms/patch-service-info-fetcher.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: service-info-fetcher
-  - path: headless-lms/patch-ended-exams-processor.yml
-    target:
-      version: v1
-      kind: CronJob
-      name: ended-exams-processor
-  - path: headless-lms/patch-calculate-page-visit-stats.yml
-    target:
-      version: v1
-      kind: CronJob
-      name: calculate-page-visit-stats
-  - path: headless-lms/patch-open-university-registration-link-fetcher.yml
-    target:
-      version: v1
-      kind: CronJob
-      name: open-university-registration-link-fetcher
-  - path: headless-lms/patch-peer-review-updater.yml
-    target:
-      version: v1
-      kind: CronJob
-      name: peer-review-updater
-  - path: headless-lms/patch-regrader.yml
-    target:
-      version: v1
-      kind: Deployment
-      name: regrader
   - path: ./headless-lms/patch-add-db-host-aliases.yml
     target:
       version: v1

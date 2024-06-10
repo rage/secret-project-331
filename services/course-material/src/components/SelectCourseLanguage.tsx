@@ -5,18 +5,19 @@ import { useTranslation } from "react-i18next"
 
 import PageContext from "../contexts/PageContext"
 import { fetchCourseLanguageVersions } from "../services/backend"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import Spinner from "../shared-module/components/Spinner"
+
+import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 import {
   baseTheme,
   fontWeights,
   headingFont,
   primaryFont,
   typography,
-} from "../shared-module/styles"
-import withErrorBoundary from "../shared-module/utils/withErrorBoundary"
-
-import { GetLanguageFlag, getLanguageName } from "./modals/ChooseCourseLanguage"
+} from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseTranslationsListProps {
   selectedLangCourseId: string
@@ -38,9 +39,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
     queryKey: [formatLanguageVersionsQueryKey(currentCourseId ?? ""), currentCourseId],
     queryFn: () => fetchCourseLanguageVersions(currentCourseId ?? ""),
   })
-  const courseVersionsList = useCourseLanguageVersionsList.data?.filter(
-    (course) => !course.is_draft,
-  )
+  const courseVersionsList = useCourseLanguageVersionsList.data
 
   const langCode = courseVersionsList?.find(
     (course) => course.id === selectedLangCourseId,

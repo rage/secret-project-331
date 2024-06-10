@@ -564,6 +564,29 @@ WHERE id = $1
     Ok(res)
 }
 
+pub async fn get_user_total_course_points(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Option<f32>> {
+    let res = sqlx::query!(
+        r#"
+SELECT SUM(score_given) AS "total_points"
+FROM user_exercise_states
+WHERE user_id = $1
+  AND course_instance_id = $2
+  AND deleted_at IS NULL
+  GROUP BY user_id
+        "#,
+        user_id,
+        course_instance_id,
+    )
+    .map(|x| x.total_points)
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_users_current_by_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,

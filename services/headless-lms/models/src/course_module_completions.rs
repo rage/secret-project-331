@@ -26,6 +26,30 @@ pub struct CourseModuleCompletion {
     pub completion_granter_user_id: Option<Uuid>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModuleAverage {
+    pub id: Uuid,
+    pub course_instance_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub average_duration: Option<u64>,
+    pub average_points: i32,
+    pub total_points: i32,
+    pub total_student: i32,
+}
+
+// Define the CourseModulePointsAverage struct to match the result of the SQL query
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct CourseModulePointsAverage {
+    pub course_instance_id: Uuid,
+    pub average_points: Option<f32>,
+    pub total_points: Option<i32>,
+    pub total_student: Option<i32>,
+}
+
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub enum CourseModuleCompletionGranter {
     Automatic,
@@ -201,6 +225,8 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
     pub registered: bool,
     /// ID of the user for the completion.
     pub user_id: Uuid,
+    // When the user completed the course
+    pub completion_date: DateTime<Utc>,
 }
 
 /// Gets summaries for all completions on the given course instance.
@@ -218,7 +244,8 @@ SELECT completions.completion_registration_attempt_date,
   completions.passed,
   completions.prerequisite_modules_completed,
   (registered.id IS NOT NULL) AS "registered!",
-  completions.user_id
+  completions.user_id,
+  completions.completion_date
 FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id

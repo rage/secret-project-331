@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "target": "esnext",
     "module": "esnext",
     "types": ["jest"],
     "jsx": "preserve",
     "lib": ["dom", "es2017", "ES6"],
-    "typeRoots": ["types", "./shared-module/src/types", "./node_modules/@types"],
+    "typeRoots": ["types", "./shared-module/packages/common/src/types", "./node_modules/@types"],
     "moduleResolution": "node",
     "allowJs": true,
     "noEmit": true,

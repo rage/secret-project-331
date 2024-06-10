@@ -1,5 +1,7 @@
 import { isBoolean } from "lodash"
 
+import { mainFrontendClient } from "../mainFrontendClient"
+
 import {
   Chapter,
   Course,
@@ -23,7 +25,7 @@ import {
   PageVisitDatumSummaryByPages,
   Term,
   TermUpdate,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
   isCourse,
   isCourseBreadcrumbInfo,
@@ -38,9 +40,8 @@ import {
   isPageVisitDatumSummaryByCoursesCountries,
   isPageVisitDatumSummaryByPages,
   isTerm,
-} from "../../shared-module/bindings.guard"
-import { isArray, isString, validateResponse } from "../../shared-module/utils/fetching"
-import { mainFrontendClient } from "../mainFrontendClient"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, isString, validateResponse } from "@/shared-module/common/utils/fetching"
 
 export const getCourse = async (courseId: string): Promise<Course> => {
   const response = await mainFrontendClient.get(`/courses/${courseId}`)

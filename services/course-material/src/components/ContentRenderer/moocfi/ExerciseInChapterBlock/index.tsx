@@ -4,12 +4,13 @@ import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 import PageContext from "../../../../contexts/PageContext"
-import AccordionIcon from "../../../../shared-module//img/accordion-arrow.svg"
-import Spinner from "../../../../shared-module/components/Spinner"
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import ExercisesInChapter from "./ExercisesInChapter"
+
+import AccordionIcon from "@/shared-module/common//img/accordion-arrow.svg"
+import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const Wrapper = styled.div`
   margin: 0 0 5rem 0;

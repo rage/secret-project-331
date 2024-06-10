@@ -6,15 +6,16 @@ import { useTranslation } from "react-i18next"
 
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
-import Accordion from "../../../../../shared-module/components/Accordion"
-import Button from "../../../../../shared-module/components/Button"
-import RadioButton from "../../../../../shared-module/components/InputFields/RadioButton"
-import SelectField from "../../../../../shared-module/components/InputFields/SelectField"
-import TextField from "../../../../../shared-module/components/InputFields/TextField"
-import { primaryFont } from "../../../../../shared-module/styles"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
 import ParsedTextField from "../common/ParsedTextField"
+
+import Accordion from "@/shared-module/common/components/Accordion"
+import Button from "@/shared-module/common/components/Button"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { primaryFont } from "@/shared-module/common/styles"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string
@@ -190,9 +191,19 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       )
     })
 
+  const { selected: totalNumberOfQuizItems } = useQuizzesExerciseServiceOutputState<number>(
+    (quiz) => {
+      return quiz?.items.length ?? 0
+    },
+  )
+
   if (!selected) {
-    return <></>
+    return null
   }
+
+  const showTitleEditor =
+    (totalNumberOfQuizItems && totalNumberOfQuizItems > 1) || !!selected?.title
+
   const handleTestStringChange = (updatedIdx: number) => (value: string) => {
     setTestStrings(
       testStrings.map((content, idx) => {
@@ -210,6 +221,20 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
 
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-open-name")}>
+      {showTitleEditor && (
+        <ParsedTextField
+          value={selected.title ?? null}
+          onChange={(title) => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+              draft.title = title
+            })
+          }}
+          label={t("title")}
+        />
+      )}
       <OptionTitle> {t("grading-strategy")} </OptionTitle>
       <RadioButtonContainer>
         <RadioButton

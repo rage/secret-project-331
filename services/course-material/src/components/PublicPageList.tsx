@@ -4,9 +4,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchAllCoursePages } from "../services/backend"
-import ErrorBanner from "../shared-module/components/ErrorBanner"
-import Spinner from "../shared-module/components/Spinner"
 import { coursePageRoute } from "../utils/routing"
+
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import Spinner from "@/shared-module/common/components/Spinner"
 
 interface PublicPageListProps {
   courseId: string

@@ -8,19 +8,20 @@ import {
   fetchOrganizationCourseCount,
   fetchOrganizationCourses,
 } from "../../../../services/backend/organizations"
-import { NewCourse } from "../../../../shared-module/bindings"
-import Button from "../../../../shared-module/components/Button"
-import Dialog from "../../../../shared-module/components/Dialog"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import OnlyRenderIfPermissions from "../../../../shared-module/components/OnlyRenderIfPermissions"
-import Pagination from "../../../../shared-module/components/Pagination"
-import Spinner from "../../../../shared-module/components/Spinner"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import useAuthorizeMultiple from "../../../../shared-module/hooks/useAuthorizeMultiple"
-import usePaginationInfo from "../../../../shared-module/hooks/usePaginationInfo"
 import NewCourseForm from "../../../forms/NewCourseForm"
 
 import { CourseComponent, CourseGrid } from "./CourseCard"
+
+import { NewCourse } from "@/shared-module/common/bindings"
+import Button from "@/shared-module/common/components/Button"
+import Dialog from "@/shared-module/common/components/Dialog"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import Pagination from "@/shared-module/common/components/Pagination"
+import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 
 interface Props {
   organizationId: string
@@ -105,6 +106,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
         key={course.id}
         title={course.name}
         isDraft={course.is_draft}
+        isUnlisted={course.is_unlisted}
         description={course.description ?? t("no-description-available")}
         languageCode={course.language_code}
         // eslint-disable-next-line i18next/no-literal-string

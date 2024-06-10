@@ -1,36 +1,36 @@
+import { cmsClient } from "./cmsClient"
+
 import {
-  CmsPeerReviewConfiguration,
+  CmsPeerOrSelfReviewConfiguration,
   CourseModule,
   NewResearchForm,
   NewResearchFormQuestion,
   Page,
   ResearchForm,
   ResearchFormQuestion,
-} from "../../shared-module/bindings"
+} from "@/shared-module/common/bindings"
 import {
-  isCmsPeerReviewConfiguration,
+  isCmsPeerOrSelfReviewConfiguration,
   isCourseModule,
   isPage,
   isResearchForm,
   isResearchFormQuestion,
-} from "../../shared-module/bindings.guard"
-import { isArray, isNull, isUnion, validateResponse } from "../../shared-module/utils/fetching"
+} from "@/shared-module/common/bindings.guard"
+import { isArray, isNull, isUnion, validateResponse } from "@/shared-module/common/utils/fetching"
 
-import { cmsClient } from "./cmsClient"
-
-export const getCoursesDefaultCmsPeerReviewConfiguration = async (
+export const getCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
   courseId: string,
-): Promise<CmsPeerReviewConfiguration> => {
+): Promise<CmsPeerOrSelfReviewConfiguration> => {
   const response = await cmsClient.get(`/courses/${courseId}/default-peer-review`)
-  return validateResponse(response, isCmsPeerReviewConfiguration)
+  return validateResponse(response, isCmsPeerOrSelfReviewConfiguration)
 }
 
-export const putCoursesDefaultCmsPeerReviewConfiguration = async (
+export const putCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
   courseId: string,
-  data: CmsPeerReviewConfiguration,
-): Promise<CmsPeerReviewConfiguration> => {
+  data: CmsPeerOrSelfReviewConfiguration,
+): Promise<CmsPeerOrSelfReviewConfiguration> => {
   const response = await cmsClient.put(`/courses/${courseId}/default-peer-review`, data)
-  return validateResponse(response, isCmsPeerReviewConfiguration)
+  return validateResponse(response, isCmsPeerOrSelfReviewConfiguration)
 }
 
 export const getAllPagesForACourse = async (courseId: string): Promise<Page[]> => {

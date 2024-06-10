@@ -9,11 +9,12 @@ import {
   PublicSpecQuizItemTimeline,
   PublicSpecQuizItemTimelineItem,
 } from "../../../../../types/quizTypes/publicSpec"
-import SelectMenu from "../../../../shared-module/components/SelectMenu"
-import { headingFont } from "../../../../shared-module/styles"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
 
 import { QuizItemComponentProps } from "."
+
+import SelectMenu from "@/shared-module/common/components/SelectMenu"
+import { headingFont } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const TimelineWrapper = styled.section`
   *,

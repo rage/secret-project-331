@@ -1,16 +1,17 @@
 import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
-import React, { useContext } from "react"
+import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "../.."
 import { Block } from "../../../../services/backend"
-import { CourseMaterialExerciseTask } from "../../../../shared-module/bindings"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { ExerciseIframeState } from "../../../../shared-module/exercise-service-protocol-types"
-import { baseTheme, headingFont } from "../../../../shared-module/styles"
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
+
+import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 interface ExerciseTaskProps {
   canPostSubmission: boolean
@@ -35,6 +36,15 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 
+  const areAllParagraphsEmpty = useMemo(
+    () =>
+      currentExerciseTaskAssignment?.every(
+        (paragraph) =>
+          paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
+      ),
+    [currentExerciseTaskAssignment],
+  )
+
   if (!postThisStateToIFrame) {
     return null
   }
@@ -46,13 +56,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn
 
-  const areAllParagraphsEmpty = () =>
-    currentExerciseTaskAssignment?.every(
-      (paragraph) =>
-        paragraph.name === "core/paragraph" && paragraph.attributes?.content.trim() == "",
-    )
-
-  const isEmpty = currentExerciseTaskAssignment.length > 0 && areAllParagraphsEmpty()
+  const isEmpty = currentExerciseTaskAssignment.length === 0 || areAllParagraphsEmpty
 
   return (
     <div>
@@ -75,13 +79,14 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             }
           `}
         >
-          <span>{t("title-instructions")}</span>
+          {exerciseTask.order_number === 0 && <span>{t("title-instructions")}</span>}
           <ContentRenderer
             data={currentExerciseTaskAssignment}
             editing={false}
             selectedBlockId={null}
             setEdits={(map) => map}
             isExam={isExam}
+            dontAllowBlockToBeWiderThanContainerWidth={true}
           />
         </div>
       )}

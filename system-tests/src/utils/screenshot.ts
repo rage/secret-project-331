@@ -3,12 +3,6 @@
 import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
 import { stat } from "fs/promises"
 
-import {
-  HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
-  SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
-  SPINNER_CLASS,
-} from "../shared-module/utils/constants"
-
 import accessibilityCheck from "./accessibilityCheck"
 import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
 import {
@@ -17,6 +11,12 @@ import {
   savePageYCoordinateToImage,
 } from "./imageMetadataTools"
 import { hideToasts } from "./notificationUtils"
+
+import {
+  HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
+  SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
+  SPINNER_CLASS,
+} from "@/shared-module/common/utils/constants"
 
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
 const PLAYWRIGHT_SCREENSHOT_NAME_SANITIZE_REGEX =

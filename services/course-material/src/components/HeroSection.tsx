@@ -3,12 +3,13 @@ import styled from "@emotion/styled"
 import React, { useContext } from "react"
 
 import { GlossaryContext } from "../contexts/GlossaryContext"
-import { respondToOrLarger } from "../shared-module//styles/respond"
-import { baseTheme, headingFont } from "../shared-module/styles"
-import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "../shared-module/utils/constants"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "../utils/constants"
 
 import { parseText } from "./ContentRenderer/util/textParsing"
+
+import { respondToOrLarger } from "@/shared-module/common//styles/respond"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 
 interface TextBoxProps {
   fontColor?: string
@@ -148,9 +149,15 @@ const HeroSection: React.FC<React.PropsWithChildren<React.PropsWithChildren<Card
         <span className="chapter">{label}</span>
         <h1
           className={INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS}
-          dangerouslySetInnerHTML={{ __html: parseText(title, terms).parsedText }}
+          dangerouslySetInnerHTML={{
+            __html: parseText(title, terms, { glossary: false }).parsedText,
+          }}
         />
-        <span dangerouslySetInnerHTML={{ __html: parseText(subtitle, terms).parsedText }} />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: parseText(subtitle, terms, { glossary: false }).parsedText,
+          }}
+        />
       </TextBox>
     </div>
   )

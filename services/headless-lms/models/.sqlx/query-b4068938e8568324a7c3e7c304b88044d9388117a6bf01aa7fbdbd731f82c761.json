@@ -1,0 +1,55 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id AS \"id!\",\n  answer_required AS \"answer_required!\",\n  order_number AS \"order_number!\",\n  peer_or_self_review_config_id AS \"peer_or_self_review_config_id!\",\n  question AS \"question!\",\n  question_type AS \"question_type!: _\",\n  weight AS \"weight!\"\nFROM peer_or_self_review_questions\nWHERE id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND deleted_at is null;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "answer_required!",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "order_number!",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "peer_or_self_review_config_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "question!",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "question_type!: _",
+        "type_info": {
+          "Custom": {
+            "name": "peer_review_question_type",
+            "kind": {
+              "Enum": ["essay", "scale"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "weight!",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray"]
+    },
+    "nullable": [false, false, false, false, false, false, false]
+  },
+  "hash": "b4068938e8568324a7c3e7c304b88044d9388117a6bf01aa7fbdbd731f82c761"
+}

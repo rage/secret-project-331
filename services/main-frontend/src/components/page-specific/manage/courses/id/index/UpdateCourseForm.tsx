@@ -4,10 +4,11 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
-import Button from "../../../../../../shared-module/components/Button"
-import CheckBox from "../../../../../../shared-module/components/InputFields/CheckBox"
-import TextAreaField from "../../../../../../shared-module/components/InputFields/TextAreaField"
-import TextField from "../../../../../../shared-module/components/InputFields/TextField"
+
+import Button from "@/shared-module/common/components/Button"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -35,13 +36,20 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [description, setDescription] = useState(courseDescription)
   const [draftStatus, setDraftStatus] = useState(isDraft)
   const [testStatus, setTestStatus] = useState(isTest)
+  const [isUnlisted, setIsUnlisted] = useState(false)
 
   const onUpdateCourseForm = async () => {
+    let unlisted = isUnlisted
+    if (draftStatus) {
+      // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
+      unlisted = false
+    }
     await updateCourse(courseId, {
       name,
       description,
       is_draft: draftStatus,
       is_test_mode: testStatus,
+      is_unlisted: unlisted,
     })
     onSubmitForm()
   }
@@ -81,6 +89,17 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
             checked={draftStatus}
           />
         </FieldContainer>
+        {!draftStatus && (
+          <FieldContainer>
+            <CheckBox
+              label={t("unlisted")}
+              onChange={() => {
+                setIsUnlisted(!isUnlisted)
+              }}
+              checked={isUnlisted}
+            />
+          </FieldContainer>
+        )}
         <FieldContainer>
           <CheckBox
             label={t("test-course")}

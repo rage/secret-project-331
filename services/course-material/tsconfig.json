@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "target": "esnext",
     "module": "esnext",
     "types": ["jest"],
@@ -29,6 +32,6 @@
     "katex.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "../../shared-module/src/components/layout/PageMarginOffset.tsx"
+    "@/shared-module/packages/common/src/components/layout/PageMarginOffset.tsx"
   ]
 }

@@ -2,28 +2,32 @@ import { Namespace, TFunction } from "i18next"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import YellowBox from "../../../YellowBox"
+
 import {
-  CourseMaterialPeerReviewConfig,
+  CourseMaterialPeerOrSelfReviewConfig,
+  Exercise,
   GradingProgress,
   ReviewingStage,
-} from "../../../../shared-module/bindings"
-import YellowBox from "../../../YellowBox"
+} from "@/shared-module/common/bindings"
 
 interface GradingStateProps {
   gradingProgress: GradingProgress
   reviewingStage: ReviewingStage
-  peerReviewConfig: CourseMaterialPeerReviewConfig | null
+  peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
+  exercise: Exercise
 }
 const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
   gradingProgress,
   reviewingStage,
-  peerReviewConfig,
+  peerOrSelfReviewConfig,
+  exercise,
 }) => {
   const { t } = useTranslation()
 
   const text = useMemo(
-    () => getText(reviewingStage, gradingProgress, peerReviewConfig, t),
-    [gradingProgress, peerReviewConfig, reviewingStage, t],
+    () => getText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, exercise, t),
+    [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
   )
 
   if (text === null) {
@@ -40,13 +44,24 @@ const GradingState: React.FC<React.PropsWithChildren<GradingStateProps>> = ({
 const getText = (
   reviewingStage: ReviewingStage,
   gradingProgress: GradingProgress,
-  peerReviewConfig: CourseMaterialPeerReviewConfig | null,
+  peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null,
+  exercise: Exercise,
   t: TFunction<Namespace<"course-material">, Namespace<"course-material">>,
 ): string | null => {
-  if (peerReviewConfig && reviewingStage === "NotStarted") {
-    return t("help-text-exercise-involves-peer-review", {
-      peer_reviews_to_give: peerReviewConfig.peer_reviews_to_give,
-    })
+  if (peerOrSelfReviewConfig && reviewingStage === "NotStarted") {
+    if (exercise.needs_peer_review && exercise.needs_self_review) {
+      return t("help-text-exercise-involves-peer-review-and-self-review", {
+        peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
+      })
+    }
+    if (exercise.needs_peer_review) {
+      return t("help-text-exercise-involves-only-peer-review", {
+        peer_reviews_to_give: peerOrSelfReviewConfig.peer_reviews_to_give,
+      })
+    }
+    if (exercise.needs_self_review) {
+      return t("help-text-exercise-involves-only-self-review")
+    }
   }
   if (reviewingStage === "NotStarted") {
     switch (gradingProgress) {

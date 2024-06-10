@@ -46,9 +46,10 @@ INSERT INTO courses (
     copied_from,
     course_language_group_id,
     is_draft,
+    is_unlisted,
     base_module_completion_requires_n_submodule_completions
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id,
   name,
   created_at,
@@ -63,6 +64,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions
     ",
         new_course.name,
@@ -73,6 +75,7 @@ RETURNING id,
         parent_course.id,
         course_language_group_id,
         new_course.is_draft,
+        new_course.is_unlisted,
         parent_course.base_module_completion_requires_n_submodule_completions,
     )
     .fetch_one(&mut *tx)
@@ -192,7 +195,9 @@ WHERE id = $2;
     )
     .await?;
 
-    copy_peer_review_configs(&mut tx, copied_course.id, course_id).await?;
+    copy_peer_or_self_review_configs(&mut tx, copied_course.id, course_id).await?;
+
+    copy_material_references(&mut tx, copied_course.id, course_id).await?;
 
     tx.commit().await?;
     Ok(copied_course)
@@ -520,7 +525,7 @@ INSERT INTO exercises (
     max_tries_per_slide,
     limit_number_of_tries,
     needs_peer_review,
-    use_course_default_peer_review_config
+    use_course_default_peer_or_self_review_config
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
@@ -535,7 +540,7 @@ SELECT uuid_generate_v5($1, id::text),
   max_tries_per_slide,
   limit_number_of_tries,
   needs_peer_review,
-  use_course_default_peer_review_config
+  use_course_default_peer_or_self_review_config
 FROM exercises
 WHERE course_id = $2
   AND deleted_at IS NULL
@@ -588,7 +593,7 @@ INSERT INTO exercises (
     max_tries_per_slide,
     limit_number_of_tries,
     needs_peer_review,
-    use_course_default_peer_review_config
+    use_course_default_peer_or_self_review_config
   )
 SELECT uuid_generate_v5($1, id::text),
   $1,
@@ -602,7 +607,7 @@ SELECT uuid_generate_v5($1, id::text),
   max_tries_per_slide,
   limit_number_of_tries,
   needs_peer_review,
-  use_course_default_peer_review_config
+  use_course_default_peer_or_self_review_config
 FROM exercises
 WHERE exam_id = $2
   AND deleted_at IS NULL
@@ -743,7 +748,7 @@ AND deleted_at IS NULL;
     Ok(())
 }
 
-async fn copy_peer_review_configs(
+async fn copy_peer_or_self_review_configs(
     tx: &mut PgConnection,
     namespace_id: Uuid,
     parent_id: Uuid,
@@ -751,7 +756,7 @@ async fn copy_peer_review_configs(
     // Copy exercise tasks
     sqlx::query!(
         "
-INSERT INTO peer_review_configs (
+INSERT INTO peer_or_self_review_configs (
     id,
     course_id,
     exercise_id,
@@ -767,7 +772,37 @@ SELECT uuid_generate_v5($1, id::text),
   peer_reviews_to_receive,
   processing_strategy,
   accepting_threshold
-FROM peer_review_configs
+FROM peer_or_self_review_configs
+WHERE course_id = $2
+AND deleted_at IS NULL;
+    ",
+        namespace_id,
+        parent_id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    Ok(())
+}
+
+async fn copy_material_references(
+    tx: &mut PgConnection,
+    namespace_id: Uuid,
+    parent_id: Uuid,
+) -> ModelResult<()> {
+    // Copy material references
+    sqlx::query!(
+        "
+INSERT INTO material_references (
+    citation_key,
+    course_id,
+    id,
+    reference
+)
+SELECT citation_key,
+  $1,
+  uuid_generate_v5($1, id::text),
+  reference
+FROM material_references
 WHERE course_id = $2
 AND deleted_at IS NULL;
     ",
@@ -1076,8 +1111,8 @@ mod tests {
                 original_exercise.needs_peer_review
             );
             assert_eq!(
-                copied_exercise.use_course_default_peer_review_config,
-                original_exercise.use_course_default_peer_review_config
+                copied_exercise.use_course_default_peer_or_self_review_config,
+                original_exercise.use_course_default_peer_or_self_review_config
             );
             let copied_slides = crate::exercise_slides::get_exercise_slides_by_exercise_id(
                 tx.as_mut(),
@@ -1121,6 +1156,7 @@ mod tests {
                 description: "".to_string(),
                 is_draft: true,
                 is_test_mode: false,
+                is_unlisted: false,
                 copy_user_permissions: false,
             }
         }

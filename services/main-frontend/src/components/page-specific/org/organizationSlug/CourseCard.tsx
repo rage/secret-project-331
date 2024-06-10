@@ -4,12 +4,13 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import SettingIcon from "../../../../imgs/setting.svg"
+
 import Language, {
   DEFAULT_FLAG_CLIP_PATH,
-} from "../../../../shared-module/components/LanguageSelection/Language"
-import LoginStateContext from "../../../../shared-module/contexts/LoginStateContext"
-import { baseTheme, fontWeights, headingFont, primaryFont } from "../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+} from "@/shared-module/common/components/LanguageSelection/Language"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const CourseGrid = styled.div`
   margin: 0 auto;
@@ -119,6 +120,7 @@ const LanguageCode = styled.div`
 interface CourseCardProps {
   title: string
   isDraft: boolean
+  isUnlisted: boolean
   description: string
   languageCode: string
   manageHref: string
@@ -136,6 +138,7 @@ const LANGUAGE_TEXT = "Language"
 const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
   title,
   isDraft,
+  isUnlisted,
   description,
   languageCode,
   manageHref,
@@ -188,6 +191,7 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
             <CourseHeading>
               {title}
               {isDraft && ` (${t("draft")})`}
+              {isUnlisted && ` (${t("unlisted")})`}
             </CourseHeading>
             <CourseDescription>{description}</CourseDescription>
           </CourseContent>

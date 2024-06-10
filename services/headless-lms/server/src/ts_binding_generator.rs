@@ -14,7 +14,8 @@ macro_rules! export {
 
 #[test]
 fn ts_binding_generator() {
-    let mut target = File::create("../../../shared-module/src/bindings.ts").unwrap();
+    let mut target =
+        File::create("../../../shared-module/packages/common/src/bindings.ts").unwrap();
     domain(&mut target);
     models(&mut target);
     controllers(&mut target);
@@ -109,7 +110,7 @@ fn models(target: &mut File) {
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
         exercise_slide_submissions::ExerciseSlideSubmissionAndUserExerciseState,
         exercise_slide_submissions::ExerciseSlideSubmissionAndUserExerciseStateList,
-        exercise_task_submissions::PeerReviewsRecieved,
+        exercise_task_submissions::PeerOrSelfReviewsReceived,
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,
         exercise_task_gradings::ExerciseTaskGrading,
@@ -144,10 +145,10 @@ fn models(target: &mut File) {
         library::grading::StudentExerciseSlideSubmissionResult,
         library::grading::StudentExerciseTaskSubmission,
         library::grading::StudentExerciseTaskSubmissionResult,
-        library::peer_reviewing::CourseMaterialPeerReviewData,
-        library::peer_reviewing::CourseMaterialPeerReviewDataAnswerToReview,
-        library::peer_reviewing::CourseMaterialPeerReviewQuestionAnswer,
-        library::peer_reviewing::CourseMaterialPeerReviewSubmission,
+        library::peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewData,
+        library::peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewDataAnswerToReview,
+        library::peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewQuestionAnswer,
+        library::peer_or_self_reviewing::CourseMaterialPeerOrSelfReviewSubmission,
         library::progressing::CompletionRegistrationLink,
         library::progressing::CourseInstanceCompletionSummary,
         library::custom_view_exercises::CustomViewExerciseSubmissions,
@@ -190,20 +191,20 @@ fn models(target: &mut File) {
         pages::PageSearchResult,
         pages::PageWithExercises,
         pages::PageDetailsUpdate,
-        peer_review_configs::CmsPeerReviewConfig,
-        peer_review_configs::CmsPeerReviewConfiguration,
-        peer_review_configs::CourseMaterialPeerReviewConfig,
-        peer_review_configs::PeerReviewProcessingStrategy,
-        peer_review_configs::PeerReviewConfig,
-        peer_review_submissions::PeerReviewSubmission,
-        peer_review_question_submissions::PeerReviewAnswer,
-        peer_review_question_submissions::PeerReviewQuestionAndAnswer,
-        peer_review_question_submissions::PeerReviewQuestionSubmission,
+        peer_or_self_review_configs::CmsPeerOrSelfReviewConfig,
+        peer_or_self_review_configs::CmsPeerOrSelfReviewConfiguration,
+        peer_or_self_review_configs::CourseMaterialPeerOrSelfReviewConfig,
+        peer_or_self_review_configs::PeerReviewProcessingStrategy,
+        peer_or_self_review_configs::PeerOrSelfReviewConfig,
+        peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
+        peer_or_self_review_question_submissions::PeerOrSelfReviewAnswer,
+        peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionAndAnswer,
+        peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
         peer_review_queue_entries::PeerReviewQueueEntry,
-        peer_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
-        peer_review_questions::CmsPeerReviewQuestion,
-        peer_review_questions::PeerReviewQuestion,
-        peer_review_questions::PeerReviewQuestionType,
+        peer_or_self_review_question_submissions::PeerReviewWithQuestionsAndAnswers,
+        peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
+        peer_or_self_review_questions::PeerOrSelfReviewQuestion,
+        peer_or_self_review_questions::PeerOrSelfReviewQuestionType,
         pending_roles::PendingRole,
         playground_examples::PlaygroundExample,
         playground_examples::PlaygroundExampleData,
@@ -293,7 +294,7 @@ fn controllers(target: &mut File) {
             courses::CourseMaterialCourseModule,
             exams::ExamData,
             exams::ExamEnrollmentData,
-            exercises::CourseMaterialPeerReviewDataWithToken
+            exercises::CourseMaterialPeerOrSelfReviewDataWithToken
         };
     }
 

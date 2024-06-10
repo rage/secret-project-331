@@ -1,5 +1,5 @@
-import { ExerciseServiceNewOrUpdate } from "../shared-module/bindings"
-import { validNumber, validURL } from "../shared-module/utils/validation"
+import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import { validNumber, validURL } from "@/shared-module/common/utils/validation"
 
 export const canSave = (service: ExerciseServiceNewOrUpdate) => {
   return (

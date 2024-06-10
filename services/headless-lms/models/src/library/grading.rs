@@ -14,9 +14,9 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     exercise_tasks::{self, CourseMaterialExerciseTask, ExerciseTask},
     exercises::{self, Exercise, ExerciseStatus, GradingProgress},
-    peer_review_configs::PeerReviewProcessingStrategy,
-    peer_review_question_submissions::{
-        self, PeerReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
+    peer_or_self_review_configs::PeerReviewProcessingStrategy,
+    peer_or_self_review_question_submissions::{
+        self, PeerOrSelfReviewQuestionSubmission, PeerReviewWithQuestionsAndAnswers,
     },
     prelude::*,
     regradings,
@@ -97,7 +97,7 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
     pub peer_review_processing_strategy: PeerReviewProcessingStrategy,
     pub peer_review_accepting_threshold: f32,
     /// Used to for calculating averages when acting on PeerReviewProcessingStrategy
-    pub received_peer_review_question_submissions: Vec<PeerReviewQuestionSubmission>,
+    pub received_peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
 }
 
 /// Inserts user submission to database. Tasks within submission are validated to make sure that
@@ -105,7 +105,7 @@ pub struct ExerciseStateUpdateNeedToUpdatePeerReviewStatusWithThis {
 pub async fn create_user_exercise_slide_submission(
     conn: &mut PgConnection,
     exercise_with_user_state: &ExerciseWithUserState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+    user_exercise_slide_submission: &StudentExerciseSlideSubmission,
 ) -> ModelResult<ExerciseSlideSubmissionWithTasks> {
     let selected_exercise_slide_id = exercise_with_user_state
         .user_exercise_state()
@@ -143,7 +143,7 @@ pub async fn create_user_exercise_slide_submission(
         },
     )
     .await?;
-    let user_exercise_task_submissions = user_exercise_slide_submission.exercise_task_submissions;
+    let user_exercise_task_submissions = &user_exercise_slide_submission.exercise_task_submissions;
     let mut exercise_slide_submission_tasks =
         Vec::with_capacity(user_exercise_task_submissions.len());
     for task_submission in user_exercise_task_submissions {
@@ -162,7 +162,7 @@ pub async fn create_user_exercise_slide_submission(
             exercise_slide_submission.id,
             exercise_task.exercise_slide_id,
             exercise_task.id,
-            task_submission.data_json,
+            &task_submission.data_json,
         )
         .await?;
         let submission = exercise_task_submissions::get_by_id(&mut tx, submission_id).await?;
@@ -232,7 +232,7 @@ pub enum GradingPolicy {
 pub async fn grade_user_submission(
     conn: &mut PgConnection,
     exercise_with_user_state: &mut ExerciseWithUserState,
-    user_exercise_slide_submission: StudentExerciseSlideSubmission,
+    user_exercise_slide_submission: &StudentExerciseSlideSubmission,
     grading_policy: GradingPolicy,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
@@ -525,7 +525,7 @@ pub struct AnswerRequiringAttentionWithTasks {
     pub exercise_id: Uuid,
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub given_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
-    pub received_peer_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
+    pub received_peer_or_self_reviews: Vec<PeerReviewWithQuestionsAndAnswers>,
 }
 
 /// Gets submissions that require input from the teacher to continue processing.
@@ -555,7 +555,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         )
         .await?;
         let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
-            peer_review_question_submissions::get_questions_and_answers_by_user_exercise_instance(
+            peer_or_self_review_question_submissions::get_given_peer_reviews(
                 conn,
                 answer.user_id,
                 answer.exercise_id,
@@ -565,8 +565,8 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
         } else {
             vec![]
         };
-        let received_peer_reviews =
-            peer_review_question_submissions::get_questions_and_answers_by_submission_id(
+        let received_peer_or_self_reviews =
+            peer_or_self_review_question_submissions::get_questions_and_answers_by_submission_id(
                 conn,
                 answer.submission_id,
             )
@@ -584,7 +584,7 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             exercise_id: answer.exercise_id,
             tasks,
             given_peer_reviews,
-            received_peer_reviews,
+            received_peer_or_self_reviews,
         };
         answers.push(new_answer);
     }

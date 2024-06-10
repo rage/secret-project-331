@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { addMinutes, differenceInSeconds, isPast, min, parseISO } from "date-fns"
+import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
 import React, { useCallback, useContext, useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -23,20 +23,21 @@ import {
   resetExamProgress,
   updateShowExerciseAnswers,
 } from "../../../../services/backend"
-import Button from "../../../../shared-module/components/Button"
-import BreakFromCentered from "../../../../shared-module/components/Centering/BreakFromCentered"
-import ErrorBanner from "../../../../shared-module/components/ErrorBanner"
-import CheckBox from "../../../../shared-module/components/InputFields/CheckBox"
-import Spinner from "../../../../shared-module/components/Spinner"
-import HideTextInSystemTests from "../../../../shared-module/components/system-tests/HideTextInSystemTests"
-import { withSignedIn } from "../../../../shared-module/contexts/LoginStateContext"
-import useToastMutation from "../../../../shared-module/hooks/useToastMutation"
-import { baseTheme, fontWeights, headingFont } from "../../../../shared-module/styles"
-import { respondToOrLarger } from "../../../../shared-module/styles/respond"
+
+import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import Spinner from "@/shared-module/common/components/Spinner"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
-} from "../../../../shared-module/utils/dontRenderUntilQueryParametersReady"
-import withErrorBoundary from "../../../../shared-module/utils/withErrorBoundary"
+} from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExamProps {
   // "organizationSlug"
@@ -76,7 +77,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const resetExamMutation = useToastMutation(
     () => resetExamProgress(examId),
     {
-      notify: false,
+      notify: true,
+      method: "POST",
     },
     {
       onSuccess: async () => {
@@ -237,6 +239,9 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     exam.data.enrollment_data.tag === "NotEnrolled" ||
     exam.data.enrollment_data.tag === "NotYetStarted"
   ) {
+    if (exam.data.enrollment_data.tag === "NotEnrolled") {
+      exam.data.enrollment_data.can_enroll = true
+    }
     return (
       <>
         {examInfo}
@@ -248,7 +253,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
             }}
             examEnrollmentData={exam.data.enrollment_data}
             examHasStarted={true}
-            examHasEnded={exam.data.ends_at ? isPast(exam.data.ends_at) : false}
+            examHasEnded={false}
             timeMinutes={exam.data.time_minutes}
           >
             <div

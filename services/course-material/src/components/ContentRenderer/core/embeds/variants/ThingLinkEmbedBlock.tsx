@@ -2,14 +2,17 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import BreakFromCentered from "../../../../../shared-module/components/Centering/BreakFromCentered"
-import { baseTheme } from "../../../../../shared-module/styles/theme"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
+
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { baseTheme } from "@/shared-module/common/styles/theme"
 
 const THINGLINK = "thinglink"
 const GET_NUMERIC_ID_FROM_STRING_REGEX = /\/(\d+)/g
 
-export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
+export const ThingLinkEmbedBlock: React.FC<
+  React.PropsWithChildren<EmbedAttributes & { dontAllowBlockToBeWiderThanContainerWidth: boolean }>
+> = (props) => {
   const { t } = useTranslation()
   let id: string | null = null
 
@@ -19,7 +22,7 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
   }
 
   return (
-    <BreakFromCentered sidebar={false}>
+    <BreakFromCentered sidebar={false} disabled={props.dontAllowBlockToBeWiderThanContainerWidth}>
       <figure
         className={css`
           width: 100%;

@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-import os
-import subprocess
-import glob
-import json
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+TRANSLATIONS_EN_PATH="$BASEDIR/../shared-module/packages/common/src/locales/en"
+TRANSLATIONS_EN_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$TRANSLATIONS_EN_PATH")
+FOLDERS_PATH="$BASEDIR/../shared-module/packages/common/src/locales"
+FOLDERS_RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDERS_PATH")
 
 BASEDIR = os.path.dirname(os.path.realpath(__file__))
-TRANSLATIONS_EN_PATH = os.path.join(BASEDIR, "../shared-module/src/locales/en")
+TRANSLATIONS_EN_PATH = os.path.join(BASEDIR, "../shared-module/packages/common/src/locales/en")
 TRANSLATIONS_EN_RELATIVE_PATH = os.path.relpath(TRANSLATIONS_EN_PATH)
-FOLDERS_PATH = os.path.join(BASEDIR, "../shared-module/src/locales")
+FOLDERS_PATH = os.path.join(BASEDIR, "../shared-module/packages/common/src/locales")
 FOLDERS_RELATIVE_PATH = os.path.relpath(FOLDERS_PATH)
 
 def ensure_program_in_path(program):

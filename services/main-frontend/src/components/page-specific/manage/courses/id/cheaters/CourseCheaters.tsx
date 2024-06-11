@@ -188,6 +188,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       {suspectedCheaters.isError && <Spinner variant={"medium"} />}
       {suspectedCheaters.isSuccess && suspectedCheaters.data.length ? (
         <table
+          id="cheaters-table"
           className={css`
             width: 100%;
             margin-top: 0.4rem;

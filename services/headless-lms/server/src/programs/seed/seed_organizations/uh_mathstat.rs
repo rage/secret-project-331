@@ -50,6 +50,7 @@ pub async fn seed_organization_uh_mathstat(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
+        student_6_user_id: _,
         langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
@@ -258,6 +259,22 @@ pub async fn seed_organization_uh_mathstat(
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(audio_course),
+    )
+    .await?;
+
+    let suspected_cheaters_course = seed_sample_course(
+        Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
+        "Course for Suspected Cheaters",
+        "course-for-suspected-cheaters",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(suspected_cheaters_course),
     )
     .await?;
 

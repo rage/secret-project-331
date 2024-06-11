@@ -46,7 +46,6 @@ GET `/api/v0/course-material/courses/:course_id` - Get course.
 async fn get_course(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    user: AuthUser,
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;

@@ -568,6 +568,7 @@
   "text-field-label-name": "Name",
   "text-field-label-or-header-slug-or-short-name": "Slug",
   "text-field-label-path": "Path",
+  "duration-in-hours": "Duration (in hours)",
   "list-cheaters-of-cheaters-empty-state": "No student currently suspected of cheating",
   "text-field-label-search": "User email or name",
   "text-field-label-title": "Title",

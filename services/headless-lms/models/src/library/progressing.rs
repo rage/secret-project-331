@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use std::collections::HashMap;
 
@@ -893,6 +893,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
 
 #[cfg(test)]
 mod tests {
+    use chrono::Duration;
     use user_exercise_states::{ReviewingStage, UserExerciseStateUpdate};
 
     use super::*;
@@ -1179,7 +1180,7 @@ mod tests {
                 course_instance_id: instance.id,
                 course_module_id: course_module.id,
                 user_id: user,
-                completion_date: Utc::now() + Duration::days(3),
+                completion_date: Utc::now() + Duration::days(1),
                 completion_registration_attempt_date: None,
                 completion_language: "en-US".to_string(),
                 eligible_for_ects: false,
@@ -1191,7 +1192,7 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), instance.id, Some(172800), 10)
+        suspected_cheaters::insert_thresholds(tx.as_mut(), instance.id, Some(259200), 10)
             .await
             .unwrap();
         update_automatic_completion_status_and_grant_if_eligible(

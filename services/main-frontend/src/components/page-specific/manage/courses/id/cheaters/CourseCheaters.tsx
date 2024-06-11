@@ -42,9 +42,16 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       return
     }
 
+    let convertedDuration
+
+    if (duration) {
+      //Convert duration from hours to seconds
+      convertedDuration = duration * 3600
+    }
+
     const threshold = {
       points: points,
-      duration_seconds: duration ?? 0,
+      duration_seconds: convertedDuration ?? 0,
     }
 
     return postThresholdMutation.mutate(threshold)
@@ -144,7 +151,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           <TextField
             className="duration-threshold"
             type="number"
-            label={t("duration")}
+            label={t("duration-in-hours")}
             placeholder={t("duration")}
             value={duration?.toString() ?? ""}
             onChangeByValue={(value: string) => {

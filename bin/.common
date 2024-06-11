@@ -160,16 +160,17 @@ function ensure_tmc_langs_cli_downloaded() {
 
 function make_sure_skaffold_local_env_patch_files_exists() {
   file_contents=$(cat <<EOF
-  # 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
+# 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
 # 🌟                                                                     🌟
 # 🌟  NOTE: This file is for patching environment variables during       🌟
 # 🌟  local development only. Do NOT commit any changes made to this     🌟
 # 🌟  file.                                                              🌟
 # 🌟                                                                     🌟
 # 🌟 If this file does not exist, it is automatically created in         🌟
-# 🌟 .bin/common                                                         🌟
+# 🌟 /bin/common                                                         🌟
 # 🌟                                                                     🌟
 # 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
+
 apiVersion: v1
 kind: Secret
 metadata:

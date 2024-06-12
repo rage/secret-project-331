@@ -164,7 +164,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
     if (submissions) {
       return submissions.length
     } else {
-      return " "
+      return "0"
     }
   }
 
@@ -173,7 +173,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
     if (submissions) {
       return submissions.filter((sub) => sub.teacher_grading_decision).length
     } else {
-      return " "
+      return "0"
     }
   }
 

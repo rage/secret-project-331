@@ -20,7 +20,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -241,8 +241,10 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                 className={css`
                   display: flex;
                   flex-direction: column;
-                  padding: 10px;
-                  border: 2px solid gray;
+                  background: #f5f6f7;
+                  font-family: ${headingFont};
+                  font-size: 18px;
+                  padding: 8px;
                   margin: 10px;
                 `}
               >
@@ -250,10 +252,25 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
                   {t("label-name")}: {grade[1].name}
                 </div>
                 <div>
-                  {t("label-feedback")}: {grade[0].justification}
+                  {t("points")}: {grade[0].score_given} / {grade[1].score_maximum}
                 </div>
-                <div>
-                  {t("points")}: {grade[0].score_given}
+                <div
+                  className={css`
+                    color: #535a66;
+                    font-size: 16px;
+                    padding-top: 1rem;
+                  `}
+                >
+                  {t("label-feedback")}:
+                  <div
+                    className={css`
+                      background: #ffffff;
+                      color: #535a66;
+                      padding: 10px;
+                    `}
+                  >
+                    {grade[0].justification}
+                  </div>
                 </div>
               </div>
             ),

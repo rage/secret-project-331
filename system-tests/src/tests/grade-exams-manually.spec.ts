@@ -28,7 +28,7 @@ test("Grade exams > Exam submissions", async ({}) => {
 
   // Student1 goes to the exam page and submits answers
   await student1Page.goto(
-    "http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c",
+    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
   )
 
   student1Page.once("dialog", (dialog) => {
@@ -55,7 +55,7 @@ test("Grade exams > Exam submissions", async ({}) => {
 
   // Student2 goes to the exampage and submits answers
   await student2Page.goto(
-    "http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c",
+    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
   )
 
   student2Page.once("dialog", (dialog) => {
@@ -86,7 +86,7 @@ test("Grade exams > Exam submissions", async ({}) => {
   await teacherPage.getByLabel("University of Helsinki, Department of Computer Science").click()
   await teacherPage
     .locator("li")
-    .filter({ hasText: "Ongoing short timerManage" })
+    .filter({ hasText: "Ongoing plenty of timeManage" })
     .getByRole("link")
     .nth(1)
     .click()
@@ -124,7 +124,7 @@ test("Grade exams > Exam submissions", async ({}) => {
   await expect(teacherPage.getByText("Graded").first()).toBeVisible()
   await expect(teacherPage.getByRole("cell", { name: "1/ 1" }).first()).toBeVisible()
   await expect(teacherPage.getByText("Graded").nth(1)).toBeVisible()
-  await expect(teacherPage.getByRole("cell", { name: "0.5/" })).toBeVisible()
+  await expect(teacherPage.getByRole("cell", { name: "0.5/ 1" })).toBeVisible()
 
   await teacherPage.getByRole("link", { name: "Questions" }).click()
 
@@ -150,17 +150,17 @@ test("Grade exams > Exam submissions", async ({}) => {
   //Both students check that they can see grading results after the teacher published them
 
   await student1Page.goto(
-    "http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c",
+    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
   )
 
-  await expect(student1Page.getByText("Exercise name: Best exercise")).toBeVisible()
-  await expect(student1Page.getByText("Feedback: Ok")).toBeVisible()
-  await expect(student1Page.getByText("Points: 1")).toBeVisible()
+  await expect(student1Page.getByText("Name: Best exercise")).toBeVisible()
+  await expect(student1Page.getByText("Points: 1 / 1")).toBeVisible()
+  await expect(student1Page.getByText("Feedback:Ok")).toBeVisible()
 
   await student2Page.goto(
-    "http://project-331.local/org/uh-cs/exams/6959e7af-6b78-4d37-b381-eef5b7aaad6c",
+    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
   )
-  await expect(student2Page.getByText("Exercise name: Best exercise")).toBeVisible()
-  await expect(student2Page.getByText("Feedback: Good")).toBeVisible()
-  await expect(student2Page.getByText("Points: 0.5")).toBeVisible()
+  await expect(student2Page.getByText("Name: Best exercise")).toBeVisible()
+  await expect(student2Page.getByText("Points: 0.5 / 1")).toBeVisible()
+  await expect(student2Page.getByText("Feedback:Good")).toBeVisible()
 })

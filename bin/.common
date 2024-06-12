@@ -167,7 +167,7 @@ function make_sure_skaffold_local_env_patch_files_exists() {
 # 🌟  file.                                                              🌟
 # 🌟                                                                     🌟
 # 🌟 If this file does not exist, it is automatically created in         🌟
-# 🌟 /bin/common                                                         🌟
+# 🌟 bin/common                                                          🌟
 # 🌟                                                                     🌟
 # 🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟🌟
 

@@ -22,6 +22,7 @@ pub mod url_to_oembed_endpoint;
 extern crate tracing;
 
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
 pub struct ApplicationConfiguration {
@@ -29,5 +30,5 @@ pub struct ApplicationConfiguration {
     pub test_mode: bool,
     pub development_uuid_login: bool,
     pub chatbot_azure_api_key: Option<String>,
-    pub chatbot_azure_api_endpoint: Option<String>,
+    pub chatbot_azure_api_endpoint: Option<Url>,
 }

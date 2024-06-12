@@ -17,7 +17,7 @@ async fn send_message(
     let chat_request = ChatRequest {
         messages: vec![ChatMessage {
             role: "user".to_string(),
-            content: "Hello".to_string(),
+            content: "Hello, how do I program a for loop in Haskell?".to_string(),
         }],
         temperature: 0.7,
         top_p: 1.0,

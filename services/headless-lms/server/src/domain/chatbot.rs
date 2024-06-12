@@ -8,14 +8,20 @@ use tokio::io::AsyncBufReadExt;
 use tokio_util::io::StreamReader;
 use web::Bytes;
 
+use actix::{Actor, Handler, Message, StreamHandler};
+use actix_web::{http, web, App, Error, HttpRequest, HttpResponse, HttpServer};
+use actix_web_actors::ws;
+
 use crate::prelude::*;
+
+pub const CHATBOT_AZURE_API_VERSION: &str = "2024-02-01";
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
-    pub hate: ContentFilter,
-    pub self_harm: ContentFilter,
-    pub sexual: ContentFilter,
-    pub violence: ContentFilter,
+    pub hate: Option<ContentFilter>,
+    pub self_harm: Option<ContentFilter>,
+    pub sexual: Option<ContentFilter>,
+    pub violence: Option<ContentFilter>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -34,7 +40,7 @@ pub struct Choice {
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Delta {
-    pub content: String,
+    pub content: Option<String>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -65,6 +71,11 @@ pub struct ChatRequest {
     pub stream: bool,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ChatReponse {
+    pub text: String,
+}
+
 pub async fn send_chat_request_and_parse_stream(
     payload: &ChatRequest,
     app_config: &ApplicationConfiguration,
@@ -73,12 +84,20 @@ pub async fn send_chat_request_and_parse_stream(
         .chatbot_azure_api_key
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Chatbot API key not found"))?;
-    let url = app_config
+    let mut url = app_config
         .chatbot_azure_api_endpoint
         .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("Chatbot API endpoint not found"))?;
+        .ok_or_else(|| anyhow::anyhow!("Chatbot API endpoint not found"))?
+        .clone();
 
-    let client = Client::new();
+    // Always set the api version so that we actually use the api that the code is written for
+    url.set_query(Some(&format!("api-version={}", CHATBOT_AZURE_API_VERSION)));
+
+    let client = reqwest::Client::builder()
+        .use_rustls_tls()
+        .https_only(true)
+        // .http2_max_frame_size(Some(1000))
+        .build()?;
 
     let mut headers = HeaderMap::new();
     headers.insert(
@@ -88,7 +107,7 @@ pub async fn send_chat_request_and_parse_stream(
             .map_err(|_e| anyhow::anyhow!("Invalid API key"))?,
     );
     headers.insert(
-        header::CONTENT_TYPE,
+        "content-type",
         "application/json"
             .to_string()
             .parse()
@@ -97,8 +116,11 @@ pub async fn send_chat_request_and_parse_stream(
 
     let request = client.post(url).headers(headers).json(payload).send();
 
-    let stream = request
-        .await?
+    let response = request.await?;
+
+    dbg!(response.status(), response.headers(), response.version());
+
+    let stream = response
         .bytes_stream()
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e));
     let reader = StreamReader::new(stream);
@@ -107,6 +129,7 @@ pub async fn send_chat_request_and_parse_stream(
     let response_stream = async_stream::try_stream! {
         let mut done = false;
         while let Some(line) = lines.next_line().await? {
+            dbg!(&line);
             if !line.starts_with("data: ") {
                 continue;
             }
@@ -116,9 +139,23 @@ pub async fn send_chat_request_and_parse_stream(
                 done = true;
                 break;
             }
-            let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)?;
-            let bytes = Bytes::from(json_str.to_string());
-            yield bytes;
+            let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
+                dbg!(&json_str);
+                dbg!(&e);
+                anyhow::anyhow!("Failed to parse response chunk: {}", e)
+            })?;
+            for choice in &response_chunk.choices {
+                if let Some(delta) = &choice.delta {
+                    if let Some(content) = &delta.content {
+                        let response = ChatReponse { text: content.clone() };
+                        let response_as_string = serde_json::to_string(&response)?;
+                        let bytes = Bytes::from(response_as_string);
+                        yield bytes;
+                        yield Bytes::from("\n");
+                    }
+
+                }
+            }
         }
 
         if !done {

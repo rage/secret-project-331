@@ -37,7 +37,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const examId = query.id
   const [pageState, pageStateDispatch] = useReducer(
     pageStateReducer,
-    // We don't pass a refetch function here on purpose because refetching during an exam is risky because we don't want to accidentally lose unsubitted answers
+    // We don't pass a refetch function here on purpose because refetching during an exam is risky because we don't want to accidentally lose unsubmitted answers
     getDefaultPageState(undefined),
   )
   const now = useTime(5000)

@@ -48,7 +48,6 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
   const { t } = useTranslation()
 
   const onWrapper = handleSubmit((data) => {
-    console.log("data", data)
     clearErrors()
     try {
       const parsed = Papa.parse(data.completions.trim(), {
@@ -58,9 +57,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         transform: (value) => value.trim(),
         transformHeader: (header) => header.trim().toLocaleLowerCase(),
       })
-      console.log("parsed", parsed)
       if (parsed.errors.length > 0) {
-        console.log("error")
         setError(COMPLETIONS, { message: parsed.errors[0].message })
       }
       const defaultDate = date ? makeDateStringTimezoneErrorsLessLikely(date) : null
@@ -68,9 +65,7 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         const completionDate = (entry as RawTeacherManualCompletion).completion_date
         const grade = (entry as RawTeacherManualCompletion).grade
         const userId = (entry as RawTeacherManualCompletion).user_id
-        console.log("id", userId, grade)
         if (!userId) {
-          console.log("no id")
           throw new Error(t("user-id-is-missing"))
         }
         return {

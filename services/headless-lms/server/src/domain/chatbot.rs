@@ -1,6 +1,7 @@
 use actix_http::header;
 use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
+use once_cell::sync::Lazy;
 use reqwest::header::HeaderMap;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -13,6 +14,14 @@ use actix_web::{http, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
 use crate::prelude::*;
+
+static CLIENT: Lazy<Client> = Lazy::new(|| {
+    reqwest::Client::builder()
+        .use_rustls_tls()
+        .https_only(true)
+        .build()
+        .expect("Failed to build Client")
+});
 
 pub const CHATBOT_AZURE_API_VERSION: &str = "2024-02-01";
 
@@ -93,12 +102,6 @@ pub async fn send_chat_request_and_parse_stream(
     // Always set the api version so that we actually use the api that the code is written for
     url.set_query(Some(&format!("api-version={}", CHATBOT_AZURE_API_VERSION)));
 
-    let client = reqwest::Client::builder()
-        .use_rustls_tls()
-        .https_only(true)
-        // .http2_max_frame_size(Some(1000))
-        .build()?;
-
     let mut headers = HeaderMap::new();
     headers.insert(
         "api-key",
@@ -114,9 +117,11 @@ pub async fn send_chat_request_and_parse_stream(
             .map_err(|_e| anyhow::anyhow!("Internal error"))?,
     );
 
-    let request = client.post(url).headers(headers).json(payload).send();
+    let request = CLIENT.post(url).headers(headers).json(payload).send();
 
     let response = request.await?;
+
+    info!("Receiving chat response with {:?}", response.version());
 
     dbg!(response.status(), response.headers(), response.version());
 
@@ -164,4 +169,53 @@ pub async fn send_chat_request_and_parse_stream(
     };
 
     Ok(response_stream)
+}
+
+/** Estimate the number of tokens in a given text. We use this for example to estimate the expense of a chat request. The result is not accurate but it is cheap to calculate. */
+fn estimate_tokens(text: &str) -> u32 {
+    // Counting text length by taking into account how much space each unicode character takes. This makes more complex characters more expensive.
+    let text_length = text.chars().fold(0, |acc, c| {
+        let mut len = c.len_utf8() as u32;
+        if len > 1 {
+            // The longer the character is, the more likely the text around is taking up more tokens. This is because our estimate of 4 characters per token is only valid for english and non-english languages tend to have more complex characters.
+            len *= 2;
+        }
+        if c.is_ascii_punctuation() {
+            // Punctuation is less common and is thus less likely to be part of a token.
+            len *= 2;
+        }
+        acc + len
+    });
+    // A token is roughly 4 characters
+    text_length as u32 / 4
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_estimate_tokens() {
+        // The real number is 4
+        assert_eq!(estimate_tokens("Hello, world!"), 3);
+        assert_eq!(estimate_tokens(""), 0);
+        // The real number is 9
+        assert_eq!(
+            estimate_tokens("This is a longer sentence with several words."),
+            11
+        );
+        // The real number is 7
+        assert_eq!(estimate_tokens("Hyvää päivää!"), 7);
+        // The real number is 9
+        assert_eq!(estimate_tokens("トークンは楽しい"), 12);
+        // The real number is 52
+        assert_eq!(
+            estimate_tokens("🙂🙃😀😃😄😁😆😅😂🤣😊😇🙂🙃😀😃😄😁😆😅😂🤣😊😇"),
+            48
+        );
+        // The real number is 18
+        assert_eq!(estimate_tokens("ฉันใช้โทเค็นทุกวัน"), 27);
+        // The real number is 17
+        assert_eq!(estimate_tokens("Жетони роблять мене щасливим"), 25);
+    }
 }

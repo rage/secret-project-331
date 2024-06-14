@@ -29,5 +29,6 @@ For other documentation, check out the docs folder.
 
 # License
 
-The program in folder `services/cms` is licensed under the GNU General Public License, Version 3 (https://www.gnu.org/licenses/gpl-3.0.en.html).
-Everything else is licensed under Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
+The program in folder `services/cms` is licensed under [GPL-3.0-only](LICENSE-SERVICES-CMS).
+
+Everything else is licensed under [Apache-2.0](LICENSE).

@@ -52,17 +52,16 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         )
         .await?;
 
-        if let Some(thresholds) =
-            suspected_cheaters::get_thresholds_by_id(&mut tx, course_instance_id)
-                .await
-                .optional()?
+        if let Some(thresholds) = suspected_cheaters::get_thresholds_by_id(&mut tx, course.id)
+            .await
+            .optional()?
         {
             //let average_duration_seconds = course_instances::get_course_average_duration(conn, course_instance_id).await?;
 
             check_and_insert_suspected_cheaters(
                 &mut tx,
                 user_id,
-                course_instance_id,
+                course.id,
                 &thresholds,
                 completion,
             )
@@ -76,17 +75,16 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
 pub async fn check_and_insert_suspected_cheaters(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     thresholds: &Threshold,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
-    let total_points =
-        user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
-            .await?
-            .unwrap_or(0.0);
+    let total_points = user_exercise_states::get_user_total_course_points(conn, user_id, course_id)
+        .await?
+        .unwrap_or(0.0);
 
     let student_duration_seconds =
-        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
+        course_instances::get_student_duration(conn, completion.user_id, course_id)
             .await?
             .unwrap_or(0);
 
@@ -98,7 +96,7 @@ pub async fn check_and_insert_suspected_cheaters(
         suspected_cheaters::insert(
             conn,
             completion.user_id,
-            course_instance_id,
+            course_id,
             Some(student_duration_seconds as i32),
             total_points as i32,
         )
@@ -1192,7 +1190,7 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), instance.id, Some(259200), 10)
+        suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(259200), 10)
             .await
             .unwrap();
         update_automatic_completion_status_and_grant_if_eligible(
@@ -1204,12 +1202,10 @@ mod tests {
         .await
         .unwrap();
 
-        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
-            tx.as_mut(),
-            instance.id,
-        )
-        .await
-        .unwrap();
+        let cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course_instance(tx.as_mut(), course)
+                .await
+                .unwrap();
         assert_eq!(cheaters[0].user_id, user);
     }
 
@@ -1262,7 +1258,7 @@ mod tests {
         )
         .await
         .unwrap();
-        suspected_cheaters::insert_thresholds(tx.as_mut(), instance.id, Some(172800), 10)
+        suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(172800), 10)
             .await
             .unwrap();
         update_automatic_completion_status_and_grant_if_eligible(
@@ -1274,12 +1270,10 @@ mod tests {
         .await
         .unwrap();
 
-        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
-            tx.as_mut(),
-            instance.id,
-        )
-        .await
-        .unwrap();
+        let cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course_instance(tx.as_mut(), course)
+                .await
+                .unwrap();
         assert!(cheaters.is_empty());
     }
 

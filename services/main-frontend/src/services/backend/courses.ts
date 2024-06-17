@@ -23,8 +23,10 @@ import {
   PageVisitDatumSummaryByCourseDeviceTypes,
   PageVisitDatumSummaryByCoursesCountries,
   PageVisitDatumSummaryByPages,
+  SuspectedCheaters,
   Term,
   TermUpdate,
+  ThresholdData,
 } from "@/shared-module/common/bindings"
 import {
   isCourse,
@@ -39,7 +41,9 @@ import {
   isPageVisitDatumSummaryByCourseDeviceTypes,
   isPageVisitDatumSummaryByCoursesCountries,
   isPageVisitDatumSummaryByPages,
+  isSuspectedCheaters,
   isTerm,
+  isThresholdData,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, isString, validateResponse } from "@/shared-module/common/utils/fetching"
 
@@ -274,4 +278,19 @@ export const postUpdatePeerReviewQueueReviewsReceived = async (
     `/courses/${courseId}/update-peer-review-queue-reviews-received`,
   )
   return validateResponse(res, isBoolean)
+}
+
+export const postNewThreshold = async (
+  courseId: string,
+  data: ThresholdData,
+): Promise<ThresholdData> => {
+  console.log("data", data)
+  const res = await mainFrontendClient.post(`/courses/${courseId}/threshold`, data)
+  return validateResponse(res, isThresholdData)
+}
+
+export const fetchSuspectedCheaters = async (courseId: string): Promise<SuspectedCheaters[]> => {
+  console.log("In sc endpoint")
+  const response = await mainFrontendClient.get(`/courses/${courseId}/suspected-cheaters`)
+  return validateResponse(response, isArray(isSuspectedCheaters))
 }

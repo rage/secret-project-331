@@ -9,7 +9,7 @@ import { CourseManagementPagesProps } from "../../../../../../pages/manage/cours
 import {
   fetchSuspectedCheaters,
   postNewThreshold,
-} from "../../../../../../services/backend/course-instances"
+} from "../../../../../../services/backend/courses"
 
 import { ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"

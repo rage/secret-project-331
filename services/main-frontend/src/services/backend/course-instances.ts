@@ -13,9 +13,7 @@ import {
   ExerciseStatusSummaryForUser,
   ManualCompletionPreview,
   Points,
-  SuspectedCheaters,
   TeacherManualCompletionRequest,
-  ThresholdData,
   UserCourseInstanceProgress,
 } from "@/shared-module/common/bindings"
 import {
@@ -27,8 +25,6 @@ import {
   isExerciseStatusSummaryForUser,
   isManualCompletionPreview,
   isPoints,
-  isSuspectedCheaters,
-  isThresholdData,
   isUserCourseInstanceProgress,
 } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
@@ -72,25 +68,6 @@ export const getCompletions = async (
 ): Promise<CourseInstanceCompletionSummary> => {
   const response = await mainFrontendClient.get(`/course-instances/${courseInstanceId}/completions`)
   return validateResponse(response, isCourseInstanceCompletionSummary)
-}
-
-export const postNewThreshold = async (
-  courseInstanceId: string,
-  data: ThresholdData,
-): Promise<ThresholdData> => {
-  console.log("data", data)
-  const res = await mainFrontendClient.post(`/course-instances/${courseInstanceId}/threshold`, data)
-  return validateResponse(res, isThresholdData)
-}
-
-export const fetchSuspectedCheaters = async (
-  courseInstanceId: string,
-): Promise<SuspectedCheaters[]> => {
-  console.log("In sc endpoint")
-  const response = await mainFrontendClient.get(
-    `/course-instances/${courseInstanceId}/suspected-cheaters`,
-  )
-  return validateResponse(response, isArray(isSuspectedCheaters))
 }
 
 export const postCompletionsPreview = async (

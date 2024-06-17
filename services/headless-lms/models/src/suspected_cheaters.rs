@@ -5,7 +5,7 @@ use crate::prelude::*;
 pub struct SuspectedCheaters {
     pub id: Uuid,
     pub user_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
@@ -24,7 +24,7 @@ pub struct ThresholdData {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Threshold {
     pub id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -35,7 +35,7 @@ pub struct Threshold {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     total_duration_seconds: Option<i32>,
     total_points: i32,
 ) -> ModelResult<()> {
@@ -45,14 +45,14 @@ pub async fn insert(
       user_id,
       total_duration_seconds,
       total_points,
-      course_instance_id
+      course_id
     )
     VALUES ($1, $2, $3, $4)
       ",
         user_id,
         total_duration_seconds,
         total_points,
-        course_instance_id
+        course_id
     )
     .execute(conn)
     .await?;
@@ -61,7 +61,7 @@ pub async fn insert(
 
 pub async fn insert_thresholds(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     duration_seconds: Option<i32>,
     points: i32,
 ) -> ModelResult<Threshold> {
@@ -69,18 +69,18 @@ pub async fn insert_thresholds(
         Threshold,
         "
         INSERT INTO cheater_thresholds (
-            course_instance_id,
+            course_id,
             duration_seconds,
             points
         )
         VALUES ($1, $2, $3)
-        ON CONFLICT (course_instance_id)
+        ON CONFLICT (course_id)
         DO UPDATE SET
             duration_seconds = EXCLUDED.duration_seconds,
             points = EXCLUDED.points
         RETURNING *
         ",
-        course_instance_id,
+        course_id,
         duration_seconds,
         points,
     )
@@ -92,16 +92,16 @@ pub async fn insert_thresholds(
 
 pub async fn update_thresholds_by_point(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
       UPDATE cheater_thresholds
       SET points = $2
-      WHERE course_instance_id = $1
+      WHERE course_id = $1
     ",
-        course_instance_id,
+        course_id,
         points
     )
     .execute(conn)
@@ -111,23 +111,23 @@ pub async fn update_thresholds_by_point(
 
 pub async fn get_thresholds_by_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Threshold> {
     let thresholds = sqlx::query_as!(
         Threshold,
         "
       SELECT id,
-      course_instance_id,
+      course_id,
       duration_seconds,
       points,
       created_at,
       updated_at,
       deleted_at
       FROM cheater_thresholds
-      WHERE course_instance_id = $1
+      WHERE course_id = $1
       AND deleted_at IS NULL;
     ",
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .await?;
@@ -170,17 +170,17 @@ pub async fn get_suspected_cheaters_by_id(
 
 pub async fn get_all_suspected_cheaters_in_course_instance(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
         "
 SELECT *
 FROM suspected_cheaters
-WHERE course_instance_id = $1
+WHERE course_id = $1
     AND deleted_at IS NULL;
     ",
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?;

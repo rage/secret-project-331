@@ -40,7 +40,7 @@
       },
       {
         "ordinal": 7,
-        "name": "course_instance_id",
+        "name": "course_id",
         "type_info": "Uuid"
       }
     ],

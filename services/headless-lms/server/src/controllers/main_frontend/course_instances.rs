@@ -15,7 +15,6 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
-    suspected_cheaters::{SuspectedCheaters, ThresholdData},
     user_exercise_states::UserCourseInstanceProgress,
 };
 
@@ -445,71 +444,6 @@ async fn get_user_progress_for_course_instance(
 }
 
 /**
- GET /api/v0/main-frontend/course-instance/:course_instance_id/suspected-cheaters - returns all suspected cheaters related to a course instance.
-*/
-#[instrument(skip(pool))]
-async fn get_all_suspected_cheaters(
-    user: AuthUser,
-    params: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<SuspectedCheaters>>> {
-    let course_instance_id = params.into_inner();
-
-    let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::Teach,
-        Some(user.id),
-        Res::CourseInstance(course_instance_id),
-    )
-    .await?;
-
-    let course_cheaters =
-        models::suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
-            &mut conn,
-            course_instance_id,
-        )
-        .await?;
-
-    token.authorized_ok(web::Json(course_cheaters))
-}
-
-/**
- POST /api/v0/main-frontend/course-instances/:course_instance_id/threshold - post course threshold information.
-*/
-#[instrument(skip(pool))]
-async fn insert_threshold(
-    pool: web::Data<PgPool>,
-    params: web::Path<Uuid>,
-    payload: web::Json<ThresholdData>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
-    let mut conn = pool.acquire().await?;
-
-    let course_instance_id = params.into_inner();
-    let new_threshold = payload.0;
-    let duration: Option<i32> = new_threshold.duration_seconds;
-
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::CourseInstance(course_instance_id),
-    )
-    .await?;
-
-    models::suspected_cheaters::insert_thresholds(
-        &mut conn,
-        course_instance_id,
-        duration,
-        new_threshold.points,
-    )
-    .await?;
-
-    token.authorized_ok(web::Json(()))
-}
-
-/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -560,14 +494,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/progress/{user_id}",
             web::get().to(get_user_progress_for_course_instance),
-        )
-        .route(
-            "/{course_instance_id}/threshold",
-            web::post().to(insert_threshold),
-        )
-        .route(
-            "/{course_instance_id}/suspected-cheaters",
-            web::get().to(get_all_suspected_cheaters),
         )
         .route(
             "/{course_instance_id}/reprocess-completions",

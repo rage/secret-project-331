@@ -3,7 +3,7 @@
 -- Add course_id to suspected_cheaters table and set it to reference courses(id)
 ALTER TABLE suspected_cheaters
 ADD course_id UUID NOT NULL REFERENCES courses;
---Replace course-instance-id to course-id in cheater_thresholds
+--Replace course_instance_id to course_id in cheater_thresholds
 ALTER TABLE cheater_thresholds DROP course_instance_id,
   ADD course_id UUID NOT NULL REFERENCES courses;
 -- Create a unique index on the course_id column in cheater_thresholds table

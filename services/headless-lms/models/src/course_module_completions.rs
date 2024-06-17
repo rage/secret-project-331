@@ -24,7 +24,7 @@ pub struct CourseModuleCompletion {
     pub passed: bool,
     pub prerequisite_modules_completed: bool,
     pub completion_granter_user_id: Option<Uuid>,
-    pub needs_to_be_reviewed: bool,
+    pub needs_to_be_reviewed: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]

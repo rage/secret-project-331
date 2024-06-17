@@ -290,7 +290,6 @@ export const postNewThreshold = async (
 }
 
 export const fetchSuspectedCheaters = async (courseId: string): Promise<SuspectedCheaters[]> => {
-  console.log("In sc endpoint")
   const response = await mainFrontendClient.get(`/courses/${courseId}/suspected-cheaters`)
   return validateResponse(response, isArray(isSuspectedCheaters))
 }

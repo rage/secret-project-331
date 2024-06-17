@@ -755,7 +755,10 @@ export function isCourseModuleCompletion(obj: unknown): obj is CourseModuleCompl
     typeof typedObj["passed"] === "boolean" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     (typedObj["completion_granter_user_id"] === null ||
-      typeof typedObj["completion_granter_user_id"] === "string")
+      typeof typedObj["completion_granter_user_id"] === "string") &&
+    (typedObj["needs_to_be_reviewed"] === null ||
+      typedObj["needs_to_be_reviewed"] === false ||
+      typedObj["needs_to_be_reviewed"] === true)
   )
 }
 
@@ -2964,7 +2967,7 @@ export function isSuspectedCheaters(obj: unknown): obj is SuspectedCheaters {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
-    typeof typedObj["course_instance_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
     typeof typedObj["created_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     (typedObj["updated_at"] === null || typeof typedObj["updated_at"] === "string") &&

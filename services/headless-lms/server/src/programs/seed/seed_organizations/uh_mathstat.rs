@@ -84,6 +84,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: false,
     };
     let (
@@ -129,6 +130,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: false,
     };
     library::content_management::create_new_course(
@@ -175,6 +177,7 @@ pub async fn seed_organization_uh_mathstat(
             description: "Just a draft.".to_string(),
             is_draft: false,
             is_test_mode: false,
+            is_unlisted: false,
             copy_user_permissions: false,
         },
         true,

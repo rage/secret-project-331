@@ -396,6 +396,7 @@ export interface Course {
   course_language_group_id: string
   is_draft: boolean
   is_test_mode: boolean
+  is_unlisted: boolean
   base_module_completion_requires_n_submodule_completions: number
 }
 
@@ -415,6 +416,7 @@ export interface CourseUpdate {
   description: string | null
   is_draft: boolean
   is_test_mode: boolean
+  is_unlisted: boolean
 }
 
 export interface NewCourse {
@@ -427,6 +429,7 @@ export interface NewCourse {
   description: string
   is_draft: boolean
   is_test_mode: boolean
+  is_unlisted: boolean
   copy_user_permissions: boolean
 }
 

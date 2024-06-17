@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { updateCourse } from "../../../../../../services/backend/courses"
 
+import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -15,34 +16,33 @@ const FieldContainer = styled.div`
 `
 
 interface UpdateCourseFormProps {
-  courseId: string
-  courseName: string
-  courseDescription: string | null
-  isDraft: boolean
-  isTest: boolean
+  course: Course
   onSubmitForm: () => void
 }
 
 const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>> = ({
-  courseId,
-  courseName,
-  courseDescription,
-  isDraft,
-  isTest,
+  course,
   onSubmitForm,
 }) => {
   const { t } = useTranslation()
-  const [name, setName] = useState(courseName)
-  const [description, setDescription] = useState(courseDescription)
-  const [draftStatus, setDraftStatus] = useState(isDraft)
-  const [testStatus, setTestStatus] = useState(isTest)
+  const [name, setName] = useState(course.name)
+  const [description, setDescription] = useState(course.description)
+  const [draftStatus, setDraftStatus] = useState(course.is_draft)
+  const [testStatus, setTestStatus] = useState(course.is_test_mode)
+  const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
 
   const onUpdateCourseForm = async () => {
-    await updateCourse(courseId, {
+    let unlisted = isUnlisted
+    if (draftStatus) {
+      // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
+      unlisted = false
+    }
+    await updateCourse(course.id, {
       name,
       description,
       is_draft: draftStatus,
       is_test_mode: testStatus,
+      is_unlisted: unlisted,
     })
     onSubmitForm()
   }
@@ -82,6 +82,17 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
             checked={draftStatus}
           />
         </FieldContainer>
+        {!draftStatus && (
+          <FieldContainer>
+            <CheckBox
+              label={t("unlisted")}
+              onChange={() => {
+                setIsUnlisted(!isUnlisted)
+              }}
+              checked={isUnlisted}
+            />
+          </FieldContainer>
+        )}
         <FieldContainer>
           <CheckBox
             label={t("test-course")}

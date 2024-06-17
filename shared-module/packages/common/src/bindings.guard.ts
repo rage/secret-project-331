@@ -892,6 +892,7 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["course_language_group_id"] === "string" &&
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number"
   )
 }
@@ -925,7 +926,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["name"] === "string" &&
     (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
     typeof typedObj["is_draft"] === "boolean" &&
-    typeof typedObj["is_test_mode"] === "boolean"
+    typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["is_unlisted"] === "boolean"
   )
 }
 
@@ -942,6 +944,7 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["description"] === "string" &&
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["copy_user_permissions"] === "boolean"
   )
 }

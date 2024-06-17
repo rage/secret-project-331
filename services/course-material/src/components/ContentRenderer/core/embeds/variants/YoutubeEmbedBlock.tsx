@@ -8,7 +8,9 @@ import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseM
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 
-export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
+export const YoutubeEmbedBlock: React.FC<
+  React.PropsWithChildren<EmbedAttributes> & { dontAllowBlockToBeWiderThanContainerWidth: boolean }
+> = (props) => {
   const { t } = useTranslation()
   const { url } = props
   let video = ""
@@ -27,7 +29,7 @@ export const YoutubeEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
   }
 
   return (
-    <BreakFromCentered sidebar={false}>
+    <BreakFromCentered sidebar={false} disabled={props.dontAllowBlockToBeWiderThanContainerWidth}>
       <figure
         className={css`
           width: 100%;

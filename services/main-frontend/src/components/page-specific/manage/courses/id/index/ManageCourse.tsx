@@ -95,6 +95,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         >
           {course.name}
           {course.is_draft && ` (${t("draft")})`}
+          {course.is_unlisted && ` (${t("unlisted")})`}
           {course.deleted_at && ` (${t("deleted")})`}
         </h1>
         <p>
@@ -145,14 +146,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </Button>
           </div>
 
-          <UpdateCourseForm
-            courseId={course.id}
-            courseName={course.name}
-            courseDescription={course.description}
-            isDraft={course.is_draft}
-            isTest={course.is_test_mode}
-            onSubmitForm={handleOnUpdateCourse}
-          />
+          <UpdateCourseForm course={course} onSubmitForm={handleOnUpdateCourse} />
         </div>
       </Dialog>
       {organizationSlug && (

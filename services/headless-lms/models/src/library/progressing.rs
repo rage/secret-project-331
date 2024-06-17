@@ -62,6 +62,7 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
                 &mut tx,
                 user_id,
                 course.id,
+                course_instance_id,
                 &thresholds,
                 completion,
             )
@@ -76,15 +77,17 @@ pub async fn check_and_insert_suspected_cheaters(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
+    course_instance_id: Uuid,
     thresholds: &Threshold,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
-    let total_points = user_exercise_states::get_user_total_course_points(conn, user_id, course_id)
-        .await?
-        .unwrap_or(0.0);
+    let total_points =
+        user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
+            .await?
+            .unwrap_or(0.0);
 
     let student_duration_seconds =
-        course_instances::get_student_duration(conn, completion.user_id, course_id)
+        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
             .await?
             .unwrap_or(0);
 

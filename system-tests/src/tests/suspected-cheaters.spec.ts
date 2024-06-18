@@ -42,7 +42,7 @@ test.describe("Teacher can set threshold for course", () => {
     await page.goto(CHEATER_EDITOR_PAGE)
 
     await page.fill('[label="Points"]', "1")
-    await page.fill(`input[label="Duration (in hours)"]`, "259200")
+    await page.fill(`input[label="Duration (in hours)"]`, "48")
 
     await page.getByText("Set threshold").click()
 
@@ -77,10 +77,10 @@ test.describe("Teacher can set threshold for course", () => {
 
     expect(table).not.toBeNull()
 
-    // // Count the number of rows in the table body
-    // const rows = page.locator('table[data-testid="cheaters-table"] tbody tr')
+    // Count the number of rows in the table body
+    const rows = page.locator('table[data-testid="cheaters-table"] tbody tr')
 
-    // // Assert that the number of rows is greater than one
-    // expect(rows.count()).toBeGreaterThan(1)
+    // Assert that the number of rows is greater than one
+    expect(rows.count()).toBeGreaterThan(1)
   })
 })

@@ -31,7 +31,7 @@ test.describe("Teacher can set threshold for course", () => {
     await Promise.all([context1.close(), context2.close(), context3.close()])
   })
 
-  test("suspected cheaters feature works", async () => {
+  test.only("suspected cheaters feature works", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -54,19 +54,18 @@ test.describe("Teacher can set threshold for course", () => {
     await answerExercise(student2Page, TEST_PAGE, "b")
     // await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
 
-    // Now all the student 1 should see their results.
+    // Now student 1 should see their results.
     await student1Page.reload()
     await expect(student1Page.getByTestId("exercise-points")).toContainText("0/1")
     await student1Page.getByText("Your answer was not correct").waitFor()
 
-    // Now all the student 2 should see their results.
+    // Now student 2 should see their results.
     await student2Page.reload()
     await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
     await student2Page.getByText("Good job!").waitFor()
-
+    // Check if the cheaters table is rightly populated
     await teacherPage.reload()
     await teacherPage.getByText("Student id").waitFor()
-    // Check if student with id=7ba4beb1-abe8-4bad-8bb2-d012c55b310c is available in the DOM
     await teacherPage.getByText("Duration").first().waitFor({ state: "visible" })
     await teacherPage
       .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
@@ -76,5 +75,11 @@ test.describe("Teacher can set threshold for course", () => {
       .getByText("bc403a82-1e8b-4274-acc8-d765648ef698")
       .first()
       .waitFor({ state: "hidden" })
+    // Ensure Congratulation block is not shown for suspected cheaters after completion
+    await student2Page.goto(
+      "http://project-331.local/org/uh-cs/courses/course-for-suspected-cheaters",
+    )
+    await student2Page.getByText("Welcome to...").waitFor()
+    await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
   })
 })

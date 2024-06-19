@@ -750,6 +750,7 @@ pub struct UserModuleCompletionStatus {
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
     pub certificate_configuration_id: Option<Uuid>,
+    pub needs_to_be_reviewed: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -795,7 +796,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                             .id,
                     );
                 } else {
-                    // If instance-speficic certificate configuration is not found, try to find a configuration that is not instance-specific.
+                    // If instance-specific certificate configuration is not found, try to find a configuration that is not instance-specific.
                     let matching_certificate_configuration = all_certifcate_configurations_requiring_only_one_module_and_no_course_instance
                         .iter()
                         .find(|x| x.requirements.course_module_ids.contains(&module.id));
@@ -822,6 +823,9 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
+                needs_to_be_reviewed: completion
+                .and_then(|x| x.needs_to_be_reviewed)
+                .unwrap_or(false),
             }
         })
         .collect();

@@ -1050,6 +1050,7 @@ export interface UserModuleCompletionStatus {
   enable_registering_completion_to_uh_open_university: boolean
   certification_enabled: boolean
   certificate_configuration_id: string | null
+  needs_to_be_reviewed: boolean
 }
 
 export interface UserWithModuleCompletions {

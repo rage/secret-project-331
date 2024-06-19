@@ -2016,7 +2016,8 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean" &&
     typeof typedObj["certification_enabled"] === "boolean" &&
     (typedObj["certificate_configuration_id"] === null ||
-      typeof typedObj["certificate_configuration_id"] === "string")
+      typeof typedObj["certificate_configuration_id"] === "string") &&
+    typeof typedObj["needs_to_be_reviewed"] === "boolean"
   )
 }
 

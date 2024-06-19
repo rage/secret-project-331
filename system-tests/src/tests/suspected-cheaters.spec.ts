@@ -31,7 +31,7 @@ test.describe("Teacher can set threshold for course", () => {
     await Promise.all([context1.close(), context2.close(), context3.close()])
   })
 
-  test.only("suspected cheaters feature works", async () => {
+  test("suspected cheaters feature works", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()

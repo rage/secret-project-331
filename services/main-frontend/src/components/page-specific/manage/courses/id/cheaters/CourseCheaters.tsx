@@ -188,7 +188,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       {suspectedCheaters.isError && <Spinner variant={"medium"} />}
       {suspectedCheaters.isSuccess && suspectedCheaters.data.length ? (
         <table
-          id="cheaters-table"
+          id="cheaters"
           className={css`
             width: 100%;
             margin-top: 0.4rem;
@@ -219,21 +219,23 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             <th>{t("points")}</th>
             <th>{t("duration")}</th>
           </tr>
-          {suspectedCheaters.data?.map(({ id, total_points, total_duration_seconds }, index) => {
-            const everySecondListItem = index % 2 === 1
-            return (
-              <tr
-                key={id}
-                className={css`
-                  background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
-                `}
-              >
-                <td>{id}</td>
-                <td>{total_points}</td>
-                <td>{total_duration_seconds}</td>
-              </tr>
-            )
-          })}
+          {suspectedCheaters.data?.map(
+            ({ user_id, total_points, total_duration_seconds }, index) => {
+              const everySecondListItem = index % 2 === 1
+              return (
+                <tr
+                  key={user_id}
+                  className={css`
+                    background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
+                  `}
+                >
+                  <td>{user_id}</td>
+                  <td>{total_points}</td>
+                  <td>{total_duration_seconds}</td>
+                </tr>
+              )
+            },
+          )}
         </table>
       ) : (
         <div

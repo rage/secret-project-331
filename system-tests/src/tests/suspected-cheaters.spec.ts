@@ -31,20 +31,19 @@ test.describe("Teacher can set threshold for course", () => {
     await Promise.all([context1.close(), context2.close(), context3.close()])
   })
 
-  test.only("suspected cheaters feature works", async ({ page }) => {
+  test.only("suspected cheaters feature works", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
     const teacherPage = await context3.newPage()
 
     // Teacher set thresholds
-    await teacherPage.goto("http://project-331.local/organizations")
-    await page.goto(CHEATER_EDITOR_PAGE)
+    await teacherPage.goto(CHEATER_EDITOR_PAGE)
 
-    await page.fill('[label="Points"]', "1")
-    await page.fill(`input[label="Duration (in hours)"]`, "48")
+    await teacherPage.fill('[label="Points"]', "1")
+    await teacherPage.fill(`input[label="Duration (in hours)"]`, "48")
 
-    await page.getByText("Set threshold").click()
+    await teacherPage.getByText("Set threshold").click()
 
     // Student 1 navigates to exercise and answers
     await answerExercise(student1Page, TEST_PAGE, "a")
@@ -65,22 +64,17 @@ test.describe("Teacher can set threshold for course", () => {
     await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
     await student2Page.getByText("Good job!").waitFor()
 
-    // Teacher reviews suspected cheaters
-    // await teacherPage.goto("http://project-331.local/organizations")
-    // await page
-    //   .getByLabel("University of Helsinki, Department of Mathematics and Statistics")
-    //   .click()
-    // await page.getByLabel("Manage course 'Audio course'").click()
-    // await page.getByRole("tab", { name: "Cheaters" }).click()
-    await page.goto(CHEATER_EDITOR_PAGE)
-    const table = expect(teacherPage.getByTestId("cheaters-table"))
-
-    expect(table).not.toBeNull()
-
-    // Count the number of rows in the table body
-    const rows = page.locator('table[data-testid="cheaters-table"] tbody tr')
-
-    // Assert that the number of rows is greater than one
-    expect(rows.count()).toBeGreaterThan(1)
+    await teacherPage.reload()
+    await teacherPage.getByText("Student id").waitFor()
+    // Check if student with id=7ba4beb1-abe8-4bad-8bb2-d012c55b310c is available in the DOM
+    await teacherPage.getByText("Duration").first().waitFor({ state: "visible" })
+    await teacherPage
+      .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
+      .first()
+      .waitFor({ state: "visible" })
+    await teacherPage
+      .getByText("bc403a82-1e8b-4274-acc8-d765648ef698")
+      .first()
+      .waitFor({ state: "hidden" })
   })
 })

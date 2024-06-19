@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use futures::try_join;
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
@@ -10,7 +9,6 @@ use headless_lms_models::{
     roles::{self, RoleDomain, UserRole},
     PKeyPolicy,
 };
-use headless_lms_utils::futures::run_parallelly;
 use uuid::Uuid;
 
 use sqlx::{Pool, Postgres};
@@ -266,26 +264,17 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let suspected_cheaters_course = seed_sample_course(
+    let suspected_cheaters_course_id = seed_sample_course(
         Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
         "Course for Suspected Cheaters",
         "course-for-suspected-cheaters",
         uh_data.clone(),
     )
     .await?;
-    let (automatic_completions_id, ..) = try_join!(
-        // using these ids
-        run_parallelly(seed_sample_course(
-            Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
-            "Course for Suspected Cheaters",
-            "course-for-suspected-cheaters",
-            uh_data.clone(),
-        )),
-    )?;
 
     // configure automatic completions
     let automatic_default_module =
-        course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
+        course_modules::get_default_by_course_id(&mut conn, suspected_cheaters_course_id).await?;
     let automatic_default_module = course_modules::update_automatic_completion_status(
         &mut conn,
         automatic_default_module.id,
@@ -308,7 +297,7 @@ pub async fn seed_organization_uh_mathstat(
         &mut conn,
         teacher_user_id,
         UserRole::Teacher,
-        RoleDomain::Course(suspected_cheaters_course),
+        RoleDomain::Course(suspected_cheaters_course_id),
     )
     .await?;
 

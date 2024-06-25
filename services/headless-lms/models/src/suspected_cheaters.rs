@@ -5,6 +5,7 @@ use crate::prelude::*;
 pub struct SuspectedCheaters {
     pub id: Uuid,
     pub user_id: Uuid,
+    pub course_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
@@ -23,7 +24,7 @@ pub struct ThresholdData {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Threshold {
     pub id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -34,6 +35,7 @@ pub struct Threshold {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
+    course_id: Uuid,
     total_duration_seconds: Option<i32>,
     total_points: i32,
 ) -> ModelResult<()> {
@@ -42,55 +44,64 @@ pub async fn insert(
     INSERT INTO suspected_cheaters (
       user_id,
       total_duration_seconds,
-      total_points
+      total_points,
+      course_id
     )
-    VALUES ($1, $2, $3)
+    VALUES ($1, $2, $3, $4)
       ",
         user_id,
         total_duration_seconds,
-        total_points
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn insert_thresholds(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-    duration_seconds: Option<i32>,
-    points: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-    INSERT INTO cheater_thresholds (
-      course_instance_id,
-      duration_seconds,
-      points
-    )
-    VALUES ($1, $2, $3)
-      ",
-        course_instance_id,
-        duration_seconds,
-        points
+        total_points,
+        course_id
     )
     .execute(conn)
     .await?;
     Ok(())
 }
 
+pub async fn insert_thresholds(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    duration_seconds: Option<i32>,
+    points: i32,
+) -> ModelResult<Threshold> {
+    let threshold = sqlx::query_as!(
+        Threshold,
+        "
+        INSERT INTO cheater_thresholds (
+            course_id,
+            duration_seconds,
+            points
+        )
+        VALUES ($1, $2, $3)
+        ON CONFLICT (course_id)
+        DO UPDATE SET
+            duration_seconds = EXCLUDED.duration_seconds,
+            points = EXCLUDED.points
+        RETURNING *
+        ",
+        course_id,
+        duration_seconds,
+        points,
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(threshold)
+}
+
 pub async fn update_thresholds_by_point(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     points: i32,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
       UPDATE cheater_thresholds
       SET points = $2
-      WHERE course_instance_id = $1
+      WHERE course_id = $1
     ",
-        course_instance_id,
+        course_id,
         points
     )
     .execute(conn)
@@ -100,17 +111,23 @@ pub async fn update_thresholds_by_point(
 
 pub async fn get_thresholds_by_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Threshold> {
     let thresholds = sqlx::query_as!(
         Threshold,
         "
-      SELECT *
+      SELECT id,
+      course_id,
+      duration_seconds,
+      points,
+      created_at,
+      updated_at,
+      deleted_at
       FROM cheater_thresholds
-      WHERE course_instance_id = $1
+      WHERE course_id = $1
       AND deleted_at IS NULL;
     ",
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .await?;
@@ -141,12 +158,31 @@ pub async fn get_suspected_cheaters_by_id(
         "
       SELECT *
       FROM suspected_cheaters
-      WHERE id = $1
+      WHERE user_id = $1
       AND deleted_at IS NULL;
     ",
         id
     )
     .fetch_one(conn)
+    .await?;
+    Ok(cheaters)
+}
+
+pub async fn get_all_suspected_cheaters_in_course_instance(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<SuspectedCheaters>> {
+    let cheaters = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+SELECT *
+FROM suspected_cheaters
+WHERE course_id = $1
+    AND deleted_at IS NULL;
+    ",
+        course_id
+    )
+    .fetch_all(conn)
     .await?;
     Ok(cheaters)
 }

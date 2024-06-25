@@ -64,6 +64,7 @@ pub async fn seed_organization_uh_cs(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
+        student_6_user_id: _,
         langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;

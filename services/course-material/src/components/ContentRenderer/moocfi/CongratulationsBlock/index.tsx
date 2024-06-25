@@ -28,11 +28,14 @@ const CongratulationsBlock: React.FC<React.PropsWithChildren<unknown>> = () => {
       {getModuleCompletions.isSuccess && (
         <>
           {/* This block is only visible after the default module is completed.*/}
-          {courseInstanceId && getModuleCompletions.data.some((x) => x.default && x.completed) && (
-            <BreakFromCentered sidebar={false}>
-              <Congratulations modules={getModuleCompletions.data} />
-            </BreakFromCentered>
-          )}
+          {courseInstanceId &&
+            getModuleCompletions.data.some(
+              (x) => x.default && x.completed && !x.needs_to_be_reviewed,
+            ) && (
+              <BreakFromCentered sidebar={false}>
+                <Congratulations modules={getModuleCompletions.data} />
+              </BreakFromCentered>
+            )}
         </>
       )}
     </>

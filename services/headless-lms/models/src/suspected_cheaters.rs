@@ -20,6 +20,13 @@ pub struct ThresholdData {
     pub duration_seconds: Option<i32>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct DeletedSuspectedCheater {
+    pub id: i32,
+    pub count: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Threshold {
@@ -57,6 +64,46 @@ pub async fn insert(
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub async fn insert_deleted_suspected_cheaters(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    count: i32,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+    INSERT INTO deleted_suspected_cheaters (
+      user_id,
+      count
+    )
+    VALUES ($1, $2)
+      ",
+        user_id,
+        count
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn get_deleted_suspected_cheaters_by_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<DeletedSuspectedCheater> {
+    let deleted = sqlx::query_as!(
+        DeletedSuspectedCheater,
+        "
+        SELECT *
+        FROM deleted_suspected_cheaters
+        WHERE user_id = $1
+        AND deleted_at IS NULL;
+      ",
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(deleted)
 }
 
 pub async fn insert_thresholds(

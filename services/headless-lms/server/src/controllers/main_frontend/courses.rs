@@ -1352,6 +1352,37 @@ async fn insert_threshold(
 }
 
 /**
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters - returns all suspected cheaters related to a course instance.
+*/
+#[instrument(skip(pool))]
+async fn delete_suspected_cheaters(
+    user: AuthUser,
+    params: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<SuspectedCheaters>>> {
+    let user_id = params.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let course_cheaters =
+        models::suspected_cheaters::delete_suspected_cheaters(&mut conn, user_id).await?;
+
+    let deleted =
+        models::suspected_cheaters::get_deleted_suspected_cheaters_by_id(&mut conn, course_id)
+            .await?;
+
+    models::suspected_cheaters::insert_deleted_suspected_cheaters(
+        &mut conn,
+        course_id,
+        deleted.count + 1,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(course_cheaters))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.

@@ -119,9 +119,9 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"stats"} isActive={path === "stats"}>
           {t("link-stats")}
         </TabLink>
-        <TabLink url={"cheaters"} isActive={path === "cheaters"}>
+        {/*         <TabLink url={"cheaters"} isActive={path === "cheaters"}>
           {t("link-cheaters")}
-        </TabLink>
+        </TabLink> */}
       </TabLinkNavigation>
       <TabLinkPanel>
         <PageToRender courseId={courseId} />

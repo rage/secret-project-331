@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { ExclamationTriangle, Gear } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,14 +19,22 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+
+interface CourseCheatersProps extends CourseManagementPagesProps {
+  query: SimplifiedUrlQuery<"id">
+}
 
 const Header = styled.div`
   width: 100%;
 `
 
-const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+const CourseCheaters: React.FC<React.PropsWithChildren<CourseCheatersProps>> = ({
   courseId,
+  query,
 }) => {
+  const courseInstanceId = query.id
+
   const { t } = useTranslation()
 
   const [points, setPoints] = useState<number>()
@@ -229,7 +238,17 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                     background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
                   `}
                 >
-                  <td>{user_id}</td>
+                  <td>
+                    {" "}
+                    <Link
+                      href={{
+                        pathname: "/manage/users/[userId]",
+                        query: { userId: user_id },
+                      }}
+                    >
+                      {user_id}
+                    </Link>
+                  </td>
                   <td>{total_points}</td>
                   <td>{total_duration_seconds}</td>
                 </tr>

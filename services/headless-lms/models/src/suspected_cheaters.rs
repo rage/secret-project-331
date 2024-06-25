@@ -66,46 +66,6 @@ pub async fn insert(
     Ok(())
 }
 
-pub async fn insert_deleted_suspected_cheaters(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    count: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-    INSERT INTO deleted_suspected_cheaters (
-      user_id,
-      count
-    )
-    VALUES ($1, $2)
-      ",
-        user_id,
-        count
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn get_deleted_suspected_cheaters_by_id(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-) -> ModelResult<DeletedSuspectedCheater> {
-    let deleted = sqlx::query_as!(
-        DeletedSuspectedCheater,
-        "
-        SELECT *
-        FROM deleted_suspected_cheaters
-        WHERE user_id = $1
-        AND deleted_at IS NULL;
-      ",
-        user_id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(deleted)
-}
-
 pub async fn insert_thresholds(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -181,11 +141,16 @@ pub async fn get_thresholds_by_id(
     Ok(thresholds)
 }
 
-pub async fn delete_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+// make true and false 0 and 1s
+
+pub async fn insert_archived_suspected_cheaters(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<()> {
     sqlx::query!(
         r#"
       UPDATE suspected_cheaters
-      SET deleted_at = now()
+      SET is_archived = 1
       WHERE id = $1
       RETURNING id
     "#,

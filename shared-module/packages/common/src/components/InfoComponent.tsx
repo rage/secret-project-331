@@ -40,11 +40,6 @@ const TimeComponent: React.FC<
     const globalX = pivotPointRect.x - rect.width / 2 + pivotPointRect.width / 2
     const globalY = pivotPointRect.y - rect.height + 10
 
-    /*
-    top: -77.04998779296875px
-    left: 89.13335418701172px
-    */
-
     setLeft(globalX - parentRect.x)
     setTop(globalY - parentRect.y)
   }, [])

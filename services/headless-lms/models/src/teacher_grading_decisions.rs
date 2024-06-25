@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -104,6 +106,41 @@ LIMIT 1
     )
     .fetch_optional(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(
+    conn: &mut PgConnection,
+    user_exercise_state_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, TeacherGradingDecision>> {
+    let decisions = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+SELECT id,
+  user_exercise_state_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden
+FROM teacher_grading_decisions
+WHERE user_exercise_state_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND deleted_at IS NULL
+      "#,
+        user_exercise_state_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut res: HashMap<Uuid, TeacherGradingDecision> = HashMap::new();
+    for item in decisions.into_iter() {
+        res.insert(item.user_exercise_state_id, item);
+    }
+
     Ok(res)
 }
 

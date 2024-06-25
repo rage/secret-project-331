@@ -1,5 +1,7 @@
 use chrono::{DateTime, Duration, Utc};
-use headless_lms_models::exercises::Exercise;
+use headless_lms_models::{
+    exercises::Exercise, user_exercise_states::CourseInstanceOrExamId, ModelError, ModelErrorType,
+};
 use models::{
     exams::{self, ExamEnrollment},
     exercises,
@@ -181,6 +183,17 @@ pub async fn fetch_exam_for_user(
             )
             .await?;
         let teacher_grading_decisions = teachers_grading_decisions_list.clone();
+
+        let exam_exercises = exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
+
+        let user_exercise_states =
+            user_exercise_states::get_all_for_user_and_course_instance_or_exam(
+                &mut conn,
+                user.id,
+                CourseInstanceOrExamId::Exam(*exam_id),
+            )
+            .await?;
+
         let mut grading_decision_and_exercise_list: Vec<(TeacherGradingDecision, Exercise)> =
             Vec::new();
 
@@ -190,15 +203,29 @@ pub async fn fetch_exam_for_user(
                 if !hidden {
                     // Get the corresponding exercise for the grading result
                     for grading in teacher_grading_decisions.into_iter() {
-                        let user_exercise_state = user_exercise_states::get_by_id(
-                            &mut conn,
-                            grading.user_exercise_state_id,
-                        )
-                        .await?;
-                        let exercise =
-                            exercises::get_by_id(&mut conn, user_exercise_state.exercise_id)
-                                .await?;
-                        grading_decision_and_exercise_list.push((grading, exercise));
+                        let user_exercise_state = user_exercise_states
+                            .iter()
+                            .find(|state| state.id == grading.user_exercise_state_id)
+                            .ok_or_else(|| {
+                                ModelError::new(
+                                    ModelErrorType::Generic,
+                                    "User_exercise_state not found".into(),
+                                    None,
+                                )
+                            })?;
+
+                        let exercise = exam_exercises
+                            .iter()
+                            .find(|exercise| exercise.id == user_exercise_state.exercise_id)
+                            .ok_or_else(|| {
+                                ModelError::new(
+                                    ModelErrorType::Generic,
+                                    "Exercise not found".into(),
+                                    None,
+                                )
+                            })?;
+
+                        grading_decision_and_exercise_list.push((grading, exercise.clone()));
                     }
 
                     let token =

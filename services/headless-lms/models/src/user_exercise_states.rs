@@ -536,6 +536,89 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_or_create_user_exercise_state_for_users(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    exercise_id: Uuid,
+    course_instance_id: Option<Uuid>,
+    exam_id: Option<Uuid>,
+) -> ModelResult<HashMap<Uuid, UserExerciseState>> {
+    let existing = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND exercise_id = $2
+  AND (course_instance_id = $3 OR exam_id = $4)
+  AND deleted_at IS NULL
+"#,
+        user_ids,
+        exercise_id,
+        course_instance_id,
+        exam_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let mut res = HashMap::with_capacity(user_ids.len());
+    for item in existing.into_iter() {
+        res.insert(item.user_id, item);
+    }
+
+    let missing_user_ids = user_ids
+        .iter()
+        .filter(|user_id| !res.contains_key(user_id))
+        .copied()
+        .collect::<Vec<_>>();
+
+    let created = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
+    SELECT UNNEST($1::uuid []), $2, $3, $4
+    RETURNING id,
+      user_id,
+      exercise_id,
+      course_instance_id,
+      exam_id,
+      created_at,
+      updated_at,
+      deleted_at,
+      score_given,
+      grading_progress as "grading_progress: _",
+      activity_progress as "activity_progress: _",
+      reviewing_stage AS "reviewing_stage: _",
+      selected_exercise_slide_id
+      "#,
+        &missing_user_ids,
+        exercise_id,
+        course_instance_id,
+        exam_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    for item in created.into_iter() {
+        res.insert(item.user_id, item);
+    }
+    Ok(res)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,

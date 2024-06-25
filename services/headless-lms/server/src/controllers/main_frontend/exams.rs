@@ -218,7 +218,7 @@ async fn get_exercise_slide_submissions_and_user_exercise_states_with_exercise_i
             *exercise_id,
         );
     let mut conn = pool.acquire().await?;
-    let submissions = models::exercise_slide_submissions::exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+    let submissions = models::exercise_slide_submissions::get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
         &mut conn,
         *exercise_id,
         *pagination,
@@ -252,6 +252,8 @@ async fn get_exercise_slide_submissions_and_user_exercise_states_with_exam_id(
 
     let exercises = models::exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
 
+    let mut conn = pool.acquire().await?;
+
     for exercise in exercises.iter() {
         let submission_count =
             models::exercise_slide_submissions::exercise_slide_submission_count_with_exam_id(
@@ -259,11 +261,11 @@ async fn get_exercise_slide_submissions_and_user_exercise_states_with_exam_id(
             );
         let mut conn = pool.acquire().await?;
 
-        let submissions = models::exercise_slide_submissions::exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
-            &mut conn,
-            exercise.id,
-            *pagination,
-        );
+        let submissions = models::exercise_slide_submissions::get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+        &mut conn,
+        exercise.id,
+        *pagination,
+    );
         let (submission_count, submissions) =
             future::try_join(submission_count, submissions).await?;
         let total_pages = pagination.total_pages(submission_count);

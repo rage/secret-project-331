@@ -504,7 +504,7 @@ AND deleted_at IS NULL
     Ok(count.count.unwrap_or(0).try_into()?)
 }
 
-pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     pagination: Pagination,
@@ -536,25 +536,46 @@ pub async fn exercise_slide_submissions_and_user_exercise_state_list_with_exerci
     .fetch_all(&mut *conn)
     .await?;
 
-    let mut list: Vec<ExerciseSlideSubmissionAndUserExerciseState> = Vec::new();
-    for sub in submissions {
-        let res = user_exercise_states::get_or_create_user_exercise_state(
+    let user_ids = submissions
+        .iter()
+        .map(|sub| sub.user_id)
+        .collect::<Vec<_>>();
+
+    let exam_id = submissions[0].exam_id;
+
+    let user_exercise_states_list =
+        user_exercise_states::get_or_create_user_exercise_state_for_users(
             conn,
-            sub.user_id,
-            sub.exercise_id,
+            &user_ids,
+            exercise_id,
             None,
-            Some(sub.exam_id.unwrap()),
+            exam_id,
         )
         .await?;
 
-        let decision = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id(conn, res.id).await?;
+    let mut user_exercise_state_id_list: Vec<Uuid> = Vec::new();
 
-        let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    for (_key, value) in user_exercise_states_list.clone().into_iter() {
+        user_exercise_state_id_list.push(value.id);
+    }
+
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+
+    let teacher_grading_decisions_list = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(conn, &user_exercise_state_id_list).await?;
+
+    let mut list: Vec<ExerciseSlideSubmissionAndUserExerciseState> = Vec::new();
+    for sub in submissions {
+        let user_exercise_state = user_exercise_states_list.get(&sub.user_id).ok_or_else(|| {
+            ModelError::new(ModelErrorType::Generic, "No user found".into(), None)
+        })?;
+
+        let teacher_grading_decision = teacher_grading_decisions_list.get(&user_exercise_state.id);
+
         let data = ExerciseSlideSubmissionAndUserExerciseState {
-            exercise,
+            exercise: exercise.clone(),
             exercise_slide_submission: sub,
-            user_exercise_state: res,
-            teacher_grading_decision: decision,
+            user_exercise_state: user_exercise_state.clone(),
+            teacher_grading_decision: teacher_grading_decision.cloned(),
         };
         list.push(data);
     }

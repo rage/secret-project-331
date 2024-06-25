@@ -108,14 +108,11 @@ test("Grade exams > Exam submissions", async ({}) => {
     .getByRole("button")
     .click()
   await teacherPage.locator("#Justification").fill("Ok")
-  await teacherPage.getByRole("textbox", { name: "undefinedfalse" }).fill("1")
+  await teacherPage.getByLabel("Score", { exact: true }).fill("1")
   await teacherPage.getByRole("button", { name: "Save and next" }).click()
 
-  // TO DO make page actually wait fot tis notification
-  // await teacherPage.getByText("Operation successful!").waitFor()
-
   await teacherPage.locator("#Justification").fill("Good")
-  await teacherPage.getByRole("textbox", { name: "undefinedfalse" }).fill("0.5")
+  await teacherPage.getByLabel("Score", { exact: true }).fill("0.5")
   await teacherPage.getByRole("button", { name: "Submit" }).click()
   await teacherPage.getByText("Operation successful!").waitFor()
 

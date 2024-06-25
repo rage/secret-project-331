@@ -313,8 +313,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
               size={"small"}
               onClick={() => {
                 const confirmation = confirm(
-                  // eslint-disable-next-line i18next/no-literal-string
-                  `Do you want to publish all currently graded submissions?`,
+                  t("message-do-you-want-to-publish-all-currently-graded-submissions"),
                 )
                 if (confirmation) {
                   handlePublishGradingResults()

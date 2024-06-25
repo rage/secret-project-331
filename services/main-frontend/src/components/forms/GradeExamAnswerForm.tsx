@@ -77,7 +77,7 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
     const newGrading: NewTeacherGradingDecision = {
       user_exercise_state_id: getCurrentGradingInfo.data?.id ?? "",
       justification: data.justification,
-      hidden: false,
+      hidden: true,
       exercise_id: getSubmissionInfo.data?.exercise.id ?? "",
       // eslint-disable-next-line i18next/no-literal-string
       action: "CustomPoints",
@@ -148,6 +148,7 @@ const GradeExamAnswerForm: React.FC<React.PropsWithChildren<GradeExamAnswerProps
           </h4>
           <TextField
             id={t("score")}
+            label={t("score")}
             defaultValue={currentSubmission?.teacher_grading_decision?.score_given ?? ""}
             {...register("manual_points", { required: t("required-field") })}
           />

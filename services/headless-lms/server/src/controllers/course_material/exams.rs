@@ -252,6 +252,7 @@ pub async fn fetch_exam_for_user(
             && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
         {
             // exam is still open but the student's time has expired
+            exams::update_exam_ended(&mut conn, *exam_id, user.id, true).await?;
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,

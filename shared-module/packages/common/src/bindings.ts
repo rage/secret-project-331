@@ -658,6 +658,7 @@ export interface ExerciseSlideSubmissionAndUserExerciseState {
   exercise_slide_submission: ExerciseSlideSubmission
   user_exercise_state: UserExerciseState
   teacher_grading_decision: TeacherGradingDecision | null
+  user_exam_enrollment: ExamEnrollment
 }
 
 export interface ExerciseSlideSubmissionAndUserExerciseStateList {

@@ -7,6 +7,7 @@ use url::Url;
 
 use crate::{
     courses::Course,
+    exams::{self, ExamEnrollment},
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_tasks::CourseMaterialExerciseTask,
@@ -121,6 +122,7 @@ pub struct ExerciseSlideSubmissionAndUserExerciseState {
     pub exercise_slide_submission: ExerciseSlideSubmission,
     pub user_exercise_state: UserExerciseState,
     pub teacher_grading_decision: Option<TeacherGradingDecision>,
+    pub user_exam_enrollment: ExamEnrollment,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -541,7 +543,8 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         .map(|sub| sub.user_id)
         .collect::<Vec<_>>();
 
-    let exam_id = submissions[0].exam_id;
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let exam_id = exercise.exam_id;
 
     let user_exercise_states_list =
         user_exercise_states::get_or_create_user_exercise_state_for_users(
@@ -560,8 +563,14 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
     }
 
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let exam_id = exercise
+        .exam_id
+        .ok_or_else(|| ModelError::new(ModelErrorType::Generic, "No exam id found".into(), None))?;
 
     let teacher_grading_decisions_list = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(conn, &user_exercise_state_id_list).await?;
+
+    let user_exam_enrollments_list =
+        exams::get_exam_enrollments_for_users(conn, exam_id, &user_ids).await?;
 
     let mut list: Vec<ExerciseSlideSubmissionAndUserExerciseState> = Vec::new();
     for sub in submissions {
@@ -570,14 +579,28 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         })?;
 
         let teacher_grading_decision = teacher_grading_decisions_list.get(&user_exercise_state.id);
+        let user_exam_enrollment =
+            user_exam_enrollments_list
+                .get(&sub.user_id)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "No users exam_enrollment found".into(),
+                        None,
+                    )
+                })?;
 
-        let data = ExerciseSlideSubmissionAndUserExerciseState {
-            exercise: exercise.clone(),
-            exercise_slide_submission: sub,
-            user_exercise_state: user_exercise_state.clone(),
-            teacher_grading_decision: teacher_grading_decision.cloned(),
-        };
-        list.push(data);
+        //Add submissions to the list only if the students exam time has ended
+        if user_exam_enrollment.ended {
+            let data = ExerciseSlideSubmissionAndUserExerciseState {
+                exercise: exercise.clone(),
+                exercise_slide_submission: sub,
+                user_exercise_state: user_exercise_state.clone(),
+                teacher_grading_decision: teacher_grading_decision.cloned(),
+                user_exam_enrollment: user_exam_enrollment.clone(),
+            };
+            list.push(data);
+        }
     }
 
     Ok(list)

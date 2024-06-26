@@ -1,4 +1,5 @@
 use chrono::Duration;
+use std::collections::HashMap;
 
 use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -351,12 +352,13 @@ pub async fn verify_exam_submission_can_be_made(
     Ok(student_has_time && exam_is_ongoing)
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExamEnrollment {
     pub user_id: Uuid,
     pub exam_id: Uuid,
     pub started_at: DateTime<Utc>,
+    pub ended: bool,
     pub is_teacher_testing: bool,
     pub show_exercise_answers: Option<bool>,
 }
@@ -372,6 +374,7 @@ pub async fn get_enrollment(
 SELECT user_id,
   exam_id,
   started_at,
+  ended,
   is_teacher_testing,
   show_exercise_answers
 FROM exam_enrollments
@@ -384,6 +387,40 @@ WHERE exam_id = $1
     )
     .fetch_optional(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_exam_enrollments_for_users(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, ExamEnrollment>> {
+    let enrollments = sqlx::query_as!(
+        ExamEnrollment,
+        "
+SELECT user_id,
+  exam_id,
+  started_at,
+  ended,
+  is_teacher_testing,
+  show_exercise_answers
+FROM exam_enrollments
+WHERE user_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND exam_id = $2
+  AND deleted_at IS NULL
+",
+        user_ids,
+        exam_id,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut res: HashMap<Uuid, ExamEnrollment> = HashMap::new();
+    for item in enrollments.into_iter() {
+        res.insert(item.user_id, item);
+    }
     Ok(res)
 }
 
@@ -410,6 +447,28 @@ WHERE exam_id = $1
     Ok(())
 }
 
+pub async fn update_exam_ended(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+    ended: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exam_enrollments
+SET ended = $3
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+",
+        exam_id,
+        user_id,
+        ended
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
 pub async fn update_show_exercise_answers(
     conn: &mut PgConnection,
     exam_id: Uuid,

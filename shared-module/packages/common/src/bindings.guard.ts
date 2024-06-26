@@ -1294,7 +1294,8 @@ export function isExerciseSlideSubmissionAndUserExerciseState(
     (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean) &&
     (isUserExerciseState(typedObj["user_exercise_state"]) as boolean) &&
     (typedObj["teacher_grading_decision"] === null ||
-      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean))
+      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)) &&
+    (isExamEnrollment(typedObj["user_exam_enrollment"]) as boolean)
   )
 }
 

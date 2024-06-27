@@ -11,6 +11,7 @@ pub struct SuspectedCheaters {
     pub updated_at: Option<DateTime<Utc>>,
     pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
+    pub is_archived: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -141,22 +142,16 @@ pub async fn get_thresholds_by_id(
     Ok(thresholds)
 }
 
-// make true and false 0 and 1s
-
-pub async fn insert_archived_suspected_cheaters(
-    conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<()> {
+pub async fn archive_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
-        r#"
+        "
       UPDATE suspected_cheaters
-      SET is_archived = 1
+      SET is_archived = TRUE
       WHERE id = $1
-      RETURNING id
-    "#,
+    ",
         id
     )
-    .fetch_one(conn)
+    .execute(conn)
     .await?;
     Ok(())
 }

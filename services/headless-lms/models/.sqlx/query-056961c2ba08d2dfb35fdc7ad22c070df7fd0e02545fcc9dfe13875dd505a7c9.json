@@ -42,12 +42,17 @@
         "ordinal": 7,
         "name": "course_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_archived",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, true, true, false, false]
+    "nullable": [false, false, false, false, true, true, false, false, false]
   },
   "hash": "056961c2ba08d2dfb35fdc7ad22c070df7fd0e02545fcc9dfe13875dd505a7c9"
 }

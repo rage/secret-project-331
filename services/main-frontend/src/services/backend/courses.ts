@@ -293,3 +293,11 @@ export const fetchSuspectedCheaters = async (courseId: string): Promise<Suspecte
   const response = await mainFrontendClient.get(`/courses/${courseId}/suspected-cheaters`)
   return validateResponse(response, isArray(isSuspectedCheaters))
 }
+
+export const archiveSuspectedCheaters = async (courseId: string, id: string): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/${id}`)
+}
+
+export const approveSuspectedCheaters = async (courseId: string, id: string): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/${id}`)
+}

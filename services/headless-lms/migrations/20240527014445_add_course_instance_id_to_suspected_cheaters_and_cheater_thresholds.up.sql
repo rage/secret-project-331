@@ -17,4 +17,4 @@ ADD COLUMN needs_to_be_reviewed BOOLEAN DEFAULT NULL;
 COMMENT ON COLUMN course_module_completions.needs_to_be_reviewed IS 'Determine if a course module needs review as a result of a student being suspected of cheating';
 --Add is_archived to suspected cheater table
 ALTER TABLE suspected_cheaters
-ADD is_archived BOOLEAN DEFAULT FALSE NOT NULL;
+ADD is_archived BOOLEAN DEFAULT NULL;

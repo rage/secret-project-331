@@ -11,7 +11,7 @@ pub struct SuspectedCheaters {
     pub updated_at: Option<DateTime<Utc>>,
     pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
-    pub is_archived: bool,
+    pub is_archived: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -147,6 +147,20 @@ pub async fn archive_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> Mo
         "
       UPDATE suspected_cheaters
       SET is_archived = TRUE
+      WHERE id = $1
+    ",
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn approve_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "
+      UPDATE suspected_cheaters
+      SET is_archived = FALSE
       WHERE id = $1
     ",
         id

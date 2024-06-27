@@ -1352,6 +1352,44 @@ async fn insert_threshold(
 }
 
 /**
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/:id - UPDATE is_archived to TRUE.
+*/
+#[instrument(skip(pool))]
+async fn teacher_archive_suspected_cheaters(
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, user_id) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::archive_suspected_cheaters(&mut conn, user_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/:id - UPDATE is_archived to FALSE.
+*/
+#[instrument(skip(pool))]
+async fn teacher_approve_suspected_cheaters(
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, user_id) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::approve_suspected_cheaters(&mut conn, user_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1504,6 +1542,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/suspected-cheaters",
             web::get().to(get_all_suspected_cheaters),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/:id",
+            web::post().to(teacher_archive_suspected_cheaters),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/:id",
+            web::post().to(teacher_approve_suspected_cheaters),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",

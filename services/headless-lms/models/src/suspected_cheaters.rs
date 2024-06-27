@@ -11,6 +11,7 @@ pub struct SuspectedCheaters {
     pub updated_at: Option<DateTime<Utc>>,
     pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
+    pub is_archived: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +19,13 @@ pub struct SuspectedCheaters {
 pub struct ThresholdData {
     pub points: i32,
     pub duration_seconds: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct DeletedSuspectedCheater {
+    pub id: i32,
+    pub count: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -134,17 +142,30 @@ pub async fn get_thresholds_by_id(
     Ok(thresholds)
 }
 
-pub async fn delete_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+pub async fn archive_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
-        r#"
+        "
       UPDATE suspected_cheaters
-      SET deleted_at = now()
+      SET is_archived = TRUE
       WHERE id = $1
-      RETURNING id
-    "#,
+    ",
         id
     )
-    .fetch_one(conn)
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn approve_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "
+      UPDATE suspected_cheaters
+      SET is_archived = FALSE
+      WHERE id = $1
+    ",
+        id
+    )
+    .execute(conn)
     .await?;
     Ok(())
 }

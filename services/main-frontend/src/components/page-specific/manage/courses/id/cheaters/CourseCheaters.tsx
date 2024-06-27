@@ -2,11 +2,14 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { ExclamationTriangle, Gear } from "@vectopus/atlas-icons-react"
+import Link from "next/link"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
 import {
+  approveSuspectedCheaters,
+  archiveSuspectedCheaters,
   fetchSuspectedCheaters,
   postNewThreshold,
 } from "../../../../../../services/backend/courses"
@@ -18,14 +21,17 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
+
+interface CourseCheatersProps extends CourseManagementPagesProps {
+  query: SimplifiedUrlQuery<"id">
+}
 
 const Header = styled.div`
   width: 100%;
 `
 
-const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
-  courseId,
-}) => {
+const CourseCheaters: React.FC<React.PropsWithChildren<CourseCheatersProps>> = ({ courseId }) => {
   const { t } = useTranslation()
 
   const [points, setPoints] = useState<number>()
@@ -70,6 +76,18 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       },
     },
   )
+
+  const handleApproval = async (id: string): Promise<void> => {
+    const approved = await approveSuspectedCheaters(courseId, id)
+    await suspectedCheaters.refetch()
+    return approved
+  }
+
+  const handleArchive = async (id: string): Promise<void> => {
+    const archived = await archiveSuspectedCheaters(courseId, id)
+    await suspectedCheaters.refetch()
+    return archived
+  }
 
   return (
     <>
@@ -218,6 +236,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
             <th>{t("student-id")}</th>
             <th>{t("points")}</th>
             <th>{t("duration")}</th>
+            <th>{t("actions")}</th>
           </tr>
           {suspectedCheaters.data?.map(
             ({ user_id, total_points, total_duration_seconds }, index) => {
@@ -229,9 +248,37 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                     background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
                   `}
                 >
-                  <td>{user_id}</td>
+                  <td>
+                    {" "}
+                    <Link
+                      href={{
+                        pathname: "/manage/users/[userId]",
+                        query: { userId: user_id },
+                      }}
+                    >
+                      {user_id}
+                    </Link>
+                  </td>
                   <td>{total_points}</td>
                   <td>{total_duration_seconds}</td>
+                  <td>
+                    <Button
+                      className="threshold-btn"
+                      variant="primary"
+                      size="medium"
+                      onClick={() => handleApproval(user_id)}
+                    >
+                      {t("approve")}
+                    </Button>
+                    <Button
+                      className="threshold-btn"
+                      variant="primary"
+                      size="medium"
+                      onClick={() => handleArchive(user_id)}
+                    >
+                      {t("delete")}
+                    </Button>
+                  </td>
                 </tr>
               )
             },

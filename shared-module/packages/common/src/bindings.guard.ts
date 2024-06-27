@@ -1056,6 +1056,7 @@ export function isExamEnrollment(obj: unknown): obj is ExamEnrollment {
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["exam_id"] === "string" &&
     typeof typedObj["started_at"] === "string" &&
+    (typedObj["ended_at"] === null || typeof typedObj["ended_at"] === "string") &&
     typeof typedObj["is_teacher_testing"] === "boolean" &&
     (typedObj["show_exercise_answers"] === null ||
       typedObj["show_exercise_answers"] === false ||

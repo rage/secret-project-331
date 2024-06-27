@@ -653,3 +653,8 @@ export const fetchExerciseSubmissions = async (
   )
   return validateResponse(response, isExerciseSlideSubmissionAndUserExerciseStateList)
 }
+
+export const endExamTime = async (examId: string): Promise<void> => {
+  const response = await courseMaterialClient.post(`/exams/${examId}/end-exam-time`)
+  return response.data
+}

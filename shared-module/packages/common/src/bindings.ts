@@ -508,6 +508,7 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: string
+  ended_at: string | null
   is_teacher_testing: boolean
   show_exercise_answers: boolean | null
 }

@@ -358,7 +358,7 @@ pub struct ExamEnrollment {
     pub user_id: Uuid,
     pub exam_id: Uuid,
     pub started_at: DateTime<Utc>,
-    pub ended: bool,
+    pub ended_at: Option<DateTime<Utc>>,
     pub is_teacher_testing: bool,
     pub show_exercise_answers: Option<bool>,
 }
@@ -374,7 +374,7 @@ pub async fn get_enrollment(
 SELECT user_id,
   exam_id,
   started_at,
-  ended,
+  ended_at,
   is_teacher_testing,
   show_exercise_answers
 FROM exam_enrollments
@@ -401,7 +401,7 @@ pub async fn get_exam_enrollments_for_users(
 SELECT user_id,
   exam_id,
   started_at,
-  ended,
+  ended_at,
   is_teacher_testing,
   show_exercise_answers
 FROM exam_enrollments
@@ -451,19 +451,19 @@ pub async fn update_exam_ended(
     conn: &mut PgConnection,
     exam_id: Uuid,
     user_id: Uuid,
-    ended: bool,
+    ended_at: DateTime<Utc>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 UPDATE exam_enrollments
-SET ended = $3
+SET ended_at = $3
 WHERE exam_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
 ",
         exam_id,
         user_id,
-        ended
+        ended_at
     )
     .execute(conn)
     .await?;

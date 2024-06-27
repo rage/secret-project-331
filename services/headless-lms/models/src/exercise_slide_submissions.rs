@@ -591,7 +591,7 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
                 })?;
 
         //Add submissions to the list only if the students exam time has ended
-        if user_exam_enrollment.ended {
+        if user_exam_enrollment.ended_at.is_some() {
             let data = ExerciseSlideSubmissionAndUserExerciseState {
                 exercise: exercise.clone(),
                 exercise_slide_submission: sub,

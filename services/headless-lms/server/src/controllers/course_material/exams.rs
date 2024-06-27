@@ -252,7 +252,7 @@ pub async fn fetch_exam_for_user(
             && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
         {
             // exam is still open but the student's time has expired
-            exams::update_exam_ended(&mut conn, *exam_id, user.id, true).await?;
+            exams::update_exam_ended(&mut conn, *exam_id, user.id, Utc::now()).await?;
             let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,
@@ -373,8 +373,32 @@ pub async fn fetch_exam_for_testing(
     }))
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ShowExerciseAnswers {
+    pub show_exercise_answers: bool,
+}
 /**
-GET /api/v0/course-material/exams/:id/reset-exam-progress
+POST /api/v0/course-material/exams/:id/update-show-exercise-answers
+
+Used for testing an exam, updates wheter exercise answers are shown.
+*/
+#[instrument(skip(pool))]
+pub async fn update_show_exercise_answers(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+    payload: web::Json<ShowExerciseAnswers>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let show_answers = payload.show_exercise_answers;
+    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+POST /api/v0/course-material/exams/:id/reset-exam-progress
 
 Used for testing an exam, resets exercise submissions and restarts the exam time.
 */
@@ -398,27 +422,23 @@ pub async fn reset_exam_progress(
     token.authorized_ok(web::Json(()))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ShowExerciseAnswers {
-    pub show_exercise_answers: bool,
-}
 /**
-GET /api/v0/course-material/exams/:id/update-show-exercise-answers
+POST /api/v0/course-material/exams/:id/end-exam-time
 
-Used for testing an exam, updates wheter exercise answers are shown.
+Used for marking the students exam as ended in the exam enrollment
 */
 #[instrument(skip(pool))]
-pub async fn update_show_exercise_answers(
+pub async fn end_exam_time(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
     user: AuthUser,
-    payload: web::Json<ShowExerciseAnswers>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let show_answers = payload.show_exercise_answers;
-    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let ended_at = Utc::now();
+    models::exams::update_exam_ended(&mut conn, *exam_id, user.id, ended_at).await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -444,5 +464,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/testexam/{id}/reset-exam-progress",
             web::post().to(reset_exam_progress),
-        );
+        )
+        .route("/{id}/end-exam-time", web::post().to(end_exam_time));
 }

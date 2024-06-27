@@ -14,12 +14,14 @@ import PageContext, { CoursePageDispatch, getDefaultPageState } from "../../../c
 import useTime from "../../../hooks/useTime"
 import pageStateReducer from "../../../reducers/pageStateReducer"
 
-import { Block, enrollInExam, fetchExam } from "@/services/backend"
+import { Block, endExamTime, enrollInExam, fetchExam } from "@/services/backend"
+import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
@@ -87,6 +89,20 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
   }, [handleRefresh])
+
+  const handleEndExam = () => {
+    endExamMutation.mutate({ id: examId })
+  }
+
+  const endExamMutation = useToastMutation(
+    ({ id }: { id: string }) => endExamTime(id),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: () => {
+        handleRefresh()
+      },
+    },
+  )
 
   if (exam.isPending) {
     return <Spinner variant="medium" />
@@ -316,6 +332,18 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           </div>
         )}
         <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
+        <Button
+          variant={"primary"}
+          size={"small"}
+          onClick={() => {
+            const confirmation = confirm(t("message-do-you-want-to-end-the-exam"))
+            if (confirmation) {
+              handleEndExam()
+            }
+          }}
+        >
+          {t("button-end-exam")}
+        </Button>
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

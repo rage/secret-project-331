@@ -2974,7 +2974,8 @@ export function isSuspectedCheaters(obj: unknown): obj is SuspectedCheaters {
     (typedObj["updated_at"] === null || typeof typedObj["updated_at"] === "string") &&
     (typedObj["total_duration_seconds"] === null ||
       typeof typedObj["total_duration_seconds"] === "number") &&
-    typeof typedObj["total_points"] === "number"
+    typeof typedObj["total_points"] === "number" &&
+    typeof typedObj["is_archived"] === "boolean"
   )
 }
 

@@ -28,7 +28,7 @@ test("Grade exams > Exam submissions", async ({}) => {
 
   // Student1 goes to the exam page and submits answers
   await student1Page.goto(
-    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
+    "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
 
   student1Page.once("dialog", (dialog) => {
@@ -53,9 +53,15 @@ test("Grade exams > Exam submissions", async ({}) => {
     .getByRole("button", { name: "Submit" })
     .click()
 
-  // Student2 goes to the exampage and submits answers
+  student1Page.once("dialog", (dialog) => {
+    dialog.accept()
+  })
+  await student1Page.getByRole("button", { name: "End exam" }).click()
+  await expect(student1Page.getByText("Success", { exact: true })).toBeVisible()
+
+  // Student2 goes to the exam page and submits answers
   await student2Page.goto(
-    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
+    "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
 
   student2Page.once("dialog", (dialog) => {
@@ -74,11 +80,16 @@ test("Grade exams > Exam submissions", async ({}) => {
   await student2Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("checkbox", { name: "a" })
-    .click()
+    .setChecked(true)
   await student2Page
     .getByLabel("Exercise:Best exercise")
     .getByRole("button", { name: "Submit" })
     .click()
+  student2Page.once("dialog", (dialog) => {
+    dialog.accept()
+  })
+  await student2Page.getByRole("button", { name: "End exam" }).click()
+  await expect(student2Page.getByText("Success", { exact: true })).toBeVisible()
 
   // Teacher goes to grading page and grades the students submissions
 
@@ -93,13 +104,13 @@ test("Grade exams > Exam submissions", async ({}) => {
   await teacherPage.getByRole("link", { name: "Grading" }).click()
 
   // Check that there are both students submissions
-  await expect(teacherPage.getByRole("cell", { name: "Number of answered" })).toBeVisible()
+  await teacherPage.getByRole("cell", { name: "Number of answered" }).waitFor()
   await expect(teacherPage.getByRole("cell", { name: "2" }).first()).toBeVisible()
 
   await teacherPage.getByRole("row", { name: "Grade Question 1" }).getByRole("button").click()
 
   // Check the first submissions has 0 points and it's ungraded
-  await expect(teacherPage.getByText("Ungraded").first()).toBeVisible()
+  await teacherPage.getByText("Ungraded").first().waitFor()
   await expect(teacherPage.getByText("0/ 1").first()).toBeVisible()
 
   // Grade both submissions
@@ -147,7 +158,7 @@ test("Grade exams > Exam submissions", async ({}) => {
   //Both students check that they can see grading results after the teacher published them
 
   await student1Page.goto(
-    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
+    "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
 
   await expect(student1Page.getByText("Name: Best exercise")).toBeVisible()
@@ -155,7 +166,7 @@ test("Grade exams > Exam submissions", async ({}) => {
   await expect(student1Page.getByText("Feedback:Ok")).toBeVisible()
 
   await student2Page.goto(
-    "http://project-331.local/org/uh-cs/exams/8e202d37-3a26-4181-b9e4-0560b90c0ccb",
+    "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
   await expect(student2Page.getByText("Name: Best exercise")).toBeVisible()
   await expect(student2Page.getByText("Points: 0.5 / 1")).toBeVisible()

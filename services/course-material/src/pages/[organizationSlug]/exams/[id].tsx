@@ -98,8 +98,8 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     ({ id }: { id: string }) => endExamTime(id),
     { notify: true, method: "POST" },
     {
-      onSuccess: () => {
-        handleRefresh()
+      onSuccess: async () => {
+        await handleRefresh()
       },
     },
   )

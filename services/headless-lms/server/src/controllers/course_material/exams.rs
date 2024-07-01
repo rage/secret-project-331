@@ -247,13 +247,31 @@ pub async fn fetch_exam_for_user(
                 }
             }
         }
+        // user has ended the exam
+        if enrollment.ended_at.is_some() {
+            let token: domain::authorization::AuthorizationToken =
+                authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+            return token.authorized_ok(web::Json(ExamData {
+                id: exam.id,
+                name: exam.name,
+                instructions: exam.instructions,
+                starts_at,
+                ends_at,
+                ended,
+                time_minutes: exam.time_minutes,
+                enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                language: exam.language,
+            }));
+        }
+
         // user has started the exam
         if Utc::now() < ends_at
             && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
         {
             // exam is still open but the student's time has expired
             exams::update_exam_ended(&mut conn, *exam_id, user.id, Utc::now()).await?;
-            let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+            let token: domain::authorization::AuthorizationToken =
+                authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,

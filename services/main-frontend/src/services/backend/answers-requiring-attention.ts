@@ -30,10 +30,11 @@ export const updateAnswerRequiringAttention = async ({
   exercise_id,
   action,
   manual_points,
+  hidden,
 }: NewTeacherGradingDecision): Promise<UserExerciseState> => {
   const response = await mainFrontendClient.put(
     `/exercise-slide-submissions/update-answer-requiring-attention`,
-    { user_exercise_state_id, exercise_id, action, manual_points },
+    { user_exercise_state_id, exercise_id, action, manual_points, hidden },
   )
   return validateResponse(response, isUserExerciseState)
 }

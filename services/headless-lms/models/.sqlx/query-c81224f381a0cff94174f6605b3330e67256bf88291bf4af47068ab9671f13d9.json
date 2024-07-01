@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT user_id,\n  exam_id,\n  started_at,\n  is_teacher_testing,\n  show_exercise_answers\nFROM exam_enrollments\nWHERE exam_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT user_id,\n  exam_id,\n  started_at,\n  ended_at,\n  is_teacher_testing,\n  show_exercise_answers\nFROM exam_enrollments\nWHERE exam_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -20,11 +20,16 @@
       },
       {
         "ordinal": 3,
+        "name": "ended_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
         "name": "is_teacher_testing",
         "type_info": "Bool"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "show_exercise_answers",
         "type_info": "Bool"
       }
@@ -32,7 +37,7 @@
     "parameters": {
       "Left": ["Uuid", "Uuid"]
     },
-    "nullable": [false, false, false, false, false]
+    "nullable": [false, false, false, true, false, false]
   },
-  "hash": "527be2e3679b1f889452a1970d9ce568dbd02458be84e5a8006d4917e8b8974d"
+  "hash": "c81224f381a0cff94174f6605b3330e67256bf88291bf4af47068ab9671f13d9"
 }

@@ -462,6 +462,8 @@ pub async fn remove_from_queue_and_give_full_points(
             exercise.score_maximum as f32,
             // Giver is none because the system made the decision
             None,
+            None,
+            false,
         )
         .await?;
         user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)

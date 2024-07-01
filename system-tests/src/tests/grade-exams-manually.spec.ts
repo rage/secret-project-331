@@ -20,13 +20,13 @@ test.afterEach(async () => {
   await context3.close()
 })
 
-test("Grade exams > Exam submissions", async ({}) => {
+test("Grade exams manually", async ({}) => {
   test.slow()
   const student1Page = await context1.newPage()
   const student2Page = await context2.newPage()
   const teacherPage = await context3.newPage()
 
-  // Student1 goes to the exam page and submits answers
+  // Student1 goes to the exam page and submits answers and then ends exam
   await student1Page.goto(
     "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
@@ -48,10 +48,7 @@ test("Grade exams > Exam submissions", async ({}) => {
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("checkbox", { name: "b" })
     .click()
-  await student1Page
-    .getByLabel("Exercise:Best exercise")
-    .getByRole("button", { name: "Submit" })
-    .click()
+  await student1Page.getByRole("button", { name: "Submit" }).click()
 
   student1Page.once("dialog", (dialog) => {
     dialog.accept()
@@ -59,7 +56,7 @@ test("Grade exams > Exam submissions", async ({}) => {
   await student1Page.getByRole("button", { name: "End exam" }).click()
   await expect(student1Page.getByText("Success", { exact: true })).toBeVisible()
 
-  // Student2 goes to the exam page and submits answers
+  // Student2 goes to the exam page and submits answers and then ends exam
   await student2Page.goto(
     "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
   )
@@ -79,29 +76,26 @@ test("Grade exams > Exam submissions", async ({}) => {
     .click()
   await student2Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByRole("checkbox", { name: "a" })
-    .setChecked(true)
-  await student2Page
-    .getByLabel("Exercise:Best exercise")
-    .getByRole("button", { name: "Submit" })
+    .getByRole("checkbox", { name: "b" })
     .click()
+  await student2Page.getByRole("button", { name: "Submit" }).click()
+
   student2Page.once("dialog", (dialog) => {
     dialog.accept()
   })
   await student2Page.getByRole("button", { name: "End exam" }).click()
   await expect(student2Page.getByText("Success", { exact: true })).toBeVisible()
 
-  // Teacher goes to grading page and grades the students submissions
-
+  // Teacher goes to the grading page and grades the students submissions
   await teacherPage.goto("http://project-331.local/organizations")
   await teacherPage.getByLabel("University of Helsinki, Department of Computer Science").click()
   await teacherPage
     .locator("li")
-    .filter({ hasText: "Ongoing plenty of timeManage" })
+    .filter({ hasText: "Exam for manual gradingManage" })
     .getByRole("link")
     .nth(1)
     .click()
-  await teacherPage.getByRole("link", { name: "Grading" }).click()
+  await teacherPage.getByRole("link", { name: "Grading", exact: true }).click()
 
   // Check that there are both students submissions
   await teacherPage.getByRole("cell", { name: "Number of answered" }).waitFor()
@@ -110,7 +104,7 @@ test("Grade exams > Exam submissions", async ({}) => {
   await teacherPage.getByRole("row", { name: "Grade Question 1" }).getByRole("button").click()
 
   // Check the first submissions has 0 points and it's ungraded
-  await teacherPage.getByText("Ungraded").first().waitFor()
+  await expect(teacherPage.getByRole("cell", { name: "Ungraded" }).first()).toBeVisible()
   await expect(teacherPage.getByText("0/ 1").first()).toBeVisible()
 
   // Grade both submissions
@@ -142,6 +136,21 @@ test("Grade exams > Exam submissions", async ({}) => {
     teacherPage.getByRole("row", { name: "Grade Question 1 Graded 2 2 2" }),
   ).toBeVisible()
   await expect(teacherPage.getByText("You have 2 unpublished grading results")).toBeVisible()
+
+  // Check students can't see grading results before they are published
+  await student1Page.goto(
+    "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
+  )
+  await expect(
+    student1Page.getByText("Your time has run out and the exam is now closed"),
+  ).toBeVisible()
+
+  await student2Page.goto(
+    "http://project-331.local/org/uh-cs/exams/fee8bb0c-8629-477c-86eb-1785005143ae",
+  )
+  await expect(
+    student2Page.getByText("Your time has run out and the exam is now closed"),
+  ).toBeVisible()
 
   // Publish grading results
   teacherPage.once("dialog", (dialog) => {

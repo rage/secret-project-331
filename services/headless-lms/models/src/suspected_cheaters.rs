@@ -189,7 +189,7 @@ pub async fn get_suspected_cheaters_by_id(
     Ok(cheaters)
 }
 
-pub async fn get_all_suspected_cheaters_in_course_instance(
+pub async fn get_all_suspected_cheaters_in_course(
     conn: &mut PgConnection,
     course_id: Uuid,
     archive: bool,

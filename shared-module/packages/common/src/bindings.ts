@@ -1646,7 +1646,7 @@ export interface SuspectedCheaters {
   updated_at: string | null
   total_duration_seconds: number | null
   total_points: number
-  is_archived: boolean
+  is_archived: boolean | null
 }
 
 export interface ThresholdData {

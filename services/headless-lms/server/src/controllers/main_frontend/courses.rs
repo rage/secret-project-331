@@ -1320,13 +1320,12 @@ async fn get_all_suspected_cheaters(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    let course_cheaters =
-        models::suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
-            &mut conn,
-            course_id,
-            query.archive,
-        )
-        .await?;
+    let course_cheaters = models::suspected_cheaters::get_all_suspected_cheaters_in_course(
+        &mut conn,
+        course_id,
+        query.archive,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(course_cheaters))
 }

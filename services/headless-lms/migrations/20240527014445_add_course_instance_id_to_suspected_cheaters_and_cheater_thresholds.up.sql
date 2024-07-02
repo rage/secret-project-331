@@ -15,6 +15,7 @@ ADD CONSTRAINT unique_course_id_constraint UNIQUE USING INDEX unique_course_id;
 ALTER TABLE course_module_completions -- this is not breaking the db because of the default
 ADD COLUMN needs_to_be_reviewed BOOLEAN DEFAULT NULL;
 COMMENT ON COLUMN course_module_completions.needs_to_be_reviewed IS 'Determine if a course module needs review as a result of a student being suspected of cheating';
---Add is_archived to suspected cheater table
+-- The is_archived field is set to FALSE when a teacher confirms that a student is suspected of cheating.
+-- The is_archived field is TRUE when a student is wrongly accused of cheating.
 ALTER TABLE suspected_cheaters
 ADD is_archived BOOLEAN DEFAULT NULL;

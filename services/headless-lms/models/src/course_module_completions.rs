@@ -445,6 +445,29 @@ WHERE id = $2 AND deleted_at IS NULL
     Ok(res.rows_affected() > 0)
 }
 
+pub async fn update_passed_and_grade(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_id: Uuid,
+    passed: bool,
+    grade: i32,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET passed = $1, grade = $2,
+AND grade = $2
+WHERE user_id = $3 AND course_id = $4 AND deleted_at IS NULL
+    ",
+        passed,
+        grade,
+        user_id,
+        course_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
 pub async fn update_needs_to_be_reviewed(
     conn: &mut PgConnection,
     id: Uuid,

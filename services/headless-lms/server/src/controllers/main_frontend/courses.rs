@@ -1386,6 +1386,13 @@ async fn teacher_approve_suspected_cheaters(
 
     models::suspected_cheaters::approve_suspected_cheaters(&mut conn, user_id).await?;
 
+    // Fail student
+    //find by user_id and course_id
+    models::course_module_completions::update_passed_and_grade(
+        &mut conn, course_id, user_id, false, 0,
+    )
+    .await?;
+
     token.authorized_ok(web::Json(()))
 }
 

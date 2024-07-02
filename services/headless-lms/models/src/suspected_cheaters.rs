@@ -142,7 +142,7 @@ pub async fn get_thresholds_by_id(
     Ok(thresholds)
 }
 
-pub async fn archive_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+pub async fn archive_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
       UPDATE suspected_cheaters
@@ -156,7 +156,7 @@ pub async fn archive_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> Mo
     Ok(())
 }
 
-pub async fn approve_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+pub async fn approve_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
       UPDATE suspected_cheaters
@@ -192,6 +192,7 @@ pub async fn get_suspected_cheaters_by_id(
 pub async fn get_all_suspected_cheaters_in_course_instance(
     conn: &mut PgConnection,
     course_id: Uuid,
+    archive: bool,
 ) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
@@ -199,9 +200,11 @@ pub async fn get_all_suspected_cheaters_in_course_instance(
 SELECT *
 FROM suspected_cheaters
 WHERE course_id = $1
+    AND is_archived = $2
     AND deleted_at IS NULL;
     ",
-        course_id
+        course_id,
+        archive
     )
     .fetch_all(conn)
     .await?;

@@ -454,7 +454,7 @@ pub async fn update_passed_and_grade_status(
 ) -> ModelResult<bool> {
     let res = sqlx::query!(
         "
-UPDATE course_module_completions SET passed = $1, grade = $2,
+UPDATE course_module_completions SET passed = $1, grade = $2
 WHERE user_id = $3 AND course_id = $4 AND deleted_at IS NULL
     ",
         passed,

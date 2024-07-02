@@ -289,8 +289,15 @@ export const postNewThreshold = async (
   return validateResponse(res, isThresholdData)
 }
 
-export const fetchSuspectedCheaters = async (courseId: string): Promise<SuspectedCheaters[]> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/suspected-cheaters`)
+export const fetchSuspectedCheaters = async (
+  courseId: string,
+  archive: boolean,
+): Promise<SuspectedCheaters[]> => {
+  const params = { archive }
+
+  const response = await mainFrontendClient.get(`/courses/${courseId}/suspected-cheaters`, {
+    params,
+  })
   return validateResponse(response, isArray(isSuspectedCheaters))
 }
 

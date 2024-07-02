@@ -116,11 +116,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"glossary"} isActive={path === "glossary"}>
           {t("link-glossary")}
         </TabLink>
-        <TabLink url={"stats"} isActive={path === "stats"}>
-          {t("link-stats")}
-        </TabLink>
         <TabLink url={"cheaters"} isActive={path === "cheaters"}>
           {t("link-cheaters")}
+        </TabLink>
+        <TabLink url={"stats"} isActive={path === "stats"}>
+          {t("link-stats")}
         </TabLink>
       </TabLinkNavigation>
       <TabLinkPanel>

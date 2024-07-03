@@ -147,7 +147,7 @@ pub async fn archive_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> Mod
         "
       UPDATE suspected_cheaters
       SET is_archived = TRUE
-      WHERE id = $1
+      WHERE user_id = $1
     ",
         id
     )
@@ -161,7 +161,7 @@ pub async fn approve_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> Mod
         "
       UPDATE suspected_cheaters
       SET is_archived = FALSE
-      WHERE id = $1
+      WHERE user_id = $1
     ",
         id
     )

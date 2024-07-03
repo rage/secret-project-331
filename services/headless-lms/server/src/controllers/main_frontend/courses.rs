@@ -1360,7 +1360,7 @@ async fn insert_threshold(
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/:id - UPDATE is_archived to TRUE.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
 */
 #[instrument(skip(pool))]
 async fn teacher_archive_suspected_cheater(
@@ -1379,7 +1379,7 @@ async fn teacher_archive_suspected_cheater(
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/:id - UPDATE is_archived to FALSE.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
 */
 #[instrument(skip(pool))]
 async fn teacher_approve_suspected_cheater(
@@ -1559,12 +1559,12 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_all_suspected_cheaters),
         )
         .route(
-            "/{course_id}/suspected-cheaters/:id",
-            web::post().to(teacher_archive_suspected_cheater),
+            "/{course_id}/suspected-cheaters/archive/:id",
+            web::put().to(teacher_archive_suspected_cheater),
         )
         .route(
-            "/{course_id}/suspected-cheaters/:id",
-            web::post().to(teacher_approve_suspected_cheater),
+            "/{course_id}/suspected-cheaters/approve/:id",
+            web::put().to(teacher_approve_suspected_cheater),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",

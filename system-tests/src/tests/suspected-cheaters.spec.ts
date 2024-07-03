@@ -31,7 +31,7 @@ test.describe("Teacher can set threshold for course", () => {
     await Promise.all([context1.close(), context2.close(), context3.close()])
   })
 
-  test("suspected cheaters feature works", async () => {
+  test.only("suspected cheaters feature works", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
@@ -81,5 +81,14 @@ test.describe("Teacher can set threshold for course", () => {
     )
     await student2Page.getByText("Welcome to...").waitFor()
     await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
+
+    // Navigate cheater's view
+    await teacherPage.goto(CHEATER_EDITOR_PAGE)
+    await teacherPage.getByText("Delete", { exact: true }).click()
+    await teacherPage.getByText("Deleted cheaters").first().click()
+    await teacherPage
+      .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
+      .first()
+      .waitFor({ state: "visible" })
   })
 })

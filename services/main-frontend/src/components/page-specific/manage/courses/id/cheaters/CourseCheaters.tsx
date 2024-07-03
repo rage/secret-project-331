@@ -26,16 +26,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
-interface CourseCheatersProps extends CourseManagementPagesProps {
-  query: SimplifiedUrlQuery<"id">
-}
-
 const Header = styled.div`
   width: 100%;
 `
 
-const CourseCheaters: React.FC<React.PropsWithChildren<CourseCheatersProps>> = ({ courseId }) => {
-  const [archive, setArchive] = useState(true)
+const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
+  courseId,
+}) => {
+  const [archive, setArchive] = useState(false)
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -47,11 +45,6 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseCheatersProps>> = (
 
   const [points, setPoints] = useState<number>()
   const [duration, setDuration] = useState<number>()
-
-  const suspectedCheaters = useQuery({
-    queryKey: [`suspected-cheaters-${courseId}-${archive}`],
-    queryFn: () => fetchSuspectedCheaters(courseId, archive),
-  })
 
   const handleCreateNewThreshold = async () => {
     if (!points) {
@@ -80,11 +73,6 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseCheatersProps>> = (
       notify: true,
       successMessage: t("threshold-added-successfully"),
       method: "POST",
-    },
-    {
-      onSuccess: () => {
-        suspectedCheaters.refetch()
-      },
     },
   )
 
@@ -194,15 +182,15 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseCheatersProps>> = (
       {/* eslint-disable-next-line i18next/no-literal-string */}
       <TabLinkNavigation>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, archive: true } }}
-          isActive={archive}
+          url={{ pathname: router.pathname, query: { ...router.query, archive: false } }}
+          isActive={!archive}
           // countHook={createPendingChangeRequestCountHook(courseId)}
         >
           {t("cheaters")}
         </TabLink>
         <TabLink
-          url={{ pathname: router.pathname, query: { ...router.query, archive: false } }}
-          isActive={!archive}
+          url={{ pathname: router.pathname, query: { ...router.query, archive: true } }}
+          isActive={archive}
         >
           {t("archived")}
         </TabLink>

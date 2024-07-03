@@ -284,7 +284,6 @@ export const postNewThreshold = async (
   courseId: string,
   data: ThresholdData,
 ): Promise<ThresholdData> => {
-  console.log("data", data)
   const res = await mainFrontendClient.post(`/courses/${courseId}/threshold`, data)
   return validateResponse(res, isThresholdData)
 }
@@ -302,9 +301,9 @@ export const fetchSuspectedCheaters = async (
 }
 
 export const archiveSuspectedCheaters = async (courseId: string, id: string): Promise<void> => {
-  await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/${id}`)
+  await mainFrontendClient.put(`/courses/${courseId}/suspected-cheaters/archive/${id}`)
 }
 
 export const approveSuspectedCheaters = async (courseId: string, id: string): Promise<void> => {
-  await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/${id}`)
+  await mainFrontendClient.put(`/courses/${courseId}/suspected-cheaters/approve/${id}`)
 }

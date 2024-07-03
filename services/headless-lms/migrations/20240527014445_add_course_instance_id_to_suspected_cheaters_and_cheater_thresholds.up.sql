@@ -18,4 +18,4 @@ COMMENT ON COLUMN course_module_completions.needs_to_be_reviewed IS 'Determine i
 -- The is_archived field is set to FALSE when a teacher confirms that a student is suspected of cheating.
 -- The is_archived field is TRUE when a student is wrongly accused of cheating.
 ALTER TABLE suspected_cheaters
-ADD is_archived BOOLEAN DEFAULT NULL;
+ADD is_archived BOOLEAN NOT NULL DEFAULT FALSE;

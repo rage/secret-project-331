@@ -1559,11 +1559,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_all_suspected_cheaters),
         )
         .route(
-            "/{course_id}/suspected-cheaters/archive/:id",
+            "/{course_id}/suspected-cheaters/archive/{id}",
             web::post().to(teacher_archive_suspected_cheater),
         )
         .route(
-            "/{course_id}/suspected-cheaters/approve/:id",
+            "/{course_id}/suspected-cheaters/approve/{id}",
             web::post().to(teacher_approve_suspected_cheater),
         )
         .route(

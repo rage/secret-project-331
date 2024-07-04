@@ -301,9 +301,9 @@ export const fetchSuspectedCheaters = async (
 }
 
 export const archiveSuspectedCheaters = async (courseId: string, id: string): Promise<void> => {
-  await mainFrontendClient.put(`/courses/${courseId}/suspected-cheaters/archive/${id}`)
+  await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/archive/${id}`)
 }
 
 export const approveSuspectedCheaters = async (courseId: string, id: string): Promise<void> => {
-  await mainFrontendClient.put(`/courses/${courseId}/suspected-cheaters/approve/${id}`)
+  await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/approve/${id}`)
 }

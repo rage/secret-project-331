@@ -1560,11 +1560,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/suspected-cheaters/archive/:id",
-            web::put().to(teacher_archive_suspected_cheater),
+            web::post().to(teacher_archive_suspected_cheater),
         )
         .route(
             "/{course_id}/suspected-cheaters/approve/:id",
-            web::put().to(teacher_approve_suspected_cheater),
+            web::post().to(teacher_approve_suspected_cheater),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",

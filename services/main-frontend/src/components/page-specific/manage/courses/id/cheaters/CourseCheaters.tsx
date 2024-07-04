@@ -1,30 +1,23 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
 import { Gear } from "@vectopus/atlas-icons-react"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import {
-  fetchSuspectedCheaters,
-  postNewThreshold,
-} from "../../../../../../services/backend/courses"
+import { postNewThreshold } from "../../../../../../services/backend/courses"
 
 import CourseCheatersTabs from "./CourseCheatersTabs"
 
 import { ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 
 const Header = styled.div`
   width: 100%;
@@ -99,6 +92,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           .heading {
             display: flex;
             align-items: center;
+            margin-bottom: 0.2rem;
             font-weight: 500;
             svg {
               margin-right: 5px;
@@ -136,6 +130,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         <div
           className={css`
             display: flex;
+            margin-top: 1rem;
           `}
         >
           <TextField

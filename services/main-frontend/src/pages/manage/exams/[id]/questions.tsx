@@ -20,7 +20,6 @@ import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
@@ -35,7 +34,6 @@ interface SubmissionPageProps {
 
 const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ query }) => {
   const { t } = useTranslation()
-  const paginationInfo = usePaginationInfo()
 
   const getExam = useQuery({
     queryKey: [`/exams/${query.id}/`, query.id],
@@ -52,25 +50,15 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   )
 
   const getAllSubmissions = useQuery({
-    queryKey: [
-      `/exams/${query.id}/submissions`,
-      query.id,
-      paginationInfo.page,
-      paginationInfo.limit,
-    ],
-    queryFn: () =>
-      fetchExerciseSubmissionsAndUserExerciseStatesWithExamId(
-        query.id,
-        paginationInfo.page,
-        paginationInfo.limit,
-      ),
+    queryKey: [`/exams/${query.id}/submissions-with-exam-id`, query.id],
+    queryFn: () => fetchExerciseSubmissionsAndUserExerciseStatesWithExamId(query.id),
     staleTime: 1,
   })
 
   const allSubmissionsList = getAllSubmissions.data?.reduce(
     (acc, submissionlist) => ({
       ...acc,
-      [submissionlist.data.at(0)?.exercise.id ?? ""]: submissionlist.data,
+      [submissionlist.at(0)?.exercise.id ?? ""]: submissionlist,
     }),
     {} as Record<string, ExerciseSlideSubmissionAndUserExerciseState[]>,
   )
@@ -100,7 +88,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   const generateSubs = () => {
     const submissionList: ExerciseSlideSubmissionAndUserExerciseState[] = []
     getAllSubmissions.data?.map((exerciseSubmissionList) => {
-      exerciseSubmissionList.data.map((submission) => {
+      exerciseSubmissionList.map((submission) => {
         submissionList.push(submission)
       })
     })
@@ -110,7 +98,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   const checkPublishable = () => {
     let unpublishedCount = 0
     getAllSubmissions.data?.map((s) =>
-      s.data.map((sub) => {
+      s.map((sub) => {
         if (sub.teacher_grading_decision?.hidden === true) {
           unpublishedCount = unpublishedCount + 1
         }

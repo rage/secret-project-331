@@ -15,6 +15,7 @@ import {
 } from "@/shared-module/common/bindings"
 import {
   isExercise,
+  isExerciseSlideSubmissionAndUserExerciseState,
   isExerciseSlideSubmissionAndUserExerciseStateList,
   isOrganization,
 } from "@/shared-module/common/bindings.guard"
@@ -73,13 +74,9 @@ export interface GradingInfo {
 
 export const fetchExerciseSubmissionsAndUserExerciseStatesWithExamId = async (
   examId: string,
-  page: number,
-  limit: number,
-): Promise<Array<ExerciseSlideSubmissionAndUserExerciseStateList>> => {
-  const response = await mainFrontendClient.get(
-    `/exams/${examId}/submissions-with-exam-id?page=${page}&limit=${limit}`,
-  )
-  return validateResponse(response, isArray(isExerciseSlideSubmissionAndUserExerciseStateList))
+): Promise<Array<Array<ExerciseSlideSubmissionAndUserExerciseState>>> => {
+  const response = await mainFrontendClient.get(`/exams/${examId}/submissions-with-exam-id`)
+  return validateResponse(response, isArray(isArray(isExerciseSlideSubmissionAndUserExerciseState)))
 }
 
 export const fetchExerciseSubmissionsAndUserExerciseStatesWithExerciseId = async (
@@ -88,7 +85,7 @@ export const fetchExerciseSubmissionsAndUserExerciseStatesWithExerciseId = async
   limit: number,
 ): Promise<ExerciseSlideSubmissionAndUserExerciseStateList> => {
   const response = await mainFrontendClient.get(
-    `/exams/${exerciseId}/submissions?page=${page}&limit=${limit}`,
+    `/exams/${exerciseId}/submissions-with-exercise-id?page=${page}&limit=${limit}`,
   )
   return validateResponse(response, isExerciseSlideSubmissionAndUserExerciseStateList)
 }

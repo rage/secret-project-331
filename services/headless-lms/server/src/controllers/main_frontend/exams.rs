@@ -241,39 +241,25 @@ async fn get_exercise_slide_submissions_and_user_exercise_states_with_exam_id(
     exam_id: web::Path<Uuid>,
     pagination: web::Query<Pagination>,
     user: AuthUser,
-) -> ControllerResult<web::Json<Vec<ExerciseSlideSubmissionAndUserExerciseStateList>>> {
+) -> ControllerResult<web::Json<Vec<Vec<ExerciseSlideSubmissionAndUserExerciseState>>>> {
     let mut conn = pool.acquire().await?;
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
     let mut submissions_and_user_exercise_states: Vec<
-        ExerciseSlideSubmissionAndUserExerciseStateList,
+        Vec<ExerciseSlideSubmissionAndUserExerciseState>,
     > = Vec::new();
 
     let exercises = models::exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
 
     let mut conn = pool.acquire().await?;
-
     for exercise in exercises.iter() {
-        let submission_count =
-            models::exercise_slide_submissions::exercise_slide_submission_count_with_exam_id(
-                &mut conn, *exam_id,
-            );
-        let mut conn = pool.acquire().await?;
-
         let submissions = models::exercise_slide_submissions::get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
         &mut conn,
         exercise.id,
         *pagination,
-    );
-        let (submission_count, submissions) =
-            future::try_join(submission_count, submissions).await?;
-        let total_pages = pagination.total_pages(submission_count);
-
-        submissions_and_user_exercise_states.push(ExerciseSlideSubmissionAndUserExerciseStateList {
-            data: submissions,
-            total_pages,
-        })
+    ).await?;
+        submissions_and_user_exercise_states.push(submissions)
     }
 
     token.authorized_ok(web::Json(submissions_and_user_exercise_states))
@@ -349,7 +335,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/{id}/edit-exam", web::post().to(edit_exam))
         .route("/{id}/duplicate", web::post().to(duplicate_exam))
         .route(
-            "/{exercise_id}/submissions",
+            "/{exercise_id}/submissions-with-exercise-id",
             web::get().to(get_exercise_slide_submissions_and_user_exercise_states_with_exercise_id),
         )
         .route(

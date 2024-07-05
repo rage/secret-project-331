@@ -1,9 +1,10 @@
 use std::{collections::HashSet, env};
 
 use crate::setup_tracing;
-use chrono::Utc;
+use chrono::{Duration, Utc};
 use dotenv::dotenv;
-use headless_lms_models as models;
+use headless_lms_models::{self as models, ModelError, ModelErrorType};
+use headless_lms_utils::prelude::BackendError;
 use sqlx::{Connection, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -15,7 +16,9 @@ pub async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
-    process_ended_exams(&mut conn).await
+    process_ended_exams(&mut conn).await?;
+    let mut conn = db_pool.acquire().await?;
+    process_ended_exam_enrollments(&mut conn).await
 }
 
 /// Fetches ended exams that haven't yet been processed and updates completions for them.
@@ -63,6 +66,37 @@ async fn process_ended_exam(
         }
     }
     models::ended_processed_exams::upsert(&mut tx, exam_id).await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Processes ended exam enrollments
+async fn process_ended_exam_enrollments(conn: &mut PgConnection) -> anyhow::Result<()> {
+    let mut tx = conn.begin().await?;
+
+    let ongoing_exam_enrollments = models::exams::get_ongoing_exam_enrollments(&mut tx).await?;
+    let exams = models::exams::get_exams(&mut tx).await?;
+
+    let mut user_ids_ended_exam_enrollments = Vec::new();
+    let mut exam_ids_ended_exam_enrollments = Vec::new();
+
+    for enrollment in ongoing_exam_enrollments {
+        let exam = exams.get(&enrollment.1.exam_id).ok_or_else(|| {
+            ModelError::new(ModelErrorType::Generic, "Exam not found".into(), None)
+        })?;
+
+        if Utc::now() > enrollment.1.started_at + Duration::minutes(exam.time_minutes.into()) {
+            user_ids_ended_exam_enrollments.push(enrollment.1.user_id);
+            exam_ids_ended_exam_enrollments.push(exam.id);
+        }
+    }
+    models::exams::update_exam_ended_for_users(
+        &mut tx,
+        &exam_ids_ended_exam_enrollments,
+        &user_ids_ended_exam_enrollments,
+        Utc::now(),
+    )
+    .await?;
     tx.commit().await?;
     Ok(())
 }

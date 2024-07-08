@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT user_id,\n  exam_id,\n  started_at,\n  ended_at,\n  is_teacher_testing,\n  show_exercise_answers\nFROM exam_enrollments\nWHERE\n    ended_at IS NULL\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "started_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "ended_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "is_teacher_testing",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "show_exercise_answers",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [false, false, false, true, false, false]
+  },
+  "hash": "dfc4f7eafc9c71273151629b419f251381f3ab9a4313860469f9d21d031efe9e"
+}

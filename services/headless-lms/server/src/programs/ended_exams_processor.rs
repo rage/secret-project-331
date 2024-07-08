@@ -17,7 +17,6 @@ pub async fn main() -> anyhow::Result<()> {
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
     process_ended_exams(&mut conn).await?;
-    let mut conn = db_pool.acquire().await?;
     process_ended_exam_enrollments(&mut conn).await
 }
 
@@ -73,30 +72,43 @@ async fn process_ended_exam(
 /// Processes ended exam enrollments
 async fn process_ended_exam_enrollments(conn: &mut PgConnection) -> anyhow::Result<()> {
     let mut tx = conn.begin().await?;
+    let mut success = 0;
+    let mut failed = 0;
 
-    let ongoing_exam_enrollments = models::exams::get_ongoing_exam_enrollments(&mut tx).await?;
+    let ongoing_exam_enrollments: Vec<headless_lms_models::exams::ExamEnrollment> =
+        models::exams::get_ongoing_exam_enrollments(&mut tx).await?;
     let exams = models::exams::get_exams(&mut tx).await?;
 
-    let mut user_ids_ended_exam_enrollments = Vec::new();
-    let mut exam_ids_ended_exam_enrollments = Vec::new();
-
     for enrollment in ongoing_exam_enrollments {
-        let exam = exams.get(&enrollment.1.exam_id).ok_or_else(|| {
+        let exam = exams.get(&enrollment.exam_id).ok_or_else(|| {
             ModelError::new(ModelErrorType::Generic, "Exam not found".into(), None)
         })?;
 
-        if Utc::now() > enrollment.1.started_at + Duration::minutes(exam.time_minutes.into()) {
-            user_ids_ended_exam_enrollments.push(enrollment.1.user_id);
-            exam_ids_ended_exam_enrollments.push(exam.id);
+        //Check if users exams should have ended and add the ending time to exam_enrollmets
+        if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {
+            match models::exams::update_exam_ended(&mut tx, exam.id, enrollment.user_id, Utc::now())
+                .await
+            {
+                Ok(_) => success += 1,
+                Err(err) => {
+                    failed += 1;
+                    tracing::error!(
+                        "Failed to end users {} exam {}: {:#?}",
+                        enrollment.user_id,
+                        exam.id,
+                        err
+                    );
+                }
+            }
         }
     }
-    models::exams::update_exam_ended_for_users(
-        &mut tx,
-        &exam_ids_ended_exam_enrollments,
-        &user_ids_ended_exam_enrollments,
-        Utc::now(),
-    )
-    .await?;
+
+    tracing::info!(
+        "Exam enrollments processed. Succeeded: {}, failed: {}.",
+        success,
+        failed
+    );
     tx.commit().await?;
+
     Ok(())
 }

@@ -426,7 +426,7 @@ WHERE user_id IN (
 
 pub async fn get_ongoing_exam_enrollments(
     conn: &mut PgConnection,
-) -> ModelResult<HashMap<Uuid, ExamEnrollment>> {
+) -> ModelResult<Vec<ExamEnrollment>> {
     let enrollments = sqlx::query_as!(
         ExamEnrollment,
         "
@@ -444,12 +444,7 @@ WHERE
     )
     .fetch_all(conn)
     .await?;
-
-    let mut res: HashMap<Uuid, ExamEnrollment> = HashMap::new();
-    for item in enrollments.into_iter() {
-        res.insert(item.exam_id, item);
-    }
-    Ok(res)
+    Ok(enrollments)
 }
 
 pub async fn get_exams(conn: &mut PgConnection) -> ModelResult<HashMap<Uuid, OrgExam>> {
@@ -517,33 +512,6 @@ WHERE exam_id = $1
 ",
         exam_id,
         user_id,
-        ended_at
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn update_exam_ended_for_users(
-    conn: &mut PgConnection,
-    exam_ids: &[Uuid],
-    user_ids: &[Uuid],
-    ended_at: DateTime<Utc>,
-) -> ModelResult<()> {
-    sqlx::query!(
-        "
-UPDATE exam_enrollments
-SET ended_at = $3
-WHERE exam_id IN (
-    SELECT UNNEST($1::uuid [])
-  )
-  AND user_id IN (
-    SELECT UNNEST($2::uuid [])
-  )
-  AND deleted_at IS NULL
-",
-        exam_ids,
-        user_ids,
         ended_at
     )
     .execute(conn)

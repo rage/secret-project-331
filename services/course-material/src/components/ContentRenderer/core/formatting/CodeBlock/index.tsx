@@ -19,14 +19,20 @@ const SyntaxHighlightedContainer = dynamic(() => import("./SyntaxHighlightedCont
 
 const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttributes>>> = ({
   data,
+  dontAllowBlockToBeWiderThanContainerWidth,
 }) => {
   const { anchor, content, fontSize } = data.attributes
   return (
-    <BreakFromCentered sidebar={false}>
+    <BreakFromCentered sidebar={false} disabled={dontAllowBlockToBeWiderThanContainerWidth}>
       <pre
         className={css`
           max-width: 1000px;
           margin: 0 auto;
+          ${dontAllowBlockToBeWiderThanContainerWidth &&
+          // If this is inside a container, large margins don't look good.
+          `margin-top: -1.5rem;
+            margin-bottom: -1.5rem;
+            `}
           ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
           font-family: ${monospaceFont} !important;
           line-height: 1.75rem;

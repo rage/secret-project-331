@@ -21,7 +21,10 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
   // The content coming from gutenberg contains <br> tags which do not work when we higlight the code with hljs
   // So we'll replace the br tags with newlines
   const replacedContent = useMemo(() => {
-    return content?.replace(/<br\s*\\?>/g, "\n") ?? ""
+    let res = content ?? ""
+    res = res.replace(/<br\s*\\?>/g, "\n")
+    res = res.replace(/&lt;/g, "<")
+    return res
   }, [content])
 
   return (

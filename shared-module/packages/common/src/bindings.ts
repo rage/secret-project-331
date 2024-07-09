@@ -318,6 +318,7 @@ export interface CourseModuleCompletion {
   passed: boolean
   prerequisite_modules_completed: boolean
   completion_granter_user_id: string | null
+  needs_to_be_reviewed: boolean | null
 }
 
 export interface AutomaticCompletionRequirements {
@@ -1049,6 +1050,7 @@ export interface UserModuleCompletionStatus {
   enable_registering_completion_to_uh_open_university: boolean
   certification_enabled: boolean
   certificate_configuration_id: string | null
+  needs_to_be_reviewed: boolean
 }
 
 export interface UserWithModuleCompletions {
@@ -1633,6 +1635,23 @@ export interface StudentCountry {
   country_code: string
   created_at: string
   deleted_at: string | null
+}
+
+export interface SuspectedCheaters {
+  id: string
+  user_id: string
+  course_id: string
+  created_at: string
+  deleted_at: string | null
+  updated_at: string | null
+  total_duration_seconds: number | null
+  total_points: number
+  is_archived: boolean | null
+}
+
+export interface ThresholdData {
+  points: number
+  duration_seconds: number | null
 }
 
 export interface NewTeacherGradingDecision {

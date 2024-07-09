@@ -11,6 +11,7 @@ pub struct SuspectedCheaters {
     pub updated_at: Option<DateTime<Utc>>,
     pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
+    pub is_archived: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,6 +19,13 @@ pub struct SuspectedCheaters {
 pub struct ThresholdData {
     pub points: i32,
     pub duration_seconds: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct DeletedSuspectedCheater {
+    pub id: i32,
+    pub count: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -134,17 +142,30 @@ pub async fn get_thresholds_by_id(
     Ok(thresholds)
 }
 
-pub async fn delete_suspected_cheaters(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+pub async fn archive_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
-        r#"
+        "
       UPDATE suspected_cheaters
-      SET deleted_at = now()
-      WHERE id = $1
-      RETURNING id
-    "#,
+      SET is_archived = TRUE
+      WHERE user_id = $1
+    ",
         id
     )
-    .fetch_one(conn)
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn approve_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        "
+      UPDATE suspected_cheaters
+      SET is_archived = FALSE
+      WHERE user_id = $1
+    ",
+        id
+    )
+    .execute(conn)
     .await?;
     Ok(())
 }
@@ -168,9 +189,10 @@ pub async fn get_suspected_cheaters_by_id(
     Ok(cheaters)
 }
 
-pub async fn get_all_suspected_cheaters_in_course_instance(
+pub async fn get_all_suspected_cheaters_in_course(
     conn: &mut PgConnection,
     course_id: Uuid,
+    archive: bool,
 ) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
@@ -178,9 +200,11 @@ pub async fn get_all_suspected_cheaters_in_course_instance(
 SELECT *
 FROM suspected_cheaters
 WHERE course_id = $1
+    AND is_archived = $2
     AND deleted_at IS NULL;
     ",
-        course_id
+        course_id,
+        archive
     )
     .fetch_all(conn)
     .await?;

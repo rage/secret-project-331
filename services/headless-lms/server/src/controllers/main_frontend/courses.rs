@@ -1299,13 +1299,20 @@ pub async fn teacher_reset_course_progress_for_everyone(
     token.authorized_ok(web::Json(true))
 }
 
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct GetSuspectedCheatersQuery {
+    archive: bool,
+}
+
 /**
- GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters - returns all suspected cheaters related to a course instance.
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
 */
 #[instrument(skip(pool))]
 async fn get_all_suspected_cheaters(
     user: AuthUser,
     params: web::Path<Uuid>,
+    query: web::Query<GetSuspectedCheatersQuery>,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Vec<SuspectedCheaters>>> {
     let course_id = params.into_inner();
@@ -1313,11 +1320,12 @@ async fn get_all_suspected_cheaters(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    let course_cheaters =
-        models::suspected_cheaters::get_all_suspected_cheaters_in_course_instance(
-            &mut conn, course_id,
-        )
-        .await?;
+    let course_cheaters = models::suspected_cheaters::get_all_suspected_cheaters_in_course(
+        &mut conn,
+        course_id,
+        query.archive,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(course_cheaters))
 }
@@ -1345,6 +1353,51 @@ async fn insert_threshold(
         course_id,
         duration,
         new_threshold.points,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
+*/
+#[instrument(skip(pool))]
+async fn teacher_archive_suspected_cheater(
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, user_id) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::archive_suspected_cheater(&mut conn, user_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
+*/
+#[instrument(skip(pool))]
+async fn teacher_approve_suspected_cheater(
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, user_id) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::approve_suspected_cheater(&mut conn, user_id).await?;
+
+    // Fail student
+    //find by user_id and course_id
+    models::course_module_completions::update_passed_and_grade_status(
+        &mut conn, course_id, user_id, false, 0,
     )
     .await?;
 
@@ -1504,6 +1557,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/suspected-cheaters",
             web::get().to(get_all_suspected_cheaters),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/archive/{id}",
+            web::post().to(teacher_archive_suspected_cheater),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/approve/{id}",
+            web::post().to(teacher_approve_suspected_cheater),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",

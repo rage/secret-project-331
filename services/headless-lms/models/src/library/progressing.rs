@@ -1210,7 +1210,7 @@ mod tests {
         .unwrap();
 
         let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course_instance(tx.as_mut(), course)
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
                 .await
                 .unwrap();
         assert_eq!(cheaters[0].user_id, user);
@@ -1278,7 +1278,7 @@ mod tests {
         .unwrap();
 
         let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course_instance(tx.as_mut(), course)
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
                 .await
                 .unwrap();
         assert!(cheaters.is_empty());

@@ -1,21 +1,21 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
-import { ExclamationTriangle, Gear } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import { Gear } from "@vectopus/atlas-icons-react"
+import { useRouter } from "next/router"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import {
-  fetchSuspectedCheaters,
-  postNewThreshold,
-} from "../../../../../../services/backend/courses"
+import { postNewThreshold } from "../../../../../../services/backend/courses"
+
+import CourseCheatersTabs from "./CourseCheatersTabs"
 
 import { ThresholdData } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
+import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
+import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
+import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
@@ -26,15 +26,18 @@ const Header = styled.div`
 const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
+  const [archive, setArchive] = useState(false)
   const { t } = useTranslation()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (router.query.archive) {
+      setArchive(router.query.archive === "true")
+    }
+  }, [router.query.archive])
 
   const [points, setPoints] = useState<number>()
   const [duration, setDuration] = useState<number>()
-
-  const suspectedCheaters = useQuery({
-    queryKey: [`suspected-cheaters-${courseId}`],
-    queryFn: () => fetchSuspectedCheaters(courseId),
-  })
 
   const handleCreateNewThreshold = async () => {
     if (!points) {
@@ -64,11 +67,6 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       successMessage: t("threshold-added-successfully"),
       method: "POST",
     },
-    {
-      onSuccess: () => {
-        suspectedCheaters.refetch()
-      },
-    },
   )
 
   return (
@@ -94,6 +92,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           .heading {
             display: flex;
             align-items: center;
+            margin-bottom: 0.2rem;
             font-weight: 500;
             svg {
               margin-right: 5px;
@@ -131,6 +130,7 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
         <div
           className={css`
             display: flex;
+            margin-top: 1rem;
           `}
         >
           <TextField
@@ -174,92 +174,26 @@ const CourseCheaters: React.FC<React.PropsWithChildren<CourseManagementPagesProp
           {t("set-threshold")}
         </Button>
       </div>
-      <h5
-        className={css`
-          font-weight: 500;
-          margin-bottom: 0.8rem;
-        `}
-      >
-        {t("cheaters-list")}
-      </h5>
-      {suspectedCheaters.isPending && (
-        <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
-      )}
-      {suspectedCheaters.isError && <Spinner variant={"medium"} />}
-      {suspectedCheaters.isSuccess && suspectedCheaters.data.length ? (
-        <table
-          id="cheaters"
-          className={css`
-            width: 100%;
-            margin-top: 0.4rem;
-            text-align: left;
-            border-collapse: collapse;
-            font-family: ${headingFont};
-            border: 1px solid ${baseTheme.colors.gray[100]};
-
-            th {
-              color: ${baseTheme.colors.gray[500]};
-              padding: 0.4rem 0;
-              font-weight: 600;
-              font-size: 15px;
-              border-bottom: 1px solid ${baseTheme.colors.gray[100]};
-              padding: 0.8rem;
-            }
-
-            td {
-              color: ${baseTheme.colors.gray[500]};
-              padding: 0.4rem 0;
-              font-size: 18px;
-              padding: 0.8rem;
-            }
-          `}
+      {/* eslint-disable-next-line i18next/no-literal-string */}
+      <TabLinkNavigation>
+        <TabLink
+          url={{ pathname: router.pathname, query: { ...router.query, archive: false } }}
+          isActive={!archive}
+          // countHook={createPendingChangeRequestCountHook(courseId)}
         >
-          <tr>
-            <th>{t("student-id")}</th>
-            <th>{t("points")}</th>
-            <th>{t("duration")}</th>
-          </tr>
-          {suspectedCheaters.data?.map(
-            ({ user_id, total_points, total_duration_seconds }, index) => {
-              const everySecondListItem = index % 2 === 1
-              return (
-                <tr
-                  key={user_id}
-                  className={css`
-                    background: ${everySecondListItem ? "#ffffff" : "#F5F6F7"};
-                  `}
-                >
-                  <td>{user_id}</td>
-                  <td>{total_points}</td>
-                  <td>{total_duration_seconds}</td>
-                </tr>
-              )
-            },
-          )}
-        </table>
-      ) : (
-        <div
-          className={css`
-            background: #e4e5e6;
-            padding: 1.25rem;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 6px;
-            color: ${baseTheme.colors.gray[700]};
-
-            span {
-              margin-left: 0.4rem;
-            }
-          `}
+          {t("suspected-student")}
+        </TabLink>
+        <TabLink
+          url={{ pathname: router.pathname, query: { ...router.query, archive: true } }}
+          isActive={archive}
         >
-          <div>
-            <ExclamationTriangle size={16} weight="bold" />
-            <span>{t("list-cheaters-of-cheaters-empty-state")}</span>
-          </div>
-        </div>
-      )}
+          {t("archived")}
+        </TabLink>
+      </TabLinkNavigation>
+      {/* TODO: Dropdown for perPage? */}
+      <TabLinkPanel>
+        <CourseCheatersTabs courseId={courseId} archive={archive} perPage={4} />
+      </TabLinkPanel>
     </>
   )
 }

@@ -140,6 +140,9 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                         pathname: "/manage/users/[userId]",
                         query: { userId: user_id },
                       }}
+                      className={css`
+                        text-decoration: none;
+                      `}
                     >
                       {user_id}
                     </Link>
@@ -154,7 +157,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                         size="medium"
                         onClick={() => handleApproval.mutate(user_id)}
                       >
-                        {t("approve")}
+                        {t("confirm-cheating")}
                       </Button>
                       <Button
                         className="threshold-btn"
@@ -162,7 +165,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                         size="medium"
                         onClick={() => handleArchive.mutate(user_id)}
                       >
-                        {t("delete")}
+                        {t("clear-suspicion")}
                       </Button>
                     </td>
                   )}

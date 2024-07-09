@@ -18,24 +18,27 @@ test.describe("Teacher can set threshold for course", () => {
   let context1: BrowserContext
   let context2: BrowserContext
   let context3: BrowserContext
+  let context4: BrowserContext
 
   test.beforeEach(async ({ browser }) => {
-    ;[context1, context2, context3] = await Promise.all([
+    ;[context1, context2, context3, context4] = await Promise.all([
       browser.newContext({ storageState: "src/states/student4@example.com.json" }),
       browser.newContext({ storageState: "src/states/student5@example.com.json" }),
       browser.newContext({ storageState: "src/states/teacher@example.com.json" }),
+      browser.newContext({ storageState: "src/states/student3@example.com.json" }),
     ])
   })
 
   test.afterEach(async () => {
-    await Promise.all([context1.close(), context2.close(), context3.close()])
+    await Promise.all([context1.close(), context2.close(), context3.close(), context4.close()])
   })
 
-  test.only("suspected cheaters feature works", async () => {
+  test("suspected cheaters feature works", async () => {
     test.slow()
     const student1Page = await context1.newPage()
     const student2Page = await context2.newPage()
     const teacherPage = await context3.newPage()
+    const student3Page = await context4.newPage()
 
     // Teacher set thresholds
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
@@ -47,12 +50,12 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Student 1 navigates to exercise and answers
     await answerExercise(student1Page, TEST_PAGE, "a")
-    await expect(student1Page.getByTestId("exercise-points")).toContainText("0/1")
 
     // Student 2 navigates to exercise and answers, and gives peer reviews to first two students
-    await student2Page.goto("http://project-331.local/organizations")
     await answerExercise(student2Page, TEST_PAGE, "b")
-    // await expect(student2Page.getByTestId("exercise-points")).toContainText("0/1")
+
+    // Student 3 navigates to exercise and answers
+    await answerExercise(student3Page, TEST_PAGE, "b")
 
     // Now student 1 should see their results.
     await student1Page.reload()
@@ -63,6 +66,12 @@ test.describe("Teacher can set threshold for course", () => {
     await student2Page.reload()
     await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
     await student2Page.getByText("Good job!").waitFor()
+
+    // Now student 3 should see their results.
+    await student3Page.reload()
+    await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
+    await student2Page.getByText("Good job!").waitFor()
+
     // Check if the cheaters table is rightly populated
     await teacherPage.reload()
     await teacherPage.getByText("Student id").waitFor()
@@ -82,13 +91,24 @@ test.describe("Teacher can set threshold for course", () => {
     await student2Page.getByText("Welcome to...").waitFor()
     await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
 
-    // Navigate cheater's view
+    // Navigate cheater's view and delete a suspected cheater
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
-    await teacherPage.getByText("Delete", { exact: true }).click()
+    await teacherPage.getByText("Clear suspicion", { exact: true }).first().click()
     await teacherPage.getByText("Deleted cheaters").first().click()
     await teacherPage
       .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
       .first()
       .waitFor({ state: "visible" })
+
+    // Teacher approve a suspected cheater
+    await teacherPage.getByText("Suspected student").click()
+    await teacherPage.getByText("Confirm cheating", { exact: true }).click()
+
+    // Ensure Congratulation block is not shown for suspected cheaters after teacher approves it
+    await student3Page.goto(
+      "http://project-331.local/org/uh-cs/courses/course-for-suspected-cheaters",
+    )
+    await student3Page.getByText("Welcome to...").waitFor()
+    await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
   })
 })

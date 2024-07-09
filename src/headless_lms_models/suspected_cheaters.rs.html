@@ -151,6 +151,66 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::prelude::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -158,11 +218,13 @@
 </span><span class="kw">pub struct </span>SuspectedCheaters {
     <span class="kw">pub </span>id: Uuid,
     <span class="kw">pub </span>user_id: Uuid,
+    <span class="kw">pub </span>course_id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
     <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
     <span class="kw">pub </span>updated_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
     <span class="kw">pub </span>total_duration_seconds: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     <span class="kw">pub </span>total_points: i32,
+    <span class="kw">pub </span>is_archived: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize)]
@@ -172,11 +234,18 @@
     <span class="kw">pub </span>duration_seconds: <span class="prelude-ty">Option</span>&lt;i32&gt;,
 }
 
+<span class="attr">#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
+</span><span class="kw">pub struct </span>DeletedSuspectedCheater {
+    <span class="kw">pub </span>id: i32,
+    <span class="kw">pub </span>count: i32,
+}
+
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 </span><span class="kw">pub struct </span>Threshold {
     <span class="kw">pub </span>id: Uuid,
-    <span class="kw">pub </span>course_instance_id: Uuid,
+    <span class="kw">pub </span>course_id: Uuid,
     <span class="kw">pub </span>created_at: DateTime&lt;Utc&gt;,
     <span class="kw">pub </span>updated_at: DateTime&lt;Utc&gt;,
     <span class="kw">pub </span>deleted_at: <span class="prelude-ty">Option</span>&lt;DateTime&lt;Utc&gt;&gt;,
@@ -187,6 +256,7 @@
 <span class="kw">pub async fn </span>insert(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
     user_id: Uuid,
+    course_id: Uuid,
     total_duration_seconds: <span class="prelude-ty">Option</span>&lt;i32&gt;,
     total_points: i32,
 ) -&gt; ModelResult&lt;()&gt; {
@@ -195,55 +265,64 @@
     INSERT INTO suspected_cheaters (
       user_id,
       total_duration_seconds,
-      total_points
+      total_points,
+      course_id
     )
-    VALUES ($1, $2, $3)
+    VALUES ($1, $2, $3, $4)
       "</span>,
         user_id,
         total_duration_seconds,
-        total_points
-    )
-    .fetch_one(conn)
-    .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(())
-}
-
-<span class="kw">pub async fn </span>insert_thresholds(
-    conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    course_instance_id: Uuid,
-    duration_seconds: <span class="prelude-ty">Option</span>&lt;i32&gt;,
-    points: i32,
-) -&gt; ModelResult&lt;()&gt; {
-    <span class="macro">sqlx::query!</span>(
-        <span class="string">"
-    INSERT INTO cheater_thresholds (
-      course_instance_id,
-      duration_seconds,
-      points
-    )
-    VALUES ($1, $2, $3)
-      "</span>,
-        course_instance_id,
-        duration_seconds,
-        points
+        total_points,
+        course_id
     )
     .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="kw">pub async fn </span>insert_thresholds(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    duration_seconds: <span class="prelude-ty">Option</span>&lt;i32&gt;,
+    points: i32,
+) -&gt; ModelResult&lt;Threshold&gt; {
+    <span class="kw">let </span>threshold = <span class="macro">sqlx::query_as!</span>(
+        Threshold,
+        <span class="string">"
+        INSERT INTO cheater_thresholds (
+            course_id,
+            duration_seconds,
+            points
+        )
+        VALUES ($1, $2, $3)
+        ON CONFLICT (course_id)
+        DO UPDATE SET
+            duration_seconds = EXCLUDED.duration_seconds,
+            points = EXCLUDED.points
+        RETURNING *
+        "</span>,
+        course_id,
+        duration_seconds,
+        points,
+    )
+    .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(threshold)
+}
+
 <span class="kw">pub async fn </span>update_thresholds_by_point(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     points: i32,
 ) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
         <span class="string">"
       UPDATE cheater_thresholds
       SET points = $2
-      WHERE course_instance_id = $1
+      WHERE course_id = $1
     "</span>,
-        course_instance_id,
+        course_id,
         points
     )
     .execute(conn)
@@ -253,34 +332,53 @@
 
 <span class="kw">pub async fn </span>get_thresholds_by_id(
     conn: <span class="kw-2">&amp;mut </span>PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -&gt; ModelResult&lt;Threshold&gt; {
     <span class="kw">let </span>thresholds = <span class="macro">sqlx::query_as!</span>(
         Threshold,
         <span class="string">"
-      SELECT *
+      SELECT id,
+      course_id,
+      duration_seconds,
+      points,
+      created_at,
+      updated_at,
+      deleted_at
       FROM cheater_thresholds
-      WHERE course_instance_id = $1
+      WHERE course_id = $1
       AND deleted_at IS NULL;
     "</span>,
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(thresholds)
 }
 
-<span class="kw">pub async fn </span>delete_suspected_cheaters(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
+<span class="kw">pub async fn </span>archive_suspected_cheater(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
     <span class="macro">sqlx::query!</span>(
-        <span class="string">r#"
+        <span class="string">"
       UPDATE suspected_cheaters
-      SET deleted_at = now()
-      WHERE id = $1
-      RETURNING id
-    "#</span>,
+      SET is_archived = TRUE
+      WHERE user_id = $1
+    "</span>,
         id
     )
-    .fetch_one(conn)
+    .execute(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub async fn </span>approve_suspected_cheater(conn: <span class="kw-2">&amp;mut </span>PgConnection, id: Uuid) -&gt; ModelResult&lt;()&gt; {
+    <span class="macro">sqlx::query!</span>(
+        <span class="string">"
+      UPDATE suspected_cheaters
+      SET is_archived = FALSE
+      WHERE user_id = $1
+    "</span>,
+        id
+    )
+    .execute(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
@@ -294,12 +392,34 @@
         <span class="string">"
       SELECT *
       FROM suspected_cheaters
-      WHERE id = $1
+      WHERE user_id = $1
       AND deleted_at IS NULL;
     "</span>,
         id
     )
     .fetch_one(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(cheaters)
+}
+
+<span class="kw">pub async fn </span>get_all_suspected_cheaters_in_course(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_id: Uuid,
+    archive: bool,
+) -&gt; ModelResult&lt;Vec&lt;SuspectedCheaters&gt;&gt; {
+    <span class="kw">let </span>cheaters = <span class="macro">sqlx::query_as!</span>(
+        SuspectedCheaters,
+        <span class="string">"
+SELECT *
+FROM suspected_cheaters
+WHERE course_id = $1
+    AND is_archived = $2
+    AND deleted_at IS NULL;
+    "</span>,
+        course_id,
+        archive
+    )
+    .fetch_all(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(cheaters)
 }

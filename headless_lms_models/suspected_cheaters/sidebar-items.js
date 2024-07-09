@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["delete_suspected_cheaters","get_suspected_cheaters_by_id","get_thresholds_by_id","insert","insert_thresholds","update_thresholds_by_point"],"struct":["SuspectedCheaters","Threshold","ThresholdData"]};
+window.SIDEBAR_ITEMS = {"fn":["approve_suspected_cheater","archive_suspected_cheater","get_all_suspected_cheaters_in_course","get_suspected_cheaters_by_id","get_thresholds_by_id","insert","insert_thresholds","update_thresholds_by_point"],"struct":["DeletedSuspectedCheater","SuspectedCheaters","Threshold","ThresholdData"]};

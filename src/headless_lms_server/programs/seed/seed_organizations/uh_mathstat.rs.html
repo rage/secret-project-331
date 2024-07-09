@@ -267,14 +267,50 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
     course_instances::{<span class="self">self</span>, NewCourseInstance},
+    course_modules::{<span class="self">self</span>, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
-    library,
-    library::content_management::CreateNewCourseFixedIds,
-    library::copying::copy_course,
+    library::{<span class="self">self</span>, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{<span class="self">self</span>, RoleDomain, UserRole},
     PKeyPolicy,
@@ -319,6 +355,7 @@
         student_3_user_id,
         student_4_user_id: <span class="kw">_</span>,
         student_5_user_id: <span class="kw">_</span>,
+        student_6_user_id: <span class="kw">_</span>,
         langs_user_id,
     } = seed_users_result;
     <span class="kw">let _ </span>= seed_file_storage_result;
@@ -530,6 +567,43 @@
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(audio_course),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>suspected_cheaters_course_id = seed_sample_course(
+        Uuid::parse_str(<span class="string">"060c272f-8c68-4d90-946f-2d431114ed56"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Course for Suspected Cheaters"</span>,
+        <span class="string">"course-for-suspected-cheaters"</span>,
+        uh_data.clone(),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// configure automatic completions
+    </span><span class="kw">let </span>automatic_default_module =
+        course_modules::get_default_by_course_id(<span class="kw-2">&amp;mut </span>conn, suspected_cheaters_course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>automatic_default_module = course_modules::update_automatic_completion_status(
+        <span class="kw-2">&amp;mut </span>conn,
+        automatic_default_module.id,
+        <span class="kw-2">&amp;</span>CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_default_module.id,
+            number_of_exercises_attempted_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+            number_of_points_treshold: <span class="prelude-val">Some</span>(<span class="number">1</span>),
+            requires_exam: <span class="bool-val">false</span>,
+        }),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    course_modules::update_uh_course_code(
+        <span class="kw-2">&amp;mut </span>conn,
+        automatic_default_module.id,
+        <span class="prelude-val">Some</span>(<span class="string">"CHEATER123"</span>.to_string()),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(suspected_cheaters_course_id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

@@ -23,7 +23,6 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
   const replacedContent = useMemo(() => {
     let res = content ?? ""
     res = res.replace(/<br\s*\\?>/g, "\n")
-    res = res.replace(/&lt;/g, "<")
     return res
   }, [content])
 
@@ -32,6 +31,7 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
       className={css`
         background-color: #1a2333;
         border-radius: 4px;
+        font-variant-ligatures: none;
       `}
       ref={ref}
       dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(replacedContent) }}

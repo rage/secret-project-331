@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      UPDATE suspected_cheaters\n      SET is_archived = FALSE\n      WHERE user_id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "3529084bb5a3bcf64d2f6ac8900f7cb3a7334202a5e5249df16bfa7862bb3165"
+}

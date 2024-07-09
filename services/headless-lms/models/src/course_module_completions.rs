@@ -24,6 +24,7 @@ pub struct CourseModuleCompletion {
     pub passed: bool,
     pub prerequisite_modules_completed: bool,
     pub completion_granter_user_id: Option<Uuid>,
+    pub needs_to_be_reviewed: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
@@ -86,8 +87,9 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     new_course_module_completion: &NewCourseModuleCompletion,
     completion_granter: CourseModuleCompletionGranter,
-) -> ModelResult<Uuid> {
-    let res = sqlx::query!(
+) -> ModelResult<CourseModuleCompletion> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
         "
 INSERT INTO course_module_completions (
     id,
@@ -119,7 +121,7 @@ VALUES (
     $12,
     $13
   )
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         new_course_module_completion.course_id,
@@ -137,7 +139,7 @@ RETURNING id
     )
     .fetch_one(conn)
     .await?;
-    Ok(res.id)
+    Ok(res)
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModuleCompletion> {
@@ -436,6 +438,46 @@ UPDATE course_module_completions SET prerequisite_modules_completed = $1
 WHERE id = $2 AND deleted_at IS NULL
     ",
         prerequisite_modules_completed,
+        id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
+pub async fn update_passed_and_grade_status(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_id: Uuid,
+    passed: bool,
+    grade: i32,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET passed = $1, grade = $2
+WHERE user_id = $3 AND course_id = $4 AND deleted_at IS NULL
+    ",
+        passed,
+        grade,
+        user_id,
+        course_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
+pub async fn update_needs_to_be_reviewed(
+    conn: &mut PgConnection,
+    id: Uuid,
+    needs_to_be_reviewed: bool,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET needs_to_be_reviewed = $1
+WHERE id = $2 AND deleted_at IS NULL
+        ",
+        needs_to_be_reviewed,
         id
     )
     .execute(conn)

@@ -15,9 +15,9 @@ use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 use icu::calendar::Gregorian;
 use icu::datetime::TypedDateTimeFormatter;
 use resvg::tiny_skia;
-use std::path::Path;
-use std::time::Instant;
-use usvg::{fontdb, TreeParsing, TreePostProc};
+use std::{io, path::Path};
+use std::{sync::Arc, time::Instant};
+use usvg::fontdb;
 
 use quick_xml::{events::BytesText, Writer};
 use std::io::Cursor;
@@ -121,7 +121,7 @@ pub async fn generate_certificate(
         &texts_to_render,
         &paper_size,
         debug,
-        &fontdb,
+        Arc::new(fontdb),
     )?;
     Ok(res)
 }
@@ -132,7 +132,7 @@ fn generate_certificate_impl(
     texts: &[TextToRender],
     paper_size: &PaperSize,
     debug_show_anchoring_points: bool,
-    fontdb: &fontdb::Database,
+    fontdb: Arc<fontdb::Database>,
 ) -> UtilResult<Vec<u8>> {
     let start_setup = Instant::now();
     let opt = usvg::Options {
@@ -141,6 +141,7 @@ fn generate_certificate_impl(
         image_rendering: usvg::ImageRendering::OptimizeQuality,
         shape_rendering: usvg::ShapeRendering::GeometricPrecision,
         text_rendering: usvg::TextRendering::OptimizeLegibility,
+        fontdb,
         ..Default::default()
     };
 
@@ -154,22 +155,13 @@ fn generate_certificate_impl(
     })?;
     info!("Setup time {:?}", start_setup.elapsed());
     let parse_background_svg_start = Instant::now();
-    let tree = {
-        let mut tree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
-            UtilError::new(
-                UtilErrorType::Other,
-                "Could not parse background svg".to_string(),
-                Some(original_error.into()),
-            )
-        })?;
-        tree.postprocess(
-            usvg::PostProcessingSteps {
-                convert_text_into_paths: true,
-            },
-            fontdb,
-        );
-        tree
-    };
+    let tree = usvg::Tree::from_data(background_svg, &opt).map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse background svg".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
 
     info!(
         "Parse background svg time {:?}",
@@ -179,7 +171,7 @@ fn generate_certificate_impl(
     let start_render_background = Instant::now();
     // Scaling the background to the paper size, if the aspect ratio is wrong (for example if it does not follow the aspect ratio of A4 paper size), the background will get stretched.
     // If that's the case, the you should fix the background svg.
-    let background_size = tree.size.to_int_size();
+    let background_size = tree.size().to_int_size();
     let x_scale = paper_size.width_px() as f32 / background_size.width() as f32;
     let y_scale = paper_size.height_px() as f32 / background_size.height() as f32;
     info!(
@@ -200,23 +192,13 @@ fn generate_certificate_impl(
     let text_svg_data = generate_text_svg(texts, debug_show_anchoring_points, paper_size)?;
     info!("{}", String::from_utf8_lossy(&text_svg_data));
     let parse_text_svg_start = Instant::now();
-    let text_tree = {
-        let mut text_tree =
-            usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
-                UtilError::new(
-                    UtilErrorType::Other,
-                    "Could not parse text svg".to_string(),
-                    Some(original_error.into()),
-                )
-            })?;
-        text_tree.postprocess(
-            usvg::PostProcessingSteps {
-                convert_text_into_paths: true,
-            },
-            fontdb,
-        );
-        text_tree
-    };
+    let text_tree = usvg::Tree::from_data(&text_svg_data, &opt).map_err(|original_error| {
+        UtilError::new(
+            UtilErrorType::Other,
+            "Could not parse text svg".to_string(),
+            Some(original_error.into()),
+        )
+    })?;
 
     info!("Parse text svg time {:?}", parse_text_svg_start.elapsed());
 
@@ -230,24 +212,13 @@ fn generate_certificate_impl(
 
     if let Some(overlay_svg) = overlay_svg {
         let start_render_overlay = Instant::now();
-        let overlay_tree = {
-            let mut overlay_tree =
-                usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
-                    UtilError::new(
-                        UtilErrorType::Other,
-                        "Could not parse overlay svg".to_string(),
-                        Some(original_error.into()),
-                    )
-                })?;
-            overlay_tree.postprocess(
-                usvg::PostProcessingSteps {
-                    convert_text_into_paths: true,
-                },
-                fontdb,
-            );
-            overlay_tree
-        };
-
+        let overlay_tree = usvg::Tree::from_data(overlay_svg, &opt).map_err(|original_error| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Could not parse overlay svg".to_string(),
+                Some(original_error.into()),
+            )
+        })?;
         resvg::render(
             &overlay_tree,
             tiny_skia::Transform::default(),
@@ -369,7 +340,10 @@ fn generate_text_svg(
                     .write_text_content(BytesText::from_escaped(&text.text))
                     .map_err(|_original_error| {
                         // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                        quick_xml::Error::UnexpectedToken("Could not write text to svg".to_string())
+                        quick_xml::Error::Io(Arc::new(io::Error::new(
+                            io::ErrorKind::Other,
+                            "Could not write text to svg".to_string(),
+                        )))
                     })?;
 
                 if debug_show_anchoring_points {
@@ -382,9 +356,10 @@ fn generate_text_svg(
                         .write_empty()
                         .map_err(|_original_error| {
                             // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                            quick_xml::Error::UnexpectedToken(
+                            quick_xml::Error::Io(Arc::new(io::Error::new(
+                                io::ErrorKind::Other,
                                 "Could not write debug point to svg".to_string(),
-                            )
+                            )))
                         })?;
                     writer
                         .create_element("circle")
@@ -395,9 +370,10 @@ fn generate_text_svg(
                         .write_empty()
                         .map_err(|_original_error| {
                             // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
-                            quick_xml::Error::UnexpectedToken(
+                            quick_xml::Error::Io(Arc::new(io::Error::new(
+                                io::ErrorKind::Other,
                                 "Could not write debug point to svg".to_string(),
-                            )
+                            )))
                         })?;
                 }
             }

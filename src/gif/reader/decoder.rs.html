@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.12.0/src/reader/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.13.1/src/reader/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -723,17 +723,176 @@
 <a href="#722" id="722">722</a>
 <a href="#723" id="723">723</a>
 <a href="#724" id="724">724</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::cmp;
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
+<span class="kw">use </span>std::cmp;
 <span class="kw">use </span>std::error;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::mem;
 <span class="kw">use </span>std::default::Default;
+<span class="kw">use </span>std::num::NonZeroUsize;
 
+<span class="kw">use </span><span class="kw">crate</span>::Repeat;
+<span class="kw">use </span><span class="kw">crate</span>::MemoryLimit;
 <span class="kw">use </span><span class="kw">crate</span>::common::{AnyExtension, Block, DisposalMethod, Extension, Frame};
 <span class="kw">use </span><span class="kw">crate</span>::reader::DecodeOptions;
 
-<span class="kw">use </span>weezl::{BitOrder, decode::Decoder <span class="kw">as </span>LzwDecoder, LzwStatus};
+<span class="kw">use </span>weezl::{BitOrder, decode::Decoder <span class="kw">as </span>LzwDecoder, LzwError, LzwStatus};
 
 <span class="doccomment">/// GIF palettes are RGB
 </span><span class="kw">pub const </span>PLTE_CHANNELS: usize = <span class="number">3</span>;
@@ -741,28 +900,20 @@
 <span class="doccomment">/// An error returned in the case of the image not being formatted properly.
 </span><span class="attr">#[derive(Debug)]
 </span><span class="kw">pub struct </span>DecodingFormatError {
-    underlying: Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync + <span class="lifetime">'static</span>&gt;
+    underlying: Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync + <span class="lifetime">'static</span>&gt;,
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DecodingFormatError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         fmt::Display::fmt(<span class="kw-2">&amp;*</span><span class="self">self</span>.underlying, fmt)
     }
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>DecodingFormatError {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span><span class="self">self</span>.underlying <span class="kw">as _</span>)
-    }
-}
-
-<span class="kw">impl </span>DecodingFormatError {
-    <span class="kw">fn </span>new(
-        err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
-    ) -&gt; <span class="self">Self </span>{
-        DecodingFormatError {
-            underlying: err.into(),
-        }
     }
 }
 
@@ -776,16 +927,17 @@
 }
 
 <span class="kw">impl </span>DecodingError {
-    <span class="attr">#[inline]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>format(
-        err: <span class="kw">impl </span>Into&lt;Box&lt;<span class="kw">dyn </span>error::Error + Send + Sync&gt;&gt;,
-    ) -&gt; <span class="self">Self </span>{
-        DecodingError::Format(DecodingFormatError::new(err))
+    <span class="attr">#[cold]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>format(err: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
+        DecodingError::Format(DecodingFormatError {
+            underlying: err.into(),
+        })
     }
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>DecodingError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             DecodingError::Format(<span class="kw-2">ref </span>d) =&gt; d.fmt(fmt),
             DecodingError::Io(<span class="kw-2">ref </span>err) =&gt; err.fmt(fmt),
@@ -794,7 +946,8 @@
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>DecodingError {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             DecodingError::Format(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
             DecodingError::Io(<span class="kw-2">ref </span>err) =&gt; <span class="prelude-val">Some</span>(err),
@@ -803,84 +956,113 @@
 }
 
 <span class="kw">impl </span>From&lt;io::Error&gt; <span class="kw">for </span>DecodingError {
-    <span class="kw">fn </span>from(err: io::Error) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(err: io::Error) -&gt; <span class="self">Self </span>{
         DecodingError::Io(err)
     }
 }
 
+<span class="kw">impl </span>From&lt;io::ErrorKind&gt; <span class="kw">for </span>DecodingError {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>from(err: io::ErrorKind) -&gt; <span class="self">Self </span>{
+        DecodingError::Io(io::Error::from(err))
+    }
+}
+
 <span class="kw">impl </span>From&lt;DecodingFormatError&gt; <span class="kw">for </span>DecodingError {
-    <span class="kw">fn </span>from(err: DecodingFormatError) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(err: DecodingFormatError) -&gt; <span class="self">Self </span>{
         DecodingError::Format(err)
     }
 }
 
-<span class="doccomment">/// Configures how extensions should be handled
-</span><span class="attr">#[derive(PartialEq, Debug)]
-</span><span class="kw">pub enum </span>Extensions {
-    <span class="doccomment">/// Saves all extention data
-    </span>Save,
-    <span class="doccomment">/// Skips the data of unknown extensions
-    /// and extracts the data from known ones
-    </span>Skip
+<span class="doccomment">/// Varies depending on `skip_frame_decoding`
+</span><span class="attr">#[derive(Debug, Copy, Clone)]
+</span><span class="kw">pub enum </span>FrameDataType {
+    <span class="doccomment">/// `Frame.buffer` will be regular pixel data
+    </span>Pixels,
+    <span class="doccomment">/// Raw LZW data
+    </span>Lzw {
+        <span class="doccomment">/// Needed for decoding
+        </span>min_code_size: u8,
+    },
 }
 
 <span class="doccomment">/// Indicates whether a certain object has been decoded
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>Decoded&lt;<span class="lifetime">'a</span>&gt; {
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>Decoded {
     <span class="doccomment">/// Decoded nothing.
     </span>Nothing,
     <span class="doccomment">/// Global palette.
-    </span>GlobalPalette(Vec&lt;u8&gt;),
+    </span>GlobalPalette(Box&lt;[u8]&gt;),
     <span class="doccomment">/// Index of the background color in the global palette.
     </span>BackgroundColor(u8),
-    <span class="doccomment">/// Decoded the image trailer.
-    </span>Trailer,
+    <span class="doccomment">/// Loop count is known
+    </span>Repetitions(Repeat),
+    <span class="doccomment">/// Palette and optional `Application` extension have been parsed,
+    /// reached frame data.
+    </span>HeaderEnd,
     <span class="doccomment">/// The start of a block.
+    /// `BlockStart(Block::Trailer)` is the very last decode event
     </span>BlockStart(Block),
     <span class="doccomment">/// Decoded a sub-block. More sub-block are available.
     ///
     /// Indicates the label of the extension which might be unknown. A label of `0` is used when
     /// the sub block does not belong to an extension.
-    </span>SubBlockFinished(AnyExtension, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]),
+    ///
+    /// Call `last_ext()` to get the data
+    </span>SubBlockFinished(AnyExtension),
     <span class="doccomment">/// Decoded the last (or only) sub-block of a block.
     ///
     /// Indicates the label of the extension which might be unknown. A label of `0` is used when
     /// the sub block does not belong to an extension.
-    </span>BlockFinished(AnyExtension, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]),
-    <span class="doccomment">/// Decoded all information of the next frame.
+    ///
+    /// Call `last_ext()` to get the data
+    </span>BlockFinished(AnyExtension),
+    <span class="doccomment">/// Decoded all information of the next frame, except the image data.
     ///
     /// The returned frame does **not** contain any owned image data.
-    </span>Frame(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>Frame&lt;<span class="lifetime">'static</span>&gt;),
-    <span class="doccomment">/// Decoded some data of the current frame.
-    </span>Data(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]),
+    ///
+    /// Call `current_frame_mut()` to access the frame info.
+    </span>FrameMetadata(FrameDataType),
+    <span class="doccomment">/// Decoded some data of the current frame. Size is in bytes, always &gt; 0
+    </span>BytesDecoded(NonZeroUsize),
+    <span class="doccomment">/// Copied (or consumed and discarded) compressed data of the current frame. In bytes.
+    </span>LzwDataCopied(usize),
     <span class="doccomment">/// No more data available the current frame.
     </span>DataEnd,
-
 }
 
 <span class="doccomment">/// Internal state of the GIF decoder
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Copy, Clone)]
 </span><span class="kw">enum </span>State {
-    Magic(usize, [u8; <span class="number">6</span>]),
+    Magic(u8, [u8; <span class="number">6</span>]),
     U16Byte1(U16Value, u8),
     U16(U16Value),
     Byte(ByteValue),
     GlobalPalette(usize),
-    BlockStart(<span class="prelude-ty">Option</span>&lt;Block&gt;),
-    <span class="doccomment">/// Block end, with remaining expected data. NonZero for invalid EOF.
-    </span>BlockEnd(u8),
+    BlockStart(u8),
+    BlockEnd,
     ExtensionBlock(AnyExtension),
-    SkipBlock(usize),
+    <span class="doccomment">/// Collects data in ext.data
+    </span>ExtensionDataBlock(usize),
+    ApplicationExtension,
     LocalPalette(usize),
     LzwInit(u8),
-    DecodeSubBlock(usize),
+    <span class="doccomment">/// Decompresses LZW
+    </span>DecodeSubBlock(usize),
+    <span class="doccomment">/// Keeps LZW compressed
+    </span>CopySubBlock(usize),
     FrameDecoded,
-    Trailer
+    Trailer,
 }
 <span class="kw">use </span><span class="self">self</span>::State::<span class="kw-2">*</span>;
 
+<span class="kw">use </span><span class="kw">super</span>::converter::PixelConverter;
+
 <span class="doccomment">/// U16 values that may occur in a GIF image
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Copy, Clone)]
 </span><span class="kw">enum </span>U16Value {
     <span class="doccomment">/// Logical screen descriptor width
     </span>ScreenWidth,
@@ -899,26 +1081,158 @@
 }
 
 <span class="doccomment">/// Single byte screen descriptor values
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Copy, Clone)]
 </span><span class="kw">enum </span>ByteValue {
     GlobalFlags,
-    Background { table_size: usize },
-    AspectRatio { table_size: usize },
+    Background { global_flags: u8 },
+    AspectRatio { global_flags: u8 },
     ControlFlags,
     ImageFlags,
     TransparentIdx,
     CodeSize,
 }
 
-<span class="doccomment">/// GIF decoder which supports streaming
-</span><span class="kw">pub struct </span>StreamingDecoder {
-    state: <span class="prelude-ty">Option</span>&lt;State&gt;,
-    lzw_reader: <span class="prelude-ty">Option</span>&lt;LzwDecoder&gt;,
-    decode_buffer: Vec&lt;u8&gt;,
-    skip_extensions: bool,
-    check_frame_consistency: bool,
+<span class="doccomment">/// Decoder for `Frame::make_lzw_pre_encoded`
+</span><span class="kw">pub struct </span>FrameDecoder {
+    lzw_reader: LzwReader,
+    pixel_converter: PixelConverter,
+}
+
+<span class="kw">impl </span>FrameDecoder {
+    <span class="doccomment">/// See also `set_global_palette`
+    </span><span class="attr">#[inline]
+    #[must_use]
+    </span><span class="kw">pub fn </span>new(options: DecodeOptions) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            lzw_reader: LzwReader::new(options.check_for_end_code),
+            pixel_converter: PixelConverter::new(options.color_output, options.memory_limit),
+        }
+    }
+
+    <span class="doccomment">/// Palette used for RGBA conversion
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>set_global_palette(<span class="kw-2">&amp;mut </span><span class="self">self</span>, palette: Vec&lt;u8&gt;) {
+        <span class="self">self</span>.pixel_converter.set_global_palette(palette);
+    }
+
+    <span class="doccomment">/// Converts the frame in-place, replacing its LZW buffer with pixels.
+    ///
+    /// If you get an error about invalid min code size, the buffer was probably pixels, not compressed data.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>decode_lzw_encoded_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;mut </span>Frame&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="kw">let </span>pixel_bytes = <span class="self">self</span>.pixel_converter.check_buffer_size(frame)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>vec = <span class="macro">vec!</span>[<span class="number">0</span>; pixel_bytes];
+        <span class="self">self</span>.decode_lzw_encoded_frame_into_buffer(frame, <span class="kw-2">&amp;mut </span>vec)<span class="question-mark">?</span>;
+        frame.buffer = Cow::Owned(vec);
+        frame.interlaced = <span class="bool-val">false</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Converts into the given buffer. It must be [`buffer_size()`] bytes large.
+    ///
+    /// Pixels are always deinterlaced, so update `frame.interlaced` afterwards if you're putting the buffer back into the frame.
+    </span><span class="kw">pub fn </span>decode_lzw_encoded_frame_into_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'_</span>&gt;, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="kw">let </span>(<span class="kw-2">&amp;</span>min_code_size, <span class="kw-2">mut </span>data) = frame.buffer.split_first().unwrap_or((<span class="kw-2">&amp;</span><span class="number">2</span>, <span class="kw-2">&amp;</span>[]));
+        <span class="self">self</span>.lzw_reader.reset(min_code_size)<span class="question-mark">?</span>;
+        <span class="kw">let </span>lzw_reader = <span class="kw-2">&amp;mut </span><span class="self">self</span>.lzw_reader;
+        <span class="self">self</span>.pixel_converter.read_into_buffer(frame, buf, <span class="kw-2">&amp;mut </span><span class="kw">move </span>|out| {
+            <span class="kw">loop </span>{
+                <span class="kw">let </span>(bytes_read, bytes_written) = lzw_reader.decode_bytes(data, out)<span class="question-mark">?</span>;
+                data = <span class="kw-2">&amp;</span>data.get(bytes_read..).unwrap_or_default();
+                <span class="kw">if </span>bytes_written &gt; <span class="number">0 </span>|| bytes_read == <span class="number">0 </span>|| data.is_empty() {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>(bytes_written)
+                }
+            }
+        })<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// Number of bytes required for `decode_lzw_encoded_frame_into_buffer`
+    </span><span class="attr">#[inline]
+    #[must_use]
+    </span><span class="kw">pub fn </span>buffer_size(<span class="kw-2">&amp;</span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'_</span>&gt;) -&gt; usize {
+        <span class="self">self</span>.pixel_converter.buffer_size(frame).unwrap()
+    }
+}
+
+<span class="kw">struct </span>LzwReader {
+    decoder: <span class="prelude-ty">Option</span>&lt;LzwDecoder&gt;,
+    min_code_size: u8,
     check_for_end_code: bool,
+}
+
+<span class="kw">impl </span>LzwReader {
+    <span class="kw">pub fn </span>new(check_for_end_code: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            decoder: <span class="prelude-val">None</span>,
+            min_code_size: <span class="number">0</span>,
+            check_for_end_code,
+        }
+    }
+
+    <span class="kw">pub fn </span>check_code_size(min_code_size: u8) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="comment">// LZW spec: max 12 bits per code. This check helps catch confusion
+        // between LZW-compressed buffers and raw pixel data
+        </span><span class="kw">if </span>min_code_size &gt; <span class="number">11 </span>|| min_code_size &lt; <span class="number">1 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"invalid minimal code size"</span>));
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, min_code_size: u8) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="self">Self</span>::check_code_size(min_code_size)<span class="question-mark">?</span>;
+
+        <span class="comment">// The decoder can be reused if the code size stayed the same
+        </span><span class="kw">if </span><span class="self">self</span>.min_code_size != min_code_size || <span class="self">self</span>.decoder.is_none() {
+            <span class="self">self</span>.min_code_size = min_code_size;
+            <span class="self">self</span>.decoder = <span class="prelude-val">Some</span>(LzwDecoder::new(BitOrder::Lsb, min_code_size));
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.decoder.as_mut().ok_or_else(|| DecodingError::format(<span class="string">"bad state"</span>))<span class="question-mark">?</span>.reset();
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">pub fn </span>has_ended(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.decoder.as_ref().map_or(<span class="bool-val">true</span>, |e| e.has_ended())
+    }
+
+    <span class="kw">pub fn </span>decode_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lzw_data: <span class="kw-2">&amp;</span>[u8], decode_buffer: <span class="kw-2">&amp;mut </span>OutputBuffer&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;(usize, usize)&gt; {
+        <span class="kw">let </span>decoder = <span class="self">self</span>.decoder.as_mut().ok_or(io::ErrorKind::Unsupported)<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>decode_buffer = <span class="kw">match </span>decode_buffer {
+            OutputBuffer::Slice(buf) =&gt; <span class="kw-2">&amp;mut **</span>buf,
+            OutputBuffer::None =&gt; <span class="kw-2">&amp;mut </span>[],
+            OutputBuffer::Vec(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::from(io::ErrorKind::Unsupported)),
+        };
+
+        <span class="kw">let </span>decoded = decoder.decode_bytes(lzw_data, decode_buffer);
+
+        <span class="kw">match </span>decoded.status {
+            <span class="prelude-val">Ok</span>(LzwStatus::Done | LzwStatus::Ok) =&gt; {},
+            <span class="prelude-val">Ok</span>(LzwStatus::NoProgress) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.check_for_end_code {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::InvalidData, <span class="string">"no end code in lzw stream"</span>));
+                }
+            },
+            <span class="prelude-val">Err</span>(err @ LzwError::InvalidCode) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::InvalidData, err));
+            }
+        }
+        <span class="prelude-val">Ok</span>((decoded.consumed_in, decoded.consumed_out))
+    }
+}
+
+<span class="doccomment">/// GIF decoder which emits [low-level events](Decoded) for items in the GIF file
+///
+/// To just get GIF frames, use [`crate::Decoder`] instead.
+</span><span class="kw">pub struct </span>StreamingDecoder {
+    state: State,
+    lzw_reader: LzwReader,
+    skip_frame_decoding: bool,
+    check_frame_consistency: bool,
     allow_unknown_blocks: bool,
+    memory_limit: MemoryLimit,
     version: Version,
     width: u16,
     height: u16,
@@ -928,11 +1242,12 @@
     </span>ext: ExtensionData,
     <span class="doccomment">/// Frame data
     </span>current: <span class="prelude-ty">Option</span>&lt;Frame&lt;<span class="lifetime">'static</span>&gt;&gt;,
+    <span class="doccomment">/// Needs to emit `HeaderEnd` once
+    </span>header_end_reached: bool,
 }
 
 <span class="doccomment">/// One version number of the GIF standard.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-#[non_exhaustive]
 </span><span class="kw">pub enum </span>Version {
     <span class="doccomment">/// Version 87a, from May 1987.
     </span>V87a,
@@ -946,8 +1261,45 @@
     is_block_end: bool,
 }
 
+<span class="doccomment">/// Destination to write to for `StreamingDecoder::update`
+</span><span class="kw">pub enum </span>OutputBuffer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="doccomment">/// Overwrite bytes
+    </span>Slice(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]),
+    <span class="doccomment">/// Append LZW bytes
+    </span>Vec(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Vec&lt;u8&gt;),
+    <span class="doccomment">/// Discard bytes
+    </span><span class="prelude-val">None</span>,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; OutputBuffer&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8], memory_limit: <span class="kw-2">&amp;</span>MemoryLimit) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, usize), DecodingError&gt; {
+        <span class="kw">let </span>(consumed, copied) = <span class="kw">match </span><span class="self">self </span>{
+            OutputBuffer::Slice(slice) =&gt; {
+                <span class="kw">let </span>len = cmp::min(buf.len(), slice.len());
+                slice[..len].copy_from_slice(<span class="kw-2">&amp;</span>buf[..len]);
+                (len, len)
+            },
+            OutputBuffer::Vec(vec) =&gt; {
+                <span class="kw">let </span>vec: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt; = vec;
+                <span class="kw">let </span>len = buf.len();
+                memory_limit.check_size(vec.len() + len)<span class="question-mark">?</span>;
+                vec.try_reserve(len).map_err(|<span class="kw">_</span>| io::ErrorKind::OutOfMemory)<span class="question-mark">?</span>;
+                <span class="kw">if </span>vec.capacity() - vec.len() &gt;= len {
+                    vec.extend_from_slice(buf);
+                }
+                (len, len)
+            },
+            <span class="comment">// It's valid that bytes are discarded. For example,
+            // when using next_frame_info() with skip_frame_decoding to only get metadata.
+            </span>OutputBuffer::None =&gt; (buf.len(), <span class="number">0</span>),
+        };
+        <span class="prelude-val">Ok</span>((consumed, copied))
+    }
+}
+
 <span class="kw">impl </span>StreamingDecoder {
     <span class="doccomment">/// Creates a new streaming decoder
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>new() -&gt; StreamingDecoder {
         <span class="kw">let </span>options = DecodeOptions::new();
         <span class="self">Self</span>::with_options(<span class="kw-2">&amp;</span>options)
@@ -955,13 +1307,12 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_options(options: <span class="kw-2">&amp;</span>DecodeOptions) -&gt; <span class="self">Self </span>{
         StreamingDecoder {
-            state: <span class="prelude-val">Some</span>(Magic(<span class="number">0</span>, [<span class="number">0</span>; <span class="number">6</span>])),
-            lzw_reader: <span class="prelude-val">None</span>,
-            decode_buffer: <span class="macro">vec!</span>[],
-            skip_extensions: <span class="bool-val">true</span>,
+            state: Magic(<span class="number">0</span>, [<span class="number">0</span>; <span class="number">6</span>]),
+            lzw_reader: LzwReader::new(options.check_for_end_code),
+            skip_frame_decoding: options.skip_frame_decoding,
             check_frame_consistency: options.check_frame_consistency,
-            check_for_end_code: options.check_for_end_code,
             allow_unknown_blocks: options.allow_unknown_blocks,
+            memory_limit: options.memory_limit.clone(),
             version: Version::V87a,
             width: <span class="number">0</span>,
             height: <span class="number">0</span>,
@@ -972,76 +1323,68 @@
                 data: Vec::with_capacity(<span class="number">256</span>), <span class="comment">// 0xFF + 1 byte length
                 </span>is_block_end: <span class="bool-val">true</span>,
             },
-            current: <span class="prelude-val">None
-        </span>}
-    }
-    
-    <span class="doccomment">/// Updates the internal state of the decoder. 
-    ///
-    /// Returns the number of bytes consumed from the input buffer 
-    /// and the last decoding result.
-    </span><span class="kw">pub fn </span>update&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>buf: <span class="kw-2">&amp;</span>[u8])
-    -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Decoded&lt;<span class="lifetime">'a</span>&gt;), DecodingError&gt; {
-        <span class="comment">// NOTE: Do not change the function signature without double-checking the
-        //       unsafe block!
-        </span><span class="kw">let </span>len = buf.len();
-        <span class="kw">while </span>buf.len() &gt; <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.state.is_some() {
-            <span class="kw">match </span><span class="self">self</span>.next_state(buf) {
-                <span class="prelude-val">Ok</span>((bytes, Decoded::Nothing)) =&gt; {
-                    buf = <span class="kw-2">&amp;</span>buf[bytes..]
-                }
-                <span class="prelude-val">Ok</span>((bytes, Decoded::Trailer)) =&gt; {
-                    buf = <span class="kw-2">&amp;</span>buf[bytes..];
-                    <span class="kw">break
-                </span>}
-                <span class="prelude-val">Ok</span>((bytes, result)) =&gt; {
-                    buf = <span class="kw-2">&amp;</span>buf[bytes..];
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(
-                        (len-buf.len(), 
-                        <span class="comment">// This transmute just casts the lifetime away. Since Rust only 
-                        // has SESE regions, this early return cannot be worked out and
-                        // such that the borrow region of self includes the whole block.
-                        // The explixit lifetimes in the function signature ensure that
-                        // this is safe.
-                        // ### NOTE
-                        // To check that everything is sound, return the result without
-                        // the match (e.g. `return Ok(self.next_state(buf)?)`). If
-                        // it compiles the returned lifetime is correct.
-                        </span><span class="kw">unsafe </span>{ 
-                            mem::transmute::&lt;Decoded, Decoded&gt;(result)
-                        }
-                    ))
-                }
-                <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err)
-            }
+            current: <span class="prelude-val">None</span>,
+            header_end_reached: <span class="bool-val">false</span>,
         }
-        <span class="prelude-val">Ok</span>((len-buf.len(), Decoded::Nothing))
-        
     }
-    
+
+    <span class="doccomment">/// Updates the internal state of the decoder.
+    ///
+    /// Returns the number of bytes consumed from the input buffer
+    /// and the last decoding result.
+    </span><span class="kw">pub fn </span>update&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>,
+        <span class="kw-2">mut </span>buf: <span class="kw-2">&amp;</span>[u8],
+        write_into: <span class="kw-2">&amp;mut </span>OutputBuffer&lt;<span class="lifetime">'_</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Decoded), DecodingError&gt; {
+        <span class="kw">let </span>len = buf.len();
+        <span class="kw">while </span>!buf.is_empty() {
+            <span class="kw">let </span>(bytes, decoded) = <span class="self">self</span>.next_state(buf, write_into)<span class="question-mark">?</span>;
+            buf = buf.get(bytes..).unwrap_or_default();
+            <span class="kw">match </span>decoded {
+                Decoded::Nothing =&gt; {},
+                result =&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Ok</span>((len-buf.len(), result));
+                },
+            };
+        }
+        <span class="prelude-val">Ok</span>((len - buf.len(), Decoded::Nothing))
+    }
+
     <span class="doccomment">/// Returns the data of the last extension that has been decoded.
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>last_ext(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (AnyExtension, <span class="kw-2">&amp;</span>[u8], bool) {
         (<span class="self">self</span>.ext.id, <span class="kw-2">&amp;</span><span class="self">self</span>.ext.data, <span class="self">self</span>.ext.is_block_end)
     }
-    
-    <span class="attr">#[inline(always)]
-    </span><span class="doccomment">/// Current frame info as a mutable ref.
-    </span><span class="kw">pub fn </span>current_frame_mut&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Frame&lt;<span class="lifetime">'static</span>&gt; {
+
+    <span class="doccomment">/// Current frame info as a mutable ref.
+    </span><span class="attr">#[must_use]
+    #[track_caller]
+    </span><span class="kw">pub fn </span>current_frame_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Frame&lt;<span class="lifetime">'static</span>&gt; {
         <span class="self">self</span>.current.as_mut().unwrap()
     }
-    
-    <span class="attr">#[inline(always)]
-    </span><span class="doccomment">/// Current frame info as a ref.
-    </span><span class="kw">pub fn </span>current_frame&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Frame&lt;<span class="lifetime">'static</span>&gt; {
+
+    <span class="doccomment">/// Current frame info as a ref.
+    </span><span class="attr">#[track_caller]
+    #[must_use]
+    </span><span class="kw">pub fn </span>current_frame(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'static</span>&gt; {
         <span class="self">self</span>.current.as_ref().unwrap()
     }
 
+    <span class="doccomment">/// Current frame info as a mutable ref.
+    </span><span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>try_current_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;mut </span>Frame&lt;<span class="lifetime">'static</span>&gt;, DecodingError&gt; {
+        <span class="self">self</span>.current.as_mut().ok_or_else(|| DecodingError::format(<span class="string">"bad state"</span>))
+    }
+
     <span class="doccomment">/// Width of the image
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.width
     }
 
     <span class="doccomment">/// Height of the image
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.height
     }
@@ -1050,129 +1393,82 @@
     ///
     /// We suppose a minimum of `V87a` compatibility. This value will be reported until we have
     /// read the version information in the magic header bytes.
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Version {
         <span class="self">self</span>.version
     }
 
-    <span class="doccomment">/// Configure whether extensions are saved or skipped.
-    </span><span class="attr">#[deprecated = <span class="string">"Does not work as intended. In fact, doesn't do anything. This may disappear soon."</span>]
-    </span><span class="kw">pub fn </span>set_extensions(<span class="kw-2">&amp;mut </span><span class="self">self</span>, extensions: Extensions) {
-        <span class="self">self</span>.skip_extensions = <span class="kw">match </span>extensions {
-            Extensions::Skip =&gt; <span class="bool-val">true</span>,
-            Extensions::Save =&gt; <span class="bool-val">false</span>,
-        }
-    }
-
-    <span class="kw">fn </span>next_state&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Decoded&lt;<span class="lifetime">'a</span>&gt;), DecodingError&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>next_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8], write_into: <span class="kw-2">&amp;mut </span>OutputBuffer&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, Decoded), DecodingError&gt; {
         <span class="macro">macro_rules! </span>goto (
             (<span class="macro-nonterminal">$n</span>:expr, <span class="macro-nonterminal">$state</span>:expr) =&gt; ({
-                <span class="self">self</span>.state = <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$state</span>); 
+                <span class="self">self</span>.state = <span class="macro-nonterminal">$state</span>;
                 <span class="prelude-val">Ok</span>((<span class="macro-nonterminal">$n</span>, Decoded::Nothing))
             });
             (<span class="macro-nonterminal">$state</span>:expr) =&gt; ({
-                <span class="self">self</span>.state = <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$state</span>); 
+                <span class="self">self</span>.state = <span class="macro-nonterminal">$state</span>;
                 <span class="prelude-val">Ok</span>((<span class="number">1</span>, Decoded::Nothing))
             });
             (<span class="macro-nonterminal">$n</span>:expr, <span class="macro-nonterminal">$state</span>:expr, emit <span class="macro-nonterminal">$res</span>:expr) =&gt; ({
-                <span class="self">self</span>.state = <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$state</span>); 
+                <span class="self">self</span>.state = <span class="macro-nonterminal">$state</span>;
                 <span class="prelude-val">Ok</span>((<span class="macro-nonterminal">$n</span>, <span class="macro-nonterminal">$res</span>))
             });
             (<span class="macro-nonterminal">$state</span>:expr, emit <span class="macro-nonterminal">$res</span>:expr) =&gt; ({
-                <span class="self">self</span>.state = <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$state</span>); 
+                <span class="self">self</span>.state = <span class="macro-nonterminal">$state</span>;
                 <span class="prelude-val">Ok</span>((<span class="number">1</span>, <span class="macro-nonterminal">$res</span>))
             })
         );
-        
-        <span class="kw">let </span>b = buf[<span class="number">0</span>];
-        
-        <span class="comment">// Driver should ensure that state is never None
-        </span><span class="kw">let </span>state = <span class="self">self</span>.state.take().unwrap();
-        <span class="comment">//println!("{:?}", state);
-        
-        </span><span class="kw">match </span>state {
+
+        <span class="kw">let </span>b = <span class="kw-2">*</span>buf.get(<span class="number">0</span>).ok_or(io::ErrorKind::UnexpectedEof)<span class="question-mark">?</span>;
+
+        <span class="kw">match </span><span class="self">self</span>.state {
             Magic(i, <span class="kw-2">mut </span>version) =&gt; <span class="kw">if </span>i &lt; <span class="number">6 </span>{
-                version[i] = b;
+                version[i <span class="kw">as </span>usize] = b;
                 <span class="macro">goto!</span>(Magic(i+<span class="number">1</span>, version))
             } <span class="kw">else if </span><span class="kw-2">&amp;</span>version[..<span class="number">3</span>] == <span class="string">b"GIF" </span>{
                 <span class="self">self</span>.version = <span class="kw">match </span><span class="kw-2">&amp;</span>version[<span class="number">3</span>..] {
                     <span class="string">b"87a" </span>=&gt; Version::V87a,
                     <span class="string">b"89a" </span>=&gt; Version::V89a,
-                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"unsupported GIF version"</span>))
+                    <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"malformed GIF header"</span>))
                 };
                 <span class="macro">goto!</span>(U16Byte1(U16Value::ScreenWidth, b))
             } <span class="kw">else </span>{
                 <span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"malformed GIF header"</span>))
             },
-            U16(next) =&gt; <span class="macro">goto!</span>(U16Byte1(next, b)),
-            U16Byte1(next, value) =&gt; {
-                <span class="kw">use </span><span class="self">self</span>::U16Value::<span class="kw-2">*</span>;
-                <span class="kw">let </span>value = ((b <span class="kw">as </span>u16) &lt;&lt; <span class="number">8</span>) | value <span class="kw">as </span>u16;
-                <span class="kw">match </span>(next, value) {
-                    (ScreenWidth, width) =&gt; {
-                        <span class="self">self</span>.width = width;
-                        <span class="macro">goto!</span>(U16(U16Value::ScreenHeight))
-                    },
-                    (ScreenHeight, height) =&gt; {
-                        <span class="self">self</span>.height = height;
-                        <span class="macro">goto!</span>(Byte(ByteValue::GlobalFlags))
-                    },
-                    (Delay, delay) =&gt; {
-                        <span class="self">self</span>.ext.data.push(value <span class="kw">as </span>u8);
-                        <span class="self">self</span>.ext.data.push(b);
-                        <span class="self">self</span>.current_frame_mut().delay = delay;
-                        <span class="macro">goto!</span>(Byte(ByteValue::TransparentIdx))
-                    },
-                    (ImageLeft, left) =&gt; {
-                        <span class="self">self</span>.current_frame_mut().left = left;
-                        <span class="macro">goto!</span>(U16(U16Value::ImageTop))
-                    },
-                    (ImageTop, top) =&gt; {
-                        <span class="self">self</span>.current_frame_mut().top = top;
-                        <span class="macro">goto!</span>(U16(U16Value::ImageWidth))
-                    },
-                    (ImageWidth, width) =&gt; {
-                        <span class="self">self</span>.current_frame_mut().width = width;
-                        <span class="macro">goto!</span>(U16(U16Value::ImageHeight))
-                    },
-                    (ImageHeight, height) =&gt; {
-                        <span class="self">self</span>.current_frame_mut().height = height;
-                        <span class="macro">goto!</span>(Byte(ByteValue::ImageFlags))
-                    }
-                }
-            }
             Byte(value) =&gt; {
                 <span class="kw">use </span><span class="self">self</span>::ByteValue::<span class="kw-2">*</span>;
                 <span class="kw">match </span>value {
                     GlobalFlags =&gt; {
-                        <span class="kw">let </span>global_table = b &amp; <span class="number">0x80 </span>!= <span class="number">0</span>;
-                        <span class="kw">let </span>entries = <span class="kw">if </span>global_table {
-                            <span class="kw">let </span>entries = PLTE_CHANNELS<span class="kw-2">*</span>(<span class="number">1 </span>&lt;&lt; ((b &amp; <span class="number">0b111</span>) + <span class="number">1</span>) <span class="kw">as </span>usize);
-                            <span class="self">self</span>.global_color_table.reserve_exact(entries);
-                            entries
-                        } <span class="kw">else </span>{
-                            <span class="number">0usize
-                        </span>};
-                        <span class="macro">goto!</span>(Byte(Background { table_size: entries }))
+                        <span class="macro">goto!</span>(Byte(Background { global_flags: b }))
                     },
-                    Background { table_size } =&gt; {
+                    Background { global_flags } =&gt; {
                         <span class="macro">goto!</span>(
-                            Byte(AspectRatio { table_size: table_size }),
+                            Byte(AspectRatio { global_flags }),
                             emit Decoded::BackgroundColor(b)
                         )
                     },
-                    AspectRatio { table_size } =&gt; {
+                    AspectRatio { global_flags } =&gt; {
+                        <span class="kw">let </span>global_table = global_flags &amp; <span class="number">0x80 </span>!= <span class="number">0</span>;
+                        <span class="kw">let </span>table_size = <span class="kw">if </span>global_table {
+                            <span class="kw">let </span>table_size = PLTE_CHANNELS * (<span class="number">1 </span>&lt;&lt; ((global_flags &amp; <span class="number">0b111</span>) + <span class="number">1</span>) <span class="kw">as </span>usize);
+                            <span class="self">self</span>.global_color_table.try_reserve_exact(table_size).map_err(|<span class="kw">_</span>| io::ErrorKind::OutOfMemory)<span class="question-mark">?</span>;
+                            table_size
+                        } <span class="kw">else </span>{
+                            <span class="number">0usize
+                        </span>};
                         <span class="macro">goto!</span>(GlobalPalette(table_size))
                     },
                     ControlFlags =&gt; {
                         <span class="self">self</span>.ext.data.push(b);
+                        <span class="kw">let </span>frame = <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>;
                         <span class="kw">let </span>control_flags = b;
                         <span class="kw">if </span>control_flags &amp; <span class="number">1 </span>!= <span class="number">0 </span>{
                             <span class="comment">// Set to Some(...), gets overwritten later
-                            </span><span class="self">self</span>.current_frame_mut().transparent = <span class="prelude-val">Some</span>(<span class="number">0</span>)
+                            </span>frame.transparent = <span class="prelude-val">Some</span>(<span class="number">0</span>);
                         }
-                        <span class="self">self</span>.current_frame_mut().needs_user_input =
+                        frame.needs_user_input =
                             control_flags &amp; <span class="number">0b10 </span>!= <span class="number">0</span>;
-                        <span class="self">self</span>.current_frame_mut().dispose = <span class="kw">match </span>DisposalMethod::from_u8(
+                        frame.dispose = <span class="kw">match </span>DisposalMethod::from_u8(
                             (control_flags &amp; <span class="number">0b11100</span>) &gt;&gt; <span class="number">2
                         </span>) {
                             <span class="prelude-val">Some</span>(method) =&gt; method,
@@ -1182,24 +1478,24 @@
                     }
                     TransparentIdx =&gt; {
                         <span class="self">self</span>.ext.data.push(b);
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>idx) = <span class="self">self</span>.current_frame_mut().transparent {
-                             <span class="kw-2">*</span>idx = b
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>idx) = <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.transparent {
+                            <span class="kw-2">*</span>idx = b;
                         }
-                        <span class="macro">goto!</span>(SkipBlock(<span class="number">0</span>))
-                        <span class="comment">//goto!(AwaitBlockEnd)
-                    </span>}
+                        <span class="macro">goto!</span>(ExtensionDataBlock(<span class="number">0</span>))
+                    }
                     ImageFlags =&gt; {
                         <span class="kw">let </span>local_table = (b &amp; <span class="number">0b1000_0000</span>) != <span class="number">0</span>;
-                        <span class="kw">let </span>interlaced   = (b &amp; <span class="number">0b0100_0000</span>) != <span class="number">0</span>;
-                        <span class="kw">let </span>table_size  =  b &amp; <span class="number">0b0000_0111</span>;
+                        <span class="kw">let </span>interlaced = (b &amp; <span class="number">0b0100_0000</span>) != <span class="number">0</span>;
+                        <span class="kw">let </span>table_size = b &amp; <span class="number">0b0000_0111</span>;
+                        <span class="kw">let </span>check_frame_consistency = <span class="self">self</span>.check_frame_consistency;
+                        <span class="kw">let </span>(width, height) = (<span class="self">self</span>.width, <span class="self">self</span>.height);
 
-                        <span class="self">self</span>.current_frame_mut().interlaced = interlaced;
+                        <span class="kw">let </span>frame = <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>;
 
-                        <span class="kw">if </span><span class="self">self</span>.check_frame_consistency {
+                        frame.interlaced = interlaced;
+                        <span class="kw">if </span>check_frame_consistency {
                             <span class="comment">// Consistency checks.
-                            </span><span class="kw">let </span>(width, height) = (<span class="self">self</span>.width, <span class="self">self</span>.height);
-                            <span class="kw">let </span>frame = <span class="self">self</span>.current_frame_mut();
-                            <span class="kw">if </span>width.checked_sub(frame.width) &lt; <span class="prelude-val">Some</span>(frame.left)
+                            </span><span class="kw">if </span>width.checked_sub(frame.width) &lt; <span class="prelude-val">Some</span>(frame.left)
                                 || height.checked_sub(frame.height) &lt; <span class="prelude-val">Some</span>(frame.top)
                             {
                                 <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"frame descriptor is out-of-bounds"</span>))
@@ -1208,15 +1504,15 @@
 
                         <span class="kw">if </span>local_table {
                             <span class="kw">let </span>entries = PLTE_CHANNELS * (<span class="number">1 </span>&lt;&lt; (table_size + <span class="number">1</span>));
-                            
-                            <span class="self">self</span>.current_frame_mut().palette =
-                                <span class="prelude-val">Some</span>(Vec::with_capacity(entries));
+                            <span class="kw">let </span><span class="kw-2">mut </span>pal = Vec::new();
+                            pal.try_reserve_exact(entries).map_err(|<span class="kw">_</span>| io::ErrorKind::OutOfMemory)<span class="question-mark">?</span>;
+                            frame.palette = <span class="prelude-val">Some</span>(pal);
                             <span class="macro">goto!</span>(LocalPalette(entries))
                         } <span class="kw">else </span>{
                             <span class="macro">goto!</span>(Byte(CodeSize))
                         }
-                    },
-                    CodeSize =&gt; <span class="macro">goto!</span>(LzwInit(b))
+                    }
+                    CodeSize =&gt; <span class="macro">goto!</span>(LzwInit(b)),
                 }
             }
             GlobalPalette(left) =&gt; {
@@ -1226,18 +1522,23 @@
                     <span class="macro">goto!</span>(n, GlobalPalette(left - n))
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>idx = <span class="self">self</span>.background_color[<span class="number">0</span>];
-                    <span class="kw">match </span><span class="self">self</span>.global_color_table.chunks(PLTE_CHANNELS).nth(idx <span class="kw">as </span>usize) {
+                    <span class="kw">match </span><span class="self">self</span>.global_color_table.chunks_exact(PLTE_CHANNELS).nth(idx <span class="kw">as </span>usize) {
                         <span class="prelude-val">Some</span>(chunk) =&gt; <span class="self">self</span>.background_color[..PLTE_CHANNELS]
                             .copy_from_slice(<span class="kw-2">&amp;</span>chunk[..PLTE_CHANNELS]),
                         <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.background_color[<span class="number">0</span>] = <span class="number">0
                     </span>}
-                    <span class="macro">goto!</span>(BlockStart(Block::from_u8(b)), emit Decoded::GlobalPalette(
-                        mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.global_color_table, Vec::new())
+                    <span class="macro">goto!</span>(BlockStart(b), emit Decoded::GlobalPalette(
+                        mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.global_color_table).into_boxed_slice()
                     ))
                 }
             }
             BlockStart(type_) =&gt; {
-                <span class="kw">match </span>type_ {
+                <span class="kw">if </span>!<span class="self">self</span>.header_end_reached &amp;&amp; type_ != Block::Extension <span class="kw">as </span>u8 {
+                    <span class="self">self</span>.header_end_reached = <span class="bool-val">true</span>;
+                    <span class="kw">return </span><span class="macro">goto!</span>(<span class="number">0</span>, BlockStart(type_), emit Decoded::HeaderEnd);
+                }
+
+                <span class="kw">match </span>Block::from_u8(type_) {
                     <span class="prelude-val">Some</span>(Block::Image) =&gt; {
                         <span class="self">self</span>.add_frame();
                         <span class="macro">goto!</span>(U16Byte1(U16Value::ImageLeft, b), emit Decoded::BlockStart(Block::Image))
@@ -1246,28 +1547,25 @@
                         <span class="macro">goto!</span>(ExtensionBlock(AnyExtension(b)), emit Decoded::BlockStart(Block::Extension))
                     }
                     <span class="prelude-val">Some</span>(Block::Trailer) =&gt; {
-                        <span class="macro">goto!</span>(<span class="number">0</span>, State::Trailer, emit Decoded::BlockStart(Block::Trailer))
+                        <span class="comment">// The `Trailer` is the final state, and isn't reachable without extraneous data after the end of file
+                        </span><span class="macro">goto!</span>(Trailer, emit Decoded::BlockStart(Block::Trailer))
                     }
                     <span class="prelude-val">None </span>=&gt; {
                         <span class="kw">if </span><span class="self">self</span>.allow_unknown_blocks {
-                            <span class="macro">goto!</span>(SkipBlock(b <span class="kw">as </span>usize))
+                            <span class="macro">goto!</span>(ExtensionDataBlock(b <span class="kw">as </span>usize))
                         } <span class="kw">else </span>{
                             <span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"unknown block type encountered"</span>))
                         }
                     }
                 }
-            }
-            BlockEnd(terminator) =&gt; {
-                <span class="kw">if </span>terminator == <span class="number">0 </span>{
-                    <span class="kw">if </span>b == Block::Trailer <span class="kw">as </span>u8 {
-                        <span class="macro">goto!</span>(<span class="number">0</span>, BlockStart(<span class="prelude-val">Some</span>(Block::Trailer)))
-                    } <span class="kw">else </span>{
-                        <span class="macro">goto!</span>(BlockStart(Block::from_u8(b)))
-                    }
+            },
+            BlockEnd =&gt; {
+                <span class="kw">if </span>b == Block::Trailer <span class="kw">as </span>u8 {
+                    <span class="comment">// can't consume yet, because the trailer is not a real block,
+                    // and won't have futher data for BlockStart
+                    </span><span class="macro">goto!</span>(<span class="number">0</span>, BlockStart(b))
                 } <span class="kw">else </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
-                        <span class="string">"expected block terminator not found"
-                    </span>))
+                    <span class="macro">goto!</span>(BlockStart(b))
                 }
             }
             ExtensionBlock(id) =&gt; {
@@ -1281,170 +1579,182 @@
                             <span class="macro">goto!</span>(<span class="self">self</span>.read_control_extension(b)<span class="question-mark">?</span>)
                         }
                         Text | Comment | Application =&gt; {
-                            <span class="macro">goto!</span>(SkipBlock(b <span class="kw">as </span>usize))
+                            <span class="macro">goto!</span>(ExtensionDataBlock(b <span class="kw">as </span>usize))
                         }
                     }
                 } <span class="kw">else </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
-                        <span class="string">"unknown extention block encountered"
-                    </span>))
+                    <span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"unknown block type encountered"</span>))
                 }
             }
-            SkipBlock(left) =&gt; {
-                <span class="kw">let </span>n = cmp::min(left, buf.len());
+            ExtensionDataBlock(left) =&gt; {
                 <span class="kw">if </span>left &gt; <span class="number">0 </span>{
+                    <span class="kw">let </span>n = cmp::min(left, buf.len());
+                    <span class="self">self</span>.memory_limit.check_size(<span class="self">self</span>.ext.data.len() + n)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.ext.data.try_reserve(n).map_err(|<span class="kw">_</span>| io::Error::from(io::ErrorKind::OutOfMemory))<span class="question-mark">?</span>;
                     <span class="self">self</span>.ext.data.extend_from_slice(<span class="kw-2">&amp;</span>buf[..n]);
-                    <span class="macro">goto!</span>(n, SkipBlock(left - n))
-                } <span class="kw">else </span>{
-                    <span class="kw">if </span>b == <span class="number">0 </span>{
-                        <span class="self">self</span>.ext.is_block_end = <span class="bool-val">true</span>;
-                        <span class="macro">goto!</span>(BlockEnd(b), emit Decoded::BlockFinished(<span class="self">self</span>.ext.id, <span class="kw-2">&amp;</span><span class="self">self</span>.ext.data))
+                    <span class="macro">goto!</span>(n, ExtensionDataBlock(left - n))
+                } <span class="kw">else if </span>b == <span class="number">0 </span>{
+                    <span class="self">self</span>.ext.is_block_end = <span class="bool-val">true</span>;
+                    <span class="kw">if </span><span class="self">self</span>.ext.id.into_known() == <span class="prelude-val">Some</span>(Extension::Application) {
+                        <span class="macro">goto!</span>(<span class="number">0</span>, ApplicationExtension, emit Decoded::BlockFinished(<span class="self">self</span>.ext.id))
                     } <span class="kw">else </span>{
-                        <span class="self">self</span>.ext.is_block_end = <span class="bool-val">false</span>;
-                        <span class="macro">goto!</span>(SkipBlock(b <span class="kw">as </span>usize), emit Decoded::SubBlockFinished(<span class="self">self</span>.ext.id, <span class="kw-2">&amp;</span><span class="self">self</span>.ext.data))
+                        <span class="macro">goto!</span>(BlockEnd, emit Decoded::BlockFinished(<span class="self">self</span>.ext.id))
                     }
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.ext.is_block_end = <span class="bool-val">false</span>;
+                    <span class="macro">goto!</span>(ExtensionDataBlock(b <span class="kw">as </span>usize), emit Decoded::SubBlockFinished(<span class="self">self</span>.ext.id))
+                }
+            }
+            ApplicationExtension =&gt; {
+                <span class="macro">debug_assert_eq!</span>(<span class="number">0</span>, b);
+                <span class="comment">// the parser removes sub-block lenghts, so app name and data are concatenated
+                </span><span class="kw">if </span><span class="self">self</span>.ext.data.len() &gt;= <span class="number">15 </span>&amp;&amp; <span class="kw-2">&amp;</span><span class="self">self</span>.ext.data[<span class="number">1</span>..<span class="number">13</span>] == <span class="string">b"NETSCAPE2.0\x01" </span>{
+                    <span class="kw">let </span>repeat = <span class="kw-2">&amp;</span><span class="self">self</span>.ext.data[<span class="number">13</span>..<span class="number">15</span>];
+                    <span class="kw">let </span>repeat = u16::from(repeat[<span class="number">0</span>]) | u16::from(repeat[<span class="number">1</span>]) &lt;&lt; <span class="number">8</span>;
+                    <span class="macro">goto!</span>(BlockEnd, emit Decoded::Repetitions(<span class="kw">if </span>repeat == <span class="number">0 </span>{ Repeat::Infinite } <span class="kw">else </span>{ Repeat::Finite(repeat) }))
+                } <span class="kw">else </span>{
+                    <span class="macro">goto!</span>(BlockEnd)
                 }
             }
             LocalPalette(left) =&gt; {
                 <span class="kw">let </span>n = cmp::min(left, buf.len());
                 <span class="kw">if </span>left &gt; <span class="number">0 </span>{
-                    
-                    <span class="self">self</span>.current_frame_mut().palette
-                        .as_mut().unwrap().extend(buf[..n].iter().cloned());
+                    <span class="kw">let </span>src = <span class="kw-2">&amp;</span>buf[..n];
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(pal) = <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.palette.as_mut() {
+                        <span class="comment">// capacity has already been reserved in ImageFlags
+                        </span><span class="kw">if </span>pal.capacity() - pal.len() &gt;= src.len() {
+                            pal.extend_from_slice(src);
+                        }
+                    }
                     <span class="macro">goto!</span>(n, LocalPalette(left - n))
                 } <span class="kw">else </span>{
                     <span class="macro">goto!</span>(LzwInit(b))
                 }
             }
-            LzwInit(code_size) =&gt; {
-                <span class="comment">// LZW spec: max 12 bits per code
-                </span><span class="kw">if </span>code_size &gt; <span class="number">11 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
-                        <span class="string">"invalid minimal code size"
-                    </span>))
+            LzwInit(min_code_size) =&gt; {
+                <span class="kw">if </span>!<span class="self">self</span>.skip_frame_decoding {
+                    <span class="comment">// Reset validates the min code size
+                    </span><span class="self">self</span>.lzw_reader.reset(min_code_size)<span class="question-mark">?</span>;
+                    <span class="macro">goto!</span>(DecodeSubBlock(b <span class="kw">as </span>usize), emit Decoded::FrameMetadata(FrameDataType::Pixels))
+                } <span class="kw">else </span>{
+                    LzwReader::check_code_size(min_code_size)<span class="question-mark">?</span>;
+                    <span class="macro">goto!</span>(CopySubBlock(b <span class="kw">as </span>usize), emit Decoded::FrameMetadata(FrameDataType::Lzw { min_code_size }))
                 }
-                <span class="self">self</span>.lzw_reader = <span class="prelude-val">Some</span>(LzwDecoder::new(BitOrder::Lsb, code_size));
-                <span class="macro">goto!</span>(DecodeSubBlock(b <span class="kw">as </span>usize), emit Decoded::Frame(<span class="self">self</span>.current_frame_mut()))
             }
-            DecodeSubBlock(left) =&gt; {
+            CopySubBlock(left) =&gt; {
+                <span class="macro">debug_assert!</span>(<span class="self">self</span>.skip_frame_decoding);
                 <span class="kw">if </span>left &gt; <span class="number">0 </span>{
                     <span class="kw">let </span>n = cmp::min(left, buf.len());
-                    <span class="kw">let </span>max_bytes = <span class="self">self</span>.current_frame().required_bytes();
-                    <span class="kw">let </span>decoder = <span class="self">self</span>.lzw_reader.as_mut().unwrap();
-                    <span class="kw">if </span>decoder.has_ended() {
-                        <span class="macro">debug_assert!</span>(n &gt; <span class="number">0</span>, <span class="string">"Made forward progress after LZW end"</span>);
-                        <span class="kw">return </span><span class="macro">goto!</span>(n, DecodeSubBlock(<span class="number">0</span>), emit Decoded::Data(<span class="kw-2">&amp;</span>[]));
+                    <span class="kw">let </span>(consumed, copied) = write_into.append(<span class="kw-2">&amp;</span>buf[..n], <span class="kw-2">&amp;</span><span class="self">self</span>.memory_limit)<span class="question-mark">?</span>;
+                    <span class="macro">goto!</span>(consumed, CopySubBlock(left - consumed), emit Decoded::LzwDataCopied(copied))
+                } <span class="kw">else if </span>b != <span class="number">0 </span>{
+                    <span class="macro">goto!</span>(CopySubBlock(b <span class="kw">as </span>usize))
+                } <span class="kw">else </span>{
+                    <span class="macro">goto!</span>(<span class="number">0</span>, FrameDecoded)
+                }
+            }
+            DecodeSubBlock(left) =&gt; {
+                <span class="macro">debug_assert!</span>(!<span class="self">self</span>.skip_frame_decoding);
+                <span class="kw">if </span>left &gt; <span class="number">0 </span>{
+                    <span class="kw">let </span>n = cmp::min(left, buf.len());
+                    <span class="kw">if </span><span class="self">self</span>.lzw_reader.has_ended() || <span class="macro">matches!</span>(write_into, OutputBuffer::None) {
+                        <span class="kw">return </span><span class="macro">goto!</span>(n, DecodeSubBlock(left - n), emit Decoded::Nothing);
                     }
 
-                    <span class="kw">let </span><span class="kw-2">mut </span>dummy_target;
-                    <span class="kw">let </span>decode_target;
+                    <span class="kw">let </span>(<span class="kw-2">mut </span>consumed, bytes_len) = <span class="self">self</span>.lzw_reader.decode_bytes(<span class="kw-2">&amp;</span>buf[..n], write_into)<span class="question-mark">?</span>;
 
-                    <span class="kw">if </span><span class="self">self</span>.decode_buffer.is_empty() {
-                        <span class="kw">let </span>size = (<span class="number">1 </span>&lt;&lt; <span class="number">14</span>).min(max_bytes);
-                        <span class="self">self</span>.decode_buffer = <span class="macro">vec!</span>[<span class="number">0</span>; size];
+                    <span class="comment">// skip if can't make progress (decode would fail if check_for_end_code was set)
+                    </span><span class="kw">if </span>consumed == <span class="number">0 </span>&amp;&amp; bytes_len == <span class="number">0 </span>{
+                        consumed = n;
                     }
 
-                    <span class="kw">if </span>max_bytes == <span class="number">0 </span>{
-                        dummy_target = [<span class="number">0</span>; <span class="number">16</span>];
-                        decode_target = <span class="kw-2">&amp;mut </span>dummy_target[..];
+                    <span class="kw">let </span>decoded = <span class="kw">if let </span><span class="prelude-val">Some</span>(bytes_len) = NonZeroUsize::new(bytes_len) {
+                        Decoded::BytesDecoded(bytes_len)
                     } <span class="kw">else </span>{
-                        decode_target = <span class="self">self</span>.decode_buffer.as_mut_slice();
-                    }
-
-                    <span class="macro">debug_assert!</span>(!decode_target.is_empty(), <span class="string">"LZW decoding can make forward progress."</span>);
-                    <span class="kw">let </span>decoded = decoder.decode_bytes(<span class="kw-2">&amp;</span>buf[..n], decode_target);
-
-                    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = decoded.status {
-                        <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::InvalidData, <span class="kw-2">&amp;*</span><span class="macro">format!</span>(<span class="string">"{:?}"</span>, err)).into());
-                    }
-
-                    <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span><span class="self">self</span>.decode_buffer[..decoded.consumed_out.min(max_bytes)];
-                    <span class="kw">let </span>consumed = decoded.consumed_in;
-                    <span class="macro">goto!</span>(consumed, DecodeSubBlock(left - consumed), emit Decoded::Data(bytes))
+                        Decoded::Nothing
+                    };
+                    <span class="macro">goto!</span>(consumed, DecodeSubBlock(left - consumed), emit decoded)
                 }  <span class="kw">else if </span>b != <span class="number">0 </span>{ <span class="comment">// decode next sub-block
                     </span><span class="macro">goto!</span>(DecodeSubBlock(b <span class="kw">as </span>usize))
                 } <span class="kw">else </span>{
-                    <span class="kw">let </span>max_bytes = <span class="self">self</span>.current_frame().required_bytes();
-                    <span class="comment">// The end of the lzw stream is only reached if left == 0 and an additional call
-                    // to `decode_bytes` results in an empty slice.
-                    </span><span class="kw">let </span>decoder = <span class="self">self</span>.lzw_reader.as_mut().unwrap();
-                    <span class="comment">// Some mutable bytes to decode into. We need this for forward progress in
-                    // `lzw`. However, in some cases we do not actually need any bytes, when
-                    // `max_bytes` is `0`.
-                    </span><span class="kw">let </span><span class="kw-2">mut </span>dummy_target;
-                    <span class="kw">let </span>decode_target;
+                    <span class="kw">let </span>(<span class="kw">_</span>, bytes_len) = <span class="self">self</span>.lzw_reader.decode_bytes(<span class="kw-2">&amp;</span>[], write_into)<span class="question-mark">?</span>;
 
-                    <span class="kw">if </span><span class="self">self</span>.decode_buffer.is_empty() {
-                        <span class="kw">let </span>size = (<span class="number">1 </span>&lt;&lt; <span class="number">14</span>).min(max_bytes);
-                        <span class="self">self</span>.decode_buffer = <span class="macro">vec!</span>[<span class="number">0</span>; size];
-                    }
-
-                    <span class="kw">if </span>max_bytes == <span class="number">0 </span>{
-                        dummy_target = [<span class="number">0</span>; <span class="number">16</span>];
-                        decode_target = <span class="kw-2">&amp;mut </span>dummy_target[..];
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(bytes_len) = NonZeroUsize::new(bytes_len) {
+                        <span class="macro">goto!</span>(<span class="number">0</span>, DecodeSubBlock(<span class="number">0</span>), emit Decoded::BytesDecoded(bytes_len))
                     } <span class="kw">else </span>{
-                        decode_target = <span class="self">self</span>.decode_buffer.as_mut_slice();
-                    }
-
-                    <span class="macro">debug_assert!</span>(!decode_target.is_empty(), <span class="string">"LZW decoding can make forward progress."</span>);
-                    <span class="kw">let </span>decoded = decoder.decode_bytes(<span class="kw-2">&amp;</span>[], decode_target);
-
-                    <span class="kw">match </span>decoded.status {
-                        <span class="prelude-val">Ok</span>(LzwStatus::Done) | <span class="prelude-val">Ok</span>(LzwStatus::Ok) =&gt; {},
-                        <span class="prelude-val">Ok</span>(LzwStatus::NoProgress) =&gt; {
-                            <span class="kw">if </span><span class="self">self</span>.check_for_end_code {
-                                <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::InvalidData, <span class="string">"No end code in lzw stream"</span>).into());
-                            } <span class="kw">else </span>{
-                                <span class="self">self</span>.current = <span class="prelude-val">None</span>;
-                                <span class="kw">return </span><span class="macro">goto!</span>(<span class="number">0</span>, FrameDecoded, emit Decoded::DataEnd);
-                            }
-                        },
-                        <span class="prelude-val">Err</span>(err) =&gt; {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::InvalidData, <span class="kw-2">&amp;*</span><span class="macro">format!</span>(<span class="string">"{:?}"</span>, err)).into());
-                        }
-                    }
-                    <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span><span class="self">self</span>.decode_buffer[..decoded.consumed_out.min(max_bytes)];
-
-                    <span class="kw">if </span>bytes.len() &gt; <span class="number">0 </span>{
-                        <span class="macro">goto!</span>(<span class="number">0</span>, DecodeSubBlock(<span class="number">0</span>), emit Decoded::Data(bytes))
-                    } <span class="kw">else </span>{
-                        <span class="comment">// end of image data reached
-                        </span><span class="self">self</span>.current = <span class="prelude-val">None</span>;
-                        <span class="macro">goto!</span>(<span class="number">0</span>, FrameDecoded, emit Decoded::DataEnd)
+                        <span class="macro">goto!</span>(<span class="number">0</span>, FrameDecoded)
                     }
                 }
             }
-            FrameDecoded =&gt; {
-                <span class="macro">goto!</span>(BlockEnd(b))
+            U16(next) =&gt; <span class="macro">goto!</span>(U16Byte1(next, b)),
+            U16Byte1(next, value) =&gt; {
+                <span class="macro">goto!</span>(<span class="self">self</span>.read_second_byte(next, value, b)<span class="question-mark">?</span>)
             }
-            Trailer =&gt; {
-                <span class="self">self</span>.state = <span class="prelude-val">None</span>;
-                <span class="prelude-val">Ok</span>((<span class="number">1</span>, Decoded::Trailer))
-                <span class="comment">//panic!("EOF {:?}", self)
-            </span>}
+            FrameDecoded =&gt; {
+                <span class="comment">// end of image data reached
+                </span><span class="self">self</span>.current = <span class="prelude-val">None</span>;
+                <span class="macro">debug_assert_eq!</span>(<span class="number">0</span>, b);
+                <span class="macro">goto!</span>(BlockEnd, emit Decoded::DataEnd)
+            }
+            Trailer =&gt; <span class="macro">goto!</span>(<span class="number">0</span>, Trailer, emit Decoded::Nothing),
         }
     }
-    
+
+    <span class="kw">fn </span>read_second_byte(<span class="kw-2">&amp;mut </span><span class="self">self</span>, next: U16Value, value: u8, b: u8) -&gt; <span class="prelude-ty">Result</span>&lt;State, DecodingError&gt; {
+        <span class="kw">use </span><span class="self">self</span>::U16Value::<span class="kw-2">*</span>;
+        <span class="kw">let </span>value = (u16::from(b) &lt;&lt; <span class="number">8</span>) | u16::from(value);
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span>(next, value) {
+            (ScreenWidth, width) =&gt; {
+                <span class="self">self</span>.width = width;
+                U16(U16Value::ScreenHeight)
+            },
+            (ScreenHeight, height) =&gt; {
+                <span class="self">self</span>.height = height;
+                Byte(ByteValue::GlobalFlags)
+            },
+            (Delay, delay) =&gt; {
+                <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.delay = delay;
+                <span class="self">self</span>.ext.data.push(value <span class="kw">as </span>u8);
+                <span class="self">self</span>.ext.data.push(b);
+                Byte(ByteValue::TransparentIdx)
+            },
+            (ImageLeft, left) =&gt; {
+                <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.left = left;
+                U16(U16Value::ImageTop)
+            },
+            (ImageTop, top) =&gt; {
+                <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.top = top;
+                U16(U16Value::ImageWidth)
+            },
+            (ImageWidth, width) =&gt; {
+                <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.width = width;
+                U16(U16Value::ImageHeight)
+            },
+            (ImageHeight, height) =&gt; {
+                <span class="self">self</span>.try_current_frame()<span class="question-mark">?</span>.height = height;
+                Byte(ByteValue::ImageFlags)
+            }
+        })
+    }
+
     <span class="kw">fn </span>read_control_extension(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: u8) -&gt; <span class="prelude-ty">Result</span>&lt;State, DecodingError&gt; {
         <span class="self">self</span>.add_frame();
         <span class="self">self</span>.ext.data.push(b);
         <span class="kw">if </span>b != <span class="number">4 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
-                <span class="string">"control extension has wrong length"
-            </span>))
+            <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"control extension has wrong length"</span>));
         }
         <span class="prelude-val">Ok</span>(Byte(ByteValue::ControlFlags))
     }
-    
+
     <span class="kw">fn </span>add_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.current.is_none() {
-            <span class="self">self</span>.current = <span class="prelude-val">Some</span>(Frame::default())
+            <span class="self">self</span>.current = <span class="prelude-val">Some</span>(Frame::default());
         }
     }
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>error_cast() {
-    <span class="kw">let _ </span>: Box&lt;<span class="kw">dyn </span>error::Error&gt; = DecodingError::Format(DecodingFormatError::new(<span class="string">"testing"</span>)).into();
+    <span class="kw">let _ </span>: Box&lt;<span class="kw">dyn </span>error::Error&gt; = DecodingError::format(<span class="string">"testing"</span>).into();
 }
 </code></pre></div></section></main></body></html>

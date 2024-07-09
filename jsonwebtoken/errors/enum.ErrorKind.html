@@ -12,7 +12,7 @@
     InvalidSubject,
     ImmatureSignature,
     InvalidAlgorithm,
-    Base64(<a class="enum" href="../../base64/decode/enum.DecodeError.html" title="enum base64::decode::DecodeError">DecodeError</a>),
+    Base64(DecodeError),
     Json(<a class="struct" href="../../serde_json/error/struct.Error.html" title="struct serde_json::error::Error">Error</a>),
     Utf8(<a class="struct" href="https://doc.rust-lang.org/1.76.0/alloc/string/struct.FromUtf8Error.html" title="struct alloc::string::FromUtf8Error">FromUtf8Error</a>),
     Crypto(<a class="struct" href="../../ring/error/struct.Unspecified.html" title="struct ring::error::Unspecified">Unspecified</a>),
@@ -31,7 +31,7 @@
 </div><section id="variant.ImmatureSignature" class="variant"><a href="#variant.ImmatureSignature" class="anchor">§</a><h3 class="code-header">ImmatureSignature</h3></section><div class="docblock"><p>When a token’s nbf claim represents a time in the future</p>
 </div><section id="variant.InvalidAlgorithm" class="variant"><a href="#variant.InvalidAlgorithm" class="anchor">§</a><h3 class="code-header">InvalidAlgorithm</h3></section><div class="docblock"><p>When the algorithm in the header doesn’t match the one passed to <code>decode</code> or the encoding/decoding key
 used doesn’t match the alg requested</p>
-</div><section id="variant.Base64" class="variant"><a href="#variant.Base64" class="anchor">§</a><h3 class="code-header">Base64(<a class="enum" href="../../base64/decode/enum.DecodeError.html" title="enum base64::decode::DecodeError">DecodeError</a>)</h3></section><div class="docblock"><p>An error happened when decoding some base64 text</p>
+</div><section id="variant.Base64" class="variant"><a href="#variant.Base64" class="anchor">§</a><h3 class="code-header">Base64(DecodeError)</h3></section><div class="docblock"><p>An error happened when decoding some base64 text</p>
 </div><section id="variant.Json" class="variant"><a href="#variant.Json" class="anchor">§</a><h3 class="code-header">Json(<a class="struct" href="../../serde_json/error/struct.Error.html" title="struct serde_json::error::Error">Error</a>)</h3></section><div class="docblock"><p>An error happened while serializing/deserializing JSON</p>
 </div><section id="variant.Utf8" class="variant"><a href="#variant.Utf8" class="anchor">§</a><h3 class="code-header">Utf8(<a class="struct" href="https://doc.rust-lang.org/1.76.0/alloc/string/struct.FromUtf8Error.html" title="struct alloc::string::FromUtf8Error">FromUtf8Error</a>)</h3></section><div class="docblock"><p>Some of the text was invalid UTF-8</p>
 </div><section id="variant.Crypto" class="variant"><a href="#variant.Crypto" class="anchor">§</a><h3 class="code-header">Crypto(<a class="struct" href="../../ring/error/struct.Unspecified.html" title="struct ring::error::Unspecified">Unspecified</a>)</h3></section><div class="docblock"><p>Something unspecified went wrong with crypto</p>

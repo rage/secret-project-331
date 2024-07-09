@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.12.0/src/reader/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.13.1/src/reader/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -514,50 +514,32 @@
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
 <a href="#515" id="515">515</a>
-<a href="#516" id="516">516</a>
-<a href="#517" id="517">517</a>
-<a href="#518" id="518">518</a>
-<a href="#519" id="519">519</a>
-<a href="#520" id="520">520</a>
-<a href="#521" id="521">521</a>
-<a href="#522" id="522">522</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::io;
-<span class="kw">use </span>std::cmp;
+<span class="kw">use </span>std::iter::FusedIterator;
 <span class="kw">use </span>std::mem;
-<span class="kw">use </span>std::iter;
-<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
 
+<span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::num::NonZeroU64;
+<span class="kw">use </span>std::convert::{TryFrom, TryInto};
+
+<span class="kw">use </span><span class="kw">crate</span>::Repeat;
 <span class="kw">use </span><span class="kw">crate</span>::common::{Block, Frame};
 
 <span class="kw">mod </span>decoder;
+<span class="kw">mod </span>converter;
+
 <span class="kw">pub use </span><span class="self">self</span>::decoder::{
-    PLTE_CHANNELS, StreamingDecoder, Decoded, DecodingError, DecodingFormatError, Extensions,
-    Version
+    PLTE_CHANNELS, StreamingDecoder, Decoded, DecodingError, DecodingFormatError,
+    Version, FrameDataType, OutputBuffer, FrameDecoder
 };
 
-<span class="kw">const </span>N_CHANNELS: usize = <span class="number">4</span>;
-
-<span class="doccomment">/// Output mode for the image data
-</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
-#[repr(u8)]
-</span><span class="kw">pub enum </span>ColorOutput {
-    <span class="doccomment">/// The decoder expands the image data to 32bit RGBA.
-    /// This affects:
-    ///
-    ///  - The buffer buffer of the `Frame` returned by `Decoder::read_next_frame`.
-    ///  - `Decoder::fill_buffer`, `Decoder::buffer_size` and `Decoder::line_length`.
-    </span>RGBA = <span class="number">0</span>,
-    <span class="doccomment">/// The decoder returns the raw indexed data.
-    </span>Indexed = <span class="number">1</span>,
-}
+<span class="kw">use </span><span class="self">self</span>::converter::PixelConverter;
+<span class="kw">pub use </span><span class="self">self</span>::converter::ColorOutput;
 
 <span class="attr">#[derive(Clone, Debug)]
-</span><span class="doccomment">/// Memory limit in bytes. `MemoryLimit(0)` means
-/// that there is no memory limit set.
-</span><span class="kw">pub struct </span>MemoryLimit(<span class="kw">pub </span>u32);
-
-<span class="kw">impl </span>MemoryLimit {
+</span><span class="doccomment">/// The maximum amount of memory the decoder is allowed to use for each frame
+</span><span class="kw">pub enum </span>MemoryLimit {
     <span class="doccomment">/// Enforce no memory limit.
     ///
     /// If you intend to process images from unknown origins this is a potentially dangerous
@@ -565,49 +547,96 @@
     /// malicious images crafted specifically to require an enormous amount of memory to process
     /// while having a disproportionately small file size.
     ///
-    /// The risks for modern machines are a bit smaller as the dimensions of each frame can not
-    /// exceed `u32::MAX` (~4Gb) but this is still a significant amount of memory.
-    </span><span class="kw">pub const </span>NONE: MemoryLimit = MemoryLimit(<span class="number">0</span>);
+    /// The risks for modern machines are a bit smaller as the size of each frame cannot
+    /// exceed 16GiB, but this is still a significant amount of memory.
+    </span>Unlimited,
+    <span class="doccomment">/// Limit the amount of memory that can be used for a single frame to this many bytes.
+    ///
+    /// It may not be enforced precisely due to allocator overhead
+    /// and the decoder potentially allocating small auxiliary buffers,
+    /// but it will precisely limit the size of the output buffer for each frame.
+    </span><span class="comment">//
+    // The `NonZero` type is used to make FFI simpler.
+    // Due to the guaranteed niche optimization, `Unlimited` will be represented as `0`,
+    // and the whole enum as a simple `u64`.
+    </span>Bytes(NonZeroU64),
+}
+
+<span class="kw">impl </span>MemoryLimit {
+    <span class="kw">fn </span>check_size(<span class="kw-2">&amp;</span><span class="self">self</span>, size: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            MemoryLimit::Unlimited =&gt; <span class="prelude-val">Ok</span>(()),
+            MemoryLimit::Bytes(limit) =&gt; {
+                <span class="kw">if </span>size <span class="kw">as </span>u64 &lt;= limit.get() {
+                    <span class="prelude-val">Ok</span>(())
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"memory limit reached"</span>))
+                }
+            },
+        }
+    }
 
     <span class="kw">fn </span>buffer_size(<span class="kw-2">&amp;</span><span class="self">self</span>, color: ColorOutput, width: u16, height: u16) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
-        <span class="kw">let </span>pixels = u32::from(width) * u32::from(height);
+        <span class="kw">let </span>pixels = u64::from(width) * u64::from(height);
 
         <span class="kw">let </span>bytes_per_pixel = <span class="kw">match </span>color {
             ColorOutput::Indexed =&gt; <span class="number">1</span>,
             ColorOutput::RGBA =&gt; <span class="number">4</span>,
         };
 
-        <span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>&gt; <span class="number">0 </span>&amp;&amp; pixels &gt; <span class="self">self</span>.<span class="number">0 </span>/ bytes_per_pixel {
-            <span class="prelude-val">None
-        </span>} <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(pixels <span class="kw">as </span>usize * bytes_per_pixel <span class="kw">as </span>usize)
+        <span class="comment">// This cannot overflow because the maximum possible value is 16GiB, well within u64 range
+        </span><span class="kw">let </span>total_bytes = pixels * bytes_per_pixel;
+
+        <span class="comment">// On 32-bit platforms the size of the output buffer may not be representable
+        </span><span class="kw">let </span>usize_bytes = usize::try_from(total_bytes).ok()<span class="question-mark">?</span>;
+
+        <span class="kw">match </span><span class="self">self </span>{
+            MemoryLimit::Unlimited =&gt; <span class="prelude-val">Some</span>(usize_bytes),
+            MemoryLimit::Bytes(limit) =&gt; {
+                <span class="kw">if </span>total_bytes &gt; limit.get() {
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="prelude-val">Some</span>(usize_bytes)
+                }
+            },
         }
     }
 }
 
-<span class="doccomment">/// Options for opening a GIF decoder.
+<span class="doccomment">/// Options for opening a GIF decoder. [`DecodeOptions::read_info`] will start the decoder.
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>DecodeOptions {
     memory_limit: MemoryLimit,
     color_output: ColorOutput,
     check_frame_consistency: bool,
+    skip_frame_decoding: bool,
     check_for_end_code: bool,
     allow_unknown_blocks: bool,
 }
 
+<span class="kw">impl </span>Default <span class="kw">for </span>DecodeOptions {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new()
+    }
+}
+
 <span class="kw">impl </span>DecodeOptions {
     <span class="doccomment">/// Creates a new decoder builder
+    </span><span class="attr">#[must_use]
+    #[inline]
     </span><span class="kw">pub fn </span>new() -&gt; DecodeOptions {
         DecodeOptions {
-            memory_limit: MemoryLimit(<span class="number">50_000_000</span>), <span class="comment">// 50 MB
+            memory_limit: MemoryLimit::Bytes(<span class="number">50_000_000</span>.try_into().unwrap()), <span class="comment">// 50 MB
             </span>color_output: ColorOutput::Indexed,
             check_frame_consistency: <span class="bool-val">false</span>,
+            skip_frame_decoding: <span class="bool-val">false</span>,
             check_for_end_code: <span class="bool-val">false</span>,
             allow_unknown_blocks: <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Configure how color data is decoded.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>set_color_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>, color: ColorOutput) {
         <span class="self">self</span>.color_output = color;
     }
@@ -629,6 +658,18 @@
     /// caller, for example to emulate a specific style.
     </span><span class="kw">pub fn </span>check_frame_consistency(<span class="kw-2">&amp;mut </span><span class="self">self</span>, check: bool) {
         <span class="self">self</span>.check_frame_consistency = check;
+    }
+
+    <span class="doccomment">/// Configure whether to skip decoding frames.
+    ///
+    /// The default is false.
+    ///
+    /// When turned on, LZW decoding is skipped. [`Decoder::read_next_frame`] will return
+    /// compressed LZW bytes in frame's data.
+    /// [`Decoder::next_frame_info`] will return the metadata of the next frame as usual.
+    /// This is useful to count frames without incurring the overhead of decoding.
+    </span><span class="kw">pub fn </span>skip_frame_decoding(<span class="kw-2">&amp;mut </span><span class="self">self</span>, skip: bool) {
+        <span class="self">self</span>.skip_frame_decoding = skip;
     }
 
     <span class="doccomment">/// Configure if LZW encoded blocks must end with a marker end code.
@@ -663,7 +704,7 @@
 
     <span class="doccomment">/// Reads the logical screen descriptor including the global color palette
     ///
-    /// Returns a `Decoder`. All decoder configuration has to be done beforehand.
+    /// Returns a [`Decoder`]. All decoder configuration has to be done beforehand.
     </span><span class="kw">pub fn </span>read_info&lt;R: Read&gt;(<span class="self">self</span>, r: R) -&gt; <span class="prelude-ty">Result</span>&lt;Decoder&lt;R&gt;, DecodingError&gt; {
         Decoder::with_no_init(r, StreamingDecoder::with_options(<span class="kw-2">&amp;</span><span class="self">self</span>), <span class="self">self</span>).init()
     }
@@ -672,56 +713,67 @@
 <span class="kw">struct </span>ReadDecoder&lt;R: Read&gt; {
     reader: io::BufReader&lt;R&gt;,
     decoder: StreamingDecoder,
-    at_eof: bool
+    at_eof: bool,
 }
 
 <span class="kw">impl</span>&lt;R: Read&gt; ReadDecoder&lt;R&gt; {
-    <span class="kw">fn </span>decode_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Decoded&gt;, DecodingError&gt; {
+    <span class="attr">#[inline(never)]
+    </span><span class="kw">fn </span>decode_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>, write_into: <span class="kw-2">&amp;mut </span>OutputBuffer&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Decoded&gt;, DecodingError&gt; {
         <span class="kw">while </span>!<span class="self">self</span>.at_eof {
             <span class="kw">let </span>(consumed, result) = {
                 <span class="kw">let </span>buf = <span class="self">self</span>.reader.fill_buf()<span class="question-mark">?</span>;
-                <span class="kw">if </span>buf.len() == <span class="number">0 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
-                        <span class="string">"unexpected EOF"
-                    </span>))
+                <span class="kw">if </span>buf.is_empty() {
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(io::ErrorKind::UnexpectedEof.into());
                 }
-                <span class="self">self</span>.decoder.update(buf)<span class="question-mark">?
+
+                <span class="self">self</span>.decoder.update(buf, write_into)<span class="question-mark">?
             </span>};
             <span class="self">self</span>.reader.consume(consumed);
             <span class="kw">match </span>result {
                 Decoded::Nothing =&gt; (),
                 Decoded::BlockStart(Block::Trailer) =&gt; {
-                    <span class="self">self</span>.at_eof = <span class="bool-val">true
-                </span>},
-                result =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe</span>{
-                    <span class="comment">// FIXME: #6393
-                    </span><span class="prelude-val">Some</span>(mem::transmute::&lt;Decoded, Decoded&gt;(result))
-                }),
+                    <span class="self">self</span>.at_eof = <span class="bool-val">true</span>;
+                },
+                result =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(result))
             }
         }
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
+
+    <span class="kw">fn </span>into_inner(<span class="self">self</span>) -&gt; io::BufReader&lt;R&gt; {
+        <span class="self">self</span>.reader
+    }
+
+    <span class="kw">fn </span>decode_next_bytes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>OutputBuffer&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;usize, DecodingError&gt; {
+        <span class="kw">match </span><span class="self">self</span>.decode_next(out)<span class="question-mark">? </span>{
+            <span class="prelude-val">Some</span>(Decoded::BytesDecoded(len)) =&gt; <span class="prelude-val">Ok</span>(len.get()),
+            <span class="prelude-val">Some</span>(Decoded::DataEnd) =&gt; <span class="prelude-val">Ok</span>(<span class="number">0</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"unexpected data"</span>)),
+        }
+    }
 }
 
 <span class="attr">#[allow(dead_code)]
-</span><span class="doccomment">/// GIF decoder
+</span><span class="doccomment">/// GIF decoder. Create [`DecodeOptions`] to get started, and call [`DecodeOptions::read_info`].
 </span><span class="kw">pub struct </span>Decoder&lt;R: Read&gt; {
     decoder: ReadDecoder&lt;R&gt;,
-    color_output: ColorOutput,
-    memory_limit: MemoryLimit,
+    pixel_converter: PixelConverter,
     bg_color: <span class="prelude-ty">Option</span>&lt;u8&gt;,
-    global_palette: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
+    repeat: Repeat,
     current_frame: Frame&lt;<span class="lifetime">'static</span>&gt;,
-    buffer: Vec&lt;u8&gt;,
+    current_frame_data_type: FrameDataType,
 }
 
 <span class="kw">impl</span>&lt;R&gt; Decoder&lt;R&gt; <span class="kw">where </span>R: Read {
     <span class="doccomment">/// Create a new decoder with default options.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new(reader: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DecodingError&gt; {
         DecodeOptions::new().read_info(reader)
     }
 
     <span class="doccomment">/// Return a builder that allows configuring limits etc.
+    </span><span class="attr">#[must_use]
+    #[inline]
     </span><span class="kw">pub fn </span>build() -&gt; DecodeOptions {
         DecodeOptions::new()
     }
@@ -731,71 +783,65 @@
             decoder: ReadDecoder {
                 reader: io::BufReader::new(reader),
                 decoder,
-                at_eof: <span class="bool-val">false
-            </span>},
+                at_eof: <span class="bool-val">false</span>,
+            },
             bg_color: <span class="prelude-val">None</span>,
-            global_palette: <span class="prelude-val">None</span>,
-            buffer: Vec::with_capacity(<span class="number">32</span>),
-            color_output: options.color_output,
-            memory_limit: options.memory_limit,
+            pixel_converter: PixelConverter::new(options.color_output, options.memory_limit),
+            repeat: Repeat::default(),
             current_frame: Frame::default(),
+            current_frame_data_type: FrameDataType::Pixels,
         }
     }
-    
+
     <span class="kw">fn </span>init(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, DecodingError&gt; {
         <span class="kw">loop </span>{
-            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next()<span class="question-mark">? </span>{
+            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next(<span class="kw-2">&amp;mut </span>OutputBuffer::None)<span class="question-mark">? </span>{
                 <span class="prelude-val">Some</span>(Decoded::BackgroundColor(bg_color)) =&gt; {
-                    <span class="self">self</span>.bg_color = <span class="prelude-val">Some</span>(bg_color)
+                    <span class="self">self</span>.bg_color = <span class="prelude-val">Some</span>(bg_color);
                 }
                 <span class="prelude-val">Some</span>(Decoded::GlobalPalette(palette)) =&gt; {
-                    <span class="self">self</span>.global_palette = <span class="kw">if </span>palette.len() &gt; <span class="number">0 </span>{
-                        <span class="prelude-val">Some</span>(palette)
-                    } <span class="kw">else </span>{
-                        <span class="prelude-val">None
-                    </span>};
+                    <span class="self">self</span>.pixel_converter.set_global_palette(palette.into());
+                },
+                <span class="prelude-val">Some</span>(Decoded::Repetitions(repeat)) =&gt; {
+                    <span class="self">self</span>.repeat = repeat;
+                },
+                <span class="prelude-val">Some</span>(Decoded::HeaderEnd) =&gt; {
                     <span class="kw">break
                 </span>},
                 <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="comment">// Unreachable since this loop exists after the global
-                    // palette has been read.
-                    </span><span class="macro">unreachable!</span>()
-                },
+                    <span class="comment">// There will be extra events when parsing application extension
+                    </span><span class="kw">continue
+                </span>},
                 <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
                     <span class="string">"file does not contain any image data"
                 </span>))
             }
         }
         <span class="comment">// If the background color is invalid, ignore it
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>palette) = <span class="self">self</span>.global_palette {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(palette) = <span class="self">self</span>.pixel_converter.global_palette() {
             <span class="kw">if </span><span class="self">self</span>.bg_color.unwrap_or(<span class="number">0</span>) <span class="kw">as </span>usize &gt;= (palette.len() / PLTE_CHANNELS) {
                 <span class="self">self</span>.bg_color = <span class="prelude-val">None</span>;
             }
         }
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
-    
+
     <span class="doccomment">/// Returns the next frame info
     </span><span class="kw">pub fn </span>next_frame_info(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'static</span>&gt;&gt;, DecodingError&gt; {
-        <span class="kw">if </span>!<span class="self">self</span>.buffer.is_empty() {
-            <span class="comment">// FIXME: Warn about discarding data?
-            </span><span class="self">self</span>.buffer.clear();
-        }
-
         <span class="kw">loop </span>{
-            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next()<span class="question-mark">? </span>{
-                <span class="prelude-val">Some</span>(Decoded::Frame(frame)) =&gt; {
-                    <span class="self">self</span>.current_frame = frame.clone();
-                    <span class="kw">if </span>frame.palette.is_none() &amp;&amp; <span class="self">self</span>.global_palette.is_none() {
+            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next(<span class="kw-2">&amp;mut </span>OutputBuffer::None)<span class="question-mark">? </span>{
+                <span class="prelude-val">Some</span>(Decoded::FrameMetadata(frame_data_type)) =&gt; {
+                    <span class="self">self</span>.current_frame = <span class="self">self</span>.decoder.decoder.current_frame_mut().take();
+                    <span class="self">self</span>.current_frame_data_type = frame_data_type;
+                    <span class="kw">if </span><span class="self">self</span>.current_frame.palette.is_none() &amp;&amp; <span class="self">self</span>.global_palette().is_none() {
                         <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(
-                            <span class="string">"no color table available for current frame"
-                        </span>))
+                            <span class="string">"no color table available for current frame"</span>,
+                        ));
                     }
-                    <span class="kw">break
-                </span>},
+                    <span class="kw">break</span>;
+                }
                 <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; (),
-                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-                
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
             }
         }
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.current_frame))
@@ -805,28 +851,41 @@
     ///
     /// Do not call `Self::next_frame_info` beforehand.
     /// Deinterlaces the result.
+    ///
+    /// You can also call `.into_iter()` on the decoder to use it as a regular iterator.
     </span><span class="kw">pub fn </span>read_next_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'static</span>&gt;&gt;, DecodingError&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(frame) = <span class="self">self</span>.next_frame_info()<span class="question-mark">? </span>{
-            <span class="kw">let </span>(width, height) = (frame.width, frame.height);
-            <span class="kw">let </span>pixel_bytes = <span class="self">self</span>.memory_limit
-                .buffer_size(<span class="self">self</span>.color_output, width, height)
-                .ok_or_else(|| {
-                    DecodingError::format(<span class="string">"image is too large to decode"</span>)
-                })<span class="question-mark">?</span>;
-
-            <span class="macro">debug_assert_eq!</span>(
-                pixel_bytes, <span class="self">self</span>.buffer_size(),
-                <span class="string">"Checked computation diverges from required buffer size"
-            </span>);
-
-            <span class="kw">let </span><span class="kw-2">mut </span>vec = <span class="macro">vec!</span>[<span class="number">0</span>; pixel_bytes];
-            <span class="self">self</span>.read_into_buffer(<span class="kw-2">&amp;mut </span>vec)<span class="question-mark">?</span>;
-            <span class="self">self</span>.current_frame.buffer = Cow::Owned(vec);
-            <span class="self">self</span>.current_frame.interlaced = <span class="bool-val">false</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) = <span class="self">self</span>.next_frame_info()<span class="question-mark">? </span>{
+            <span class="kw">match </span><span class="self">self</span>.current_frame_data_type {
+                FrameDataType::Pixels =&gt; {
+                    <span class="self">self</span>.pixel_converter.read_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>.current_frame, <span class="kw-2">&amp;mut </span>|out| <span class="self">self</span>.decoder.decode_next_bytes(out))<span class="question-mark">?</span>;
+                },
+                FrameDataType::Lzw { min_code_size } =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>vec = <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.current_frame.buffer, Cow::Owned(<span class="kw">_</span>)) {
+                        <span class="kw">let </span><span class="kw-2">mut </span>vec = mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.current_frame.buffer, Cow::Borrowed(<span class="kw-2">&amp;</span>[])).into_owned();
+                        vec.clear();
+                        vec
+                    } <span class="kw">else </span>{
+                        Vec::new()
+                    };
+                    <span class="comment">// Guesstimate 2bpp
+                    </span>vec.try_reserve(usize::from(<span class="self">self</span>.current_frame.width) * usize::from(<span class="self">self</span>.current_frame.height) / <span class="number">4</span>)
+                        .map_err(|<span class="kw">_</span>| io::Error::from(io::ErrorKind::OutOfMemory))<span class="question-mark">?</span>;
+                    <span class="self">self</span>.copy_lzw_into_buffer(min_code_size, <span class="kw-2">&amp;mut </span>vec)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.current_frame.buffer = Cow::Owned(vec);
+                },
+            }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.current_frame))
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         }
+    }
+
+    <span class="doccomment">/// This is private for iterator's use
+    </span><span class="kw">fn </span>take_current_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Frame&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.current_frame.buffer.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.current_frame.take())
     }
 
     <span class="doccomment">/// Reads the data of the current frame into a pre-allocated buffer.
@@ -835,212 +894,139 @@
     /// The length of `buf` must be at least `Self::buffer_size`.
     /// Deinterlaces the result.
     </span><span class="kw">pub fn </span>read_into_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
-        <span class="kw">if </span><span class="self">self</span>.current_frame.interlaced {
-            <span class="kw">let </span>width = <span class="self">self</span>.line_length();
-            <span class="kw">let </span>height = <span class="self">self</span>.current_frame.height <span class="kw">as </span>usize;
-            <span class="kw">for </span>row <span class="kw">in </span>(InterlaceIterator { len: height, next: <span class="number">0</span>, pass: <span class="number">0 </span>}) {
-                <span class="kw">if </span>!<span class="self">self</span>.fill_buffer(<span class="kw-2">&amp;mut </span>buf[row<span class="kw-2">*</span>width..][..width])<span class="question-mark">? </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"image truncated"</span>))
-                }
+        <span class="self">self</span>.pixel_converter.read_into_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>.current_frame, buf, <span class="kw-2">&amp;mut </span>|out| <span class="self">self</span>.decoder.decode_next_bytes(out))
+    }
+
+    <span class="kw">fn </span>copy_lzw_into_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, min_code_size: u8, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), DecodingError&gt; {
+        <span class="comment">// `write_lzw_pre_encoded_frame` smuggles `min_code_size` in the first byte.
+        </span>buf.push(min_code_size);
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next(<span class="kw-2">&amp;mut </span>OutputBuffer::Vec(buf))<span class="question-mark">? </span>{
+                <span class="prelude-val">Some</span>(Decoded::LzwDataCopied(_len)) =&gt; {},
+                <span class="prelude-val">Some</span>(Decoded::DataEnd) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"unexpected data"</span>)),
             }
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>buf[..<span class="self">self</span>.buffer_size()];
-            <span class="kw">if </span>!<span class="self">self</span>.fill_buffer(buf)<span class="question-mark">? </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(DecodingError::format(<span class="string">"image truncated"</span>))
-            }
-        };
-        <span class="prelude-val">Ok</span>(())
+        }
     }
 
     <span class="doccomment">/// Reads data of the current frame into a pre-allocated buffer until the buffer has been
     /// filled completely.
     ///
+    /// The buffer length must be an even number of pixels (multiple of 4 if decoding RGBA).
+    ///
     /// `Self::next_frame_info` needs to be called beforehand. Returns `true` if the supplied
     /// buffer could be filled completely. Should not be called after `false` had been returned.
-    </span><span class="kw">pub fn </span>fill_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DecodingError&gt; {
-        <span class="kw">use </span><span class="self">self</span>::ColorOutput::<span class="kw-2">*</span>;
-        <span class="kw">const </span>PLTE_CHANNELS: usize = <span class="number">3</span>;
-        <span class="macro">macro_rules! </span>handle_data(
-            (<span class="macro-nonterminal">$data</span>:expr) =&gt; {
-                <span class="kw">match </span><span class="self">self</span>.color_output {
-                    RGBA =&gt; {
-                        <span class="kw">let </span>transparent = <span class="self">self</span>.current_frame.transparent;
-                        <span class="kw">let </span>palette: <span class="kw-2">&amp;</span>[u8] = <span class="kw">match </span><span class="self">self</span>.current_frame.palette {
-                            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>table) =&gt; <span class="kw-2">&amp;*</span>table,
-                            <span class="prelude-val">None </span>=&gt; <span class="kw-2">&amp;*</span><span class="self">self</span>.global_palette.as_ref().unwrap(),
-                        };
-                        <span class="kw">let </span>len = cmp::min(buf.len()/N_CHANNELS, <span class="macro-nonterminal">$data</span>.len());
-                        <span class="kw">for </span>(rgba, <span class="kw-2">&amp;</span>idx) <span class="kw">in </span>buf[..len<span class="kw-2">*</span>N_CHANNELS].chunks_mut(N_CHANNELS).zip(<span class="macro-nonterminal">$data</span>.iter()) {
-                            <span class="kw">let </span>plte_offset = PLTE_CHANNELS * idx <span class="kw">as </span>usize;
-                            <span class="kw">if </span>palette.len() &gt;= plte_offset + PLTE_CHANNELS {
-                                <span class="kw">let </span>colors = <span class="kw-2">&amp;</span>palette[plte_offset..];
-                                rgba[<span class="number">0</span>] = colors[<span class="number">0</span>];
-                                rgba[<span class="number">1</span>] = colors[<span class="number">1</span>];
-                                rgba[<span class="number">2</span>] = colors[<span class="number">2</span>];
-                                rgba[<span class="number">3</span>] = <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = transparent {
-                                    <span class="kw">if </span>t == idx { <span class="number">0x00 </span>} <span class="kw">else </span>{ <span class="number">0xFF </span>}
-                                } <span class="kw">else </span>{
-                                    <span class="number">0xFF
-                                </span>}
-                            }
-                        }
-                        (len, N_CHANNELS)
-                    },
-                    Indexed =&gt; {
-                        <span class="kw">let </span>len = cmp::min(buf.len(), <span class="macro-nonterminal">$data</span>.len());
-                        buf[..len].copy_from_slice(<span class="kw-2">&amp;</span><span class="macro-nonterminal">$data</span>[..len]);
-                        (len, <span class="number">1</span>)
-                    }
-                }
-            }
-        );
-        <span class="kw">let </span>buf_len = <span class="self">self</span>.buffer.len();
-        <span class="kw">if </span>buf_len &gt; <span class="number">0 </span>{
-            <span class="kw">let </span>(len, channels) = <span class="macro">handle_data!</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.buffer);
-            <span class="kw">let _ </span>= <span class="self">self</span>.buffer.drain(..len);
-            buf = <span class="kw-2">&amp;mut </span>buf[len<span class="kw-2">*</span>channels..];
-            <span class="kw">if </span>buf.len() == <span class="number">0 </span>{
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-            }
-        }
-        <span class="kw">loop </span>{
-            <span class="kw">match </span><span class="self">self</span>.decoder.decode_next()<span class="question-mark">? </span>{
-                <span class="prelude-val">Some</span>(Decoded::Data(data)) =&gt; {
-                    <span class="kw">let </span>(len, channels) = <span class="macro">handle_data!</span>(data);
-                    buf = <span class="kw-2">&amp;mut </span>buf[len<span class="kw-2">*</span>channels..]; <span class="comment">// shorten buf
-                    </span><span class="kw">if </span>buf.len() &gt; <span class="number">0 </span>{
-                        <span class="kw">continue
-                    </span>} <span class="kw">else if </span>len &lt; data.len() {
-                        <span class="self">self</span>.buffer.extend_from_slice(<span class="kw-2">&amp;</span>data[len..]);
-                    }
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>)
-                },
-                <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>), <span class="comment">// make sure that no important result is missed
-                </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
-                
-            }
-        }
+    </span><span class="kw">pub fn </span>fill_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;bool, DecodingError&gt; {
+        <span class="self">self</span>.pixel_converter.fill_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>.current_frame, buf, <span class="kw-2">&amp;mut </span>|out| <span class="self">self</span>.decoder.decode_next_bytes(out))
     }
-    
+
     <span class="doccomment">/// Output buffer size
     </span><span class="kw">pub fn </span>buffer_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.line_length() * <span class="self">self</span>.current_frame.height <span class="kw">as </span>usize
+        <span class="self">self</span>.pixel_converter.buffer_size(<span class="kw-2">&amp;</span><span class="self">self</span>.current_frame).unwrap()
     }
-    
+
     <span class="doccomment">/// Line length of the current frame
     </span><span class="kw">pub fn </span>line_length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="kw">use </span><span class="self">self</span>::ColorOutput::<span class="kw-2">*</span>;
-        <span class="kw">match </span><span class="self">self</span>.color_output {
-            RGBA =&gt; <span class="self">self</span>.current_frame.width <span class="kw">as </span>usize * N_CHANNELS,
-            Indexed =&gt; <span class="self">self</span>.current_frame.width <span class="kw">as </span>usize
-        }
+        <span class="self">self</span>.pixel_converter.line_length(<span class="kw-2">&amp;</span><span class="self">self</span>.current_frame)
     }
-    
-    <span class="doccomment">/// Returns the color palette relevant for the current (next) frame
+
+    <span class="doccomment">/// Returns the color palette relevant for the frame that has been decoded
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>palette(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8], DecodingError&gt; {
-        <span class="comment">// TODO prevent planic
-        </span><span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.current_frame.palette {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>table) =&gt; <span class="kw-2">&amp;*</span>table,
-            <span class="prelude-val">None </span>=&gt; <span class="kw-2">&amp;*</span><span class="self">self</span>.global_palette.as_ref().ok_or(DecodingError::format(
-                <span class="string">"no color table available for current frame"
-            </span>))<span class="question-mark">?</span>,
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span><span class="self">self</span>.current_frame.palette {
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>table) =&gt; table,
+            <span class="prelude-val">None </span>=&gt; <span class="self">self</span>.global_palette().ok_or(DecodingError::format(
+                <span class="string">"no color table available for current frame"</span>,
+            ))<span class="question-mark">?</span>,
         })
     }
-    
+
     <span class="doccomment">/// The global color palette
     </span><span class="kw">pub fn </span>global_palette(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
-        <span class="self">self</span>.global_palette.as_ref().map(|v| <span class="kw-2">&amp;**</span>v)
+        <span class="self">self</span>.pixel_converter.global_palette()
     }
 
     <span class="doccomment">/// Width of the image
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.decoder.decoder.width()
     }
 
     <span class="doccomment">/// Height of the image
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="self">self</span>.decoder.decoder.height()
     }
 
+    <span class="doccomment">/// Abort decoding and recover the `io::Read` instance
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; io::BufReader&lt;R&gt; {
+        <span class="self">self</span>.decoder.into_inner()
+    }
+
     <span class="doccomment">/// Index of the background color in the global palette
+    ///
+    /// In practice this is not used, and the background is
+    /// always transparent
     </span><span class="kw">pub fn </span>bg_color(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="self">self</span>.bg_color.map(|v| v <span class="kw">as </span>usize)
     }
+
+    <span class="doccomment">/// Number of loop repetitions
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>repeat(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Repeat {
+        <span class="self">self</span>.repeat
+    }
 }
 
-<span class="kw">struct </span>InterlaceIterator {
-    len: usize,
-    next: usize,
-    pass: usize
+<span class="kw">impl</span>&lt;R: Read&gt; IntoIterator <span class="kw">for </span>Decoder&lt;R&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="lifetime">'static</span>&gt;, DecodingError&gt;;
+    <span class="kw">type </span>IntoIter = DecoderIter&lt;R&gt;;
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        DecoderIter {
+            inner: <span class="self">self</span>,
+            ended: <span class="bool-val">false</span>,
+        }
+    }
 }
 
-<span class="kw">impl </span>iter::Iterator <span class="kw">for </span>InterlaceIterator {
-    <span class="kw">type </span>Item = usize;
+<span class="doccomment">/// Use `decoder.into_iter()` to iterate over the frames
+</span><span class="kw">pub struct </span>DecoderIter&lt;R: Read&gt; {
+    inner: Decoder&lt;R&gt;,
+    ended: bool,
+}
+
+<span class="kw">impl</span>&lt;R: Read&gt; DecoderIter&lt;R&gt; {
+    <span class="doccomment">/// Abort decoding and recover the `io::Read` instance
+    ///
+    /// Use `for frame in iter.by_ref()` to be able to call this afterwards.
+    </span><span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; io::BufReader&lt;R&gt; {
+        <span class="self">self</span>.inner.into_inner()
+    }
+}
+
+<span class="kw">impl</span>&lt;R: Read&gt; FusedIterator <span class="kw">for </span>DecoderIter&lt;R&gt; {}
+
+<span class="kw">impl</span>&lt;R: Read&gt; Iterator <span class="kw">for </span>DecoderIter&lt;R&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="lifetime">'static</span>&gt;, DecodingError&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">if </span><span class="self">self</span>.len == <span class="number">0 </span>|| <span class="self">self</span>.pass &gt; <span class="number">3 </span>{
-            <span class="kw">return </span><span class="prelude-val">None
+        <span class="kw">if </span>!<span class="self">self</span>.ended {
+            <span class="kw">match </span><span class="self">self</span>.inner.read_next_frame() {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="kw">_</span>)) =&gt; <span class="self">self</span>.inner.take_current_frame().map(<span class="prelude-val">Ok</span>),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
+                    <span class="self">self</span>.ended = <span class="bool-val">true</span>;
+                    <span class="prelude-val">None
+                </span>},
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="self">self</span>.ended = <span class="bool-val">true</span>;
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err))
+                },
+            }
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
         </span>}
-        <span class="kw">let </span><span class="kw-2">mut </span>next = <span class="self">self</span>.next + [<span class="number">8</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span>][<span class="self">self</span>.pass];
-        <span class="kw">while </span>next &gt;= <span class="self">self</span>.len {
-            next = [<span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>][<span class="self">self</span>.pass];
-            <span class="self">self</span>.pass += <span class="number">1</span>;
-        }
-        mem::swap(<span class="kw-2">&amp;mut </span>next, <span class="kw-2">&amp;mut </span><span class="self">self</span>.next);
-        <span class="prelude-val">Some</span>(next)
-    }
-}
-
-<span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>test {
-    <span class="kw">use </span>std::fs::File;
-
-    <span class="kw">use super</span>::{Decoder, InterlaceIterator};
-    
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_simple_indexed() {
-        <span class="kw">let </span><span class="kw-2">mut </span>decoder = Decoder::new(File::open(<span class="string">"tests/samples/sample_1.gif"</span>).unwrap()).unwrap();
-        <span class="kw">let </span>frame = decoder.read_next_frame().unwrap().unwrap();
-        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;*</span>frame.buffer, <span class="kw-2">&amp;</span>[
-            <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
-            <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
-            <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
-            <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
-            <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>,
-            <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-            <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-            <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-            <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>,
-            <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1
-        </span>][..])
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_interlace_iterator() {
-        <span class="kw">for </span><span class="kw-2">&amp;</span>(len, expect) <span class="kw">in </span><span class="kw-2">&amp;</span>[
-            (<span class="number">0</span>, <span class="kw-2">&amp;</span>[][..]),
-            (<span class="number">1</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>][..]),
-            (<span class="number">2</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>][..]),
-            (<span class="number">3</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>][..]),
-            (<span class="number">4</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>][..]),
-            (<span class="number">5</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>][..]),
-            (<span class="number">6</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>][..]),
-            (<span class="number">7</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>][..]),
-            (<span class="number">8</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>][..]),
-            (<span class="number">9</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>][..]),
-            (<span class="number">10</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>][..]),
-            (<span class="number">11</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>][..]),
-            (<span class="number">12</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>][..]),
-            (<span class="number">13</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">12</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>][..]),
-            (<span class="number">14</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">12</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>, <span class="number">13</span>][..]),
-            (<span class="number">15</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">12</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">14</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>, <span class="number">13</span>][..]),
-            (<span class="number">16</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">4</span>, <span class="number">12</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">14</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>, <span class="number">13</span>, <span class="number">15</span>][..]),
-            (<span class="number">17</span>, <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">8</span>, <span class="number">16</span>, <span class="number">4</span>, <span class="number">12</span>, <span class="number">2</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">14</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span>, <span class="number">11</span>, <span class="number">13</span>, <span class="number">15</span>][..]),
-        ] {
-            <span class="kw">let </span>iter = InterlaceIterator { len: len, next: <span class="number">0</span>, pass: <span class="number">0 </span>};
-            <span class="kw">let </span>lines = iter.collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-            <span class="macro">assert_eq!</span>(lines, expect);
-        }
     }
 }
 </code></pre></div></section></main></body></html>

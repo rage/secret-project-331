@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.20.0/src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.21.1/src/parser.rs`."><title>parser.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -877,6 +877,49 @@
 <a href="#876" id="876">876</a>
 <a href="#877" id="877">877</a>
 <a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Binary parsing utils.
 //!
 //! This module should not be used directly, unless you're planning to parse
@@ -1006,6 +1049,12 @@
     </span><span class="kw">pub fn </span>to_f32(<span class="self">self</span>) -&gt; f32 {
         f32::from(<span class="self">self</span>.<span class="number">0</span>) / <span class="number">16384.0
     </span>}
+
+    <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+    #[inline]
+    </span><span class="kw">pub fn </span>apply_float_delta(<span class="kw-2">&amp;</span><span class="self">self</span>, delta: f32) -&gt; f32 {
+        <span class="self">self</span>.to_f32() + (delta <span class="kw">as </span>f64 * (<span class="number">1.0 </span>/ <span class="number">16384.0</span>)) <span class="kw">as </span>f32
+    }
 }
 
 <span class="kw">impl </span>FromData <span class="kw">for </span>F2DOT14 {
@@ -1028,6 +1077,14 @@
     </span><span class="kw">fn </span>parse(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="comment">// TODO: is it safe to cast?
         </span>i32::parse(data).map(|n| Fixed(n <span class="kw">as </span>f32 / <span class="number">65536.0</span>))
+    }
+}
+
+<span class="kw">impl </span>Fixed {
+    <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+    #[inline]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>apply_float_delta(<span class="kw-2">&amp;</span><span class="self">self</span>, delta: f32) -&gt; f32 {
+        <span class="self">self</span>.<span class="number">0 </span>+ (delta <span class="kw">as </span>f64 * (<span class="number">1.0 </span>/ <span class="number">65536.0</span>)) <span class="kw">as </span>f32
     }
 }
 
@@ -1660,11 +1717,6 @@
 </span><span class="kw">pub trait </span>Offset {
     <span class="doccomment">/// Converts the offset to `usize`.
     </span><span class="kw">fn </span>to_usize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
-
-    <span class="doccomment">/// Checks that offset is null.
-    </span><span class="kw">fn </span>is_null(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.to_usize() == <span class="number">0
-    </span>}
 }
 
 <span class="doccomment">/// A type-safe u16 offset.
@@ -1693,6 +1745,40 @@
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>parse(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span>offset = Offset16::parse(data)<span class="question-mark">?</span>;
+        <span class="kw">if </span>offset.<span class="number">0 </span>!= <span class="number">0 </span>{
+            <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(offset))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="prelude-val">None</span>)
+        }
+    }
+}
+
+<span class="doccomment">/// A type-safe u24 offset.
+</span><span class="attr">#[derive(Clone, Copy, Debug)]
+</span><span class="kw">pub struct </span>Offset24(<span class="kw">pub </span>u32);
+
+<span class="kw">impl </span>Offset <span class="kw">for </span>Offset24 {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>to_usize(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        usize::num_from(<span class="self">self</span>.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl </span>FromData <span class="kw">for </span>Offset24 {
+    <span class="kw">const </span>SIZE: usize = <span class="number">3</span>;
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>parse(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        U24::parse(data).map(|n| Offset24(n.<span class="number">0</span>))
+    }
+}
+
+<span class="kw">impl </span>FromData <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;Offset24&gt; {
+    <span class="kw">const </span>SIZE: usize = Offset24::SIZE;
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>parse(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>offset = Offset24::parse(data)<span class="question-mark">?</span>;
         <span class="kw">if </span>offset.<span class="number">0 </span>!= <span class="number">0 </span>{
             <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(offset))
         } <span class="kw">else </span>{

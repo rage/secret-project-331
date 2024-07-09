@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["aligned_pos","view_box_to_transform"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/translate_scale.rs`."><title>translate_scale.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/translate_scale.rs`."><title>translate_scale.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -315,6 +315,37 @@
 <a href="#314" id="314">314</a>
 <a href="#315" id="315">315</a>
 <a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2019 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -326,7 +357,7 @@
     Affine, Circle, CubicBez, Line, Point, QuadBez, Rect, RoundedRect, RoundedRectRadii, Vec2,
 };
 
-<span class="doccomment">/// A transformation including scaling and translation.
+<span class="doccomment">/// A transformation consisting of a uniform scaling followed by a translation.
 ///
 /// If the translation is `(x, y)` and the scale is `s`, then this
 /// transformation represents this augmented matrix:
@@ -359,8 +390,10 @@
 #[cfg_attr(feature = <span class="string">"schemars"</span>, derive(schemars::JsonSchema))]
 #[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>TranslateScale {
-    translation: Vec2,
-    scale: f64,
+    <span class="doccomment">/// The translation component of this transformation
+    </span><span class="kw">pub </span>translation: Vec2,
+    <span class="doccomment">/// The scale component of this transformation
+    </span><span class="kw">pub </span>scale: f64,
 }
 
 <span class="kw">impl </span>TranslateScale {
@@ -378,13 +411,41 @@
 
     <span class="doccomment">/// Create a new transformation with translation only.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>translate(t: Vec2) -&gt; TranslateScale {
-        TranslateScale::new(t, <span class="number">1.0</span>)
+    </span><span class="kw">pub fn </span>translate(translation: <span class="kw">impl </span>Into&lt;Vec2&gt;) -&gt; TranslateScale {
+        TranslateScale::new(translation.into(), <span class="number">1.0</span>)
     }
 
     <span class="doccomment">/// Decompose transformation into translation and scale.
-    </span><span class="kw">pub fn </span>as_tuple(<span class="self">self</span>) -&gt; (Vec2, f64) {
+    </span><span class="attr">#[deprecated(note = <span class="string">"use the struct fields directly"</span>)]
+    #[inline]
+    </span><span class="kw">pub const fn </span>as_tuple(<span class="self">self</span>) -&gt; (Vec2, f64) {
         (<span class="self">self</span>.translation, <span class="self">self</span>.scale)
+    }
+
+    <span class="doccomment">/// Create a transform that scales about a point other than the origin.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use kurbo::{Point, TranslateScale};
+    /// # fn assert_near(p0: Point, p1: Point) {
+    /// #   assert!((p1 - p0).hypot() &lt; 1e-9, "{p0:?} != {p1:?}");
+    /// # }
+    /// let center = Point::new(1., 1.);
+    /// let ts = TranslateScale::from_scale_about(2., center);
+    /// // Should keep the point (1., 1.) stationary
+    /// assert_near(ts * center, center);
+    /// // (2., 2.) -&gt; (3., 3.)
+    /// assert_near(ts * Point::new(2., 2.), Point::new(3., 3.));
+    /// ```
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>from_scale_about(scale: f64, focus: <span class="kw">impl </span>Into&lt;Point&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// We need to create a transform that is equivalent to translating `focus`
+        // to the origin, followed by a normal scale, followed by reversing the translation.
+        // We need to find the (translation ∘ scale) that matches this.
+        </span><span class="kw">let </span>focus = focus.into().to_vec2();
+        <span class="kw">let </span>translation = focus - focus * scale;
+        <span class="self">Self</span>::new(translation, scale)
     }
 
     <span class="doccomment">/// Compute the inverse transform.
@@ -394,6 +455,7 @@
     /// (modulo floating point rounding errors).
     ///
     /// Produces NaN values when scale is zero.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>inverse(<span class="self">self</span>) -&gt; TranslateScale {
         <span class="kw">let </span>scale_recip = <span class="self">self</span>.scale.recip();
         TranslateScale {
@@ -418,7 +480,7 @@
 <span class="kw">impl </span>Default <span class="kw">for </span>TranslateScale {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>default() -&gt; TranslateScale {
-        TranslateScale::scale(<span class="number">1.0</span>)
+        TranslateScale::new(Vec2::ZERO, <span class="number">1.0</span>)
     }
 }
 

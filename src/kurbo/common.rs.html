@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/common.rs`."><title>common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1093,6 +1093,28 @@
 <a href="#1092" id="1092">1092</a>
 <a href="#1093" id="1093">1093</a>
 <a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -1100,7 +1122,17 @@
 
 </span><span class="attr">#![allow(missing_docs)]
 
-</span><span class="kw">use </span>arrayvec::ArrayVec;
+#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">mod </span>sealed {
+    <span class="doccomment">/// A [sealed trait](https://predr.ag/blog/definitive-guide-to-sealed-traits-in-rust/)
+    /// which stops [`super::FloatFuncs`] from being implemented outside kurbo. This could
+    /// be relaxed in the future if there is are good reasons to allow external impls.
+    /// The benefit from being sealed is that we can add methods without breaking downstream
+    /// implementations.
+    </span><span class="kw">pub trait </span>FloatFuncsSealed {}
+}
+
+<span class="kw">use </span>arrayvec::ArrayVec;
 
 <span class="doccomment">/// Defines a trait that chooses between libstd or libm implementations of float methods.
 </span><span class="macro">macro_rules! </span>define_float_funcs {
@@ -1108,13 +1140,22 @@
         <span class="kw">fn </span><span class="macro-nonterminal">$name</span>:ident(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>:ident: <span class="macro-nonterminal">$arg_ty</span>:ty)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>:ty
         =&gt; <span class="macro-nonterminal">$lname</span>:ident/<span class="macro-nonterminal">$lfname</span>:ident;
     )+) =&gt; {
-        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
-        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>FloatFuncs : Sized {
+
+        <span class="doccomment">/// Since core doesn't depend upon libm, this provides libm implementations
+        /// of float functions which are typically provided by the std library, when
+        /// the `std` feature is not enabled.
+        ///
+        /// For documentation see the respective functions in the std library.
+        </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+        </span><span class="kw">pub trait </span>FloatFuncs : Sized + sealed::FloatFuncsSealed {
             <span class="doccomment">/// Special implementation for signum, because libm doesn't have it.
             </span><span class="kw">fn </span>signum(<span class="self">self</span>) -&gt; <span class="self">Self</span>;
 
             $(<span class="kw">fn </span><span class="macro-nonterminal">$name</span>(<span class="self">self </span>$(,<span class="macro-nonterminal">$arg</span>: <span class="macro-nonterminal">$arg_ty</span>)<span class="kw-2">*</span>) -&gt; <span class="macro-nonterminal">$ret</span>;)+
         }
+
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+        </span><span class="kw">impl </span>sealed::FloatFuncsSealed <span class="kw">for </span>f32 {}
 
         <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
         </span><span class="kw">impl </span>FloatFuncs <span class="kw">for </span>f32 {
@@ -1136,6 +1177,8 @@
             })+
         }
 
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+        </span><span class="kw">impl </span>sealed::FloatFuncsSealed <span class="kw">for </span>f64 {}
         <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
         </span><span class="kw">impl </span>FloatFuncs <span class="kw">for </span>f64 {
             <span class="attr">#[inline]
@@ -1174,6 +1217,7 @@
     <span class="kw">fn </span>powi(<span class="self">self</span>, n: i32) -&gt; <span class="self">Self </span>=&gt; pow/powf;
     <span class="kw">fn </span>powf(<span class="self">self</span>, n: <span class="self">Self</span>) -&gt; <span class="self">Self </span>=&gt; pow/powf;
     <span class="kw">fn </span>round(<span class="self">self</span>) -&gt; <span class="self">Self </span>=&gt; round/roundf;
+    <span class="kw">fn </span>sin(<span class="self">self</span>) -&gt; <span class="self">Self </span>=&gt; sin/sinf;
     <span class="kw">fn </span>sin_cos(<span class="self">self</span>) -&gt; (<span class="self">Self</span>, <span class="self">Self</span>) =&gt; sincos/sincosf;
     <span class="kw">fn </span>sqrt(<span class="self">self</span>) -&gt; <span class="self">Self </span>=&gt; sqrt/sqrtf;
     <span class="kw">fn </span>tan(<span class="self">self</span>) -&gt; <span class="self">Self </span>=&gt; tan/tanf;
@@ -1397,7 +1441,7 @@
 
 <span class="doccomment">/// Factor a quartic into two quadratics.
 ///
-/// Attempt to factor a quartic equation into two quadratic equations. Returns None either if there
+/// Attempt to factor a quartic equation into two quadratic equations. Returns `None` either if there
 /// is overflow (in which case rescaling might succeed) or the factorization would result in
 /// complex coefficients.
 ///

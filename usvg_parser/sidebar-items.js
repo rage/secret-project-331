@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["AId","EId","Error"],"fn":["decompress_svgz"],"struct":["ImageHrefResolver","Options"],"trait":["TreeParsing"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.38.0/src/render.rs`."><title>render.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.42.0/src/render.rs`."><title>render.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -159,37 +159,6 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -204,11 +173,10 @@
     parent: <span class="kw-2">&amp;</span>usvg::Group,
     ctx: <span class="kw-2">&amp;</span>Context,
     transform: tiny_skia::Transform,
-    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) {
-    <span class="kw">for </span>node <span class="kw">in </span><span class="kw-2">&amp;</span>parent.children {
-        render_node(node, ctx, transform, text_bbox, pixmap);
+    <span class="kw">for </span>node <span class="kw">in </span>parent.children() {
+        render_node(node, ctx, transform, pixmap);
     }
 }
 
@@ -216,19 +184,17 @@
     node: <span class="kw-2">&amp;</span>usvg::Node,
     ctx: <span class="kw-2">&amp;</span>Context,
     transform: tiny_skia::Transform,
-    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) {
     <span class="kw">match </span>node {
         usvg::Node::Group(<span class="kw-2">ref </span>group) =&gt; {
-            render_group(group, ctx, transform, text_bbox, pixmap);
+            render_group(group, ctx, transform, pixmap);
         }
         usvg::Node::Path(<span class="kw-2">ref </span>path) =&gt; {
             <span class="kw">crate</span>::path::render(
                 path,
                 tiny_skia::BlendMode::SourceOver,
                 ctx,
-                text_bbox,
                 transform,
                 pixmap,
             );
@@ -237,11 +203,7 @@
             <span class="kw">crate</span>::image::render(image, transform, pixmap);
         }
         usvg::Node::Text(<span class="kw-2">ref </span>text) =&gt; {
-            <span class="kw">if let </span>(<span class="prelude-val">Some</span>(bbox), <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>flattened)) = (text.bounding_box, <span class="kw-2">&amp;</span>text.flattened) {
-                render_group(flattened, ctx, transform, <span class="prelude-val">Some</span>(bbox), pixmap);
-            } <span class="kw">else </span>{
-                <span class="macro">log::warn!</span>(<span class="string">"Text nodes should be flattened before rendering."</span>);
-            }
+            render_group(text.flattened(), ctx, transform, pixmap);
         }
     }
 }
@@ -250,19 +212,18 @@
     group: <span class="kw-2">&amp;</span>usvg::Group,
     ctx: <span class="kw-2">&amp;</span>Context,
     transform: tiny_skia::Transform,
-    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-    <span class="kw">let </span>transform = transform.pre_concat(group.transform);
+    <span class="kw">let </span>transform = transform.pre_concat(group.transform());
 
     <span class="kw">if </span>!group.should_isolate() {
-        render_nodes(group, ctx, transform, text_bbox, pixmap);
+        render_nodes(group, ctx, transform, pixmap);
         <span class="kw">return </span><span class="prelude-val">Some</span>(());
     }
 
-    <span class="kw">let </span>bbox = group.layer_bounding_box<span class="question-mark">?</span>.transform(transform)<span class="question-mark">?</span>;
+    <span class="kw">let </span>bbox = group.layer_bounding_box().transform(transform)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>ibbox = <span class="kw">if </span>group.filters.is_empty() {
+    <span class="kw">let </span><span class="kw-2">mut </span>ibbox = <span class="kw">if </span>group.filters().is_empty() {
         <span class="comment">// Convert group bbox into an integer one, expanding each side outwards by 2px
         // to make sure that anti-aliased pixels would not be clipped.
         </span>tiny_skia::IntRect::from_xywh(
@@ -283,7 +244,7 @@
 
     <span class="comment">// Make sure our layer is not bigger than 4x the canvas size.
     // This is required to prevent huge layers.
-    </span><span class="kw">if </span>group.filters.is_empty() {
+    </span><span class="kw">if </span>group.filters().is_empty() {
         ibbox = <span class="kw">crate</span>::geom::fit_to_rect(ibbox, ctx.max_bbox)<span class="question-mark">?</span>;
     }
 
@@ -304,25 +265,25 @@
     <span class="kw">let </span><span class="kw-2">mut </span>sub_pixmap = tiny_skia::Pixmap::new(ibbox.width(), ibbox.height())
         .log_none(|| <span class="macro">log::warn!</span>(<span class="string">"Failed to allocate a group layer for: {:?}."</span>, ibbox))<span class="question-mark">?</span>;
 
-    render_nodes(group, ctx, transform, text_bbox, <span class="kw-2">&amp;mut </span>sub_pixmap.as_mut());
+    render_nodes(group, ctx, transform, <span class="kw-2">&amp;mut </span>sub_pixmap.as_mut());
 
-    <span class="kw">if </span>!group.filters.is_empty() {
-        <span class="kw">for </span>filter <span class="kw">in </span><span class="kw-2">&amp;</span>group.filters {
-            <span class="kw">crate</span>::filter::apply(group, <span class="kw-2">&amp;</span>filter.borrow(), transform, <span class="kw-2">&amp;mut </span>sub_pixmap);
+    <span class="kw">if </span>!group.filters().is_empty() {
+        <span class="kw">for </span>filter <span class="kw">in </span>group.filters() {
+            <span class="kw">crate</span>::filter::apply(filter, transform, <span class="kw-2">&amp;mut </span>sub_pixmap);
         }
     }
 
-    <span class="kw">if let </span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref </span>clip_path), <span class="prelude-val">Some</span>(object_bbox)) = (<span class="kw-2">&amp;</span>group.clip_path, group.bounding_box) {
-        <span class="kw">crate</span>::clip::apply(<span class="kw-2">&amp;</span>clip_path.borrow(), object_bbox, transform, <span class="kw-2">&amp;mut </span>sub_pixmap);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(clip_path) = group.clip_path() {
+        <span class="kw">crate</span>::clip::apply(clip_path, transform, <span class="kw-2">&amp;mut </span>sub_pixmap);
     }
 
-    <span class="kw">if let </span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref </span>mask), <span class="prelude-val">Some</span>(object_bbox)) = (<span class="kw-2">&amp;</span>group.mask, group.bounding_box) {
-        <span class="kw">crate</span>::mask::apply(<span class="kw-2">&amp;</span>mask.borrow(), ctx, object_bbox, transform, <span class="kw-2">&amp;mut </span>sub_pixmap);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(mask) = group.mask() {
+        <span class="kw">crate</span>::mask::apply(mask, ctx, transform, <span class="kw-2">&amp;mut </span>sub_pixmap);
     }
 
     <span class="kw">let </span>paint = tiny_skia::PixmapPaint {
-        opacity: group.opacity.get(),
-        blend_mode: convert_blend_mode(group.blend_mode),
+        opacity: group.opacity().get(),
+        blend_mode: convert_blend_mode(group.blend_mode()),
         quality: tiny_skia::FilterQuality::Nearest,
     };
 
@@ -336,29 +297,6 @@
     );
 
     <span class="prelude-val">Some</span>(())
-}
-
-<span class="kw">pub trait </span>TinySkiaPixmapMutExt {
-    <span class="kw">fn </span>create_rect_mask(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        transform: tiny_skia::Transform,
-        rect: tiny_skia::Rect,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Mask&gt;;
-}
-
-<span class="kw">impl </span>TinySkiaPixmapMutExt <span class="kw">for </span>tiny_skia::PixmapMut&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="kw">fn </span>create_rect_mask(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        transform: tiny_skia::Transform,
-        rect: tiny_skia::Rect,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Mask&gt; {
-        <span class="kw">let </span>path = tiny_skia::PathBuilder::from_rect(rect);
-
-        <span class="kw">let </span><span class="kw-2">mut </span>mask = tiny_skia::Mask::new(<span class="self">self</span>.width(), <span class="self">self</span>.height())<span class="question-mark">?</span>;
-        mask.fill_path(<span class="kw-2">&amp;</span>path, tiny_skia::FillRule::Winding, <span class="bool-val">true</span>, transform);
-
-        <span class="prelude-val">Some</span>(mask)
-    }
 }
 
 <span class="kw">pub fn </span>convert_blend_mode(mode: usvg::BlendMode) -&gt; tiny_skia::BlendMode {

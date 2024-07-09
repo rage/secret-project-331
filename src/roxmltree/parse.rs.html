@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/roxmltree-0.19.0/src/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="roxmltree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/roxmltree-0.20.0/src/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="roxmltree" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1321,6 +1321,18 @@
 <a href="#1320" id="1320">1320</a>
 <a href="#1321" id="1321">1321</a>
 <a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::string::{String, ToString};
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::ops::Range;
@@ -1675,7 +1687,11 @@
     prefix: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>str,
     local: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>str,
     value: StringStorage&lt;<span class="lifetime">'input</span>&gt;,
-    pos: usize,
+    range: Range&lt;usize&gt;,
+    <span class="attr">#[allow(unused)] </span><span class="comment">// only used for feature "positions"
+    </span>qname_len: u16,
+    <span class="attr">#[allow(unused)] </span><span class="comment">// only used for feature "positions"
+    </span>eq_len: u8,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'input</span>&gt; Document&lt;<span class="lifetime">'input</span>&gt; {
@@ -1967,8 +1983,8 @@
 
                 <span class="self">self</span>.after_text = <span class="bool-val">false</span>;
             }
-            tokenizer::Token::Attribute(attr_start, prefix, local, value) =&gt; {
-                process_attribute(attr_start, prefix, local, value, <span class="self">self</span>)<span class="question-mark">?</span>;
+            tokenizer::Token::Attribute(range, qname_len, eq_len, prefix, local, value) =&gt; {
+                process_attribute(range, qname_len, eq_len, prefix, local, value, <span class="self">self</span>)<span class="question-mark">?</span>;
             }
             tokenizer::Token::ElementEnd(end, range) =&gt; {
                 process_element(end, range, <span class="self">self</span>)<span class="question-mark">?</span>;
@@ -1988,7 +2004,9 @@
 
 <span class="attr">#[allow(clippy::too_many_arguments)]
 </span><span class="kw">fn </span>process_attribute&lt;<span class="lifetime">'input</span>&gt;(
-    attr_pos: usize,
+    range: Range&lt;usize&gt;,
+    qname_len: u16,
+    eq_len: u8,
     prefix: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>str,
     local: <span class="kw-2">&amp;</span><span class="lifetime">'input </span>str,
     value: StrSpan&lt;<span class="lifetime">'input</span>&gt;,
@@ -1999,7 +2017,7 @@
     <span class="kw">if </span>prefix == XMLNS {
         <span class="comment">// The xmlns namespace MUST NOT be declared as the default namespace.
         </span><span class="kw">if </span>value.as_str() == NS_XMLNS_URI {
-            <span class="kw">let </span>pos = ctx.err_pos_at(attr_pos);
+            <span class="kw">let </span>pos = ctx.err_pos_at(range.start);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnexpectedXmlnsUri(pos));
         }
 
@@ -2010,13 +2028,13 @@
         // It MUST NOT be bound to any other namespace name.
         </span><span class="kw">if </span>local == NS_XML_PREFIX {
             <span class="kw">if </span>!is_xml_ns_uri {
-                <span class="kw">let </span>pos = ctx.err_pos_at(attr_pos);
+                <span class="kw">let </span>pos = ctx.err_pos_at(range.start);
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidXmlPrefixUri(pos));
             }
         } <span class="kw">else </span>{
             <span class="comment">// The xml namespace MUST NOT be bound to a non-xml prefix.
             </span><span class="kw">if </span>is_xml_ns_uri {
-                <span class="kw">let </span>pos = ctx.err_pos_at(attr_pos);
+                <span class="kw">let </span>pos = ctx.err_pos_at(range.start);
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnexpectedXmlUri(pos));
             }
         }
@@ -2027,7 +2045,7 @@
             .namespaces
             .exists(ctx.namespace_start_idx, <span class="prelude-val">Some</span>(local))
         {
-            <span class="kw">let </span>pos = ctx.err_pos_at(attr_pos);
+            <span class="kw">let </span>pos = ctx.err_pos_at(range.start);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DuplicatedNamespace(local.to_string(), pos));
         }
 
@@ -2038,13 +2056,13 @@
     } <span class="kw">else if </span>local == XMLNS {
         <span class="comment">// The xml namespace MUST NOT be declared as the default namespace.
         </span><span class="kw">if </span>value.as_str() == NS_XML_URI {
-            <span class="kw">let </span>pos = ctx.err_pos_at(attr_pos);
+            <span class="kw">let </span>pos = ctx.err_pos_at(range.start);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnexpectedXmlUri(pos));
         }
 
         <span class="comment">// The xmlns namespace MUST NOT be declared as the default namespace.
         </span><span class="kw">if </span>value.as_str() == NS_XMLNS_URI {
-            <span class="kw">let </span>pos = ctx.err_pos_at(attr_pos);
+            <span class="kw">let </span>pos = ctx.err_pos_at(range.start);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnexpectedXmlnsUri(pos));
         }
 
@@ -2054,7 +2072,9 @@
             prefix,
             local,
             value,
-            pos: attr_pos,
+            range,
+            qname_len,
+            eq_len,
         });
     }
 
@@ -2211,7 +2231,7 @@
             // always has no value.'
             </span><span class="prelude-val">None
         </span>} <span class="kw">else </span>{
-            get_ns_idx_by_prefix(namespaces, attr.pos, attr.prefix, ctx)<span class="question-mark">?
+            get_ns_idx_by_prefix(namespaces, attr.range.start, attr.prefix, ctx)<span class="question-mark">?
         </span>};
 
         <span class="kw">let </span>attr_name = ExpandedNameIndexed {
@@ -2223,7 +2243,7 @@
         </span><span class="kw">if </span>ctx.doc.attributes[start_idx..].iter().any(|attr| {
             attr.name.as_expanded_name(<span class="kw-2">&amp;</span>ctx.doc) == attr_name.as_expanded_name(<span class="kw-2">&amp;</span>ctx.doc)
         }) {
-            <span class="kw">let </span>pos = ctx.err_pos_at(attr.pos);
+            <span class="kw">let </span>pos = ctx.err_pos_at(attr.range.start);
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DuplicatedAttribute(attr.local.to_string(), pos));
         }
 
@@ -2231,7 +2251,11 @@
             name: attr_name,
             value: attr.value,
             <span class="attr">#[cfg(feature = <span class="string">"positions"</span>)]
-            </span>pos: attr.pos,
+            </span>range: attr.range,
+            <span class="attr">#[cfg(feature = <span class="string">"positions"</span>)]
+            </span>qname_len: attr.qname_len,
+            <span class="attr">#[cfg(feature = <span class="string">"positions"</span>)]
+            </span>eq_len: attr.eq_len,
         });
     }
 

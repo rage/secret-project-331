@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.12.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.13.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -143,31 +143,22 @@
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-</pre></div><pre class="rust"><code><span class="doccomment">//! # GIF en- and decoding library [![Build Status](https://github.com/image-rs/image-gif/workflows/Rust%20CI/badge.svg)](https://github.com/image-rs/image-gif/actions)
-//! 
+</pre></div><pre class="rust"><code><span class="attr">#![forbid(unsafe_code)]
+</span><span class="doccomment">//! # GIF en- and decoding library [![Build Status](https://github.com/image-rs/image-gif/workflows/Rust%20CI/badge.svg)](https://github.com/image-rs/image-gif/actions)
+//!
 //! GIF en- and decoder written in Rust ([API Documentation](https://docs.rs/gif)).
-//! 
+//!
 //! # GIF encoding and decoding library
-//! 
+//!
 //! This library provides all functions necessary to de- and encode GIF files.
-//! 
+//!
 //! ## High level interface
-//! 
+//!
 //! The high level interface consists of the two types
 //! [`Encoder`](struct.Encoder.html) and [`Decoder`](struct.Decoder.html).
-//! 
+//!
 //! ### Decoding GIF files
-//! 
+//!
 //! ```rust
 //! // Open the file
 //! use std::fs::File;
@@ -181,18 +172,18 @@
 //!     // Process every frame
 //! }
 //! ```
-//! 
-//! 
-//! 
+//!
+//!
+//!
 //! ### Encoding GIF files
 //!
 //! The encoder can be used so save simple computer generated images:
-//! 
+//!
 //! ```rust
 //! use gif::{Frame, Encoder, Repeat};
 //! use std::fs::File;
 //! use std::borrow::Cow;
-//! 
+//!
 //! let color_map = &amp;[0xFF, 0xFF, 0xFF, 0, 0, 0];
 //! let (width, height) = (6, 6);
 //! let mut beacon_states = [[
@@ -228,7 +219,7 @@
 //! ```rust
 //! # #[cfg(feature = "color_quant")] {
 //! use std::fs::File;
-//! 
+//!
 //! // Get pixel data from some source
 //! let mut pixels: Vec&lt;u8&gt; = vec![0; 30_000];
 //! // Create frame from data
@@ -271,36 +262,25 @@
 <span class="kw">mod </span>reader;
 <span class="kw">mod </span>encoder;
 
-<span class="kw">pub use </span><span class="kw">crate</span>::common::{AnyExtension, Block, Extension, DisposalMethod, Frame};
+<span class="kw">pub use </span><span class="kw">crate</span>::common::{AnyExtension, Extension, DisposalMethod, Frame};
 
-<span class="kw">pub use </span><span class="kw">crate</span>::reader::{StreamingDecoder, Decoded, DecodingError, DecodingFormatError};
-<span class="doccomment">/// StreamingDecoder configuration parameters
-</span><span class="kw">pub use </span><span class="kw">crate</span>::reader::{ColorOutput, MemoryLimit, Extensions};
+<span class="kw">pub use </span><span class="kw">crate</span>::reader::{DecodingError, DecodingFormatError};
+<span class="kw">pub use </span><span class="kw">crate</span>::reader::{ColorOutput, MemoryLimit};
 <span class="kw">pub use </span><span class="kw">crate</span>::reader::{DecodeOptions, Decoder, Version};
 
-<span class="kw">pub use </span><span class="kw">crate</span>::encoder::{Encoder, ExtensionData, Repeat, EncodingError};
+<span class="kw">pub use </span><span class="kw">crate</span>::encoder::{Encoder, ExtensionData, Repeat, EncodingError, EncodingFormatError};
 
-<span class="attr">#[cfg(test)]
-#[test]
-</span><span class="kw">fn </span>round_trip() {
-    <span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
-    <span class="kw">use </span>std::fs::File;
-    <span class="kw">let </span><span class="kw-2">mut </span>data = <span class="macro">vec!</span>[];
-    File::open(<span class="string">"tests/samples/sample_1.gif"</span>).unwrap().read_to_end(<span class="kw-2">&amp;mut </span>data).unwrap();
-    <span class="kw">let </span><span class="kw-2">mut </span>decoder = Decoder::new(<span class="kw-2">&amp;*</span>data).unwrap();
-    <span class="kw">let </span>palette: Vec&lt;u8&gt; = decoder.palette().unwrap().into();
-    <span class="kw">let </span>frame = decoder.read_next_frame().unwrap().unwrap();
-    <span class="kw">let </span><span class="kw-2">mut </span>data2 = <span class="macro">vec!</span>[];
-    {
-        <span class="kw">let </span><span class="kw-2">mut </span>encoder = Encoder::new(<span class="kw-2">&amp;mut </span>data2, frame.width, frame.height, <span class="kw-2">&amp;</span>palette).unwrap();
-        encoder.write_frame(frame).unwrap();
-    }
-    <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>data[..], <span class="kw-2">&amp;</span>data2[..])
+<span class="doccomment">/// Low-level, advanced decoder. Prefer [`Decoder`] instead, which can stream frames too.
+</span><span class="kw">pub mod </span>streaming_decoder {
+    <span class="kw">pub use </span><span class="kw">crate</span>::common::Block;
+    <span class="kw">pub use </span><span class="kw">crate</span>::reader::{Decoded, FrameDataType, FrameDecoder, OutputBuffer, StreamingDecoder};
 }
 
-<span class="macro">macro_rules! </span>insert_as_doc {
+<span class="attr">#[cfg(feature = <span class="string">"color_quant"</span>)]
+</span><span class="macro">macro_rules! </span>insert_as_doc {
     { <span class="macro-nonterminal">$content</span>:expr } =&gt; {
-        <span class="attr">#[doc = <span class="macro-nonterminal">$content</span>] </span><span class="kw">extern </span>{ }
+        <span class="attr">#[allow(unused_doc_comments)]
+        #[doc = <span class="macro-nonterminal">$content</span>] </span><span class="kw">extern </span>{ }
     }
 }
 

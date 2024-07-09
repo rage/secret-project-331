@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.12.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -57,6 +57,30 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
+<a href="#59" id="59">59</a>
+<a href="#60" id="60">60</a>
+<a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 A complete [harfbuzz](https://github.com/harfbuzz/harfbuzz) shaping algorithm port to Rust.
 */
@@ -72,47 +96,71 @@ A complete [harfbuzz](https://github.com/harfbuzz/harfbuzz) shaping algorithm po
 
 <span class="kw">extern crate </span>alloc;
 
-<span class="attr">#[macro_use]
-</span><span class="kw">mod </span>buffer;
-<span class="kw">mod </span>aat;
-<span class="kw">mod </span>common;
-<span class="kw">mod </span>complex;
-<span class="kw">mod </span>face;
-<span class="kw">mod </span>fallback;
-<span class="kw">mod </span>glyph_set;
-<span class="kw">mod </span>normalize;
-<span class="kw">mod </span>ot;
-<span class="kw">mod </span>plan;
-<span class="kw">mod </span>shape;
-<span class="kw">mod </span>tag;
-<span class="kw">mod </span>tag_table;
-<span class="kw">mod </span>text_parser;
-<span class="kw">mod </span>unicode;
-<span class="kw">mod </span>unicode_norm;
+<span class="kw">mod </span>hb;
 
 <span class="kw">pub use </span>ttf_parser;
 
-<span class="kw">pub use </span>ttf_parser::Tag;
+<span class="kw">pub use </span>hb::buffer::hb_glyph_info_t <span class="kw">as </span>GlyphInfo;
+<span class="kw">pub use </span>hb::buffer::{GlyphBuffer, GlyphPosition, UnicodeBuffer};
+<span class="kw">pub use </span>hb::common::{script, Direction, Feature, Language, Script, Variation};
+<span class="kw">pub use </span>hb::face::hb_font_t <span class="kw">as </span>Face;
+<span class="kw">pub use </span>hb::ot_shape_plan::hb_ot_shape_plan_t <span class="kw">as </span>ShapePlan;
+<span class="kw">pub use </span>hb::shape::{shape, shape_with_plan};
 
-<span class="kw">pub use </span><span class="kw">crate</span>::buffer::{
-    BufferClusterLevel, BufferFlags, GlyphBuffer, GlyphInfo, GlyphPosition, SerializeFlags,
-    UnicodeBuffer,
-};
-<span class="kw">pub use </span><span class="kw">crate</span>::common::{script, Direction, Feature, Language, Script, Variation};
-<span class="kw">pub use </span><span class="kw">crate</span>::face::Face;
-<span class="kw">pub use </span><span class="kw">crate</span>::plan::ShapePlan;
-<span class="kw">pub use </span><span class="kw">crate</span>::shape::{shape, shape_with_plan};
-
-<span class="kw">type </span>Mask = u32;
-
-<span class="kw">fn </span>round(x: f32) -&gt; f32 {
-    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-    </span>{
-        x.round()
+<span class="macro">bitflags::bitflags! </span>{
+    <span class="doccomment">/// Flags for buffers.
+    </span><span class="attr">#[derive(Default, Debug, Clone, Copy)]
+    </span><span class="kw">pub struct </span>BufferFlags: u32 {
+        <span class="doccomment">/// Indicates that special handling of the beginning of text paragraph can be applied to this buffer. Should usually be set, unless you are passing to the buffer only part of the text without the full context.
+        </span><span class="kw">const </span>BEGINNING_OF_TEXT             = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>;
+        <span class="doccomment">/// Indicates that special handling of the end of text paragraph can be applied to this buffer, similar to [`BufferFlags::BEGINNING_OF_TEXT`].
+        </span><span class="kw">const </span>END_OF_TEXT                   = <span class="number">1 </span>&lt;&lt; <span class="number">2</span>;
+        <span class="doccomment">/// Indicates that characters with `Default_Ignorable` Unicode property should use the corresponding glyph from the font, instead of hiding them (done by replacing them with the space glyph and zeroing the advance width.) This flag takes precedence over [`BufferFlags::REMOVE_DEFAULT_IGNORABLES`].
+        </span><span class="kw">const </span>PRESERVE_DEFAULT_IGNORABLES   = <span class="number">1 </span>&lt;&lt; <span class="number">3</span>;
+        <span class="doccomment">/// Indicates that characters with `Default_Ignorable` Unicode property should be removed from glyph string instead of hiding them (done by replacing them with the space glyph and zeroing the advance width.) [`BufferFlags::PRESERVE_DEFAULT_IGNORABLES`] takes precedence over this flag.
+        </span><span class="kw">const </span>REMOVE_DEFAULT_IGNORABLES     = <span class="number">1 </span>&lt;&lt; <span class="number">4</span>;
+        <span class="doccomment">/// Indicates that a dotted circle should not be inserted in the rendering of incorrect character sequences (such as `&lt;0905 093E&gt;`).
+        </span><span class="kw">const </span>DO_NOT_INSERT_DOTTED_CIRCLE   = <span class="number">1 </span>&lt;&lt; <span class="number">5</span>;
+        <span class="doccomment">/// Indicates that the shape() call and its variants should perform various verification processes on the results of the shaping operation on the buffer. If the verification fails, then either a buffer message is sent, if a message handler is installed on the buffer, or a message is written to standard error. In either case, the shaping result might be modified to show the failed output.
+        </span><span class="kw">const </span>VERIFY                        = <span class="number">1 </span>&lt;&lt; <span class="number">6</span>;
+        <span class="doccomment">/// Indicates that the `UNSAFE_TO_CONCAT` glyph-flag should be produced by the shaper. By default it will not be produced since it incurs a cost.
+        </span><span class="kw">const </span>PRODUCE_UNSAFE_TO_CONCAT      = <span class="number">1 </span>&lt;&lt; <span class="number">7</span>;
     }
-    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
-    </span>{
-        libm::roundf(x)
+}
+
+<span class="doccomment">/// A cluster level.
+</span><span class="attr">#[allow(missing_docs)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
+</span><span class="kw">pub enum </span>BufferClusterLevel {
+    MonotoneGraphemes,
+    MonotoneCharacters,
+    Characters,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>BufferClusterLevel {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        BufferClusterLevel::MonotoneGraphemes
+    }
+}
+
+<span class="macro">bitflags::bitflags! </span>{
+    <span class="doccomment">/// Flags used for serialization with a `BufferSerializer`.
+    </span><span class="attr">#[derive(Default)]
+    </span><span class="kw">pub struct </span>SerializeFlags: u8 {
+        <span class="doccomment">/// Do not serialize glyph cluster.
+        </span><span class="kw">const </span>NO_CLUSTERS       = <span class="number">0b00000001</span>;
+        <span class="doccomment">/// Do not serialize glyph position information.
+        </span><span class="kw">const </span>NO_POSITIONS      = <span class="number">0b00000010</span>;
+        <span class="doccomment">/// Do no serialize glyph name.
+        </span><span class="kw">const </span>NO_GLYPH_NAMES    = <span class="number">0b00000100</span>;
+        <span class="doccomment">/// Serialize glyph extents.
+        </span><span class="kw">const </span>GLYPH_EXTENTS     = <span class="number">0b00001000</span>;
+        <span class="doccomment">/// Serialize glyph flags.
+        </span><span class="kw">const </span>GLYPH_FLAGS       = <span class="number">0b00010000</span>;
+        <span class="doccomment">/// Do not serialize glyph advances, glyph offsets will reflect absolute
+        /// glyph positions.
+        </span><span class="kw">const </span>NO_ADVANCES       = <span class="number">0b00100000</span>;
     }
 }
 </code></pre></div></section></main></body></html>

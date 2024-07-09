@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["NS_XMLNS_URI","NS_XML_URI"],"enum":["Error","NodeType","StringStorage"],"struct":["Attribute","Attributes","AxisIter","Children","Descendants","Document","ExpandedName","Namespace","NamespaceIter","Node","NodeId","PI","ParsingOptions","TextPos"]};

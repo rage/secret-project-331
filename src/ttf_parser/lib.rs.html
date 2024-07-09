@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.20.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.21.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -2314,12 +2314,23 @@
 <a href="#2313" id="2313">2313</a>
 <a href="#2314" id="2314">2314</a>
 <a href="#2315" id="2315">2315</a>
+<a href="#2316" id="2316">2316</a>
+<a href="#2317" id="2317">2317</a>
+<a href="#2318" id="2318">2318</a>
+<a href="#2319" id="2319">2319</a>
+<a href="#2320" id="2320">2320</a>
+<a href="#2321" id="2321">2321</a>
+<a href="#2322" id="2322">2322</a>
+<a href="#2323" id="2323">2323</a>
+<a href="#2324" id="2324">2324</a>
+<a href="#2325" id="2325">2325</a>
+<a href="#2326" id="2326">2326</a>
+<a href="#2327" id="2327">2327</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
-A high-level, safe, zero-allocation TrueType font parser.
-
-Supports [TrueType](https://docs.microsoft.com/en-us/typography/truetype/),
-[OpenType](https://docs.microsoft.com/en-us/typography/opentype/spec/)
-and [AAT](https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html)
+A high-level, safe, zero-allocation font parser for:
+* [TrueType](https://docs.microsoft.com/en-us/typography/truetype/),
+* [OpenType](https://docs.microsoft.com/en-us/typography/opentype/spec/), and
+* [AAT](https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html)
 fonts.
 
 Font parsing starts with a [`Face`].
@@ -2365,17 +2376,10 @@ Font parsing starts with a [`Face`].
 #[macro_use]
 </span><span class="kw">extern crate </span>std;
 
-<span class="macro">macro_rules! </span>try_opt_or {
-    (<span class="macro-nonterminal">$value</span>:expr, <span class="macro-nonterminal">$ret</span>:expr) =&gt; {
-        <span class="kw">match </span><span class="macro-nonterminal">$value </span>{
-            <span class="prelude-val">Some</span>(v) =&gt; v,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="macro-nonterminal">$ret</span>,
-        }
-    };
-}
-
 <span class="attr">#[cfg(feature = <span class="string">"apple-layout"</span>)]
 </span><span class="kw">mod </span>aat;
+<span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+</span><span class="kw">mod </span>delta_set;
 <span class="attr">#[cfg(feature = <span class="string">"opentype-layout"</span>)]
 </span><span class="kw">mod </span>ggg;
 <span class="kw">mod </span>language;
@@ -2675,18 +2679,23 @@ Font parsing starts with a [`Face`].
     }
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>BBox {
-    x_min: f32,
-    y_min: f32,
-    x_max: f32,
-    y_max: f32,
+<span class="doccomment">/// A rectangle described by the left-lower and upper-right points.
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>RectF {
+    <span class="doccomment">/// The horizontal minimum of the rect.
+    </span><span class="kw">pub </span>x_min: f32,
+    <span class="doccomment">/// The vertical minimum of the rect.
+    </span><span class="kw">pub </span>y_min: f32,
+    <span class="doccomment">/// The horizontal maximum of the rect.
+    </span><span class="kw">pub </span>x_max: f32,
+    <span class="doccomment">/// The vertical maximum of the rect.
+    </span><span class="kw">pub </span>y_max: f32,
 }
 
-<span class="kw">impl </span>BBox {
+<span class="kw">impl </span>RectF {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
-        BBox {
+        RectF {
             x_min: core::f32::MAX,
             y_min: core::f32::MAX,
             x_max: core::f32::MIN,
@@ -2721,29 +2730,38 @@ Font parsing starts with a [`Face`].
     }
 }
 
-<span class="attr">#[derive(Clone, Copy, PartialEq)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Transform {
-    <span class="kw">pub </span>a: f32,
-    <span class="kw">pub </span>b: f32,
-    <span class="kw">pub </span>c: f32,
-    <span class="kw">pub </span>d: f32,
-    <span class="kw">pub </span>e: f32,
-    <span class="kw">pub </span>f: f32,
+<span class="doccomment">/// An affine transform.
+</span><span class="attr">#[derive(Clone, Copy, PartialEq)]
+</span><span class="kw">pub struct </span>Transform {
+    <span class="doccomment">/// The 'a' component of the transform.
+    </span><span class="kw">pub </span>a: f32,
+    <span class="doccomment">/// The 'b' component of the transform.
+    </span><span class="kw">pub </span>b: f32,
+    <span class="doccomment">/// The 'c' component of the transform.
+    </span><span class="kw">pub </span>c: f32,
+    <span class="doccomment">/// The 'd' component of the transform.
+    </span><span class="kw">pub </span>d: f32,
+    <span class="doccomment">/// The 'e' component of the transform.
+    </span><span class="kw">pub </span>e: f32,
+    <span class="doccomment">/// The 'f' component of the transform.
+    </span><span class="kw">pub </span>f: f32,
 }
 
 <span class="kw">impl </span>Transform {
-    <span class="attr">#[inline]
+    <span class="doccomment">/// Creates a new transform with the specified components.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new(a: f32, b: f32, c: f32, d: f32, e: f32, f: f32) -&gt; <span class="self">Self </span>{
         Transform { a, b, c, d, e, f }
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
-    #[inline]
+    <span class="doccomment">/// Creates a new translation transform.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>new_translate(tx: f32, ty: f32) -&gt; <span class="self">Self </span>{
         Transform::new(<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, tx, ty)
     }
 
-    <span class="attr">#[inline]
+    <span class="doccomment">/// Combines two transforms with each other.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>combine(ts1: <span class="self">Self</span>, ts2: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         Transform {
             a: ts1.a * ts2.a + ts1.c * ts2.b,
@@ -2763,7 +2781,8 @@ Font parsing starts with a [`Face`].
         <span class="kw-2">*</span>y = <span class="self">self</span>.b * tx + <span class="self">self</span>.d * ty + <span class="self">self</span>.f;
     }
 
-    <span class="attr">#[inline]
+    <span class="doccomment">/// Checks whether a transform is the identity transform.
+    </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="comment">// A direct float comparison is fine in our case.
         </span><span class="self">self</span>.a == <span class="number">1.0
@@ -2819,6 +2838,10 @@ Font parsing starts with a [`Face`].
             red,
             alpha,
         }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>apply_alpha(<span class="kw-2">&amp;mut </span><span class="self">self</span>, alpha: f32) {
+        <span class="self">self</span>.alpha = (((f32::from(<span class="self">self</span>.alpha) / <span class="number">255.0</span>) * alpha) * <span class="number">255.0</span>) <span class="kw">as </span>u8;
     }
 }
 
@@ -2974,13 +2997,23 @@ Font parsing starts with a [`Face`].
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
-</span><span class="kw">const </span>MAX_VAR_COORDS: usize = <span class="number">32</span>;
+</span><span class="kw">const </span>MAX_VAR_COORDS: usize = <span class="number">64</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
-#[derive(Clone, Default)]
+#[derive(Clone)]
 </span><span class="kw">struct </span>VarCoords {
     data: [NormalizedCoordinate; MAX_VAR_COORDS],
     len: u8,
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+</span><span class="kw">impl </span>Default <span class="kw">for </span>VarCoords {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            data: [NormalizedCoordinate::default(); MAX_VAR_COORDS],
+            len: u8::default(),
+        }
+    }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
@@ -3659,7 +3692,7 @@ Font parsing starts with a [`Face`].
     /// Returns `false` when OS/2 table is not present.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_bold(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">try_opt_or!</span>(<span class="self">self</span>.tables.os2, <span class="bool-val">false</span>).is_bold()
+        <span class="self">self</span>.tables.os2.map(|os2| os2.is_bold()).unwrap_or(<span class="bool-val">false</span>)
     }
 
     <span class="doccomment">/// Checks that face is marked as *Oblique*.
@@ -3676,7 +3709,7 @@ Font parsing starts with a [`Face`].
     <span class="doccomment">/// Returns face style.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>style(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Style {
-        <span class="macro">try_opt_or!</span>(<span class="self">self</span>.tables.os2, Style::Normal).style()
+        <span class="self">self</span>.tables.os2.map(|os2| os2.style()).unwrap_or_default()
     }
 
     <span class="doccomment">/// Checks that face is marked as *Monospaced*.
@@ -3684,7 +3717,10 @@ Font parsing starts with a [`Face`].
     /// Returns `false` when `post` table is not present.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_monospaced(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">try_opt_or!</span>(<span class="self">self</span>.tables.post, <span class="bool-val">false</span>).is_monospaced
+        <span class="self">self</span>.tables
+            .post
+            .map(|post| post.is_monospaced)
+            .unwrap_or(<span class="bool-val">false</span>)
     }
 
     <span class="doccomment">/// Checks that face is variable.
@@ -3709,7 +3745,7 @@ Font parsing starts with a [`Face`].
     /// Returns `Weight::Normal` when OS/2 table is not present.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>weight(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Weight {
-        <span class="macro">try_opt_or!</span>(<span class="self">self</span>.tables.os2, Weight::default()).weight()
+        <span class="self">self</span>.tables.os2.map(|os2| os2.weight()).unwrap_or_default()
     }
 
     <span class="doccomment">/// Returns face's width.
@@ -3717,7 +3753,7 @@ Font parsing starts with a [`Face`].
     /// Returns `Width::Normal` when OS/2 table is not present or when value is invalid.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Width {
-        <span class="macro">try_opt_or!</span>(<span class="self">self</span>.tables.os2, Width::default()).width()
+        <span class="self">self</span>.tables.os2.map(|os2| os2.width()).unwrap_or_default()
     }
 
     <span class="doccomment">/// Returns face's italic angle.
@@ -4026,7 +4062,7 @@ Font parsing starts with a [`Face`].
         <span class="self">self</span>.tables.os2<span class="question-mark">?</span>.permissions()
     }
 
-    <span class="doccomment">/// Checks if the face subsetting is allowed.
+    <span class="doccomment">/// Checks if the face allows embedding a subset, further restricted by [`Self::permissions`].
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_subsetting_allowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.tables
@@ -4035,16 +4071,20 @@ Font parsing starts with a [`Face`].
             .unwrap_or(<span class="bool-val">false</span>)
     }
 
-    <span class="doccomment">/// Checks if the face bitmaps embedding is allowed.
+    <span class="doccomment">/// Checks if the face allows outline data to be embedded.
+    ///
+    /// If false, only bitmaps may be embedded in accordance with [`Self::permissions`].
+    ///
+    /// If the font contains no bitmaps and this flag is not set, it implies no embedding is allowed.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>is_bitmap_embedding_allowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    </span><span class="kw">pub fn </span>is_outline_embedding_allowed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.tables
             .os2
-            .map(|t| t.is_bitmap_embedding_allowed())
+            .map(|t| t.is_outline_embedding_allowed())
             .unwrap_or(<span class="bool-val">false</span>)
     }
 
-    <span class="doccomment">/// Checks if the face bitmaps embedding is allowed.
+    <span class="doccomment">/// Returns [Unicode Ranges](https://docs.microsoft.com/en-us/typography/opentype/spec/os2#ur).
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>unicode_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; UnicodeRanges {
         <span class="self">self</span>.tables
@@ -4488,9 +4528,17 @@ Font parsing starts with a [`Face`].
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         glyph_id: GlyphId,
         palette: u16,
-        painter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>colr::Painter,
+        foreground_color: RgbaColor,
+        painter: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>colr::Painter&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-        <span class="self">self</span>.tables.colr<span class="question-mark">?</span>.paint(glyph_id, palette, painter)
+        <span class="self">self</span>.tables.colr<span class="question-mark">?</span>.paint(
+            glyph_id,
+            palette,
+            painter,
+            <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+            </span><span class="self">self</span>.coords(),
+            foreground_color,
+        )
     }
 
     <span class="doccomment">/// Returns an iterator over variation axes.
@@ -4502,11 +4550,11 @@ Font parsing starts with a [`Face`].
 
     <span class="doccomment">/// Sets a variation axis coordinate.
     ///
-    /// This is the only mutable method in the library.
+    /// This is one of the two only mutable methods in the library.
     /// We can simplify the API a lot by storing the variable coordinates
     /// in the face object itself.
     ///
-    /// Since coordinates are stored on the stack, we allow only 32 of them.
+    /// Since coordinates are stored on the stack, we allow only 64 of them.
     ///
     /// Returns `None` when face is not variable or doesn't have such axis.
     </span><span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
@@ -4583,30 +4631,6 @@ Font parsing starts with a [`Face`].
     #[inline]
     </span><span class="kw">fn </span>coords(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[NormalizedCoordinate] {
         <span class="self">self</span>.coordinates.as_slice()
-    }
-}
-
-<span class="kw">struct </span>DefaultTableProvider&lt;<span class="lifetime">'a</span>&gt; {
-    data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
-    tables: LazyArrayIter16&lt;<span class="lifetime">'a</span>, TableRecord&gt;,
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Iterator <span class="kw">for </span>DefaultTableProvider&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;(Tag, <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt;), FaceParsingError&gt;;
-
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="self">self</span>.tables.next().map(|table| {
-            <span class="prelude-val">Ok</span>((table.tag, {
-                <span class="kw">let </span>offset = usize::num_from(table.offset);
-                <span class="kw">let </span>length = usize::num_from(table.length);
-                <span class="kw">let </span>end = offset
-                    .checked_add(length)
-                    .ok_or(FaceParsingError::MalformedFont)<span class="question-mark">?</span>;
-                <span class="kw">let </span>range = offset..end;
-                <span class="self">self</span>.data.get(range)
-            }))
-        })
     }
 }
 

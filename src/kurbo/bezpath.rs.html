@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.9.5/src/bezpath.rs`."><title>bezpath.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/bezpath.rs`."><title>bezpath.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1501,6 +1501,512 @@
 <a href="#1500" id="1500">1500</a>
 <a href="#1501" id="1501">1501</a>
 <a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
+<a href="#1548" id="1548">1548</a>
+<a href="#1549" id="1549">1549</a>
+<a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
+<a href="#1570" id="1570">1570</a>
+<a href="#1571" id="1571">1571</a>
+<a href="#1572" id="1572">1572</a>
+<a href="#1573" id="1573">1573</a>
+<a href="#1574" id="1574">1574</a>
+<a href="#1575" id="1575">1575</a>
+<a href="#1576" id="1576">1576</a>
+<a href="#1577" id="1577">1577</a>
+<a href="#1578" id="1578">1578</a>
+<a href="#1579" id="1579">1579</a>
+<a href="#1580" id="1580">1580</a>
+<a href="#1581" id="1581">1581</a>
+<a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
+<a href="#1605" id="1605">1605</a>
+<a href="#1606" id="1606">1606</a>
+<a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
+<a href="#1623" id="1623">1623</a>
+<a href="#1624" id="1624">1624</a>
+<a href="#1625" id="1625">1625</a>
+<a href="#1626" id="1626">1626</a>
+<a href="#1627" id="1627">1627</a>
+<a href="#1628" id="1628">1628</a>
+<a href="#1629" id="1629">1629</a>
+<a href="#1630" id="1630">1630</a>
+<a href="#1631" id="1631">1631</a>
+<a href="#1632" id="1632">1632</a>
+<a href="#1633" id="1633">1633</a>
+<a href="#1634" id="1634">1634</a>
+<a href="#1635" id="1635">1635</a>
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
+<a href="#1651" id="1651">1651</a>
+<a href="#1652" id="1652">1652</a>
+<a href="#1653" id="1653">1653</a>
+<a href="#1654" id="1654">1654</a>
+<a href="#1655" id="1655">1655</a>
+<a href="#1656" id="1656">1656</a>
+<a href="#1657" id="1657">1657</a>
+<a href="#1658" id="1658">1658</a>
+<a href="#1659" id="1659">1659</a>
+<a href="#1660" id="1660">1660</a>
+<a href="#1661" id="1661">1661</a>
+<a href="#1662" id="1662">1662</a>
+<a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
+<a href="#1682" id="1682">1682</a>
+<a href="#1683" id="1683">1683</a>
+<a href="#1684" id="1684">1684</a>
+<a href="#1685" id="1685">1685</a>
+<a href="#1686" id="1686">1686</a>
+<a href="#1687" id="1687">1687</a>
+<a href="#1688" id="1688">1688</a>
+<a href="#1689" id="1689">1689</a>
+<a href="#1690" id="1690">1690</a>
+<a href="#1691" id="1691">1691</a>
+<a href="#1692" id="1692">1692</a>
+<a href="#1693" id="1693">1693</a>
+<a href="#1694" id="1694">1694</a>
+<a href="#1695" id="1695">1695</a>
+<a href="#1696" id="1696">1696</a>
+<a href="#1697" id="1697">1697</a>
+<a href="#1698" id="1698">1698</a>
+<a href="#1699" id="1699">1699</a>
+<a href="#1700" id="1700">1700</a>
+<a href="#1701" id="1701">1701</a>
+<a href="#1702" id="1702">1702</a>
+<a href="#1703" id="1703">1703</a>
+<a href="#1704" id="1704">1704</a>
+<a href="#1705" id="1705">1705</a>
+<a href="#1706" id="1706">1706</a>
+<a href="#1707" id="1707">1707</a>
+<a href="#1708" id="1708">1708</a>
+<a href="#1709" id="1709">1709</a>
+<a href="#1710" id="1710">1710</a>
+<a href="#1711" id="1711">1711</a>
+<a href="#1712" id="1712">1712</a>
+<a href="#1713" id="1713">1713</a>
+<a href="#1714" id="1714">1714</a>
+<a href="#1715" id="1715">1715</a>
+<a href="#1716" id="1716">1716</a>
+<a href="#1717" id="1717">1717</a>
+<a href="#1718" id="1718">1718</a>
+<a href="#1719" id="1719">1719</a>
+<a href="#1720" id="1720">1720</a>
+<a href="#1721" id="1721">1721</a>
+<a href="#1722" id="1722">1722</a>
+<a href="#1723" id="1723">1723</a>
+<a href="#1724" id="1724">1724</a>
+<a href="#1725" id="1725">1725</a>
+<a href="#1726" id="1726">1726</a>
+<a href="#1727" id="1727">1727</a>
+<a href="#1728" id="1728">1728</a>
+<a href="#1729" id="1729">1729</a>
+<a href="#1730" id="1730">1730</a>
+<a href="#1731" id="1731">1731</a>
+<a href="#1732" id="1732">1732</a>
+<a href="#1733" id="1733">1733</a>
+<a href="#1734" id="1734">1734</a>
+<a href="#1735" id="1735">1735</a>
+<a href="#1736" id="1736">1736</a>
+<a href="#1737" id="1737">1737</a>
+<a href="#1738" id="1738">1738</a>
+<a href="#1739" id="1739">1739</a>
+<a href="#1740" id="1740">1740</a>
+<a href="#1741" id="1741">1741</a>
+<a href="#1742" id="1742">1742</a>
+<a href="#1743" id="1743">1743</a>
+<a href="#1744" id="1744">1744</a>
+<a href="#1745" id="1745">1745</a>
+<a href="#1746" id="1746">1746</a>
+<a href="#1747" id="1747">1747</a>
+<a href="#1748" id="1748">1748</a>
+<a href="#1749" id="1749">1749</a>
+<a href="#1750" id="1750">1750</a>
+<a href="#1751" id="1751">1751</a>
+<a href="#1752" id="1752">1752</a>
+<a href="#1753" id="1753">1753</a>
+<a href="#1754" id="1754">1754</a>
+<a href="#1755" id="1755">1755</a>
+<a href="#1756" id="1756">1756</a>
+<a href="#1757" id="1757">1757</a>
+<a href="#1758" id="1758">1758</a>
+<a href="#1759" id="1759">1759</a>
+<a href="#1760" id="1760">1760</a>
+<a href="#1761" id="1761">1761</a>
+<a href="#1762" id="1762">1762</a>
+<a href="#1763" id="1763">1763</a>
+<a href="#1764" id="1764">1764</a>
+<a href="#1765" id="1765">1765</a>
+<a href="#1766" id="1766">1766</a>
+<a href="#1767" id="1767">1767</a>
+<a href="#1768" id="1768">1768</a>
+<a href="#1769" id="1769">1769</a>
+<a href="#1770" id="1770">1770</a>
+<a href="#1771" id="1771">1771</a>
+<a href="#1772" id="1772">1772</a>
+<a href="#1773" id="1773">1773</a>
+<a href="#1774" id="1774">1774</a>
+<a href="#1775" id="1775">1775</a>
+<a href="#1776" id="1776">1776</a>
+<a href="#1777" id="1777">1777</a>
+<a href="#1778" id="1778">1778</a>
+<a href="#1779" id="1779">1779</a>
+<a href="#1780" id="1780">1780</a>
+<a href="#1781" id="1781">1781</a>
+<a href="#1782" id="1782">1782</a>
+<a href="#1783" id="1783">1783</a>
+<a href="#1784" id="1784">1784</a>
+<a href="#1785" id="1785">1785</a>
+<a href="#1786" id="1786">1786</a>
+<a href="#1787" id="1787">1787</a>
+<a href="#1788" id="1788">1788</a>
+<a href="#1789" id="1789">1789</a>
+<a href="#1790" id="1790">1790</a>
+<a href="#1791" id="1791">1791</a>
+<a href="#1792" id="1792">1792</a>
+<a href="#1793" id="1793">1793</a>
+<a href="#1794" id="1794">1794</a>
+<a href="#1795" id="1795">1795</a>
+<a href="#1796" id="1796">1796</a>
+<a href="#1797" id="1797">1797</a>
+<a href="#1798" id="1798">1798</a>
+<a href="#1799" id="1799">1799</a>
+<a href="#1800" id="1800">1800</a>
+<a href="#1801" id="1801">1801</a>
+<a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
+<a href="#1812" id="1812">1812</a>
+<a href="#1813" id="1813">1813</a>
+<a href="#1814" id="1814">1814</a>
+<a href="#1815" id="1815">1815</a>
+<a href="#1816" id="1816">1816</a>
+<a href="#1817" id="1817">1817</a>
+<a href="#1818" id="1818">1818</a>
+<a href="#1819" id="1819">1819</a>
+<a href="#1820" id="1820">1820</a>
+<a href="#1821" id="1821">1821</a>
+<a href="#1822" id="1822">1822</a>
+<a href="#1823" id="1823">1823</a>
+<a href="#1824" id="1824">1824</a>
+<a href="#1825" id="1825">1825</a>
+<a href="#1826" id="1826">1826</a>
+<a href="#1827" id="1827">1827</a>
+<a href="#1828" id="1828">1828</a>
+<a href="#1829" id="1829">1829</a>
+<a href="#1830" id="1830">1830</a>
+<a href="#1831" id="1831">1831</a>
+<a href="#1832" id="1832">1832</a>
+<a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
+<a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
+<a href="#1840" id="1840">1840</a>
+<a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a>
+<a href="#1843" id="1843">1843</a>
+<a href="#1844" id="1844">1844</a>
+<a href="#1845" id="1845">1845</a>
+<a href="#1846" id="1846">1846</a>
+<a href="#1847" id="1847">1847</a>
+<a href="#1848" id="1848">1848</a>
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+<a href="#1851" id="1851">1851</a>
+<a href="#1852" id="1852">1852</a>
+<a href="#1853" id="1853">1853</a>
+<a href="#1854" id="1854">1854</a>
+<a href="#1855" id="1855">1855</a>
+<a href="#1856" id="1856">1856</a>
+<a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
+<a href="#1868" id="1868">1868</a>
+<a href="#1869" id="1869">1869</a>
+<a href="#1870" id="1870">1870</a>
+<a href="#1871" id="1871">1871</a>
+<a href="#1872" id="1872">1872</a>
+<a href="#1873" id="1873">1873</a>
+<a href="#1874" id="1874">1874</a>
+<a href="#1875" id="1875">1875</a>
+<a href="#1876" id="1876">1876</a>
+<a href="#1877" id="1877">1877</a>
+<a href="#1878" id="1878">1878</a>
+<a href="#1879" id="1879">1879</a>
+<a href="#1880" id="1880">1880</a>
+<a href="#1881" id="1881">1881</a>
+<a href="#1882" id="1882">1882</a>
+<a href="#1883" id="1883">1883</a>
+<a href="#1884" id="1884">1884</a>
+<a href="#1885" id="1885">1885</a>
+<a href="#1886" id="1886">1886</a>
+<a href="#1887" id="1887">1887</a>
+<a href="#1888" id="1888">1888</a>
+<a href="#1889" id="1889">1889</a>
+<a href="#1890" id="1890">1890</a>
+<a href="#1891" id="1891">1891</a>
+<a href="#1892" id="1892">1892</a>
+<a href="#1893" id="1893">1893</a>
+<a href="#1894" id="1894">1894</a>
+<a href="#1895" id="1895">1895</a>
+<a href="#1896" id="1896">1896</a>
+<a href="#1897" id="1897">1897</a>
+<a href="#1898" id="1898">1898</a>
+<a href="#1899" id="1899">1899</a>
+<a href="#1900" id="1900">1900</a>
+<a href="#1901" id="1901">1901</a>
+<a href="#1902" id="1902">1902</a>
+<a href="#1903" id="1903">1903</a>
+<a href="#1904" id="1904">1904</a>
+<a href="#1905" id="1905">1905</a>
+<a href="#1906" id="1906">1906</a>
+<a href="#1907" id="1907">1907</a>
+<a href="#1908" id="1908">1908</a>
+<a href="#1909" id="1909">1909</a>
+<a href="#1910" id="1910">1910</a>
+<a href="#1911" id="1911">1911</a>
+<a href="#1912" id="1912">1912</a>
+<a href="#1913" id="1913">1913</a>
+<a href="#1914" id="1914">1914</a>
+<a href="#1915" id="1915">1915</a>
+<a href="#1916" id="1916">1916</a>
+<a href="#1917" id="1917">1917</a>
+<a href="#1918" id="1918">1918</a>
+<a href="#1919" id="1919">1919</a>
+<a href="#1920" id="1920">1920</a>
+<a href="#1921" id="1921">1921</a>
+<a href="#1922" id="1922">1922</a>
+<a href="#1923" id="1923">1923</a>
+<a href="#1924" id="1924">1924</a>
+<a href="#1925" id="1925">1925</a>
+<a href="#1926" id="1926">1926</a>
+<a href="#1927" id="1927">1927</a>
+<a href="#1928" id="1928">1928</a>
+<a href="#1929" id="1929">1929</a>
+<a href="#1930" id="1930">1930</a>
+<a href="#1931" id="1931">1931</a>
+<a href="#1932" id="1932">1932</a>
+<a href="#1933" id="1933">1933</a>
+<a href="#1934" id="1934">1934</a>
+<a href="#1935" id="1935">1935</a>
+<a href="#1936" id="1936">1936</a>
+<a href="#1937" id="1937">1937</a>
+<a href="#1938" id="1938">1938</a>
+<a href="#1939" id="1939">1939</a>
+<a href="#1940" id="1940">1940</a>
+<a href="#1941" id="1941">1941</a>
+<a href="#1942" id="1942">1942</a>
+<a href="#1943" id="1943">1943</a>
+<a href="#1944" id="1944">1944</a>
+<a href="#1945" id="1945">1945</a>
+<a href="#1946" id="1946">1946</a>
+<a href="#1947" id="1947">1947</a>
+<a href="#1948" id="1948">1948</a>
+<a href="#1949" id="1949">1949</a>
+<a href="#1950" id="1950">1950</a>
+<a href="#1951" id="1951">1951</a>
+<a href="#1952" id="1952">1952</a>
+<a href="#1953" id="1953">1953</a>
+<a href="#1954" id="1954">1954</a>
+<a href="#1955" id="1955">1955</a>
+<a href="#1956" id="1956">1956</a>
+<a href="#1957" id="1957">1957</a>
+<a href="#1958" id="1958">1958</a>
+<a href="#1959" id="1959">1959</a>
+<a href="#1960" id="1960">1960</a>
+<a href="#1961" id="1961">1961</a>
+<a href="#1962" id="1962">1962</a>
+<a href="#1963" id="1963">1963</a>
+<a href="#1964" id="1964">1964</a>
+<a href="#1965" id="1965">1965</a>
+<a href="#1966" id="1966">1966</a>
+<a href="#1967" id="1967">1967</a>
+<a href="#1968" id="1968">1968</a>
+<a href="#1969" id="1969">1969</a>
+<a href="#1970" id="1970">1970</a>
+<a href="#1971" id="1971">1971</a>
+<a href="#1972" id="1972">1972</a>
+<a href="#1973" id="1973">1973</a>
+<a href="#1974" id="1974">1974</a>
+<a href="#1975" id="1975">1975</a>
+<a href="#1976" id="1976">1976</a>
+<a href="#1977" id="1977">1977</a>
+<a href="#1978" id="1978">1978</a>
+<a href="#1979" id="1979">1979</a>
+<a href="#1980" id="1980">1980</a>
+<a href="#1981" id="1981">1981</a>
+<a href="#1982" id="1982">1982</a>
+<a href="#1983" id="1983">1983</a>
+<a href="#1984" id="1984">1984</a>
+<a href="#1985" id="1985">1985</a>
+<a href="#1986" id="1986">1986</a>
+<a href="#1987" id="1987">1987</a>
+<a href="#1988" id="1988">1988</a>
+<a href="#1989" id="1989">1989</a>
+<a href="#1990" id="1990">1990</a>
+<a href="#1991" id="1991">1991</a>
+<a href="#1992" id="1992">1992</a>
+<a href="#1993" id="1993">1993</a>
+<a href="#1994" id="1994">1994</a>
+<a href="#1995" id="1995">1995</a>
+<a href="#1996" id="1996">1996</a>
+<a href="#1997" id="1997">1997</a>
+<a href="#1998" id="1998">1998</a>
+<a href="#1999" id="1999">1999</a>
+<a href="#2000" id="2000">2000</a>
+<a href="#2001" id="2001">2001</a>
+<a href="#2002" id="2002">2002</a>
+<a href="#2003" id="2003">2003</a>
+<a href="#2004" id="2004">2004</a>
+<a href="#2005" id="2005">2005</a>
+<a href="#2006" id="2006">2006</a>
+<a href="#2007" id="2007">2007</a>
+<a href="#2008" id="2008">2008</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -1723,42 +2229,47 @@
 
     <span class="doccomment">/// Push a "line to" element onto the path.
     ///
-    /// Will panic with a debug assert when the current subpath does not
-    /// start with `move_to`.
+    /// Will panic with a debug assert when the path is empty and there is no
+    /// "move to" element on the path.
+    ///
+    /// If `line_to` is called immediately after `close_path` then the current
+    /// subpath starts at the initial point of the previous subpath.
     </span><span class="kw">pub fn </span>line_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p: P) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
+        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.<span class="number">0</span>.is_empty(), <span class="string">"uninitialized subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::LineTo(p.into()));
     }
 
     <span class="doccomment">/// Push a "quad to" element onto the path.
     ///
-    /// Will panic with a debug assert when the current subpath does not
-    /// start with `move_to`.
+    /// Will panic with a debug assert when the path is empty and there is no
+    /// "move to" element on the path.
+    ///
+    /// If `quad_to` is called immediately after `close_path` then the current
+    /// subpath starts at the initial point of the previous subpath.
     </span><span class="kw">pub fn </span>quad_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p1: P, p2: P) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
+        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.<span class="number">0</span>.is_empty(), <span class="string">"uninitialized subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::QuadTo(p1.into(), p2.into()));
     }
 
     <span class="doccomment">/// Push a "curve to" element onto the path.
     ///
-    /// Will panic with a debug assert when the current subpath does not
-    /// start with `move_to`.
+    /// Will panic with a debug assert when the path is empty and there is no
+    /// "move to" element on the path.
+    ///
+    /// If `curve_to` is called immediately after `close_path` then the current
+    /// subpath starts at the initial point of the previous subpath.
     </span><span class="kw">pub fn </span>curve_to&lt;P: Into&lt;Point&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, p1: P, p2: P, p3: P) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
+        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.<span class="number">0</span>.is_empty(), <span class="string">"uninitialized subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::CurveTo(p1.into(), p2.into(), p3.into()));
     }
 
     <span class="doccomment">/// Push a "close path" element onto the path.
     ///
-    /// Will panic with a debug assert when the current subpath does not
-    /// start with `move_to`.
+    /// Will panic with a debug assert when the path is empty and there is no
+    /// "move to" element on the path.
     </span><span class="kw">pub fn </span>close_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="macro">debug_assert!</span>(<span class="self">self</span>.is_open_subpath(), <span class="string">"no open subpath (missing MoveTo)"</span>);
+        <span class="macro">debug_assert!</span>(!<span class="self">self</span>.<span class="number">0</span>.is_empty(), <span class="string">"uninitialized subpath (missing MoveTo)"</span>);
         <span class="self">self</span>.push(PathEl::ClosePath);
-    }
-
-    <span class="kw">fn </span>is_open_subpath(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        !<span class="self">self</span>.<span class="number">0</span>.is_empty() &amp;&amp; <span class="self">self</span>.<span class="number">0</span>.last() != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PathEl::ClosePath)
     }
 
     <span class="doccomment">/// Get the path elements.
@@ -1917,6 +2428,95 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.iter().any(|v| v.is_nan())
+    }
+
+    <span class="doccomment">/// Returns a rectangle that conservatively encloses the path.
+    ///
+    /// Unlike the `bounding_box` method, this uses control points directly
+    /// rather than computing tight bounds for curve elements.
+    </span><span class="kw">pub fn </span>control_box(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rect {
+        <span class="kw">let </span><span class="kw-2">mut </span>cbox: <span class="prelude-ty">Option</span>&lt;Rect&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>add_pts = |pts: <span class="kw-2">&amp;</span>[Point]| {
+            <span class="kw">for </span>pt <span class="kw">in </span>pts {
+                cbox = <span class="kw">match </span>cbox {
+                    <span class="prelude-val">Some</span>(cbox) =&gt; <span class="prelude-val">Some</span>(cbox.union_pt(<span class="kw-2">*</span>pt)),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">Some</span>(Rect::from_points(<span class="kw-2">*</span>pt, <span class="kw-2">*</span>pt)),
+                };
+            }
+        };
+        <span class="kw">for </span><span class="kw-2">&amp;</span>el <span class="kw">in </span><span class="self">self</span>.elements() {
+            <span class="kw">match </span>el {
+                PathEl::MoveTo(p0) | PathEl::LineTo(p0) =&gt; add_pts(<span class="kw-2">&amp;</span>[p0]),
+                PathEl::QuadTo(p0, p1) =&gt; add_pts(<span class="kw-2">&amp;</span>[p0, p1]),
+                PathEl::CurveTo(p0, p1, p2) =&gt; add_pts(<span class="kw-2">&amp;</span>[p0, p1, p2]),
+                PathEl::ClosePath =&gt; {}
+            }
+        }
+        cbox.unwrap_or_default()
+    }
+
+    <span class="doccomment">/// Returns a new path with the winding direction of all subpaths reversed.
+    </span><span class="kw">pub fn </span>reverse_subpaths(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BezPath {
+        <span class="kw">let </span>elements = <span class="self">self</span>.elements();
+        <span class="kw">let </span><span class="kw-2">mut </span>start_ix = <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>start_pt = Point::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>reversed = BezPath(Vec::with_capacity(elements.len()));
+        <span class="comment">// Pending move is used to capture degenerate subpaths that should
+        // remain in the reversed output.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>pending_move = <span class="bool-val">false</span>;
+        <span class="kw">for </span>(ix, el) <span class="kw">in </span>elements.iter().enumerate() {
+            <span class="kw">match </span>el {
+                PathEl::MoveTo(pt) =&gt; {
+                    <span class="kw">if </span>pending_move {
+                        reversed.push(PathEl::MoveTo(start_pt));
+                    }
+                    <span class="kw">if </span>start_ix &lt; ix {
+                        reverse_subpath(start_pt, <span class="kw-2">&amp;</span>elements[start_ix..ix], <span class="kw-2">&amp;mut </span>reversed);
+                    }
+                    pending_move = <span class="bool-val">true</span>;
+                    start_pt = <span class="kw-2">*</span>pt;
+                    start_ix = ix + <span class="number">1</span>;
+                }
+                PathEl::ClosePath =&gt; {
+                    <span class="kw">if </span>start_ix &lt;= ix {
+                        reverse_subpath(start_pt, <span class="kw-2">&amp;</span>elements[start_ix..ix], <span class="kw-2">&amp;mut </span>reversed);
+                    }
+                    reversed.push(PathEl::ClosePath);
+                    start_ix = ix + <span class="number">1</span>;
+                    pending_move = <span class="bool-val">false</span>;
+                }
+                <span class="kw">_ </span>=&gt; {
+                    pending_move = <span class="bool-val">false</span>;
+                }
+            }
+        }
+        <span class="kw">if </span>start_ix &lt; elements.len() {
+            reverse_subpath(start_pt, <span class="kw-2">&amp;</span>elements[start_ix..], <span class="kw-2">&amp;mut </span>reversed);
+        } <span class="kw">else if </span>pending_move {
+            reversed.push(PathEl::MoveTo(start_pt));
+        }
+        reversed
+    }
+}
+
+<span class="doccomment">/// Helper for reversing a subpath.
+///
+/// The `els` parameter must not contain any `MoveTo` or `ClosePath` elements.
+</span><span class="kw">fn </span>reverse_subpath(start_pt: Point, els: <span class="kw-2">&amp;</span>[PathEl], reversed: <span class="kw-2">&amp;mut </span>BezPath) {
+    <span class="kw">let </span>end_pt = els.last().and_then(|el| el.end_point()).unwrap_or(start_pt);
+    reversed.push(PathEl::MoveTo(end_pt));
+    <span class="kw">for </span>(ix, el) <span class="kw">in </span>els.iter().enumerate().rev() {
+        <span class="kw">let </span>end_pt = <span class="kw">if </span>ix &gt; <span class="number">0 </span>{
+            els[ix - <span class="number">1</span>].end_point().unwrap()
+        } <span class="kw">else </span>{
+            start_pt
+        };
+        <span class="kw">match </span>el {
+            PathEl::LineTo(<span class="kw">_</span>) =&gt; reversed.push(PathEl::LineTo(end_pt)),
+            PathEl::QuadTo(c0, <span class="kw">_</span>) =&gt; reversed.push(PathEl::QuadTo(<span class="kw-2">*</span>c0, end_pt)),
+            PathEl::CurveTo(c0, c1, <span class="kw">_</span>) =&gt; reversed.push(PathEl::CurveTo(<span class="kw-2">*</span>c1, <span class="kw-2">*</span>c0, end_pt)),
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">"reverse_subpath expects MoveTo and ClosePath to be removed"</span>),
+        }
     }
 }
 
@@ -2571,11 +3171,11 @@
         a
     }
 
-    <span class="doccomment">/// Minimum distance between two PathSegs
+    <span class="doccomment">/// Minimum distance between two [`PathSeg`]s.
     ///
     /// Returns a tuple of the distance, the path time `t1` of the closest point
-    /// on the first PathSeg, and the path time `t2` of the closest point on the
-    /// second PathSeg.
+    /// on the first `PathSeg`, and the path time `t2` of the closest point on the
+    /// second `PathSeg`.
     </span><span class="kw">pub fn </span>min_dist(<span class="kw-2">&amp;</span><span class="self">self</span>, other: PathSeg, accuracy: f64) -&gt; MinDistance {
         <span class="kw">let </span>(distance, t1, t2) = <span class="kw">crate</span>::mindist::min_dist_param(
             <span class="kw-2">&amp;</span><span class="self">self</span>.as_vec2_vec(),
@@ -2753,6 +3353,17 @@
             PathEl::ClosePath =&gt; <span class="bool-val">false</span>,
         }
     }
+
+    <span class="doccomment">/// Get the end point of the path element, if it exists.
+    </span><span class="kw">pub fn </span>end_point(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Point&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            PathEl::MoveTo(p) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>p),
+            PathEl::LineTo(p1) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>p1),
+            PathEl::QuadTo(<span class="kw">_</span>, p2) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>p2),
+            PathEl::CurveTo(<span class="kw">_</span>, <span class="kw">_</span>, p3) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">*</span>p3),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
 }
 
 <span class="doccomment">/// Implements [`Shape`] for a slice of [`PathEl`], provided that the first element of the slice is
@@ -2853,7 +3464,7 @@
 
     <span class="doccomment">/// The area under the curve.
     ///
-    /// We could just return 0, but this seems more useful.
+    /// We could just return `0`, but this seems more useful.
     </span><span class="kw">fn </span>area(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
         <span class="self">self</span>.signed_area()
     }
@@ -2910,7 +3521,7 @@
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">"no open subpath"</span>)]
+    #[should_panic(expected = <span class="string">"uninitialized subpath"</span>)]
     </span><span class="kw">fn </span>test_elements_to_segments_starts_on_closepath() {
         <span class="kw">let </span><span class="kw-2">mut </span>path = BezPath::new();
         path.close_path();
@@ -2932,7 +3543,7 @@
     }
 
     <span class="attr">#[test]
-    #[should_panic(expected = <span class="string">"no open subpath"</span>)]
+    #[should_panic(expected = <span class="string">"uninitialized subpath"</span>)]
     </span><span class="kw">fn </span>test_must_not_start_on_quad() {
         <span class="kw">let </span><span class="kw-2">mut </span>path = BezPath::new();
         path.quad_to((<span class="number">5.0</span>, <span class="number">5.0</span>), (<span class="number">10.0</span>, <span class="number">10.0</span>));
@@ -3001,6 +3612,407 @@
             .map_while(|i| circle.get_seg(i))
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="macro">assert_eq!</span>(segments, get_segs);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_control_box() {
+        <span class="comment">// a sort of map ping looking thing drawn with a single cubic
+        // cbox is wildly different than tight box
+        </span><span class="kw">let </span>path = BezPath::from_svg(<span class="string">"M200,300 C50,50 350,50 200,300"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(Rect::new(<span class="number">50.0</span>, <span class="number">50.0</span>, <span class="number">350.0</span>, <span class="number">300.0</span>), path.control_box());
+        <span class="macro">assert!</span>(path.control_box().area() &gt; path.bounding_box().area());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_unclosed() {
+        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"M10,10 Q40,40 60,10 L100,10 C125,10 150,50 125,60"</span>).unwrap();
+        <span class="kw">let </span>reversed = path.reverse_subpaths();
+        <span class="macro">assert_eq!</span>(
+            <span class="string">"M125,60 C150,50 125,10 100,10 L60,10 Q40,40 10,10"</span>,
+            reversed.to_svg()
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_triangle() {
+        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"M100,100 L150,200 L50,200 Z"</span>).unwrap();
+        <span class="kw">let </span>reversed = path.reverse_subpaths();
+        <span class="macro">assert_eq!</span>(<span class="string">"M50,200 L150,200 L100,100 Z"</span>, reversed.to_svg());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_shape() {
+        <span class="kw">let </span>path = BezPath::from_svg(
+            <span class="string">"M125,100 Q200,150 175,300 C150,150 50,150 25,300 Q0,150 75,100 L100,50 Z"</span>,
+        )
+        .unwrap();
+        <span class="kw">let </span>reversed = path.reverse_subpaths();
+        <span class="macro">assert_eq!</span>(
+            <span class="string">"M100,50 L75,100 Q0,150 25,300 C50,150 150,150 175,300 Q200,150 125,100 Z"</span>,
+            reversed.to_svg()
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_multiple_subpaths() {
+        <span class="kw">let </span>svg = <span class="string">"M10,10 Q40,40 60,10 L100,10 C125,10 150,50 125,60 M100,100 L150,200 L50,200 Z M125,100 Q200,150 175,300 C150,150 50,150 25,300 Q0,150 75,100 L100,50 Z"</span>;
+        <span class="kw">let </span>expected_svg = <span class="string">"M125,60 C150,50 125,10 100,10 L60,10 Q40,40 10,10 M50,200 L150,200 L100,100 Z M100,50 L75,100 Q0,150 25,300 C50,150 150,150 175,300 Q200,150 125,100 Z"</span>;
+        <span class="kw">let </span>path = BezPath::from_svg(svg).unwrap();
+        <span class="kw">let </span>reversed = path.reverse_subpaths();
+        <span class="macro">assert_eq!</span>(expected_svg, reversed.to_svg());
+    }
+
+    <span class="comment">// https://github.com/fonttools/fonttools/blob/bf265ce49e0cae6f032420a4c80c31d8e16285b8/Tests/pens/reverseContourPen_test.py#L7
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_lines() {
+        <span class="kw">let </span><span class="kw-2">mut </span>path = BezPath::new();
+        path.move_to((<span class="number">0.0</span>, <span class="number">0.0</span>));
+        path.line_to((<span class="number">1.0</span>, <span class="number">1.0</span>));
+        path.line_to((<span class="number">2.0</span>, <span class="number">2.0</span>));
+        path.line_to((<span class="number">3.0</span>, <span class="number">3.0</span>));
+        path.close_path();
+        <span class="kw">let </span>rev = path.reverse_subpaths();
+        <span class="macro">assert_eq!</span>(<span class="string">"M3,3 L2,2 L1,1 L0,0 Z"</span>, rev.to_svg());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_multiple_moves() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::MoveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::ClosePath,
+                PathEl::MoveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::MoveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::ClosePath,
+                PathEl::MoveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+            ],
+        )
+    }
+
+    <span class="comment">// The following are direct port of fonttools'
+    // reverseContourPen_test.py::test_reverse_pen, adapted to rust, excluding
+    // test cases that don't apply because we don't implement
+    // outputImpliedClosingLine=False.
+    // https://github.com/fonttools/fonttools/blob/85c80be/Tests/pens/reverseContourPen_test.py#L6-L467
+
+    </span><span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_last_line_not_on_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::LineTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::LineTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// closing line NOT implied
+                </span>PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_last_line_overlaps_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// closing line NOT implied
+                </span>PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_duplicate_line_following_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// duplicate line retained
+                </span>PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_two_lines() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// closing line NOT implied
+                </span>PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_last_curve_overlaps_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::CurveTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::CurveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into(), (<span class="number">5.0</span>, <span class="number">5.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// no extra lineTo added here
+                </span>PathEl::CurveTo((<span class="number">5.0</span>, <span class="number">5.0</span>).into(), (<span class="number">4.0</span>, <span class="number">4.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::CurveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_last_curve_not_on_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::CurveTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::CurveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into(), (<span class="number">5.0</span>, <span class="number">5.0</span>).into(), (<span class="number">6.0</span>, <span class="number">6.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">6.0</span>, <span class="number">6.0</span>).into()), <span class="comment">// the previously implied line
+                </span>PathEl::CurveTo((<span class="number">5.0</span>, <span class="number">5.0</span>).into(), (<span class="number">4.0</span>, <span class="number">4.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::CurveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_line_curve_line() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()), <span class="comment">// this line...
+                </span>PathEl::CurveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+                PathEl::CurveTo((<span class="number">5.0</span>, <span class="number">5.0</span>).into(), (<span class="number">6.0</span>, <span class="number">6.0</span>).into(), (<span class="number">7.0</span>, <span class="number">7.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">7.0</span>, <span class="number">7.0</span>).into()),
+                PathEl::CurveTo((<span class="number">6.0</span>, <span class="number">6.0</span>).into(), (<span class="number">5.0</span>, <span class="number">5.0</span>).into(), (<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+                PathEl::CurveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// ... does NOT become implied
+                </span>PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_last_quad_overlaps_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::QuadTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::QuadTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// no extra lineTo added here
+                </span>PathEl::QuadTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::QuadTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_last_quad_not_on_move() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::QuadTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::QuadTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into()), <span class="comment">// the previously implied line
+                </span>PathEl::QuadTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into()),
+                PathEl::QuadTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_closed_line_quad_line() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()), <span class="comment">// this line...
+                </span>PathEl::QuadTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::QuadTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), <span class="comment">// ... does NOT become implied
+                </span>PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_empty() {
+        reverse_test_helper(<span class="macro">vec!</span>[], <span class="macro">vec!</span>[])
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_single_point() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into())],
+            <span class="macro">vec!</span>[PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into())],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_single_point_closed() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), PathEl::ClosePath],
+            <span class="macro">vec!</span>[PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()), PathEl::ClosePath],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_single_line_open() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_single_curve_open() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::CurveTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::CurveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_curve_line_open() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::CurveTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::LineTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+                PathEl::LineTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into()),
+                PathEl::CurveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into(), (<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_line_curve_open() {
+        reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+                PathEl::LineTo((<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::CurveTo((<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">4.0</span>, <span class="number">4.0</span>).into()),
+                PathEl::CurveTo((<span class="number">3.0</span>, <span class="number">3.0</span>).into(), (<span class="number">2.0</span>, <span class="number">2.0</span>).into(), (<span class="number">1.0</span>, <span class="number">1.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">0.0</span>).into()),
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_duplicate_point_after_move() {
+        <span class="comment">// Test case from: https://github.com/googlei18n/cu2qu/issues/51#issue-179370514
+        // Simplified to only use atomic PathEl::QuadTo (no QuadSplines).
+        </span>reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">848.0</span>, <span class="number">348.0</span>).into()),
+                PathEl::LineTo((<span class="number">848.0</span>, <span class="number">348.0</span>).into()),
+                PathEl::QuadTo((<span class="number">848.0</span>, <span class="number">526.0</span>).into(), (<span class="number">449.0</span>, <span class="number">704.0</span>).into()),
+                PathEl::QuadTo((<span class="number">848.0</span>, <span class="number">171.0</span>).into(), (<span class="number">848.0</span>, <span class="number">348.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">848.0</span>, <span class="number">348.0</span>).into()),
+                PathEl::QuadTo((<span class="number">848.0</span>, <span class="number">171.0</span>).into(), (<span class="number">449.0</span>, <span class="number">704.0</span>).into()),
+                PathEl::QuadTo((<span class="number">848.0</span>, <span class="number">526.0</span>).into(), (<span class="number">848.0</span>, <span class="number">348.0</span>).into()),
+                PathEl::LineTo((<span class="number">848.0</span>, <span class="number">348.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_reverse_duplicate_point_at_end() {
+        <span class="comment">// Test case from: https://github.com/googlefonts/fontmake/issues/572
+        </span>reverse_test_helper(
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">651.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">101.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">101.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">651.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">651.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+            <span class="macro">vec!</span>[
+                PathEl::MoveTo((<span class="number">0.0</span>, <span class="number">651.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">651.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">101.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">101.0</span>).into()),
+                PathEl::LineTo((<span class="number">0.0</span>, <span class="number">651.0</span>).into()),
+                PathEl::ClosePath,
+            ],
+        )
+    }
+
+    <span class="kw">fn </span>reverse_test_helper(contour: Vec&lt;PathEl&gt;, expected: Vec&lt;PathEl&gt;) {
+        <span class="macro">assert_eq!</span>(BezPath(contour).reverse_subpaths().<span class="number">0</span>, expected);
     }
 }
 </code></pre></div></section></main></body></html>

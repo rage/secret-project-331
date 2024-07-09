@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.12.0/src/encoder.rs`."><title>encoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gif-0.13.1/src/encoder.rs`."><title>encoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="gif" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -433,6 +433,76 @@
 <a href="#432" id="432">432</a>
 <a href="#433" id="433">433</a>
 <a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Minimal gif encoder
 </span><span class="kw">use </span>std::io;
 <span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
@@ -442,36 +512,30 @@
 
 <span class="kw">use </span>weezl::{BitOrder, encode::Encoder <span class="kw">as </span>LzwEncoder};
 
-<span class="kw">use </span><span class="kw">crate</span>::traits::{WriteBytesExt};
+<span class="kw">use </span><span class="kw">crate</span>::traits::WriteBytesExt;
 <span class="kw">use </span><span class="kw">crate</span>::common::{AnyExtension, Block, DisposalMethod, Extension, Frame};
 
-<span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>FormatErrorKind {
+<span class="doccomment">/// The image has incorrect properties, making it impossible to encode as a gif.
+</span><span class="attr">#[derive(Debug)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>EncodingFormatError {
     <span class="doccomment">/// The image has too many colors.
     </span>TooManyColors,
     <span class="doccomment">/// The image has no color palette which is required.
     </span>MissingColorPalette,
-}
-
-<span class="doccomment">/// The image has incorrect properties, making it impossible to encode as a gif.
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>EncodingFormatError {
-    kind: FormatErrorKind
+    <span class="doccomment">/// LZW data is not valid for GIF. This may happen when wrong buffer is given to `write_lzw_pre_encoded_frame`
+    </span>InvalidMinCodeSize,
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>EncodingFormatError {}
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>EncodingFormatError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        <span class="kw">match </span><span class="self">self</span>.kind {
-            FormatErrorKind::TooManyColors =&gt; <span class="macro">write!</span>(fmt, <span class="string">"the image has too many colors"</span>),
-            FormatErrorKind::MissingColorPalette =&gt; <span class="macro">write!</span>(fmt, <span class="string">"the GIF format requires a color palette but none was given"</span>)
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="self">Self</span>::TooManyColors =&gt; <span class="macro">write!</span>(fmt, <span class="string">"the image has too many colors"</span>),
+            <span class="self">Self</span>::MissingColorPalette =&gt; <span class="macro">write!</span>(fmt, <span class="string">"the GIF format requires a color palette but none was given"</span>),
+            <span class="self">Self</span>::InvalidMinCodeSize =&gt; <span class="macro">write!</span>(fmt, <span class="string">"LZW data is invalid"</span>),
         }
-    }
-}
-
-<span class="kw">impl </span>From&lt;FormatErrorKind&gt; <span class="kw">for </span>EncodingFormatError {
-    <span class="kw">fn </span>from(kind: FormatErrorKind) -&gt; <span class="self">Self </span>{
-        EncodingFormatError { kind }
     }
 }
 
@@ -485,7 +549,8 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>EncodingError {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, fmt: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             EncodingError::Io(err) =&gt; err.fmt(fmt),
             EncodingError::Format(err) =&gt; err.fmt(fmt),
@@ -494,7 +559,8 @@
 }
 
 <span class="kw">impl </span>error::Error <span class="kw">for </span>EncodingError {
-    <span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw">dyn </span>error::Error + <span class="lifetime">'static</span>)&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             EncodingError::Io(err) =&gt; <span class="prelude-val">Some</span>(err),
             EncodingError::Format(err) =&gt; <span class="prelude-val">Some</span>(err),
@@ -503,34 +569,36 @@
 }
 
 <span class="kw">impl </span>From&lt;io::Error&gt; <span class="kw">for </span>EncodingError {
-    <span class="kw">fn </span>from(err: io::Error) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>from(err: io::Error) -&gt; <span class="self">Self </span>{
         EncodingError::Io(err)
     }
 }
 
 <span class="kw">impl </span>From&lt;EncodingFormatError&gt; <span class="kw">for </span>EncodingError {
-    <span class="kw">fn </span>from(err: EncodingFormatError) -&gt; <span class="self">Self </span>{
+    <span class="attr">#[cold]
+    </span><span class="kw">fn </span>from(err: EncodingFormatError) -&gt; <span class="self">Self </span>{
         EncodingError::Format(err)
     }
 }
 
-<span class="kw">impl </span>From&lt;FormatErrorKind&gt; <span class="kw">for </span>EncodingError {
-    <span class="kw">fn </span>from(kind: FormatErrorKind) -&gt; <span class="self">Self </span>{
-        EncodingError::Format(kind.into())
-    }
-}
-
-
 <span class="doccomment">/// Number of repetitions
-</span><span class="attr">#[derive(Copy, Clone, Debug)]
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>Repeat {
     <span class="doccomment">/// Finite number of repetitions
     </span>Finite(u16),
     <span class="doccomment">/// Infinite number of repetitions
-    </span>Infinite
+    </span>Infinite,
+}
+
+<span class="kw">impl </span>Default <span class="kw">for </span>Repeat {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Finite(<span class="number">0</span>)
+    }
 }
 
 <span class="doccomment">/// Extension data.
+</span><span class="attr">#[non_exhaustive]
 </span><span class="kw">pub enum </span>ExtensionData {
     <span class="doccomment">/// Control extension. Use `ExtensionData::new_control_ext` to construct.
     </span>Control {
@@ -539,33 +607,29 @@
         <span class="doccomment">/// Frame delay.
         </span>delay: u16,
         <span class="doccomment">/// Transparent index.
-        </span>trns: u8
+        </span>trns: u8,
     },
     <span class="doccomment">/// Sets the number of repetitions
-    </span>Repetitions(Repeat)
+    </span>Repetitions(Repeat),
 }
 
 <span class="kw">impl </span>ExtensionData {
     <span class="doccomment">/// Constructor for control extension data.
     ///
     /// `delay` is given in units of 10 ms.
-    </span><span class="kw">pub fn </span>new_control_ext(delay: u16, dispose: DisposalMethod,
+    </span><span class="attr">#[must_use] </span><span class="kw">pub fn </span>new_control_ext(delay: u16, dispose: DisposalMethod,
                            needs_user_input: bool, trns: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; ExtensionData {
         <span class="kw">let </span><span class="kw-2">mut </span>flags = <span class="number">0</span>;
         <span class="kw">let </span>trns = <span class="kw">match </span>trns {
             <span class="prelude-val">Some</span>(trns) =&gt; {
                 flags |= <span class="number">1</span>;
-                trns <span class="kw">as </span>u8
+                trns
             },
             <span class="prelude-val">None </span>=&gt; <span class="number">0
         </span>};
-        flags |= (needs_user_input <span class="kw">as </span>u8) &lt;&lt; <span class="number">1</span>;
+        flags |= u8::from(needs_user_input) &lt;&lt; <span class="number">1</span>;
         flags |= (dispose <span class="kw">as </span>u8) &lt;&lt; <span class="number">2</span>;
-        ExtensionData::Control {
-            flags: flags,
-            delay: delay,
-            trns: trns
-        }
+        ExtensionData::Control { flags, delay, trns }
     }
 }
 
@@ -575,13 +639,11 @@
     /// `global_palette` gives the global color palette in the format `[r, g, b, ...]`,
     /// if no global palette shall be used an empty slice may be supplied.
     </span><span class="kw">pub fn </span>new(w: W, width: u16, height: u16, global_palette: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, EncodingError&gt; {
-        <span class="kw">let </span>buffer_size = (width <span class="kw">as </span>usize) * (height <span class="kw">as </span>usize);
         Encoder {
             w: <span class="prelude-val">Some</span>(w),
             global_palette: <span class="bool-val">false</span>,
-            width: width,
-            height: height,
-            buffer: Vec::with_capacity(buffer_size)
+            width, height,
+            buffer: Vec::new(),
         }.write_global_palette(global_palette)
     }
 
@@ -591,77 +653,76 @@
     }
 
     <span class="doccomment">/// Writes the global color palette.
-    </span><span class="kw">pub fn </span>write_global_palette(<span class="kw-2">mut </span><span class="self">self</span>, palette: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, EncodingError&gt; {
-        <span class="self">self</span>.global_palette = <span class="bool-val">true</span>;
+    </span><span class="kw">fn </span>write_global_palette(<span class="kw-2">mut </span><span class="self">self</span>, palette: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, EncodingError&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>flags = <span class="number">0</span>;
         flags |= <span class="number">0b1000_0000</span>;
-        <span class="kw">let </span>num_colors = palette.len() / <span class="number">3</span>;
-        <span class="kw">if </span>num_colors &gt; <span class="number">256 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(EncodingError::from(FormatErrorKind::TooManyColors));
-        }
+        <span class="kw">let </span>(palette, padding, table_size) = <span class="self">Self</span>::check_color_table(palette)<span class="question-mark">?</span>;
+        <span class="self">self</span>.global_palette = !palette.is_empty();
         <span class="comment">// Size of global color table.
-        </span>flags |= flag_size(num_colors);
+        </span>flags |= table_size;
         <span class="comment">// Color resolution .. FIXME. This is mostly ignored (by ImageMagick at least) but hey, we
         // should use some sensible value here or even allow configuring it?
-        </span>flags |= flag_size(num_colors) &lt;&lt; <span class="number">4</span>; <span class="comment">// wtf flag
+        </span>flags |= table_size &lt;&lt; <span class="number">4</span>; <span class="comment">// wtf flag
         </span><span class="self">self</span>.write_screen_desc(flags)<span class="question-mark">?</span>;
-        <span class="self">self</span>.write_color_table(palette)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::write_color_table(<span class="self">self</span>.writer()<span class="question-mark">?</span>, palette, padding)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Writes a frame to the image.
     ///
     /// Note: This function also writes a control extension if necessary.
-    </span><span class="kw">pub fn </span>write_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
+    </span><span class="kw">pub fn </span>write_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
+        <span class="kw">if </span>usize::from(frame.width).checked_mul(usize::from(frame.height)).map_or(<span class="bool-val">true</span>, |size| frame.buffer.len() &lt; size) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::InvalidInput, <span class="string">"frame.buffer is too small for its width/height"</span>).into());
+        }
+        <span class="macro">debug_assert!</span>((frame.width &gt; <span class="number">0 </span>&amp;&amp; frame.height &gt; <span class="number">0</span>) || frame.buffer.is_empty(), <span class="string">"the frame has 0 pixels, but non-empty buffer"</span>);
         <span class="self">self</span>.write_frame_header(frame)<span class="question-mark">?</span>;
         <span class="self">self</span>.write_image_block(<span class="kw-2">&amp;</span>frame.buffer)
     }
 
-    <span class="kw">fn </span>write_frame_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
-        <span class="comment">// TODO commented off to pass test in lib.rs
-        //if frame.delay &gt; 0 || frame.transparent.is_some() {
-            </span><span class="self">self</span>.write_extension(ExtensionData::new_control_ext(
-                frame.delay,
-                frame.dispose,
-                frame.needs_user_input,
-                frame.transparent
-
-            ))<span class="question-mark">?</span>;
-        <span class="comment">//}
-        </span><span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
-        writer.write_le(Block::Image <span class="kw">as </span>u8)<span class="question-mark">?</span>;
-        writer.write_le(frame.left)<span class="question-mark">?</span>;
-        writer.write_le(frame.top)<span class="question-mark">?</span>;
-        writer.write_le(frame.width)<span class="question-mark">?</span>;
-        writer.write_le(frame.height)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>write_frame_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
+        <span class="self">self</span>.write_extension(ExtensionData::new_control_ext(
+            frame.delay,
+            frame.dispose,
+            frame.needs_user_input,
+            frame.transparent,
+        ))<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>flags = <span class="number">0</span>;
         <span class="kw">if </span>frame.interlaced {
             flags |= <span class="number">0b0100_0000</span>;
         }
-        <span class="kw">match </span>frame.palette {
+        <span class="kw">let </span>palette = <span class="kw">match </span>frame.palette {
             <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>palette) =&gt; {
                 flags |= <span class="number">0b1000_0000</span>;
-                <span class="kw">let </span>num_colors = palette.len() / <span class="number">3</span>;
-                <span class="kw">if </span>num_colors &gt; <span class="number">256 </span>{
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(EncodingError::from(FormatErrorKind::TooManyColors));
-                }
-                flags |= flag_size(num_colors);
-                writer.write_le(flags)<span class="question-mark">?</span>;
-                <span class="self">self</span>.write_color_table(palette)
+                <span class="kw">let </span>(palette, padding, table_size) = <span class="self">Self</span>::check_color_table(<span class="kw-2">&amp;</span>palette)<span class="question-mark">?</span>;
+                flags |= table_size;
+                <span class="prelude-val">Some</span>((palette, padding))
             },
-            <span class="prelude-val">None </span>=&gt; <span class="kw">if </span>!<span class="self">self</span>.global_palette {
-                <span class="prelude-val">Err</span>(EncodingError::from(FormatErrorKind::MissingColorPalette))
-            } <span class="kw">else </span>{
-                writer.write_le(flags).map_err(Into::into)
-            }
+            <span class="prelude-val">None </span><span class="kw">if </span><span class="self">self</span>.global_palette =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(EncodingError::from(EncodingFormatError::MissingColorPalette))
+        };
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp = tmp_buf::&lt;<span class="number">10</span>&gt;();
+        tmp.write_le(Block::Image <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+        tmp.write_le(frame.left)<span class="question-mark">?</span>;
+        tmp.write_le(frame.top)<span class="question-mark">?</span>;
+        tmp.write_le(frame.width)<span class="question-mark">?</span>;
+        tmp.write_le(frame.height)<span class="question-mark">?</span>;
+        tmp.write_le(flags)<span class="question-mark">?</span>;
+        <span class="kw">let </span>writer = <span class="self">self</span>.writer()<span class="question-mark">?</span>;
+        tmp.finish(<span class="kw-2">&amp;mut *</span>writer)<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((palette, padding)) = palette {
+            <span class="self">Self</span>::write_color_table(writer, palette, padding)<span class="question-mark">?</span>;
         }
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>write_image_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
         <span class="self">self</span>.buffer.clear();
+        <span class="self">self</span>.buffer.try_reserve(data.len() / <span class="number">4</span>)
+            .map_err(|<span class="kw">_</span>| io::Error::from(io::ErrorKind::OutOfMemory))<span class="question-mark">?</span>;
         lzw_encode(data, <span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer);
 
-        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
+        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().ok_or(io::Error::from(io::ErrorKind::Unsupported))<span class="question-mark">?</span>;
         <span class="self">Self</span>::write_encoded_image_block(writer, <span class="kw-2">&amp;</span><span class="self">self</span>.buffer)
     }
 
@@ -672,7 +733,7 @@
         <span class="comment">// Write blocks. `chunks_exact` seems to be slightly faster
         // than `chunks` according to both Rust docs and benchmark results.
         </span><span class="kw">let </span><span class="kw-2">mut </span>iter = data.chunks_exact(<span class="number">0xFF</span>);
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(full_block) = iter.next() {
+        <span class="kw">for </span>full_block <span class="kw">in </span>iter.by_ref() {
             writer.write_le(<span class="number">0xFFu8</span>)<span class="question-mark">?</span>;
             writer.write_all(full_block)<span class="question-mark">?</span>;
         }
@@ -684,19 +745,24 @@
         writer.write_le(<span class="number">0u8</span>).map_err(Into::into)
     }
 
-    <span class="kw">fn </span>write_color_table(<span class="kw-2">&amp;mut </span><span class="self">self</span>, table: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
-        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
+    <span class="kw">fn </span>write_color_table(writer: <span class="kw-2">&amp;mut </span>W, table: <span class="kw-2">&amp;</span>[u8], padding: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
+        writer.write_all(<span class="kw-2">&amp;</span>table)<span class="question-mark">?</span>;
+        <span class="comment">// Waste some space as of gif spec
+        </span><span class="kw">for _ in </span><span class="number">0</span>..padding {
+            writer.write_all(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>])<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// returns rounded palette size, number of missing colors, and table size flag
+    </span><span class="kw">fn </span>check_color_table(table: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="kw-2">&amp;</span>[u8], usize, u8), EncodingError&gt; {
         <span class="kw">let </span>num_colors = table.len() / <span class="number">3</span>;
         <span class="kw">if </span>num_colors &gt; <span class="number">256 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(EncodingError::from(FormatErrorKind::TooManyColors));
+            <span class="kw">return </span><span class="prelude-val">Err</span>(EncodingError::from(EncodingFormatError::TooManyColors));
         }
-        <span class="kw">let </span>size = flag_size(num_colors);
-        writer.write_all(<span class="kw-2">&amp;</span>table[..num_colors * <span class="number">3</span>])<span class="question-mark">?</span>;
-        <span class="comment">// Waste some space as of gif spec
-        </span><span class="kw">for _ in </span><span class="number">0</span>..((<span class="number">2 </span>&lt;&lt; size) - num_colors) {
-            writer.write_all(<span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>])<span class="question-mark">?
-        </span>}
-        <span class="prelude-val">Ok</span>(())
+        <span class="kw">let </span>table_size = flag_size(num_colors);
+        <span class="kw">let </span>padding = (<span class="number">2 </span>&lt;&lt; table_size) - num_colors;
+        <span class="prelude-val">Ok</span>((<span class="kw-2">&amp;</span>table[..num_colors * <span class="number">3</span>], padding, table_size))
     }
 
     <span class="doccomment">/// Writes an extension to the image.
@@ -707,28 +773,32 @@
         <span class="comment">// 0 finite repetitions can only be achieved
         // if the corresponting extension is not written
         </span><span class="kw">if let </span>Repetitions(Repeat::Finite(<span class="number">0</span>)) = extension {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(())
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
-        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
+        <span class="kw">let </span>writer = <span class="self">self</span>.writer()<span class="question-mark">?</span>;
         writer.write_le(Block::Extension <span class="kw">as </span>u8)<span class="question-mark">?</span>;
         <span class="kw">match </span>extension {
             Control { flags, delay, trns } =&gt; {
-                writer.write_le(Extension::Control <span class="kw">as </span>u8)<span class="question-mark">?</span>;
-                writer.write_le(<span class="number">4u8</span>)<span class="question-mark">?</span>;
-                writer.write_le(flags)<span class="question-mark">?</span>;
-                writer.write_le(delay)<span class="question-mark">?</span>;
-                writer.write_le(trns)<span class="question-mark">?</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>tmp = tmp_buf::&lt;<span class="number">6</span>&gt;();
+                tmp.write_le(Extension::Control <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+                tmp.write_le(<span class="number">4u8</span>)<span class="question-mark">?</span>;
+                tmp.write_le(flags)<span class="question-mark">?</span>;
+                tmp.write_le(delay)<span class="question-mark">?</span>;
+                tmp.write_le(trns)<span class="question-mark">?</span>;
+                tmp.finish(<span class="kw-2">&amp;mut *</span>writer)<span class="question-mark">?</span>;
             }
             Repetitions(repeat) =&gt; {
-                writer.write_le(Extension::Application <span class="kw">as </span>u8)<span class="question-mark">?</span>;
-                writer.write_le(<span class="number">11u8</span>)<span class="question-mark">?</span>;
-                writer.write_all(<span class="string">b"NETSCAPE2.0"</span>)<span class="question-mark">?</span>;
-                writer.write_le(<span class="number">3u8</span>)<span class="question-mark">?</span>;
-                writer.write_le(<span class="number">1u8</span>)<span class="question-mark">?</span>;
-                <span class="kw">match </span>repeat {
-                    Repeat::Finite(no) =&gt; writer.write_le(no)<span class="question-mark">?</span>,
-                    Repeat::Infinite =&gt; writer.write_le(<span class="number">0u16</span>)<span class="question-mark">?</span>,
-                }
+                <span class="kw">let </span><span class="kw-2">mut </span>tmp = tmp_buf::&lt;<span class="number">17</span>&gt;();
+                tmp.write_le(Extension::Application <span class="kw">as </span>u8)<span class="question-mark">?</span>;
+                tmp.write_le(<span class="number">11u8</span>)<span class="question-mark">?</span>;
+                tmp.write_all(<span class="string">b"NETSCAPE2.0"</span>)<span class="question-mark">?</span>;
+                tmp.write_le(<span class="number">3u8</span>)<span class="question-mark">?</span>;
+                tmp.write_le(<span class="number">1u8</span>)<span class="question-mark">?</span>;
+                tmp.write_le(<span class="kw">match </span>repeat {
+                    Repeat::Finite(no) =&gt; no,
+                    Repeat::Infinite =&gt; <span class="number">0u16</span>,
+                })<span class="question-mark">?</span>;
+                tmp.finish(<span class="kw-2">&amp;mut *</span>writer)<span class="question-mark">?</span>;
             }
         }
         writer.write_le(<span class="number">0u8</span>).map_err(Into::into)
@@ -740,7 +810,7 @@
     /// identifier (e.g. `Extension::Application as u8`). `data` are the extension payload blocks. If any
     /// contained slice has a lenght &gt; 255 it is automatically divided into sub-blocks.
     </span><span class="kw">pub fn </span>write_raw_extension(<span class="kw-2">&amp;mut </span><span class="self">self</span>, func: AnyExtension, data: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8]]) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
+        <span class="kw">let </span>writer = <span class="self">self</span>.writer()<span class="question-mark">?</span>;
         writer.write_le(Block::Extension <span class="kw">as </span>u8)<span class="question-mark">?</span>;
         writer.write_le(func.<span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>block <span class="kw">in </span>data {
@@ -756,22 +826,30 @@
     /// from [`Frame::make_lzw_pre_encoded`].
     ///
     /// Note: This function also writes a control extension if necessary.
-    </span><span class="kw">pub fn </span>write_lzw_pre_encoded_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
+    </span><span class="kw">pub fn </span>write_lzw_pre_encoded_frame(<span class="kw-2">&amp;mut </span><span class="self">self</span>, frame: <span class="kw-2">&amp;</span>Frame&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), EncodingError&gt; {
+        <span class="comment">// empty data is allowed
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>min_code_size) = frame.buffer.get(<span class="number">0</span>) {
+            <span class="kw">if </span>min_code_size &gt; <span class="number">11 </span>|| min_code_size &lt; <span class="number">2 </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(EncodingError::Format(EncodingFormatError::InvalidMinCodeSize));
+            }
+        }
+
         <span class="self">self</span>.write_frame_header(frame)<span class="question-mark">?</span>;
-        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
+        <span class="kw">let </span>writer = <span class="self">self</span>.writer()<span class="question-mark">?</span>;
         <span class="self">Self</span>::write_encoded_image_block(writer, <span class="kw-2">&amp;</span>frame.buffer)
     }
 
     <span class="doccomment">/// Writes the logical screen desriptor
     </span><span class="kw">fn </span>write_screen_desc(<span class="kw-2">&amp;mut </span><span class="self">self</span>, flags: u8) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>writer = <span class="self">self</span>.w.as_mut().unwrap();
-        writer.write_all(<span class="string">b"GIF89a"</span>)<span class="question-mark">?</span>;
-        writer.write_le(<span class="self">self</span>.width)<span class="question-mark">?</span>;
-        writer.write_le(<span class="self">self</span>.height)<span class="question-mark">?</span>;
-        writer.write_le(flags)<span class="question-mark">?</span>; <span class="comment">// packed field
-        </span>writer.write_le(<span class="number">0u8</span>)<span class="question-mark">?</span>; <span class="comment">// bg index
-        </span>writer.write_le(<span class="number">0u8</span>) <span class="comment">// aspect ratio
-    </span>}
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp = tmp_buf::&lt;<span class="number">13</span>&gt;();
+        tmp.write_all(<span class="string">b"GIF89a"</span>)<span class="question-mark">?</span>;
+        tmp.write_le(<span class="self">self</span>.width)<span class="question-mark">?</span>;
+        tmp.write_le(<span class="self">self</span>.height)<span class="question-mark">?</span>;
+        tmp.write_le(flags)<span class="question-mark">?</span>; <span class="comment">// packed field
+        </span>tmp.write_le(<span class="number">0u8</span>)<span class="question-mark">?</span>; <span class="comment">// bg index
+        </span>tmp.write_le(<span class="number">0u8</span>)<span class="question-mark">?</span>; <span class="comment">// aspect ratio
+        </span>tmp.finish(<span class="self">self</span>.writer()<span class="question-mark">?</span>)
+    }
 
     <span class="doccomment">/// Gets a reference to the writer instance used by this encoder.
     </span><span class="kw">pub fn </span>get_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>W {
@@ -785,15 +863,20 @@
         <span class="self">self</span>.w.as_mut().unwrap()
     }
 
-    <span class="doccomment">/// Returns writer instance used by this encoder
+    <span class="doccomment">/// Finishes writing, and returns the `io::Write` instance used by this encoder
     </span><span class="kw">pub fn </span>into_inner(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; io::Result&lt;W&gt; {
         <span class="self">self</span>.write_trailer()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.w.take().unwrap())
+        <span class="self">self</span>.w.take().ok_or(io::Error::from(io::ErrorKind::Unsupported))
     }
 
     <span class="doccomment">/// Write the final tailer.
     </span><span class="kw">fn </span>write_trailer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-        <span class="self">self</span>.w.as_mut().unwrap().write_le(Block::Trailer <span class="kw">as </span>u8)
+        <span class="self">self</span>.writer()<span class="question-mark">?</span>.write_le(Block::Trailer <span class="kw">as </span>u8)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;<span class="kw-2">&amp;mut </span>W&gt; {
+        <span class="self">self</span>.w.as_mut().ok_or(io::Error::from(io::ErrorKind::Unsupported))
     }
 }
 
@@ -801,10 +884,19 @@
 ///
 /// The first byte is the minimum code size, followed by LZW data.
 </span><span class="kw">fn </span>lzw_encode(data: <span class="kw-2">&amp;</span>[u8], buffer: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
-    <span class="kw">let </span>min_code_size = <span class="kw">match </span>flag_size(<span class="number">1 </span>+ data.iter().copied().max().unwrap_or(<span class="number">0</span>) <span class="kw">as </span>usize) + <span class="number">1 </span>{
-        <span class="number">1 </span>=&gt; <span class="number">2</span>, <span class="comment">// As per gif spec: The minimal code size has to be &gt;= 2
-        </span>n =&gt; n
-    };
+    <span class="kw">let </span><span class="kw-2">mut </span>max_byte = <span class="number">0</span>;
+    <span class="kw">for </span><span class="kw-2">&amp;</span>byte <span class="kw">in </span>data {
+        <span class="kw">if </span>byte &gt; max_byte {
+            max_byte = byte;
+            <span class="comment">// code size is the same after that
+            </span><span class="kw">if </span>byte &gt; <span class="number">127 </span>{
+                <span class="kw">break</span>;
+            }
+        }
+    }
+    <span class="kw">let </span>palette_min_len = max_byte <span class="kw">as </span>u32 + <span class="number">1</span>;
+    <span class="comment">// As per gif spec: The minimal code size has to be &gt;= 2
+    </span><span class="kw">let </span>min_code_size = palette_min_len.max(<span class="number">4</span>).next_power_of_two().trailing_zeros() <span class="kw">as </span>u8;
     buffer.push(min_code_size);
     <span class="kw">let </span><span class="kw-2">mut </span>enc = LzwEncoder::new(BitOrder::Lsb, min_code_size);
     <span class="kw">let </span>len = enc.into_vec(buffer).encode_all(data).consumed_out;
@@ -816,7 +908,8 @@
     ///
     /// Frames can be compressed in any order, separately from the `Encoder`, which can be used to compress frames in parallel.
     </span><span class="kw">pub fn </span>make_lzw_pre_encoded(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::with_capacity(<span class="self">self</span>.buffer.len() / <span class="number">2</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
+        buffer.try_reserve(<span class="self">self</span>.buffer.len() / <span class="number">2</span>).expect(<span class="string">"OOM"</span>);
         lzw_encode(<span class="kw-2">&amp;</span><span class="self">self</span>.buffer, <span class="kw-2">&amp;mut </span>buffer);
         <span class="self">self</span>.buffer = Cow::Owned(buffer);
     }
@@ -828,11 +921,10 @@
     global_palette: bool,
     width: u16,
     height: u16,
-    buffer: Vec&lt;u8&gt;
+    buffer: Vec&lt;u8&gt;,
 }
 
 <span class="kw">impl</span>&lt;W: Write&gt; Drop <span class="kw">for </span>Encoder&lt;W&gt; {
-
     <span class="attr">#[cfg(feature = <span class="string">"raii_no_panic"</span>)]
     </span><span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">if </span><span class="self">self</span>.w.is_some() {
@@ -850,21 +942,69 @@
 
 <span class="comment">// Color table size converted to flag bits
 </span><span class="kw">fn </span>flag_size(size: usize) -&gt; u8 {
-    <span class="kw">match </span>size {
-        <span class="number">0  </span>..=<span class="number">2   </span>=&gt; <span class="number">0</span>,
-        <span class="number">3  </span>..=<span class="number">4   </span>=&gt; <span class="number">1</span>,
-        <span class="number">5  </span>..=<span class="number">8   </span>=&gt; <span class="number">2</span>,
-        <span class="number">9  </span>..=<span class="number">16  </span>=&gt; <span class="number">3</span>,
-        <span class="number">17 </span>..=<span class="number">32  </span>=&gt; <span class="number">4</span>,
-        <span class="number">33 </span>..=<span class="number">64  </span>=&gt; <span class="number">5</span>,
-        <span class="number">65 </span>..=<span class="number">128 </span>=&gt; <span class="number">6</span>,
-        <span class="number">129</span>..=<span class="number">256 </span>=&gt; <span class="number">7</span>,
-        <span class="kw">_ </span>=&gt; <span class="number">7
-    </span>}
+    (size.max(<span class="number">2</span>).min(<span class="number">255</span>).next_power_of_two().trailing_zeros()-<span class="number">1</span>) <span class="kw">as </span>u8
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_flag_size() {
+    <span class="kw">fn </span>expected(size: usize) -&gt; u8 {
+        <span class="kw">match </span>size {
+            <span class="number">0  </span>..=<span class="number">2   </span>=&gt; <span class="number">0</span>,
+            <span class="number">3  </span>..=<span class="number">4   </span>=&gt; <span class="number">1</span>,
+            <span class="number">5  </span>..=<span class="number">8   </span>=&gt; <span class="number">2</span>,
+            <span class="number">9  </span>..=<span class="number">16  </span>=&gt; <span class="number">3</span>,
+            <span class="number">17 </span>..=<span class="number">32  </span>=&gt; <span class="number">4</span>,
+            <span class="number">33 </span>..=<span class="number">64  </span>=&gt; <span class="number">5</span>,
+            <span class="number">65 </span>..=<span class="number">128 </span>=&gt; <span class="number">6</span>,
+            <span class="number">129</span>..=<span class="number">256 </span>=&gt; <span class="number">7</span>,
+            <span class="kw">_ </span>=&gt; <span class="number">7
+        </span>}
+    }
+
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">300 </span>{
+        <span class="macro">assert_eq!</span>(flag_size(i), expected(i));
+    }
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">4</span>..=<span class="number">255u8 </span>{
+        <span class="kw">let </span>expected = <span class="kw">match </span>flag_size(<span class="number">1 </span>+ i <span class="kw">as </span>usize) + <span class="number">1 </span>{
+            <span class="number">1 </span>=&gt; <span class="number">2</span>,
+            n =&gt; n,
+        };
+        <span class="kw">let </span>actual = (i <span class="kw">as </span>u32 + <span class="number">1</span>).max(<span class="number">4</span>).next_power_of_two().trailing_zeros() <span class="kw">as </span>u8;
+        <span class="macro">assert_eq!</span>(actual, expected);
+    }
+}
+
+<span class="kw">struct </span>Buf&lt;<span class="kw">const </span>N: usize&gt; {
+    buf: [u8; N], pos: usize
+}
+
+<span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; Write <span class="kw">for </span>Buf&lt;N&gt; {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="kw">let </span>len = buf.len();
+        <span class="kw">let </span>pos = <span class="self">self</span>.pos;
+        <span class="self">self</span>.buf[pos.. pos + len].copy_from_slice(buf);
+        <span class="self">self</span>.pos += len;
+        <span class="prelude-val">Ok</span>(len)
+    }
+
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; { <span class="prelude-val">Ok</span>(()) }
+}
+
+<span class="kw">fn </span>tmp_buf&lt;<span class="kw">const </span>N: usize&gt;() -&gt; Buf&lt;N&gt; {
+    Buf { buf: [<span class="number">0</span>; N], pos: <span class="number">0 </span>}
+}
+
+<span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize&gt; Buf&lt;N&gt; {
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">fn </span>finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>w: <span class="kw">impl </span>Write) -&gt; io::Result&lt;()&gt; {
+        <span class="macro">debug_assert_eq!</span>(<span class="self">self</span>.pos, N);
+        w.write_all(<span class="kw-2">&amp;</span><span class="self">self</span>.buf)
+    }
 }
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>error_cast() {
-    <span class="kw">let _ </span>: Box&lt;<span class="kw">dyn </span>error::Error&gt; = EncodingError::from(FormatErrorKind::MissingColorPalette).into();
+    <span class="kw">let _ </span>: Box&lt;<span class="kw">dyn </span>error::Error&gt; = EncodingError::from(EncodingFormatError::MissingColorPalette).into();
 }
 </code></pre></div></section></main></body></html>

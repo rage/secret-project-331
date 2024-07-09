@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.38.0/src/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/resvg-0.42.0/src/path.rs`."><title>path.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="resvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -204,115 +204,29 @@
 <a href="#203" id="203">203</a>
 <a href="#204" id="204">204</a>
 <a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 </span><span class="kw">use </span><span class="kw">crate</span>::render::Context;
-<span class="kw">use </span><span class="kw">crate</span>::OptionLog;
 
 <span class="kw">pub fn </span>render(
     path: <span class="kw-2">&amp;</span>usvg::Path,
     blend_mode: tiny_skia::BlendMode,
     ctx: <span class="kw-2">&amp;</span>Context,
-    text_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
     transform: tiny_skia::Transform,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) {
-    <span class="kw">if </span>path.visibility != usvg::Visibility::Visible {
+    <span class="kw">if </span>!path.is_visible() {
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>object_bbox = <span class="kw">match </span>path.bounding_box {
-        <span class="prelude-val">Some</span>(v) =&gt; v,
-        <span class="prelude-val">None </span>=&gt; {
-            <span class="macro">log::warn!</span>(
-                <span class="string">"Node bounding box should be already calculated. \
-                See `usvg::Tree::postprocess`"
-            </span>);
-            <span class="kw">return</span>;
-        }
-    };
-
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(text_bbox) = text_bbox {
-        object_bbox = text_bbox.to_rect();
-    }
-
-    <span class="kw">if </span>path.paint_order == usvg::PaintOrder::FillAndStroke {
-        fill_path(path, blend_mode, ctx, object_bbox, transform, pixmap);
-        stroke_path(path, blend_mode, ctx, object_bbox, transform, pixmap);
+    <span class="kw">if </span>path.paint_order() == usvg::PaintOrder::FillAndStroke {
+        fill_path(path, blend_mode, ctx, transform, pixmap);
+        stroke_path(path, blend_mode, ctx, transform, pixmap);
     } <span class="kw">else </span>{
-        stroke_path(path, blend_mode, ctx, object_bbox, transform, pixmap);
-        fill_path(path, blend_mode, ctx, object_bbox, transform, pixmap);
+        stroke_path(path, blend_mode, ctx, transform, pixmap);
+        fill_path(path, blend_mode, ctx, transform, pixmap);
     }
 }
 
@@ -320,55 +234,50 @@
     path: <span class="kw-2">&amp;</span>usvg::Path,
     blend_mode: tiny_skia::BlendMode,
     ctx: <span class="kw-2">&amp;</span>Context,
-    object_bbox: tiny_skia::Rect,
     transform: tiny_skia::Transform,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-    <span class="kw">let </span>fill = path.fill.as_ref()<span class="question-mark">?</span>;
+    <span class="kw">let </span>fill = path.fill()<span class="question-mark">?</span>;
 
     <span class="comment">// Horizontal and vertical lines cannot be filled. Skip.
-    </span><span class="kw">if </span>path.data.bounds().width() == <span class="number">0.0 </span>|| path.data.bounds().height() == <span class="number">0.0 </span>{
+    </span><span class="kw">if </span>path.data().bounds().width() == <span class="number">0.0 </span>|| path.data().bounds().height() == <span class="number">0.0 </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let </span>object_bbox = object_bbox.to_non_zero_rect();
-
-    <span class="kw">let </span>rule = <span class="kw">match </span>fill.rule {
+    <span class="kw">let </span>rule = <span class="kw">match </span>fill.rule() {
         usvg::FillRule::NonZero =&gt; tiny_skia::FillRule::Winding,
         usvg::FillRule::EvenOdd =&gt; tiny_skia::FillRule::EvenOdd,
     };
 
     <span class="kw">let </span>pattern_pixmap;
     <span class="kw">let </span><span class="kw-2">mut </span>paint = tiny_skia::Paint::default();
-    <span class="kw">match </span>fill.paint {
+    <span class="kw">match </span>fill.paint() {
         usvg::Paint::Color(c) =&gt; {
-            paint.set_color_rgba8(c.red, c.green, c.blue, fill.opacity.to_u8());
+            paint.set_color_rgba8(c.red, c.green, c.blue, fill.opacity().to_u8());
         }
         usvg::Paint::LinearGradient(<span class="kw-2">ref </span>lg) =&gt; {
-            paint.shader = convert_linear_gradient(lg, fill.opacity, object_bbox)<span class="question-mark">?</span>;
+            paint.shader = convert_linear_gradient(lg, fill.opacity())<span class="question-mark">?</span>;
         }
         usvg::Paint::RadialGradient(<span class="kw-2">ref </span>rg) =&gt; {
-            paint.shader = convert_radial_gradient(rg, fill.opacity, object_bbox)<span class="question-mark">?</span>;
+            paint.shader = convert_radial_gradient(rg, fill.opacity())<span class="question-mark">?</span>;
         }
         usvg::Paint::Pattern(<span class="kw-2">ref </span>pattern) =&gt; {
-            <span class="kw">let </span>(patt_pix, patt_ts) =
-                render_pattern_pixmap(<span class="kw-2">&amp;</span>pattern.borrow(), ctx, transform, object_bbox)<span class="question-mark">?</span>;
+            <span class="kw">let </span>(patt_pix, patt_ts) = render_pattern_pixmap(pattern, ctx, transform)<span class="question-mark">?</span>;
 
             pattern_pixmap = patt_pix;
             paint.shader = tiny_skia::Pattern::new(
                 pattern_pixmap.as_ref(),
                 tiny_skia::SpreadMode::Repeat,
                 tiny_skia::FilterQuality::Bicubic,
-                fill.opacity.get(),
+                fill.opacity().get(),
                 patt_ts,
             )
         }
     }
-    paint.anti_alias = path.rendering_mode.use_shape_antialiasing();
+    paint.anti_alias = path.rendering_mode().use_shape_antialiasing();
     paint.blend_mode = blend_mode;
 
-    pixmap.fill_path(<span class="kw-2">&amp;</span>path.data, <span class="kw-2">&amp;</span>paint, rule, transform, <span class="prelude-val">None</span>);
-
+    pixmap.fill_path(path.data(), <span class="kw-2">&amp;</span>paint, rule, transform, <span class="prelude-val">None</span>);
     <span class="prelude-val">Some</span>(())
 }
 
@@ -376,43 +285,39 @@
     path: <span class="kw-2">&amp;</span>usvg::Path,
     blend_mode: tiny_skia::BlendMode,
     ctx: <span class="kw-2">&amp;</span>Context,
-    object_bbox: tiny_skia::Rect,
     transform: tiny_skia::Transform,
     pixmap: <span class="kw-2">&amp;mut </span>tiny_skia::PixmapMut,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-    <span class="kw">let </span>stroke = path.stroke.as_ref()<span class="question-mark">?</span>;
-    <span class="kw">let </span>object_bbox = object_bbox.to_non_zero_rect();
-
+    <span class="kw">let </span>stroke = path.stroke()<span class="question-mark">?</span>;
     <span class="kw">let </span>pattern_pixmap;
     <span class="kw">let </span><span class="kw-2">mut </span>paint = tiny_skia::Paint::default();
-    <span class="kw">match </span>stroke.paint {
+    <span class="kw">match </span>stroke.paint() {
         usvg::Paint::Color(c) =&gt; {
-            paint.set_color_rgba8(c.red, c.green, c.blue, stroke.opacity.to_u8());
+            paint.set_color_rgba8(c.red, c.green, c.blue, stroke.opacity().to_u8());
         }
         usvg::Paint::LinearGradient(<span class="kw-2">ref </span>lg) =&gt; {
-            paint.shader = convert_linear_gradient(lg, stroke.opacity, object_bbox)<span class="question-mark">?</span>;
+            paint.shader = convert_linear_gradient(lg, stroke.opacity())<span class="question-mark">?</span>;
         }
         usvg::Paint::RadialGradient(<span class="kw-2">ref </span>rg) =&gt; {
-            paint.shader = convert_radial_gradient(rg, stroke.opacity, object_bbox)<span class="question-mark">?</span>;
+            paint.shader = convert_radial_gradient(rg, stroke.opacity())<span class="question-mark">?</span>;
         }
         usvg::Paint::Pattern(<span class="kw-2">ref </span>pattern) =&gt; {
-            <span class="kw">let </span>(patt_pix, patt_ts) =
-                render_pattern_pixmap(<span class="kw-2">&amp;</span>pattern.borrow(), ctx, transform, object_bbox)<span class="question-mark">?</span>;
+            <span class="kw">let </span>(patt_pix, patt_ts) = render_pattern_pixmap(pattern, ctx, transform)<span class="question-mark">?</span>;
 
             pattern_pixmap = patt_pix;
             paint.shader = tiny_skia::Pattern::new(
                 pattern_pixmap.as_ref(),
                 tiny_skia::SpreadMode::Repeat,
                 tiny_skia::FilterQuality::Bicubic,
-                stroke.opacity.get(),
+                stroke.opacity().get(),
                 patt_ts,
             )
         }
     }
-    paint.anti_alias = path.rendering_mode.use_shape_antialiasing();
+    paint.anti_alias = path.rendering_mode().use_shape_antialiasing();
     paint.blend_mode = blend_mode;
 
-    pixmap.stroke_path(<span class="kw-2">&amp;</span>path.data, <span class="kw-2">&amp;</span>paint, <span class="kw-2">&amp;</span>stroke.to_tiny_skia(), transform, <span class="prelude-val">None</span>);
+    pixmap.stroke_path(path.data(), <span class="kw-2">&amp;</span>paint, <span class="kw-2">&amp;</span>stroke.to_tiny_skia(), transform, <span class="prelude-val">None</span>);
 
     <span class="prelude-val">Some</span>(())
 }
@@ -420,16 +325,15 @@
 <span class="kw">fn </span>convert_linear_gradient(
     gradient: <span class="kw-2">&amp;</span>usvg::LinearGradient,
     opacity: usvg::Opacity,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Shader&gt; {
-    <span class="kw">let </span>(mode, transform, points) = convert_base_gradient(gradient, opacity, object_bbox)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(mode, points) = convert_base_gradient(gradient, opacity)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>shader = tiny_skia::LinearGradient::new(
-        (gradient.x1, gradient.y1).into(),
-        (gradient.x2, gradient.y2).into(),
+        (gradient.x1(), gradient.y1()).into(),
+        (gradient.x2(), gradient.y2()).into(),
         points,
         mode,
-        transform,
+        gradient.transform(),
     )<span class="question-mark">?</span>;
 
     <span class="prelude-val">Some</span>(shader)
@@ -438,17 +342,16 @@
 <span class="kw">fn </span>convert_radial_gradient(
     gradient: <span class="kw-2">&amp;</span>usvg::RadialGradient,
     opacity: usvg::Opacity,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;tiny_skia::Shader&gt; {
-    <span class="kw">let </span>(mode, transform, points) = convert_base_gradient(gradient, opacity, object_bbox)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(mode, points) = convert_base_gradient(gradient, opacity)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>shader = tiny_skia::RadialGradient::new(
-        (gradient.fx, gradient.fy).into(),
-        (gradient.cx, gradient.cy).into(),
-        gradient.r.get(),
+        (gradient.fx(), gradient.fy()).into(),
+        (gradient.cx(), gradient.cy()).into(),
+        gradient.r().get(),
         points,
         mode,
-        transform,
+        gradient.transform(),
     )<span class="question-mark">?</span>;
 
     <span class="prelude-val">Some</span>(shader)
@@ -457,91 +360,50 @@
 <span class="kw">fn </span>convert_base_gradient(
     gradient: <span class="kw-2">&amp;</span>usvg::BaseGradient,
     opacity: usvg::Opacity,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
-) -&gt; <span class="prelude-ty">Option</span>&lt;(
-    tiny_skia::SpreadMode,
-    tiny_skia::Transform,
-    Vec&lt;tiny_skia::GradientStop&gt;,
-)&gt; {
-    <span class="kw">let </span>mode = <span class="kw">match </span>gradient.spread_method {
+) -&gt; <span class="prelude-ty">Option</span>&lt;(tiny_skia::SpreadMode, Vec&lt;tiny_skia::GradientStop&gt;)&gt; {
+    <span class="kw">let </span>mode = <span class="kw">match </span>gradient.spread_method() {
         usvg::SpreadMethod::Pad =&gt; tiny_skia::SpreadMode::Pad,
         usvg::SpreadMethod::Reflect =&gt; tiny_skia::SpreadMode::Reflect,
         usvg::SpreadMethod::Repeat =&gt; tiny_skia::SpreadMode::Repeat,
     };
 
-    <span class="kw">let </span>transform = <span class="kw">if </span>gradient.units == usvg::Units::ObjectBoundingBox {
-        <span class="kw">let </span>bbox =
-            object_bbox.log_none(|| <span class="macro">log::warn!</span>(<span class="string">"Gradient on zero-sized shapes is not allowed."</span>))<span class="question-mark">?</span>;
-        <span class="kw">let </span>ts = tiny_skia::Transform::from_bbox(bbox);
-        ts.pre_concat(gradient.transform)
-    } <span class="kw">else </span>{
-        gradient.transform
-    };
-
-    <span class="kw">let </span><span class="kw-2">mut </span>points = Vec::with_capacity(gradient.stops.len());
-    <span class="kw">for </span>stop <span class="kw">in </span><span class="kw-2">&amp;</span>gradient.stops {
-        <span class="kw">let </span>alpha = stop.opacity * opacity;
+    <span class="kw">let </span><span class="kw-2">mut </span>points = Vec::with_capacity(gradient.stops().len());
+    <span class="kw">for </span>stop <span class="kw">in </span>gradient.stops() {
+        <span class="kw">let </span>alpha = stop.opacity() * opacity;
         <span class="kw">let </span>color = tiny_skia::Color::from_rgba8(
-            stop.color.red,
-            stop.color.green,
-            stop.color.blue,
+            stop.color().red,
+            stop.color().green,
+            stop.color().blue,
             alpha.to_u8(),
         );
-        points.push(tiny_skia::GradientStop::new(stop.offset.get(), color))
+        points.push(tiny_skia::GradientStop::new(stop.offset().get(), color))
     }
 
-    <span class="prelude-val">Some</span>((mode, transform, points))
+    <span class="prelude-val">Some</span>((mode, points))
 }
 
 <span class="kw">fn </span>render_pattern_pixmap(
     pattern: <span class="kw-2">&amp;</span>usvg::Pattern,
     ctx: <span class="kw-2">&amp;</span>Context,
     transform: tiny_skia::Transform,
-    object_bbox: <span class="prelude-ty">Option</span>&lt;tiny_skia::NonZeroRect&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;(tiny_skia::Pixmap, tiny_skia::Transform)&gt; {
-    <span class="kw">let </span>content_transform =
-        <span class="kw">if </span>pattern.content_units == usvg::Units::ObjectBoundingBox &amp;&amp; pattern.view_box.is_none() {
-            <span class="kw">let </span>bbox = object_bbox
-                .log_none(|| <span class="macro">log::warn!</span>(<span class="string">"Pattern on zero-sized shapes is not allowed."</span>))<span class="question-mark">?</span>;
-
-            <span class="comment">// No need to shift patterns.
-            </span>tiny_skia::Transform::from_scale(bbox.width(), bbox.height())
-        } <span class="kw">else </span>{
-            tiny_skia::Transform::default()
-        };
-
-    <span class="kw">let </span>rect = <span class="kw">if </span>pattern.units == usvg::Units::ObjectBoundingBox {
-        <span class="kw">let </span>bbox =
-            object_bbox.log_none(|| <span class="macro">log::warn!</span>(<span class="string">"Pattern on zero-sized shapes is not allowed."</span>))<span class="question-mark">?</span>;
-
-        pattern.rect.bbox_transform(bbox)
-    } <span class="kw">else </span>{
-        pattern.rect
-    };
-
     <span class="kw">let </span>(sx, sy) = {
-        <span class="kw">let </span>ts2 = transform.pre_concat(pattern.transform);
+        <span class="kw">let </span>ts2 = transform.pre_concat(pattern.transform());
         ts2.get_scale()
     };
 
+    <span class="kw">let </span>rect = pattern.rect();
     <span class="kw">let </span>img_size = tiny_skia::IntSize::from_wh(
         (rect.width() * sx).round() <span class="kw">as </span>u32,
         (rect.height() * sy).round() <span class="kw">as </span>u32,
     )<span class="question-mark">?</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>pixmap = tiny_skia::Pixmap::new(img_size.width(), img_size.height())<span class="question-mark">?</span>;
 
-    <span class="kw">let </span><span class="kw-2">mut </span>transform = tiny_skia::Transform::from_scale(sx, sy);
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(vbox) = pattern.view_box {
-        <span class="kw">let </span>ts = usvg::utils::view_box_to_transform(vbox.rect, vbox.aspect, rect.size());
-        transform = transform.pre_concat(ts);
-    }
-
-    transform = transform.pre_concat(content_transform);
-
-    <span class="kw">crate</span>::render::render_nodes(<span class="kw-2">&amp;</span>pattern.root, ctx, transform, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>pixmap.as_mut());
+    <span class="kw">let </span>transform = tiny_skia::Transform::from_scale(sx, sy);
+    <span class="kw">crate</span>::render::render_nodes(pattern.root(), ctx, transform, <span class="kw-2">&amp;mut </span>pixmap.as_mut());
 
     <span class="kw">let </span><span class="kw-2">mut </span>ts = tiny_skia::Transform::default();
-    ts = ts.pre_concat(pattern.transform);
+    ts = ts.pre_concat(pattern.transform());
     ts = ts.pre_translate(rect.x(), rect.y());
     ts = ts.pre_scale(<span class="number">1.0 </span>/ sx, <span class="number">1.0 </span>/ sy);
 

@@ -103,6 +103,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   >({
     disableCustomColors: false,
     disableCustomEditorFontSizes: false,
+    styles: [],
   })
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()

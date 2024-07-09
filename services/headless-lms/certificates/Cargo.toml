@@ -11,13 +11,13 @@ headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 
 # An SVG rendering library.
-resvg = "0.38.0"
+resvg = "0.42.0"
 # An SVG simplification library.
-usvg = "0.38.0"
+usvg = "0.42.0"
 # A simple, streaming XML writer.
 xmlwriter = "0.1.0"
 # High performance xml reader and writer
-quick-xml = "0.31.0"
+quick-xml = "0.35.0"
 # International Components for Unicode
 icu = { version = "1.3.2", features = ["std", "serde"] }
 # Trait and struct definitions for the ICU data provider

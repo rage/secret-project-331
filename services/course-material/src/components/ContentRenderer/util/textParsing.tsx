@@ -68,8 +68,7 @@ const parseText = (
   terms: Term[],
   options: { glossary: boolean } = { glossary: true },
 ) => {
-  const sanitizedHTML = sanitizeCourseMaterialHtml(content)
-  const { count, converted: parsedLatex } = convertToLatex(sanitizedHTML)
+  const { count, converted: parsedLatex } = convertToLatex(content ?? "")
   const parsedCitation = parseCitation(parsedLatex)
 
   let parsedText = parsedCitation

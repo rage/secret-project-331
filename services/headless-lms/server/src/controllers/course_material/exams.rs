@@ -269,7 +269,7 @@ pub async fn fetch_exam_for_user(
             && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
         {
             // exam is still open but the student's time has expired
-            exams::update_exam_ended(&mut conn, *exam_id, user.id, Utc::now()).await?;
+            exams::update_exam_ended_at(&mut conn, *exam_id, user.id, Utc::now()).await?;
             let token: domain::authorization::AuthorizationToken =
                 authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             return token.authorized_ok(web::Json(ExamData {
@@ -454,7 +454,7 @@ pub async fn end_exam_time(
     let mut conn = pool.acquire().await?;
 
     let ended_at = Utc::now();
-    models::exams::update_exam_ended(&mut conn, *exam_id, user.id, ended_at).await?;
+    models::exams::update_exam_ended_at(&mut conn, *exam_id, user.id, ended_at).await?;
 
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
     token.authorized_ok(web::Json(()))

@@ -496,7 +496,7 @@ WHERE exam_id = $1
     Ok(())
 }
 
-pub async fn update_exam_ended(
+pub async fn update_exam_ended_at(
     conn: &mut PgConnection,
     exam_id: Uuid,
     user_id: Uuid,
@@ -512,6 +512,31 @@ WHERE exam_id = $1
 ",
         exam_id,
         user_id,
+        ended_at
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_exam_ended_at_for_users_with_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_ids: &[Uuid],
+    ended_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exam_enrollments
+SET ended_at = $3
+WHERE user_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND exam_id = $2
+  AND deleted_at IS NULL
+",
+        user_ids,
+        exam_id,
         ended_at
     )
     .execute(conn)

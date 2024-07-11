@@ -1,4 +1,7 @@
-use std::{collections::HashSet, env};
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+};
 
 use crate::setup_tracing;
 use chrono::{Duration, Utc};
@@ -79,26 +82,40 @@ async fn process_ended_exam_enrollments(conn: &mut PgConnection) -> anyhow::Resu
         models::exams::get_ongoing_exam_enrollments(&mut tx).await?;
     let exams = models::exams::get_exams(&mut tx).await?;
 
+    let mut needs_ended_at_date: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
     for enrollment in ongoing_exam_enrollments {
         let exam = exams.get(&enrollment.exam_id).ok_or_else(|| {
             ModelError::new(ModelErrorType::Generic, "Exam not found".into(), None)
         })?;
 
-        //Check if users exams should have ended and add the ending time to exam_enrollmets
+        //Check if users exams should have ended
         if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {
-            match models::exams::update_exam_ended(&mut tx, exam.id, enrollment.user_id, Utc::now())
-                .await
-            {
-                Ok(_) => success += 1,
-                Err(err) => {
-                    failed += 1;
-                    tracing::error!(
-                        "Failed to end users {} exam {}: {:#?}",
-                        enrollment.user_id,
-                        exam.id,
-                        err
-                    );
-                }
+            needs_ended_at_date
+                .entry(exam.id)
+                .or_default()
+                .push(enrollment.user_id);
+        }
+    }
+
+    for entry in needs_ended_at_date.into_iter() {
+        let exam_id = entry.0;
+        let user_ids = entry.1;
+        match models::exams::update_exam_ended_at_for_users_with_exam_id(
+            &mut tx,
+            exam_id,
+            &user_ids,
+            Utc::now(),
+        )
+        .await
+        {
+            Ok(_) => success += user_ids.len(),
+            Err(err) => {
+                failed += user_ids.len();
+                tracing::error!(
+                    "Failed to end exam enrolments for exam {}: {:#?}",
+                    exam_id,
+                    err
+                );
             }
         }
     }

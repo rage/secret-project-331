@@ -514,7 +514,8 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-        SELECT id,
+    SELECT DISTINCT ON (user_id)
+        id,
         created_at,
         updated_at,
         deleted_at,
@@ -525,11 +526,11 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         exercise_id,
         user_id,
         user_points_update_strategy AS "user_points_update_strategy: _"
-    FROM exercise_slide_submissions
-    WHERE exercise_id = $1
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
       AND deleted_at IS NULL
-      AND created_at in (SELECT MAX(created_at) FROM exercise_slide_submissions GROUP BY user_id, exercise_slide_id)
-    LIMIT $2 OFFSET $3
+ORDER BY user_id, created_at DESC
+LIMIT $2 OFFSET $3
         "#,
         exercise_id,
         pagination.limit(),

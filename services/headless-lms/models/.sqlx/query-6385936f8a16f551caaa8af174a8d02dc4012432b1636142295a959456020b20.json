@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT id,\n        created_at,\n        updated_at,\n        deleted_at,\n        exercise_slide_id,\n        course_id,\n        course_instance_id,\n        exam_id,\n        exercise_id,\n        user_id,\n        user_points_update_strategy AS \"user_points_update_strategy: _\"\n    FROM exercise_slide_submissions\n    WHERE exercise_id = $1\n      AND deleted_at IS NULL\n      AND created_at in (SELECT MAX(created_at) FROM exercise_slide_submissions GROUP BY user_id, exercise_slide_id)\n    LIMIT $2 OFFSET $3\n        ",
+  "query": "\n    SELECT DISTINCT ON (user_id)\n        id,\n        created_at,\n        updated_at,\n        deleted_at,\n        exercise_slide_id,\n        course_id,\n        course_instance_id,\n        exam_id,\n        exercise_id,\n        user_id,\n        user_points_update_strategy AS \"user_points_update_strategy: _\"\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n      AND deleted_at IS NULL\nORDER BY user_id, created_at DESC\nLIMIT $2 OFFSET $3\n        ",
   "describe": {
     "columns": [
       {
@@ -74,5 +74,5 @@
     },
     "nullable": [false, false, false, true, false, true, true, true, false, false, false]
   },
-  "hash": "45537f419e4f0b9bcc641bf449a47f84d6ac224f2eb41c06d5aba09ec622c338"
+  "hash": "6385936f8a16f551caaa8af174a8d02dc4012432b1636142295a959456020b20"
 }

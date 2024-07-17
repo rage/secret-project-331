@@ -293,6 +293,25 @@ WHERE course_id = $1
     Ok(course_instances)
 }
 
+pub async fn get_course_instance_ids_with_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        r#"
+SELECT id
+FROM course_instances
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        "#,
+        course_id,
+    )
+    .map(|r| r.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterScore {

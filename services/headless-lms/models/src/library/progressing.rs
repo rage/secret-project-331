@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use std::collections::HashMap;
 
@@ -12,6 +13,7 @@ use crate::{
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, exams, open_university_registration_links,
     prelude::*,
+    suspected_cheaters::{self, Threshold},
     user_course_settings,
     user_details::UserDetail,
     user_exercise_states,
@@ -27,40 +29,97 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<()> {
-    let completion_exists = create_automatic_course_module_completion_if_eligible(
-        conn,
+    let mut tx = conn.begin().await?;
+    let completion = create_automatic_course_module_completion_if_eligible(
+        &mut tx,
         course_module,
         course_instance_id,
         user_id,
     )
     .await?;
-    if completion_exists {
-        let course = courses::get_course(conn, course_module.course_id).await?;
+    if let Some(completion) = completion {
+        let course = courses::get_course(&mut tx, course_module.course_id).await?;
         let course_instance =
-            course_instances::get_course_instance(conn, course_instance_id).await?;
+            course_instances::get_course_instance(&mut tx, course_instance_id).await?;
         let submodule_completions_required = course
             .base_module_completion_requires_n_submodule_completions
             .try_into()?;
         update_module_completion_prerequisite_statuses_for_user(
-            conn,
+            &mut tx,
             user_id,
             &course_instance,
             submodule_completions_required,
         )
         .await?;
+
+        if let Some(thresholds) = suspected_cheaters::get_thresholds_by_id(&mut tx, course.id)
+            .await
+            .optional()?
+        {
+            //let average_duration_seconds = course_instances::get_course_average_duration(conn, course_instance_id).await?;
+
+            check_and_insert_suspected_cheaters(
+                &mut tx,
+                user_id,
+                course.id,
+                course_instance_id,
+                &thresholds,
+                completion,
+            )
+            .await?;
+        }
     }
+    tx.commit().await?;
     Ok(())
 }
 
-/// Creates completion for the user if eligible and previous one doesn't exist. Returns a boolean indicating
-/// whether a completion exists after calling this function.
+pub async fn check_and_insert_suspected_cheaters(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    course_instance_id: Uuid,
+    thresholds: &Threshold,
+    completion: CourseModuleCompletion,
+) -> ModelResult<()> {
+    let total_points =
+        user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
+            .await?
+            .unwrap_or(0.0);
+
+    let student_duration_seconds =
+        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
+            .await?
+            .unwrap_or(0);
+
+    let duration_threshold = thresholds.duration_seconds.unwrap_or(0);
+
+    if (total_points as i32) >= thresholds.points
+        && (student_duration_seconds as i32) < duration_threshold
+    {
+        suspected_cheaters::insert(
+            conn,
+            completion.user_id,
+            course_id,
+            Some(student_duration_seconds as i32),
+            total_points as i32,
+        )
+        .await?;
+
+        course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true).await?;
+    }
+
+    Ok(())
+}
+
+/// Creates completion for the user if eligible and previous one doesn't exist. Returns an Option containing
+/// the completion if one exists after calling this function.
 #[instrument(skip(conn))]
 async fn create_automatic_course_module_completion_if_eligible(
     conn: &mut PgConnection,
     course_module: &CourseModule,
     course_instance_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<bool> {
+) -> ModelResult<Option<CourseModuleCompletion>> {
     let existing_completion =
         course_module_completions::get_automatic_completion_by_course_module_instance_and_user_ids(
             conn,
@@ -70,9 +129,9 @@ async fn create_automatic_course_module_completion_if_eligible(
         )
         .await
         .optional()?;
-    if existing_completion.is_some() {
+    if let Some(existing_completion) = existing_completion {
         // If user already has a completion, do not attempt to create a new one.
-        Ok(true)
+        Ok(Some(existing_completion))
     } else {
         let eligible = user_is_eligible_for_automatic_completion(
             conn,
@@ -86,7 +145,7 @@ async fn create_automatic_course_module_completion_if_eligible(
             let user = users::get_by_id(conn, user_id).await?;
             let user_details =
                 crate::user_details::get_user_details_by_user_id(conn, user.id).await?;
-            let _completion_id = course_module_completions::insert(
+            let completion = course_module_completions::insert(
                 conn,
                 PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
@@ -106,10 +165,10 @@ async fn create_automatic_course_module_completion_if_eligible(
             )
             .await?;
             info!("Created a completion");
-            Ok(true)
+            Ok(Some(completion))
         } else {
             // Can't grant automatic completion; no-op.
-            Ok(false)
+            Ok(None)
         }
     }
 }
@@ -332,14 +391,14 @@ pub async fn process_all_course_instance_completions(
     for user_id in users {
         let mut num_completions = 0;
         for course_module in course_modules.iter() {
-            let completion_exists = create_automatic_course_module_completion_if_eligible(
+            let completion = create_automatic_course_module_completion_if_eligible(
                 &mut tx,
                 course_module,
                 course_instance_id,
                 user_id,
             )
             .await?;
-            if completion_exists {
+            if completion.is_some() {
                 num_completions += 1;
             }
         }
@@ -699,6 +758,7 @@ pub struct UserModuleCompletionStatus {
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
     pub certificate_configuration_id: Option<Uuid>,
+    pub needs_to_be_reviewed: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -744,7 +804,7 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                             .id,
                     );
                 } else {
-                    // If instance-speficic certificate configuration is not found, try to find a configuration that is not instance-specific.
+                    // If instance-specific certificate configuration is not found, try to find a configuration that is not instance-specific.
                     let matching_certificate_configuration = all_certifcate_configurations_requiring_only_one_module_and_no_course_instance
                         .iter()
                         .find(|x| x.requirements.course_module_ids.contains(&module.id));
@@ -771,6 +831,9 @@ pub async fn get_user_module_completion_statuses_for_course_instance(
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
+                needs_to_be_reviewed: completion
+                .and_then(|x| x.needs_to_be_reviewed)
+                .unwrap_or(false),
             }
         })
         .collect();
@@ -843,11 +906,18 @@ pub async fn get_completion_registration_link_and_save_attempt(
 
 #[cfg(test)]
 mod tests {
+    use chrono::Duration;
+    use user_exercise_states::{ReviewingStage, UserExerciseStateUpdate};
+
     use super::*;
 
-    use crate::test_helper::*;
+    use crate::{
+        exercises::{ActivityProgress, GradingProgress},
+        test_helper::*,
+    };
 
     mod grant_automatic_completion_if_eligible {
+        use super::*;
         use crate::{
             chapters::NewChapter,
             course_modules::{
@@ -857,8 +927,6 @@ mod tests {
             library::content_management,
             user_exercise_states::{self, ReviewingStage, UserExerciseStateUpdate},
         };
-
-        use super::*;
 
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {
@@ -1086,6 +1154,142 @@ mod tests {
                 course_module_2,
             )
         }
+    }
+
+    #[tokio::test]
+    async fn tags_suspected_cheater() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_instance_id: instance.id,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: None,
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(259200), 10)
+            .await
+            .unwrap();
+        update_automatic_completion_status_and_grant_if_eligible(
+            tx.as_mut(),
+            &course_module,
+            instance.id,
+            user,
+        )
+        .await
+        .unwrap();
+
+        let cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
+                .await
+                .unwrap();
+        assert_eq!(cheaters[0].user_id, user);
+    }
+
+    #[tokio::test]
+    async fn doesnt_tag_suspected_cheater() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(instance.id),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(9.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_instance_id: instance.id,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(3),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(9),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(172800), 10)
+            .await
+            .unwrap();
+        update_automatic_completion_status_and_grant_if_eligible(
+            tx.as_mut(),
+            &course_module,
+            instance.id,
+            user,
+        )
+        .await
+        .unwrap();
+
+        let cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
+                .await
+                .unwrap();
+        assert!(cheaters.is_empty());
     }
 
     // TODO: New automatic completion tests?

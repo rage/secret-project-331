@@ -210,12 +210,14 @@ import {
   StudentExerciseSlideSubmissionResult,
   StudentExerciseTaskSubmission,
   StudentExerciseTaskSubmissionResult,
+  SuspectedCheaters,
   TeacherDecisionType,
   TeacherGradingDecision,
   TeacherManualCompletion,
   TeacherManualCompletionRequest,
   Term,
   TermUpdate,
+  ThresholdData,
   UploadResult,
   User,
   UserCompletionInformation,
@@ -753,7 +755,10 @@ export function isCourseModuleCompletion(obj: unknown): obj is CourseModuleCompl
     typeof typedObj["passed"] === "boolean" &&
     typeof typedObj["prerequisite_modules_completed"] === "boolean" &&
     (typedObj["completion_granter_user_id"] === null ||
-      typeof typedObj["completion_granter_user_id"] === "string")
+      typeof typedObj["completion_granter_user_id"] === "string") &&
+    (typedObj["needs_to_be_reviewed"] === null ||
+      typedObj["needs_to_be_reviewed"] === false ||
+      typedObj["needs_to_be_reviewed"] === true)
   )
 }
 
@@ -2011,7 +2016,8 @@ export function isUserModuleCompletionStatus(obj: unknown): obj is UserModuleCom
     typeof typedObj["enable_registering_completion_to_uh_open_university"] === "boolean" &&
     typeof typedObj["certification_enabled"] === "boolean" &&
     (typedObj["certificate_configuration_id"] === null ||
-      typeof typedObj["certificate_configuration_id"] === "string")
+      typeof typedObj["certificate_configuration_id"] === "string") &&
+    typeof typedObj["needs_to_be_reviewed"] === "boolean"
   )
 }
 
@@ -2953,6 +2959,34 @@ export function isStudentCountry(obj: unknown): obj is StudentCountry {
     typeof typedObj["country_code"] === "string" &&
     typeof typedObj["created_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
+  )
+}
+
+export function isSuspectedCheaters(obj: unknown): obj is SuspectedCheaters {
+  const typedObj = obj as SuspectedCheaters
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    (typedObj["updated_at"] === null || typeof typedObj["updated_at"] === "string") &&
+    (typedObj["total_duration_seconds"] === null ||
+      typeof typedObj["total_duration_seconds"] === "number") &&
+    typeof typedObj["total_points"] === "number" &&
+    (typedObj["is_archived"] === null ||
+      typedObj["is_archived"] === false ||
+      typedObj["is_archived"] === true)
+  )
+}
+
+export function isThresholdData(obj: unknown): obj is ThresholdData {
+  const typedObj = obj as ThresholdData
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["points"] === "number" &&
+    (typedObj["duration_seconds"] === null || typeof typedObj["duration_seconds"] === "number")
   )
 }
 

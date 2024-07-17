@@ -21,6 +21,7 @@ struct CourseModulesSchema {
     ects_credits: Option<f32>,
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
+    is_completion_requirement_by_chapter: Option<bool>,
 }
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).

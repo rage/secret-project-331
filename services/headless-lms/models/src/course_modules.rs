@@ -21,7 +21,7 @@ struct CourseModulesSchema {
     ects_credits: Option<f32>,
     enable_registering_completion_to_uh_open_university: bool,
     certification_enabled: bool,
-    is_completion_requirement_by_chapter: Option<bool>,
+    is_completion_requirement_by_chapter: bool,
 }
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -44,6 +44,7 @@ pub struct CourseModule {
     pub ects_credits: Option<f32>,
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
+    pub is_completion_requirement_by_chapter: bool,
 }
 
 impl CourseModule {
@@ -63,6 +64,7 @@ impl CourseModule {
             ects_credits: None,
             enable_registering_completion_to_uh_open_university: false,
             certification_enabled: false,
+            is_completion_requirement_by_chapter: false,
         }
     }
     pub fn set_timestamps(
@@ -143,6 +145,7 @@ impl From<CourseModulesSchema> for CourseModule {
             enable_registering_completion_to_uh_open_university: schema
                 .enable_registering_completion_to_uh_open_university,
             certification_enabled: schema.certification_enabled,
+            is_completion_requirement_by_chapter: schema.is_completion_requirement_by_chapter,
         }
     }
 }
@@ -645,6 +648,25 @@ WHERE id = $3
         name,
         order_number,
         id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_is_chapter_completion_requirements(
+    conn: &mut PgConnection,
+    id: Uuid,
+    is_chapter_completion_requirements: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+      UPDATE course_modules
+      SET is_completion_requirement_by_chapter = $2
+      WHERE id = $1
+    ",
+        id,
+        is_chapter_completion_requirements,
     )
     .execute(conn)
     .await?;

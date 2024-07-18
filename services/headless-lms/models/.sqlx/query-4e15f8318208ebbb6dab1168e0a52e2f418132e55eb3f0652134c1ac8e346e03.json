@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      UPDATE course_modules\n      SET is_completion_requirement_by_chapter = $2\n      WHERE id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Bool"]
+    },
+    "nullable": []
+  },
+  "hash": "4e15f8318208ebbb6dab1168e0a52e2f418132e55eb3f0652134c1ac8e346e03"
+}

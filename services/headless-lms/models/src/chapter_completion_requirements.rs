@@ -46,6 +46,25 @@ RETURNING id
     Ok(res.id)
 }
 
+pub async fn get_requirements_by_chapter_id(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<ChapterCompletionRequirements> {
+    let completion_requirements = sqlx::query_as!(
+        ChapterCompletionRequirements,
+        "
+      SELECT *
+      FROM chapter_completion_requirements
+      WHERE chapter_id = $1
+      AND deleted_at IS NULL;
+    ",
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(completion_requirements)
+}
+
 pub async fn delete_chapter_completion_requirements(
     conn: &mut PgConnection,
     id: Uuid,

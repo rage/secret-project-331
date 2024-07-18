@@ -11,14 +11,16 @@ use crate::{
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
-    courses, exams, open_university_registration_links,
+    courses, exams, exercises, open_university_registration_links,
     prelude::*,
     suspected_cheaters::{self, Threshold},
     user_course_settings,
     user_details::UserDetail,
     user_exercise_states,
+    user_exercise_states::UserCourseInstanceChapterExerciseProgress,
     users::{self, User},
 };
+use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 
 /// Checks whether the course module can be completed automatically and creates an entry for completion
 /// if the user meets the criteria. Also re-checks module completion prerequisites if the module is
@@ -108,6 +110,65 @@ pub async fn check_and_insert_suspected_cheaters(
         course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true).await?;
     }
 
+    Ok(())
+}
+
+// Get the total score given to a student in a chapter
+pub async fn get_total_score_in_a_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<Vec<UserCourseInstanceChapterExerciseProgress>> {
+    let chapter_exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+    let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
+
+    let user_course_instance_exercise_progress =
+        user_exercise_states::get_user_course_instance_chapter_exercises_progress(
+            conn,
+            course_instance_id,
+            &exercise_ids,
+            user_id,
+        )
+        .await?;
+    let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =
+        user_course_instance_exercise_progress
+            .into_iter()
+            .map(|i| UserCourseInstanceChapterExerciseProgress {
+                score_given: option_f32_to_f32_two_decimals_with_none_as_zero(i.score_given),
+                exercise_id: i.exercise_id,
+            })
+            .collect();
+    Ok(rounded_score_given_instances)
+}
+
+// Get the total score given to a student in a chapter
+pub async fn get_total_exercise_attempt_in_a_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<()> {
+    let chapter_exercises = exercises::get_exercises_by_chapter_id(conn, chapter_id).await?;
+    let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
+
+    let user_course_instance_exercises_attempted =
+        user_exercise_states::get_user_course_instance_chapter_exercises_attempts(
+            conn,
+            course_instance_id,
+            &exercise_ids,
+            user_id,
+        )
+        .await?;
+    // let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =
+    //     user_course_instance_exercise_progress
+    //         .into_iter()
+    //         .map(|i| UserCourseInstanceChapterExerciseProgress {
+    //             score_given: option_f32_to_f32_two_decimals_with_none_as_zero(i.score_given),
+    //             exercise_id: i.exercise_id,
+    //         })
+    //         .collect();
+    // Ok(rounded_score_given_instances)
     Ok(())
 }
 

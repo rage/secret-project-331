@@ -467,7 +467,7 @@ WHERE ues.deleted_at IS NULL
 }
 
 pub struct ChapterExerciseAttempts {
-    pub exercise_attempt: Option<bool>,
+    pub exercise_attempts: Option<i32>,
 }
 
 pub async fn get_user_course_instance_chapter_exercises_attempts(
@@ -481,9 +481,9 @@ pub async fn get_user_course_instance_chapter_exercises_attempts(
         r#"
     SELECT
     CASE
-        WHEN ues.score_given IS NULL THEN FALSE
-        ELSE TRUE
-    END AS exercise_attempt
+        WHEN ues.score_given IS NULL THEN 0
+        ELSE 1
+    END AS exercise_attempts
 FROM
 user_exercise_states AS ues
 WHERE ues.deleted_at IS NULL

@@ -1,6 +1,6 @@
 -- Add up migration script here
 ALTER TABLE course_modules
-ADD COLUMN is_completion_requirement_by_chapter BOOLEAN NOT NULL DEFAULT FALSE;
+ADD COLUMN is_completion_requirement_by_chapter BOOLEAN DEFAULT NULL;
 COMMENT ON COLUMN course_modules.is_completion_requirement_by_chapter IS 'Determine if a chapter needs to specify its completion_requirement or not';
 CREATE TABLE chapter_completion_requirements (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

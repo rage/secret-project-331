@@ -87,6 +87,11 @@
         "ordinal": 16,
         "name": "certification_enabled",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 17,
+        "name": "is_completion_requirement_by_chapter",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -109,7 +114,8 @@
       true,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "415630997608804ca8202e911e5d8b51cbfdfd965a3920aea7cdaa9a793cd7e8"

@@ -12,6 +12,7 @@ import { UserDetail } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -75,9 +76,7 @@ const CourseInstancePointsList: React.FC<
         flex-direction: column;
         color: #707070;
         font-weight: 600;
-        font-family:
-          Josefin Sans,
-          sans-serif;
+        font-family: ${headingFont};
 
         margin-top: 40px;
         ${respondToOrLarger.sm} {
@@ -110,7 +109,13 @@ const CourseInstancePointsList: React.FC<
             userCount={getPointsList.data.users.length}
           />
           <FullWidthTable>
-            <thead>
+            <thead
+              className={css`
+                th {
+                  font-weight: ${fontWeights.medium}!important;
+                }
+              `}
+            >
               <tr
                 className={css`
                   text-align: left;
@@ -160,7 +165,12 @@ const CourseInstancePointsList: React.FC<
                 })}
               </tr>
             </thead>
-            <tbody>
+            <tbody
+              className={css`
+                font-family: ${secondaryFont};
+                font-weight: ${fontWeights.medium};
+              `}
+            >
               {getPointsList.data.users
                 .map((user) => {
                   const totalPoints = Object.values(

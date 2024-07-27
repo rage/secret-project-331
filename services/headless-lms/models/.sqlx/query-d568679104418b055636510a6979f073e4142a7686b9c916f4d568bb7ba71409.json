@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    UPDATE chapter_completion_requirements\n    SET deleted_at = now()\n    WHERE chapter_id = $1\n  ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "d568679104418b055636510a6979f073e4142a7686b9c916f4d568bb7ba71409"
+}

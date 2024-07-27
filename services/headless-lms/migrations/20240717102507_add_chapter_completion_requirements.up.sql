@@ -9,8 +9,8 @@ CREATE TABLE chapter_completion_requirements (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  completion_points_treshold INTEGER,
-  completion_number_of_exercises_attempted_treshold INTEGER NOT NULL
+  completion_points_threshold INTEGER,
+  completion_number_of_exercises_attempted_threshold INTEGER NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON chapter_completion_requirements FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -21,5 +21,5 @@ COMMENT ON COLUMN chapter_completion_requirements.chapter_id IS 'The chapter_id 
 COMMENT ON COLUMN chapter_completion_requirements.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN chapter_completion_requirements.updated_at IS 'Timestamp when the record was updated.';
 COMMENT ON COLUMN chapter_completion_requirements.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
-COMMENT ON COLUMN chapter_completion_requirements.completion_points_treshold IS 'The point treshold set for this chapter by the instructor.';
-COMMENT ON COLUMN chapter_completion_requirements.completion_number_of_exercises_attempted_treshold IS 'The number of exercises attempted treshold set for this chapter by the instructor.';
+COMMENT ON COLUMN chapter_completion_requirements.completion_points_threshold IS 'The point threshold set for this chapter by the instructor.';
+COMMENT ON COLUMN chapter_completion_requirements.completion_number_of_exercises_attempted_threshold IS 'The number of exercises attempted threshold set for this chapter by the instructor.';

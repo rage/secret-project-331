@@ -26,7 +26,7 @@ INSERT INTO chapter_completion_requirements(
   course_instance_id,
   chapter_id,
   completion_points_threshold,
-  completion_number_of_exercises_attempted_threshold,
+  completion_number_of_exercises_attempted_threshold
 )
 VALUES(
   $1,

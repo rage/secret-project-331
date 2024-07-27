@@ -3,7 +3,7 @@ use itertools::Itertools;
 use std::collections::HashMap;
 
 use crate::{
-    course_exams,
+    chapter_completion_requirements, chapters, course_exams,
     course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_instances::{self, CourseInstance},
     course_module_completions::{
@@ -250,6 +250,57 @@ async fn user_is_eligible_for_automatic_completion(
 ) -> ModelResult<bool> {
     match &course_module.completion_policy {
         CompletionPolicy::Automatic(requirements) => {
+            // Create a guard here that check is_chapter_requirement is true
+            // and then check if all chapters pass the threshold
+            let is_chapter_requirements = course_module.is_completion_requirement_by_chapter;
+
+            if is_chapter_requirements {
+                let chapters = chapters::course_instance_chapters(conn, course_instance_id).await?;
+
+                for chapter in chapters {
+                    // Get the total score and attempts in a chapter for the user
+                    let total_score =
+                        get_total_score_in_a_chapter(conn, user_id, course_instance_id, chapter.id)
+                            .await?
+                            .total_score;
+
+                    let total_exercise_attempts = get_total_exercise_attempt_in_a_chapter(
+                        conn,
+                        user_id,
+                        course_instance_id,
+                        chapter.id,
+                    )
+                    .await?
+                    .total_attempts;
+
+                    // Get the completion points and attempts threshold for the chapter, default to 0 if None
+                    let chapter_threshold =
+                        chapter_completion_requirements::get_requirements_by_chapter_id(
+                            conn, chapter.id,
+                        )
+                        .await?;
+
+                    let attempts_threshold =
+                        chapter_threshold.completion_points_threshold.unwrap_or(0) as f32;
+
+                    let completion_points_threshold = chapter_threshold
+                        .completion_number_of_exercises_attempted_threshold
+                        .unwrap_or(0) as f32;
+
+                    // Compare total score and attempts with the chapter threshold
+                    if (total_score as f32) < completion_points_threshold
+                        && (total_exercise_attempts as f32) < attempts_threshold
+                    {
+                        return Ok(false);
+                    } else {
+                        return Ok(false);
+                    }
+                }
+
+                // If all chapters pass the threshold, return true
+                return Ok(true);
+            }
+
             let eligible = user_passes_automatic_completion_exercise_tresholds(
                 conn,
                 user_id,

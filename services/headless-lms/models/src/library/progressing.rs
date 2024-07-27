@@ -292,8 +292,6 @@ async fn user_is_eligible_for_automatic_completion(
                         && (total_exercise_attempts as f32) < attempts_threshold
                     {
                         return Ok(false);
-                    } else {
-                        return Ok(false);
                     }
                 }
 

@@ -8,6 +8,7 @@ import IframeSave from "./IframeSave"
 export interface IframeAttributes {
   url: string | undefined
   heightPx: number
+  widthPx: number | undefined
 }
 
 export const IFRAME_BLOCK_DEFAULT_HEIGHT_PX = 630
@@ -24,6 +25,10 @@ const IframeBoxConfiguration: BlockConfiguration<IframeAttributes> = {
     heightPx: {
       type: "number",
       default: IFRAME_BLOCK_DEFAULT_HEIGHT_PX,
+    },
+    widthPx: {
+      type: "number",
+      default: undefined,
     },
   },
   icon,

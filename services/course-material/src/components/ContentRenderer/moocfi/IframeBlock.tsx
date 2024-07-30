@@ -7,6 +7,7 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 export interface IframeAttributes {
   url: string | undefined
   heightPx: number | undefined
+  widthPx: number | undefined
 }
 
 const IFRAME = "iframe"
@@ -16,19 +17,21 @@ export const IframeBlock: React.FC<BlockRendererProps<IframeAttributes>> = (prop
     return null
   }
 
+  const { heightPx, widthPx } = props.data.attributes
+
   return (
     <BreakFromCentered sidebar={false}>
       <figure
         className={css`
           width: 100%;
-          max-width: 1000px;
+          max-width: ${widthPx ?? 1000}px;
           margin: 4rem auto;
         `}
       >
         <iframe
           className={css`
             width: 100%;
-            height: ${props.data.attributes.heightPx ?? 630}px;
+            height: ${heightPx ?? 630}px;
             border: none;
             overflow: hidden;
           `}

@@ -509,6 +509,7 @@ export interface ExamEnrollment {
   user_id: string
   exam_id: string
   started_at: string
+  ended_at: string | null
   is_teacher_testing: boolean
   show_exercise_answers: boolean | null
 }
@@ -652,6 +653,19 @@ export interface ExerciseSlideSubmissionInfo {
   tasks: Array<CourseMaterialExerciseTask>
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
+}
+
+export interface ExerciseSlideSubmissionAndUserExerciseState {
+  exercise: Exercise
+  exercise_slide_submission: ExerciseSlideSubmission
+  user_exercise_state: UserExerciseState
+  teacher_grading_decision: TeacherGradingDecision | null
+  user_exam_enrollment: ExamEnrollment
+}
+
+export interface ExerciseSlideSubmissionAndUserExerciseStateList {
+  data: Array<ExerciseSlideSubmissionAndUserExerciseState>
+  total_pages: number
 }
 
 export interface PeerOrSelfReviewsReceived {
@@ -1659,6 +1673,8 @@ export interface NewTeacherGradingDecision {
   exercise_id: string
   action: TeacherDecisionType
   manual_points: number | null
+  justification: string | null
+  hidden: boolean
 }
 
 export type TeacherDecisionType =
@@ -1675,6 +1691,8 @@ export interface TeacherGradingDecision {
   deleted_at: string | null
   score_given: number
   teacher_decision: TeacherDecisionType
+  justification: string | null
+  hidden: boolean | null
 }
 
 export interface UserCourseInstanceExerciseServiceVariable {
@@ -1894,6 +1912,11 @@ export type ExamEnrollmentData =
   | { tag: "NotEnrolled"; can_enroll: boolean }
   | { tag: "NotYetStarted" }
   | { tag: "StudentTimeUp" }
+  | {
+      tag: "StudentCanViewGrading"
+      gradings: Array<[TeacherGradingDecision, Exercise]>
+      enrollment: ExamEnrollment
+    }
 
 export interface CourseMaterialPeerOrSelfReviewDataWithToken {
   course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData

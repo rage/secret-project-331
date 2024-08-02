@@ -1,7 +1,16 @@
+use futures::future;
+
 use chrono::Utc;
 use models::{
     course_exams,
     exams::{self, Exam, NewExam},
+    exercise_slide_submissions::{
+        ExerciseSlideSubmissionAndUserExerciseState,
+        ExerciseSlideSubmissionAndUserExerciseStateList,
+    },
+    exercises::Exercise,
+    library::user_exercise_state_updater,
+    teacher_grading_decisions,
 };
 
 use crate::{
@@ -182,6 +191,131 @@ async fn edit_exam(
 
     token.authorized_ok(web::Json(()))
 }
+
+/**
+GET `/api/v0/main-frontend/exam/:exercise_id/submissions-with-exercise_id` - Returns all the exercise submissions and user exercise states with exercise_id.
+ */
+#[instrument(skip(pool))]
+async fn get_exercise_slide_submissions_and_user_exercise_states_with_exercise_id(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    pagination: web::Query<Pagination>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ExerciseSlideSubmissionAndUserExerciseStateList>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+
+    let submission_count =
+        models::exercise_slide_submissions::exercise_slide_submission_count_with_exercise_id(
+            &mut conn,
+            *exercise_id,
+        );
+    let mut conn = pool.acquire().await?;
+    let submissions = models::exercise_slide_submissions::get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+        &mut conn,
+        *exercise_id,
+        *pagination,
+    );
+    let (submission_count, submissions) = future::try_join(submission_count, submissions).await?;
+    let total_pages = pagination.total_pages(submission_count);
+
+    token.authorized_ok(web::Json(ExerciseSlideSubmissionAndUserExerciseStateList {
+        data: submissions,
+        total_pages,
+    }))
+}
+
+/**
+GET `/api/v0/main-frontend/exam/:exam_id/submissions-with-exam-id` - Returns all the exercise submissions and user exercise states with exam_id.
+ */
+#[instrument(skip(pool))]
+async fn get_exercise_slide_submissions_and_user_exercise_states_with_exam_id(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    pagination: web::Query<Pagination>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Vec<ExerciseSlideSubmissionAndUserExerciseState>>>> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let mut submissions_and_user_exercise_states: Vec<
+        Vec<ExerciseSlideSubmissionAndUserExerciseState>,
+    > = Vec::new();
+
+    let exercises = models::exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
+
+    let mut conn = pool.acquire().await?;
+    for exercise in exercises.iter() {
+        let submissions = models::exercise_slide_submissions::get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+        &mut conn,
+        exercise.id,
+        *pagination,
+    ).await?;
+        submissions_and_user_exercise_states.push(submissions)
+    }
+
+    token.authorized_ok(web::Json(submissions_and_user_exercise_states))
+}
+
+/**
+GET `/api/v0/main-frontend/exam/:exam_id/exam-exercises` - Returns all the exercises with exam_id.
+ */
+#[instrument(skip(pool))]
+async fn get_exercises_with_exam_id(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<Exercise>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let exercises = models::exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
+
+    token.authorized_ok(web::Json(exercises))
+}
+
+/**
+POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false.
+ */
+#[instrument(skip(pool))]
+async fn release_grades(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+    payload: web::Json<Vec<ExerciseSlideSubmissionAndUserExerciseState>>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let exercise_slide_submissions_and_user_exercise_state_list = payload.0;
+
+    for submission in exercise_slide_submissions_and_user_exercise_state_list.into_iter() {
+        if submission.teacher_grading_decision.is_some() {
+            user_exercise_state_updater::update_user_exercise_state(
+                &mut conn,
+                submission.user_exercise_state.id,
+            )
+            .await?;
+            teacher_grading_decisions::update_teacher_grading_decision_hidden_field(
+                &mut conn,
+                submission.teacher_grading_decision.unwrap().id,
+                false,
+            )
+            .await?;
+        }
+    }
+
+    token.authorized_ok(web::Json(()))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -199,5 +333,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(export_submissions),
         )
         .route("/{id}/edit-exam", web::post().to(edit_exam))
-        .route("/{id}/duplicate", web::post().to(duplicate_exam));
+        .route("/{id}/duplicate", web::post().to(duplicate_exam))
+        .route(
+            "/{exercise_id}/submissions-with-exercise-id",
+            web::get().to(get_exercise_slide_submissions_and_user_exercise_states_with_exercise_id),
+        )
+        .route(
+            "/{exam_id}/submissions-with-exam-id",
+            web::get().to(get_exercise_slide_submissions_and_user_exercise_states_with_exam_id),
+        )
+        .route("/{exam_id}/release-grades", web::post().to(release_grades))
+        .route(
+            "/{exam_id}/exam-exercises",
+            web::get().to(get_exercises_with_exam_id),
+        );
 }

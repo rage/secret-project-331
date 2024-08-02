@@ -13,14 +13,16 @@ import LayoutContext from "../../../contexts/LayoutContext"
 import PageContext, { CoursePageDispatch, getDefaultPageState } from "../../../contexts/PageContext"
 import useTime from "../../../hooks/useTime"
 import pageStateReducer from "../../../reducers/pageStateReducer"
-import { Block, enrollInExam, fetchExam } from "../../../services/backend"
 
+import { Block, endExamTime, enrollInExam, fetchExam } from "@/services/backend"
+import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import { baseTheme } from "@/shared-module/common/styles"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -87,6 +89,20 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
   const handleTimeOverModalClose = useCallback(async () => {
     await handleRefresh()
   }, [handleRefresh])
+
+  const handleEndExam = () => {
+    endExamMutation.mutate({ id: examId })
+  }
+
+  const endExamMutation = useToastMutation(
+    ({ id }: { id: string }) => endExamTime(id),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: async () => {
+        await handleRefresh()
+      },
+    },
+  )
 
   if (exam.isPending) {
     return <Spinner variant="medium" />
@@ -229,6 +245,56 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
     )
   }
 
+  if (exam.data.enrollment_data.tag === "StudentCanViewGrading") {
+    return (
+      <>
+        {examInfo}
+        {exam.data.enrollment_data.gradings.map(
+          (grade) =>
+            !grade[0].hidden && (
+              <div
+                key={grade[0].id}
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                  background: #f5f6f7;
+                  font-family: ${headingFont};
+                  font-size: 18px;
+                  padding: 8px;
+                  margin: 10px;
+                `}
+              >
+                <div>
+                  {t("label-name")}: {grade[1].name}
+                </div>
+                <div>
+                  {t("points")}: {grade[0].score_given} / {grade[1].score_maximum}
+                </div>
+                <div
+                  className={css`
+                    color: #535a66;
+                    font-size: 16px;
+                    padding-top: 1rem;
+                  `}
+                >
+                  {t("label-feedback")}:
+                  <div
+                    className={css`
+                      background: #ffffff;
+                      color: #535a66;
+                      padding: 10px;
+                    `}
+                  >
+                    {grade[0].justification}
+                  </div>
+                </div>
+              </div>
+            ),
+        )}
+      </>
+    )
+  }
+
   const endsAt = exam.data.ends_at
     ? min([
         addMinutes(exam.data.enrollment_data.enrollment.started_at, exam.data.time_minutes),
@@ -266,6 +332,18 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
           </div>
         )}
         <Page onRefresh={handleRefresh} organizationSlug={query.organizationSlug} />
+        <Button
+          variant={"primary"}
+          size={"small"}
+          onClick={() => {
+            const confirmation = confirm(t("message-do-you-want-to-end-the-exam"))
+            if (confirmation) {
+              handleEndExam()
+            }
+          }}
+        >
+          {t("button-end-exam")}
+        </Button>
       </PageContext.Provider>
     </CoursePageDispatch.Provider>
   )

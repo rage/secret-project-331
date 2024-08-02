@@ -1,4 +1,5 @@
 use chrono::Duration;
+use std::collections::HashMap;
 
 use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
@@ -351,12 +352,13 @@ pub async fn verify_exam_submission_can_be_made(
     Ok(student_has_time && exam_is_ongoing)
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExamEnrollment {
     pub user_id: Uuid,
     pub exam_id: Uuid,
     pub started_at: DateTime<Utc>,
+    pub ended_at: Option<DateTime<Utc>>,
     pub is_teacher_testing: bool,
     pub show_exercise_answers: Option<bool>,
 }
@@ -372,6 +374,7 @@ pub async fn get_enrollment(
 SELECT user_id,
   exam_id,
   started_at,
+  ended_at,
   is_teacher_testing,
   show_exercise_answers
 FROM exam_enrollments
@@ -384,6 +387,89 @@ WHERE exam_id = $1
     )
     .fetch_optional(conn)
     .await?;
+    Ok(res)
+}
+
+pub async fn get_exam_enrollments_for_users(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, ExamEnrollment>> {
+    let enrollments = sqlx::query_as!(
+        ExamEnrollment,
+        "
+SELECT user_id,
+  exam_id,
+  started_at,
+  ended_at,
+  is_teacher_testing,
+  show_exercise_answers
+FROM exam_enrollments
+WHERE user_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND exam_id = $2
+  AND deleted_at IS NULL
+",
+        user_ids,
+        exam_id,
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut res: HashMap<Uuid, ExamEnrollment> = HashMap::new();
+    for item in enrollments.into_iter() {
+        res.insert(item.user_id, item);
+    }
+    Ok(res)
+}
+
+pub async fn get_ongoing_exam_enrollments(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<ExamEnrollment>> {
+    let enrollments = sqlx::query_as!(
+        ExamEnrollment,
+        "
+SELECT user_id,
+  exam_id,
+  started_at,
+  ended_at,
+  is_teacher_testing,
+  show_exercise_answers
+FROM exam_enrollments
+WHERE
+    ended_at IS NULL
+  AND deleted_at IS NULL
+"
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(enrollments)
+}
+
+pub async fn get_exams(conn: &mut PgConnection) -> ModelResult<HashMap<Uuid, OrgExam>> {
+    let exams = sqlx::query_as!(
+        OrgExam,
+        "
+SELECT id,
+  name,
+  instructions,
+  starts_at,
+  ends_at,
+  time_minutes,
+  organization_id,
+  minimum_points_treshold
+FROM exams
+WHERE deleted_at IS NULL
+"
+    )
+    .fetch_all(conn)
+    .await?;
+
+    let mut res: HashMap<Uuid, OrgExam> = HashMap::new();
+    for item in exams.into_iter() {
+        res.insert(item.id, item);
+    }
     Ok(res)
 }
 
@@ -404,6 +490,54 @@ WHERE exam_id = $1
         exam_id,
         user_id,
         started_at
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_exam_ended_at(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+    ended_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exam_enrollments
+SET ended_at = $3
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+",
+        exam_id,
+        user_id,
+        ended_at
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+pub async fn update_exam_ended_at_for_users_with_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_ids: &[Uuid],
+    ended_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exam_enrollments
+SET ended_at = $3
+WHERE user_id IN (
+    SELECT UNNEST($1::uuid [])
+  )
+  AND exam_id = $2
+  AND deleted_at IS NULL
+",
+        user_ids,
+        exam_id,
+        ended_at
     )
     .execute(conn)
     .await?;

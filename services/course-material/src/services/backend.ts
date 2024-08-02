@@ -16,6 +16,7 @@ import {
   CustomViewExerciseSubmissions,
   ExamData,
   ExamEnrollment,
+  ExerciseSlideSubmissionAndUserExerciseStateList,
   IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
@@ -57,6 +58,7 @@ import {
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
   isExamData,
+  isExerciseSlideSubmissionAndUserExerciseStateList,
   isIsChapterFrontPage,
   isMaterialReference,
   isOEmbedResponse,
@@ -639,4 +641,20 @@ export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
     `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
   )
   return validateResponse(response, isArray(isCourseModuleCompletion))
+}
+
+export const fetchExerciseSubmissions = async (
+  exerciseId: string,
+  page: number,
+  limit: number,
+): Promise<ExerciseSlideSubmissionAndUserExerciseStateList> => {
+  const response = await courseMaterialClient.get(
+    `/exams/${exerciseId}/submissions?page=${page}&limit=${limit}`,
+  )
+  return validateResponse(response, isExerciseSlideSubmissionAndUserExerciseStateList)
+}
+
+export const endExamTime = async (examId: string): Promise<void> => {
+  const response = await courseMaterialClient.post(`/exams/${examId}/end-exam-time`)
+  return response.data
 }

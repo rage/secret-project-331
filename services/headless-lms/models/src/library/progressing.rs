@@ -566,6 +566,16 @@ pub async fn add_manual_completions(
                 },
             )
             .await?;
+
+            if completion.grade.is_some()
+                && (completion.grade > Some(5) || completion.grade < Some(0))
+            {
+                return Err(ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Invalid grade".to_string(),
+                    None,
+                ));
+            }
             course_module_completions::insert(
                 &mut tx,
                 PKeyPolicy::Generate,

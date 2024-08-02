@@ -2,10 +2,9 @@ use std::sync::Arc;
 
 use headless_lms_models::{
     course_instances::{self, NewCourseInstance},
+    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
-    library,
-    library::content_management::CreateNewCourseFixedIds,
-    library::copying::copy_course,
+    library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
     PKeyPolicy,
@@ -50,6 +49,7 @@ pub async fn seed_organization_uh_mathstat(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
+        student_6_user_id: _,
         langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
@@ -83,6 +83,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Introduces you to the wonderful world of statistics!".to_string(),
         is_draft: false,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: false,
     };
     let (
@@ -128,6 +129,7 @@ pub async fn seed_organization_uh_mathstat(
         description: "Just a draft.".to_string(),
         is_draft: true,
         is_test_mode: false,
+        is_unlisted: false,
         copy_user_permissions: false,
     };
     library::content_management::create_new_course(
@@ -174,6 +176,7 @@ pub async fn seed_organization_uh_mathstat(
             description: "Just a draft.".to_string(),
             is_draft: false,
             is_test_mode: false,
+            is_unlisted: false,
             copy_user_permissions: false,
         },
         true,
@@ -258,6 +261,43 @@ pub async fn seed_organization_uh_mathstat(
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(audio_course),
+    )
+    .await?;
+
+    let suspected_cheaters_course_id = seed_sample_course(
+        Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
+        "Course for Suspected Cheaters",
+        "course-for-suspected-cheaters",
+        uh_data.clone(),
+    )
+    .await?;
+
+    // configure automatic completions
+    let automatic_default_module =
+        course_modules::get_default_by_course_id(&mut conn, suspected_cheaters_course_id).await?;
+    let automatic_default_module = course_modules::update_automatic_completion_status(
+        &mut conn,
+        automatic_default_module.id,
+        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_default_module.id,
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+            requires_exam: false,
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("CHEATER123".to_string()),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(suspected_cheaters_course_id),
     )
     .await?;
 

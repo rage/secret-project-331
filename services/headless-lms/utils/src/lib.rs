@@ -24,7 +24,7 @@ extern crate tracing;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,

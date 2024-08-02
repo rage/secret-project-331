@@ -616,6 +616,7 @@ mod tests {
                     description: "".to_string(),
                     is_draft: false,
                     is_test_mode: false,
+                    is_unlisted: false,
                     copy_user_permissions: false,
                 },
                 user,

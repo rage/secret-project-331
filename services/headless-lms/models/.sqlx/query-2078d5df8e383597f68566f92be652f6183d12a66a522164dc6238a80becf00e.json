@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot\nFROM courses\nWHERE deleted_at IS NULL;\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
   "describe": {
     "columns": [
       {
@@ -75,17 +75,22 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
       },
       {
         "ordinal": 15,
-        "name": "can_add_chatbot",
+        "name": "is_unlisted",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -103,8 +108,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "0794ce1686e5568c2751754b1d7adedcc2c50a17e1f9420d39a61b44b0393438"
+  "hash": "2078d5df8e383597f68566f92be652f6183d12a66a522164dc6238a80becf00e"
 }

@@ -160,6 +160,7 @@ async fn insert_data(
                 description: "".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                is_unlisted: false,
                 copy_user_permissions: false,
             },
             user_1,
@@ -172,7 +173,7 @@ async fn insert_data(
         )
         .await
         .unwrap();
-    let course_module_completion_id = headless_lms_models::course_module_completions::insert(
+    let course_module_completion = headless_lms_models::course_module_completions::insert(
         conn,
         PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
@@ -194,12 +195,12 @@ async fn insert_data(
     .unwrap();
     headless_lms_models::course_module_completions::update_prerequisite_modules_completed(
         conn,
-        course_module_completion_id,
+        course_module_completion.id,
         true,
     )
     .await
     .unwrap();
-    let course_module_completion_2_id = headless_lms_models::course_module_completions::insert(
+    let course_module_completion_2 = headless_lms_models::course_module_completions::insert(
         conn,
         PKeyPolicy::Generate,
         &NewCourseModuleCompletion {
@@ -221,7 +222,7 @@ async fn insert_data(
     .unwrap();
     headless_lms_models::course_module_completions::update_prerequisite_modules_completed(
         conn,
-        course_module_completion_2_id,
+        course_module_completion_2.id,
         true,
     )
     .await
@@ -231,7 +232,7 @@ async fn insert_data(
         org,
         course.id,
         course_module.id,
-        course_module_completion_id,
-        course_module_completion_2_id,
+        course_module_completion.id,
+        course_module_completion_2.id,
     )
 }

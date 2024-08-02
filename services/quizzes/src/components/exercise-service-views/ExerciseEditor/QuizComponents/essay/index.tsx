@@ -6,6 +6,7 @@ import { PrivateSpecQuizItemEssay } from "../../../../../../types/quizTypes/priv
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
 import EditorCard from "../common/EditorCard"
+import ParsedTextField from "../common/ParsedTextField"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 
@@ -32,12 +33,35 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
     },
   )
 
+  const { selected: totalNumberOfQuizItems } = useQuizzesExerciseServiceOutputState<number>(
+    (quiz) => {
+      return quiz?.items.length ?? 0
+    },
+  )
+
+  const showTitleEditor =
+    (totalNumberOfQuizItems && totalNumberOfQuizItems > 1) || !!selected?.title
+
   if (selected === null) {
     return <></>
   }
 
   return (
     <EditorCard quizItemId={quizItemId} title={t("quiz-essay-name")}>
+      {showTitleEditor && (
+        <ParsedTextField
+          value={selected.title}
+          onChange={(title) => {
+            updateState((draft) => {
+              if (!draft) {
+                return
+              }
+              draft.title = title
+            })
+          }}
+          label={t("title")}
+        />
+      )}
       <TextFieldContainer>
         <TextFieldWrapper>
           <TextField

@@ -120,6 +120,7 @@ const LanguageCode = styled.div`
 interface CourseCardProps {
   title: string
   isDraft: boolean
+  isUnlisted: boolean
   description: string
   languageCode: string
   manageHref: string
@@ -137,6 +138,7 @@ const LANGUAGE_TEXT = "Language"
 const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
   title,
   isDraft,
+  isUnlisted,
   description,
   languageCode,
   manageHref,
@@ -189,6 +191,7 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
             <CourseHeading>
               {title}
               {isDraft && ` (${t("draft")})`}
+              {isUnlisted && ` (${t("unlisted")})`}
             </CourseHeading>
             <CourseDescription>{description}</CourseDescription>
           </CourseContent>

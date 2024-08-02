@@ -47,9 +47,10 @@ INSERT INTO courses (
     course_language_group_id,
     is_draft,
     base_module_completion_requires_n_submodule_completions,
-    can_add_chatbot
+    can_add_chatbot,
+    is_unlisted
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id,
   name,
   created_at,
@@ -65,7 +66,8 @@ RETURNING id,
   is_draft,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted
     ",
         new_course.name,
         new_course.organization_id,
@@ -77,6 +79,7 @@ RETURNING id,
         new_course.is_draft,
         parent_course.base_module_completion_requires_n_submodule_completions,
         parent_course.can_add_chatbot,
+        new_course.is_unlisted,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -1156,6 +1159,7 @@ mod tests {
                 description: "".to_string(),
                 is_draft: true,
                 is_test_mode: false,
+                is_unlisted: false,
                 copy_user_permissions: false,
             }
         }

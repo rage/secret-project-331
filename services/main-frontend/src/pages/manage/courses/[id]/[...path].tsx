@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import MainFrontendBreadCrumbs from "../../../../components/MainFrontendBreadCrumbs"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
 import ChatBotPage from "../../../../components/page-specific/manage/courses/id/chatbot/ChatbotPage"
+import CourseCheaters from "../../../../components/page-specific/manage/courses/id/cheaters/CourseCheaters"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
 import CourseFeedback from "../../../../components/page-specific/manage/courses/id/feedback/CourseFeedback"
@@ -55,6 +56,7 @@ const CourseManagementPageTabs: {
   glossary: CourseGlossary,
   stats: CourseStatsPage,
   chatbot: ChatBotPage,
+  cheaters: CourseCheaters,
 }
 
 const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPageProps>> = ({
@@ -123,6 +125,9 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
             {t("chatbot")}
           </TabLink>
         )}
+        <TabLink url={"cheaters"} isActive={path === "cheaters"}>
+          {t("link-cheaters")}
+        </TabLink>
         <TabLink url={"stats"} isActive={path === "stats"}>
           {t("link-stats")}
         </TabLink>

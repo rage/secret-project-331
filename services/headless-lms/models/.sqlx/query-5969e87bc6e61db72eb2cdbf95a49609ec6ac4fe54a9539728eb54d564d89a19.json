@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      SELECT *\n      FROM suspected_cheaters\n      WHERE id = $1\n      AND deleted_at IS NULL;\n    ",
+  "query": "\n      SELECT *\n      FROM suspected_cheaters\n      WHERE user_id = $1\n      AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -37,12 +37,22 @@
         "ordinal": 6,
         "name": "total_points",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "is_archived",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, true, true, false]
+    "nullable": [false, false, false, false, true, true, false, false, false]
   },
-  "hash": "f604ff0b17b848a9a5b4eec08857c8a3765ba5766f960c47b6b5e6cadec790b2"
+  "hash": "5969e87bc6e61db72eb2cdbf95a49609ec6ac4fe54a9539728eb54d564d89a19"
 }

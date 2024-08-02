@@ -43,6 +43,7 @@ pub struct Course {
     pub course_language_group_id: Uuid,
     pub is_draft: bool,
     pub is_test_mode: bool,
+    pub is_unlisted: bool,
     pub base_module_completion_requires_n_submodule_completions: i32,
     pub can_add_chatbot: bool,
 }
@@ -72,6 +73,7 @@ pub struct NewCourse {
     pub description: String,
     pub is_draft: bool,
     pub is_test_mode: bool,
+    pub is_unlisted: bool,
     /// If true, copies all user permissions from the original course to the new one.
     pub copy_user_permissions: bool,
 }
@@ -151,7 +153,8 @@ SELECT id,
   is_draft,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -182,6 +185,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  is_unlisted,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot
 FROM courses
@@ -221,8 +225,9 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -273,7 +278,8 @@ SELECT id,
   is_draft,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -309,7 +315,8 @@ SELECT
     c.is_draft,
     c.is_test_mode,
     c.base_module_completion_requires_n_submodule_completions,
-    can_add_chatbot
+    can_add_chatbot,
+    c.is_unlisted
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -369,8 +376,9 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id = $1;
     "#,
@@ -473,11 +481,15 @@ SELECT courses.id,
   courses.is_draft,
   courses.is_test_mode,
   base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  courses.is_unlisted
 FROM courses
 WHERE courses.organization_id = $1
   AND (
-    courses.is_draft IS FALSE
+    (
+      courses.is_draft IS FALSE
+      AND courses.is_unlisted IS FALSE
+    )
     OR EXISTS (
       SELECT id
       FROM roles
@@ -532,6 +544,7 @@ pub struct CourseUpdate {
     pub is_draft: bool,
     pub is_test_mode: bool,
     pub can_add_chatbot: bool,
+    pub is_unlisted: bool,
 }
 
 pub async fn update_course(
@@ -547,8 +560,9 @@ SET name = $1,
   description = $2,
   is_draft = $3,
   is_test_mode = $4,
-  can_add_chatbot = $5
-WHERE id = $6
+  can_add_chatbot = $5,
+  is_unlisted = $6
+WHERE id = $7
 RETURNING id,
   name,
   created_at,
@@ -563,14 +577,16 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions
     "#,
         course_update.name,
         course_update.description,
         course_update.is_draft,
         course_update.is_test_mode,
         course_update.can_add_chatbot,
+        course_update.is_unlisted,
         course_id
     )
     .fetch_one(conn)
@@ -619,8 +635,9 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions
     "#,
         course_id
     )
@@ -647,8 +664,9 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -720,8 +738,9 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -831,6 +850,7 @@ mod test {
                 description: "description".to_string(),
                 is_draft: false,
                 is_test_mode: false,
+                is_unlisted: false,
                 copy_user_permissions: false,
             }
         }

@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use headless_lms_models::{
+    chatbot_configurations::{self, ChatbotConfiguration},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
@@ -298,6 +299,39 @@ pub async fn seed_organization_uh_mathstat(
         teacher_user_id,
         UserRole::Teacher,
         RoleDomain::Course(suspected_cheaters_course_id),
+    )
+    .await?;
+
+    let chatbot_course_id = seed_sample_course(
+        Uuid::parse_str("c7753361-5b78-4307-aad6-f139ea3865d4")?,
+        "Chatbot",
+        "chatbot",
+        uh_data.clone(),
+    )
+    .await?;
+
+    roles::insert(
+        &mut conn,
+        chatbot_course_id,
+        UserRole::Teacher,
+        RoleDomain::Course(chatbot_course_id),
+    )
+    .await?;
+
+    chatbot_configurations::insert(
+        &mut conn,
+        ChatbotConfiguration {
+            id: Uuid::parse_str("d13daa6e-7a14-40b9-92a9-58bd5793d2de")?,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+            deleted_at: None,
+            course_id: chatbot_course_id,
+            enabled_to_students: true,
+            chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
+            prompt: "You are a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science.".to_string(),
+            initial_message: "Oh... It's you.".to_string(),
+            weekly_tokens_per_user: 100,
+        },
     )
     .await?;
 

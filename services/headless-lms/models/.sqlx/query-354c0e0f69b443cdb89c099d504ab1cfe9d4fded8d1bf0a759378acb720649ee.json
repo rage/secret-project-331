@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT * FROM chatbot_configurations\nWHERE id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "enabled_to_students",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "chatbot_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "prompt",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "initial_message",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "weekly_tokens_per_user",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false, false]
+  },
+  "hash": "354c0e0f69b443cdb89c099d504ab1cfe9d4fded8d1bf0a759378acb720649ee"
+}

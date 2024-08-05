@@ -12,7 +12,7 @@ CREATE TABLE chatbot_configurations (
   chatbot_name VARCHAR(1024) NOT NULL,
   prompt VARCHAR(32376) NOT NULL,
   initial_message VARCHAR(32376) NOT NULL,
-  daily_tokens_per_user INT NOT NULL,
+  weekly_tokens_per_user INT NOT NULL,
   -- Course can have only one chatbot configuration
   UNIQUE NULLS NOT DISTINCT (course_id, deleted_at)
 );
@@ -30,7 +30,7 @@ COMMENT ON COLUMN chatbot_configurations.enabled_to_students IS 'If enabled, stu
 COMMENT ON COLUMN chatbot_configurations.chatbot_name IS 'This name will be used when presenting the chatbot to the students.';
 COMMENT ON COLUMN chatbot_configurations.prompt IS 'The prompt that the chatbot will use to start the conversation.';
 COMMENT ON COLUMN chatbot_configurations.initial_message IS 'The message the chatbot will send to the student when they open the chat for the first time.';
-COMMENT ON COLUMN chatbot_configurations.daily_tokens_per_user IS 'The number of tokens a student can use per day. Limits the number of messages a student can send to the chatbot.';
+COMMENT ON COLUMN chatbot_configurations.weekly_tokens_per_user IS 'The number of tokens a student can use per week. Limits the number of messages a student can send to the chatbot.';
 
 CREATE TABLE chatbot_page_sync_statuses (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -55,3 +55,57 @@ COMMENT ON COLUMN chatbot_page_sync_statuses.synced_page_revision_id IS 'If null
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON chatbot_page_sync_statuses FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+--- Conversations
+CREATE TABLE chatbot_conversations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  course_id UUID NOT NULL REFERENCES courses(id),
+  user_id UUID NOT NULL,
+  chatbot_configuration_id UUID NOT NULL REFERENCES chatbot_configurations(id)
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON chatbot_conversations FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE chatbot_conversations IS 'Grops the messages in a conversation between a student and a chatbot.';
+COMMENT ON COLUMN chatbot_conversations.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN chatbot_conversations.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN chatbot_conversations.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN chatbot_conversations.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN chatbot_conversations.course_id IS 'The course this chatbot is appearing on';
+COMMENT ON COLUMN chatbot_conversations.user_id IS 'The user that is participating in the conversation.';
+COMMENT ON COLUMN chatbot_conversations.chatbot_configuration_id IS 'The chatbot configuration that is used in this conversation.';
+
+-- Chatbot conversation messages
+CREATE TABLE chatbot_conversation_messages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  conversation_id UUID NOT NULL REFERENCES chatbot_conversations(id),
+  message VARCHAR(131072),
+  is_from_chatbot BOOLEAN NOT NULL,
+  message_is_complete BOOLEAN NOT NULL DEFAULT FALSE,
+  CHECK (
+    is_from_chatbot = false
+    OR message_is_complete = TRUE
+  ),
+  used_tokens INT NOT NULL DEFAULT 0
+);
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON chatbot_conversation_messages FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+COMMENT ON TABLE chatbot_conversation_messages IS 'The messages in a conversation between a student and a chatbot.';
+COMMENT ON COLUMN chatbot_conversation_messages.id IS 'A unique, stable identifier for the record.';
+COMMENT ON COLUMN chatbot_conversation_messages.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN chatbot_conversation_messages.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN chatbot_conversation_messages.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN chatbot_conversation_messages.conversation_id IS 'The conversation this message belongs to.';
+COMMENT ON COLUMN chatbot_conversation_messages.message IS 'The message content.';
+COMMENT ON COLUMN chatbot_conversation_messages.is_from_chatbot IS 'If true, the message is from the chatbot. If false, the message is from the user.';
+COMMENT ON COLUMN chatbot_conversation_messages.message_is_complete IS 'Always true for messages from the user. The chatbot messages are streamed to the client, and this field is used to indicate whether that the stream is complete.';
+COMMENT ON COLUMN chatbot_conversation_messages.used_tokens IS 'The number of tokens used to send or receive this message.';

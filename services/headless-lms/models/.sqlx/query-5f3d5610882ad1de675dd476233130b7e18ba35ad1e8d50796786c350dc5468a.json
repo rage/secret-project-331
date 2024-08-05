@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "enabled_to_students",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "chatbot_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "prompt",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "initial_message",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "weekly_tokens_per_user",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Bool", "Varchar", "Varchar", "Varchar", "Int4"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false, false]
+  },
+  "hash": "5f3d5610882ad1de675dd476233130b7e18ba35ad1e8d50796786c350dc5468a"
+}

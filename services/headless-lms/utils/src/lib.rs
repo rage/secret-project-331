@@ -21,7 +21,6 @@ pub mod url_to_oembed_endpoint;
 #[macro_use]
 extern crate tracing;
 
-use serde::{Deserialize, Serialize};
 use url::Url;
 
 #[derive(Clone, PartialEq)]

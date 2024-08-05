@@ -85,10 +85,21 @@ pub struct ChatReponse {
     pub text: String,
 }
 
+struct RequestCancelledGuard;
+
+impl Drop for RequestCancelledGuard {
+    fn drop(&mut self) {
+        info!("Request cancelled");
+    }
+}
+
 pub async fn send_chat_request_and_parse_stream(
     payload: &ChatRequest,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
+    let mut full_response_text = Vec::new();
+    let _request_cancelled_guard = RequestCancelledGuard;
+
     let api_key = app_config
         .chatbot_azure_api_key
         .as_ref()
@@ -134,24 +145,27 @@ pub async fn send_chat_request_and_parse_stream(
     let response_stream = async_stream::try_stream! {
         let mut done = false;
         while let Some(line) = lines.next_line().await? {
-            dbg!(&line);
+            // dbg!(&line);
             if !line.starts_with("data: ") {
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
             if json_str.trim() == "[DONE]" {
-                // TODO: Handle DONE
+                let full_response_as_string = full_response_text.join("");
+                let estimated_cost = estimate_tokens(&full_response_as_string);
+                info!("End of chatbot response stream. Esimated cost: {}. Response: {}", estimated_cost, full_response_as_string);
                 done = true;
                 break;
             }
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
-                dbg!(&json_str);
-                dbg!(&e);
+                // dbg!(&json_str);
+                // dbg!(&e);
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
             for choice in &response_chunk.choices {
                 if let Some(delta) = &choice.delta {
                     if let Some(content) = &delta.content {
+                        full_response_text.push(content.clone());
                         let response = ChatReponse { text: content.clone() };
                         let response_as_string = serde_json::to_string(&response)?;
                         let bytes = Bytes::from(response_as_string);

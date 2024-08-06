@@ -36,7 +36,7 @@ pub async fn seed_organization_uh_mathstat(
 
     let SeedUsersResult {
         admin_user_id,
-        teacher_user_id,
+        teacher_user_id: _,
         language_teacher_user_id: _,
         material_viewer_user_id,
         assistant_user_id: _,
@@ -52,7 +52,7 @@ pub async fn seed_organization_uh_mathstat(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
-    } = seed_users_result;
+    } = seed_users_result.clone();
     let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;
@@ -152,7 +152,7 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
-        example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
+        example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,
     };
@@ -161,6 +161,7 @@ pub async fn seed_organization_uh_mathstat(
         "Introduction to citations",
         "introduction-to-citations",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
@@ -190,14 +191,7 @@ pub async fn seed_organization_uh_mathstat(
         "Preview unopened chapters",
         "preview-unopened-chapters",
         uh_data.clone(),
-    )
-    .await?;
-
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(preview_unopened_chapters),
+        seed_users_result,
     )
     .await?;
 
@@ -206,14 +200,7 @@ pub async fn seed_organization_uh_mathstat(
         "Reset progress",
         "reset-progress",
         uh_data.clone(),
-    )
-    .await?;
-
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(reset_progress),
+        seed_users_result,
     )
     .await?;
 
@@ -222,14 +209,7 @@ pub async fn seed_organization_uh_mathstat(
         "Change path",
         "change-path",
         uh_data.clone(),
-    )
-    .await?;
-
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(change_path),
+        seed_users_result,
     )
     .await?;
 
@@ -238,14 +218,7 @@ pub async fn seed_organization_uh_mathstat(
         "Self review",
         "self-review",
         uh_data.clone(),
-    )
-    .await?;
-
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(self_review),
+        seed_users_result,
     )
     .await?;
 
@@ -254,14 +227,7 @@ pub async fn seed_organization_uh_mathstat(
         "Audio course",
         "audio-course",
         uh_data.clone(),
-    )
-    .await?;
-
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(audio_course),
+        seed_users_result,
     )
     .await?;
 
@@ -270,6 +236,7 @@ pub async fn seed_organization_uh_mathstat(
         "Course for Suspected Cheaters",
         "course-for-suspected-cheaters",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
@@ -294,27 +261,12 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(suspected_cheaters_course_id),
-    )
-    .await?;
-
     let chatbot_course_id = seed_sample_course(
         Uuid::parse_str("c7753361-5b78-4307-aad6-f139ea3865d4")?,
         "Chatbot",
         "chatbot",
         uh_data.clone(),
-    )
-    .await?;
-
-    roles::insert(
-        &mut conn,
-        chatbot_course_id,
-        UserRole::Teacher,
-        RoleDomain::Course(chatbot_course_id),
+        seed_users_result,
     )
     .await?;
 
@@ -328,9 +280,10 @@ pub async fn seed_organization_uh_mathstat(
             course_id: chatbot_course_id,
             enabled_to_students: true,
             chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
-            prompt: "You are a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science.".to_string(),
+            prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't babble; either get to the point straight away or tell jokes.".to_string(),
             initial_message: "Oh... It's you.".to_string(),
-            weekly_tokens_per_user: 100,
+            weekly_tokens_per_user: 3000,
+            daily_tokens_per_user: 1000,
         },
     )
     .await?;

@@ -52,12 +52,17 @@
         "ordinal": 9,
         "name": "weekly_tokens_per_user",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "daily_tokens_per_user",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
   },
   "hash": "354c0e0f69b443cdb89c099d504ab1cfe9d4fded8d1bf0a759378acb720649ee"
 }

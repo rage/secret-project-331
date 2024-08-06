@@ -66,7 +66,7 @@ pub async fn seed_organization_uh_cs(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
-    } = seed_users_result;
+    } = seed_users_result.clone();
     let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;
@@ -97,7 +97,7 @@ pub async fn seed_organization_uh_cs(
         admin_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
-        example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
+        example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
         jwt_key: Arc::clone(&jwt_key),
         base_url: base_url.clone(),
     };
@@ -116,36 +116,42 @@ pub async fn seed_organization_uh_cs(
             "Introduction to everything",
             "introduction-to-everything",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("b39b64f3-7718-4556-ac2b-333f3ed4096f")?,
             "Automatic Completions",
             "automatic-completions",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("639f4d25-9376-49b5-bcca-7cba18c38565")?,
             "Introduction to localizing",
             "introduction-to-localizing",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("34f4e7b7-9f55-48a7-95d7-3fc3e89553b5")?,
             "Manual Completions",
             "manual-completions",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("260b2157-94ad-4791-91c7-f236f203c338")?,
             "Automatic Course with Exam",
             "automatic-course-with-exam",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("51ce5ea4-2587-407e-bea9-421309f77f69")?,
             "Certificates",
             "certificates",
             cs_data.clone(),
+            seed_users_result,
         )),
         // not using these ids
         run_parallelly(seed_sample_course(
@@ -153,78 +159,91 @@ pub async fn seed_organization_uh_cs(
             "Model solutions",
             "model-solutions",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("edaa1c52-15cd-458d-8ce2-1e4010641244")?,
             "Course Modules",
             "course-modules",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("d18b3780-563d-4326-b311-8d0e132901cd")?,
             "Introduction to feedback",
             "introduction-to-feedback",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("0ab2c4c5-3aad-4daa-a8fe-c26e956fde35")?,
             "Introduction to history",
             "introduction-to-history",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("cae7da38-9486-47da-9106-bff9b6a280f2")?,
             "Introduction to edit proposals",
             "introduction-to-edit-proposals",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("b4cb334c-11d6-4e93-8f3d-849c4abfcd67")?,
             "Point view for teachers",
             "point-view-for-teachers",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4")?,
             "Advanced course instance management",
             "advanced-course-instance-management",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("0cf67777-0edb-480c-bdb6-13f90c136fc3")?,
             "Advanced exercise states",
             "advanced-exercise-states",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
             "Glossary course",
             "glossary-course",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,
             "Permission management",
             "permission-management",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("f9579c00-d0bb-402b-affd-7db330dcb11f")?,
             "Redirections",
             "redirections",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("9da60c66-9517-46e4-b351-07d0f7aa6cd4")?,
             "Limited tries",
             "limited-tries",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("86cbc198-601c-42f4-8e0f-3e6cce49bbfc")?,
             "Course Structure",
             "course-structure",
             cs_data.clone(),
+            seed_users_result,
         )),
         run_parallelly(create_glossary_course(
             Uuid::parse_str("e5b89931-e3d6-4930-9692-61539748c12c")?,

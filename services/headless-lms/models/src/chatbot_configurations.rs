@@ -12,6 +12,7 @@ pub struct ChatbotConfiguration {
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
+    pub daily_tokens_per_user: i32,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
@@ -41,9 +42,10 @@ INSERT INTO chatbot_configurations (
     chatbot_name,
     prompt,
     initial_message,
-    weekly_tokens_per_user
+    weekly_tokens_per_user,
+    daily_tokens_per_user
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *
         "#,
         input.course_id,
@@ -51,7 +53,8 @@ RETURNING *
         input.chatbot_name,
         input.prompt,
         input.initial_message,
-        input.weekly_tokens_per_user
+        input.weekly_tokens_per_user,
+        input.daily_tokens_per_user
     )
     .fetch_one(conn)
     .await?;

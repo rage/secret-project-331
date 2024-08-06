@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -52,12 +52,17 @@
         "ordinal": 9,
         "name": "weekly_tokens_per_user",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "daily_tokens_per_user",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Bool", "Varchar", "Varchar", "Varchar", "Int4"]
+      "Left": ["Uuid", "Bool", "Varchar", "Varchar", "Varchar", "Int4", "Int4"]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false, false]
+    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
   },
-  "hash": "5f3d5610882ad1de675dd476233130b7e18ba35ad1e8d50796786c350dc5468a"
+  "hash": "3779954d7b34e6eff489bf56fb161e68aa2c8a67282890e032327fd40876d944"
 }

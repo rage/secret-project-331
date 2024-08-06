@@ -13,6 +13,7 @@ CREATE TABLE chatbot_configurations (
   prompt VARCHAR(32376) NOT NULL,
   initial_message VARCHAR(32376) NOT NULL,
   weekly_tokens_per_user INT NOT NULL,
+  daily_tokens_per_user INT NOT NULL,
   -- Course can have only one chatbot configuration
   UNIQUE NULLS NOT DISTINCT (course_id, deleted_at)
 );
@@ -30,7 +31,8 @@ COMMENT ON COLUMN chatbot_configurations.enabled_to_students IS 'If enabled, stu
 COMMENT ON COLUMN chatbot_configurations.chatbot_name IS 'This name will be used when presenting the chatbot to the students.';
 COMMENT ON COLUMN chatbot_configurations.prompt IS 'The prompt that the chatbot will use to start the conversation.';
 COMMENT ON COLUMN chatbot_configurations.initial_message IS 'The message the chatbot will send to the student when they open the chat for the first time.';
-COMMENT ON COLUMN chatbot_configurations.weekly_tokens_per_user IS 'The number of tokens a student can use per week. Limits the number of messages a student can send to the chatbot.';
+COMMENT ON COLUMN chatbot_configurations.weekly_tokens_per_user IS 'The number of tokens a student can use per week. Limits the number of messages a student can send to the chatbot based on the complexity of the messages and responses.';
+COMMENT ON COLUMN chatbot_configurations.daily_tokens_per_user IS 'The number of tokens a student can use per day. Limits the number of messages a student can send to the chatbot based on the complexity of the messages and responses.';
 
 CREATE TABLE chatbot_page_sync_statuses (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

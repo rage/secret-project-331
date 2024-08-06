@@ -17,6 +17,8 @@ async fn send_message(
     user: AuthUser,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
+    let mut messages = Vec::new();
+
     let chat_request = ChatRequest {
         messages: vec![ChatMessage {
             role: "user".to_string(),
@@ -53,10 +55,12 @@ async fn new_conversation(
     let token = skip_authorize();
 
     let mut conn = pool.acquire().await?;
-    let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+    let mut tx = conn.begin().await?;
+
+    let configuration = models::chatbot_configurations::get_by_id(&mut tx, *params).await?;
 
     let conversation = models::chatbot_conversations::insert(
-        &mut conn,
+        &mut tx,
         ChatbotConversation {
             id: Uuid::new_v4(),
             created_at: Utc::now(),
@@ -68,6 +72,8 @@ async fn new_conversation(
         },
     )
     .await?;
+
+    tx.commit().await?;
 
     token.authorized_ok(web::Json(conversation))
 }

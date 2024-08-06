@@ -10,6 +10,7 @@ pub mod certificate_configurations;
 pub mod certificate_fonts;
 pub mod chapters;
 pub mod chatbot_configurations;
+pub mod chatbot_conversation_messages;
 pub mod chatbot_conversations;
 pub mod course_background_question_answers;
 pub mod course_background_questions;

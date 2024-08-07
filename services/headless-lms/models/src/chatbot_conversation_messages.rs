@@ -76,3 +76,19 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversationMessage> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessage,
+        r#"
+UPDATE chatbot_conversation_messages
+SET deleted_at = NOW()
+WHERE id = $1
+RETURNING *
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

@@ -1,3 +1,8 @@
+use std::sync::{
+    atomic::{self, AtomicBool},
+    Arc,
+};
+
 use chrono::Utc;
 use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
@@ -6,8 +11,7 @@ use once_cell::sync::Lazy;
 use reqwest::header::HeaderMap;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use sqlx::pool;
-use tokio::io::AsyncBufReadExt;
+use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
 use web::Bytes;
 
@@ -99,11 +103,60 @@ pub struct ChatReponse {
     pub text: String,
 }
 
-struct RequestCancelledGuard;
+struct RequestCancelledGuard {
+    response_message_id: Uuid,
+    received_string: Arc<Mutex<Vec<String>>>,
+    pool: web::Data<PgPool>,
+    done: Arc<AtomicBool>,
+}
 
 impl Drop for RequestCancelledGuard {
     fn drop(&mut self) {
         info!("Request cancelled");
+        if self.done.load(atomic::Ordering::Relaxed) {
+            return;
+        }
+        warn!("Request was not completed. Cleaning up.");
+        let response_message_id = self.response_message_id.clone();
+        let received_string = self.received_string.clone();
+        let pool = self.pool.clone();
+        tokio::spawn(async move {
+            info!("Verifying the received message has been handled");
+            let mut conn = pool.acquire().await.expect("Could not acquire connection");
+            let full_response_text = received_string.lock().await;
+            // TODO: Verify this works
+            if full_response_text.is_empty() {
+                info!("No response received. Deleting the response message");
+                models::chatbot_conversation_messages::delete(&mut conn, response_message_id)
+                    .await
+                    .expect("Could not delete response message");
+                return;
+            }
+            info!("Response received but not completed. Saving the text received so far.");
+            let full_response_as_string = full_response_text.join("");
+            let estimated_cost = estimate_tokens(&full_response_as_string);
+            info!(
+                "End of chatbot response stream. Esimated cost: {}. Response: {}",
+                estimated_cost, full_response_as_string
+            );
+
+            models::chatbot_conversation_messages::update(
+                &mut conn,
+                models::chatbot_conversation_messages::ChatbotConversationMessage {
+                    id: response_message_id,
+                    created_at: Utc::now(),
+                    updated_at: Utc::now(),
+                    deleted_at: None,
+                    conversation_id: Uuid::new_v4(),
+                    message: Some(full_response_as_string),
+                    is_from_chatbot: true,
+                    message_is_complete: true,
+                    used_tokens: estimated_cost,
+                },
+            )
+            .await
+            .expect("Could not update response message");
+        });
     }
 }
 
@@ -115,9 +168,8 @@ pub async fn send_chat_request_and_parse_stream(
     app_config: &ApplicationConfiguration,
     conversation_id: Uuid,
 ) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
-    dbg!(&payload);
-    let mut full_response_text = Vec::new();
-    let _request_cancelled_guard = RequestCancelledGuard;
+    let full_response_text = Arc::new(Mutex::new(Vec::new()));
+    let done = Arc::new(AtomicBool::new(false));
 
     let api_key = app_config
         .chatbot_azure_api_key
@@ -147,22 +199,6 @@ pub async fn send_chat_request_and_parse_stream(
             .map_err(|_e| anyhow::anyhow!("Internal error"))?,
     );
 
-    let request = CLIENT.post(url).headers(headers).json(payload).send();
-
-    let response = request.await?;
-
-    info!("Receiving chat response with {:?}", response.version());
-
-    if !&response.status().is_success() {
-        let status = &response.status();
-        let error_message = &response.text().await?;
-        return Err(anyhow::anyhow!(
-            "Failed to send chat request. Status: {}. Error: {}",
-            status,
-            error_message
-        ))?;
-    }
-
     let response_message = models::chatbot_conversation_messages::insert(
         &mut conn,
         models::chatbot_conversation_messages::ChatbotConversationMessage {
@@ -179,6 +215,29 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
+    let _request_cancelled_guard = RequestCancelledGuard {
+        response_message_id: response_message.id,
+        received_string: full_response_text.clone(),
+        pool: pool.clone(),
+        done: done.clone(),
+    };
+
+    let request = CLIENT.post(url).headers(headers).json(payload).send();
+
+    let response = request.await?;
+
+    info!("Receiving chat response with {:?}", response.version());
+
+    if !&response.status().is_success() {
+        let status = &response.status();
+        let error_message = &response.text().await?;
+        return Err(anyhow::anyhow!(
+            "Failed to send chat request. Status: {}. Error: {}",
+            status,
+            error_message
+        ))?;
+    }
+
     let stream = response
         .bytes_stream()
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e));
@@ -186,17 +245,18 @@ pub async fn send_chat_request_and_parse_stream(
     let mut lines = reader.lines();
 
     let response_stream = async_stream::try_stream! {
-        let mut done = false;
         while let Some(line) = lines.next_line().await? {
             if !line.starts_with("data: ") {
                 continue;
             }
             let json_str = line.trim_start_matches("data: ");
+            let mut full_response_text = full_response_text.lock().await;
             if json_str.trim() == "[DONE]" {
+
                 let full_response_as_string = full_response_text.join("");
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 info!("End of chatbot response stream. Esimated cost: {}. Response: {}", estimated_cost, full_response_as_string);
-                done = true;
+                done.store(true, atomic::Ordering::Relaxed);
                 let mut conn = pool.acquire().await?;
                 models::chatbot_conversation_messages::update(
                     &mut conn,
@@ -233,7 +293,7 @@ pub async fn send_chat_request_and_parse_stream(
             }
         }
 
-        if !done {
+        if !done.load(atomic::Ordering::Relaxed) {
             Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
         }
     };

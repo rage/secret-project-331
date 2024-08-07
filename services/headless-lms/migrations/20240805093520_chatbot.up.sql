@@ -92,7 +92,7 @@ CREATE TABLE chatbot_conversation_messages (
   is_from_chatbot BOOLEAN NOT NULL,
   message_is_complete BOOLEAN NOT NULL DEFAULT FALSE,
   CHECK (
-    is_from_chatbot = false
+    is_from_chatbot = TRUE
     OR message_is_complete = TRUE
   ),
   used_tokens INT NOT NULL DEFAULT 0

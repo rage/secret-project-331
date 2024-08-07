@@ -53,3 +53,26 @@ WHERE conversation_id = $1
     res.sort_by(|a, b| a.created_at.cmp(&b.created_at));
     Ok(res)
 }
+
+pub async fn update(
+    conn: &mut PgConnection,
+    input: ChatbotConversationMessage,
+) -> ModelResult<ChatbotConversationMessage> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessage,
+        r#"
+UPDATE chatbot_conversation_messages
+SET message = $2, is_from_chatbot = $3, message_is_complete = $4, used_tokens = $5
+WHERE id = $1
+RETURNING *
+        "#,
+        input.id,
+        input.message,
+        input.is_from_chatbot,
+        input.message_is_complete,
+        input.used_tokens
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

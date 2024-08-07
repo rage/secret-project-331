@@ -1,17 +1,17 @@
-use actix_http::header;
+use chrono::Utc;
 use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
+use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 use once_cell::sync::Lazy;
 use reqwest::header::HeaderMap;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use sqlx::pool;
 use tokio::io::AsyncBufReadExt;
 use tokio_util::io::StreamReader;
 use web::Bytes;
 
-use actix::{Actor, Handler, Message, StreamHandler};
-use actix_web::{http, web, App, Error, HttpRequest, HttpResponse, HttpServer};
-use actix_web_actors::ws;
+use actix_web::web;
 
 use crate::prelude::*;
 
@@ -44,7 +44,7 @@ pub struct Choice {
     pub content_filter_results: Option<ContentFilterResults>,
     pub delta: Option<Delta>,
     pub finish_reason: Option<String>,
-    pub index: u32,
+    pub index: i32,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -62,20 +62,34 @@ pub struct ResponseChunk {
     pub system_fingerprint: Option<String>,
 }
 
+/** The format accepted by the api. */
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ChatMessage {
+pub struct ApiChatMessage {
     pub role: String,
     pub content: String,
 }
 
+impl From<ChatbotConversationMessage> for ApiChatMessage {
+    fn from(message: ChatbotConversationMessage) -> Self {
+        ApiChatMessage {
+            role: if message.is_from_chatbot {
+                "assistant".to_string()
+            } else {
+                "user".to_string()
+            },
+            content: message.message.unwrap_or_default(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChatRequest {
-    pub messages: Vec<ChatMessage>,
+    pub messages: Vec<ApiChatMessage>,
     pub temperature: f64,
     pub top_p: f64,
     pub frequency_penalty: f64,
     pub presence_penalty: f64,
-    pub max_tokens: u32,
+    pub max_tokens: i32,
     pub stop: Option<String>,
     pub stream: bool,
 }
@@ -94,9 +108,14 @@ impl Drop for RequestCancelledGuard {
 }
 
 pub async fn send_chat_request_and_parse_stream(
+    mut conn: &mut PgConnection,
+    // An Arc, cheap to clone.
+    pool: web::Data<PgPool>,
     payload: &ChatRequest,
     app_config: &ApplicationConfiguration,
+    conversation_id: Uuid,
 ) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
+    dbg!(&payload);
     let mut full_response_text = Vec::new();
     let _request_cancelled_guard = RequestCancelledGuard;
 
@@ -134,7 +153,31 @@ pub async fn send_chat_request_and_parse_stream(
 
     info!("Receiving chat response with {:?}", response.version());
 
-    dbg!(response.status(), response.headers(), response.version());
+    if !&response.status().is_success() {
+        let status = &response.status();
+        let error_message = &response.text().await?;
+        return Err(anyhow::anyhow!(
+            "Failed to send chat request. Status: {}. Error: {}",
+            status,
+            error_message
+        ))?;
+    }
+
+    let response_message = models::chatbot_conversation_messages::insert(
+        &mut conn,
+        models::chatbot_conversation_messages::ChatbotConversationMessage {
+            id: Uuid::new_v4(),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            deleted_at: None,
+            conversation_id: conversation_id,
+            message: None,
+            is_from_chatbot: true,
+            message_is_complete: false,
+            used_tokens: 0,
+        },
+    )
+    .await?;
 
     let stream = response
         .bytes_stream()
@@ -145,7 +188,6 @@ pub async fn send_chat_request_and_parse_stream(
     let response_stream = async_stream::try_stream! {
         let mut done = false;
         while let Some(line) = lines.next_line().await? {
-            // dbg!(&line);
             if !line.starts_with("data: ") {
                 continue;
             }
@@ -155,11 +197,25 @@ pub async fn send_chat_request_and_parse_stream(
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 info!("End of chatbot response stream. Esimated cost: {}. Response: {}", estimated_cost, full_response_as_string);
                 done = true;
+                let mut conn = pool.acquire().await?;
+                models::chatbot_conversation_messages::update(
+                    &mut conn,
+                    models::chatbot_conversation_messages::ChatbotConversationMessage {
+                        id: response_message.id,
+                        created_at: response_message.created_at,
+                        updated_at: Utc::now(),
+                        deleted_at: None,
+                        conversation_id: response_message.conversation_id,
+                        message: Some(full_response_as_string),
+                        is_from_chatbot: true,
+                        message_is_complete: true,
+                        used_tokens: estimated_cost,
+                    },
+                ).await?;
                 break;
             }
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
-                // dbg!(&json_str);
-                // dbg!(&e);
+
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
             for choice in &response_chunk.choices {
@@ -186,10 +242,10 @@ pub async fn send_chat_request_and_parse_stream(
 }
 
 /** Estimate the number of tokens in a given text. We use this for example to estimate the expense of a chat request. The result is not accurate but it is cheap to calculate. */
-fn estimate_tokens(text: &str) -> u32 {
+pub fn estimate_tokens(text: &str) -> i32 {
     // Counting text length by taking into account how much space each unicode character takes. This makes more complex characters more expensive.
     let text_length = text.chars().fold(0, |acc, c| {
-        let mut len = c.len_utf8() as u32;
+        let mut len = c.len_utf8() as i32;
         if len > 1 {
             // The longer the character is, the more likely the text around is taking up more tokens. This is because our estimate of 4 characters per token is only valid for english and non-english languages tend to have more complex characters.
             len *= 2;
@@ -201,7 +257,7 @@ fn estimate_tokens(text: &str) -> u32 {
         acc + len
     });
     // A token is roughly 4 characters
-    text_length as u32 / 4
+    text_length as i32 / 4
 }
 
 #[cfg(test)]

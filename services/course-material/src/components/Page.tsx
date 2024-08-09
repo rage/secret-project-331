@@ -14,6 +14,7 @@ import {
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
+  getChatbotConfigurationForCourse,
 } from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
 
@@ -29,6 +30,7 @@ import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
+import useCourseInfo from "@/hooks/useCourseInfo"
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -106,6 +108,12 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const researchConsentFormAnswerQuery = useQuery({
     queryKey: [`courses-${courseId}-research-consent-form-user-answer`],
     queryFn: () => fetchResearchFormAnswersWithUserId(assertNotNullOrUndefined(courseId)),
+    enabled: loginContext.signedIn === true && Boolean(courseId),
+  })
+
+  const chatbotConfiguration = useQuery({
+    queryKey: [`courses-${courseId}-chatbot-configuration`],
+    queryFn: () => getChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
 
@@ -258,7 +266,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
         )}
         {courseId && pageId && (
           <>
-            <Chatbot />
+            {chatbotConfiguration.data && (
+              <Chatbot chatbotConfigurationId={chatbotConfiguration.data} />
+            )}
             <FeedbackHandler
               courseId={courseId}
               pageId={pageId}

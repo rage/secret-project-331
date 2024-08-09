@@ -60,3 +60,22 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub async fn get_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        "
+SELECT * FROM
+chatbot_configurations
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

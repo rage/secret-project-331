@@ -585,6 +585,15 @@ export const fetchResearchFormAnswersWithUserId = async (
   return validateResponse(response, isArray(isResearchFormQuestionAnswer))
 }
 
+export const getChatbotConfigurationForCourse = async (
+  course_id: string,
+): Promise<string | null> => {
+  const response = await courseMaterialClient.get(`/chatbot/for-course/${course_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isUnion(isString, isNull))
+}
+
 export const postResearchFormUserAnswer = async (
   courseId: string,
   user_id: string,

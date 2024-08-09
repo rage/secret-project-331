@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversationMessage {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

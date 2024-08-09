@@ -3,7 +3,11 @@ import { useState } from "react"
 import ChatbotDialog from "./ChatbotDialog"
 import OpenChatbotButton from "./OpenChatbotButton"
 
-const Chatbot: React.FC = () => {
+interface ChatbotProps {
+  chatbotConfigurationId: string
+}
+
+const Chatbot: React.FC<ChatbotProps> = () => {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   return (

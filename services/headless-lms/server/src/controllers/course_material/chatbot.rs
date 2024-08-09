@@ -1,11 +1,36 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
 use domain::chatbot::{
-    self, estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
+    estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
 };
 use headless_lms_models::chatbot_conversations::ChatbotConversation;
 
 use crate::prelude::*;
+
+/**
+GET `/api/v0/course-material/course-modules/chatbot/for-course/:course-id`
+
+Returns one chatbot configuration id for a course that students can use.
+*/
+#[instrument(skip(pool))]
+async fn get_chatbot_configuration_for_course(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Option<Uuid>>> {
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let chatbot_configurations =
+        models::chatbot_configurations::get_for_course(&mut conn, *course_id).await?;
+
+    let res = chatbot_configurations
+        .into_iter()
+        .filter(|c| c.enabled_to_students)
+        .next()
+        .map(|c| c.id);
+
+    token.authorized_ok(web::Json(res))
+}
 
 /**
 POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
@@ -157,5 +182,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/{chatbot_configuration_id}/conversations/new",
         web::post().to(new_conversation),
+    )
+    .route(
+        "/for-course/{course_id}",
+        web::get().to(get_chatbot_configuration_for_course),
     );
 }

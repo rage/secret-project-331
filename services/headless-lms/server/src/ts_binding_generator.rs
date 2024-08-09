@@ -83,6 +83,8 @@ fn models(target: &mut File) {
         courses::CourseBreadcrumbInfo,
         certificate_configurations::CertificateConfigurationAndRequirements,
         certificate_configuration_to_requirements::CertificateAllRequirements,
+        chatbot_conversations::ChatbotConversation,
+        chatbot_conversation_messages::ChatbotConversationMessage,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,

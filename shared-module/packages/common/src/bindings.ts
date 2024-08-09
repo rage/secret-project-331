@@ -462,6 +462,28 @@ export interface CertificateAllRequirements {
   course_instance_ids: Array<string>
 }
 
+export interface ChatbotConversation {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  course_id: string
+  user_id: string
+  chatbot_configuration_id: string
+}
+
+export interface ChatbotConversationMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_id: string
+  message: string | null
+  is_from_chatbot: boolean
+  message_is_complete: boolean
+  used_tokens: number
+}
+
 export interface EmailTemplate {
   id: string
   created_at: string

@@ -24,6 +24,7 @@ import NavigationContainer from "./ContentRenderer/moocfi/NavigationContainer"
 import FeedbackHandler from "./FeedbackHandler"
 import HeadingsNavigation from "./HeadingsNavigation"
 import ReferenceList from "./ReferencesList"
+import Chatbot from "./chatbot"
 import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
@@ -256,20 +257,23 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           />
         )}
         {courseId && pageId && (
-          <FeedbackHandler
-            courseId={courseId}
-            pageId={pageId}
-            onEnterEditProposalMode={() => {
-              setEditingMaterial(true)
-            }}
-            onExitEditProposalMode={() => {
-              setEditingMaterial(false)
-              setEdits(new Map())
-            }}
-            selectedBlockId={selectedBlockId}
-            clearSelectedBlockId={clearSelectedBlockId}
-            edits={edits}
-          />
+          <>
+            <Chatbot />
+            <FeedbackHandler
+              courseId={courseId}
+              pageId={pageId}
+              onEnterEditProposalMode={() => {
+                setEditingMaterial(true)
+              }}
+              onExitEditProposalMode={() => {
+                setEditingMaterial(false)
+                setEdits(new Map())
+              }}
+              selectedBlockId={selectedBlockId}
+              clearSelectedBlockId={clearSelectedBlockId}
+              edits={edits}
+            />
+          </>
         )}
       </>
     </GlossaryContext.Provider>

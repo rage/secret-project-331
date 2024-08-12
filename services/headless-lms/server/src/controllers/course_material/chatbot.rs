@@ -208,6 +208,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(send_message),
     )
     .route(
+        "/{chatbot_configuration_id}/conversations/current",
+        web::get().to(current_conversation_info),
+    )
+    .route(
         "/{chatbot_configuration_id}/conversations/new",
         web::post().to(new_conversation),
     )

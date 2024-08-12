@@ -5,6 +5,8 @@ import { courseMaterialClient } from "./courseMaterialClient"
 
 import {
   ChaptersWithStatus,
+  ChatbotConversation,
+  ChatbotConversationInfo,
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
@@ -48,6 +50,8 @@ import {
 } from "@/shared-module/common/bindings"
 import {
   isChaptersWithStatus,
+  isChatbotConversation,
+  isChatbotConversationInfo,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
@@ -648,4 +652,22 @@ export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
     `/course-instances/${courseInstanceId}/course-module-completions/${userId}`,
   )
   return validateResponse(response, isArray(isCourseModuleCompletion))
+}
+
+export const getChatbotCurrentConversationInfo = async (
+  chatBotConfigurationId: string,
+): Promise<ChatbotConversationInfo> => {
+  const response = await courseMaterialClient.get(
+    `/chatbot/${chatBotConfigurationId}/conversations/current`,
+  )
+  return validateResponse(response, isChatbotConversationInfo)
+}
+
+export const newChatbotConversation = async (
+  chatBotConfigurationId: string,
+): Promise<ChatbotConversation> => {
+  const response = await courseMaterialClient.post(
+    `/chatbot/${chatBotConfigurationId}/conversations/new`,
+  )
+  return validateResponse(response, isChatbotConversation)
 }

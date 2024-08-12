@@ -4,10 +4,13 @@ import { useTranslation } from "react-i18next"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
 
+import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const ChatbotDialogHeader: React.FC<ChatbotDialogProps> = ({ setDialogOpen }) => {
+const ChatbotDialogHeader: React.FC<
+  ChatbotDialogProps & { currentConversationInfo: ChatbotConversationInfo | undefined }
+> = ({ setDialogOpen, currentConversationInfo }) => {
   const { t } = useTranslation()
 
   return (
@@ -40,7 +43,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogProps> = ({ setDialogOpen }) =>
           font-weight: 700;
         `}
       >
-        {t("chatbot.title")}
+        {currentConversationInfo?.chatbot_name}
       </div>
       <button
         onClick={() => setDialogOpen(false)}

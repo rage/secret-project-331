@@ -7,13 +7,17 @@ interface ChatbotProps {
   chatbotConfigurationId: string
 }
 
-const Chatbot: React.FC<ChatbotProps> = () => {
+const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   return (
     <>
       {!dialogOpen && <OpenChatbotButton dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} />}
-      <ChatbotDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} />
+      <ChatbotDialog
+        chatbotConfigurationId={chatbotConfigurationId}
+        dialogOpen={dialogOpen}
+        setDialogOpen={setDialogOpen}
+      />
     </>
   )
 }

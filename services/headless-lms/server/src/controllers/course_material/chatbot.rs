@@ -3,7 +3,9 @@ use chrono::Utc;
 use domain::chatbot::{
     estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
 };
-use headless_lms_models::chatbot_conversations::ChatbotConversation;
+use headless_lms_models::chatbot_conversations::{
+    self, ChatbotConversation, ChatbotConversationInfo,
+};
 
 use crate::prelude::*;
 
@@ -165,6 +167,32 @@ async fn new_conversation(
     tx.commit().await?;
 
     token.authorized_ok(web::Json(conversation))
+}
+
+/**
+POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`
+
+Returns the current conversation for the user.
+*/
+#[instrument(skip(pool))]
+async fn current_conversation_info(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+    params: web::Path<Uuid>,
+) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
+    let token = skip_authorize();
+
+    let mut conn = pool.acquire().await?;
+    let chatbot_configuration =
+        models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+    let res = chatbot_conversations::get_current_conversation_info(
+        &mut conn,
+        user.id,
+        chatbot_configuration.id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
 }
 
 /**

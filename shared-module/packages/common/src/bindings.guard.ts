@@ -28,6 +28,7 @@ import {
   ChapterUpdate,
   ChapterWithStatus,
   ChatbotConversation,
+  ChatbotConversationInfo,
   ChatbotConversationMessage,
   CmsPageExercise,
   CmsPageExerciseSlide,
@@ -1002,6 +1003,21 @@ export function isChatbotConversation(obj: unknown): obj is ChatbotConversation 
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["chatbot_configuration_id"] === "string"
+  )
+}
+
+export function isChatbotConversationInfo(obj: unknown): obj is ChatbotConversationInfo {
+  const typedObj = obj as ChatbotConversationInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["current_conversation"] === null ||
+      (isChatbotConversation(typedObj["current_conversation"]) as boolean)) &&
+    (typedObj["current_conversation_messages"] === null ||
+      (Array.isArray(typedObj["current_conversation_messages"]) &&
+        typedObj["current_conversation_messages"].every(
+          (e: any) => isChatbotConversationMessage(e) as boolean,
+        ))) &&
+    typeof typedObj["chatbot_name"] === "string"
   )
 }
 

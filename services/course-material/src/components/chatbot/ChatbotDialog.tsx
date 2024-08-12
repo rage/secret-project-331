@@ -9,6 +9,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 export interface ChatbotDialogProps {
   dialogOpen: boolean
   setDialogOpen: (dialogOpen: boolean) => void
+  chatbotConfigurationId: string
 }
 
 const openAnimation = keyframes`
@@ -34,7 +35,7 @@ const closeAnimation = keyframes`
 `
 
 const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
-  const { dialogOpen, setDialogOpen } = props
+  const { dialogOpen, setDialogOpen, chatbotConfigurationId } = props
   const { t } = useTranslation()
   const [shouldRender, setShouldRender] = useState(dialogOpen)
 

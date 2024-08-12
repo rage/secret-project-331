@@ -84,6 +84,7 @@ fn models(target: &mut File) {
         certificate_configurations::CertificateConfigurationAndRequirements,
         certificate_configuration_to_requirements::CertificateAllRequirements,
         chatbot_conversations::ChatbotConversation,
+        chatbot_conversations::ChatbotConversationInfo,
         chatbot_conversation_messages::ChatbotConversationMessage,
 
         email_templates::EmailTemplate,

@@ -472,6 +472,12 @@ export interface ChatbotConversation {
   chatbot_configuration_id: string
 }
 
+export interface ChatbotConversationInfo {
+  current_conversation: ChatbotConversation | null
+  current_conversation_messages: Array<ChatbotConversationMessage> | null
+  chatbot_name: string
+}
+
 export interface ChatbotConversationMessage {
   id: string
   created_at: string

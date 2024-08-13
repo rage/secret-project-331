@@ -671,3 +671,14 @@ export const newChatbotConversation = async (
   )
   return validateResponse(response, isChatbotConversation)
 }
+
+export const sendChatbotMessage = async (
+  chatBotConfigurationId: string,
+  conversationId: string,
+  message: string,
+): Promise<void> => {
+  await courseMaterialClient.post(
+    `/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`,
+    message,
+  )
+}

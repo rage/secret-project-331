@@ -1,17 +1,30 @@
 import { css } from "@emotion/css"
-import { Account } from "@vectopus/atlas-icons-react"
+import { UseQueryResult } from "@tanstack/react-query"
+import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
 
+import { newChatbotConversation } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const ChatbotDialogHeader: React.FC<
-  ChatbotDialogProps & { currentConversationInfo: ChatbotConversationInfo | undefined }
-> = ({ setDialogOpen, currentConversationInfo }) => {
+  ChatbotDialogProps & { currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error> }
+> = ({ setDialogOpen, currentConversationInfo, chatbotConfigurationId }) => {
   const { t } = useTranslation()
+
+  const newConversationMutation = useToastMutation(
+    () => newChatbotConversation(chatbotConfigurationId),
+    { notify: false },
+    {
+      onSuccess: () => {
+        currentConversationInfo.refetch()
+      },
+    },
+  )
 
   return (
     <div
@@ -33,6 +46,7 @@ const ChatbotDialogHeader: React.FC<
           align-items: center;
           padding: 0.5rem;
           border-radius: 50%;
+          margin-right: 1rem;
         `}
       >
         <Account />
@@ -43,8 +57,29 @@ const ChatbotDialogHeader: React.FC<
           font-weight: 700;
         `}
       >
-        {currentConversationInfo?.chatbot_name}
+        {currentConversationInfo.data?.chatbot_name}
       </div>
+      <button
+        onClick={() => newConversationMutation.mutate()}
+        disabled={newConversationMutation.isPending}
+        className={css`
+          font-size: 20px;
+          cursor: pointer;
+          background-color: transparent;
+          border-radius: 50%;
+          border: none;
+          margin: 0 0.5rem;
+          color: ${baseTheme.colors.gray[400]};
+
+          transition: filter 0.2s;
+
+          &:hover {
+            filter: brightness(0.7) contrast(1.1);
+          }
+        `}
+      >
+        <AddMessage />
+      </button>
       <button
         onClick={() => setDialogOpen(false)}
         className={css`

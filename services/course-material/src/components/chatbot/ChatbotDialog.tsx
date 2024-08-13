@@ -68,7 +68,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
       className={css`
         width: 500px;
         max-width: 90vw;
-        height: 600px;
+        height: 700px;
         max-height: 90vh;
         position: fixed;
         bottom: 70px;
@@ -85,8 +85,8 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
       aria-hidden={!dialogOpen}
       onAnimationEnd={handleAnimationEnd}
     >
-      <ChatbotDialogHeader {...props} currentConversationInfo={currentConversationInfoQuery.data} />
-      <ChatbotDialogBody {...props} currentConversationInfo={currentConversationInfoQuery.data} />
+      <ChatbotDialogHeader {...props} currentConversationInfo={currentConversationInfoQuery} />
+      <ChatbotDialogBody {...props} currentConversationInfo={currentConversationInfoQuery} />
     </div>
   )
 }

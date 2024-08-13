@@ -1,36 +1,67 @@
 import { css } from "@emotion/css"
-import { useMutation } from "@tanstack/react-query"
-import { Account } from "@vectopus/atlas-icons-react"
+import { UseQueryResult } from "@tanstack/react-query"
+import { PaperAirplane } from "@vectopus/atlas-icons-react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
 
-import { newChatbotConversation } from "@/services/backend"
+import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const ChatbotDialogBody: React.FC<
-  ChatbotDialogProps & { currentConversationInfo: ChatbotConversationInfo | undefined }
-> = ({ setDialogOpen, currentConversationInfo, chatbotConfigurationId }) => {
+  ChatbotDialogProps & { currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error> }
+> = ({ currentConversationInfo, chatbotConfigurationId }) => {
   const { t } = useTranslation()
 
-  const newConversationMutation = useMutation({
-    mutationFn: () => newChatbotConversation(chatbotConfigurationId),
-    onSuccess: () => {
-      currentConversationInfoQuery.refetch()
-    },
-  })
+  const [newMessage, setNewMessage] = useState("")
 
-  if (!currentConversationInfo) {
-    // The chatbot is loading
+  const newConversationMutation = useToastMutation(
+    () => newChatbotConversation(chatbotConfigurationId),
+    { notify: false },
+    {
+      onSuccess: () => {
+        currentConversationInfo.refetch()
+      },
+    },
+  )
+
+  const newMessageMutation = useToastMutation(
+    () => {
+      if (!currentConversationInfo.data?.current_conversation) {
+        throw new Error("No active conversation")
+      }
+      return sendChatbotMessage(
+        chatbotConfigurationId,
+        currentConversationInfo.data.current_conversation.id,
+        newMessage,
+      )
+    },
+    { notify: false },
+    {
+      onSuccess: () => {
+        currentConversationInfo.refetch()
+        setNewMessage("")
+      },
+    },
+  )
+
+  if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
   }
 
-  if (currentConversationInfo && !currentConversationInfo?.current_conversation) {
+  if (currentConversationInfo.isError) {
+    return <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+  }
+
+  if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
     // The chatbot has loaded, but no conversation is active. Show the warning message.
     return (
       <div
@@ -90,7 +121,7 @@ const ChatbotDialogBody: React.FC<
           </ul>
         </div>
 
-        <Button size="medium" variant="secondary">
+        <Button size="medium" variant="secondary" onClick={() => newConversationMutation.mutate()}>
           Agree
         </Button>
       </div>
@@ -104,15 +135,36 @@ const ChatbotDialogBody: React.FC<
         display: flex;
         flex-direction: column;
         padding: 20px;
+        overflow: hidden;
       `}
     >
       <div
         className={css`
           flex-grow: 1;
+          overflow-y: scroll;
+          display: flex;
+          flex-direction: column;
         `}
       >
-        {currentConversationInfo?.current_conversation_messages?.map((message) => (
-          <div key={`chatbot-message-${message.id}`}>{message.message}</div>
+        {currentConversationInfo.data.current_conversation_messages?.map((message) => (
+          <div
+            className={css`
+              background-color: ${baseTheme.colors.gray[100]};
+              padding: 1rem;
+              border-radius: 10px;
+              width: fit-content;
+              ${message.is_from_chatbot &&
+              `margin-right: 2rem;
+                align-self: flex-start;`}
+              ${!message.is_from_chatbot &&
+              `margin-left: 2rem;
+                align-self: flex-end;`}
+              margin-bottom: 0.5rem;
+            `}
+            key={`chatbot-message-${message.id}`}
+          >
+            {message.message}
+          </div>
         ))}
       </div>
       <div
@@ -120,9 +172,7 @@ const ChatbotDialogBody: React.FC<
           display: flex;
           gap: 10px;
 
-          label {
-            flex-grow: 1;
-          }
+          align-items: center;
         `}
       >
         <div
@@ -130,11 +180,35 @@ const ChatbotDialogBody: React.FC<
             flex-grow: 1;
           `}
         >
-          <TextField label="Message" />
+          <input
+            className={css`
+              width: 100%;
+              padding: 0.5rem;
+            `}
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                newMessageMutation.mutate()
+              }
+            }}
+            type="text"
+            placeholder="Message"
+          />
         </div>
-        <Button variant="secondary" size="small">
-          Send
-        </Button>
+        <div>
+          <button
+            className={css`
+              background: none;
+              border: none;
+              cursor: pointer;
+            `}
+            aria-label={t("send")}
+            onClick={() => newMessageMutation.mutate()}
+          >
+            <PaperAirplane />
+          </button>
+        </div>
       </div>
       <div>Warning: the bot may not tell the truth.</div>
     </div>

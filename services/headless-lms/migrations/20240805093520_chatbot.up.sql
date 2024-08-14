@@ -95,7 +95,9 @@ CREATE TABLE chatbot_conversation_messages (
     is_from_chatbot = TRUE
     OR message_is_complete = TRUE
   ),
-  used_tokens INT NOT NULL DEFAULT 0
+  used_tokens INT NOT NULL DEFAULT 0,
+  order_number INT NOT NULL,
+  UNIQUE NULLS NOT DISTINCT (conversation_id, order_number, deleted_at)
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -111,3 +113,4 @@ COMMENT ON COLUMN chatbot_conversation_messages.message IS 'The message content.
 COMMENT ON COLUMN chatbot_conversation_messages.is_from_chatbot IS 'If true, the message is from the chatbot. If false, the message is from the user.';
 COMMENT ON COLUMN chatbot_conversation_messages.message_is_complete IS 'Always true for messages from the user. The chatbot messages are streamed to the client, and this field is used to indicate whether that the stream is complete.';
 COMMENT ON COLUMN chatbot_conversation_messages.used_tokens IS 'The number of tokens used to send or receive this message.';
+COMMENT ON COLUMN chatbot_conversation_messages.order_number IS 'The order of the message in the conversation.';

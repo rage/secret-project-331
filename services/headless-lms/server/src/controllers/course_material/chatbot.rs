@@ -56,7 +56,16 @@ async fn send_message(
 
     let configuration =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
-    let _new_message = models::chatbot_conversation_messages::insert(
+    let conversation_messages =
+        models::chatbot_conversation_messages::get_by_conversation_id(&mut *tx, conversation_id)
+            .await?;
+    let new_order_number = conversation_messages
+        .iter()
+        .map(|m| m.order_number)
+        .max()
+        .unwrap_or(0)
+        + 1;
+    let new_message = models::chatbot_conversation_messages::insert(
         &mut tx,
         models::chatbot_conversation_messages::ChatbotConversationMessage {
             id: Uuid::new_v4(),
@@ -68,17 +77,18 @@ async fn send_message(
             is_from_chatbot: false,
             message_is_complete: true,
             used_tokens: estimate_tokens(&message),
+            order_number: new_order_number,
         },
     )
     .await?;
-    let mut conversation_messages: Vec<ApiChatMessage> =
-        models::chatbot_conversation_messages::get_by_conversation_id(&mut *tx, conversation_id)
-            .await?
-            .into_iter()
-            .map(Into::into)
-            .collect();
 
-    conversation_messages.insert(
+    let mut api_chat_messages = conversation_messages
+        .into_iter()
+        .map(Into::into)
+        .collect::<Vec<ApiChatMessage>>();
+
+    api_chat_messages.push(new_message.into());
+    api_chat_messages.insert(
         0,
         ApiChatMessage {
             role: "system".to_string(),
@@ -87,7 +97,7 @@ async fn send_message(
     );
 
     let chat_request = ChatRequest {
-        messages: conversation_messages,
+        messages: api_chat_messages,
         temperature: 0.7,
         top_p: 1.0,
         frequency_penalty: 0.0,
@@ -104,6 +114,7 @@ async fn send_message(
         &chat_request,
         &app_conf,
         conversation_id,
+        new_order_number + 1,
     )
     .await?;
 
@@ -160,6 +171,7 @@ async fn new_conversation(
             is_from_chatbot: true,
             message_is_complete: true,
             used_tokens: estimate_tokens(&configuration.initial_message),
+            order_number: 0,
         },
     )
     .await?;

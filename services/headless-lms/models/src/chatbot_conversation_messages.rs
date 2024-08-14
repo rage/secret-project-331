@@ -12,6 +12,7 @@ pub struct ChatbotConversationMessage {
     pub is_from_chatbot: bool,
     pub message_is_complete: bool,
     pub used_tokens: i32,
+    pub order_number: i32,
 }
 
 pub async fn insert(
@@ -21,15 +22,16 @@ pub async fn insert(
     let res = sqlx::query_as!(
         ChatbotConversationMessage,
         r#"
-INSERT INTO chatbot_conversation_messages (conversation_id, message, is_from_chatbot, message_is_complete, used_tokens)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO chatbot_conversation_messages (conversation_id, message, is_from_chatbot, message_is_complete, used_tokens, order_number)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *
         "#,
         input.conversation_id,
         input.message,
         input.is_from_chatbot,
         input.message_is_complete,
-        input.used_tokens
+        input.used_tokens,
+        input.order_number
     )
     .fetch_one(conn)
     .await?;
@@ -51,27 +53,27 @@ WHERE conversation_id = $1
     .fetch_all(conn)
     .await?;
     // Should have the same order as in the conversation.
-    res.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+    res.sort_by(|a, b| a.order_number.cmp(&b.order_number));
     Ok(res)
 }
 
 pub async fn update(
     conn: &mut PgConnection,
-    input: ChatbotConversationMessage,
+    id: Uuid,
+    message: &str,
+    message_is_complete: bool,
 ) -> ModelResult<ChatbotConversationMessage> {
     let res = sqlx::query_as!(
         ChatbotConversationMessage,
         r#"
 UPDATE chatbot_conversation_messages
-SET message = $2, is_from_chatbot = $3, message_is_complete = $4, used_tokens = $5
+SET message = $2, message_is_complete = $3, updated_at = NOW()
 WHERE id = $1
 RETURNING *
         "#,
-        input.id,
-        input.message,
-        input.is_from_chatbot,
-        input.message_is_complete,
-        input.used_tokens
+        id,
+        message,
+        message_is_complete
     )
     .fetch_one(conn)
     .await?;

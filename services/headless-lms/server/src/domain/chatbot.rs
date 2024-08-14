@@ -7,6 +7,7 @@ use chrono::Utc;
 use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
+use lettre::transport::smtp::response;
 use once_cell::sync::Lazy;
 use reqwest::header::HeaderMap;
 use reqwest::Client;
@@ -142,17 +143,9 @@ impl Drop for RequestCancelledGuard {
 
             models::chatbot_conversation_messages::update(
                 &mut conn,
-                models::chatbot_conversation_messages::ChatbotConversationMessage {
-                    id: response_message_id,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    deleted_at: None,
-                    conversation_id: Uuid::new_v4(),
-                    message: Some(full_response_as_string),
-                    is_from_chatbot: true,
-                    message_is_complete: true,
-                    used_tokens: estimated_cost,
-                },
+                response_message_id,
+                &full_response_as_string,
+                true,
             )
             .await
             .expect("Could not update response message");
@@ -167,6 +160,7 @@ pub async fn send_chat_request_and_parse_stream(
     payload: &ChatRequest,
     app_config: &ApplicationConfiguration,
     conversation_id: Uuid,
+    response_order_number: i32,
 ) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let done = Arc::new(AtomicBool::new(false));
@@ -211,6 +205,7 @@ pub async fn send_chat_request_and_parse_stream(
             is_from_chatbot: true,
             message_is_complete: false,
             used_tokens: 0,
+            order_number: response_order_number,
         },
     )
     .await?;
@@ -260,17 +255,9 @@ pub async fn send_chat_request_and_parse_stream(
                 let mut conn = pool.acquire().await?;
                 models::chatbot_conversation_messages::update(
                     &mut conn,
-                    models::chatbot_conversation_messages::ChatbotConversationMessage {
-                        id: response_message.id,
-                        created_at: response_message.created_at,
-                        updated_at: Utc::now(),
-                        deleted_at: None,
-                        conversation_id: response_message.conversation_id,
-                        message: Some(full_response_as_string),
-                        is_from_chatbot: true,
-                        message_is_complete: true,
-                        used_tokens: estimated_cost,
-                    },
+                    response_message.id,
+                    &full_response_as_string,
+                    true
                 ).await?;
                 break;
             }

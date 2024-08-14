@@ -47,12 +47,17 @@
         "ordinal": 8,
         "name": "used_tokens",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "order_number",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, false, false, false, false]
   },
   "hash": "a656b7b4ce41dddd968961e01f9e8dfe5fd9bed95e86f2863cd11e47f19ee5c3"
 }

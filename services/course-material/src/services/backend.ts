@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
@@ -676,9 +677,23 @@ export const sendChatbotMessage = async (
   chatBotConfigurationId: string,
   conversationId: string,
   message: string,
-): Promise<void> => {
-  await courseMaterialClient.post(
-    `/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`,
-    message,
+): Promise<ReadableStream<Uint8Array>> => {
+  const res = await fetch(
+    `/api/v0/course-material/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`,
+    {
+      method: "POST",
+      body: JSON.stringify(message),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
   )
+
+  const stream = res.body
+
+  if (!stream) {
+    throw new Error("No response body")
+  }
+
+  return stream
 }

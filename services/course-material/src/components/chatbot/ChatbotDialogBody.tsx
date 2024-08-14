@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
+import ThinkingIndicator from "./ThinkingIndicator"
 
 import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
@@ -19,9 +21,13 @@ import { baseTheme } from "@/shared-module/common/styles"
 const ChatbotDialogBody: React.FC<
   ChatbotDialogProps & { currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error> }
 > = ({ currentConversationInfo, chatbotConfigurationId }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
   const { t } = useTranslation()
 
   const [newMessage, setNewMessage] = useState("")
+  const [optimisticSentMessage, setOptimisticSentMessage] = useState<string | null>(null)
+  const [streamingMessage, setStreamingMessage] = useState<string | null>(null)
 
   const newConversationMutation = useToastMutation(
     () => newChatbotConversation(chatbotConfigurationId),
@@ -38,20 +44,100 @@ const ChatbotDialogBody: React.FC<
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
+      const message = newMessage
+      setOptimisticSentMessage(message)
+      setNewMessage("")
       return sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfo.data.current_conversation.id,
-        newMessage,
+        message,
       )
     },
     { notify: false },
     {
-      onSuccess: () => {
-        currentConversationInfo.refetch()
-        setNewMessage("")
+      onSuccess: async (stream) => {
+        const reader = stream.getReader()
+
+        let done = false
+        let value = undefined
+        while (!done) {
+          ;({ done, value } = await reader.read())
+          const valueAsString = new TextDecoder().decode(value)
+          const lines = valueAsString.split("\n")
+          for (const line of lines) {
+            if (line?.indexOf("{") !== 0) {
+              continue
+            }
+            console.log(line)
+            try {
+              const parsedValue = JSON.parse(line)
+              console.log(parsedValue)
+              if (parsedValue.text) {
+                setStreamingMessage((prev) => `${prev || ""}${parsedValue.text}`)
+              }
+            } catch (e) {
+              // NOP
+              console.error(e)
+            }
+          }
+        }
+
+        await currentConversationInfo.refetch()
+        setStreamingMessage(null)
+        setOptimisticSentMessage(null)
       },
     },
   )
+
+  const messages = useMemo(() => {
+    const messages = [...(currentConversationInfo.data?.current_conversation_messages ?? [])]
+    if (optimisticSentMessage) {
+      messages.push({
+        // eslint-disable-next-line i18next/no-literal-string
+        id: v4(),
+        message: optimisticSentMessage,
+        is_from_chatbot: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+        message_is_complete: true,
+        used_tokens: 0,
+      })
+    }
+    if (streamingMessage) {
+      messages.push({
+        // eslint-disable-next-line i18next/no-literal-string
+        id: v4(),
+        message: streamingMessage,
+        is_from_chatbot: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        deleted_at: null,
+        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+        message_is_complete: false,
+        used_tokens: 0,
+      })
+    }
+    return messages
+  }, [
+    currentConversationInfo.data?.current_conversation?.id,
+    currentConversationInfo.data?.current_conversation_messages,
+    optimisticSentMessage,
+    streamingMessage,
+  ])
+
+  const scrollToBottom = useCallback(() => {
+    if (!scrollContainerRef.current) {
+      return
+    }
+    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+  }, [scrollContainerRef])
+
+  useEffect(() => {
+    // Whenever the messages change, scroll to the bottom
+    scrollToBottom()
+  }, [scrollToBottom, messages])
 
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
@@ -134,7 +220,6 @@ const ChatbotDialogBody: React.FC<
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-        padding: 20px;
         overflow: hidden;
       `}
     >
@@ -144,9 +229,11 @@ const ChatbotDialogBody: React.FC<
           overflow-y: scroll;
           display: flex;
           flex-direction: column;
+          padding: 1rem;
         `}
+        ref={scrollContainerRef}
       >
-        {currentConversationInfo.data.current_conversation_messages?.map((message) => (
+        {messages.map((message) => (
           <div
             className={css`
               background-color: ${baseTheme.colors.gray[100]};
@@ -163,7 +250,8 @@ const ChatbotDialogBody: React.FC<
             `}
             key={`chatbot-message-${message.id}`}
           >
-            {message.message}
+            <span>{message.message}</span>
+            {!message.message_is_complete && <ThinkingIndicator />}
           </div>
         ))}
       </div>
@@ -173,6 +261,7 @@ const ChatbotDialogBody: React.FC<
           gap: 10px;
 
           align-items: center;
+          margin: 0 1rem;
         `}
       >
         <div
@@ -210,7 +299,13 @@ const ChatbotDialogBody: React.FC<
           </button>
         </div>
       </div>
-      <div>Warning: the bot may not tell the truth.</div>
+      <div
+        className={css`
+          margin: 0.5rem;
+        `}
+      >
+        Warning: the bot may not tell the truth.
+      </div>
     </div>
   )
 }

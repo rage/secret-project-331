@@ -51,14 +51,16 @@ const ChatbotDialogHeader: React.FC<
       >
         <Account />
       </div>
-      <div
+      <h1
         className={css`
-          font-size: 18px;
-          font-weight: 700;
+          font-style: normal;
+          font-weight: 500;
+          font-size: 22px;
+          line-height: 130%;
         `}
       >
         {currentConversationInfo.data?.chatbot_name}
-      </div>
+      </h1>
       <button
         onClick={() => newConversationMutation.mutate()}
         disabled={newConversationMutation.isPending}
@@ -89,6 +91,9 @@ const ChatbotDialogHeader: React.FC<
           border-radius: 50%;
           border: none;
           color: ${baseTheme.colors.gray[400]};
+
+          position: relative;
+          top: -3px;
 
           transition: filter 0.2s;
 

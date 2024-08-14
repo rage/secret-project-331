@@ -1,62 +1,47 @@
 // Modified from https://github.com/vineethtrv/css-loader, MIT
-import { css } from "@emotion/css"
+import { css, keyframes } from "@emotion/css"
+import styled from "@emotion/styled"
+
+import { baseTheme } from "@/shared-module/common/styles"
+
+const bounce = keyframes`
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-3px);
+  }
+`
+
+// eslint-disable-next-line i18next/no-literal-string
+const Dot = styled.span<{ delaySeconds: number }>`
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin: 0 2px;
+  background-color: ${baseTheme.colors.gray[400]};
+  border-radius: 50%;
+
+  animation-name: ${bounce};
+  animation-duration: 1.3s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: ${({ delaySeconds }) => delaySeconds}s;
+`
 
 const ThinkingIndicator = () => {
   return (
     <span
       className={css`
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 1rem;
-
-        &::before,
-        &::after {
-          content: "";
-          position: absolute;
-          border-radius: 50%;
-          animation: pulsOut 1.8s ease-in-out infinite;
-          filter: drop-shadow(0 0 1rem rgba(255, 255, 255, 0.75));
-        }
-        &::before {
-          width: 100%;
-          padding-bottom: 100%;
-          box-shadow: inset 0 0 0 1rem #fff;
-          animation-name: pulsIn;
-        }
-        &::after {
-          width: calc(100% - 2rem);
-          padding-bottom: calc(100% - 2rem);
-          box-shadow: 0 0 0 0 #fff;
-        }
-
-        @keyframes pulsIn {
-          0% {
-            box-shadow: inset 0 0 0 1rem #fff;
-            opacity: 1;
-          }
-          50%,
-          100% {
-            box-shadow: inset 0 0 0 0 #fff;
-            opacity: 0;
-          }
-        }
-
-        @keyframes pulsOut {
-          0%,
-          50% {
-            box-shadow: 0 0 0 0 #fff;
-            opacity: 0;
-          }
-          100% {
-            box-shadow: 0 0 0 1rem #fff;
-            opacity: 1;
-          }
-        }
+        margin: 0 3px;
       `}
-    ></span>
+    >
+      <Dot delaySeconds={0} />
+      <Dot delaySeconds={0.2} />
+      <Dot delaySeconds={0.4} />
+    </span>
   )
 }
 

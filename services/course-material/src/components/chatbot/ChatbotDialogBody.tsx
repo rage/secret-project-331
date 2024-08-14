@@ -12,10 +12,8 @@ import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const ChatbotDialogBody: React.FC<
@@ -40,48 +38,48 @@ const ChatbotDialogBody: React.FC<
   )
 
   const newMessageMutation = useToastMutation(
-    () => {
+    async () => {
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
       const message = newMessage
       setOptimisticSentMessage(message)
       setNewMessage("")
-      return sendChatbotMessage(
+      const stream = await sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfo.data.current_conversation.id,
         message,
       )
+      const reader = stream.getReader()
+
+      let done = false
+      let value = undefined
+      while (!done) {
+        ;({ done, value } = await reader.read())
+        const valueAsString = new TextDecoder().decode(value)
+        const lines = valueAsString.split("\n")
+        for (const line of lines) {
+          if (line?.indexOf("{") !== 0) {
+            continue
+          }
+          console.log(line)
+          try {
+            const parsedValue = JSON.parse(line)
+            console.log(parsedValue)
+            if (parsedValue.text) {
+              setStreamingMessage((prev) => `${prev || ""}${parsedValue.text}`)
+            }
+          } catch (e) {
+            // NOP
+            console.error(e)
+          }
+        }
+      }
+      return stream
     },
     { notify: false },
     {
       onSuccess: async (stream) => {
-        const reader = stream.getReader()
-
-        let done = false
-        let value = undefined
-        while (!done) {
-          ;({ done, value } = await reader.read())
-          const valueAsString = new TextDecoder().decode(value)
-          const lines = valueAsString.split("\n")
-          for (const line of lines) {
-            if (line?.indexOf("{") !== 0) {
-              continue
-            }
-            console.log(line)
-            try {
-              const parsedValue = JSON.parse(line)
-              console.log(parsedValue)
-              if (parsedValue.text) {
-                setStreamingMessage((prev) => `${prev || ""}${parsedValue.text}`)
-              }
-            } catch (e) {
-              // NOP
-              console.error(e)
-            }
-          }
-        }
-
         await currentConversationInfo.refetch()
         setStreamingMessage(null)
         setOptimisticSentMessage(null)
@@ -142,6 +140,11 @@ const ChatbotDialogBody: React.FC<
     scrollToBottom()
   }, [scrollToBottom, messages])
 
+  const canSubmit = useMemo(
+    () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
+    [newMessage, newMessageMutation.isPending],
+  )
+
   if (currentConversationInfo.isLoading) {
     return <Spinner variant="medium" />
   }
@@ -160,7 +163,7 @@ const ChatbotDialogBody: React.FC<
           flex-direction: column;
           padding: 20px;
 
-          h1 {
+          h2 {
             font-size: 24px;
             margin-bottom: 10px;
           }
@@ -184,7 +187,7 @@ const ChatbotDialogBody: React.FC<
             flex-grow: 1;
           `}
         >
-          <h1>About the chatbot</h1>
+          <h2>About the chatbot</h2>
 
           <p>
             You are opening a chatbot based on a large language model (LLM). To use this chatbot,
@@ -239,22 +242,27 @@ const ChatbotDialogBody: React.FC<
         {messages.map((message) => (
           <div
             className={css`
-              background-color: ${baseTheme.colors.gray[100]};
               padding: 1rem;
               border-radius: 10px;
               width: fit-content;
+              margin: 0.5rem 0;
               ${message.is_from_chatbot &&
               `margin-right: 2rem;
-                align-self: flex-start;`}
+                align-self: flex-start;
+                background-color: ${baseTheme.colors.gray[100]};
+                `}
               ${!message.is_from_chatbot &&
               `margin-left: 2rem;
-                align-self: flex-end;`}
-              margin-bottom: 0.5rem;
+                align-self: flex-end;
+                border: 2px solid ${baseTheme.colors.gray[200]};
+                `}
             `}
             key={`chatbot-message-${message.id}`}
           >
             <span>{message.message}</span>
-            {!message.message_is_complete && <ThinkingIndicator />}
+            {!message.message_is_complete && newMessageMutation.isPending && (
+              <ThinkingIndicator key="chat-message-thinking-indicator" />
+            )}
           </div>
         ))}
       </div>
@@ -272,19 +280,27 @@ const ChatbotDialogBody: React.FC<
             flex-grow: 1;
           `}
         >
-          <input
+          <textarea
             className={css`
               width: 100%;
               padding: 0.5rem;
+
+              resize: none;
+
+              &:focus {
+                outline: 1px solid ${baseTheme.colors.gray[300]};
+              }
             `}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                newMessageMutation.mutate()
+                e.preventDefault()
+                if (canSubmit) {
+                  newMessageMutation.mutate()
+                }
               }
             }}
-            type="text"
             placeholder="Message"
           />
         </div>
@@ -318,7 +334,7 @@ const ChatbotDialogBody: React.FC<
                 transform: rotate(45deg);
               }
             `}
-            disabled={!newMessage || newMessage.trim().length === 0 || newMessageMutation.isPending}
+            disabled={!canSubmit}
             aria-label={t("send")}
             onClick={() => newMessageMutation.mutate()}
           >

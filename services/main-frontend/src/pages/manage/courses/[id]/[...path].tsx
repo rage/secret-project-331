@@ -55,7 +55,7 @@ const CourseManagementPageTabs: {
   permissions: CoursePermissions,
   glossary: CourseGlossary,
   stats: CourseStatsPage,
-  chatbot: ChatBotPage,
+  // chatbot: ChatBotPage,
   cheaters: CourseCheaters,
 }
 
@@ -120,11 +120,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"glossary"} isActive={path === "glossary"}>
           {t("link-glossary")}
         </TabLink>
-        {courseQuery.data?.can_add_chatbot === true && (
+        {/* {courseQuery.data?.can_add_chatbot === true && (
           <TabLink url={"chatbot"} isActive={path === "chatbot"}>
             {t("chatbot")}
           </TabLink>
-        )}
+        )} */}
         <TabLink url={"cheaters"} isActive={path === "cheaters"}>
           {t("link-cheaters")}
         </TabLink>

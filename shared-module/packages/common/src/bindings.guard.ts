@@ -1033,7 +1033,8 @@ export function isChatbotConversationMessage(obj: unknown): obj is ChatbotConver
     (typedObj["message"] === null || typeof typedObj["message"] === "string") &&
     typeof typedObj["is_from_chatbot"] === "boolean" &&
     typeof typedObj["message_is_complete"] === "boolean" &&
-    typeof typedObj["used_tokens"] === "number"
+    typeof typedObj["used_tokens"] === "number" &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 

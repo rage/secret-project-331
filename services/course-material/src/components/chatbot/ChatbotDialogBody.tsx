@@ -91,6 +91,7 @@ const ChatbotDialogBody: React.FC<
 
   const messages = useMemo(() => {
     const messages = [...(currentConversationInfo.data?.current_conversation_messages ?? [])]
+    const lastOrderNumber = Math.max(...messages.map((m) => m.order_number))
     if (optimisticSentMessage) {
       messages.push({
         // eslint-disable-next-line i18next/no-literal-string
@@ -103,6 +104,7 @@ const ChatbotDialogBody: React.FC<
         conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
         message_is_complete: true,
         used_tokens: 0,
+        order_number: lastOrderNumber + 1,
       })
     }
     if (streamingMessage) {
@@ -117,6 +119,7 @@ const ChatbotDialogBody: React.FC<
         conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
         message_is_complete: false,
         used_tokens: 0,
+        order_number: lastOrderNumber + 2,
       })
     }
     return messages
@@ -288,10 +291,34 @@ const ChatbotDialogBody: React.FC<
         <div>
           <button
             className={css`
-              background: none;
+              background-color: ${baseTheme.colors.gray[100]};
               border: none;
               cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              padding: 0.3rem 0.6rem;
+
+              transition: filter 0.2s;
+
+              &:disabled {
+                cursor: not-allowed;
+                opacity: 0.5;
+              }
+
+              &:hover {
+                filter: brightness(0.9) contrast(1.1);
+              }
+              svg {
+                position: relative;
+                top: 0px;
+                left: -2px;
+
+                transform: rotate(45deg);
+              }
             `}
+            disabled={!newMessage || newMessage.trim().length === 0 || newMessageMutation.isPending}
             aria-label={t("send")}
             onClick={() => newMessageMutation.mutate()}
           >
@@ -302,9 +329,12 @@ const ChatbotDialogBody: React.FC<
       <div
         className={css`
           margin: 0.5rem;
+          font-size: 0.8rem;
+          color: ${baseTheme.colors.gray[400]};
+          text-align: center;
         `}
       >
-        Warning: the bot may not tell the truth.
+        Chatbots can make mistakes. Always double-check its claims.
       </div>
     </div>
   )

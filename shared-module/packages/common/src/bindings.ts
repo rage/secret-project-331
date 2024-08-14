@@ -488,6 +488,7 @@ export interface ChatbotConversationMessage {
   is_from_chatbot: boolean
   message_is_complete: boolean
   used_tokens: number
+  order_number: number
 }
 
 export interface EmailTemplate {

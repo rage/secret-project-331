@@ -1,13 +1,11 @@
 import { css, keyframes } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import ChatbotDialogBody from "./ChatbotDialogBody"
 import ChatbotDialogHeader from "./ChatbotDialogHeader"
 
 import { getChatbotCurrentConversationInfo } from "@/services/backend"
-import { baseTheme } from "@/shared-module/common/styles"
 
 export interface ChatbotDialogProps {
   dialogOpen: boolean
@@ -39,7 +37,6 @@ const closeAnimation = keyframes`
 
 const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   const { dialogOpen, chatbotConfigurationId } = props
-  const { t } = useTranslation()
   const [shouldRender, setShouldRender] = useState(dialogOpen)
 
   const currentConversationInfoQuery = useQuery({

@@ -79,7 +79,7 @@ const ChatbotDialogBody: React.FC<
     },
     { notify: false },
     {
-      onSuccess: async (stream) => {
+      onSuccess: async (_stream) => {
         await currentConversationInfo.refetch()
         setStreamingMessage(null)
         setOptimisticSentMessage(null)
@@ -187,26 +187,18 @@ const ChatbotDialogBody: React.FC<
             flex-grow: 1;
           `}
         >
-          <h2>About the chatbot</h2>
+          <h2>{t("about-the-chatbot")}</h2>
 
-          <p>
-            You are opening a chatbot based on a large language model (LLM). To use this chatbot,
-            you must agree that you will...
-          </p>
+          <p>{t("chatbot-disclaimer-start")}</p>
 
           <ul>
+            <li>{t("chatbot-discalimer-sensitive-information")}</li>
+            <li>{t("chatbot-disclaimer-check")}</li>
             <li>
-              <b>Never disclose any sensitive information to the chatbot.</b>
-            </li>
-            <li>
-              <b>Always check the claims made by the chatbot.</b> LLM-based chatbots can produce
-              highly convincing but factually incorrect statements.
-            </li>
-            <li>
-              <b>Always disclose use of LLMs in your studies.</b> You can find the University of
-              Helsinki guidance on use of LLMs in studies{" "}
+              {t("chatbot-disclaimer-disclose-part-1")}
               <a href="https://studies.helsinki.fi/instructions/article/using-ai-support-learning">
-                here
+                {" "}
+                {t("chatbot-disclaimer-disclose-part-2")}
               </a>
               .{" "}
             </li>
@@ -214,7 +206,7 @@ const ChatbotDialogBody: React.FC<
         </div>
 
         <Button size="medium" variant="secondary" onClick={() => newConversationMutation.mutate()}>
-          Agree
+          {t("button-text-agree")}
         </Button>
       </div>
     )
@@ -301,7 +293,7 @@ const ChatbotDialogBody: React.FC<
                 }
               }
             }}
-            placeholder="Message"
+            placeholder={t("label-message")}
           />
         </div>
         <div>
@@ -350,7 +342,7 @@ const ChatbotDialogBody: React.FC<
           text-align: center;
         `}
       >
-        Chatbots can make mistakes. Always double-check its claims.
+        {t("warning-chatbots-can-make-mistakes")}
       </div>
     </div>
   )

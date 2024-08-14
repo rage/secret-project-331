@@ -30,7 +30,6 @@ import SelectResearchConsentForm from "./forms/SelectResearchConsentForm"
 import CourseSettingsModal from "./modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "./notifications/UserOnWrongCourseNotification"
 
-import useCourseInfo from "@/hooks/useCourseInfo"
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

@@ -26,9 +26,7 @@ async fn get_chatbot_configuration_for_course(
         models::chatbot_configurations::get_for_course(&mut conn, *course_id).await?;
 
     let res = chatbot_configurations
-        .into_iter()
-        .filter(|c| c.enabled_to_students)
-        .next()
+        .into_iter().find(|c| c.enabled_to_students)
         .map(|c| c.id);
 
     token.authorized_ok(web::Json(res))
@@ -57,7 +55,7 @@ async fn send_message(
     let configuration =
         models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
     let conversation_messages =
-        models::chatbot_conversation_messages::get_by_conversation_id(&mut *tx, conversation_id)
+        models::chatbot_conversation_messages::get_by_conversation_id(&mut tx, conversation_id)
             .await?;
     let new_order_number = conversation_messages
         .iter()
@@ -72,7 +70,7 @@ async fn send_message(
             created_at: Utc::now(),
             updated_at: Utc::now(),
             deleted_at: None,
-            conversation_id: conversation_id,
+            conversation_id,
             message: Some(message.clone()),
             is_from_chatbot: false,
             message_is_complete: true,

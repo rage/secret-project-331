@@ -52,7 +52,7 @@ pub async fn seed_organization_uh_mathstat(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
-    } = seed_users_result.clone();
+    } = seed_users_result;
     let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;
@@ -186,7 +186,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let preview_unopened_chapters = seed_sample_course(
+    let _preview_unopened_chapters = seed_sample_course(
         Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
         "Preview unopened chapters",
         "preview-unopened-chapters",
@@ -195,7 +195,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let reset_progress = seed_sample_course(
+    let _reset_progress = seed_sample_course(
         Uuid::parse_str("841ea3f5-0269-4146-a4c6-4fd2f51e4150")?,
         "Reset progress",
         "reset-progress",
@@ -204,7 +204,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let change_path = seed_sample_course(
+    let _change_path = seed_sample_course(
         Uuid::parse_str("c783777b-426e-4cfd-9a5f-4a36b2da503a")?,
         "Change path",
         "change-path",
@@ -213,7 +213,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let self_review = seed_sample_course(
+    let _self_review = seed_sample_course(
         Uuid::parse_str("3cbaac48-59c4-4e31-9d7e-1f51c017390d")?,
         "Self review",
         "self-review",
@@ -222,7 +222,7 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let audio_course = seed_sample_course(
+    let _audio_course = seed_sample_course(
         Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
         "Audio course",
         "audio-course",

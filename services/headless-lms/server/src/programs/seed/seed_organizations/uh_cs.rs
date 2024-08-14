@@ -66,7 +66,7 @@ pub async fn seed_organization_uh_cs(
         student_5_user_id: _,
         student_6_user_id: _,
         langs_user_id,
-    } = seed_users_result.clone();
+    } = seed_users_result;
     let _ = seed_file_storage_result;
 
     let mut conn = db_pool.acquire().await?;

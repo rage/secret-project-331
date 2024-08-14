@@ -7,7 +7,7 @@ use chrono::Utc;
 use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
-use lettre::transport::smtp::response;
+
 use once_cell::sync::Lazy;
 use reqwest::header::HeaderMap;
 use reqwest::Client;
@@ -118,7 +118,7 @@ impl Drop for RequestCancelledGuard {
             return;
         }
         warn!("Request was not completed. Cleaning up.");
-        let response_message_id = self.response_message_id.clone();
+        let response_message_id = self.response_message_id;
         let received_string = self.received_string.clone();
         let pool = self.pool.clone();
         tokio::spawn(async move {
@@ -154,7 +154,7 @@ impl Drop for RequestCancelledGuard {
 }
 
 pub async fn send_chat_request_and_parse_stream(
-    mut conn: &mut PgConnection,
+    conn: &mut PgConnection,
     // An Arc, cheap to clone.
     pool: web::Data<PgPool>,
     payload: &ChatRequest,
@@ -194,13 +194,13 @@ pub async fn send_chat_request_and_parse_stream(
     );
 
     let response_message = models::chatbot_conversation_messages::insert(
-        &mut conn,
+        conn,
         models::chatbot_conversation_messages::ChatbotConversationMessage {
             id: Uuid::new_v4(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
             deleted_at: None,
-            conversation_id: conversation_id,
+            conversation_id,
             message: None,
             is_from_chatbot: true,
             message_is_complete: false,
@@ -304,7 +304,7 @@ pub fn estimate_tokens(text: &str) -> i32 {
         acc + len
     });
     // A token is roughly 4 characters
-    text_length as i32 / 4
+    text_length / 4
 }
 
 #[cfg(test)]

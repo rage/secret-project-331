@@ -26,7 +26,8 @@ async fn get_chatbot_configuration_for_course(
         models::chatbot_configurations::get_for_course(&mut conn, *course_id).await?;
 
     let res = chatbot_configurations
-        .into_iter().find(|c| c.enabled_to_students)
+        .into_iter()
+        .find(|c| c.enabled_to_students)
         .map(|c| c.id);
 
     token.authorized_ok(web::Json(res))

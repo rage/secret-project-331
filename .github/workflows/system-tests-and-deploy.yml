@@ -61,7 +61,7 @@ jobs:
         run: bin/skaffold-build-test-env-and-serialize-output
 
       - name: Store skaffold output json
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
@@ -70,7 +70,7 @@ jobs:
         run: bin/skaffold-export-production-images
 
       - name: Store built images
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: skaffold-images
           path: ./skaffold-images
@@ -181,13 +181,13 @@ jobs:
         run: npm ci
 
       - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: skaffold-build-output
           path: skaffold-build-output
 
       - name: Download built images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: skaffold-images
           path: skaffold-images
@@ -219,14 +219,14 @@ jobs:
         run: kubectl logs 'deployment/headless-lms'
         if: failure()
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: test-results
           path: ./system-tests/test-results/
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-html-report
@@ -244,7 +244,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2
       - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: skaffold-build-output
           path: skaffold-build-output

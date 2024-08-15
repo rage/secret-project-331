@@ -2,6 +2,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { secondaryFont } from "@/shared-module/common/styles"
+
 export interface DashboardItem {
   id: string
   name: string
@@ -92,6 +94,7 @@ const ChapterPointsDashboard: React.FC<ChapterPointDashboardProps> = ({
                   font-size: 30px;
                   line-height: 30px;
                   padding-top: 8px;
+                  font-family: ${secondaryFont};
                 `}
               >
                 {c.value}

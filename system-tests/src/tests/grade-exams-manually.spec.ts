@@ -44,11 +44,13 @@ test("Grade exams manually", async ({}) => {
     .getByLabel("Exercise:Multiple choice with")
     .getByRole("button", { name: "Submit" })
     .click()
+  await student1Page.getByRole("button", { name: "Try again" }).waitFor()
   await student1Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("checkbox", { name: "b" })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
+  await student1Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
   student1Page.once("dialog", (dialog) => {
     dialog.accept()
@@ -74,11 +76,13 @@ test("Grade exams manually", async ({}) => {
     .getByLabel("Exercise:Multiple choice with")
     .getByRole("button", { name: "Submit" })
     .click()
+  await student2Page.getByRole("button", { name: "Try again" }).waitFor()
   await student2Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("checkbox", { name: "b" })
     .click()
   await student2Page.getByRole("button", { name: "Submit" }).click()
+  await student2Page.getByRole("button", { name: "Try again" }).nth(1).waitFor()
 
   student2Page.once("dialog", (dialog) => {
     dialog.accept()

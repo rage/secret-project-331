@@ -96,6 +96,7 @@ test.describe("admin", () => {
       testInfo,
       snapshotName: "non-draft-course",
       waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Advanced drafts" })],
+      clearNotifications: true,
     })
   })
 })

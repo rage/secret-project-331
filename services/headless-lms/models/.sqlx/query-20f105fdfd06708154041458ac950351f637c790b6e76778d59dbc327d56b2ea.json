@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    is_unlisted,\n    base_module_completion_requires_n_submodule_completions\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND id IN (\n    SELECT current_course_id\n    FROM user_course_settings\n    WHERE deleted_at IS NULL\n      AND user_id = $1\n  )\n",
   "describe": {
     "columns": [
       {
@@ -82,21 +82,15 @@
         "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": [
-        "Varchar",
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        "Varchar",
-        "Uuid",
-        "Uuid",
-        "Bool",
-        "Bool",
-        "Int4"
-      ]
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -114,8 +108,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "2171f0439016f92ca29bf407cb447aa66056aa0a2f6d90847cd14a81431b0951"
+  "hash": "20f105fdfd06708154041458ac950351f637c790b6e76778d59dbc327d56b2ea"
 }

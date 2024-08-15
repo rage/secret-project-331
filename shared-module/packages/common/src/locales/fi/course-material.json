@@ -84,6 +84,7 @@
   "grading-fully-graded": "Tehtävä arvioitu",
   "grading-pending": "Tehtävän arvostelu odottaa",
   "grading-pending-manual": "Tehtävä odottaa manuaalista arviointia",
+  "heading-chatbot": "Keskustelurobotti",
   "help-text-answer-has-been-reviewed-and-locked": "Vastauksesi on arvioitu ja arvosteltu. Uusia palautuksia ei enää hyväksytä",
   "help-text-exercise-involves-only-peer-review": "Kun olet palauttanut tämän tehtävän, sinun tulee arvioida {{peer_reviews_to_give}} muiden opiskelijoiden vastauksia. Tämän jälkeen muut oppilaat arvioivat vastauksesi ennen kun saat pisteet.",
   "help-text-exercise-involves-only-self-review": "Kun olet palauttanut tämän tehtävän, sinun tulee itsearvioida oma vastauksesi. Tämän jälkeen kurssin henkilökunta arvioi vastauksesi ennen kuin saat pisteet.",

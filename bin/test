@@ -12,6 +12,9 @@ ensure_common_programs_in_path
 ensure_tmc_langs_cli_downloaded
 
 run_command npm run postinstall
+
+make_sure_skaffold_local_env_patch_files_exists
+
 echo ""
 echo -e "${BLUE}ℹ️  We're now doing a full production build of the project. Since this is a production with all optimizations enabled, this will be resource-intensive."
 echo -e "${BOLD}ℹ️  If you change your code after running this, you have to restart bin/test to trigger a new build.${RESET_EVERYTHING}${BLUE}"

@@ -42,7 +42,7 @@ pub async fn main() -> anyhow::Result<()> {
     let (uh_cs_organization_result, _uh_mathstat_organization_id) = try_join!(
         run_parallelly(seed_organizations::uh_cs::seed_organization_uh_cs(
             db_pool.clone(),
-            seed_users_result.clone(),
+            seed_users_result,
             base_url.clone(),
             Arc::clone(&jwt_key),
             seed_file_storage_result.clone()
@@ -50,7 +50,7 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(
             seed_organizations::uh_mathstat::seed_organization_uh_mathstat(
                 db_pool.clone(),
-                seed_users_result.clone(),
+                seed_users_result,
                 base_url.clone(),
                 Arc::clone(&jwt_key),
                 seed_file_storage_result.clone()
@@ -61,12 +61,12 @@ pub async fn main() -> anyhow::Result<()> {
     try_join!(
         run_parallelly(seed_roles::seed_roles(
             db_pool.clone(),
-            seed_users_result.clone(),
+            seed_users_result,
             uh_cs_organization_result
         )),
         run_parallelly(seed_user_research_consents::seed_user_research_consents(
             db_pool.clone(),
-            seed_users_result.clone()
+            seed_users_result
         )),
         run_parallelly(seed_certificate_fonts::seed_certificate_fonts(
             db_pool.clone()

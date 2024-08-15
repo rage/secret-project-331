@@ -72,7 +72,7 @@ anyhow = "1.0.80"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.0.28"
 # higher level HTTP client library
-reqwest = "0.11.24"
+reqwest = { version = "0.12.4", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
 # Redis driver for Rust.
 redis = { version = "0.24.0", features = ["aio", "tokio-comp"] }
 

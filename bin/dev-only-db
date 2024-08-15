@@ -3,4 +3,6 @@ set -euo pipefail
 source "$(dirname "$0")/.common"
 
 disallow_running_as_root
+make_sure_skaffold_local_env_patch_files_exists
+
 run_command skaffold dev --force -p only-db "$@"

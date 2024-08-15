@@ -10,6 +10,8 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -30,22 +32,27 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [draftStatus, setDraftStatus] = useState(course.is_draft)
   const [testStatus, setTestStatus] = useState(course.is_test_mode)
   const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
+  const [canAddChatbot, setCanAddChatbot] = useState(course.can_add_chatbot)
 
-  const onUpdateCourseForm = async () => {
-    let unlisted = isUnlisted
-    if (draftStatus) {
-      // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
-      unlisted = false
-    }
-    await updateCourse(course.id, {
-      name,
-      description,
-      is_draft: draftStatus,
-      is_test_mode: testStatus,
-      is_unlisted: unlisted,
-    })
-    onSubmitForm()
-  }
+  const updateCourseMutation = useToastMutation(
+    async () => {
+      let unlisted = isUnlisted
+      if (draftStatus) {
+        // Course cannot be unlisted if it is a draft. Draft courses are not displayed to students.
+        unlisted = false
+      }
+      await updateCourse(course.id, {
+        name,
+        description,
+        is_draft: draftStatus,
+        is_test_mode: testStatus,
+        is_unlisted: unlisted,
+        can_add_chatbot: canAddChatbot,
+      })
+      onSubmitForm()
+    },
+    { method: "PUT", notify: true },
+  )
 
   return (
     <div
@@ -102,9 +109,23 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
             checked={testStatus}
           />
         </FieldContainer>
+        <OnlyRenderIfPermissions
+          action={{ type: "teach" }}
+          resource={{ type: "global_permissions" }}
+        >
+          <FieldContainer>
+            <CheckBox
+              label={t("can-enable-chatbot")}
+              onChange={() => {
+                setCanAddChatbot(!canAddChatbot)
+              }}
+              checked={canAddChatbot}
+            />
+          </FieldContainer>
+        </OnlyRenderIfPermissions>
       </div>
       <div>
-        <Button size="medium" variant="primary" onClick={onUpdateCourseForm}>
+        <Button size="medium" variant="primary" onClick={() => updateCourseMutation.mutate()}>
           {t("button-text-update")}
         </Button>
       </div>

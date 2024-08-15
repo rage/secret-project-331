@@ -70,6 +70,13 @@
     "[rust]": {
       "editor.defaultFormatter": "rust-lang.rust-analyzer"
     },
+    "[sql]": {
+      "editor.defaultFormatter": "mtxr.sqltools"
+    },
+    "sqltools.format": {
+      "linesBetweenQueries": "preserve",
+      "reservedWordCase": "upper",
+    },
     "files.watcherExclude": {
       "**/.git/objects/**": true,
       "**/.git/subtree-cache/**": true,
@@ -94,7 +101,7 @@
       "types/GutenbergBlockAttributes.ts": true,
       "types/DeprecatedGutenbergBlockAttributes.ts": true,
       // Matches only the shared-module folders that have been copied to service folders.
-      // If someone wants to edit shared-module files, they should do it in the shared-module that's in the repo root and have `npm run watch` running there as well.
+      // If someone wants to edit shared-module files, they should do it in the shared-module that's in the repo root and have `bin/shared-module-sync-watch` running there as well.
       "**/shared-module/**": true,
     },
     "rust-analyzer.cargo.extraEnv": {
@@ -122,7 +129,13 @@
       "**/node_modules": true,
       "*.tsbuildinfo": true,
     },
-    "rust-analyzer.showUnlinkedFileNotification": false
+    "rust-analyzer.showUnlinkedFileNotification": false,
+    "typescript.preferences.autoImportFileExcludePatterns": [
+      // Don't suggest wrong css imports
+      "@emotion/react",
+      "styled-jsx/css",
+      "styled-jsx",
+    ],
   },
   "launch": {
     "configurations": [],

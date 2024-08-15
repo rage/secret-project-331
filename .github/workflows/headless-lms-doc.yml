@@ -13,13 +13,12 @@ concurrency:
   group: headless-lms-doc-${{ github.head_ref || github.sha }}
   cancel-in-progress: true
 
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
@@ -39,9 +38,10 @@ jobs:
         working-directory: services/headless-lms
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@releases/v3
+        uses: JamesIves/github-pages-deploy-action@v4
+
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: services/headless-lms/target/doc
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: services/headless-lms/target/doc
         if: ${{ github.ref == 'refs/heads/master' }}

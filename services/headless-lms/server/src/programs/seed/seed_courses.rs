@@ -8,8 +8,6 @@ use crate::programs::seed::seed_helpers::{
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
 
-use headless_lms_models::certificate_configurations::DatabaseCertificateConfiguration;
-use headless_lms_models::pages::PageUpdateArgs;
 use headless_lms_models::{certificate_configuration_to_requirements, CourseOrExamId};
 use headless_lms_models::{
     certificate_configurations, chapters,
@@ -35,13 +33,21 @@ use headless_lms_models::{
     proposed_page_edits::NewProposedPageEdits,
     repository_exercises, url_redirections, PKeyPolicy,
 };
+use headless_lms_models::{certificate_configurations::DatabaseCertificateConfiguration, roles};
+use headless_lms_models::{
+    pages::PageUpdateArgs,
+    roles::{RoleDomain, UserRole},
+};
 use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
 use sqlx::{Pool, Postgres};
 use tracing::info;
 use uuid::Uuid;
 
-use super::seed_helpers::{heading, CommonExerciseData};
+use super::{
+    seed_helpers::{heading, CommonExerciseData},
+    seed_users::SeedUsersResult,
+};
 
 #[derive(Clone)]
 pub struct CommonCourseData {
@@ -60,6 +66,7 @@ pub async fn seed_sample_course(
     course_name: &str,
     course_slug: &str,
     common_course_data: CommonCourseData,
+    seed_users_result: SeedUsersResult,
 ) -> Result<Uuid> {
     let CommonCourseData {
         db_pool,
@@ -1975,6 +1982,15 @@ pub async fn seed_sample_course(
         database_configuration.id,
         Some(default_module.id),
         Some(default_instance.id),
+    )
+    .await?;
+
+    // Add roles
+    roles::insert(
+        &mut conn,
+        seed_users_result.teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(course.id),
     )
     .await?;
 

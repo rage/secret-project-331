@@ -406,6 +406,7 @@ export interface Course {
   is_test_mode: boolean
   is_unlisted: boolean
   base_module_completion_requires_n_submodule_completions: number
+  can_add_chatbot: boolean
 }
 
 export interface CourseCount {
@@ -424,6 +425,7 @@ export interface CourseUpdate {
   description: string | null
   is_draft: boolean
   is_test_mode: boolean
+  can_add_chatbot: boolean
   is_unlisted: boolean
 }
 
@@ -458,6 +460,35 @@ export interface CertificateAllRequirements {
   certificate_configuration_id: string
   course_module_ids: Array<string>
   course_instance_ids: Array<string>
+}
+
+export interface ChatbotConversation {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  course_id: string
+  user_id: string
+  chatbot_configuration_id: string
+}
+
+export interface ChatbotConversationInfo {
+  current_conversation: ChatbotConversation | null
+  current_conversation_messages: Array<ChatbotConversationMessage> | null
+  chatbot_name: string
+}
+
+export interface ChatbotConversationMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  conversation_id: string
+  message: string | null
+  is_from_chatbot: boolean
+  message_is_complete: boolean
+  used_tokens: number
+  order_number: number
 }
 
 export interface EmailTemplate {

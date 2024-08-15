@@ -22,13 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # This would cause all other tests to be skipped
       - name: Make sure we have no focused system-tests
         run: |
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
-
 
       - name: Free up disk space
         run: |
@@ -47,9 +46,9 @@ jobs:
         run: sudo mv /usr/bin/gcloud /tmp/gcloud
 
       - name: Install skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.9.3
+        uses: yokawasa/action-setup-kube-tools@v0.11.1
         with:
-          skaffold: "2.8.0"
+          skaffold: "2.13.1"
 
       - name: Run npm ci so that shared module gets copied
         run: npm ci
@@ -61,7 +60,7 @@ jobs:
         run: bin/skaffold-build-test-env-and-serialize-output
 
       - name: Store skaffold output json
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: skaffold-build-output
           path: ./skaffold-build-output.json
@@ -70,7 +69,7 @@ jobs:
         run: bin/skaffold-export-production-images
 
       - name: Store built images
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: skaffold-images
           path: ./skaffold-images
@@ -128,7 +127,7 @@ jobs:
           echo "Space after:"
           df -h
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
         # This would cause all other tests to be skipped
       - name: Make sure we have no focused system-tests
@@ -136,11 +135,12 @@ jobs:
           test "$(grep -r 'test.only' ./system-tests/src/ | wc -l)" -eq 0
 
       - name: Install kustomize, kubectl & skaffold
-        uses: yokawasa/action-setup-kube-tools@v0.9.3
+        uses: yokawasa/action-setup-kube-tools@v0.11.1
         with:
-          kubectl: "1.28.2"
-          kustomize: "5.1.1"
-          skaffold: "2.8.0"
+          kubectl: "1.30.3"
+          kustomize: "5.4.1"
+          skaffold: "2.13.1"
+
       - name: Workaround for kube-proxy set nf_conntrack_max permission denied
         run: |
           # Workarounds this issue when starting up kube-system/kube-proxy:
@@ -149,13 +149,17 @@ jobs:
           sudo sysctl net/netfilter/nf_conntrack_max=131072
 
       - name: Install, start & configure minikube
-        uses: manusa/actions-setup-minikube@v2.7.1
+        uses: manusa/actions-setup-minikube@v2.11.0
         with:
-          minikube version: "v1.28.0"
-          kubernetes version: "v1.25.3"
-          start args: "--addons ingress --memory max"
+          minikube version: "v1.33.1"
+          kubernetes version: "v1.30.0"
+          start args: "--addons ingress --memory 10g"
           driver: "docker"
           github token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable snippet directives
+        run: |
+          kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
 
       - name: Debug kube-system
         run: |
@@ -181,13 +185,13 @@ jobs:
         run: npm ci
 
       - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: skaffold-build-output
           path: skaffold-build-output
 
       - name: Download built images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: skaffold-images
           path: skaffold-images
@@ -219,17 +223,17 @@ jobs:
         run: kubectl logs 'deployment/headless-lms'
         if: failure()
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: test-results
+          name: test-results-${{ matrix.shard }}
           path: ./system-tests/test-results/
           if-no-files-found: ignore
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-html-report
+          name: playwright-html-report-${{ matrix.shard }}
           path: ./system-tests/playwright-report/index.html
           if-no-files-found: ignore
 
@@ -242,9 +246,9 @@ jobs:
       url: https://courses.mooc.fi
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Download skaffold build output artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: skaffold-build-output
           path: skaffold-build-output
@@ -252,9 +256,9 @@ jobs:
       - name: Install kustomize, kubectl & skaffold
         uses: yokawasa/action-setup-kube-tools@v0.7.1
         with:
-          kubectl: "1.25.4"
-          kustomize: "4.5.7"
-          skaffold: "2.0.1"
+          kubectl: "1.30.3"
+          kustomize: "5.4.1"
+          skaffold: "2.13.1"
       - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
         with:
           service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY_DEPLOY_TO_PRODUCTION }}
@@ -281,7 +285,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run npm ci in repo root
         run: npm ci

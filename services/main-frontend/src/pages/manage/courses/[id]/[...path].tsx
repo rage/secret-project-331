@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "../../../../components/MainFrontendBreadCrumbs"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
+import ChatBotPage from "../../../../components/page-specific/manage/courses/id/chatbot/ChatbotPage"
 import CourseCheaters from "../../../../components/page-specific/manage/courses/id/cheaters/CourseCheaters"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
@@ -19,6 +20,7 @@ import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCo
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
 
+import useCourseQuery from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
@@ -53,6 +55,7 @@ const CourseManagementPageTabs: {
   permissions: CoursePermissions,
   glossary: CourseGlossary,
   stats: CourseStatsPage,
+  // chatbot: ChatBotPage,
   cheaters: CourseCheaters,
 }
 
@@ -60,6 +63,7 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
   query,
 }) => {
   const courseId = query.id
+  const courseQuery = useCourseQuery(courseId)
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
 
@@ -116,6 +120,11 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"glossary"} isActive={path === "glossary"}>
           {t("link-glossary")}
         </TabLink>
+        {/* {courseQuery.data?.can_add_chatbot === true && (
+          <TabLink url={"chatbot"} isActive={path === "chatbot"}>
+            {t("chatbot")}
+          </TabLink>
+        )} */}
         <TabLink url={"cheaters"} isActive={path === "cheaters"}>
           {t("link-cheaters")}
         </TabLink>

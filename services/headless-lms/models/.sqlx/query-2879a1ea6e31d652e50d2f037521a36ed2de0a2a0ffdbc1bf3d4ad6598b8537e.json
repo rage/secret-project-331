@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE deleted_at IS NULL;\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE id = $1;\n    ",
   "describe": {
     "columns": [
       {
@@ -75,17 +75,22 @@
       },
       {
         "ordinal": 14,
-        "name": "is_unlisted",
+        "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
         "ordinal": 15,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -103,8 +108,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "197a084c6d805765dd54a024da011ec213c196308f46ef2fb598bba3a5e443a6"
+  "hash": "2879a1ea6e31d652e50d2f037521a36ed2de0a2a0ffdbc1bf3d4ad6598b8537e"
 }

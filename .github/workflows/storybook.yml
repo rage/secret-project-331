@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up deploy key
         run: |
@@ -42,7 +42,6 @@ jobs:
       - name: npm ci for the storybook
         run: npm ci
         working-directory: ./storybook
-
 
       - name: npm run build-storybook
         run: npm run build-storybook -- --quiet

@@ -27,6 +27,9 @@ import {
   ChaptersWithStatus,
   ChapterUpdate,
   ChapterWithStatus,
+  ChatbotConversation,
+  ChatbotConversationInfo,
+  ChatbotConversationMessage,
   CmsPageExercise,
   CmsPageExerciseSlide,
   CmsPageExerciseTask,
@@ -896,7 +899,8 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
-    typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number"
+    typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
+    typeof typedObj["can_add_chatbot"] === "boolean"
   )
 }
 
@@ -930,6 +934,7 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
+    typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean"
   )
 }
@@ -984,6 +989,52 @@ export function isCertificateAllRequirements(obj: unknown): obj is CertificateAl
     typedObj["course_module_ids"].every((e: any) => typeof e === "string") &&
     Array.isArray(typedObj["course_instance_ids"]) &&
     typedObj["course_instance_ids"].every((e: any) => typeof e === "string")
+  )
+}
+
+export function isChatbotConversation(obj: unknown): obj is ChatbotConversation {
+  const typedObj = obj as ChatbotConversation
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["chatbot_configuration_id"] === "string"
+  )
+}
+
+export function isChatbotConversationInfo(obj: unknown): obj is ChatbotConversationInfo {
+  const typedObj = obj as ChatbotConversationInfo
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typedObj["current_conversation"] === null ||
+      (isChatbotConversation(typedObj["current_conversation"]) as boolean)) &&
+    (typedObj["current_conversation_messages"] === null ||
+      (Array.isArray(typedObj["current_conversation_messages"]) &&
+        typedObj["current_conversation_messages"].every(
+          (e: any) => isChatbotConversationMessage(e) as boolean,
+        ))) &&
+    typeof typedObj["chatbot_name"] === "string"
+  )
+}
+
+export function isChatbotConversationMessage(obj: unknown): obj is ChatbotConversationMessage {
+  const typedObj = obj as ChatbotConversationMessage
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["conversation_id"] === "string" &&
+    (typedObj["message"] === null || typeof typedObj["message"] === "string") &&
+    typeof typedObj["is_from_chatbot"] === "boolean" &&
+    typeof typedObj["message_is_complete"] === "boolean" &&
+    typeof typedObj["used_tokens"] === "number" &&
+    typeof typedObj["order_number"] === "number"
   )
 }
 

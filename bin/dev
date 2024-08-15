@@ -12,5 +12,7 @@ ensure_common_programs_in_path
 
 enforce_inotify_watches_limit_sufficient
 
+make_sure_skaffold_local_env_patch_files_exists
+
 run_command skaffold dev --force "$@"
 

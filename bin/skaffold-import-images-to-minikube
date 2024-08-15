@@ -6,6 +6,8 @@ path_to_input_folder=$(relativize_path "../skaffold-images")
 
 ensure_program_in_path jq
 
+make_sure_skaffold_local_env_patch_files_exists
+
 point_docker_cli_to_minikube_docker
 
 files=$(find "$path_to_input_folder" -name '*.tar.zst' )

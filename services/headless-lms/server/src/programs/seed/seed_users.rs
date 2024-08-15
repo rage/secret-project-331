@@ -2,14 +2,14 @@ use headless_lms_models::{users, PKeyPolicy};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct SeedUsersResult {
     pub admin_user_id: Uuid,
     pub teacher_user_id: Uuid,
     pub language_teacher_user_id: Uuid,
     pub assistant_user_id: Uuid,
     pub course_or_exam_creator_user_id: Uuid,
-    pub example_normal_user_ids: Vec<Uuid>,
+    pub example_normal_user_ids: [Uuid; 4],
     pub teaching_and_learning_services_user_id: Uuid,
     pub student_without_research_consent: Uuid,
     pub material_viewer_user_id: Uuid,
@@ -165,7 +165,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
     )
     .await?;
 
-    let example_normal_user_ids = vec![
+    let example_normal_user_ids: [Uuid; 4] = [
         users::insert(
             &mut conn,
             PKeyPolicy::Fixed(Uuid::parse_str("00e249d8-345f-4eff-aedb-7bdc4c44c1d5")?),

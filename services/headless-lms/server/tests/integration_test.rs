@@ -75,6 +75,8 @@ pub async fn test_config() -> ServerConfig {
             test_mode: true,
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
+            chatbot_azure_api_key: None,
+            chatbot_azure_api_endpoint: None,
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"

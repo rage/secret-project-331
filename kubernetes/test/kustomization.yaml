@@ -36,8 +36,8 @@ patches:
     target:
       version: v1
       labelSelector: "deploymentType=with-init-container-cronjob"
-patchesStrategicMerge:
-  - main-frontend/patch-env.yml
+  - path: main-frontend/patch-env.yml
+  - path: headless-lms/env-local-patch.secret.yml
 
 # Patch replicas
 replicas:

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  ",
+  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted\n    ",
   "describe": {
     "columns": [
       {
@@ -75,17 +75,34 @@
       },
       {
         "ordinal": 14,
-        "name": "is_unlisted",
-        "type_info": "Bool"
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
       },
       {
         "ordinal": 15,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "is_unlisted",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Int4",
+        "Bool",
+        "Bool"
+      ]
     },
     "nullable": [
       false,
@@ -103,8 +120,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "84a442e3081859c86faf4041f40cdd1bd219422c8aede23064501cc812d6e9a8"
+  "hash": "17ed6560ca746324d1dea979be7ebe950ffed1e832c1ecf8cacee45bd0eeceef"
 }

@@ -36,7 +36,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Cargo clippy
         run: cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings
       - name: Build
@@ -66,7 +66,7 @@ jobs:
   cms:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -79,7 +79,7 @@ jobs:
   shared-module-common:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -92,7 +92,7 @@ jobs:
   quizzes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci
@@ -105,7 +105,7 @@ jobs:
   course-material:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm ci for the root of the repo
         run: npm ci
       - name: npm ci

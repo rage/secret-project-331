@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_by_id","get_for_course","insert"],"struct":["ChatbotConfiguration"]};

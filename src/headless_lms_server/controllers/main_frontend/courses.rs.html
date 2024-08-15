@@ -1572,6 +1572,12 @@
 <a href="#1571" id="1571">1571</a>
 <a href="#1572" id="1572">1572</a>
 <a href="#1573" id="1573">1573</a>
+<a href="#1574" id="1574">1574</a>
+<a href="#1575" id="1575">1575</a>
+<a href="#1576" id="1576">1576</a>
+<a href="#1577" id="1577">1577</a>
+<a href="#1578" id="1578">1578</a>
+<a href="#1579" id="1579">1579</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 </span><span class="kw">use </span>chrono::Utc;
@@ -1742,6 +1748,12 @@ Content-Type: application/json
     <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>token = authorize(<span class="kw-2">&amp;mut </span>conn, Act::Edit, <span class="prelude-val">Some</span>(user.id), Res::Course(<span class="kw-2">*</span>course_id)).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>course_update = payload.<span class="number">0</span>;
+    <span class="kw">let </span>course_before_update = models::courses::get_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if </span>course_update.can_add_chatbot != course_before_update.can_add_chatbot {
+        <span class="comment">// Only global admins can change the chatbot status
+        </span><span class="kw">let </span>_token2 =
+            authorize(<span class="kw-2">&amp;mut </span>conn, Act::Teach, <span class="prelude-val">Some</span>(user.id), Res::GlobalPermissions).<span class="kw">await</span><span class="question-mark">?</span>;
+    }
     <span class="kw">let </span>course = models::courses::update_course(<span class="kw-2">&amp;mut </span>conn, <span class="kw-2">*</span>course_id, course_update).<span class="kw">await</span><span class="question-mark">?</span>;
     token.authorized_ok(web::Json(course))
 }

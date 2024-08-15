@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.28/src/proto/h1/dispatch.rs`."><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/proto/h1/dispatch.rs`."><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -760,24 +760,43 @@
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
 <a href="#761" id="761">761</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
-<span class="kw">use </span>std::future::Future;
-<span class="kw">use </span>std::marker::Unpin;
-<span class="kw">use </span>std::pin::Pin;
-<span class="kw">use </span>std::task::{Context, Poll};
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::{
+    error::Error <span class="kw">as </span>StdError,
+    future::Future,
+    marker::Unpin,
+    pin::Pin,
+    task::{Context, Poll},
+};
 
+<span class="kw">use </span><span class="kw">crate</span>::rt::{Read, Write};
 <span class="kw">use </span>bytes::{Buf, Bytes};
+<span class="kw">use </span>futures_util::ready;
 <span class="kw">use </span>http::Request;
-<span class="kw">use </span>tokio::io::{AsyncRead, AsyncWrite};
-<span class="kw">use </span>tracing::{debug, trace};
 
 <span class="kw">use super</span>::{Http1Transaction, Wants};
-<span class="kw">use </span><span class="kw">crate</span>::body::{Body, DecodedLength, HttpBody};
-<span class="kw">use </span><span class="kw">crate</span>::common;
+<span class="kw">use </span><span class="kw">crate</span>::body::{Body, DecodedLength, Incoming <span class="kw">as </span>IncomingBody};
+<span class="kw">use </span><span class="kw">crate</span>::common::task;
 <span class="kw">use </span><span class="kw">crate</span>::proto::{BodyLength, Conn, Dispatched, MessageHead, RequestHead};
 <span class="kw">use </span><span class="kw">crate</span>::upgrade::OnUpgrade;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Dispatcher&lt;D, Bs: HttpBody, I, T&gt; {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Dispatcher&lt;D, Bs: Body, I, T&gt; {
     conn: Conn&lt;I, Bs::Data, T&gt;,
     dispatch: D,
     body_tx: <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::body::Sender&gt;,
@@ -794,7 +813,8 @@
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;(<span class="self">Self</span>::PollItem, <span class="self">Self</span>::PollBody), <span class="self">Self</span>::PollError&gt;&gt;&gt;;
-    <span class="kw">fn </span>recv_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw">crate</span>::Result&lt;(<span class="self">Self</span>::RecvItem, Body)&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt;;
+    <span class="kw">fn </span>recv_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw">crate</span>::Result&lt;(<span class="self">Self</span>::RecvItem, IncomingBody)&gt;)
+        -&gt; <span class="kw">crate</span>::Result&lt;()&gt;;
     <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), ()&gt;&gt;;
     <span class="kw">fn </span>should_poll(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 }
@@ -811,14 +831,14 @@
 <span class="macro">cfg_client! </span>{
     <span class="macro">pin_project_lite::pin_project! </span>{
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Client&lt;B&gt; {
-            callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::client::dispatch::Callback&lt;Request&lt;B&gt;, http::Response&lt;Body&gt;&gt;&gt;,
+            callback: <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::client::dispatch::Callback&lt;Request&lt;B&gt;, http::Response&lt;IncomingBody&gt;&gt;&gt;,
             <span class="attr">#[pin]
             </span>rx: ClientRx&lt;B&gt;,
             rx_closed: bool,
         }
     }
 
-    <span class="kw">type </span>ClientRx&lt;B&gt; = <span class="kw">crate</span>::client::dispatch::Receiver&lt;Request&lt;B&gt;, http::Response&lt;Body&gt;&gt;;
+    <span class="kw">type </span>ClientRx&lt;B&gt; = <span class="kw">crate</span>::client::dispatch::Receiver&lt;Request&lt;B&gt;, http::Response&lt;IncomingBody&gt;&gt;;
 }
 
 <span class="kw">impl</span>&lt;D, Bs, I, T&gt; Dispatcher&lt;D, Bs, I, T&gt;
@@ -829,9 +849,9 @@
             RecvItem = MessageHead&lt;T::Incoming&gt;,
         &gt; + Unpin,
     D::PollError: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
-    I: AsyncRead + AsyncWrite + Unpin,
+    I: Read + Write + Unpin,
     T: Http1Transaction + Unpin,
-    Bs: HttpBody + <span class="lifetime">'static</span>,
+    Bs: Body + <span class="lifetime">'static</span>,
     Bs::Error: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
 {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(dispatch: D, conn: Conn&lt;I, Bs::Data, T&gt;) -&gt; <span class="self">Self </span>{
@@ -847,7 +867,11 @@
     <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>disable_keep_alive(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.conn.disable_keep_alive();
-        <span class="kw">if </span><span class="self">self</span>.conn.is_write_closed() {
+
+        <span class="comment">// If keep alive has been disabled and no read or write has been seen on
+        // the connection yet, we must be in a state where the server is being asked to
+        // shut down before any data has been seen on the connection
+        </span><span class="kw">if </span><span class="self">self</span>.conn.is_write_closed() || <span class="self">self</span>.conn.has_initial_read_write_state() {
             <span class="self">self</span>.close();
         }
     }
@@ -858,7 +882,7 @@
     }
 
     <span class="doccomment">/// Run this dispatcher until HTTP says this connection is done,
-    /// but don't call `AsyncWrite::shutdown` on the underlying IO.
+    /// but don't call `Write::shutdown` on the underlying IO.
     ///
     /// This is useful for old-style HTTP upgrades, but ignores
     /// newer-style upgrade API.
@@ -942,7 +966,7 @@
 
         <span class="macro">trace!</span>(<span class="string">"poll_loop yielding (self = {:p})"</span>, <span class="self">self</span>);
 
-        common::task::yield_now(cx).map(|never| <span class="kw">match </span>never {})
+        task::yield_now(cx).map(|never| <span class="kw">match </span>never {})
     }
 
     <span class="kw">fn </span>poll_read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="kw">crate</span>::Result&lt;()&gt;&gt; {
@@ -1000,7 +1024,7 @@
     }
 
     <span class="kw">fn </span>poll_read_head(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="kw">crate</span>::Result&lt;()&gt;&gt; {
-        <span class="comment">// can dispatch receive, or does it still care about, an incoming message?
+        <span class="comment">// can dispatch receive, or does it still care about other incoming message?
         </span><span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.dispatch.poll_ready(cx)) {
             <span class="prelude-val">Ok</span>(()) =&gt; (),
             <span class="prelude-val">Err</span>(()) =&gt; {
@@ -1009,13 +1033,15 @@
                 <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(()));
             }
         }
+
         <span class="comment">// dispatch is ready for a message, try to read one
         </span><span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.conn.poll_read_head(cx)) {
             <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((<span class="kw-2">mut </span>head, body_len, wants))) =&gt; {
                 <span class="kw">let </span>body = <span class="kw">match </span>body_len {
-                    DecodedLength::ZERO =&gt; Body::empty(),
+                    DecodedLength::ZERO =&gt; IncomingBody::empty(),
                     other =&gt; {
-                        <span class="kw">let </span>(tx, rx) = Body::new_channel(other, wants.contains(Wants::EXPECT));
+                        <span class="kw">let </span>(tx, rx) =
+                            IncomingBody::new_channel(other, wants.contains(Wants::EXPECT));
                         <span class="self">self</span>.body_tx = <span class="prelude-val">Some</span>(tx);
                         rx
                     }
@@ -1063,16 +1089,7 @@
                 &amp;&amp; <span class="self">self</span>.dispatch.should_poll()
             {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(msg) = <span class="macro">ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.dispatch).poll_msg(cx)) {
-                    <span class="kw">let </span>(head, <span class="kw-2">mut </span>body) = msg.map_err(<span class="kw">crate</span>::Error::new_user_service)<span class="question-mark">?</span>;
-
-                    <span class="comment">// Check if the body knows its full data immediately.
-                    //
-                    // If so, we can skip a bit of bookkeeping that streaming
-                    // bodies need to do.
-                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(full) = <span class="kw">crate</span>::body::take_full_data(<span class="kw-2">&amp;mut </span>body) {
-                        <span class="self">self</span>.conn.write_full_msg(head, full);
-                        <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(()));
-                    }
+                    <span class="kw">let </span>(head, body) = msg.map_err(<span class="kw">crate</span>::Error::new_user_service)<span class="question-mark">?</span>;
 
                     <span class="kw">let </span>body_type = <span class="kw">if </span>body.is_end_stream() {
                         <span class="self">self</span>.body_rx.set(<span class="prelude-val">None</span>);
@@ -1082,7 +1099,7 @@
                             .size_hint()
                             .exact()
                             .map(BodyLength::Known)
-                            .or_else(|| <span class="prelude-val">Some</span>(BodyLength::Unknown));
+                            .or(<span class="prelude-val">Some</span>(BodyLength::Unknown));
                         <span class="self">self</span>.body_rx.set(<span class="prelude-val">Some</span>(body));
                         btype
                     };
@@ -1108,27 +1125,39 @@
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="kw">let </span>item = <span class="macro">ready!</span>(body.as_mut().poll_data(cx));
+                    <span class="kw">let </span>item = <span class="macro">ready!</span>(body.as_mut().poll_frame(cx));
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(item) = item {
-                        <span class="kw">let </span>chunk = item.map_err(|e| {
+                        <span class="kw">let </span>frame = item.map_err(|e| {
                             <span class="kw-2">*</span>clear_body = <span class="bool-val">true</span>;
                             <span class="kw">crate</span>::Error::new_user_body(e)
                         })<span class="question-mark">?</span>;
-                        <span class="kw">let </span>eos = body.is_end_stream();
-                        <span class="kw">if </span>eos {
-                            <span class="kw-2">*</span>clear_body = <span class="bool-val">true</span>;
-                            <span class="kw">if </span>chunk.remaining() == <span class="number">0 </span>{
-                                <span class="macro">trace!</span>(<span class="string">"discarding empty chunk"</span>);
-                                <span class="self">self</span>.conn.end_body()<span class="question-mark">?</span>;
+
+                        <span class="kw">if </span>frame.is_data() {
+                            <span class="kw">let </span>chunk = frame.into_data().unwrap_or_else(|<span class="kw">_</span>| <span class="macro">unreachable!</span>());
+                            <span class="kw">let </span>eos = body.is_end_stream();
+                            <span class="kw">if </span>eos {
+                                <span class="kw-2">*</span>clear_body = <span class="bool-val">true</span>;
+                                <span class="kw">if </span>chunk.remaining() == <span class="number">0 </span>{
+                                    <span class="macro">trace!</span>(<span class="string">"discarding empty chunk"</span>);
+                                    <span class="self">self</span>.conn.end_body()<span class="question-mark">?</span>;
+                                } <span class="kw">else </span>{
+                                    <span class="self">self</span>.conn.write_body_and_end(chunk);
+                                }
                             } <span class="kw">else </span>{
-                                <span class="self">self</span>.conn.write_body_and_end(chunk);
+                                <span class="kw">if </span>chunk.remaining() == <span class="number">0 </span>{
+                                    <span class="macro">trace!</span>(<span class="string">"discarding empty chunk"</span>);
+                                    <span class="kw">continue</span>;
+                                }
+                                <span class="self">self</span>.conn.write_body(chunk);
                             }
+                        } <span class="kw">else if </span>frame.is_trailers() {
+                            <span class="kw-2">*</span>clear_body = <span class="bool-val">true</span>;
+                            <span class="self">self</span>.conn.write_trailers(
+                                frame.into_trailers().unwrap_or_else(|<span class="kw">_</span>| <span class="macro">unreachable!</span>()),
+                            );
                         } <span class="kw">else </span>{
-                            <span class="kw">if </span>chunk.remaining() == <span class="number">0 </span>{
-                                <span class="macro">trace!</span>(<span class="string">"discarding empty chunk"</span>);
-                                <span class="kw">continue</span>;
-                            }
-                            <span class="self">self</span>.conn.write_body(chunk);
+                            <span class="macro">trace!</span>(<span class="string">"discarding unknown frame"</span>);
+                            <span class="kw">continue</span>;
                         }
                     } <span class="kw">else </span>{
                         <span class="kw-2">*</span>clear_body = <span class="bool-val">true</span>;
@@ -1185,9 +1214,9 @@
             RecvItem = MessageHead&lt;T::Incoming&gt;,
         &gt; + Unpin,
     D::PollError: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
-    I: AsyncRead + AsyncWrite + Unpin,
+    I: Read + Write + Unpin,
     T: Http1Transaction + Unpin,
-    Bs: HttpBody + <span class="lifetime">'static</span>,
+    Bs: Body + <span class="lifetime">'static</span>,
     Bs::Error: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
 {
     <span class="kw">type </span>Output = <span class="kw">crate</span>::Result&lt;Dispatched&gt;;
@@ -1244,11 +1273,11 @@
     <span class="comment">// Service is never pinned
     </span><span class="kw">impl</span>&lt;S: HttpService&lt;B&gt;, B&gt; Unpin <span class="kw">for </span>Server&lt;S, B&gt; {}
 
-    <span class="kw">impl</span>&lt;S, Bs&gt; Dispatch <span class="kw">for </span>Server&lt;S, Body&gt;
+    <span class="kw">impl</span>&lt;S, Bs&gt; Dispatch <span class="kw">for </span>Server&lt;S, IncomingBody&gt;
     <span class="kw">where
-        </span>S: HttpService&lt;Body, ResBody = Bs&gt;,
+        </span>S: HttpService&lt;IncomingBody, ResBody = Bs&gt;,
         S::Error: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
-        Bs: HttpBody,
+        Bs: Body,
     {
         <span class="kw">type </span>PollItem = MessageHead&lt;http::StatusCode&gt;;
         <span class="kw">type </span>PollBody = Bs;
@@ -1279,7 +1308,7 @@
             ret
         }
 
-        <span class="kw">fn </span>recv_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw">crate</span>::Result&lt;(<span class="self">Self</span>::RecvItem, Body)&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">fn </span>recv_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw">crate</span>::Result&lt;(<span class="self">Self</span>::RecvItem, IncomingBody)&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
             <span class="kw">let </span>(msg, body) = msg<span class="question-mark">?</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>req = Request::new(body);
             <span class="kw-2">*</span>req.method_mut() = msg.subject.<span class="number">0</span>;
@@ -1292,14 +1321,11 @@
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), ()&gt;&gt; {
+        <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), ()&gt;&gt; {
             <span class="kw">if </span><span class="self">self</span>.in_flight.is_some() {
                 Poll::Pending
             } <span class="kw">else </span>{
-                <span class="self">self</span>.service.poll_ready(cx).map_err(|_e| {
-                    <span class="comment">// FIXME: return error value.
-                    </span><span class="macro">trace!</span>(<span class="string">"service closed"</span>);
-                })
+                Poll::Ready(<span class="prelude-val">Ok</span>(()))
             }
         }
 
@@ -1312,6 +1338,8 @@
 <span class="comment">// ===== impl Client =====
 
 </span><span class="macro">cfg_client! </span>{
+    <span class="kw">use </span>std::convert::Infallible;
+
     <span class="kw">impl</span>&lt;B&gt; Client&lt;B&gt; {
         <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(rx: ClientRx&lt;B&gt;) -&gt; Client&lt;B&gt; {
             Client {
@@ -1324,17 +1352,17 @@
 
     <span class="kw">impl</span>&lt;B&gt; Dispatch <span class="kw">for </span>Client&lt;B&gt;
     <span class="kw">where
-        </span>B: HttpBody,
+        </span>B: Body,
     {
         <span class="kw">type </span>PollItem = RequestHead;
         <span class="kw">type </span>PollBody = B;
-        <span class="kw">type </span>PollError = std::convert::Infallible;
+        <span class="kw">type </span>PollError = Infallible;
         <span class="kw">type </span>RecvItem = <span class="kw">crate</span>::proto::ResponseHead;
 
         <span class="kw">fn </span>poll_msg(
             <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
             cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;(<span class="self">Self</span>::PollItem, <span class="self">Self</span>::PollBody), <span class="self">Self</span>::PollError&gt;&gt;&gt; {
+        ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;(<span class="self">Self</span>::PollItem, <span class="self">Self</span>::PollBody), Infallible&gt;&gt;&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.as_mut();
             <span class="macro">debug_assert!</span>(!this.rx_closed);
             <span class="kw">match </span>this.rx.poll_recv(cx) {
@@ -1368,7 +1396,7 @@
             }
         }
 
-        <span class="kw">fn </span>recv_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw">crate</span>::Result&lt;(<span class="self">Self</span>::RecvItem, Body)&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">fn </span>recv_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: <span class="kw">crate</span>::Result&lt;(<span class="self">Self</span>::RecvItem, IncomingBody)&gt;) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
             <span class="kw">match </span>msg {
                 <span class="prelude-val">Ok</span>((msg, body)) =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(cb) = <span class="self">self</span>.callback.take() {
@@ -1426,6 +1454,7 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::common::io::Compat;
     <span class="kw">use </span><span class="kw">crate</span>::proto::h1::ClientTransaction;
     <span class="kw">use </span>std::time::Duration;
 
@@ -1439,7 +1468,7 @@
             <span class="comment">// Block at 0 for now, but we will release this response before
             // the request is ready to write later...
             </span><span class="kw">let </span>(<span class="kw-2">mut </span>tx, rx) = <span class="kw">crate</span>::client::dispatch::channel();
-            <span class="kw">let </span>conn = Conn::&lt;<span class="kw">_</span>, bytes::Bytes, ClientTransaction&gt;::new(io);
+            <span class="kw">let </span>conn = Conn::&lt;<span class="kw">_</span>, bytes::Bytes, ClientTransaction&gt;::new(Compat::new(io));
             <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = Dispatcher::new(Client::new(rx), conn);
 
             <span class="comment">// First poll is needed to allow tx to send...
@@ -1450,7 +1479,7 @@
             </span>handle.read(<span class="string">b"HTTP/1.1 200 OK\r\n\r\n"</span>);
 
             <span class="kw">let </span><span class="kw-2">mut </span>res_rx = tx
-                .try_send(<span class="kw">crate</span>::Request::new(<span class="kw">crate</span>::Body::empty()))
+                .try_send(<span class="kw">crate</span>::Request::new(IncomingBody::empty()))
                 .unwrap();
 
             <span class="macro">tokio_test::assert_ready_ok!</span>(Pin::new(<span class="kw-2">&amp;mut </span>dispatcher).poll(cx));
@@ -1464,7 +1493,8 @@
         });
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>client_flushing_is_not_ready_for_next_request() {
         <span class="kw">let _ </span>= pretty_env_logger::try_init();
 
@@ -1475,16 +1505,19 @@
             .build_with_handle();
 
         <span class="kw">let </span>(<span class="kw-2">mut </span>tx, rx) = <span class="kw">crate</span>::client::dispatch::channel();
-        <span class="kw">let </span><span class="kw-2">mut </span>conn = Conn::&lt;<span class="kw">_</span>, bytes::Bytes, ClientTransaction&gt;::new(io);
+        <span class="kw">let </span><span class="kw-2">mut </span>conn = Conn::&lt;<span class="kw">_</span>, bytes::Bytes, ClientTransaction&gt;::new(Compat::new(io));
         conn.set_write_strategy_queue();
 
         <span class="kw">let </span>dispatcher = Dispatcher::new(Client::new(rx), conn);
         <span class="kw">let </span>_dispatcher = tokio::spawn(<span class="kw">async move </span>{ dispatcher.<span class="kw">await </span>});
 
-        <span class="kw">let </span>req = <span class="kw">crate</span>::Request::builder()
-            .method(<span class="string">"POST"</span>)
-            .body(<span class="kw">crate</span>::Body::from(<span class="string">"reee"</span>))
-            .unwrap();
+        <span class="kw">let </span>body = {
+            <span class="kw">let </span>(<span class="kw-2">mut </span>tx, body) = IncomingBody::new_channel(DecodedLength::new(<span class="number">4</span>), <span class="bool-val">false</span>);
+            tx.try_send_data(<span class="string">"reee"</span>.into()).unwrap();
+            body
+        };
+
+        <span class="kw">let </span>req = <span class="kw">crate</span>::Request::builder().method(<span class="string">"POST"</span>).body(body).unwrap();
 
         <span class="kw">let </span>res = tx.try_send(req).unwrap().<span class="kw">await</span>.expect(<span class="string">"response"</span>);
         drop(res);
@@ -1492,7 +1525,8 @@
         <span class="macro">assert!</span>(!tx.is_ready());
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>body_empty_chunks_ignored() {
         <span class="kw">let _ </span>= pretty_env_logger::try_init();
 
@@ -1502,14 +1536,14 @@
             .build();
 
         <span class="kw">let </span>(<span class="kw-2">mut </span>tx, rx) = <span class="kw">crate</span>::client::dispatch::channel();
-        <span class="kw">let </span>conn = Conn::&lt;<span class="kw">_</span>, bytes::Bytes, ClientTransaction&gt;::new(io);
+        <span class="kw">let </span>conn = Conn::&lt;<span class="kw">_</span>, bytes::Bytes, ClientTransaction&gt;::new(Compat::new(io));
         <span class="kw">let </span><span class="kw-2">mut </span>dispatcher = tokio_test::task::spawn(Dispatcher::new(Client::new(rx), conn));
 
         <span class="comment">// First poll is needed to allow tx to send...
         </span><span class="macro">assert!</span>(dispatcher.poll().is_pending());
 
         <span class="kw">let </span>body = {
-            <span class="kw">let </span>(<span class="kw-2">mut </span>tx, body) = <span class="kw">crate</span>::Body::channel();
+            <span class="kw">let </span>(<span class="kw-2">mut </span>tx, body) = IncomingBody::channel();
             tx.try_send_data(<span class="string">""</span>.into()).unwrap();
             body
         };

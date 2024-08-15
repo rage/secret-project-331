@@ -30,6 +30,8 @@
 <a href="#29" id="29">29</a>
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
+<a href="#32" id="32">32</a>
+<a href="#33" id="33">33</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Commonly used utils.
 
 </span><span class="kw">pub mod </span>cache;
@@ -53,12 +55,14 @@
 <span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>tracing;
 
-<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>url::Url;
 
-<span class="attr">#[derive(Clone, PartialEq, Deserialize, Serialize)]
+<span class="attr">#[derive(Clone, PartialEq)]
 </span><span class="kw">pub struct </span>ApplicationConfiguration {
     <span class="kw">pub </span>base_url: String,
     <span class="kw">pub </span>test_mode: bool,
     <span class="kw">pub </span>development_uuid_login: bool,
+    <span class="kw">pub </span>chatbot_azure_api_key: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>chatbot_azure_api_endpoint: <span class="prelude-ty">Option</span>&lt;Url&gt;,
 }
 </code></pre></div></section></main></body></html>

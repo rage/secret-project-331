@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pemfile-1.0.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls_pemfile" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pemfile-2.1.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls_pemfile" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -136,6 +136,63 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # rustls-pemfile
 //! A basic parser for .pem files containing cryptographic keys and certificates.
 //!
@@ -150,9 +207,17 @@
 //! - Use `certs()` to extract just the certificates (silently discarding other sections), and
 //!   similarly for `rsa_private_keys()` and `pkcs8_private_keys()`.
 //!
+//! # no-std support
+//!
+//! The opt-out "std" Cargo feature can be disabled to put this crate in no-std mode.
+//!
+//! In no-std mode, the `read_one_from_slice` API can be used to parse a .pem file that has already
+//! been loaded into memory.
+//!
 //! ## Example code
-//! ```
-//! use std::iter;
+</span><span class="attr">#![cfg_attr(feature = <span class="string">"std"</span>, doc = <span class="string">"```"</span>)]
+#![cfg_attr(not(feature = <span class="string">"std"</span>), doc = <span class="string">"```ignore"</span>)]
+</span><span class="doccomment">//! use std::iter;
 //! use rustls_pemfile::{Item, read_one};
 //! # let mut reader = std::io::BufReader::new(&amp;b"junk\n-----BEGIN RSA PRIVATE KEY-----\nqw\n-----END RSA PRIVATE KEY-----\n"[..]);
 //! // Assume `reader` is any std::io::BufRead implementor
@@ -160,9 +225,10 @@
 //!     match item.unwrap() {
 //!         Item::X509Certificate(cert) =&gt; println!("certificate {:?}", cert),
 //!         Item::Crl(crl) =&gt; println!("certificate revocation list: {:?}", crl),
-//!         Item::RSAKey(key) =&gt; println!("rsa pkcs1 key {:?}", key),
-//!         Item::PKCS8Key(key) =&gt; println!("pkcs8 key {:?}", key),
-//!         Item::ECKey(key) =&gt; println!("sec1 ec key {:?}", key),
+//!         Item::Csr(csr) =&gt; println!("certificate signing request: {:?}", csr),
+//!         Item::Pkcs1Key(key) =&gt; println!("rsa pkcs1 key {:?}", key),
+//!         Item::Pkcs8Key(key) =&gt; println!("pkcs8 key {:?}", key),
+//!         Item::Sec1Key(key) =&gt; println!("sec1 ec key {:?}", key),
 //!         _ =&gt; println!("unhandled item"),
 //!     }
 //! }
@@ -178,99 +244,147 @@
     unused_extern_crates,
     unused_qualifications
 )]
+#![no_std]
 
-#[cfg(test)]
+</span><span class="kw">extern crate </span>alloc;
+<span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, test))]
+</span><span class="kw">extern crate </span>std;
+
+<span class="attr">#[cfg(test)]
+#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">mod </span>tests;
 
 <span class="doccomment">/// --- Main crate APIs:
 </span><span class="kw">mod </span>pemfile;
-<span class="kw">pub use </span>pemfile::{read_all, read_one, Item};
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span>pemfile::{read_all, read_one};
+<span class="kw">pub use </span>pemfile::{read_one_from_slice, Error, Item};
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>pki_types::PrivateKeyDer;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>pki_types::{
+    CertificateDer, CertificateRevocationListDer, CertificateSigningRequestDer, PrivatePkcs1KeyDer,
+    PrivatePkcs8KeyDer, PrivateSec1KeyDer,
+};
 
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>core::iter;
 <span class="doccomment">/// --- Legacy APIs:
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::io;
 
-<span class="doccomment">/// Extract all the certificates from `rd`, and return a vec of byte vecs
-/// containing the der-format contents.
+<span class="doccomment">/// Return an iterator over certificates from `rd`.
 ///
-/// This function does not fail if there are no certificates in the file --
-/// it returns an empty vector.
-</span><span class="kw">pub fn </span>certs(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Vec&lt;u8&gt;&gt;, io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>certs = Vec::new();
-
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>read_one(rd)<span class="question-mark">? </span>{
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(certs),
-            <span class="prelude-val">Some</span>(Item::X509Certificate(cert)) =&gt; certs.push(cert),
-            <span class="kw">_ </span>=&gt; {}
-        };
-    }
+/// Filters out any PEM sections that are not certificates and yields errors if a problem
+/// occurs while trying to extract a certificate.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>certs(
+    rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead,
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="prelude-ty">Result</span>&lt;CertificateDer&lt;<span class="lifetime">'static</span>&gt;, io::Error&gt;&gt; + <span class="lifetime">'_ </span>{
+    iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()).filter_map(|item| <span class="kw">match </span>item {
+        <span class="prelude-val">Ok</span>(Item::X509Certificate(cert)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(cert)),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    })
 }
 
-<span class="doccomment">/// Extract all the certificate revocation lists (CRLs) from `rd`, and return a vec of byte vecs
-/// containing the der-format contents.
+<span class="doccomment">/// Return the first private key found in `rd`.
 ///
-/// This function does not fail if there are no CRLs in the file --
-/// it returns an empty vector.
-</span><span class="kw">pub fn </span>crls(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Vec&lt;u8&gt;&gt;, io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>crls = Vec::new();
-
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>read_one(rd)<span class="question-mark">? </span>{
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(crls),
-            <span class="prelude-val">Some</span>(Item::Crl(crl)) =&gt; crls.push(crl),
-            <span class="kw">_ </span>=&gt; {}
-        };
+/// Yields the first PEM section describing a private key (of any type), or an error if a
+/// problem occurs while trying to read PEM sections.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>private_key(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PrivateKeyDer&lt;<span class="lifetime">'static</span>&gt;&gt;, io::Error&gt; {
+    <span class="kw">for </span>result <span class="kw">in </span>iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()) {
+        <span class="kw">match </span>result<span class="question-mark">? </span>{
+            Item::Pkcs1Key(key) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(key.into())),
+            Item::Pkcs8Key(key) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(key.into())),
+            Item::Sec1Key(key) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(key.into())),
+            Item::X509Certificate(<span class="kw">_</span>) | Item::Crl(<span class="kw">_</span>) | Item::Csr(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
+        }
     }
+
+    <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
 }
 
-<span class="doccomment">/// Extract all RSA private keys from `rd`, and return a vec of byte vecs
-/// containing the der-format contents.
+<span class="doccomment">/// Return the first certificate signing request (CSR) found in `rd`.
 ///
-/// This function does not fail if there are no keys in the file -- it returns an
-/// empty vector.
-</span><span class="kw">pub fn </span>rsa_private_keys(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Vec&lt;u8&gt;&gt;, io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>keys = Vec::new();
-
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>read_one(rd)<span class="question-mark">? </span>{
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(keys),
-            <span class="prelude-val">Some</span>(Item::RSAKey(key)) =&gt; keys.push(key),
-            <span class="kw">_ </span>=&gt; {}
-        };
+/// Yields the first PEM section describing a certificate signing request, or an error if a
+/// problem occurs while trying to read PEM sections.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>csr(
+    rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CertificateSigningRequestDer&lt;<span class="lifetime">'static</span>&gt;&gt;, io::Error&gt; {
+    <span class="kw">for </span>result <span class="kw">in </span>iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()) {
+        <span class="kw">match </span>result<span class="question-mark">? </span>{
+            Item::Csr(csr) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(csr)),
+            Item::Pkcs1Key(<span class="kw">_</span>)
+            | Item::Pkcs8Key(<span class="kw">_</span>)
+            | Item::Sec1Key(<span class="kw">_</span>)
+            | Item::X509Certificate(<span class="kw">_</span>)
+            | Item::Crl(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
+        }
     }
+
+    <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
 }
 
-<span class="doccomment">/// Extract all PKCS8-encoded private keys from `rd`, and return a vec of
-/// byte vecs containing the der-format contents.
+<span class="doccomment">/// Return an iterator certificate revocation lists (CRLs) from `rd`.
 ///
-/// This function does not fail if there are no keys in the file -- it returns an
-/// empty vector.
-</span><span class="kw">pub fn </span>pkcs8_private_keys(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Vec&lt;u8&gt;&gt;, io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>keys = Vec::new();
-
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>read_one(rd)<span class="question-mark">? </span>{
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(keys),
-            <span class="prelude-val">Some</span>(Item::PKCS8Key(key)) =&gt; keys.push(key),
-            <span class="kw">_ </span>=&gt; {}
-        };
-    }
+/// Filters out any PEM sections that are not CRLs and yields errors if a problem occurs
+/// while trying to extract a CRL.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>crls(
+    rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead,
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="prelude-ty">Result</span>&lt;CertificateRevocationListDer&lt;<span class="lifetime">'static</span>&gt;, io::Error&gt;&gt; + <span class="lifetime">'_ </span>{
+    iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()).filter_map(|item| <span class="kw">match </span>item {
+        <span class="prelude-val">Ok</span>(Item::Crl(crl)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(crl)),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    })
 }
 
-<span class="doccomment">/// Extract all SEC1-encoded EC private keys from `rd`, and return a vec of
-/// byte vecs containing the der-format contents.
+<span class="doccomment">/// Return an iterator over RSA private keys from `rd`.
 ///
-/// This function does not fail if there are no keys in the file -- it returns an
-/// empty vector.
-</span><span class="kw">pub fn </span>ec_private_keys(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Vec&lt;u8&gt;&gt;, io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>keys = Vec::new();
+/// Filters out any PEM sections that are not RSA private keys and yields errors if a problem
+/// occurs while trying to extract an RSA private key.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>rsa_private_keys(
+    rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead,
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="prelude-ty">Result</span>&lt;PrivatePkcs1KeyDer&lt;<span class="lifetime">'static</span>&gt;, io::Error&gt;&gt; + <span class="lifetime">'_ </span>{
+    iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()).filter_map(|item| <span class="kw">match </span>item {
+        <span class="prelude-val">Ok</span>(Item::Pkcs1Key(key)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(key)),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    })
+}
 
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>read_one(rd)<span class="question-mark">? </span>{
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(keys),
-            <span class="prelude-val">Some</span>(Item::ECKey(key)) =&gt; keys.push(key),
-            <span class="kw">_ </span>=&gt; {}
-        };
-    }
+<span class="doccomment">/// Return an iterator over PKCS8-encoded private keys from `rd`.
+///
+/// Filters out any PEM sections that are not PKCS8-encoded private keys and yields errors if a
+/// problem occurs while trying to extract an RSA private key.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>pkcs8_private_keys(
+    rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead,
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="prelude-ty">Result</span>&lt;PrivatePkcs8KeyDer&lt;<span class="lifetime">'static</span>&gt;, io::Error&gt;&gt; + <span class="lifetime">'_ </span>{
+    iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()).filter_map(|item| <span class="kw">match </span>item {
+        <span class="prelude-val">Ok</span>(Item::Pkcs8Key(key)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(key)),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    })
+}
+
+<span class="doccomment">/// Return an iterator over SEC1-encoded EC private keys from `rd`.
+///
+/// Filters out any PEM sections that are not SEC1-encoded EC private keys and yields errors if a
+/// problem occurs while trying to extract a SEC1-encoded EC private key.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>ec_private_keys(
+    rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead,
+) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="prelude-ty">Result</span>&lt;PrivateSec1KeyDer&lt;<span class="lifetime">'static</span>&gt;, io::Error&gt;&gt; + <span class="lifetime">'_ </span>{
+    iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose()).filter_map(|item| <span class="kw">match </span>item {
+        <span class="prelude-val">Ok</span>(Item::Sec1Key(key)) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(key)),
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    })
 }
 </code></pre></div></section></main></body></html>

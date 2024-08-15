@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","current_conversation_info","get_chatbot_configuration_for_course","new_conversation","send_message"]};

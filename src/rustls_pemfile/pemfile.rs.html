@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pemfile-1.0.4/src/pemfile.rs`."><title>pemfile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls_pemfile" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-pemfile-2.1.2/src/pemfile.rs`."><title>pemfile.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls_pemfile" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -186,37 +186,244 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::io::{<span class="self">self</span>, ErrorKind};
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::ToOwned;
+<span class="kw">use </span>alloc::format;
+<span class="kw">use </span>alloc::string::String;
+<span class="kw">use </span>alloc::vec::Vec;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>core::iter;
+<span class="kw">use </span>core::ops::ControlFlow;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>std::io::{<span class="self">self</span>, ErrorKind};
+
+<span class="kw">use </span>pki_types::{
+    CertificateDer, CertificateRevocationListDer, CertificateSigningRequestDer, PrivatePkcs1KeyDer,
+    PrivatePkcs8KeyDer, PrivateSec1KeyDer,
+};
 
 <span class="doccomment">/// The contents of a single recognised block in a PEM file.
 </span><span class="attr">#[non_exhaustive]
 #[derive(Debug, PartialEq)]
 </span><span class="kw">pub enum </span>Item {
     <span class="doccomment">/// A DER-encoded x509 certificate.
-    </span>X509Certificate(Vec&lt;u8&gt;),
+    ///
+    /// Appears as "CERTIFICATE" in PEM files.
+    </span>X509Certificate(CertificateDer&lt;<span class="lifetime">'static</span>&gt;),
 
-    <span class="doccomment">/// A DER-encoded plaintext RSA private key; as specified in PKCS#1/RFC3447
-    </span>RSAKey(Vec&lt;u8&gt;),
+    <span class="doccomment">/// A DER-encoded plaintext RSA private key; as specified in PKCS #1/RFC 3447
+    ///
+    /// Appears as "RSA PRIVATE KEY" in PEM files.
+    </span>Pkcs1Key(PrivatePkcs1KeyDer&lt;<span class="lifetime">'static</span>&gt;),
 
-    <span class="doccomment">/// A DER-encoded plaintext private key; as specified in PKCS#8/RFC5958
-    </span>PKCS8Key(Vec&lt;u8&gt;),
+    <span class="doccomment">/// A DER-encoded plaintext private key; as specified in PKCS #8/RFC 5958
+    ///
+    /// Appears as "PRIVATE KEY" in PEM files.
+    </span>Pkcs8Key(PrivatePkcs8KeyDer&lt;<span class="lifetime">'static</span>&gt;),
 
-    <span class="doccomment">/// A Sec1-encoded plaintext private key; as specified in RFC5915
-    </span>ECKey(Vec&lt;u8&gt;),
+    <span class="doccomment">/// A Sec1-encoded plaintext private key; as specified in RFC 5915
+    ///
+    /// Appears as "EC PRIVATE KEY" in PEM files.
+    </span>Sec1Key(PrivateSec1KeyDer&lt;<span class="lifetime">'static</span>&gt;),
 
-    <span class="doccomment">/// A Certificate Revocation List; as specified in RFC5280
-    </span>Crl(Vec&lt;u8&gt;),
+    <span class="doccomment">/// A Certificate Revocation List; as specified in RFC 5280
+    ///
+    /// Appears as "X509 CRL" in PEM files.
+    </span>Crl(CertificateRevocationListDer&lt;<span class="lifetime">'static</span>&gt;),
+
+    <span class="doccomment">/// A Certificate Signing Request; as specified in RFC 2986
+    ///
+    /// Appears as "CERTIFICATE REQUEST" in PEM files.
+    </span>Csr(CertificateSigningRequestDer&lt;<span class="lifetime">'static</span>&gt;),
 }
 
-<span class="kw">impl </span>Item {
-    <span class="kw">fn </span>from_start_line(start_line: <span class="kw-2">&amp;</span>[u8], der: Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Item&gt; {
-        <span class="kw">match </span>start_line {
-            <span class="string">b"CERTIFICATE" </span>=&gt; <span class="prelude-val">Some</span>(Item::X509Certificate(der)),
-            <span class="string">b"RSA PRIVATE KEY" </span>=&gt; <span class="prelude-val">Some</span>(Item::RSAKey(der)),
-            <span class="string">b"PRIVATE KEY" </span>=&gt; <span class="prelude-val">Some</span>(Item::PKCS8Key(der)),
-            <span class="string">b"EC PRIVATE KEY" </span>=&gt; <span class="prelude-val">Some</span>(Item::ECKey(der)),
-            <span class="string">b"X509 CRL" </span>=&gt; <span class="prelude-val">Some</span>(Item::Crl(der)),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+<span class="doccomment">/// Errors that may arise when parsing the contents of a PEM file
+</span><span class="attr">#[derive(Debug, PartialEq)]
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// a section is missing its "END marker" line
+    </span>MissingSectionEnd {
+        <span class="doccomment">/// the expected "END marker" line that was not found
+        </span>end_marker: Vec&lt;u8&gt;,
+    },
+
+    <span class="doccomment">/// syntax error found in the line that starts a new section
+    </span>IllegalSectionStart {
+        <span class="doccomment">/// line that contains the syntax error
+        </span>line: Vec&lt;u8&gt;,
+    },
+
+    <span class="doccomment">/// base64 decode error
+    </span>Base64Decode(String),
+}
+
+<span class="doccomment">/// Extract and decode the next PEM section from `input`
+///
+/// - `Ok(None)` is returned if there is no PEM section to read from `input`
+/// - Syntax errors and decoding errors produce a `Err(...)`
+/// - Otherwise each decoded section is returned with a `Ok(Some((Item::..., remainder)))` where
+///   `remainder` is the part of the `input` that follows the returned section
+</span><span class="kw">pub fn </span>read_one_from_slice(<span class="kw-2">mut </span>input: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;(Item, <span class="kw-2">&amp;</span>[u8])&gt;, Error&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>b64buf = Vec::with_capacity(<span class="number">1024</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="prelude-val">None</span>::&lt;(Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;)&gt;;
+
+    <span class="kw">loop </span>{
+        <span class="kw">let </span>next_line = <span class="kw">if let </span><span class="prelude-val">Some</span>(index) = input.iter().position(|byte| <span class="kw-2">*</span>byte == <span class="string">b'\n'</span>) {
+            <span class="kw">let </span>(line, newline_plus_remainder) = input.split_at(index);
+            input = <span class="kw-2">&amp;</span>newline_plus_remainder[<span class="number">1</span>..];
+            <span class="prelude-val">Some</span>(line)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+
+        <span class="kw">match </span>read_one_impl(next_line, <span class="kw-2">&amp;mut </span>section, <span class="kw-2">&amp;mut </span>b64buf)<span class="question-mark">? </span>{
+            ControlFlow::Continue(()) =&gt; <span class="kw">continue</span>,
+            ControlFlow::Break(item) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(item.map(|item| (item, input))),
         }
     }
 }
@@ -229,6 +436,7 @@
 ///
 /// You can use this function to build an iterator, for example:
 /// `for item in iter::from_fn(|| read_one(rd).transpose()) { ... }`
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">pub fn </span>read_one(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Item&gt;, io::Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>b64buf = Vec::with_capacity(<span class="number">1024</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>section = <span class="prelude-val">None</span>::&lt;(Vec&lt;<span class="kw">_</span>&gt;, Vec&lt;<span class="kw">_</span>&gt;)&gt;;
@@ -238,86 +446,121 @@
         line.clear();
         <span class="kw">let </span>len = read_until_newline(rd, <span class="kw-2">&amp;mut </span>line)<span class="question-mark">?</span>;
 
-        <span class="kw">if </span>len == <span class="number">0 </span>{
-            <span class="comment">// EOF
-            </span><span class="kw">return match </span>section {
-                <span class="prelude-val">Some</span>((<span class="kw">_</span>, end_marker)) =&gt; <span class="prelude-val">Err</span>(io::Error::new(
-                    ErrorKind::InvalidData,
-                    <span class="macro">format!</span>(
-                        <span class="string">"section end {:?} missing"</span>,
-                        String::from_utf8_lossy(<span class="kw-2">&amp;</span>end_marker)
+        <span class="kw">let </span>next_line = <span class="kw">if </span>len == <span class="number">0 </span>{
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(line.as_slice())
+        };
+
+        <span class="kw">match </span>read_one_impl(next_line, <span class="kw-2">&amp;mut </span>section, <span class="kw-2">&amp;mut </span>b64buf) {
+            <span class="prelude-val">Ok</span>(ControlFlow::Break(opt)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(opt),
+            <span class="prelude-val">Ok</span>(ControlFlow::Continue(())) =&gt; <span class="kw">continue</span>,
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">match </span>e {
+                    Error::MissingSectionEnd { end_marker } =&gt; io::Error::new(
+                        ErrorKind::InvalidData,
+                        <span class="macro">format!</span>(
+                            <span class="string">"section end {:?} missing"</span>,
+                            String::from_utf8_lossy(<span class="kw-2">&amp;</span>end_marker)
+                        ),
                     ),
-                )),
-                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-            };
-        }
 
-        <span class="kw">if </span>line.starts_with(<span class="string">b"-----BEGIN "</span>) {
-            <span class="kw">let </span>(<span class="kw-2">mut </span>trailer, <span class="kw-2">mut </span>pos) = (<span class="number">0</span>, line.len());
-            <span class="kw">for </span>(i, <span class="kw-2">&amp;</span>b) <span class="kw">in </span>line.iter().enumerate().rev() {
-                <span class="kw">match </span>b {
-                    <span class="string">b'-' </span>=&gt; {
-                        trailer += <span class="number">1</span>;
-                        pos = i;
-                    }
-                    <span class="string">b'\n' </span>| <span class="string">b'\r' </span>| <span class="string">b' ' </span>=&gt; <span class="kw">continue</span>,
-                    <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
-                }
-            }
-
-            <span class="kw">if </span>trailer != <span class="number">5 </span>{
-                <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
-                    ErrorKind::InvalidData,
-                    <span class="macro">format!</span>(
-                        <span class="string">"illegal section start: {:?}"</span>,
-                        String::from_utf8_lossy(<span class="kw-2">&amp;</span>line)
+                    Error::IllegalSectionStart { line } =&gt; io::Error::new(
+                        ErrorKind::InvalidData,
+                        <span class="macro">format!</span>(
+                            <span class="string">"illegal section start: {:?}"</span>,
+                            String::from_utf8_lossy(<span class="kw-2">&amp;</span>line)
+                        ),
                     ),
-                ));
+
+                    Error::Base64Decode(err) =&gt; io::Error::new(ErrorKind::InvalidData, err),
+                });
             }
-
-            <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>line[<span class="number">11</span>..pos];
-            <span class="kw">let </span><span class="kw-2">mut </span>end = Vec::with_capacity(<span class="number">10 </span>+ <span class="number">4 </span>+ ty.len());
-            end.extend_from_slice(<span class="string">b"-----END "</span>);
-            end.extend_from_slice(ty);
-            end.extend_from_slice(<span class="string">b"-----"</span>);
-            section = <span class="prelude-val">Some</span>((ty.to_owned(), end));
-            <span class="kw">continue</span>;
-        }
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((section_type, end_marker)) = section.as_ref() {
-            <span class="kw">if </span>line.starts_with(end_marker) {
-                <span class="kw">let </span>der = base64::ENGINE
-                    .decode(<span class="kw-2">&amp;</span>b64buf)
-                    .map_err(|err| io::Error::new(ErrorKind::InvalidData, err))<span class="question-mark">?</span>;
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(item) = Item::from_start_line(section_type, der) {
-                    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(item));
-                } <span class="kw">else </span>{
-                    section = <span class="prelude-val">None</span>;
-                    b64buf.clear();
-                }
-            }
-        }
-
-        <span class="kw">if </span>section.is_some() {
-            <span class="kw">let </span><span class="kw-2">mut </span>trim = <span class="number">0</span>;
-            <span class="kw">for </span><span class="kw-2">&amp;</span>b <span class="kw">in </span>line.iter().rev() {
-                <span class="kw">match </span>b {
-                    <span class="string">b'\n' </span>| <span class="string">b'\r' </span>| <span class="string">b' ' </span>=&gt; trim += <span class="number">1</span>,
-                    <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
-                }
-            }
-            b64buf.extend(<span class="kw-2">&amp;</span>line[..line.len() - trim]);
         }
     }
 }
 
+<span class="kw">fn </span>read_one_impl(
+    next_line: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
+    section: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;(Vec&lt;u8&gt;, Vec&lt;u8&gt;)&gt;,
+    b64buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ControlFlow&lt;<span class="prelude-ty">Option</span>&lt;Item&gt;, ()&gt;, Error&gt; {
+    <span class="kw">let </span>line = <span class="kw">if let </span><span class="prelude-val">Some</span>(line) = next_line {
+        line
+    } <span class="kw">else </span>{
+        <span class="comment">// EOF
+        </span><span class="kw">return match </span>section.take() {
+            <span class="prelude-val">Some</span>((<span class="kw">_</span>, end_marker)) =&gt; <span class="prelude-val">Err</span>(Error::MissingSectionEnd { end_marker }),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(ControlFlow::Break(<span class="prelude-val">None</span>)),
+        };
+    };
+
+    <span class="kw">if </span>line.starts_with(<span class="string">b"-----BEGIN "</span>) {
+        <span class="kw">let </span>(<span class="kw-2">mut </span>trailer, <span class="kw-2">mut </span>pos) = (<span class="number">0</span>, line.len());
+        <span class="kw">for </span>(i, <span class="kw-2">&amp;</span>b) <span class="kw">in </span>line.iter().enumerate().rev() {
+            <span class="kw">match </span>b {
+                <span class="string">b'-' </span>=&gt; {
+                    trailer += <span class="number">1</span>;
+                    pos = i;
+                }
+                <span class="string">b'\n' </span>| <span class="string">b'\r' </span>| <span class="string">b' ' </span>=&gt; <span class="kw">continue</span>,
+                <span class="kw">_ </span>=&gt; <span class="kw">break</span>,
+            }
+        }
+
+        <span class="kw">if </span>trailer != <span class="number">5 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::IllegalSectionStart {
+                line: line.to_vec(),
+            });
+        }
+
+        <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>line[<span class="number">11</span>..pos];
+        <span class="kw">let </span><span class="kw-2">mut </span>end = Vec::with_capacity(<span class="number">10 </span>+ <span class="number">4 </span>+ ty.len());
+        end.extend_from_slice(<span class="string">b"-----END "</span>);
+        end.extend_from_slice(ty);
+        end.extend_from_slice(<span class="string">b"-----"</span>);
+        <span class="kw-2">*</span>section = <span class="prelude-val">Some</span>((ty.to_owned(), end));
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(ControlFlow::Continue(()));
+    }
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((section_type, end_marker)) = section.as_ref() {
+        <span class="kw">if </span>line.starts_with(end_marker) {
+            <span class="kw">let </span>der = base64::ENGINE
+                .decode(<span class="kw-2">&amp;</span>b64buf)
+                .map_err(|err| Error::Base64Decode(<span class="macro">format!</span>(<span class="string">"{err:?}"</span>)))<span class="question-mark">?</span>;
+
+            <span class="kw">let </span>item = <span class="kw">match </span>section_type.as_slice() {
+                <span class="string">b"CERTIFICATE" </span>=&gt; <span class="prelude-val">Some</span>(Item::X509Certificate(der.into())),
+                <span class="string">b"RSA PRIVATE KEY" </span>=&gt; <span class="prelude-val">Some</span>(Item::Pkcs1Key(der.into())),
+                <span class="string">b"PRIVATE KEY" </span>=&gt; <span class="prelude-val">Some</span>(Item::Pkcs8Key(der.into())),
+                <span class="string">b"EC PRIVATE KEY" </span>=&gt; <span class="prelude-val">Some</span>(Item::Sec1Key(der.into())),
+                <span class="string">b"X509 CRL" </span>=&gt; <span class="prelude-val">Some</span>(Item::Crl(der.into())),
+                <span class="string">b"CERTIFICATE REQUEST" </span>=&gt; <span class="prelude-val">Some</span>(Item::Csr(der.into())),
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw-2">*</span>section = <span class="prelude-val">None</span>;
+                    b64buf.clear();
+                    <span class="prelude-val">None
+                </span>}
+            };
+
+            <span class="kw">if </span>item.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(ControlFlow::Break(item));
+            }
+        }
+    }
+
+    <span class="kw">if </span>section.is_some() {
+        <span class="comment">// Extend b64buf without leading or trailing whitespace
+        </span>b64buf.extend(trim_ascii(line));
+    }
+
+    <span class="prelude-val">Ok</span>(ControlFlow::Continue(()))
+}
+
 <span class="comment">// Ported from https://github.com/rust-lang/rust/blob/91cfcb021935853caa06698b759c293c09d1e96a/library/std/src/io/mod.rs#L1990 and
 // modified to look for our accepted newlines.
-</span><span class="kw">fn </span>read_until_newline&lt;R: io::BufRead + <span class="question-mark">?</span>Sized&gt;(
-    r: <span class="kw-2">&amp;mut </span>R,
-    buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;,
-) -&gt; std::io::Result&lt;usize&gt; {
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">fn </span>read_until_newline&lt;R: io::BufRead + <span class="question-mark">?</span>Sized&gt;(r: <span class="kw-2">&amp;mut </span>R, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; io::Result&lt;usize&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>read = <span class="number">0</span>;
     <span class="kw">loop </span>{
         <span class="kw">let </span>(done, used) = {
@@ -349,16 +592,39 @@
     }
 }
 
-<span class="doccomment">/// Extract and return all PEM sections by reading `rd`.
-</span><span class="kw">pub fn </span>read_all(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Item&gt;, io::Error&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>v = Vec::&lt;Item&gt;::new();
+<span class="doccomment">/// Trim contiguous leading and trailing whitespace from `line`.
+///
+/// We use [u8::is_ascii_whitespace] to determine what is whitespace.
+</span><span class="comment">// TODO(XXX): Replace with `[u8]::trim_ascii` once stabilized[0] and available in our MSRV.
+//   [0]: https://github.com/rust-lang/rust/issues/94035
+</span><span class="kw">const fn </span>trim_ascii(line: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="kw-2">&amp;</span>[u8] {
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = line;
 
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>read_one(rd)<span class="question-mark">? </span>{
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(v),
-            <span class="prelude-val">Some</span>(item) =&gt; v.push(item),
+    <span class="comment">// Note: A pattern matching based approach (instead of indexing) allows
+    // making the function const.
+    </span><span class="kw">while let </span>[first, rest @ ..] = bytes {
+        <span class="kw">if </span>first.is_ascii_whitespace() {
+            bytes = rest;
+        } <span class="kw">else </span>{
+            <span class="kw">break</span>;
         }
     }
+
+    <span class="kw">while let </span>[rest @ .., last] = bytes {
+        <span class="kw">if </span>last.is_ascii_whitespace() {
+            bytes = rest;
+        } <span class="kw">else </span>{
+            <span class="kw">break</span>;
+        }
+    }
+
+    bytes
+}
+
+<span class="doccomment">/// Extract and return all PEM sections by reading `rd`.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub fn </span>read_all(rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::BufRead) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="prelude-ty">Result</span>&lt;Item, io::Error&gt;&gt; + <span class="lifetime">'_ </span>{
+    iter::from_fn(<span class="kw">move </span>|| read_one(rd).transpose())
 }
 
 <span class="kw">mod </span>base64 {
@@ -373,4 +639,32 @@
     );
 }
 <span class="kw">use </span><span class="self">self</span>::base64::Engine;
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_trim_ascii() {
+        <span class="kw">let </span>tests: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>[u8])] = <span class="kw-2">&amp;</span>[
+            (<span class="string">b""</span>, <span class="string">b""</span>),
+            (<span class="string">b"   hello world   "</span>, <span class="string">b"hello world"</span>),
+            (<span class="string">b"   hello\t\r\nworld   "</span>, <span class="string">b"hello\t\r\nworld"</span>),
+            (<span class="string">b"\n\r  \ttest\t  \r\n"</span>, <span class="string">b"test"</span>),
+            (<span class="string">b"   \r\n  "</span>, <span class="string">b""</span>),
+            (<span class="string">b"no trimming needed"</span>, <span class="string">b"no trimming needed"</span>),
+            (
+                <span class="string">b"\n\n content\n\n more content\n\n"</span>,
+                <span class="string">b"content\n\n more content"</span>,
+            ),
+        ];
+
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(input, expected) <span class="kw">in </span>tests {
+            <span class="macro">assert_eq!</span>(
+                <span class="kw">super</span>::trim_ascii(input),
+                expected,
+                <span class="string">"Failed for input: {:?}"</span>,
+                input,
+            );
+        }
+    }
+}
 </code></pre></div></section></main></body></html>

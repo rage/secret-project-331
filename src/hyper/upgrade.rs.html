@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.28/src/upgrade.rs`."><title>upgrade.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/upgrade.rs`."><title>upgrade.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -380,6 +380,32 @@
 <a href="#379" id="379">379</a>
 <a href="#380" id="380">380</a>
 <a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! HTTP Upgrades
 //!
 //! This module deals with managing [HTTP Upgrades][mdn] in hyper. Since
@@ -426,15 +452,13 @@
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::io;
-<span class="kw">use </span>std::marker::Unpin;
 <span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::sync::{Arc, Mutex};
 <span class="kw">use </span>std::task::{Context, Poll};
 
+<span class="kw">use </span><span class="kw">crate</span>::rt::{Read, ReadBufCursor, Write};
 <span class="kw">use </span>bytes::Bytes;
-<span class="kw">use </span>tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 <span class="kw">use </span>tokio::sync::oneshot;
-<span class="attr">#[cfg(any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>))]
-</span><span class="kw">use </span>tracing::trace;
 
 <span class="kw">use </span><span class="kw">crate</span>::common::io::Rewind;
 
@@ -453,15 +477,17 @@
 <span class="doccomment">/// A future for a possible HTTP upgrade.
 ///
 /// If no upgrade was available, or it doesn't succeed, yields an `Error`.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>OnUpgrade {
-    rx: <span class="prelude-ty">Option</span>&lt;oneshot::Receiver&lt;<span class="kw">crate</span>::Result&lt;Upgraded&gt;&gt;&gt;,
+    rx: <span class="prelude-ty">Option</span>&lt;Arc&lt;Mutex&lt;oneshot::Receiver&lt;<span class="kw">crate</span>::Result&lt;Upgraded&gt;&gt;&gt;&gt;&gt;,
 }
 
-<span class="doccomment">/// The deconstructed parts of an [`Upgraded`](Upgraded) type.
+<span class="doccomment">/// The deconstructed parts of an [`Upgraded`] type.
 ///
 /// Includes the original IO type, and a read buffer of bytes that the
 /// HTTP state machine may have already read before completing an upgrade.
 </span><span class="attr">#[derive(Debug)]
+#[non_exhaustive]
 </span><span class="kw">pub struct </span>Parts&lt;T&gt; {
     <span class="doccomment">/// The original IO object used before the upgrade.
     </span><span class="kw">pub </span>io: T,
@@ -474,7 +500,6 @@
     /// You will want to check for any existing bytes if you plan to continue
     /// communicating on the IO object.
     </span><span class="kw">pub </span>read_buf: Bytes,
-    _inner: (),
 }
 
 <span class="doccomment">/// Gets a pending HTTP upgrade from this message.
@@ -489,24 +514,38 @@
     msg.on_upgrade()
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>))]
+<span class="attr">#[cfg(all(
+    any(feature = <span class="string">"client"</span>, feature = <span class="string">"server"</span>),
+    any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>),
+))]
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">struct </span>Pending {
     tx: oneshot::Sender&lt;<span class="kw">crate</span>::Result&lt;Upgraded&gt;&gt;,
 }
 
-<span class="attr">#[cfg(any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>))]
+<span class="attr">#[cfg(all(
+    any(feature = <span class="string">"client"</span>, feature = <span class="string">"server"</span>),
+    any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>),
+))]
 </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>pending() -&gt; (Pending, OnUpgrade) {
     <span class="kw">let </span>(tx, rx) = oneshot::channel();
-    (Pending { tx }, OnUpgrade { rx: <span class="prelude-val">Some</span>(rx) })
+    (
+        Pending { tx },
+        OnUpgrade {
+            rx: <span class="prelude-val">Some</span>(Arc::new(Mutex::new(rx))),
+        },
+    )
 }
 
 <span class="comment">// ===== impl Upgraded =====
 
 </span><span class="kw">impl </span>Upgraded {
-    <span class="attr">#[cfg(any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>, test))]
+    <span class="attr">#[cfg(all(
+        any(feature = <span class="string">"client"</span>, feature = <span class="string">"server"</span>),
+        any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>)
+    ))]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>new&lt;T&gt;(io: T, read_buf: Bytes) -&gt; <span class="self">Self
     </span><span class="kw">where
-        </span>T: AsyncRead + AsyncWrite + Unpin + Send + <span class="lifetime">'static</span>,
+        </span>T: Read + Write + Unpin + Send + <span class="lifetime">'static</span>,
     {
         Upgraded {
             io: Rewind::new_buffered(Box::new(io), read_buf),
@@ -517,13 +556,12 @@
     ///
     /// On success, returns the downcasted parts. On error, returns the
     /// `Upgraded` back.
-    </span><span class="kw">pub fn </span>downcast&lt;T: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">'static</span>&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Parts&lt;T&gt;, <span class="self">Self</span>&gt; {
+    </span><span class="kw">pub fn </span>downcast&lt;T: Read + Write + Unpin + <span class="lifetime">'static</span>&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Parts&lt;T&gt;, <span class="self">Self</span>&gt; {
         <span class="kw">let </span>(io, buf) = <span class="self">self</span>.io.into_inner();
         <span class="kw">match </span>io.__hyper_downcast() {
             <span class="prelude-val">Ok</span>(t) =&gt; <span class="prelude-val">Ok</span>(Parts {
                 io: <span class="kw-2">*</span>t,
                 read_buf: buf,
-                _inner: (),
             }),
             <span class="prelude-val">Err</span>(io) =&gt; <span class="prelude-val">Err</span>(Upgraded {
                 io: Rewind::new_buffered(io, buf),
@@ -532,17 +570,17 @@
     }
 }
 
-<span class="kw">impl </span>AsyncRead <span class="kw">for </span>Upgraded {
+<span class="kw">impl </span>Read <span class="kw">for </span>Upgraded {
     <span class="kw">fn </span>poll_read(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-        buf: <span class="kw-2">&amp;mut </span>ReadBuf&lt;<span class="lifetime">'_</span>&gt;,
+        buf: ReadBufCursor&lt;<span class="lifetime">'_</span>&gt;,
     ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
         Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.io).poll_read(cx, buf)
     }
 }
 
-<span class="kw">impl </span>AsyncWrite <span class="kw">for </span>Upgraded {
+<span class="kw">impl </span>Write <span class="kw">for </span>Upgraded {
     <span class="kw">fn </span>poll_write(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
@@ -585,7 +623,7 @@
         OnUpgrade { rx: <span class="prelude-val">None </span>}
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+    <span class="attr">#[cfg(all(any(feature = <span class="string">"client"</span>, feature = <span class="string">"server"</span>), feature = <span class="string">"http1"</span>))]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_none(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.rx.is_none()
     }
@@ -594,13 +632,17 @@
 <span class="kw">impl </span>Future <span class="kw">for </span>OnUpgrade {
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Upgraded, <span class="kw">crate</span>::Error&gt;;
 
-    <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">match </span><span class="self">self</span>.rx {
-            <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>rx) =&gt; Pin::new(rx).poll(cx).map(|res| <span class="kw">match </span>res {
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(upgraded)) =&gt; <span class="prelude-val">Ok</span>(upgraded),
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="prelude-val">Err</span>(err),
-                <span class="prelude-val">Err</span>(_oneshot_canceled) =&gt; <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_canceled().with(UpgradeExpected)),
-            }),
+            <span class="prelude-val">Some</span>(<span class="kw-2">ref </span>rx) =&gt; Pin::new(<span class="kw-2">&amp;mut *</span>rx.lock().unwrap())
+                .poll(cx)
+                .map(|res| <span class="kw">match </span>res {
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(upgraded)) =&gt; <span class="prelude-val">Ok</span>(upgraded),
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="prelude-val">Err</span>(err),
+                    <span class="prelude-val">Err</span>(_oneshot_canceled) =&gt; {
+                        <span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_canceled().with(UpgradeExpected))
+                    }
+                }),
             <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_user_no_upgrade())),
         }
     }
@@ -614,7 +656,10 @@
 
 <span class="comment">// ===== impl Pending =====
 
-</span><span class="attr">#[cfg(any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>))]
+</span><span class="attr">#[cfg(all(
+    any(feature = <span class="string">"client"</span>, feature = <span class="string">"server"</span>),
+    any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>)
+))]
 </span><span class="kw">impl </span>Pending {
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>fulfill(<span class="self">self</span>, upgraded: Upgraded) {
         <span class="macro">trace!</span>(<span class="string">"pending upgrade fulfill"</span>);
@@ -625,7 +670,8 @@
     </span><span class="doccomment">/// Don't fulfill the pending Upgrade, but instead signal that
     /// upgrades are handled manually.
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>manual(<span class="self">self</span>) {
-        <span class="macro">trace!</span>(<span class="string">"pending upgrade handled manually"</span>);
+        <span class="attr">#[cfg(any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>))]
+        </span><span class="macro">trace!</span>(<span class="string">"pending upgrade handled manually"</span>);
         <span class="kw">let _ </span>= <span class="self">self</span>.tx.send(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_user_manual_upgrade()));
     }
 }
@@ -649,13 +695,13 @@
 
 <span class="comment">// ===== impl Io =====
 
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait </span>Io: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">'static </span>{
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">trait </span>Io: Read + Write + Unpin + <span class="lifetime">'static </span>{
     <span class="kw">fn </span>__hyper_type_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TypeId {
         TypeId::of::&lt;<span class="self">Self</span>&gt;()
     }
 }
 
-<span class="kw">impl</span>&lt;T: AsyncRead + AsyncWrite + Unpin + <span class="lifetime">'static</span>&gt; Io <span class="kw">for </span>T {}
+<span class="kw">impl</span>&lt;T: Read + Write + Unpin + <span class="lifetime">'static</span>&gt; Io <span class="kw">for </span>T {}
 
 <span class="kw">impl dyn </span>Io + Send {
     <span class="kw">fn </span>__hyper_is&lt;T: Io&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -716,7 +762,11 @@
     }
 }
 
-<span class="attr">#[cfg(test)]
+<span class="attr">#[cfg(all(
+    any(feature = <span class="string">"client"</span>, feature = <span class="string">"server"</span>),
+    any(feature = <span class="string">"http1"</span>, feature = <span class="string">"http2"</span>),
+))]
+#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
@@ -724,7 +774,9 @@
     </span><span class="kw">fn </span>upgraded_downcast() {
         <span class="kw">let </span>upgraded = Upgraded::new(Mock, Bytes::new());
 
-        <span class="kw">let </span>upgraded = upgraded.downcast::&lt;std::io::Cursor&lt;Vec&lt;u8&gt;&gt;&gt;().unwrap_err();
+        <span class="kw">let </span>upgraded = upgraded
+            .downcast::&lt;<span class="kw">crate</span>::common::io::Compat&lt;std::io::Cursor&lt;Vec&lt;u8&gt;&gt;&gt;&gt;()
+            .unwrap_err();
 
         upgraded.downcast::&lt;Mock&gt;().unwrap();
     }
@@ -732,17 +784,17 @@
     <span class="comment">// TODO: replace with tokio_test::io when it can test write_buf
     </span><span class="kw">struct </span>Mock;
 
-    <span class="kw">impl </span>AsyncRead <span class="kw">for </span>Mock {
+    <span class="kw">impl </span>Read <span class="kw">for </span>Mock {
         <span class="kw">fn </span>poll_read(
             <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
             _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-            _buf: <span class="kw-2">&amp;mut </span>ReadBuf&lt;<span class="lifetime">'_</span>&gt;,
+            _buf: ReadBufCursor&lt;<span class="lifetime">'_</span>&gt;,
         ) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
             <span class="macro">unreachable!</span>(<span class="string">"Mock::poll_read"</span>)
         }
     }
 
-    <span class="kw">impl </span>AsyncWrite <span class="kw">for </span>Mock {
+    <span class="kw">impl </span>Write <span class="kw">for </span>Mock {
         <span class="kw">fn </span>poll_write(
             <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
             <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,

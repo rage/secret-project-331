@@ -34,6 +34,8 @@
 <a href="#33" id="33">33</a>
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
+<a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/course-material`.
 
@@ -42,6 +44,7 @@ This documents all endpoints. Select a module below for a category.
 */
 
 </span><span class="kw">pub mod </span>chapters;
+<span class="kw">pub mod </span>chatbot;
 <span class="kw">pub mod </span>course_instances;
 <span class="kw">pub mod </span>course_modules;
 <span class="kw">pub mod </span>courses;
@@ -67,6 +70,7 @@ This documents all endpoints. Select a module below for a category.
         .service(web::scope(<span class="string">"/acronyms"</span>).configure(glossary::_add_routes))
         .service(web::scope(<span class="string">"/oembed"</span>).configure(oembed::_add_routes))
         .service(web::scope(<span class="string">"/course-modules"</span>).configure(course_modules::_add_routes))
-        .service(web::scope(<span class="string">"/page_audio"</span>).configure(page_audio_files::_add_routes));
+        .service(web::scope(<span class="string">"/page_audio"</span>).configure(page_audio_files::_add_routes))
+        .service(web::scope(<span class="string">"/chatbot"</span>).configure(chatbot::_add_routes));
 }
 </code></pre></div></section></main></body></html>

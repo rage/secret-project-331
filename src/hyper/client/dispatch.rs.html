@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.28/src/client/dispatch.rs`."><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/client/dispatch.rs`."><title>dispatch.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -441,24 +441,67 @@
 <a href="#440" id="440">440</a>
 <a href="#441" id="441">441</a>
 <a href="#442" id="442">442</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
-</span><span class="kw">use </span>std::future::Future;
-<span class="kw">use </span>std::marker::Unpin;
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::task::{Context, Poll};
 <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
-</span><span class="kw">use </span>std::pin::Pin;
-<span class="kw">use </span>std::task::{Context, Poll};
+</span><span class="kw">use </span>std::{future::Future, pin::Pin};
 
-<span class="kw">use </span>futures_util::FutureExt;
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="kw">use </span>http::{Request, Response};
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="kw">use </span>http_body::Body;
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="kw">use </span>pin_project_lite::pin_project;
 <span class="kw">use </span>tokio::sync::{mpsc, oneshot};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>RetryPromise&lt;T, U&gt; = oneshot::Receiver&lt;<span class="prelude-ty">Result</span>&lt;U, (<span class="kw">crate</span>::Error, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;&gt;;
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="kw">use crate</span>::{body::Incoming, proto::h2::client::ResponseFutMap};
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>RetryPromise&lt;T, U&gt; = oneshot::Receiver&lt;<span class="prelude-ty">Result</span>&lt;U, (<span class="kw">crate</span>::Error, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;&gt;;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>Promise&lt;T&gt; = oneshot::Receiver&lt;<span class="prelude-ty">Result</span>&lt;T, <span class="kw">crate</span>::Error&gt;&gt;;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>channel&lt;T, U&gt;() -&gt; (Sender&lt;T, U&gt;, Receiver&lt;T, U&gt;) {
     <span class="kw">let </span>(tx, rx) = mpsc::unbounded_channel();
     <span class="kw">let </span>(giver, taker) = want::new();
     <span class="kw">let </span>tx = Sender {
-        buffered_once: <span class="bool-val">false</span>,
+        <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+        </span>buffered_once: <span class="bool-val">false</span>,
         giver,
         inner: tx,
     };
@@ -474,8 +517,9 @@
     <span class="doccomment">/// One message is always allowed, even if the Receiver hasn't asked
     /// for it yet. This boolean keeps track of whether we've sent one
     /// without notice.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
     </span>buffered_once: bool,
-    <span class="doccomment">/// The Giver helps watch that the the Receiver side has been polled
+    <span class="doccomment">/// The Giver helps watch that the Receiver side has been polled
     /// when the queue is empty. This helps us know when a request and
     /// response have been fully processed, and a connection is ready
     /// for more.
@@ -496,21 +540,25 @@
 }
 
 <span class="kw">impl</span>&lt;T, U&gt; Sender&lt;T, U&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="kw">crate</span>::Result&lt;()&gt;&gt; {
+    <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="kw">crate</span>::Result&lt;()&gt;&gt; {
         <span class="self">self</span>.giver
             .poll_want(cx)
             .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::Error::new_closed())
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_ready(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_ready(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.giver.is_wanting()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.giver.is_canceled()
     }
 
-    <span class="kw">fn </span>can_send(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+    <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+    </span><span class="kw">fn </span>can_send(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
         <span class="kw">if </span><span class="self">self</span>.giver.give() || !<span class="self">self</span>.buffered_once {
             <span class="comment">// If the receiver is ready *now*, then of course we can send.
             //
@@ -523,7 +571,8 @@
         </span>}
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;RetryPromise&lt;T, U&gt;, T&gt; {
+    <span class="attr">#[cfg(test)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;RetryPromise&lt;T, U&gt;, T&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.can_send() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(val);
         }
@@ -534,7 +583,8 @@
             .map_err(|<span class="kw-2">mut </span>e| (e.<span class="number">0</span>).<span class="number">0</span>.take().expect(<span class="string">"envelope not dropped"</span>).<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;Promise&lt;U&gt;, T&gt; {
+    <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;Promise&lt;U&gt;, T&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.can_send() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(val);
         }
@@ -564,7 +614,8 @@
         <span class="self">self</span>.giver.is_canceled()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;RetryPromise&lt;T, U&gt;, T&gt; {
+    <span class="attr">#[cfg(test)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;RetryPromise&lt;T, U&gt;, T&gt; {
         <span class="kw">let </span>(tx, rx) = oneshot::channel();
         <span class="self">self</span>.inner
             .send(Envelope(<span class="prelude-val">Some</span>((val, Callback::Retry(<span class="prelude-val">Some</span>(tx))))))
@@ -572,8 +623,7 @@
             .map_err(|<span class="kw-2">mut </span>e| (e.<span class="number">0</span>).<span class="number">0</span>.take().expect(<span class="string">"envelope not dropped"</span>).<span class="number">0</span>)
     }
 
-    <span class="attr">#[cfg(all(feature = <span class="string">"backports"</span>, feature = <span class="string">"http2"</span>))]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;Promise&lt;U&gt;, T&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>send(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; <span class="prelude-ty">Result</span>&lt;Promise&lt;U&gt;, T&gt; {
         <span class="kw">let </span>(tx, rx) = oneshot::channel();
         <span class="self">self</span>.inner
             .send(Envelope(<span class="prelude-val">Some</span>((val, Callback::NoRetry(<span class="prelude-val">Some</span>(tx))))))
@@ -618,6 +668,7 @@
 
     <span class="attr">#[cfg(feature = <span class="string">"http1"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(T, Callback&lt;T, U&gt;)&gt; {
+        <span class="kw">use </span>futures_util::FutureExt;
         <span class="kw">match </span><span class="self">self</span>.inner.recv().now_or_never() {
             <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="kw-2">mut </span>env)) =&gt; env.<span class="number">0</span>.take(),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -647,7 +698,8 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>Callback&lt;T, U&gt; {
-    Retry(<span class="prelude-ty">Option</span>&lt;oneshot::Sender&lt;<span class="prelude-ty">Result</span>&lt;U, (<span class="kw">crate</span>::Error, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;&gt;&gt;),
+    <span class="attr">#[allow(unused)]
+    </span>Retry(<span class="prelude-ty">Option</span>&lt;oneshot::Sender&lt;<span class="prelude-ty">Result</span>&lt;U, (<span class="kw">crate</span>::Error, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;&gt;&gt;),
     NoRetry(<span class="prelude-ty">Option</span>&lt;oneshot::Sender&lt;<span class="prelude-ty">Result</span>&lt;U, <span class="kw">crate</span>::Error&gt;&gt;&gt;),
 }
 
@@ -703,38 +755,58 @@
             }
         }
     }
+}
 
-    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>send_when(
-        <span class="self">self</span>,
-        <span class="kw-2">mut </span>when: <span class="kw">impl </span>Future&lt;Output = <span class="prelude-ty">Result</span>&lt;U, (<span class="kw">crate</span>::Error, <span class="prelude-ty">Option</span>&lt;T&gt;)&gt;&gt; + Unpin,
-    ) {
-        <span class="kw">use </span>futures_util::future;
-        <span class="kw">use </span>tracing::trace;
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="macro">pin_project! </span>{
+    <span class="kw">pub struct </span>SendWhen&lt;B&gt;
+    <span class="kw">where
+        </span>B: Body,
+        B: <span class="lifetime">'static</span>,
+    {
+        <span class="attr">#[pin]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) when: ResponseFutMap&lt;B&gt;,
+        <span class="attr">#[pin]
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) call_back: <span class="prelude-ty">Option</span>&lt;Callback&lt;Request&lt;B&gt;, Response&lt;Incoming&gt;&gt;&gt;,
+    }
+}
 
-        <span class="kw">let </span><span class="kw-2">mut </span>cb = <span class="prelude-val">Some</span>(<span class="self">self</span>);
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="kw">impl</span>&lt;B&gt; Future <span class="kw">for </span>SendWhen&lt;B&gt;
+<span class="kw">where
+    </span>B: Body + <span class="lifetime">'static</span>,
+{
+    <span class="kw">type </span>Output = ();
 
-        <span class="comment">// "select" on this callback being canceled, and the future completing
-        </span>future::poll_fn(<span class="kw">move </span>|cx| {
-            <span class="kw">match </span>Pin::new(<span class="kw-2">&amp;mut </span>when).poll(cx) {
-                Poll::Ready(<span class="prelude-val">Ok</span>(res)) =&gt; {
-                    cb.take().expect(<span class="string">"polled after complete"</span>).send(<span class="prelude-val">Ok</span>(res));
-                    Poll::Ready(())
-                }
-                Poll::Pending =&gt; {
-                    <span class="comment">// check if the callback is canceled
-                    </span><span class="macro">ready!</span>(cb.as_mut().unwrap().poll_canceled(cx));
-                    <span class="macro">trace!</span>(<span class="string">"send_when canceled"</span>);
-                    Poll::Ready(())
-                }
-                Poll::Ready(<span class="prelude-val">Err</span>(err)) =&gt; {
-                    cb.take().expect(<span class="string">"polled after complete"</span>).send(<span class="prelude-val">Err</span>(err));
-                    Poll::Ready(())
-                }
+    <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>call_back = this.call_back.take().expect(<span class="string">"polled after complete"</span>);
+
+        <span class="kw">match </span>Pin::new(<span class="kw-2">&amp;mut </span>this.when).poll(cx) {
+            Poll::Ready(<span class="prelude-val">Ok</span>(res)) =&gt; {
+                call_back.send(<span class="prelude-val">Ok</span>(res));
+                Poll::Ready(())
             }
-        })
-        .<span class="kw">await
-    </span>}
+            Poll::Pending =&gt; {
+                <span class="comment">// check if the callback is canceled
+                </span><span class="kw">match </span>call_back.poll_canceled(cx) {
+                    Poll::Ready(v) =&gt; v,
+                    Poll::Pending =&gt; {
+                        <span class="comment">// Move call_back back to struct before return
+                        </span>this.call_back.set(<span class="prelude-val">Some</span>(call_back));
+                        <span class="kw">return </span>Poll::Pending;
+                    }
+                };
+                <span class="macro">trace!</span>(<span class="string">"send_when canceled"</span>);
+                Poll::Ready(())
+            }
+            Poll::Ready(<span class="prelude-val">Err</span>(err)) =&gt; {
+                call_back.send(<span class="prelude-val">Err</span>(err));
+                Poll::Ready(())
+            }
+        }
+    }
 }
 
 <span class="attr">#[cfg(test)]
@@ -749,7 +821,7 @@
     <span class="kw">use super</span>::{channel, Callback, Receiver};
 
     <span class="attr">#[derive(Debug)]
-    </span><span class="kw">struct </span>Custom(i32);
+    </span><span class="kw">struct </span>Custom(<span class="attr">#[allow(dead_code)] </span>i32);
 
     <span class="kw">impl</span>&lt;T, U&gt; Future <span class="kw">for </span>Receiver&lt;T, U&gt; {
         <span class="kw">type </span>Output = <span class="prelude-ty">Option</span>&lt;(T, Callback&lt;T, U&gt;)&gt;;
@@ -776,7 +848,8 @@
         }
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>drop_receiver_sends_cancel_errors() {
         <span class="kw">let _ </span>= pretty_env_logger::try_init();
 
@@ -798,7 +871,8 @@
         }
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>sender_checks_for_want_on_send() {
         <span class="kw">let </span>(<span class="kw-2">mut </span>tx, <span class="kw-2">mut </span>rx) = channel::&lt;Custom, ()&gt;();
 
@@ -835,16 +909,15 @@
     <span class="attr">#[cfg(feature = <span class="string">"nightly"</span>)]
     #[bench]
     </span><span class="kw">fn </span>giver_queue_throughput(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
-        <span class="kw">use crate</span>::{Body, Request, Response};
+        <span class="kw">use crate</span>::{body::Incoming, Request, Response};
 
         <span class="kw">let </span>rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
             .build()
             .unwrap();
-        <span class="kw">let </span>(<span class="kw-2">mut </span>tx, <span class="kw-2">mut </span>rx) = channel::&lt;Request&lt;Body&gt;, Response&lt;Body&gt;&gt;();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>tx, <span class="kw-2">mut </span>rx) = channel::&lt;Request&lt;Incoming&gt;, Response&lt;Incoming&gt;&gt;();
 
         b.iter(<span class="kw">move </span>|| {
-            <span class="kw">let _ </span>= tx.send(Request::default()).unwrap();
+            <span class="kw">let _ </span>= tx.send(Request::new(Incoming::empty())).unwrap();
             rt.block_on(<span class="kw">async </span>{
                 <span class="kw">loop </span>{
                     <span class="kw">let </span>poll_once = PollOnce(<span class="kw-2">&amp;mut </span>rx);
@@ -861,7 +934,6 @@
     #[bench]
     </span><span class="kw">fn </span>giver_queue_not_ready(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
         <span class="kw">let </span>rt = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
             .build()
             .unwrap();
         <span class="kw">let </span>(_tx, <span class="kw-2">mut </span>rx) = channel::&lt;i32, ()&gt;();

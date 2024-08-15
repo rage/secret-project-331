@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.28/src/service/util.rs`."><title>util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/service/util.rs`."><title>util.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -81,16 +81,13 @@
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::marker::PhantomData;
-<span class="kw">use </span>std::task::{Context, Poll};
 
-<span class="kw">use </span><span class="kw">crate</span>::body::HttpBody;
+<span class="kw">use </span><span class="kw">crate</span>::body::Body;
+<span class="kw">use </span><span class="kw">crate</span>::service::service::Service;
 <span class="kw">use crate</span>::{Request, Response};
 
 <span class="doccomment">/// Create a `Service` from a function.
@@ -98,12 +95,14 @@
 /// # Example
 ///
 /// ```
-/// use hyper::{Body, Request, Response, Version};
+/// use bytes::Bytes;
+/// use hyper::{body, Request, Response, Version};
+/// use http_body_util::Full;
 /// use hyper::service::service_fn;
 ///
-/// let service = service_fn(|req: Request&lt;Body&gt;| async move {
+/// let service = service_fn(|req: Request&lt;body::Incoming&gt;| async move {
 ///     if req.version() == Version::HTTP_11 {
-///         Ok(Response::new(Body::from("Hello World")))
+///         Ok(Response::new(Full::&lt;Bytes&gt;::from("Hello World")))
 ///     } else {
 ///         // Note: it's usually better to return a Response
 ///         // with an appropriate StatusCode instead of an Err.
@@ -113,7 +112,7 @@
 /// ```
 </span><span class="kw">pub fn </span>service_fn&lt;F, R, S&gt;(f: F) -&gt; ServiceFn&lt;F, R&gt;
 <span class="kw">where
-    </span>F: FnMut(Request&lt;R&gt;) -&gt; S,
+    </span>F: Fn(Request&lt;R&gt;) -&gt; S,
     S: Future,
 {
     ServiceFn {
@@ -128,24 +127,19 @@
     _req: PhantomData&lt;<span class="kw">fn</span>(R)&gt;,
 }
 
-<span class="kw">impl</span>&lt;F, ReqBody, Ret, ResBody, E&gt; tower_service::Service&lt;<span class="kw">crate</span>::Request&lt;ReqBody&gt;&gt;
-    <span class="kw">for </span>ServiceFn&lt;F, ReqBody&gt;
+<span class="kw">impl</span>&lt;F, ReqBody, Ret, ResBody, E&gt; Service&lt;Request&lt;ReqBody&gt;&gt; <span class="kw">for </span>ServiceFn&lt;F, ReqBody&gt;
 <span class="kw">where
-    </span>F: FnMut(Request&lt;ReqBody&gt;) -&gt; Ret,
-    ReqBody: HttpBody,
+    </span>F: Fn(Request&lt;ReqBody&gt;) -&gt; Ret,
+    ReqBody: Body,
     Ret: Future&lt;Output = <span class="prelude-ty">Result</span>&lt;Response&lt;ResBody&gt;, E&gt;&gt;,
     E: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
-    ResBody: HttpBody,
+    ResBody: Body,
 {
     <span class="kw">type </span>Response = <span class="kw">crate</span>::Response&lt;ResBody&gt;;
     <span class="kw">type </span>Error = E;
     <span class="kw">type </span>Future = Ret;
 
-    <span class="kw">fn </span>poll_ready(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), <span class="self">Self</span>::Error&gt;&gt; {
-        Poll::Ready(<span class="prelude-val">Ok</span>(()))
-    }
-
-    <span class="kw">fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, req: Request&lt;ReqBody&gt;) -&gt; <span class="self">Self</span>::Future {
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;</span><span class="self">self</span>, req: Request&lt;ReqBody&gt;) -&gt; <span class="self">Self</span>::Future {
         (<span class="self">self</span>.f)(req)
     }
 }

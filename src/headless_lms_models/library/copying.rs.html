@@ -1163,6 +1163,9 @@
 <a href="#1162" id="1162">1162</a>
 <a href="#1163" id="1163">1163</a>
 <a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1211,10 +1214,11 @@ INSERT INTO courses (
     copied_from,
     course_language_group_id,
     is_draft,
-    is_unlisted,
-    base_module_completion_requires_n_submodule_completions
+    base_module_completion_requires_n_submodule_completions,
+    can_add_chatbot,
+    is_unlisted
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id,
   name,
   created_at,
@@ -1229,8 +1233,9 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot,
+  is_unlisted
     "</span>,
         new_course.name,
         new_course.organization_id,
@@ -1240,8 +1245,9 @@ RETURNING id,
         parent_course.id,
         course_language_group_id,
         new_course.is_draft,
-        new_course.is_unlisted,
         parent_course.base_module_completion_requires_n_submodule_completions,
+        parent_course.can_add_chatbot,
+        new_course.is_unlisted,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;

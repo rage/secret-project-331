@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.24/src/async_impl/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.4/src/async_impl/decoder.rs`."><title>decoder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -420,6 +420,148 @@
 <a href="#419" id="419">419</a>
 <a href="#420" id="420">420</a>
 <a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::pin::Pin;
@@ -431,6 +573,9 @@
 <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
 </span><span class="kw">use </span>async_compression::tokio::bufread::BrotliDecoder;
 
+<span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+</span><span class="kw">use </span>async_compression::tokio::bufread::ZstdDecoder;
+
 <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
 </span><span class="kw">use </span>async_compression::tokio::bufread::ZlibDecoder;
 
@@ -438,14 +583,25 @@
 <span class="kw">use </span>futures_core::Stream;
 <span class="kw">use </span>futures_util::stream::Peekable;
 <span class="kw">use </span>http::HeaderMap;
-<span class="kw">use </span>hyper::body::HttpBody;
+<span class="kw">use </span>hyper::body::Body <span class="kw">as </span>HttpBody;
+<span class="kw">use </span>hyper::body::Frame;
 
-<span class="attr">#[cfg(any(feature = <span class="string">"gzip"</span>, feature = <span class="string">"brotli"</span>, feature = <span class="string">"deflate"</span>))]
+<span class="attr">#[cfg(any(
+    feature = <span class="string">"gzip"</span>,
+    feature = <span class="string">"brotli"</span>,
+    feature = <span class="string">"zstd"</span>,
+    feature = <span class="string">"deflate"
+</span>))]
 </span><span class="kw">use </span>tokio_util::codec::{BytesCodec, FramedRead};
-<span class="attr">#[cfg(any(feature = <span class="string">"gzip"</span>, feature = <span class="string">"brotli"</span>, feature = <span class="string">"deflate"</span>))]
+<span class="attr">#[cfg(any(
+    feature = <span class="string">"gzip"</span>,
+    feature = <span class="string">"brotli"</span>,
+    feature = <span class="string">"zstd"</span>,
+    feature = <span class="string">"deflate"
+</span>))]
 </span><span class="kw">use </span>tokio_util::io::StreamReader;
 
-<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::Body;
+<span class="kw">use </span><span class="kw">super</span>::body::ResponseBody;
 <span class="kw">use </span><span class="kw">crate</span>::error;
 
 <span class="attr">#[derive(Clone, Copy, Debug)]
@@ -454,8 +610,25 @@
     </span><span class="kw">pub</span>(<span class="kw">super</span>) gzip: bool,
     <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) brotli: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) zstd: bool,
     <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">super</span>) deflate: bool,
+}
+
+<span class="kw">impl </span>Accepts {
+    <span class="kw">pub fn </span>none() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
+            </span>gzip: <span class="bool-val">false</span>,
+            <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
+            </span>brotli: <span class="bool-val">false</span>,
+            <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+            </span>zstd: <span class="bool-val">false</span>,
+            <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
+            </span>deflate: <span class="bool-val">false</span>,
+        }
+    }
 }
 
 <span class="doccomment">/// A response decompressor over a non-blocking stream of chunks.
@@ -467,12 +640,17 @@
 
 <span class="kw">type </span>PeekableIoStream = Peekable&lt;IoStream&gt;;
 
-<span class="attr">#[cfg(any(feature = <span class="string">"gzip"</span>, feature = <span class="string">"brotli"</span>, feature = <span class="string">"deflate"</span>))]
+<span class="attr">#[cfg(any(
+    feature = <span class="string">"gzip"</span>,
+    feature = <span class="string">"zstd"</span>,
+    feature = <span class="string">"brotli"</span>,
+    feature = <span class="string">"deflate"
+</span>))]
 </span><span class="kw">type </span>PeekableIoStreamReader = StreamReader&lt;PeekableIoStream, Bytes&gt;;
 
 <span class="kw">enum </span>Inner {
     <span class="doccomment">/// A `PlainText` decoder just returns the response content as is.
-    </span>PlainText(<span class="kw">super</span>::body::ImplStream),
+    </span>PlainText(ResponseBody),
 
     <span class="doccomment">/// A `Gzip` decoder will uncompress the gzipped response content before returning it.
     </span><span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
@@ -482,25 +660,36 @@
     </span><span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
     </span>Brotli(Pin&lt;Box&lt;FramedRead&lt;BrotliDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
 
+    <span class="doccomment">/// A `Zstd` decoder will uncompress the zstd compressed response content before returning it.
+    </span><span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+    </span>Zstd(Pin&lt;Box&lt;FramedRead&lt;ZstdDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
+
     <span class="doccomment">/// A `Deflate` decoder will uncompress the deflated response content before returning it.
     </span><span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
     </span>Deflate(Pin&lt;Box&lt;FramedRead&lt;ZlibDecoder&lt;PeekableIoStreamReader&gt;, BytesCodec&gt;&gt;&gt;),
 
     <span class="doccomment">/// A decoder that doesn't have a value yet.
-    </span><span class="attr">#[cfg(any(feature = <span class="string">"brotli"</span>, feature = <span class="string">"gzip"</span>, feature = <span class="string">"deflate"</span>))]
+    </span><span class="attr">#[cfg(any(
+        feature = <span class="string">"brotli"</span>,
+        feature = <span class="string">"zstd"</span>,
+        feature = <span class="string">"gzip"</span>,
+        feature = <span class="string">"deflate"
+    </span>))]
     </span>Pending(Pin&lt;Box&lt;Pending&gt;&gt;),
 }
 
 <span class="doccomment">/// A future attempt to poll the response body for EOF so we know whether to use gzip or not.
 </span><span class="kw">struct </span>Pending(PeekableIoStream, DecoderType);
 
-<span class="kw">struct </span>IoStream(<span class="kw">super</span>::body::ImplStream);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>IoStream&lt;B = ResponseBody&gt;(B);
 
 <span class="kw">enum </span>DecoderType {
     <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
     </span>Gzip,
     <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
     </span>Brotli,
+    <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+    </span>Zstd,
     <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
     </span>Deflate,
 }
@@ -515,16 +704,21 @@
     <span class="attr">#[cfg(feature = <span class="string">"blocking"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>empty() -&gt; Decoder {
         Decoder {
-            inner: Inner::PlainText(Body::empty().into_stream()),
+            inner: Inner::PlainText(empty()),
         }
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">"blocking"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_stream(<span class="self">self</span>) -&gt; IoStream&lt;<span class="self">Self</span>&gt; {
+        IoStream(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// A plain text decoder.
     ///
     /// This decoder will emit the underlying chunks as-is.
-    </span><span class="kw">fn </span>plain_text(body: Body) -&gt; Decoder {
+    </span><span class="kw">fn </span>plain_text(body: ResponseBody) -&gt; Decoder {
         Decoder {
-            inner: Inner::PlainText(body.into_stream()),
+            inner: Inner::PlainText(body),
         }
     }
 
@@ -532,12 +726,12 @@
     ///
     /// This decoder will buffer and decompress chunks that are gzipped.
     </span><span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
-    </span><span class="kw">fn </span>gzip(body: Body) -&gt; Decoder {
+    </span><span class="kw">fn </span>gzip(body: ResponseBody) -&gt; Decoder {
         <span class="kw">use </span>futures_util::StreamExt;
 
         Decoder {
             inner: Inner::Pending(Box::pin(Pending(
-                IoStream(body.into_stream()).peekable(),
+                IoStream(body).peekable(),
                 DecoderType::Gzip,
             ))),
         }
@@ -547,13 +741,28 @@
     ///
     /// This decoder will buffer and decompress chunks that are brotlied.
     </span><span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
-    </span><span class="kw">fn </span>brotli(body: Body) -&gt; Decoder {
+    </span><span class="kw">fn </span>brotli(body: ResponseBody) -&gt; Decoder {
         <span class="kw">use </span>futures_util::StreamExt;
 
         Decoder {
             inner: Inner::Pending(Box::pin(Pending(
-                IoStream(body.into_stream()).peekable(),
+                IoStream(body).peekable(),
                 DecoderType::Brotli,
+            ))),
+        }
+    }
+
+    <span class="doccomment">/// A zstd decoder.
+    ///
+    /// This decoder will buffer and decompress chunks that are zstd compressed.
+    </span><span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+    </span><span class="kw">fn </span>zstd(body: ResponseBody) -&gt; Decoder {
+        <span class="kw">use </span>futures_util::StreamExt;
+
+        Decoder {
+            inner: Inner::Pending(Box::pin(Pending(
+                IoStream(body).peekable(),
+                DecoderType::Zstd,
             ))),
         }
     }
@@ -562,18 +771,23 @@
     ///
     /// This decoder will buffer and decompress chunks that are deflated.
     </span><span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
-    </span><span class="kw">fn </span>deflate(body: Body) -&gt; Decoder {
+    </span><span class="kw">fn </span>deflate(body: ResponseBody) -&gt; Decoder {
         <span class="kw">use </span>futures_util::StreamExt;
 
         Decoder {
             inner: Inner::Pending(Box::pin(Pending(
-                IoStream(body.into_stream()).peekable(),
+                IoStream(body).peekable(),
                 DecoderType::Deflate,
             ))),
         }
     }
 
-    <span class="attr">#[cfg(any(feature = <span class="string">"brotli"</span>, feature = <span class="string">"gzip"</span>, feature = <span class="string">"deflate"</span>))]
+    <span class="attr">#[cfg(any(
+        feature = <span class="string">"brotli"</span>,
+        feature = <span class="string">"zstd"</span>,
+        feature = <span class="string">"gzip"</span>,
+        feature = <span class="string">"deflate"
+    </span>))]
     </span><span class="kw">fn </span>detect_encoding(headers: <span class="kw-2">&amp;mut </span>HeaderMap, encoding_str: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="kw">use </span>http::header::{CONTENT_ENCODING, CONTENT_LENGTH, TRANSFER_ENCODING};
         <span class="kw">use </span>log::warn;
@@ -591,7 +805,7 @@
         <span class="kw">if </span>is_content_encoded {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(content_length) = headers.get(CONTENT_LENGTH) {
                 <span class="kw">if </span>content_length == <span class="string">"0" </span>{
-                    <span class="macro">warn!</span>(<span class="string">"{} response with content-length of 0"</span>, encoding_str);
+                    <span class="macro">warn!</span>(<span class="string">"{encoding_str} response with content-length of 0"</span>);
                     is_content_encoded = <span class="bool-val">false</span>;
                 }
             }
@@ -609,7 +823,11 @@
     /// how to decode the content body of the request.
     ///
     /// Uses the correct variant by inspecting the Content-Encoding header.
-    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>detect(_headers: <span class="kw-2">&amp;mut </span>HeaderMap, body: Body, _accepts: Accepts) -&gt; Decoder {
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>detect(
+        _headers: <span class="kw-2">&amp;mut </span>HeaderMap,
+        body: ResponseBody,
+        _accepts: Accepts,
+    ) -&gt; Decoder {
         <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
         </span>{
             <span class="kw">if </span>_accepts.gzip &amp;&amp; Decoder::detect_encoding(_headers, <span class="string">"gzip"</span>) {
@@ -624,6 +842,13 @@
             }
         }
 
+        <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+        </span>{
+            <span class="kw">if </span>_accepts.zstd &amp;&amp; Decoder::detect_encoding(_headers, <span class="string">"zstd"</span>) {
+                <span class="kw">return </span>Decoder::zstd(body);
+            }
+        }
+
         <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
         </span>{
             <span class="kw">if </span>_accepts.deflate &amp;&amp; Decoder::detect_encoding(_headers, <span class="string">"deflate"</span>) {
@@ -635,26 +860,40 @@
     }
 }
 
-<span class="kw">impl </span>Stream <span class="kw">for </span>Decoder {
-    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, error::Error&gt;;
+<span class="kw">impl </span>HttpBody <span class="kw">for </span>Decoder {
+    <span class="kw">type </span>Data = Bytes;
+    <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
 
-    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
-        <span class="comment">// Do a read or poll for a pending decoder value.
-        </span><span class="kw">match </span><span class="self">self</span>.inner {
-            <span class="attr">#[cfg(any(feature = <span class="string">"brotli"</span>, feature = <span class="string">"gzip"</span>, feature = <span class="string">"deflate"</span>))]
+    <span class="kw">fn </span>poll_frame(
+        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">match </span><span class="self">self</span>.inner {
+            <span class="attr">#[cfg(any(
+                feature = <span class="string">"brotli"</span>,
+                feature = <span class="string">"zstd"</span>,
+                feature = <span class="string">"gzip"</span>,
+                feature = <span class="string">"deflate"
+            </span>))]
             </span>Inner::Pending(<span class="kw-2">ref mut </span>future) =&gt; <span class="kw">match </span>Pin::new(future).poll(cx) {
                 Poll::Ready(<span class="prelude-val">Ok</span>(inner)) =&gt; {
                     <span class="self">self</span>.inner = inner;
-                    <span class="self">self</span>.poll_next(cx)
+                    <span class="self">self</span>.poll_frame(cx)
                 }
                 Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(e)))),
                 Poll::Pending =&gt; Poll::Pending,
             },
-            Inner::PlainText(<span class="kw-2">ref mut </span>body) =&gt; Pin::new(body).poll_next(cx),
+            Inner::PlainText(<span class="kw-2">ref mut </span>body) =&gt; {
+                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(body).poll_frame(cx)) {
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame))),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode(err)))),
+                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+                }
+            }
             <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
             </span>Inner::Gzip(<span class="kw-2">ref mut </span>decoder) =&gt; {
                 <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes.freeze()))),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
                     <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
                 }
@@ -662,7 +901,15 @@
             <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
             </span>Inner::Brotli(<span class="kw-2">ref mut </span>decoder) =&gt; {
                 <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes.freeze()))),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
+                    <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+                }
+            }
+            <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+            </span>Inner::Zstd(<span class="kw-2">ref mut </span>decoder) =&gt; {
+                <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
                     <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
                 }
@@ -670,41 +917,32 @@
             <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
             </span>Inner::Deflate(<span class="kw-2">ref mut </span>decoder) =&gt; {
                 <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(decoder).poll_next(cx)) {
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes.freeze()))),
+                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(bytes)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(bytes.freeze())))),
                     <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::decode_io(err)))),
                     <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
                 }
             }
         }
     }
-}
-
-<span class="kw">impl </span>HttpBody <span class="kw">for </span>Decoder {
-    <span class="kw">type </span>Data = Bytes;
-    <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
-
-    <span class="kw">fn </span>poll_data(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        <span class="self">self</span>.poll_next(cx)
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        _cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;http::HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
-    }
 
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; http_body::SizeHint {
         <span class="kw">match </span><span class="self">self</span>.inner {
             Inner::PlainText(<span class="kw-2">ref </span>body) =&gt; HttpBody::size_hint(body),
             <span class="comment">// the rest are "unknown", so default
-            </span><span class="attr">#[cfg(any(feature = <span class="string">"brotli"</span>, feature = <span class="string">"gzip"</span>, feature = <span class="string">"deflate"</span>))]
+            </span><span class="attr">#[cfg(any(
+                feature = <span class="string">"brotli"</span>,
+                feature = <span class="string">"zstd"</span>,
+                feature = <span class="string">"gzip"</span>,
+                feature = <span class="string">"deflate"
+            </span>))]
             </span><span class="kw">_ </span>=&gt; http_body::SizeHint::default(),
         }
     }
+}
+
+<span class="kw">fn </span>empty() -&gt; ResponseBody {
+    <span class="kw">use </span>http_body_util::{combinators::BoxBody, BodyExt, Empty};
+    BoxBody::new(Empty::new().map_err(|never| <span class="kw">match </span>never {}))
 }
 
 <span class="kw">impl </span>Future <span class="kw">for </span>Pending {
@@ -725,18 +963,20 @@
                 .expect(<span class="string">"just peeked Some"</span>)
                 .unwrap_err()));
             }
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(Inner::PlainText(Body::empty().into_stream()))),
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(Inner::PlainText(empty()))),
         };
 
-        <span class="kw">let </span>_body = std::mem::replace(
-            <span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>,
-            IoStream(Body::empty().into_stream()).peekable(),
-        );
+        <span class="kw">let </span>_body = std::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>, IoStream(empty()).peekable());
 
         <span class="kw">match </span><span class="self">self</span>.<span class="number">1 </span>{
             <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
             </span>DecoderType::Brotli =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Brotli(Box::pin(FramedRead::new(
                 BrotliDecoder::new(StreamReader::new(_body)),
+                BytesCodec::new(),
+            ))))),
+            <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+            </span>DecoderType::Zstd =&gt; Poll::Ready(<span class="prelude-val">Ok</span>(Inner::Zstd(Box::pin(FramedRead::new(
+                ZstdDecoder::new(StreamReader::new(_body)),
                 BytesCodec::new(),
             ))))),
             <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
@@ -753,14 +993,27 @@
     }
 }
 
-<span class="kw">impl </span>Stream <span class="kw">for </span>IoStream {
+<span class="kw">impl</span>&lt;B&gt; Stream <span class="kw">for </span>IoStream&lt;B&gt;
+<span class="kw">where
+    </span>B: HttpBody&lt;Data = Bytes&gt; + Unpin,
+    B::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
+{
     <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, std::io::Error&gt;;
 
     <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
-        <span class="kw">match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).poll_next(cx)) {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk))),
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err.into_io()))),
-            <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+        <span class="kw">loop </span>{
+            <span class="kw">return match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).poll_frame(cx)) {
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame)) =&gt; {
+                    <span class="comment">// skip non-data frames
+                    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(buf) = frame.into_data() {
+                        Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(buf)))
+                    } <span class="kw">else </span>{
+                        <span class="kw">continue</span>;
+                    }
+                }
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(error::into_io(err.into())))),
+                <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+            };
         }
     }
 }
@@ -768,27 +1021,44 @@
 <span class="comment">// ===== impl Accepts =====
 
 </span><span class="kw">impl </span>Accepts {
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>none() -&gt; <span class="self">Self </span>{
+    <span class="comment">/*
+    pub(super) fn none() -&gt; Self {
         Accepts {
-            <span class="attr">#[cfg(feature = <span class="string">"gzip"</span>)]
-            </span>gzip: <span class="bool-val">false</span>,
-            <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
-            </span>brotli: <span class="bool-val">false</span>,
-            <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
-            </span>deflate: <span class="bool-val">false</span>,
+            #[cfg(feature = "gzip")]
+            gzip: false,
+            #[cfg(feature = "brotli")]
+            brotli: false,
+            #[cfg(feature = "zstd")]
+            zstd: false,
+            #[cfg(feature = "deflate")]
+            deflate: false,
         }
     }
+    */
 
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
-        <span class="kw">match </span>(<span class="self">self</span>.is_gzip(), <span class="self">self</span>.is_brotli(), <span class="self">self</span>.is_deflate()) {
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, br, deflate"</span>),
-            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, br"</span>),
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, deflate"</span>),
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"br, deflate"</span>),
-            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip"</span>),
-            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"br"</span>),
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"deflate"</span>),
-            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">None</span>,
+    </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>as_str(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="kw">match </span>(
+            <span class="self">self</span>.is_gzip(),
+            <span class="self">self</span>.is_brotli(),
+            <span class="self">self</span>.is_zstd(),
+            <span class="self">self</span>.is_deflate(),
+        ) {
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, br, zstd, deflate"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, br, deflate"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, br, zstd"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, br"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, zstd, deflate"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, zstd, deflate"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"br, zstd, deflate"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"br, zstd, deflate"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip, zstd"</span>),
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"gzip"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"br, zstd"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"br"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"zstd, deflate"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"zstd"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">"deflate"</span>),
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -816,6 +1086,18 @@
         </span>}
     }
 
+    <span class="kw">fn </span>is_zstd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+        </span>{
+            <span class="self">self</span>.zstd
+        }
+
+        <span class="attr">#[cfg(not(feature = <span class="string">"zstd"</span>))]
+        </span>{
+            <span class="bool-val">false
+        </span>}
+    }
+
     <span class="kw">fn </span>is_deflate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
         </span>{
@@ -836,6 +1118,8 @@
             </span>gzip: <span class="bool-val">true</span>,
             <span class="attr">#[cfg(feature = <span class="string">"brotli"</span>)]
             </span>brotli: <span class="bool-val">true</span>,
+            <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+            </span>zstd: <span class="bool-val">true</span>,
             <span class="attr">#[cfg(feature = <span class="string">"deflate"</span>)]
             </span>deflate: <span class="bool-val">true</span>,
         }

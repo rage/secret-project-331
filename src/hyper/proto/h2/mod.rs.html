@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.28/src/proto/h2/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/proto/h2/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -448,43 +448,23 @@
 <a href="#447" id="447">447</a>
 <a href="#448" id="448">448</a>
 <a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
-<a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
-<a href="#460" id="460">460</a>
-<a href="#461" id="461">461</a>
-<a href="#462" id="462">462</a>
-<a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>bytes::{Buf, Bytes};
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+<span class="kw">use </span>std::future::Future;
+<span class="kw">use </span>std::io::{Cursor, IoSlice};
+<span class="kw">use </span>std::mem;
+<span class="kw">use </span>std::pin::Pin;
+<span class="kw">use </span>std::task::{Context, Poll};
+
+<span class="kw">use </span>bytes::{Buf, Bytes};
+<span class="kw">use </span>futures_util::ready;
 <span class="kw">use </span>h2::{Reason, RecvStream, SendStream};
 <span class="kw">use </span>http::header::{HeaderName, CONNECTION, TE, TRAILER, TRANSFER_ENCODING, UPGRADE};
 <span class="kw">use </span>http::HeaderMap;
 <span class="kw">use </span>pin_project_lite::pin_project;
-<span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
-<span class="kw">use </span>std::future::Future;
-<span class="kw">use </span>std::io::{<span class="self">self</span>, Cursor, IoSlice};
-<span class="kw">use </span>std::mem;
-<span class="kw">use </span>std::pin::Pin;
-<span class="kw">use </span>std::task::{Context, Poll};
-<span class="kw">use </span>tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
-<span class="kw">use </span>tracing::{debug, trace, warn};
 
-<span class="kw">use </span><span class="kw">crate</span>::body::HttpBody;
+<span class="kw">use </span><span class="kw">crate</span>::body::Body;
 <span class="kw">use </span><span class="kw">crate</span>::proto::h2::ping::Recorder;
+<span class="kw">use </span><span class="kw">crate</span>::rt::{Read, ReadBufCursor, Write};
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>ping;
 
@@ -501,21 +481,21 @@
 <span class="doccomment">/// Default initial stream window size defined in HTTP2 spec.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>SPEC_WINDOW_SIZE: u32 = <span class="number">65_535</span>;
 
-<span class="kw">fn </span>strip_connection_headers(headers: <span class="kw-2">&amp;mut </span>HeaderMap, is_request: bool) {
-    <span class="comment">// List of connection headers from:
-    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection
-    //
-    // TE headers are allowed in HTTP/2 requests as long as the value is "trailers", so they're
-    // tested separately.
-    </span><span class="kw">let </span>connection_headers = [
-        HeaderName::from_lowercase(<span class="string">b"keep-alive"</span>).unwrap(),
-        HeaderName::from_lowercase(<span class="string">b"proxy-connection"</span>).unwrap(),
-        TRAILER,
-        TRANSFER_ENCODING,
-        UPGRADE,
-    ];
+<span class="comment">// List of connection headers from:
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Connection
+//
+// TE headers are allowed in HTTP/2 requests as long as the value is "trailers", so they're
+// tested separately.
+</span><span class="kw">static </span>CONNECTION_HEADERS: [HeaderName; <span class="number">5</span>] = [
+    HeaderName::from_static(<span class="string">"keep-alive"</span>),
+    HeaderName::from_static(<span class="string">"proxy-connection"</span>),
+    TRAILER,
+    TRANSFER_ENCODING,
+    UPGRADE,
+];
 
-    <span class="kw">for </span>header <span class="kw">in </span>connection_headers.iter() {
+<span class="kw">fn </span>strip_connection_headers(headers: <span class="kw-2">&amp;mut </span>HeaderMap, is_request: bool) {
+    <span class="kw">for </span>header <span class="kw">in </span><span class="kw-2">&amp;</span>CONNECTION_HEADERS {
         <span class="kw">if </span>headers.remove(header).is_some() {
             <span class="macro">warn!</span>(<span class="string">"Connection header illegal in HTTP/2: {}"</span>, header.as_str());
         }
@@ -557,9 +537,9 @@
 <span class="comment">// body adapters used by both Client and Server
 
 </span><span class="macro">pin_project! </span>{
-    <span class="kw">struct </span>PipeToSendStream&lt;S&gt;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PipeToSendStream&lt;S&gt;
     <span class="kw">where
-        </span>S: HttpBody,
+        </span>S: Body,
     {
         body_tx: SendStream&lt;SendBuf&lt;S::Data&gt;&gt;,
         data_done: bool,
@@ -570,7 +550,7 @@
 
 <span class="kw">impl</span>&lt;S&gt; PipeToSendStream&lt;S&gt;
 <span class="kw">where
-    </span>S: HttpBody,
+    </span>S: Body,
 {
     <span class="kw">fn </span>new(stream: S, tx: SendStream&lt;SendBuf&lt;S::Data&gt;&gt;) -&gt; PipeToSendStream&lt;S&gt; {
         PipeToSendStream {
@@ -583,7 +563,7 @@
 
 <span class="kw">impl</span>&lt;S&gt; Future <span class="kw">for </span>PipeToSendStream&lt;S&gt;
 <span class="kw">where
-    </span>S: HttpBody,
+    </span>S: Body,
     S::Error: Into&lt;Box&lt;<span class="kw">dyn </span>StdError + Send + Sync&gt;&gt;,
 {
     <span class="kw">type </span>Output = <span class="kw">crate</span>::Result&lt;()&gt;;
@@ -591,43 +571,40 @@
     <span class="kw">fn </span>poll(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>me = <span class="self">self</span>.project();
         <span class="kw">loop </span>{
-            <span class="kw">if </span>!<span class="kw-2">*</span>me.data_done {
-                <span class="comment">// we don't have the next chunk of data yet, so just reserve 1 byte to make
-                // sure there's some capacity available. h2 will handle the capacity management
-                // for the actual body chunk.
-                </span>me.body_tx.reserve_capacity(<span class="number">1</span>);
+            <span class="comment">// we don't have the next chunk of data yet, so just reserve 1 byte to make
+            // sure there's some capacity available. h2 will handle the capacity management
+            // for the actual body chunk.
+            </span>me.body_tx.reserve_capacity(<span class="number">1</span>);
 
-                <span class="kw">if </span>me.body_tx.capacity() == <span class="number">0 </span>{
-                    <span class="kw">loop </span>{
-                        <span class="kw">match </span><span class="macro">ready!</span>(me.body_tx.poll_capacity(cx)) {
-                            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)) =&gt; {}
-                            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="kw">_</span>)) =&gt; <span class="kw">break</span>,
-                            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; {
-                                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(e)))
-                            }
-                            <span class="prelude-val">None </span>=&gt; {
-                                <span class="comment">// None means the stream is no longer in a
-                                // streaming state, we either finished it
-                                // somehow, or the remote reset us.
-                                </span><span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(
-                                    <span class="string">"send stream capacity unexpectedly closed"</span>,
-                                )));
-                            }
+            <span class="kw">if </span>me.body_tx.capacity() == <span class="number">0 </span>{
+                <span class="kw">loop </span>{
+                    <span class="kw">match </span><span class="macro">ready!</span>(me.body_tx.poll_capacity(cx)) {
+                        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="number">0</span>)) =&gt; {}
+                        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="kw">_</span>)) =&gt; <span class="kw">break</span>,
+                        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(e))),
+                        <span class="prelude-val">None </span>=&gt; {
+                            <span class="comment">// None means the stream is no longer in a
+                            // streaming state, we either finished it
+                            // somehow, or the remote reset us.
+                            </span><span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(
+                                <span class="string">"send stream capacity unexpectedly closed"</span>,
+                            )));
                         }
                     }
-                } <span class="kw">else if let </span>Poll::Ready(reason) = me
-                    .body_tx
-                    .poll_reset(cx)
-                    .map_err(<span class="kw">crate</span>::Error::new_body_write)<span class="question-mark">?
-                </span>{
-                    <span class="macro">debug!</span>(<span class="string">"stream received RST_STREAM: {:?}"</span>, reason);
-                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(::h2::Error::from(
-                        reason,
-                    ))));
                 }
+            } <span class="kw">else if let </span>Poll::Ready(reason) = me
+                .body_tx
+                .poll_reset(cx)
+                .map_err(<span class="kw">crate</span>::Error::new_body_write)<span class="question-mark">?
+            </span>{
+                <span class="macro">debug!</span>(<span class="string">"stream received RST_STREAM: {:?}"</span>, reason);
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(::h2::Error::from(reason))));
+            }
 
-                <span class="kw">match </span><span class="macro">ready!</span>(me.stream.as_mut().poll_data(cx)) {
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(chunk)) =&gt; {
+            <span class="kw">match </span><span class="macro">ready!</span>(me.stream.as_mut().poll_frame(cx)) {
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame)) =&gt; {
+                    <span class="kw">if </span>frame.is_data() {
+                        <span class="kw">let </span>chunk = frame.into_data().unwrap_or_else(|<span class="kw">_</span>| <span class="macro">unreachable!</span>());
                         <span class="kw">let </span>is_eos = me.stream.is_end_stream();
                         <span class="macro">trace!</span>(
                             <span class="string">"send body chunk: {} bytes, eos={}"</span>,
@@ -643,43 +620,24 @@
                         <span class="kw">if </span>is_eos {
                             <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(()));
                         }
-                    }
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(me.body_tx.on_user_err(e))),
-                    <span class="prelude-val">None </span>=&gt; {
-                        me.body_tx.reserve_capacity(<span class="number">0</span>);
-                        <span class="kw">let </span>is_eos = me.stream.is_end_stream();
-                        <span class="kw">if </span>is_eos {
-                            <span class="kw">return </span>Poll::Ready(me.body_tx.send_eos_frame());
-                        } <span class="kw">else </span>{
-                            <span class="kw-2">*</span>me.data_done = <span class="bool-val">true</span>;
-                            <span class="comment">// loop again to poll_trailers
-                        </span>}
-                    }
-                }
-            } <span class="kw">else </span>{
-                <span class="kw">if let </span>Poll::Ready(reason) = me
-                    .body_tx
-                    .poll_reset(cx)
-                    .map_err(<span class="kw">crate</span>::Error::new_body_write)<span class="question-mark">?
-                </span>{
-                    <span class="macro">debug!</span>(<span class="string">"stream received RST_STREAM: {:?}"</span>, reason);
-                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_body_write(::h2::Error::from(
-                        reason,
-                    ))));
-                }
-
-                <span class="kw">match </span><span class="macro">ready!</span>(me.stream.poll_trailers(cx)) {
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(trailers)) =&gt; {
+                    } <span class="kw">else if </span>frame.is_trailers() {
+                        <span class="comment">// no more DATA, so give any capacity back
+                        </span>me.body_tx.reserve_capacity(<span class="number">0</span>);
                         me.body_tx
-                            .send_trailers(trailers)
+                            .send_trailers(frame.into_trailers().unwrap_or_else(|<span class="kw">_</span>| <span class="macro">unreachable!</span>()))
                             .map_err(<span class="kw">crate</span>::Error::new_body_write)<span class="question-mark">?</span>;
                         <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(()));
-                    }
-                    <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
-                        <span class="comment">// There were no trailers, so send an empty DATA frame...
-                        </span><span class="kw">return </span>Poll::Ready(me.body_tx.send_eos_frame());
-                    }
-                    <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(me.body_tx.on_user_err(e))),
+                    } <span class="kw">else </span>{
+                        <span class="macro">trace!</span>(<span class="string">"discarding unknown frame"</span>);
+                        <span class="comment">// loop again
+                    </span>}
+                }
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(me.body_tx.on_user_err(e))),
+                <span class="prelude-val">None </span>=&gt; {
+                    <span class="comment">// no more frames means we're done here
+                    // but at this point, we haven't sent an EOS DATA, or
+                    // any trailers, so send an empty EOS DATA.
+                    </span><span class="kw">return </span>Poll::Ready(me.body_tx.send_eos_frame());
                 }
             }
         }
@@ -765,15 +723,15 @@
     buf: Bytes,
 }
 
-<span class="kw">impl</span>&lt;B&gt; AsyncRead <span class="kw">for </span>H2Upgraded&lt;B&gt;
+<span class="kw">impl</span>&lt;B&gt; Read <span class="kw">for </span>H2Upgraded&lt;B&gt;
 <span class="kw">where
     </span>B: Buf,
 {
     <span class="kw">fn </span>poll_read(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-        read_buf: <span class="kw-2">&amp;mut </span>ReadBuf&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+        <span class="kw-2">mut </span>read_buf: ReadBufCursor&lt;<span class="lifetime">'_</span>&gt;,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), std::io::Error&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.buf.is_empty() {
             <span class="self">self</span>.buf = <span class="kw">loop </span>{
                 <span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.recv_stream.poll_data(cx)) {
@@ -789,7 +747,7 @@
                         <span class="kw">return </span>Poll::Ready(<span class="kw">match </span>e.reason() {
                             <span class="prelude-val">Some</span>(Reason::NO_ERROR) | <span class="prelude-val">Some</span>(Reason::CANCEL) =&gt; <span class="prelude-val">Ok</span>(()),
                             <span class="prelude-val">Some</span>(Reason::STREAM_CLOSED) =&gt; {
-                                <span class="prelude-val">Err</span>(io::Error::new(io::ErrorKind::BrokenPipe, e))
+                                <span class="prelude-val">Err</span>(std::io::Error::new(std::io::ErrorKind::BrokenPipe, e))
                             }
                             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(h2_to_io_error(e)),
                         })
@@ -805,7 +763,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;B&gt; AsyncWrite <span class="kw">for </span>H2Upgraded&lt;B&gt;
+<span class="kw">impl</span>&lt;B&gt; Write <span class="kw">for </span>H2Upgraded&lt;B&gt;
 <span class="kw">where
     </span>B: Buf,
 {
@@ -813,7 +771,7 @@
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
         buf: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, std::io::Error&gt;&gt; {
         <span class="kw">if </span>buf.is_empty() {
             <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(<span class="number">0</span>));
         }
@@ -838,7 +796,7 @@
         Poll::Ready(<span class="prelude-val">Err</span>(h2_to_io_error(
             <span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.send_stream.poll_reset(cx)) {
                 <span class="prelude-val">Ok</span>(Reason::NO_ERROR) | <span class="prelude-val">Ok</span>(Reason::CANCEL) | <span class="prelude-val">Ok</span>(Reason::STREAM_CLOSED) =&gt; {
-                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(io::ErrorKind::BrokenPipe.into()))
+                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(std::io::ErrorKind::BrokenPipe.into()))
                 }
                 <span class="prelude-val">Ok</span>(reason) =&gt; reason.into(),
                 <span class="prelude-val">Err</span>(e) =&gt; e,
@@ -846,14 +804,14 @@
         )))
     }
 
-    <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+    <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), std::io::Error&gt;&gt; {
         Poll::Ready(<span class="prelude-val">Ok</span>(()))
     }
 
     <span class="kw">fn </span>poll_shutdown(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), io::Error&gt;&gt; {
+    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;(), std::io::Error&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.send_stream.write(<span class="kw-2">&amp;</span>[], <span class="bool-val">true</span>).is_ok() {
             <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(()));
         }
@@ -862,7 +820,7 @@
             <span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.send_stream.poll_reset(cx)) {
                 <span class="prelude-val">Ok</span>(Reason::NO_ERROR) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(())),
                 <span class="prelude-val">Ok</span>(Reason::CANCEL) | <span class="prelude-val">Ok</span>(Reason::STREAM_CLOSED) =&gt; {
-                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(io::ErrorKind::BrokenPipe.into()))
+                    <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(std::io::ErrorKind::BrokenPipe.into()))
                 }
                 <span class="prelude-val">Ok</span>(reason) =&gt; reason.into(),
                 <span class="prelude-val">Err</span>(e) =&gt; e,
@@ -871,11 +829,11 @@
     }
 }
 
-<span class="kw">fn </span>h2_to_io_error(e: h2::Error) -&gt; io::Error {
+<span class="kw">fn </span>h2_to_io_error(e: h2::Error) -&gt; std::io::Error {
     <span class="kw">if </span>e.is_io() {
         e.into_io().unwrap()
     } <span class="kw">else </span>{
-        io::Error::new(io::ErrorKind::Other, e)
+        std::io::Error::new(std::io::ErrorKind::Other, e)
     }
 }
 
@@ -902,7 +860,7 @@
         <span class="kw">unsafe </span>{ <span class="self">self</span>.as_inner_unchecked().poll_reset(cx) }
     }
 
-    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8], end_of_stream: bool) -&gt; <span class="prelude-ty">Result</span>&lt;(), io::Error&gt; {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8], end_of_stream: bool) -&gt; <span class="prelude-ty">Result</span>&lt;(), std::io::Error&gt; {
         <span class="kw">let </span>send_buf = SendBuf::Cursor(Cursor::new(buf.into()));
         <span class="kw">unsafe </span>{
             <span class="self">self</span>.as_inner_unchecked()

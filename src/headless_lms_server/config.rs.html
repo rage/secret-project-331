@@ -158,6 +158,10 @@
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Functionality for configuring the server
 
 </span><span class="kw">use crate</span>::{
@@ -209,6 +213,10 @@
                 base_url: env::var(<span class="string">"BASE_URL"</span>).context(<span class="string">"BASE_URL must be defined"</span>)<span class="question-mark">?</span>,
                 test_mode: env::var(<span class="string">"TEST_MODE"</span>).is_ok(),
                 development_uuid_login: env::var(<span class="string">"DEVELOPMENT_UUID_LOGIN"</span>).is_ok(),
+                chatbot_azure_api_key: env::var(<span class="string">"CHATBOT_AZURE_API_KEY"</span>).ok(),
+                chatbot_azure_api_endpoint: env::var(<span class="string">"CHATBOT_AZURE_API_ENDPOINT"</span>)
+                    .ok()
+                    .map(|s| Url::parse(<span class="kw-2">&amp;</span>s).expect(<span class="string">"Invalid url in CHATBOT_AZURE_API_ENDPOINT"</span>)),
             },
             redis_url: env::var(<span class="string">"REDIS_URL"</span>).context(<span class="string">"REDIS_URL must be defined"</span>)<span class="question-mark">?</span>,
             jwt_password: env::var(<span class="string">"JWT_PASSWORD"</span>).context(<span class="string">"JWT_PASSWORD must be defined"</span>)<span class="question-mark">?</span>,

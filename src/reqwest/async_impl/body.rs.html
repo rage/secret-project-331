@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.24/src/async_impl/body.rs`."><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.4/src/async_impl/body.rs`."><title>body.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -370,16 +370,120 @@
 <a href="#369" id="369">369</a>
 <a href="#370" id="370">370</a>
 <a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::task::{Context, Poll};
+<span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>bytes::Bytes;
-<span class="kw">use </span>futures_core::Stream;
 <span class="kw">use </span>http_body::Body <span class="kw">as </span>HttpBody;
-<span class="kw">use </span>pin_project_lite::pin_project;
-<span class="kw">use </span>sync_wrapper::SyncWrapper;
+<span class="kw">use </span>http_body_util::combinators::BoxBody;
+<span class="comment">//use sync_wrapper::SyncWrapper;
+</span><span class="kw">use </span>pin_project_lite::pin_project;
 <span class="attr">#[cfg(feature = <span class="string">"stream"</span>)]
 </span><span class="kw">use </span>tokio::fs::File;
 <span class="kw">use </span>tokio::time::Sleep;
@@ -391,31 +495,35 @@
     inner: Inner,
 }
 
-<span class="comment">// The `Stream` trait isn't stable, so the impl isn't public.
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ImplStream(Body);
-
 <span class="kw">enum </span>Inner {
     Reusable(Bytes),
-    Streaming {
-        body: Pin&lt;
-            Box&lt;
-                <span class="kw">dyn </span>HttpBody&lt;Data = Bytes, Error = Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;
-                    + Send
-                    + Sync,
-            &gt;,
-        &gt;,
-        timeout: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;,
-    },
+    Streaming(BoxBody&lt;Bytes, Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;),
 }
 
 <span class="macro">pin_project! </span>{
-    <span class="kw">struct </span>WrapStream&lt;S&gt; {
+    <span class="doccomment">/// A body with a total timeout.
+    ///
+    /// The timeout does not reset upon each chunk, but rather requires the whole
+    /// body be streamed before the deadline is reached.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TotalTimeoutBody&lt;B&gt; {
         <span class="attr">#[pin]
-        </span>inner: SyncWrapper&lt;S&gt;,
+        </span>inner: B,
+        timeout: Pin&lt;Box&lt;Sleep&gt;&gt;,
     }
 }
 
-<span class="kw">struct </span>WrapHyper(hyper::Body);
+<span class="macro">pin_project! </span>{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ReadTimeoutBody&lt;B&gt; {
+        <span class="attr">#[pin]
+        </span>inner: B,
+        <span class="attr">#[pin]
+        </span>sleep: <span class="prelude-ty">Option</span>&lt;Sleep&gt;,
+        timeout: Duration,
+    }
+}
+
+<span class="doccomment">/// Converts any `impl Body` into a `impl Stream` of just its DATA frames.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>DataStream&lt;B&gt;(<span class="kw">pub</span>(<span class="kw">crate</span>) B);
 
 <span class="kw">impl </span>Body {
     <span class="doccomment">/// Returns a reference to the internal data of the `Body`.
@@ -424,7 +532,7 @@
     </span><span class="kw">pub fn </span>as_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
             Inner::Reusable(bytes) =&gt; <span class="prelude-val">Some</span>(bytes.as_ref()),
-            Inner::Streaming { .. } =&gt; <span class="prelude-val">None</span>,
+            Inner::Streaming(..) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
@@ -455,58 +563,71 @@
     #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"stream"</span>)))]
     </span><span class="kw">pub fn </span>wrap_stream&lt;S&gt;(stream: S) -&gt; Body
     <span class="kw">where
-        </span>S: futures_core::stream::TryStream + Send + <span class="lifetime">'static</span>,
+        </span>S: futures_core::stream::TryStream + Send + Sync + <span class="lifetime">'static</span>,
         S::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
         Bytes: From&lt;S::Ok&gt;,
     {
         Body::stream(stream)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>stream&lt;S&gt;(stream: S) -&gt; Body
+    <span class="attr">#[cfg(any(feature = <span class="string">"stream"</span>, feature = <span class="string">"multipart"</span>, feature = <span class="string">"blocking"</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>stream&lt;S&gt;(stream: S) -&gt; Body
     <span class="kw">where
-        </span>S: futures_core::stream::TryStream + Send + <span class="lifetime">'static</span>,
+        </span>S: futures_core::stream::TryStream + Send + Sync + <span class="lifetime">'static</span>,
         S::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
         Bytes: From&lt;S::Ok&gt;,
     {
         <span class="kw">use </span>futures_util::TryStreamExt;
+        <span class="kw">use </span>http_body::Frame;
+        <span class="kw">use </span>http_body_util::StreamBody;
 
-        <span class="kw">let </span>body = Box::pin(WrapStream {
-            inner: SyncWrapper::new(stream.map_ok(Bytes::from).map_err(Into::into)),
-        });
+        <span class="kw">let </span>body = http_body_util::BodyExt::boxed(StreamBody::new(
+            stream
+                .map_ok(|d| Frame::data(Bytes::from(d)))
+                .map_err(Into::into),
+        ));
         Body {
-            inner: Inner::Streaming {
-                body,
-                timeout: <span class="prelude-val">None</span>,
-            },
+            inner: Inner::Streaming(body),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>response(body: hyper::Body, timeout: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;) -&gt; Body {
-        Body {
-            inner: Inner::Streaming {
-                body: Box::pin(WrapHyper(body)),
-                timeout,
-            },
-        }
-    }
-
-    <span class="attr">#[cfg(feature = <span class="string">"blocking"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>wrap(body: hyper::Body) -&gt; Body {
+    <span class="comment">/*
+    #[cfg(feature = "blocking")]
+    pub(crate) fn wrap(body: hyper::Body) -&gt; Body {
         Body {
             inner: Inner::Streaming {
                 body: Box::pin(WrapHyper(body)),
-                timeout: <span class="prelude-val">None</span>,
             },
         }
     }
+    */
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>empty() -&gt; Body {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>empty() -&gt; Body {
         Body::reusable(Bytes::new())
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>reusable(chunk: Bytes) -&gt; Body {
         Body {
             inner: Inner::Reusable(chunk),
+        }
+    }
+
+    <span class="comment">// pub?
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>streaming&lt;B&gt;(inner: B) -&gt; Body
+    <span class="kw">where
+        </span>B: HttpBody + Send + Sync + <span class="lifetime">'static</span>,
+        B::Data: Into&lt;Bytes&gt;,
+        B::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
+    {
+        <span class="kw">use </span>http_body_util::BodyExt;
+
+        <span class="kw">let </span>boxed = inner
+            .map_frame(|f| f.map_data(Into::into))
+            .map_err(Into::into)
+            .boxed();
+
+        Body {
+            inner: Inner::Streaming(boxed),
         }
     }
 
@@ -526,32 +647,41 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_stream(<span class="self">self</span>) -&gt; ImplStream {
-        ImplStream(<span class="self">self</span>)
+    <span class="attr">#[cfg(feature = <span class="string">"multipart"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_stream(<span class="self">self</span>) -&gt; DataStream&lt;Body&gt; {
+        DataStream(<span class="self">self</span>)
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"multipart"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>content_length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="kw">match </span><span class="self">self</span>.inner {
             Inner::Reusable(<span class="kw-2">ref </span>bytes) =&gt; <span class="prelude-val">Some</span>(bytes.len() <span class="kw">as </span>u64),
-            Inner::Streaming { <span class="kw-2">ref </span>body, .. } =&gt; body.size_hint().exact(),
+            Inner::Streaming(<span class="kw-2">ref </span>body) =&gt; body.size_hint().exact(),
         }
     }
 }
 
-<span class="kw">impl </span>From&lt;hyper::Body&gt; <span class="kw">for </span>Body {
+<span class="kw">impl </span>Default <span class="kw">for </span>Body {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>from(body: hyper::Body) -&gt; Body {
-        <span class="self">Self </span>{
+    </span><span class="kw">fn </span>default() -&gt; Body {
+        Body::empty()
+    }
+}
+
+<span class="comment">/*
+impl From&lt;hyper::Body&gt; for Body {
+    #[inline]
+    fn from(body: hyper::Body) -&gt; Body {
+        Self {
             inner: Inner::Streaming {
                 body: Box::pin(WrapHyper(body)),
-                timeout: <span class="prelude-val">None</span>,
             },
         }
     }
 }
+*/
 
-<span class="kw">impl </span>From&lt;Bytes&gt; <span class="kw">for </span>Body {
+</span><span class="kw">impl </span>From&lt;Bytes&gt; <span class="kw">for </span>Body {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>from(bytes: Bytes) -&gt; Body {
         Body::reusable(bytes)
@@ -601,137 +731,198 @@
     }
 }
 
-<span class="comment">// ===== impl ImplStream =====
-
-</span><span class="kw">impl </span>HttpBody <span class="kw">for </span>ImplStream {
+<span class="kw">impl </span>HttpBody <span class="kw">for </span>Body {
     <span class="kw">type </span>Data = Bytes;
     <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        <span class="kw">let </span>opt_try_chunk = <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.inner {
-            Inner::Streaming {
-                <span class="kw-2">ref mut </span>body,
-                <span class="kw-2">ref mut </span>timeout,
-            } =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>timeout) = timeout {
-                    <span class="kw">if let </span>Poll::Ready(()) = timeout.as_mut().poll(cx) {
-                        <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::body(<span class="kw">crate</span>::error::TimedOut))));
-                    }
-                }
-                <span class="macro">futures_core::ready!</span>(Pin::new(body).poll_data(cx))
-                    .map(|opt_chunk| opt_chunk.map(Into::into).map_err(<span class="kw">crate</span>::error::body))
-            }
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;hyper::body::Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">match </span><span class="self">self</span>.inner {
             Inner::Reusable(<span class="kw-2">ref mut </span>bytes) =&gt; {
-                <span class="kw">if </span>bytes.is_empty() {
-                    <span class="prelude-val">None
-                </span>} <span class="kw">else </span>{
-                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(std::mem::replace(bytes, Bytes::new())))
+                <span class="kw">let </span>out = bytes.split_off(<span class="number">0</span>);
+                <span class="kw">if </span>out.is_empty() {
+                    Poll::Ready(<span class="prelude-val">None</span>)
+                } <span class="kw">else </span>{
+                    Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(hyper::body::Frame::data(out))))
                 }
             }
+            Inner::Streaming(<span class="kw-2">ref mut </span>body) =&gt; Poll::Ready(
+                <span class="macro">futures_core::ready!</span>(Pin::new(body).poll_frame(cx))
+                    .map(|opt_chunk| opt_chunk.map_err(<span class="kw">crate</span>::error::body)),
+            ),
+        }
+    }
+
+    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; http_body::SizeHint {
+        <span class="kw">match </span><span class="self">self</span>.inner {
+            Inner::Reusable(<span class="kw-2">ref </span>bytes) =&gt; http_body::SizeHint::with_exact(bytes.len() <span class="kw">as </span>u64),
+            Inner::Streaming(<span class="kw-2">ref </span>body) =&gt; body.size_hint(),
+        }
+    }
+
+    <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.inner {
+            Inner::Reusable(<span class="kw-2">ref </span>bytes) =&gt; bytes.is_empty(),
+            Inner::Streaming(<span class="kw-2">ref </span>body) =&gt; body.is_end_stream(),
+        }
+    }
+}
+
+<span class="comment">// ===== impl TotalTimeoutBody =====
+
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>total_timeout&lt;B&gt;(body: B, timeout: Pin&lt;Box&lt;Sleep&gt;&gt;) -&gt; TotalTimeoutBody&lt;B&gt; {
+    TotalTimeoutBody {
+        inner: body,
+        timeout,
+    }
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>with_read_timeout&lt;B&gt;(body: B, timeout: Duration) -&gt; ReadTimeoutBody&lt;B&gt; {
+    ReadTimeoutBody {
+        inner: body,
+        sleep: <span class="prelude-val">None</span>,
+        timeout,
+    }
+}
+
+<span class="kw">impl</span>&lt;B&gt; hyper::body::Body <span class="kw">for </span>TotalTimeoutBody&lt;B&gt;
+<span class="kw">where
+    </span>B: hyper::body::Body,
+    B::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
+{
+    <span class="kw">type </span>Data = B::Data;
+    <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
+
+    <span class="kw">fn </span>poll_frame(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;hyper::body::Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.project();
+        <span class="kw">if let </span>Poll::Ready(()) = this.timeout.as_mut().poll(cx) {
+            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::body(<span class="kw">crate</span>::error::TimedOut))));
+        }
+        Poll::Ready(
+            <span class="macro">futures_core::ready!</span>(this.inner.poll_frame(cx))
+                .map(|opt_chunk| opt_chunk.map_err(<span class="kw">crate</span>::error::body)),
+        )
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; http_body::SizeHint {
+        <span class="self">self</span>.inner.size_hint()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.is_end_stream()
+    }
+}
+
+<span class="kw">impl</span>&lt;B&gt; hyper::body::Body <span class="kw">for </span>ReadTimeoutBody&lt;B&gt;
+<span class="kw">where
+    </span>B: hyper::body::Body,
+    B::Error: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
+{
+    <span class="kw">type </span>Data = B::Data;
+    <span class="kw">type </span>Error = <span class="kw">crate</span>::Error;
+
+    <span class="kw">fn </span>poll_frame(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context,
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;hyper::body::Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>this = <span class="self">self</span>.project();
+
+        <span class="comment">// Start the `Sleep` if not active.
+        </span><span class="kw">let </span>sleep_pinned = <span class="kw">if let </span><span class="prelude-val">Some</span>(some) = this.sleep.as_mut().as_pin_mut() {
+            some
+        } <span class="kw">else </span>{
+            this.sleep.set(<span class="prelude-val">Some</span>(tokio::time::sleep(<span class="kw-2">*</span>this.timeout)));
+            this.sleep.as_mut().as_pin_mut().unwrap()
         };
 
-        Poll::Ready(opt_try_chunk)
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        _cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;http::HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
-    }
-
-    <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.inner {
-            Inner::Streaming { <span class="kw-2">ref </span>body, .. } =&gt; body.is_end_stream(),
-            Inner::Reusable(<span class="kw-2">ref </span>bytes) =&gt; bytes.is_empty(),
+        <span class="comment">// Error if the timeout has expired.
+        </span><span class="kw">if let </span>Poll::Ready(()) = sleep_pinned.poll(cx) {
+            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::body(<span class="kw">crate</span>::error::TimedOut))));
         }
+
+        <span class="kw">let </span>item = <span class="macro">futures_core::ready!</span>(this.inner.poll_frame(cx))
+            .map(|opt_chunk| opt_chunk.map_err(<span class="kw">crate</span>::error::body));
+        <span class="comment">// a ready frame means timeout is reset
+        </span>this.sleep.set(<span class="prelude-val">None</span>);
+        Poll::Ready(item)
     }
 
-    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; http_body::SizeHint {
-        <span class="kw">match </span><span class="self">self</span>.<span class="number">0</span>.inner {
-            Inner::Streaming { <span class="kw-2">ref </span>body, .. } =&gt; body.size_hint(),
-            Inner::Reusable(<span class="kw-2">ref </span>bytes) =&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>hint = http_body::SizeHint::default();
-                hint.set_exact(bytes.len() <span class="kw">as </span>u64);
-                hint
-            }
-        }
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; http_body::SizeHint {
+        <span class="self">self</span>.inner.size_hint()
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.is_end_stream()
     }
 }
 
-<span class="kw">impl </span>Stream <span class="kw">for </span>ImplStream {
-    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, <span class="kw">crate</span>::Error&gt;;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>ResponseBody =
+    http_body_util::combinators::BoxBody&lt;Bytes, Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;;
 
-    <span class="kw">fn </span>poll_next(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
-        <span class="self">self</span>.poll_data(cx)
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>response(
+    body: hyper::body::Incoming,
+    deadline: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;,
+    read_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+) -&gt; ResponseBody {
+    <span class="kw">use </span>http_body_util::BodyExt;
+
+    <span class="kw">match </span>(deadline, read_timeout) {
+        (<span class="prelude-val">Some</span>(total), <span class="prelude-val">Some</span>(read)) =&gt; {
+            <span class="kw">let </span>body = with_read_timeout(body, read).map_err(box_err);
+            total_timeout(body, total).map_err(box_err).boxed()
+        }
+        (<span class="prelude-val">Some</span>(total), <span class="prelude-val">None</span>) =&gt; total_timeout(body, total).map_err(box_err).boxed(),
+        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(read)) =&gt; with_read_timeout(body, read).map_err(box_err).boxed(),
+        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; body.map_err(box_err).boxed(),
     }
 }
 
-<span class="comment">// ===== impl WrapStream =====
-
-</span><span class="kw">impl</span>&lt;S, D, E&gt; HttpBody <span class="kw">for </span>WrapStream&lt;S&gt;
+<span class="kw">fn </span>box_err&lt;E&gt;(err: E) -&gt; Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;
 <span class="kw">where
-    </span>S: Stream&lt;Item = <span class="prelude-ty">Result</span>&lt;D, E&gt;&gt;,
-    D: Into&lt;Bytes&gt;,
-    E: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
+    </span>E: Into&lt;Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;&gt;,
 {
-    <span class="kw">type </span>Data = Bytes;
-    <span class="kw">type </span>Error = E;
-
-    <span class="kw">fn </span>poll_data(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        <span class="kw">let </span>item = <span class="macro">futures_core::ready!</span>(<span class="self">self</span>.project().inner.get_pin_mut().poll_next(cx)<span class="question-mark">?</span>);
-
-        Poll::Ready(item.map(|val| <span class="prelude-val">Ok</span>(val.into())))
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        _cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;http::HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
-    }
+    err.into()
 }
 
-<span class="comment">// ===== impl WrapHyper =====
+<span class="comment">// ===== impl DataStream =====
 
-</span><span class="kw">impl </span>HttpBody <span class="kw">for </span>WrapHyper {
-    <span class="kw">type </span>Data = Bytes;
-    <span class="kw">type </span>Error = Box&lt;<span class="kw">dyn </span>std::error::Error + Send + Sync&gt;;
+</span><span class="kw">impl</span>&lt;B&gt; futures_core::Stream <span class="kw">for </span>DataStream&lt;B&gt;
+<span class="kw">where
+    </span>B: HttpBody&lt;Data = Bytes&gt; + Unpin,
+{
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;Bytes, B::Error&gt;;
 
-    <span class="kw">fn </span>poll_data(
-        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        <span class="comment">// safe pin projection
-        </span>Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>)
-            .poll_data(cx)
-            .map(|opt| opt.map(|res| res.map_err(Into::into)))
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        _cx: <span class="kw-2">&amp;mut </span>Context,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;http::HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
-    }
-
-    <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.<span class="number">0</span>.is_end_stream()
-    }
-
-    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; http_body::SizeHint {
-        HttpBody::size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>poll_next(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">return match </span><span class="macro">futures_core::ready!</span>(Pin::new(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>).poll_frame(cx)) {
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame)) =&gt; {
+                    <span class="comment">// skip non-data frames
+                    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(buf) = frame.into_data() {
+                        Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(buf)))
+                    } <span class="kw">else </span>{
+                        <span class="kw">continue</span>;
+                    }
+                }
+                <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err))),
+                <span class="prelude-val">None </span>=&gt; Poll::Ready(<span class="prelude-val">None</span>),
+            };
+        }
     }
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>http_body::Body <span class="kw">as _</span>;
+
     <span class="kw">use </span><span class="kw">super</span>::Body;
 
     <span class="attr">#[test]
@@ -739,6 +930,21 @@
         <span class="kw">let </span>test_data = <span class="string">b"Test body"</span>;
         <span class="kw">let </span>body = Body::from(<span class="kw-2">&amp;</span>test_data[..]);
         <span class="macro">assert_eq!</span>(body.as_bytes(), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>test_data[..]));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>body_exact_length() {
+        <span class="kw">let </span>empty_body = Body::empty();
+        <span class="macro">assert!</span>(empty_body.is_end_stream());
+        <span class="macro">assert_eq!</span>(empty_body.size_hint().exact(), <span class="prelude-val">Some</span>(<span class="number">0</span>));
+
+        <span class="kw">let </span>bytes_body = Body::reusable(<span class="string">"abc"</span>.into());
+        <span class="macro">assert!</span>(!bytes_body.is_end_stream());
+        <span class="macro">assert_eq!</span>(bytes_body.size_hint().exact(), <span class="prelude-val">Some</span>(<span class="number">3</span>));
+
+        <span class="kw">let </span>stream_body = Body::streaming(bytes_body);
+        <span class="macro">assert!</span>(!stream_body.is_end_stream());
+        <span class="macro">assert_eq!</span>(stream_body.size_hint().exact(), <span class="prelude-val">None</span>);
     }
 }
 </code></pre></div></section></main></body></html>

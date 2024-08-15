@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.28/src/proto/h1/decode.rs`."><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/proto/h1/decode.rs`."><title>decode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -837,6 +837,14 @@
 <a href="#836" id="836">836</a>
 <a href="#837" id="837">837</a>
 <a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
 <span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::io;
@@ -844,7 +852,7 @@
 <span class="kw">use </span>std::usize;
 
 <span class="kw">use </span>bytes::Bytes;
-<span class="kw">use </span>tracing::{debug, trace};
+<span class="kw">use </span>futures_util::ready;
 
 <span class="kw">use </span><span class="kw">super</span>::io::MemRead;
 <span class="kw">use </span><span class="kw">super</span>::DecodedLength;
@@ -1338,9 +1346,9 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::rt::{Read, ReadBuf};
     <span class="kw">use </span>std::pin::Pin;
     <span class="kw">use </span>std::time::Duration;
-    <span class="kw">use </span>tokio::io::{AsyncRead, ReadBuf};
 
     <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MemRead <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         <span class="kw">fn </span>read_mem(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;, len: usize) -&gt; Poll&lt;io::Result&lt;Bytes&gt;&gt; {
@@ -1356,11 +1364,11 @@
         }
     }
 
-    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MemRead <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>AsyncRead + Unpin) {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; MemRead <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>(<span class="kw">dyn </span>Read + Unpin) {
         <span class="kw">fn </span>read_mem(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;, len: usize) -&gt; Poll&lt;io::Result&lt;Bytes&gt;&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>v = <span class="macro">vec!</span>[<span class="number">0</span>; len];
             <span class="kw">let </span><span class="kw-2">mut </span>buf = ReadBuf::new(<span class="kw-2">&amp;mut </span>v);
-            <span class="macro">ready!</span>(Pin::new(<span class="self">self</span>).poll_read(cx, <span class="kw-2">&amp;mut </span>buf)<span class="question-mark">?</span>);
+            <span class="macro">ready!</span>(Pin::new(<span class="self">self</span>).poll_read(cx, buf.unfilled())<span class="question-mark">?</span>);
             Poll::Ready(<span class="prelude-val">Ok</span>(Bytes::copy_from_slice(<span class="kw-2">&amp;</span>buf.filled())))
         }
     }
@@ -1383,7 +1391,8 @@
     use crate::mock::AsyncIo;
     */
 
-    </span><span class="attr">#[tokio::test]
+    </span><span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_chunk_size() {
         <span class="kw">use </span>std::io::ErrorKind::{InvalidData, InvalidInput, UnexpectedEof};
 
@@ -1472,7 +1481,8 @@
         </span>read_err(<span class="string">"f0000000000000003\r\n"</span>, InvalidData).<span class="kw">await</span>;
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_sized_early_eof() {
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="kw-2">&amp;</span><span class="string">b"foo bar"</span>[..];
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = Decoder::length(<span class="number">10</span>);
@@ -1481,7 +1491,8 @@
         <span class="macro">assert_eq!</span>(e.kind(), io::ErrorKind::UnexpectedEof);
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_chunked_early_eof() {
         <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="kw-2">&amp;</span><span class="string">b"\
             9\r\n\
@@ -1493,7 +1504,8 @@
         <span class="macro">assert_eq!</span>(e.kind(), io::ErrorKind::UnexpectedEof);
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_chunked_single_read() {
         <span class="kw">let </span><span class="kw-2">mut </span>mock_buf = <span class="kw-2">&amp;</span><span class="string">b"10\r\n1234567890abcdef\r\n0\r\n"</span>[..];
         <span class="kw">let </span>buf = Decoder::chunked()
@@ -1541,7 +1553,8 @@
         <span class="macro">assert_eq!</span>(e.kind(), io::ErrorKind::InvalidInput);
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_chunked_after_eof() {
         <span class="kw">let </span><span class="kw-2">mut </span>mock_buf = <span class="kw-2">&amp;</span><span class="string">b"10\r\n1234567890abcdef\r\n0\r\n\r\n"</span>[..];
         <span class="kw">let </span><span class="kw-2">mut </span>decoder = Decoder::chunked();
@@ -1566,7 +1579,7 @@
     </span><span class="kw">async fn </span>read_async(<span class="kw-2">mut </span>decoder: Decoder, content: <span class="kw-2">&amp;</span>[u8], block_at: usize) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>outs = Vec::new();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ins = <span class="kw">if </span>block_at == <span class="number">0 </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>ins = <span class="kw">crate</span>::common::io::Compat::new(<span class="kw">if </span>block_at == <span class="number">0 </span>{
             tokio_test::io::Builder::new()
                 .wait(Duration::from_millis(<span class="number">10</span>))
                 .read(content)
@@ -1577,9 +1590,9 @@
                 .wait(Duration::from_millis(<span class="number">10</span>))
                 .read(<span class="kw-2">&amp;</span>content[block_at..])
                 .build()
-        };
+        });
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ins = <span class="kw-2">&amp;mut </span>ins <span class="kw">as </span><span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>AsyncRead + Unpin);
+        <span class="kw">let </span><span class="kw-2">mut </span>ins = <span class="kw-2">&amp;mut </span>ins <span class="kw">as </span><span class="kw-2">&amp;mut </span>(<span class="kw">dyn </span>Read + Unpin);
 
         <span class="kw">loop </span>{
             <span class="kw">let </span>buf = decoder
@@ -1605,26 +1618,29 @@
         </span>}
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_length_async() {
         <span class="kw">let </span>content = <span class="string">"foobar"</span>;
         all_async_cases(content, content, Decoder::length(content.len() <span class="kw">as </span>u64)).<span class="kw">await</span>;
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_chunked_async() {
         <span class="kw">let </span>content = <span class="string">"3\r\nfoo\r\n3\r\nbar\r\n0\r\n\r\n"</span>;
         <span class="kw">let </span>expected = <span class="string">"foobar"</span>;
         all_async_cases(content, expected, Decoder::chunked()).<span class="kw">await</span>;
     }
 
-    <span class="attr">#[tokio::test]
+    <span class="attr">#[cfg(not(miri))]
+    #[tokio::test]
     </span><span class="kw">async fn </span>test_read_eof_async() {
         <span class="kw">let </span>content = <span class="string">"foobar"</span>;
         all_async_cases(content, content, Decoder::eof()).<span class="kw">await</span>;
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"nightly"</span>)]
+    <span class="attr">#[cfg(all(feature = <span class="string">"nightly"</span>, not(miri)))]
     #[bench]
     </span><span class="kw">fn </span>bench_decode_chunked_1kb(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
         <span class="kw">let </span>rt = new_runtime();
@@ -1648,7 +1664,7 @@
         });
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"nightly"</span>)]
+    <span class="attr">#[cfg(all(feature = <span class="string">"nightly"</span>, not(miri)))]
     #[bench]
     </span><span class="kw">fn </span>bench_decode_length_1kb(b: <span class="kw-2">&amp;mut </span>test::Bencher) {
         <span class="kw">let </span>rt = new_runtime();

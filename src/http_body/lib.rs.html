@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/http-body-0.4.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="http_body" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/http-body-1.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="http_body" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -213,133 +213,13 @@
 <a href="#212" id="212">212</a>
 <a href="#213" id="213">213</a>
 <a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
-<a href="#252" id="252">252</a>
-<a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
-<a href="#261" id="261">261</a>
-<a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
-<a href="#272" id="272">272</a>
-<a href="#273" id="273">273</a>
-<a href="#274" id="274">274</a>
-<a href="#275" id="275">275</a>
-<a href="#276" id="276">276</a>
-<a href="#277" id="277">277</a>
-<a href="#278" id="278">278</a>
-<a href="#279" id="279">279</a>
-<a href="#280" id="280">280</a>
-<a href="#281" id="281">281</a>
-<a href="#282" id="282">282</a>
-<a href="#283" id="283">283</a>
-<a href="#284" id="284">284</a>
-<a href="#285" id="285">285</a>
-<a href="#286" id="286">286</a>
-<a href="#287" id="287">287</a>
-<a href="#288" id="288">288</a>
-<a href="#289" id="289">289</a>
-<a href="#290" id="290">290</a>
-<a href="#291" id="291">291</a>
-<a href="#292" id="292">292</a>
-<a href="#293" id="293">293</a>
-<a href="#294" id="294">294</a>
-<a href="#295" id="295">295</a>
-<a href="#296" id="296">296</a>
-<a href="#297" id="297">297</a>
-<a href="#298" id="298">298</a>
-<a href="#299" id="299">299</a>
-<a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/http-body/0.4.6"</span>)]
-#![deny(
+</pre></div><pre class="rust"><code><span class="attr">#![deny(
     missing_debug_implementations,
     missing_docs,
     unreachable_pub,
-    broken_intra_doc_links
+    rustdoc::broken_intra_doc_links,
+    clippy::missing_safety_doc,
+    clippy::undocumented_unsafe_blocks
 )]
 #![cfg_attr(test, deny(warnings))]
 
@@ -349,25 +229,13 @@
 //!
 //! [`Body`]: trait.Body.html
 
-</span><span class="kw">mod </span>collect;
-<span class="kw">mod </span>empty;
-<span class="kw">mod </span>full;
-<span class="kw">mod </span>limited;
-<span class="kw">mod </span>next;
+</span><span class="kw">mod </span>frame;
 <span class="kw">mod </span>size_hint;
 
-<span class="kw">pub mod </span>combinators;
-
-<span class="kw">pub use </span><span class="self">self</span>::collect::Collected;
-<span class="kw">pub use </span><span class="self">self</span>::empty::Empty;
-<span class="kw">pub use </span><span class="self">self</span>::full::Full;
-<span class="kw">pub use </span><span class="self">self</span>::limited::{LengthLimitError, Limited};
-<span class="kw">pub use </span><span class="self">self</span>::next::{Data, Trailers};
+<span class="kw">pub use </span><span class="self">self</span>::frame::Frame;
 <span class="kw">pub use </span><span class="self">self</span>::size_hint::SizeHint;
 
-<span class="kw">use </span><span class="self">self</span>::combinators::{BoxBody, MapData, MapErr, UnsyncBoxBody};
 <span class="kw">use </span>bytes::{Buf, Bytes};
-<span class="kw">use </span>http::HeaderMap;
 <span class="kw">use </span>std::convert::Infallible;
 <span class="kw">use </span>std::ops;
 <span class="kw">use </span>std::pin::Pin;
@@ -375,12 +243,14 @@
 
 <span class="doccomment">/// Trait representing a streaming body of a Request or Response.
 ///
-/// Data is streamed via the `poll_data` function, which asynchronously yields `T: Buf` values. The
-/// `size_hint` function provides insight into the total number of bytes that will be streamed.
+/// Individual frames are streamed via the `poll_frame` function, which asynchronously yields
+/// instances of [`Frame&lt;Data&gt;`].
 ///
-/// The `poll_trailers` function returns an optional set of trailers used to finalize the request /
-/// response exchange. This is mostly used when using the HTTP/2.0 protocol.
+/// Frames can contain a data buffer of type `Self::Data`. Frames can also contain an optional
+/// set of trailers used to finalize the request/response exchange. This is mostly used when using
+/// the HTTP/2.0 protocol.
 ///
+/// The `size_hint` function provides insight into the total number of bytes that will be streamed.
 </span><span class="kw">pub trait </span>Body {
     <span class="doccomment">/// Values yielded by the `Body`.
     </span><span class="kw">type </span>Data: Buf;
@@ -388,27 +258,19 @@
     <span class="doccomment">/// The error type this `Body` might generate.
     </span><span class="kw">type </span>Error;
 
-    <span class="doccomment">/// Attempt to pull out the next data buffer of this stream.
-    </span><span class="kw">fn </span>poll_data(
+    <span class="attr">#[allow(clippy::type_complexity)]
+    </span><span class="doccomment">/// Attempt to pull out the next data buffer of this stream.
+    </span><span class="kw">fn </span>poll_frame(
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt;;
-
-    <span class="doccomment">/// Poll for an optional **single** `HeaderMap` of trailers.
-    ///
-    /// This function should only be called once `poll_data` returns `None`.
-    </span><span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt;;
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt;;
 
     <span class="doccomment">/// Returns `true` when the end of stream has been reached.
     ///
-    /// An end of stream means that both `poll_data` and `poll_trailers` will
-    /// return `None`.
+    /// An end of stream means that `poll_frame` will return `None`.
     ///
     /// A return value of `false` **does not** guarantee that a value will be
-    /// returned from `poll_stream` or `poll_trailers`.
+    /// returned from `poll_frame`.
     </span><span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="bool-val">false
     </span>}
@@ -420,84 +282,17 @@
     </span><span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SizeHint {
         SizeHint::default()
     }
-
-    <span class="doccomment">/// Returns future that resolves to next data chunk, if any.
-    </span><span class="kw">fn </span>data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Data&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Unpin + Sized,
-    {
-        Data(<span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Returns future that resolves to trailers, if any.
-    </span><span class="kw">fn </span>trailers(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Trailers&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Unpin + Sized,
-    {
-        Trailers(<span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Maps this body's data value to a different value.
-    </span><span class="kw">fn </span>map_data&lt;F, B&gt;(<span class="self">self</span>, f: F) -&gt; MapData&lt;<span class="self">Self</span>, F&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-        F: FnMut(<span class="self">Self</span>::Data) -&gt; B,
-        B: Buf,
-    {
-        MapData::new(<span class="self">self</span>, f)
-    }
-
-    <span class="doccomment">/// Maps this body's error value to a different value.
-    </span><span class="kw">fn </span>map_err&lt;F, E&gt;(<span class="self">self</span>, f: F) -&gt; MapErr&lt;<span class="self">Self</span>, F&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-        F: FnMut(<span class="self">Self</span>::Error) -&gt; E,
-    {
-        MapErr::new(<span class="self">self</span>, f)
-    }
-
-    <span class="doccomment">/// Turn this body into [`Collected`] body which will collect all the DATA frames
-    /// and trailers.
-    </span><span class="kw">fn </span>collect(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::collect::Collect&lt;<span class="self">Self</span>&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-    {
-        collect::Collect::new(<span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Turn this body into a boxed trait object.
-    </span><span class="kw">fn </span>boxed(<span class="self">self</span>) -&gt; BoxBody&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Sized + Send + Sync + <span class="lifetime">'static</span>,
-    {
-        BoxBody::new(<span class="self">self</span>)
-    }
-
-    <span class="doccomment">/// Turn this body into a boxed trait object that is !Sync.
-    </span><span class="kw">fn </span>boxed_unsync(<span class="self">self</span>) -&gt; UnsyncBoxBody&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Sized + Send + <span class="lifetime">'static</span>,
-    {
-        UnsyncBoxBody::new(<span class="self">self</span>)
-    }
 }
 
 <span class="kw">impl</span>&lt;T: Body + Unpin + <span class="question-mark">?</span>Sized&gt; Body <span class="kw">for </span><span class="kw-2">&amp;mut </span>T {
     <span class="kw">type </span>Data = T::Data;
     <span class="kw">type </span>Error = T::Error;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>).poll_data(cx)
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>).poll_trailers(cx)
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>).poll_frame(cx)
     }
 
     <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -517,18 +312,11 @@
     <span class="kw">type </span>Data = &lt;&lt;P <span class="kw">as </span>ops::Deref&gt;::Target <span class="kw">as </span>Body&gt;::Data;
     <span class="kw">type </span>Error = &lt;&lt;P <span class="kw">as </span>ops::Deref&gt;::Target <span class="kw">as </span>Body&gt;::Error;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        Pin::get_mut(<span class="self">self</span>).as_mut().poll_data(cx)
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Pin::get_mut(<span class="self">self</span>).as_mut().poll_trailers(cx)
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        Pin::get_mut(<span class="self">self</span>).as_mut().poll_frame(cx)
     }
 
     <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -544,18 +332,11 @@
     <span class="kw">type </span>Data = T::Data;
     <span class="kw">type </span>Error = T::Error;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>).poll_data(cx)
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>).poll_trailers(cx)
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        Pin::new(<span class="kw-2">&amp;mut **</span><span class="self">self</span>).poll_frame(cx)
     }
 
     <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -571,23 +352,15 @@
     <span class="kw">type </span>Data = B::Data;
     <span class="kw">type </span>Error = B::Error;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        <span class="kw">unsafe </span>{
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="comment">// SAFETY:
+        // A pin projection.
+        </span><span class="kw">unsafe </span>{
             <span class="self">self</span>.map_unchecked_mut(http::Request::body_mut)
-                .poll_data(cx)
-        }
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        <span class="kw">unsafe </span>{
-            <span class="self">self</span>.map_unchecked_mut(http::Request::body_mut)
-                .poll_trailers(cx)
+                .poll_frame(cx)
         }
     }
 
@@ -604,23 +377,15 @@
     <span class="kw">type </span>Data = B::Data;
     <span class="kw">type </span>Error = B::Error;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
-        <span class="kw">unsafe </span>{
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+        <span class="comment">// SAFETY:
+        // A pin projection.
+        </span><span class="kw">unsafe </span>{
             <span class="self">self</span>.map_unchecked_mut(http::Response::body_mut)
-                .poll_data(cx)
-        }
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        <span class="kw">unsafe </span>{
-            <span class="self">self</span>.map_unchecked_mut(http::Response::body_mut)
-                .poll_trailers(cx)
+                .poll_frame(cx)
         }
     }
 
@@ -637,23 +402,16 @@
     <span class="kw">type </span>Data = Bytes;
     <span class="kw">type </span>Error = Infallible;
 
-    <span class="kw">fn </span>poll_data(
+    <span class="kw">fn </span>poll_frame(
         <span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
         _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Data, <span class="self">Self</span>::Error&gt;&gt;&gt; {
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;<span class="prelude-ty">Result</span>&lt;Frame&lt;<span class="self">Self</span>::Data&gt;, <span class="self">Self</span>::Error&gt;&gt;&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.is_empty() {
             <span class="kw">let </span>s = std::mem::take(<span class="kw-2">&amp;mut *</span><span class="self">self</span>);
-            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(s.into_bytes().into())))
+            Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(Frame::data(s.into_bytes().into()))))
         } <span class="kw">else </span>{
             Poll::Ready(<span class="prelude-val">None</span>)
         }
-    }
-
-    <span class="kw">fn </span>poll_trailers(
-        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
-        _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;HeaderMap&gt;, <span class="self">Self</span>::Error&gt;&gt; {
-        Poll::Ready(<span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>))
     }
 
     <span class="kw">fn </span>is_end_stream(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {

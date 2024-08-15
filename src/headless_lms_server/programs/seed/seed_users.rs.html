@@ -224,14 +224,14 @@
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="attr">#[derive(Clone)]
+<span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">pub struct </span>SeedUsersResult {
     <span class="kw">pub </span>admin_user_id: Uuid,
     <span class="kw">pub </span>teacher_user_id: Uuid,
     <span class="kw">pub </span>language_teacher_user_id: Uuid,
     <span class="kw">pub </span>assistant_user_id: Uuid,
     <span class="kw">pub </span>course_or_exam_creator_user_id: Uuid,
-    <span class="kw">pub </span>example_normal_user_ids: Vec&lt;Uuid&gt;,
+    <span class="kw">pub </span>example_normal_user_ids: [Uuid; <span class="number">4</span>],
     <span class="kw">pub </span>teaching_and_learning_services_user_id: Uuid,
     <span class="kw">pub </span>student_without_research_consent: Uuid,
     <span class="kw">pub </span>material_viewer_user_id: Uuid,
@@ -387,7 +387,7 @@
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 
-    <span class="kw">let </span>example_normal_user_ids = <span class="macro">vec!</span>[
+    <span class="kw">let </span>example_normal_user_ids: [Uuid; <span class="number">4</span>] = [
         users::insert(
             <span class="kw-2">&amp;mut </span>conn,
             PKeyPolicy::Fixed(Uuid::parse_str(<span class="string">"00e249d8-345f-4eff-aedb-7bdc4c44c1d5"</span>)<span class="question-mark">?</span>),

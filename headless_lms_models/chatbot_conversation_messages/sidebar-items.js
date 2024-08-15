@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["delete","get_by_conversation_id","insert","update"],"struct":["ChatbotConversationMessage"]};

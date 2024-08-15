@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.11.24/src/async_impl/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.4/src/async_impl/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -2532,6 +2532,247 @@
 <a href="#2531" id="2531">2531</a>
 <a href="#2532" id="2532">2532</a>
 <a href="#2533" id="2533">2533</a>
+<a href="#2534" id="2534">2534</a>
+<a href="#2535" id="2535">2535</a>
+<a href="#2536" id="2536">2536</a>
+<a href="#2537" id="2537">2537</a>
+<a href="#2538" id="2538">2538</a>
+<a href="#2539" id="2539">2539</a>
+<a href="#2540" id="2540">2540</a>
+<a href="#2541" id="2541">2541</a>
+<a href="#2542" id="2542">2542</a>
+<a href="#2543" id="2543">2543</a>
+<a href="#2544" id="2544">2544</a>
+<a href="#2545" id="2545">2545</a>
+<a href="#2546" id="2546">2546</a>
+<a href="#2547" id="2547">2547</a>
+<a href="#2548" id="2548">2548</a>
+<a href="#2549" id="2549">2549</a>
+<a href="#2550" id="2550">2550</a>
+<a href="#2551" id="2551">2551</a>
+<a href="#2552" id="2552">2552</a>
+<a href="#2553" id="2553">2553</a>
+<a href="#2554" id="2554">2554</a>
+<a href="#2555" id="2555">2555</a>
+<a href="#2556" id="2556">2556</a>
+<a href="#2557" id="2557">2557</a>
+<a href="#2558" id="2558">2558</a>
+<a href="#2559" id="2559">2559</a>
+<a href="#2560" id="2560">2560</a>
+<a href="#2561" id="2561">2561</a>
+<a href="#2562" id="2562">2562</a>
+<a href="#2563" id="2563">2563</a>
+<a href="#2564" id="2564">2564</a>
+<a href="#2565" id="2565">2565</a>
+<a href="#2566" id="2566">2566</a>
+<a href="#2567" id="2567">2567</a>
+<a href="#2568" id="2568">2568</a>
+<a href="#2569" id="2569">2569</a>
+<a href="#2570" id="2570">2570</a>
+<a href="#2571" id="2571">2571</a>
+<a href="#2572" id="2572">2572</a>
+<a href="#2573" id="2573">2573</a>
+<a href="#2574" id="2574">2574</a>
+<a href="#2575" id="2575">2575</a>
+<a href="#2576" id="2576">2576</a>
+<a href="#2577" id="2577">2577</a>
+<a href="#2578" id="2578">2578</a>
+<a href="#2579" id="2579">2579</a>
+<a href="#2580" id="2580">2580</a>
+<a href="#2581" id="2581">2581</a>
+<a href="#2582" id="2582">2582</a>
+<a href="#2583" id="2583">2583</a>
+<a href="#2584" id="2584">2584</a>
+<a href="#2585" id="2585">2585</a>
+<a href="#2586" id="2586">2586</a>
+<a href="#2587" id="2587">2587</a>
+<a href="#2588" id="2588">2588</a>
+<a href="#2589" id="2589">2589</a>
+<a href="#2590" id="2590">2590</a>
+<a href="#2591" id="2591">2591</a>
+<a href="#2592" id="2592">2592</a>
+<a href="#2593" id="2593">2593</a>
+<a href="#2594" id="2594">2594</a>
+<a href="#2595" id="2595">2595</a>
+<a href="#2596" id="2596">2596</a>
+<a href="#2597" id="2597">2597</a>
+<a href="#2598" id="2598">2598</a>
+<a href="#2599" id="2599">2599</a>
+<a href="#2600" id="2600">2600</a>
+<a href="#2601" id="2601">2601</a>
+<a href="#2602" id="2602">2602</a>
+<a href="#2603" id="2603">2603</a>
+<a href="#2604" id="2604">2604</a>
+<a href="#2605" id="2605">2605</a>
+<a href="#2606" id="2606">2606</a>
+<a href="#2607" id="2607">2607</a>
+<a href="#2608" id="2608">2608</a>
+<a href="#2609" id="2609">2609</a>
+<a href="#2610" id="2610">2610</a>
+<a href="#2611" id="2611">2611</a>
+<a href="#2612" id="2612">2612</a>
+<a href="#2613" id="2613">2613</a>
+<a href="#2614" id="2614">2614</a>
+<a href="#2615" id="2615">2615</a>
+<a href="#2616" id="2616">2616</a>
+<a href="#2617" id="2617">2617</a>
+<a href="#2618" id="2618">2618</a>
+<a href="#2619" id="2619">2619</a>
+<a href="#2620" id="2620">2620</a>
+<a href="#2621" id="2621">2621</a>
+<a href="#2622" id="2622">2622</a>
+<a href="#2623" id="2623">2623</a>
+<a href="#2624" id="2624">2624</a>
+<a href="#2625" id="2625">2625</a>
+<a href="#2626" id="2626">2626</a>
+<a href="#2627" id="2627">2627</a>
+<a href="#2628" id="2628">2628</a>
+<a href="#2629" id="2629">2629</a>
+<a href="#2630" id="2630">2630</a>
+<a href="#2631" id="2631">2631</a>
+<a href="#2632" id="2632">2632</a>
+<a href="#2633" id="2633">2633</a>
+<a href="#2634" id="2634">2634</a>
+<a href="#2635" id="2635">2635</a>
+<a href="#2636" id="2636">2636</a>
+<a href="#2637" id="2637">2637</a>
+<a href="#2638" id="2638">2638</a>
+<a href="#2639" id="2639">2639</a>
+<a href="#2640" id="2640">2640</a>
+<a href="#2641" id="2641">2641</a>
+<a href="#2642" id="2642">2642</a>
+<a href="#2643" id="2643">2643</a>
+<a href="#2644" id="2644">2644</a>
+<a href="#2645" id="2645">2645</a>
+<a href="#2646" id="2646">2646</a>
+<a href="#2647" id="2647">2647</a>
+<a href="#2648" id="2648">2648</a>
+<a href="#2649" id="2649">2649</a>
+<a href="#2650" id="2650">2650</a>
+<a href="#2651" id="2651">2651</a>
+<a href="#2652" id="2652">2652</a>
+<a href="#2653" id="2653">2653</a>
+<a href="#2654" id="2654">2654</a>
+<a href="#2655" id="2655">2655</a>
+<a href="#2656" id="2656">2656</a>
+<a href="#2657" id="2657">2657</a>
+<a href="#2658" id="2658">2658</a>
+<a href="#2659" id="2659">2659</a>
+<a href="#2660" id="2660">2660</a>
+<a href="#2661" id="2661">2661</a>
+<a href="#2662" id="2662">2662</a>
+<a href="#2663" id="2663">2663</a>
+<a href="#2664" id="2664">2664</a>
+<a href="#2665" id="2665">2665</a>
+<a href="#2666" id="2666">2666</a>
+<a href="#2667" id="2667">2667</a>
+<a href="#2668" id="2668">2668</a>
+<a href="#2669" id="2669">2669</a>
+<a href="#2670" id="2670">2670</a>
+<a href="#2671" id="2671">2671</a>
+<a href="#2672" id="2672">2672</a>
+<a href="#2673" id="2673">2673</a>
+<a href="#2674" id="2674">2674</a>
+<a href="#2675" id="2675">2675</a>
+<a href="#2676" id="2676">2676</a>
+<a href="#2677" id="2677">2677</a>
+<a href="#2678" id="2678">2678</a>
+<a href="#2679" id="2679">2679</a>
+<a href="#2680" id="2680">2680</a>
+<a href="#2681" id="2681">2681</a>
+<a href="#2682" id="2682">2682</a>
+<a href="#2683" id="2683">2683</a>
+<a href="#2684" id="2684">2684</a>
+<a href="#2685" id="2685">2685</a>
+<a href="#2686" id="2686">2686</a>
+<a href="#2687" id="2687">2687</a>
+<a href="#2688" id="2688">2688</a>
+<a href="#2689" id="2689">2689</a>
+<a href="#2690" id="2690">2690</a>
+<a href="#2691" id="2691">2691</a>
+<a href="#2692" id="2692">2692</a>
+<a href="#2693" id="2693">2693</a>
+<a href="#2694" id="2694">2694</a>
+<a href="#2695" id="2695">2695</a>
+<a href="#2696" id="2696">2696</a>
+<a href="#2697" id="2697">2697</a>
+<a href="#2698" id="2698">2698</a>
+<a href="#2699" id="2699">2699</a>
+<a href="#2700" id="2700">2700</a>
+<a href="#2701" id="2701">2701</a>
+<a href="#2702" id="2702">2702</a>
+<a href="#2703" id="2703">2703</a>
+<a href="#2704" id="2704">2704</a>
+<a href="#2705" id="2705">2705</a>
+<a href="#2706" id="2706">2706</a>
+<a href="#2707" id="2707">2707</a>
+<a href="#2708" id="2708">2708</a>
+<a href="#2709" id="2709">2709</a>
+<a href="#2710" id="2710">2710</a>
+<a href="#2711" id="2711">2711</a>
+<a href="#2712" id="2712">2712</a>
+<a href="#2713" id="2713">2713</a>
+<a href="#2714" id="2714">2714</a>
+<a href="#2715" id="2715">2715</a>
+<a href="#2716" id="2716">2716</a>
+<a href="#2717" id="2717">2717</a>
+<a href="#2718" id="2718">2718</a>
+<a href="#2719" id="2719">2719</a>
+<a href="#2720" id="2720">2720</a>
+<a href="#2721" id="2721">2721</a>
+<a href="#2722" id="2722">2722</a>
+<a href="#2723" id="2723">2723</a>
+<a href="#2724" id="2724">2724</a>
+<a href="#2725" id="2725">2725</a>
+<a href="#2726" id="2726">2726</a>
+<a href="#2727" id="2727">2727</a>
+<a href="#2728" id="2728">2728</a>
+<a href="#2729" id="2729">2729</a>
+<a href="#2730" id="2730">2730</a>
+<a href="#2731" id="2731">2731</a>
+<a href="#2732" id="2732">2732</a>
+<a href="#2733" id="2733">2733</a>
+<a href="#2734" id="2734">2734</a>
+<a href="#2735" id="2735">2735</a>
+<a href="#2736" id="2736">2736</a>
+<a href="#2737" id="2737">2737</a>
+<a href="#2738" id="2738">2738</a>
+<a href="#2739" id="2739">2739</a>
+<a href="#2740" id="2740">2740</a>
+<a href="#2741" id="2741">2741</a>
+<a href="#2742" id="2742">2742</a>
+<a href="#2743" id="2743">2743</a>
+<a href="#2744" id="2744">2744</a>
+<a href="#2745" id="2745">2745</a>
+<a href="#2746" id="2746">2746</a>
+<a href="#2747" id="2747">2747</a>
+<a href="#2748" id="2748">2748</a>
+<a href="#2749" id="2749">2749</a>
+<a href="#2750" id="2750">2750</a>
+<a href="#2751" id="2751">2751</a>
+<a href="#2752" id="2752">2752</a>
+<a href="#2753" id="2753">2753</a>
+<a href="#2754" id="2754">2754</a>
+<a href="#2755" id="2755">2755</a>
+<a href="#2756" id="2756">2756</a>
+<a href="#2757" id="2757">2757</a>
+<a href="#2758" id="2758">2758</a>
+<a href="#2759" id="2759">2759</a>
+<a href="#2760" id="2760">2760</a>
+<a href="#2761" id="2761">2761</a>
+<a href="#2762" id="2762">2762</a>
+<a href="#2763" id="2763">2763</a>
+<a href="#2764" id="2764">2764</a>
+<a href="#2765" id="2765">2765</a>
+<a href="#2766" id="2766">2766</a>
+<a href="#2767" id="2767">2767</a>
+<a href="#2768" id="2768">2768</a>
+<a href="#2769" id="2769">2769</a>
+<a href="#2770" id="2770">2770</a>
+<a href="#2771" id="2771">2771</a>
+<a href="#2772" id="2772">2772</a>
+<a href="#2773" id="2773">2773</a>
+<a href="#2774" id="2774">2774</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>,))]
 </span><span class="kw">use </span>std::any::Any;
 <span class="kw">use </span>std::net::IpAddr;
@@ -2547,8 +2788,8 @@
 };
 <span class="kw">use </span>http::uri::Scheme;
 <span class="kw">use </span>http::Uri;
-<span class="kw">use </span>hyper::client::{HttpConnector, ResponseFuture <span class="kw">as </span>HyperResponseFuture};
-<span class="attr">#[cfg(feature = <span class="string">"native-tls-crate"</span>)]
+<span class="kw">use </span>hyper_util::client::legacy::connect::HttpConnector;
+<span class="attr">#[cfg(feature = <span class="string">"default-tls"</span>)]
 </span><span class="kw">use </span>native_tls_crate::TlsConnector;
 <span class="kw">use </span>pin_project_lite::pin_project;
 <span class="kw">use </span>std::future::Future;
@@ -2567,8 +2808,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::connect::Connector;
 <span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::cookie;
-<span class="attr">#[cfg(feature = <span class="string">"trust-dns"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::dns::trust_dns::TrustDnsResolver;
+<span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::dns::hickory::HickoryDnsResolver;
 <span class="kw">use </span><span class="kw">crate</span>::dns::{gai::GaiResolver, DnsResolverWithOverrides, DynResolver, Resolve};
 <span class="kw">use </span><span class="kw">crate</span>::error;
 <span class="kw">use </span><span class="kw">crate</span>::into_url::try_uri;
@@ -2580,11 +2821,13 @@
 <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::Identity;
 <span class="kw">use crate</span>::{IntoUrl, Method, Proxy, StatusCode, Url};
-<span class="kw">use </span>log::{debug, trace};
+<span class="kw">use </span>log::debug;
 <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
 </span><span class="kw">use </span>quinn::TransportConfig;
 <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
 </span><span class="kw">use </span>quinn::VarInt;
+
+<span class="kw">type </span>HyperResponseFuture = hyper_util::client::legacy::ResponseFuture;
 
 <span class="doccomment">/// An asynchronous `Client` to make Requests with.
 ///
@@ -2612,7 +2855,8 @@
 
 <span class="kw">enum </span>HttpVersionPref {
     Http1,
-    Http2,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>Http2,
     <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     </span>Http3,
     All,
@@ -2639,11 +2883,16 @@
     auto_sys_proxy: bool,
     redirect_policy: redirect::Policy,
     referer: bool,
+    read_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
     </span>root_certs: Vec&lt;Certificate&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
     </span>tls_built_in_root_certs: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+    </span>tls_built_in_certs_webpki: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+    </span>tls_built_in_certs_native: bool,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
     </span>min_tls_version: <span class="prelude-ty">Option</span>&lt;tls::Version&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
@@ -2658,18 +2907,27 @@
     http1_allow_obsolete_multiline_headers_in_responses: bool,
     http1_ignore_invalid_headers_in_responses: bool,
     http1_allow_spaces_after_header_name_in_responses: bool,
-    http2_initial_stream_window_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
-    http2_initial_connection_window_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
-    http2_adaptive_window: bool,
-    http2_max_frame_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
-    http2_keep_alive_interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
-    http2_keep_alive_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
-    http2_keep_alive_while_idle: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_initial_stream_window_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_initial_connection_window_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_adaptive_window: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_max_frame_size: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_keep_alive_interval: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_keep_alive_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span>http2_keep_alive_while_idle: bool,
     local_address: <span class="prelude-ty">Option</span>&lt;IpAddr&gt;,
+    <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+    </span>interface: <span class="prelude-ty">Option</span>&lt;String&gt;,
     nodelay: bool,
     <span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
     </span>cookie_store: <span class="prelude-ty">Option</span>&lt;Arc&lt;<span class="kw">dyn </span>cookie::CookieStore&gt;&gt;,
-    trust_dns: bool,
+    hickory_dns: bool,
     error: <span class="prelude-ty">Option</span>&lt;<span class="kw">crate</span>::Error&gt;,
     https_only: bool,
     <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
@@ -2722,11 +2980,16 @@
                 auto_sys_proxy: <span class="bool-val">true</span>,
                 redirect_policy: redirect::Policy::default(),
                 referer: <span class="bool-val">true</span>,
+                read_timeout: <span class="prelude-val">None</span>,
                 timeout: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
                 </span>root_certs: Vec::new(),
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
                 </span>tls_built_in_root_certs: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+                </span>tls_built_in_certs_webpki: <span class="bool-val">true</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+                </span>tls_built_in_certs_native: <span class="bool-val">true</span>,
                 <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>))]
                 </span>identity: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
@@ -2743,16 +3006,25 @@
                 http1_allow_obsolete_multiline_headers_in_responses: <span class="bool-val">false</span>,
                 http1_ignore_invalid_headers_in_responses: <span class="bool-val">false</span>,
                 http1_allow_spaces_after_header_name_in_responses: <span class="bool-val">false</span>,
-                http2_initial_stream_window_size: <span class="prelude-val">None</span>,
-                http2_initial_connection_window_size: <span class="prelude-val">None</span>,
-                http2_adaptive_window: <span class="bool-val">false</span>,
-                http2_max_frame_size: <span class="prelude-val">None</span>,
-                http2_keep_alive_interval: <span class="prelude-val">None</span>,
-                http2_keep_alive_timeout: <span class="prelude-val">None</span>,
-                http2_keep_alive_while_idle: <span class="bool-val">false</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_initial_stream_window_size: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_initial_connection_window_size: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_adaptive_window: <span class="bool-val">false</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_max_frame_size: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_keep_alive_interval: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_keep_alive_timeout: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                </span>http2_keep_alive_while_idle: <span class="bool-val">false</span>,
                 local_address: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+                </span>interface: <span class="prelude-val">None</span>,
                 nodelay: <span class="bool-val">true</span>,
-                trust_dns: <span class="macro">cfg!</span>(feature = <span class="string">"trust-dns"</span>),
+                hickory_dns: <span class="macro">cfg!</span>(feature = <span class="string">"hickory-dns"</span>),
                 <span class="attr">#[cfg(feature = <span class="string">"cookies"</span>)]
                 </span>cookie_store: <span class="prelude-val">None</span>,
                 https_only: <span class="bool-val">false</span>,
@@ -2801,12 +3073,12 @@
                 headers.get(USER_AGENT).cloned()
             }
 
-            <span class="kw">let </span><span class="kw-2">mut </span>resolver: Arc&lt;<span class="kw">dyn </span>Resolve&gt; = <span class="kw">match </span>config.trust_dns {
+            <span class="kw">let </span><span class="kw-2">mut </span>resolver: Arc&lt;<span class="kw">dyn </span>Resolve&gt; = <span class="kw">match </span>config.hickory_dns {
                 <span class="bool-val">false </span>=&gt; Arc::new(GaiResolver::new()),
-                <span class="attr">#[cfg(feature = <span class="string">"trust-dns"</span>)]
-                </span><span class="bool-val">true </span>=&gt; Arc::new(TrustDnsResolver::default()),
-                <span class="attr">#[cfg(not(feature = <span class="string">"trust-dns"</span>))]
-                </span><span class="bool-val">true </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"trust-dns shouldn't be enabled unless the feature is"</span>),
+                <span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
+                </span><span class="bool-val">true </span>=&gt; Arc::new(HickoryDnsResolver::default()),
+                <span class="attr">#[cfg(not(feature = <span class="string">"hickory-dns"</span>))]
+                </span><span class="bool-val">true </span>=&gt; <span class="macro">unreachable!</span>(<span class="string">"hickory-dns shouldn't be enabled unless the feature is"</span>),
             };
             <span class="kw">if let </span><span class="prelude-val">Some</span>(dns_resolver) = config.dns_resolver {
                 resolver = dns_resolver;
@@ -2881,7 +3153,8 @@
                             HttpVersionPref::Http1 =&gt; {
                                 tls.request_alpns(<span class="kw-2">&amp;</span>[<span class="string">"http/1.1"</span>]);
                             }
-                            HttpVersionPref::Http2 =&gt; {
+                            <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                            </span>HttpVersionPref::Http2 =&gt; {
                                 tls.request_alpns(<span class="kw-2">&amp;</span>[<span class="string">"h2"</span>]);
                             }
                             HttpVersionPref::All =&gt; {
@@ -2946,6 +3219,12 @@
                         proxies.clone(),
                         user_agent(<span class="kw-2">&amp;</span>config.headers),
                         config.local_address,
+                        <span class="attr">#[cfg(any(
+                            target_os = <span class="string">"android"</span>,
+                            target_os = <span class="string">"fuchsia"</span>,
+                            target_os = <span class="string">"linux"
+                        </span>))]
+                        </span>config.interface.as_deref(),
                         config.nodelay,
                         config.tls_info,
                     )<span class="question-mark">?
@@ -2957,6 +3236,8 @@
                     proxies.clone(),
                     user_agent(<span class="kw-2">&amp;</span>config.headers),
                     config.local_address,
+                    <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+                    </span>config.interface.as_deref(),
                     config.nodelay,
                     config.tls_info,
                 ),
@@ -2982,6 +3263,12 @@
                         proxies.clone(),
                         user_agent(<span class="kw-2">&amp;</span>config.headers),
                         config.local_address,
+                        <span class="attr">#[cfg(any(
+                            target_os = <span class="string">"android"</span>,
+                            target_os = <span class="string">"fuchsia"</span>,
+                            target_os = <span class="string">"linux"
+                        </span>))]
+                        </span>config.interface.as_deref(),
                         config.nodelay,
                         config.tls_info,
                     )
@@ -2997,41 +3284,25 @@
                     }
 
                     <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
-                    </span><span class="kw">if </span>config.tls_built_in_root_certs {
-                        <span class="kw">use </span>rustls::OwnedTrustAnchor;
-
-                        <span class="kw">let </span>trust_anchors =
-                            webpki_roots::TLS_SERVER_ROOTS.iter().map(|trust_anchor| {
-                                OwnedTrustAnchor::from_subject_spki_name_constraints(
-                                    trust_anchor.subject,
-                                    trust_anchor.spki,
-                                    trust_anchor.name_constraints,
-                                )
-                            });
-
-                        root_cert_store.add_trust_anchors(trust_anchors);
+                    </span><span class="kw">if </span>config.tls_built_in_certs_webpki {
+                        root_cert_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
                     }
 
                     <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
-                    </span><span class="kw">if </span>config.tls_built_in_root_certs {
+                    </span><span class="kw">if </span>config.tls_built_in_certs_native {
                         <span class="kw">let </span><span class="kw-2">mut </span>valid_count = <span class="number">0</span>;
                         <span class="kw">let </span><span class="kw-2">mut </span>invalid_count = <span class="number">0</span>;
                         <span class="kw">for </span>cert <span class="kw">in </span>rustls_native_certs::load_native_certs()
                             .map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?
                         </span>{
-                            <span class="kw">let </span>cert = rustls::Certificate(cert.<span class="number">0</span>);
                             <span class="comment">// Continue on parsing errors, as native stores often include ancient or syntactically
                             // invalid certificates, like root certificates without any X509 extensions.
                             // Inspiration: https://github.com/rustls/rustls/blob/633bf4ba9d9521a95f68766d04c22e2b01e68318/rustls/src/anchors.rs#L105-L112
-                            </span><span class="kw">match </span>root_cert_store.add(<span class="kw-2">&amp;</span>cert) {
+                            </span><span class="kw">match </span>root_cert_store.add(cert.into()) {
                                 <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; valid_count += <span class="number">1</span>,
                                 <span class="prelude-val">Err</span>(err) =&gt; {
                                     invalid_count += <span class="number">1</span>;
-                                    <span class="macro">log::warn!</span>(
-                                        <span class="string">"rustls failed to parse DER certificate {:?} {:?}"</span>,
-                                        <span class="kw-2">&amp;</span>err,
-                                        <span class="kw-2">&amp;</span>cert
-                                    );
+                                    <span class="macro">log::debug!</span>(<span class="string">"rustls failed to parse DER certificate: {err:?}"</span>);
                                 }
                             }
                         }
@@ -3065,13 +3336,14 @@
                         });
                     }
 
+                    <span class="kw">if </span>versions.is_empty() {
+                        <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::builder(<span class="string">"empty supported tls versions"</span>));
+                    }
+
                     <span class="comment">// Build TLS config
-                    </span><span class="kw">let </span>config_builder = rustls::ClientConfig::builder()
-                        .with_safe_default_cipher_suites()
-                        .with_safe_default_kx_groups()
-                        .with_protocol_versions(<span class="kw-2">&amp;</span>versions)
-                        .map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?
-                        </span>.with_root_certificates(root_cert_store);
+                    </span><span class="kw">let </span>config_builder =
+                        rustls::ClientConfig::builder_with_protocol_versions(<span class="kw-2">&amp;</span>versions)
+                            .with_root_certificates(root_cert_store);
 
                     <span class="comment">// Finalize TLS config
                     </span><span class="kw">let </span><span class="kw-2">mut </span>tls = <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = config.identity {
@@ -3093,7 +3365,8 @@
                         HttpVersionPref::Http1 =&gt; {
                             tls.alpn_protocols = <span class="macro">vec!</span>[<span class="string">"http/1.1"</span>.into()];
                         }
-                        HttpVersionPref::Http2 =&gt; {
+                        <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                        </span>HttpVersionPref::Http2 =&gt; {
                             tls.alpn_protocols = <span class="macro">vec!</span>[<span class="string">"h2"</span>.into()];
                         }
                         <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
@@ -3101,7 +3374,11 @@
                             tls.alpn_protocols = <span class="macro">vec!</span>[<span class="string">"h3"</span>.into()];
                         }
                         HttpVersionPref::All =&gt; {
-                            tls.alpn_protocols = <span class="macro">vec!</span>[<span class="string">"h2"</span>.into(), <span class="string">"http/1.1"</span>.into()];
+                            tls.alpn_protocols = <span class="macro">vec!</span>[
+                                <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                                </span><span class="string">"h2"</span>.into(),
+                                <span class="string">"http/1.1"</span>.into(),
+                            ];
                         }
                     }
 
@@ -3127,6 +3404,12 @@
                         proxies.clone(),
                         user_agent(<span class="kw-2">&amp;</span>config.headers),
                         config.local_address,
+                        <span class="attr">#[cfg(any(
+                            target_os = <span class="string">"android"</span>,
+                            target_os = <span class="string">"fuchsia"</span>,
+                            target_os = <span class="string">"linux"
+                        </span>))]
+                        </span>config.interface.as_deref(),
                         config.nodelay,
                         config.tls_info,
                     )
@@ -3140,41 +3423,55 @@
             }
 
             <span class="attr">#[cfg(not(feature = <span class="string">"__tls"</span>))]
-            </span>Connector::new(http, proxies.clone(), config.local_address, config.nodelay)
+            </span>Connector::new(
+                http,
+                proxies.clone(),
+                config.local_address,
+                <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+                </span>config.interface.as_deref(),
+                config.nodelay,
+            )
         };
 
         connector.set_timeout(config.connect_timeout);
         connector.set_verbose(config.connection_verbose);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>builder = hyper::Client::builder();
-        <span class="kw">if </span><span class="macro">matches!</span>(config.http_version_pref, HttpVersionPref::Http2) {
-            builder.http2_only(<span class="bool-val">true</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>builder =
+            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new());
+        <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+        </span>{
+            <span class="kw">if </span><span class="macro">matches!</span>(config.http_version_pref, HttpVersionPref::Http2) {
+                builder.http2_only(<span class="bool-val">true</span>);
+            }
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_initial_stream_window_size) = config.http2_initial_stream_window_size
+            {
+                builder.http2_initial_stream_window_size(http2_initial_stream_window_size);
+            }
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_initial_connection_window_size) =
+                config.http2_initial_connection_window_size
+            {
+                builder.http2_initial_connection_window_size(http2_initial_connection_window_size);
+            }
+            <span class="kw">if </span>config.http2_adaptive_window {
+                builder.http2_adaptive_window(<span class="bool-val">true</span>);
+            }
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_max_frame_size) = config.http2_max_frame_size {
+                builder.http2_max_frame_size(http2_max_frame_size);
+            }
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_keep_alive_interval) = config.http2_keep_alive_interval {
+                builder.http2_keep_alive_interval(http2_keep_alive_interval);
+            }
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_keep_alive_timeout) = config.http2_keep_alive_timeout {
+                builder.http2_keep_alive_timeout(http2_keep_alive_timeout);
+            }
+            <span class="kw">if </span>config.http2_keep_alive_while_idle {
+                builder.http2_keep_alive_while_idle(<span class="bool-val">true</span>);
+            }
         }
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_initial_stream_window_size) = config.http2_initial_stream_window_size {
-            builder.http2_initial_stream_window_size(http2_initial_stream_window_size);
-        }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_initial_connection_window_size) =
-            config.http2_initial_connection_window_size
-        {
-            builder.http2_initial_connection_window_size(http2_initial_connection_window_size);
-        }
-        <span class="kw">if </span>config.http2_adaptive_window {
-            builder.http2_adaptive_window(<span class="bool-val">true</span>);
-        }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_max_frame_size) = config.http2_max_frame_size {
-            builder.http2_max_frame_size(http2_max_frame_size);
-        }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_keep_alive_interval) = config.http2_keep_alive_interval {
-            builder.http2_keep_alive_interval(http2_keep_alive_interval);
-        }
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(http2_keep_alive_timeout) = config.http2_keep_alive_timeout {
-            builder.http2_keep_alive_timeout(http2_keep_alive_timeout);
-        }
-        <span class="kw">if </span>config.http2_keep_alive_while_idle {
-            builder.http2_keep_alive_while_idle(<span class="bool-val">true</span>);
-        }
-
+        <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
+        </span>builder.timer(hyper_util::rt::TokioTimer::new());
         builder.pool_idle_timeout(config.pool_idle_timeout);
         builder.pool_max_idle_per_host(config.pool_max_idle_per_host);
         connector.set_keepalive(config.tcp_keepalive);
@@ -3219,6 +3516,7 @@
                 headers: config.headers,
                 redirect_policy: config.redirect_policy,
                 referer: config.referer,
+                read_timeout: config.read_timeout,
                 request_timeout: config.timeout,
                 proxies,
                 proxies_maybe_http_auth,
@@ -3284,27 +3582,6 @@
     ///     .default_headers(headers)
     ///     .build()?;
     /// let res = client.get("https://www.rust-lang.org").send().await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    ///
-    /// Override the default headers:
-    ///
-    /// ```rust
-    /// use reqwest::header;
-    /// # async fn doc() -&gt; Result&lt;(), reqwest::Error&gt; {
-    /// let mut headers = header::HeaderMap::new();
-    /// headers.insert("X-MY-HEADER", header::HeaderValue::from_static("value"));
-    ///
-    /// // get a client builder
-    /// let client = reqwest::Client::builder()
-    ///     .default_headers(headers)
-    ///     .build()?;
-    /// let res = client
-    ///     .get("https://www.rust-lang.org")
-    ///     .header("X-MY-HEADER", "new_value")
-    ///     .send()
-    ///     .await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -3409,6 +3686,29 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Enable auto zstd decompression by checking the `Content-Encoding` response header.
+    ///
+    /// If auto zstd decompression is turned on:
+    ///
+    /// - When sending a request and if the request's headers do not already contain
+    ///   an `Accept-Encoding` **and** `Range` values, the `Accept-Encoding` header is set to `zstd`.
+    ///   The request body is **not** automatically compressed.
+    /// - When receiving a response, if its headers contain a `Content-Encoding` value of
+    ///   `zstd`, both `Content-Encoding` and `Content-Length` are removed from the
+    ///   headers' set. The response body is automatically decompressed.
+    ///
+    /// If the `zstd` feature is turned on, the default option is enabled.
+    ///
+    /// # Optional
+    ///
+    /// This requires the optional `zstd` feature to be enabled
+    </span><span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"zstd"</span>)))]
+    </span><span class="kw">pub fn </span>zstd(<span class="kw-2">mut </span><span class="self">self</span>, enable: bool) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.accepts.zstd = enable;
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Enable auto deflate decompression by checking the `Content-Encoding` response header.
     ///
     /// If auto deflate decompression is turned on:
@@ -3461,6 +3761,23 @@
         }
 
         <span class="attr">#[cfg(not(feature = <span class="string">"brotli"</span>))]
+        </span>{
+            <span class="self">self
+        </span>}
+    }
+
+    <span class="doccomment">/// Disable auto response body zstd decompression.
+    ///
+    /// This method exists even if the optional `zstd` feature is not enabled.
+    /// This can be used to ensure a `Client` doesn't use zstd decompression
+    /// even if another dependency were to enable the optional `zstd` feature.
+    </span><span class="kw">pub fn </span>no_zstd(<span class="self">self</span>) -&gt; ClientBuilder {
+        <span class="attr">#[cfg(feature = <span class="string">"zstd"</span>)]
+        </span>{
+            <span class="self">self</span>.zstd(<span class="bool-val">false</span>)
+        }
+
+        <span class="attr">#[cfg(not(feature = <span class="string">"zstd"</span>))]
         </span>{
             <span class="self">self
         </span>}
@@ -3529,14 +3846,26 @@
 
     <span class="comment">// Timeout options
 
-    </span><span class="doccomment">/// Enables a request timeout.
+    </span><span class="doccomment">/// Enables a total request timeout.
     ///
     /// The timeout is applied from when the request starts connecting until the
-    /// response body has finished.
+    /// response body has finished. Also considered a total deadline.
     ///
     /// Default is no timeout.
     </span><span class="kw">pub fn </span>timeout(<span class="kw-2">mut </span><span class="self">self</span>, timeout: Duration) -&gt; ClientBuilder {
         <span class="self">self</span>.config.timeout = <span class="prelude-val">Some</span>(timeout);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Enables a read timeout.
+    ///
+    /// The timeout applies to each read operation, and resets after a
+    /// successful read. This is more appropriate for detecting stalled
+    /// connections when the size isn't known beforehand.
+    ///
+    /// Default is no timeout.
+    </span><span class="kw">pub fn </span>read_timeout(<span class="kw-2">mut </span><span class="self">self</span>, timeout: Duration) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.read_timeout = <span class="prelude-val">Some</span>(timeout);
         <span class="self">self
     </span>}
 
@@ -3638,6 +3967,8 @@
     </span>}
 
     <span class="doccomment">/// Only use HTTP/2.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_prior_knowledge(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; ClientBuilder {
         <span class="self">self</span>.config.http_version_pref = HttpVersionPref::Http2;
         <span class="self">self
@@ -3654,6 +3985,8 @@
     <span class="doccomment">/// Sets the `SETTINGS_INITIAL_WINDOW_SIZE` option for HTTP2 stream-level flow control.
     ///
     /// Default is currently 65,535 but may change internally to optimize for common uses.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_initial_stream_window_size(<span class="kw-2">mut </span><span class="self">self</span>, sz: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt;) -&gt; ClientBuilder {
         <span class="self">self</span>.config.http2_initial_stream_window_size = sz.into();
         <span class="self">self
@@ -3662,6 +3995,8 @@
     <span class="doccomment">/// Sets the max connection-level flow control for HTTP2
     ///
     /// Default is currently 65,535 but may change internally to optimize for common uses.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_initial_connection_window_size(
         <span class="kw-2">mut </span><span class="self">self</span>,
         sz: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt;,
@@ -3674,6 +4009,8 @@
     ///
     /// Enabling this will override the limits set in `http2_initial_stream_window_size` and
     /// `http2_initial_connection_window_size`.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_adaptive_window(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.http2_adaptive_window = enabled;
         <span class="self">self
@@ -3682,6 +4019,8 @@
     <span class="doccomment">/// Sets the maximum frame size to use for HTTP2.
     ///
     /// Default is currently 16,384 but may change internally to optimize for common uses.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_max_frame_size(<span class="kw-2">mut </span><span class="self">self</span>, sz: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt;) -&gt; ClientBuilder {
         <span class="self">self</span>.config.http2_max_frame_size = sz.into();
         <span class="self">self
@@ -3691,6 +4030,8 @@
     ///
     /// Pass `None` to disable HTTP2 keep-alive.
     /// Default is currently disabled.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_keep_alive_interval(
         <span class="kw-2">mut </span><span class="self">self</span>,
         interval: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;Duration&gt;&gt;,
@@ -3704,6 +4045,8 @@
     /// If the ping is not acknowledged within the timeout, the connection will be closed.
     /// Does nothing if `http2_keep_alive_interval` is disabled.
     /// Default is currently disabled.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_keep_alive_timeout(<span class="kw-2">mut </span><span class="self">self</span>, timeout: Duration) -&gt; ClientBuilder {
         <span class="self">self</span>.config.http2_keep_alive_timeout = <span class="prelude-val">Some</span>(timeout);
         <span class="self">self
@@ -3715,6 +4058,8 @@
     /// If enabled, pings are also sent when no streams are active.
     /// Does nothing if `http2_keep_alive_interval` is disabled.
     /// Default is `false`.
+    </span><span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"http2"</span>)))]
     </span><span class="kw">pub fn </span>http2_keep_alive_while_idle(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.http2_keep_alive_while_idle = enabled;
         <span class="self">self
@@ -3746,6 +4091,22 @@
         </span>T: Into&lt;<span class="prelude-ty">Option</span>&lt;IpAddr&gt;&gt;,
     {
         <span class="self">self</span>.config.local_address = addr.into();
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Bind to an interface by `SO_BINDTODEVICE`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let interface = "lo";
+    /// let client = reqwest::Client::builder()
+    ///     .interface(interface)
+    ///     .build().unwrap();
+    /// ```
+    </span><span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+    </span><span class="kw">pub fn </span>interface(<span class="kw-2">mut </span><span class="self">self</span>, interface: <span class="kw-2">&amp;</span>str) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.interface = <span class="prelude-val">Some</span>(interface.to_string());
         <span class="self">self
     </span>}
 
@@ -3789,6 +4150,15 @@
     ///
     /// Defaults to `true` -- built-in system certs will be used.
     ///
+    /// # Bulk Option
+    ///
+    /// If this value is `true`, _all_ enabled system certs configured with Cargo
+    /// features will be loaded.
+    ///
+    /// You can set this to `false`, and enable only a specific source with
+    /// individual methods. Do that will prevent other sources from being loaded
+    /// even if their feature Cargo feature is enabled.
+    ///
     /// # Optional
     ///
     /// This requires the optional `default-tls`, `native-tls`, or `rustls-tls(-...)`
@@ -3804,6 +4174,37 @@
     )]
     </span><span class="kw">pub fn </span>tls_built_in_root_certs(<span class="kw-2">mut </span><span class="self">self</span>, tls_built_in_root_certs: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.tls_built_in_root_certs = tls_built_in_root_certs;
+
+        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+        </span>{
+            <span class="self">self</span>.config.tls_built_in_certs_webpki = tls_built_in_root_certs;
+        }
+
+        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+        </span>{
+            <span class="self">self</span>.config.tls_built_in_certs_native = tls_built_in_root_certs;
+        }
+
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets whether to load webpki root certs with rustls.
+    ///
+    /// If the feature is enabled, this value is `true` by default.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)))]
+    </span><span class="kw">pub fn </span>tls_built_in_webpki_certs(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.tls_built_in_certs_webpki = enabled;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Sets whether to load native root certs with rustls.
+    ///
+    /// If the feature is enabled, this value is `true` by default.
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)))]
+    </span><span class="kw">pub fn </span>tls_built_in_native_certs(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.tls_built_in_certs_native = enabled;
         <span class="self">self
     </span>}
 
@@ -3936,6 +4337,9 @@
     /// isn't supported, just that it can't be set as a maximum due to
     /// technical limitations.
     ///
+    /// Cannot set a maximum outside the protocol versions supported by
+    /// `rustls` with the `rustls-tls` backend.
+    ///
     /// # Optional
     ///
     /// This requires the optional `default-tls`, `native-tls`, or `rustls-tls(-...)`
@@ -4008,9 +4412,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>tls = <span class="prelude-val">Some</span>(tls);
         <span class="attr">#[cfg(feature = <span class="string">"native-tls"</span>)]
         </span>{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(conn) =
-                (<span class="kw-2">&amp;mut </span>tls <span class="kw">as </span><span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Any).downcast_mut::&lt;<span class="prelude-ty">Option</span>&lt;native_tls_crate::TlsConnector&gt;&gt;()
-            {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(conn) = (<span class="kw-2">&amp;mut </span>tls <span class="kw">as </span><span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Any).downcast_mut::&lt;<span class="prelude-ty">Option</span>&lt;TlsConnector&gt;&gt;() {
                 <span class="kw">let </span>tls = conn.take().expect(<span class="string">"is definitely Some"</span>);
                 <span class="kw">let </span>tls = <span class="kw">crate</span>::tls::TlsBackend::BuiltNativeTls(tls);
                 <span class="self">self</span>.config.tls = tls;
@@ -4062,32 +4464,67 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Enables the [trust-dns](trust_dns_resolver) async resolver instead of a default threadpool using `getaddrinfo`.
+    <span class="doccomment">/// Enables the [hickory-dns](hickory_resolver) async resolver instead of a default threadpool
+    /// using `getaddrinfo`.
     ///
-    /// If the `trust-dns` feature is turned on, the default option is enabled.
+    /// If the `hickory-dns` feature is turned on, the default option is enabled.
     ///
     /// # Optional
     ///
-    /// This requires the optional `trust-dns` feature to be enabled
-    </span><span class="attr">#[cfg(feature = <span class="string">"trust-dns"</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"trust-dns"</span>)))]
+    /// This requires the optional `hickory-dns` feature to be enabled
+    </span><span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"hickory-dns"</span>)))]
+    #[deprecated(note = <span class="string">"use `hickory_dns` instead"</span>)]
     </span><span class="kw">pub fn </span>trust_dns(<span class="kw-2">mut </span><span class="self">self</span>, enable: bool) -&gt; ClientBuilder {
-        <span class="self">self</span>.config.trust_dns = enable;
+        <span class="self">self</span>.config.hickory_dns = enable;
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Disables the trust-dns async resolver.
+    <span class="doccomment">/// Enables the [hickory-dns](hickory_resolver) async resolver instead of a default threadpool
+    /// using `getaddrinfo`.
     ///
-    /// This method exists even if the optional `trust-dns` feature is not enabled.
-    /// This can be used to ensure a `Client` doesn't use the trust-dns async resolver
-    /// even if another dependency were to enable the optional `trust-dns` feature.
+    /// If the `hickory-dns` feature is turned on, the default option is enabled.
+    ///
+    /// # Optional
+    ///
+    /// This requires the optional `hickory-dns` feature to be enabled
+    </span><span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"hickory-dns"</span>)))]
+    </span><span class="kw">pub fn </span>hickory_dns(<span class="kw-2">mut </span><span class="self">self</span>, enable: bool) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.hickory_dns = enable;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Disables the hickory-dns async resolver.
+    ///
+    /// This method exists even if the optional `hickory-dns` feature is not enabled.
+    /// This can be used to ensure a `Client` doesn't use the hickory-dns async resolver
+    /// even if another dependency were to enable the optional `hickory-dns` feature.
+    </span><span class="attr">#[deprecated(note = <span class="string">"use `no_hickory_dns` instead"</span>)]
     </span><span class="kw">pub fn </span>no_trust_dns(<span class="self">self</span>) -&gt; ClientBuilder {
-        <span class="attr">#[cfg(feature = <span class="string">"trust-dns"</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
         </span>{
-            <span class="self">self</span>.trust_dns(<span class="bool-val">false</span>)
+            <span class="self">self</span>.hickory_dns(<span class="bool-val">false</span>)
         }
 
-        <span class="attr">#[cfg(not(feature = <span class="string">"trust-dns"</span>))]
+        <span class="attr">#[cfg(not(feature = <span class="string">"hickory-dns"</span>))]
+        </span>{
+            <span class="self">self
+        </span>}
+    }
+
+    <span class="doccomment">/// Disables the hickory-dns async resolver.
+    ///
+    /// This method exists even if the optional `hickory-dns` feature is not enabled.
+    /// This can be used to ensure a `Client` doesn't use the hickory-dns async resolver
+    /// even if another dependency were to enable the optional `hickory-dns` feature.
+    </span><span class="kw">pub fn </span>no_hickory_dns(<span class="self">self</span>) -&gt; ClientBuilder {
+        <span class="attr">#[cfg(feature = <span class="string">"hickory-dns"</span>)]
+        </span>{
+            <span class="self">self</span>.hickory_dns(<span class="bool-val">false</span>)
+        }
+
+        <span class="attr">#[cfg(not(feature = <span class="string">"hickory-dns"</span>))]
         </span>{
             <span class="self">self
         </span>}
@@ -4116,7 +4553,7 @@
     </span><span class="kw">pub fn </span>resolve_to_addrs(<span class="kw-2">mut </span><span class="self">self</span>, domain: <span class="kw-2">&amp;</span>str, addrs: <span class="kw-2">&amp;</span>[SocketAddr]) -&gt; ClientBuilder {
         <span class="self">self</span>.config
             .dns_overrides
-            .insert(domain.to_string(), addrs.to_vec());
+            .insert(domain.to_ascii_lowercase(), addrs.to_vec());
         <span class="self">self
     </span>}
 
@@ -4192,7 +4629,7 @@
     </span>}
 }
 
-<span class="kw">type </span>HyperClient = hyper::Client&lt;Connector, <span class="kw">super</span>::body::ImplStream&gt;;
+<span class="kw">type </span>HyperClient = hyper_util::client::legacy::Client&lt;Connector, <span class="kw">super</span>::Body&gt;;
 
 <span class="kw">impl </span>Default <span class="kw">for </span>Client {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
@@ -4372,16 +4809,20 @@
                 ResponseFuture::H3(<span class="self">self</span>.inner.h3_client.as_ref().unwrap().request(req))
             }
             <span class="kw">_ </span>=&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>req = builder
-                    .body(body.into_stream())
-                    .expect(<span class="string">"valid request parts"</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>req = builder.body(body).expect(<span class="string">"valid request parts"</span>);
                 <span class="kw-2">*</span>req.headers_mut() = headers.clone();
                 ResponseFuture::Default(<span class="self">self</span>.inner.hyper.request(req))
             }
         };
 
-        <span class="kw">let </span>timeout = timeout
+        <span class="kw">let </span>total_timeout = timeout
             .or(<span class="self">self</span>.inner.request_timeout)
+            .map(tokio::time::sleep)
+            .map(Box::pin);
+
+        <span class="kw">let </span>read_timeout_fut = <span class="self">self
+            </span>.inner
+            .read_timeout
             .map(tokio::time::sleep)
             .map(Box::pin);
 
@@ -4399,7 +4840,9 @@
                 client: <span class="self">self</span>.inner.clone(),
 
                 in_flight,
-                timeout,
+                total_timeout,
+                read_timeout_fut,
+                read_timeout: <span class="self">self</span>.inner.read_timeout,
             }),
         }
     }
@@ -4524,7 +4967,8 @@
             f.field(<span class="string">"http1_only"</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
         }
 
-        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.http_version_pref, HttpVersionPref::Http2) {
+        <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+        </span><span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.http_version_pref, HttpVersionPref::Http2) {
             f.field(<span class="string">"http2_prior_knowledge"</span>, <span class="kw-2">&amp;</span><span class="bool-val">true</span>);
         }
 
@@ -4538,6 +4982,11 @@
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>v) = <span class="self">self</span>.local_address {
             f.field(<span class="string">"local_address"</span>, v);
+        }
+
+        <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"fuchsia"</span>, target_os = <span class="string">"linux"</span>))]
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>v) = <span class="self">self</span>.interface {
+            f.field(<span class="string">"interface"</span>, v);
         }
 
         <span class="kw">if </span><span class="self">self</span>.nodelay {
@@ -4570,7 +5019,7 @@
             f.field(<span class="string">"tls_info"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tls_info);
         }
 
-        <span class="attr">#[cfg(all(feature = <span class="string">"native-tls-crate"</span>, feature = <span class="string">"__rustls"</span>))]
+        <span class="attr">#[cfg(all(feature = <span class="string">"default-tls"</span>, feature = <span class="string">"__rustls"</span>))]
         </span>{
             f.field(<span class="string">"tls_backend"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.tls);
         }
@@ -4599,6 +5048,7 @@
     redirect_policy: redirect::Policy,
     referer: bool,
     request_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    read_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     proxies: Arc&lt;Vec&lt;Proxy&gt;&gt;,
     proxies_maybe_http_auth: bool,
     https_only: bool,
@@ -4635,6 +5085,10 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>d) = <span class="self">self</span>.request_timeout {
             f.field(<span class="string">"timeout"</span>, d);
         }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>d) = <span class="self">self</span>.read_timeout {
+            f.field(<span class="string">"read_timeout"</span>, d);
+        }
     }
 }
 
@@ -4666,7 +5120,10 @@
         <span class="attr">#[pin]
         </span>in_flight: ResponseFuture,
         <span class="attr">#[pin]
-        </span>timeout: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;,
+        </span>total_timeout: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;,
+        <span class="attr">#[pin]
+        </span>read_timeout_fut: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;,
+        read_timeout: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     }
 }
 
@@ -4681,8 +5138,12 @@
         <span class="self">self</span>.project().in_flight
     }
 
-    <span class="kw">fn </span>timeout(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;&gt; {
-        <span class="self">self</span>.project().timeout
+    <span class="kw">fn </span>total_timeout(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;&gt; {
+        <span class="self">self</span>.project().total_timeout
+    }
+
+    <span class="kw">fn </span>read_timeout(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; Pin&lt;<span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;Sleep&gt;&gt;&gt;&gt; {
+        <span class="self">self</span>.project().read_timeout_fut
     }
 
     <span class="kw">fn </span>urls(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span>Vec&lt;Url&gt; {
@@ -4693,12 +5154,15 @@
         <span class="self">self</span>.project().headers
     }
 
-    <span class="kw">fn </span>retry_error(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, err: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) -&gt; bool {
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span><span class="kw">fn </span>retry_error(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, err: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) -&gt; bool {
+        <span class="kw">use </span>log::trace;
+
         <span class="kw">if </span>!is_retryable_error(err) {
             <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="macro">trace!</span>(<span class="string">"can retry {:?}"</span>, err);
+        <span class="macro">trace!</span>(<span class="string">"can retry {err:?}"</span>);
 
         <span class="kw">let </span>body = <span class="kw">match </span><span class="self">self</span>.body {
             <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref </span>body)) =&gt; Body::reusable(body.clone()),
@@ -4739,7 +5203,7 @@
                 <span class="kw">let </span><span class="kw-2">mut </span>req = hyper::Request::builder()
                     .method(<span class="self">self</span>.method.clone())
                     .uri(uri)
-                    .body(body.into_stream())
+                    .body(body)
                     .expect(<span class="string">"valid request parts"</span>);
                 <span class="kw-2">*</span>req.headers_mut() = <span class="self">self</span>.headers.clone();
                 ResponseFuture::Default(<span class="self">self</span>.client.hyper.request(req))
@@ -4750,11 +5214,19 @@
     </span>}
 }
 
-<span class="kw">fn </span>is_retryable_error(err: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) -&gt; bool {
+<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+</span><span class="kw">fn </span>is_retryable_error(err: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) -&gt; bool {
+    <span class="comment">// pop the legacy::Error
+    </span><span class="kw">let </span>err = <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = err.source() {
+        err
+    } <span class="kw">else </span>{
+        <span class="kw">return </span><span class="bool-val">false</span>;
+    };
+
     <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     </span><span class="kw">if let </span><span class="prelude-val">Some</span>(cause) = err.source() {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = cause.downcast_ref::&lt;h3::Error&gt;() {
-            <span class="macro">debug!</span>(<span class="string">"determining if HTTP/3 error {} can be retried"</span>, err);
+            <span class="macro">debug!</span>(<span class="string">"determining if HTTP/3 error {err} can be retried"</span>);
             <span class="comment">// TODO: Does h3 provide an API for checking the error?
             </span><span class="kw">return </span>err.to_string().as_str() == <span class="string">"timeout"</span>;
         }
@@ -4808,7 +5280,15 @@
     <span class="kw">type </span>Output = <span class="prelude-ty">Result</span>&lt;Response, <span class="kw">crate</span>::Error&gt;;
 
     <span class="kw">fn </span>poll(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;<span class="self">Self</span>::Output&gt; {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(delay) = <span class="self">self</span>.as_mut().timeout().as_mut().as_pin_mut() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(delay) = <span class="self">self</span>.as_mut().total_timeout().as_mut().as_pin_mut() {
+            <span class="kw">if let </span>Poll::Ready(()) = delay.poll(cx) {
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(
+                    <span class="kw">crate</span>::error::request(<span class="kw">crate</span>::error::TimedOut).with_url(<span class="self">self</span>.url.clone())
+                ));
+            }
+        }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(delay) = <span class="self">self</span>.as_mut().read_timeout().as_mut().as_pin_mut() {
             <span class="kw">if let </span>Poll::Ready(()) = delay.poll(cx) {
                 <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(
                     <span class="kw">crate</span>::error::request(<span class="kw">crate</span>::error::TimedOut).with_url(<span class="self">self</span>.url.clone())
@@ -4820,7 +5300,8 @@
             <span class="kw">let </span>res = <span class="kw">match </span><span class="self">self</span>.as_mut().in_flight().get_mut() {
                 ResponseFuture::Default(r) =&gt; <span class="kw">match </span>Pin::new(r).poll(cx) {
                     Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; {
-                        <span class="kw">if </span><span class="self">self</span>.as_mut().retry_error(<span class="kw-2">&amp;</span>e) {
+                        <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+                        </span><span class="kw">if </span><span class="self">self</span>.as_mut().retry_error(<span class="kw-2">&amp;</span>e) {
                             <span class="kw">continue</span>;
                         }
                         <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(
@@ -4904,7 +5385,7 @@
                     });
 
                     <span class="kw">if </span>loc.is_none() {
-                        <span class="macro">debug!</span>(<span class="string">"Location header had invalid URI: {:?}"</span>, val);
+                        <span class="macro">debug!</span>(<span class="string">"Location header had invalid URI: {val:?}"</span>);
                     }
                     loc
                 });
@@ -4975,7 +5456,7 @@
                                         <span class="kw">let </span><span class="kw-2">mut </span>req = hyper::Request::builder()
                                             .method(<span class="self">self</span>.method.clone())
                                             .uri(uri.clone())
-                                            .body(body.into_stream())
+                                            .body(body)
                                             .expect(<span class="string">"valid request parts"</span>);
                                         <span class="kw-2">*</span>req.headers_mut() = headers.clone();
                                         std::mem::swap(<span class="self">self</span>.as_mut().headers(), <span class="kw-2">&amp;mut </span>headers);
@@ -4986,7 +5467,7 @@
                             <span class="kw">continue</span>;
                         }
                         redirect::ActionKind::Stop =&gt; {
-                            <span class="macro">debug!</span>(<span class="string">"redirect policy disallowed redirection to '{}'"</span>, loc);
+                            <span class="macro">debug!</span>(<span class="string">"redirect policy disallowed redirection to '{loc}'"</span>);
                         }
                         redirect::ActionKind::Error(err) =&gt; {
                             <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::redirect(err, <span class="self">self</span>.url.clone())));
@@ -4999,7 +5480,8 @@
                 res,
                 <span class="self">self</span>.url.clone(),
                 <span class="self">self</span>.client.accepts,
-                <span class="self">self</span>.timeout.take(),
+                <span class="self">self</span>.total_timeout.take(),
+                <span class="self">self</span>.read_timeout,
             );
             <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(res));
         }

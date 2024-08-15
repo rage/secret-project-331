@@ -4791,6 +4791,22 @@
 <a href="#4790" id="4790">4790</a>
 <a href="#4791" id="4791">4791</a>
 <a href="#4792" id="4792">4792</a>
+<a href="#4793" id="4793">4793</a>
+<a href="#4794" id="4794">4794</a>
+<a href="#4795" id="4795">4795</a>
+<a href="#4796" id="4796">4796</a>
+<a href="#4797" id="4797">4797</a>
+<a href="#4798" id="4798">4798</a>
+<a href="#4799" id="4799">4799</a>
+<a href="#4800" id="4800">4800</a>
+<a href="#4801" id="4801">4801</a>
+<a href="#4802" id="4802">4802</a>
+<a href="#4803" id="4803">4803</a>
+<a href="#4804" id="4804">4804</a>
+<a href="#4805" id="4805">4805</a>
+<a href="#4806" id="4806">4806</a>
+<a href="#4807" id="4807">4807</a>
+<a href="#4808" id="4808">4808</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4801,8 +4817,6 @@
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{TimeZone, Utc};
 
-<span class="kw">use </span>headless_lms_models::certificate_configurations::DatabaseCertificateConfiguration;
-<span class="kw">use </span>headless_lms_models::pages::PageUpdateArgs;
 <span class="kw">use </span>headless_lms_models::{certificate_configuration_to_requirements, CourseOrExamId};
 <span class="kw">use </span>headless_lms_models::{
     certificate_configurations, chapters,
@@ -4828,13 +4842,21 @@
     proposed_page_edits::NewProposedPageEdits,
     repository_exercises, url_redirections, PKeyPolicy,
 };
+<span class="kw">use </span>headless_lms_models::{certificate_configurations::DatabaseCertificateConfiguration, roles};
+<span class="kw">use </span>headless_lms_models::{
+    pages::PageUpdateArgs,
+    roles::{RoleDomain, UserRole},
+};
 <span class="kw">use </span>headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
 
 <span class="kw">use </span>sqlx::{Pool, Postgres};
 <span class="kw">use </span>tracing::info;
 <span class="kw">use </span>uuid::Uuid;
 
-<span class="kw">use </span><span class="kw">super</span>::seed_helpers::{heading, CommonExerciseData};
+<span class="kw">use super</span>::{
+    seed_helpers::{heading, CommonExerciseData},
+    seed_users::SeedUsersResult,
+};
 
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>CommonCourseData {
@@ -4853,6 +4875,7 @@
     course_name: <span class="kw-2">&amp;</span>str,
     course_slug: <span class="kw-2">&amp;</span>str,
     common_course_data: CommonCourseData,
+    seed_users_result: SeedUsersResult,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span>CommonCourseData {
         db_pool,
@@ -6768,6 +6791,15 @@
         database_configuration.id,
         <span class="prelude-val">Some</span>(default_module.id),
         <span class="prelude-val">Some</span>(default_instance.id),
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="comment">// Add roles
+    </span>roles::insert(
+        <span class="kw-2">&amp;mut </span>conn,
+        seed_users_result.teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Course(course.id),
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

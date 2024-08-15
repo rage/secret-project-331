@@ -153,9 +153,13 @@ jobs:
         with:
           minikube version: "v1.33.1"
           kubernetes version: "v1.30.0"
-          start args: "--addons ingress --memory max"
+          start args: "--addons ingress --memory 10g"
           driver: "docker"
           github token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable snippet directives
+        run: |
+          kubectl patch configmap ingress-nginx-controller -p '{"data":{"allow-snippet-annotations":"true"}}' -n ingress-nginx --type merge
 
       - name: Debug kube-system
         run: |

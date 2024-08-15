@@ -378,6 +378,7 @@
   "link-export-points": "Export points as CSV",
   "link-export-submissions": "Export submissions (exercise tasks) as CSV",
   "link-export-user-details": "Export user details as CSV",
+  "link-export-user-exercise-states": "Export user exercise states as CSV",
   "link-feedback": "Feedback",
   "link-glossary": "Glossary",
   "link-history": "History",

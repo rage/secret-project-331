@@ -1025,7 +1025,11 @@
 <a href="#1024" id="1024">1024</a>
 <a href="#1025" id="1025">1025</a>
 <a href="#1026" id="1026">1026</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>futures::future::BoxFuture;
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>derive_more::Display;
+<span class="kw">use </span>futures::future::BoxFuture;
 <span class="kw">use </span>itertools::Itertools;
 <span class="kw">use </span>url::Url;
 
@@ -1157,7 +1161,9 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress&gt;.
 */
-</span><span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type)]
+</span><span class="attr">#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, Display, sqlx::Type,
+)]
 #[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 #[sqlx(type_name = <span class="string">"activity_progress"</span>, rename_all = <span class="string">"kebab-case"</span>)]
 </span><span class="kw">pub enum </span>ActivityProgress {
@@ -1181,7 +1187,7 @@ Tells what's the status of the grading progress for a user and exercise.
 As close as possible LTI's grading progress for compatibility: &lt;https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress&gt;
 */
 </span><span class="attr">#[derive(
-    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, sqlx::Type,
+    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, Display, sqlx::Type,
 )]
 #[cfg_attr(feature = <span class="string">"ts_rs"</span>, derive(TS))]
 #[sqlx(type_name = <span class="string">"grading_progress"</span>, rename_all = <span class="string">"kebab-case"</span>)]

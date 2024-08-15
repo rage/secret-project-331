@@ -293,6 +293,25 @@ WHERE course_id = $1
     Ok(course_instances)
 }
 
+pub async fn get_course_instance_ids_with_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query!(
+        r#"
+SELECT id
+FROM course_instances
+WHERE course_id = $1
+  AND deleted_at IS NULL;
+        "#,
+        course_id,
+    )
+    .map(|r| r.id)
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 #[derive(Debug, Serialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterScore {
@@ -801,10 +820,10 @@ WHERE ce.course_instance_id = $1
         ",
         course_instance_id
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(res.average_duration_seconds)
+    Ok(res.map(|r| r.average_duration_seconds).unwrap_or_default())
 }
 
 pub async fn get_student_duration(
@@ -827,10 +846,10 @@ WHERE ce.course_instance_id = $1
         course_instance_id,
         user_id
     )
-    .fetch_one(conn)
+    .fetch_optional(conn)
     .await?;
 
-    Ok(res.student_duration_seconds)
+    Ok(res.map(|r| r.student_duration_seconds).unwrap_or_default())
 }
 
 #[cfg(test)]
@@ -920,5 +939,14 @@ mod test {
             "user should be enrolled on one course with tmc exercises"
         );
         tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn gets_course_average_duration_with_empty_database() {
+        insert_data!(:tx, :user, :org, :course, :instance);
+        let duration = get_course_average_duration(tx.as_mut(), instance.id)
+            .await
+            .unwrap();
+        assert!(duration.is_none())
     }
 }

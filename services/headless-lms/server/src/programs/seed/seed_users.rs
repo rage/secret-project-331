@@ -2,14 +2,14 @@ use headless_lms_models::{users, PKeyPolicy};
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct SeedUsersResult {
     pub admin_user_id: Uuid,
     pub teacher_user_id: Uuid,
     pub language_teacher_user_id: Uuid,
     pub assistant_user_id: Uuid,
     pub course_or_exam_creator_user_id: Uuid,
-    pub example_normal_user_ids: Vec<Uuid>,
+    pub example_normal_user_ids: [Uuid; 4],
     pub teaching_and_learning_services_user_id: Uuid,
     pub student_without_research_consent: Uuid,
     pub material_viewer_user_id: Uuid,
@@ -19,6 +19,7 @@ pub struct SeedUsersResult {
     pub student_3_user_id: Uuid,
     pub student_4_user_id: Uuid,
     pub student_5_user_id: Uuid,
+    pub student_6_user_id: Uuid,
     pub langs_user_id: Uuid,
 }
 
@@ -128,6 +129,15 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
     )
     .await?;
 
+    let student_6_user_id = users::insert(
+        &mut conn,
+        PKeyPolicy::Fixed(Uuid::parse_str("4ba4beb1-abe8-4bad-8bb2-d012c55b310d")?),
+        "student6@example.com",
+        Some("User"),
+        Some("6"),
+    )
+    .await?;
+
     let teaching_and_learning_services_user_id = users::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("5d081ccb-1dab-4367-9549-267fd3f1dd9c")?),
@@ -155,7 +165,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
     )
     .await?;
 
-    let example_normal_user_ids = vec![
+    let example_normal_user_ids: [Uuid; 4] = [
         users::insert(
             &mut conn,
             PKeyPolicy::Fixed(Uuid::parse_str("00e249d8-345f-4eff-aedb-7bdc4c44c1d5")?),
@@ -205,6 +215,7 @@ pub async fn seed_users(db_pool: Pool<Postgres>) -> anyhow::Result<SeedUsersResu
         student_3_user_id,
         student_4_user_id,
         student_5_user_id,
+        student_6_user_id,
         langs_user_id,
     })
 }

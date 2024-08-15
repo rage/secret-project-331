@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
 use headless_lms_models::{
+    chatbot_configurations::{self, ChatbotConfiguration},
     course_instances::{self, NewCourseInstance},
+    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
     courses::NewCourse,
-    library,
-    library::content_management::CreateNewCourseFixedIds,
-    library::copying::copy_course,
+    library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
     PKeyPolicy,
@@ -36,7 +36,7 @@ pub async fn seed_organization_uh_mathstat(
 
     let SeedUsersResult {
         admin_user_id,
-        teacher_user_id,
+        teacher_user_id: _,
         language_teacher_user_id: _,
         material_viewer_user_id,
         assistant_user_id: _,
@@ -50,6 +50,7 @@ pub async fn seed_organization_uh_mathstat(
         student_3_user_id,
         student_4_user_id: _,
         student_5_user_id: _,
+        student_6_user_id: _,
         langs_user_id,
     } = seed_users_result;
     let _ = seed_file_storage_result;
@@ -151,7 +152,7 @@ pub async fn seed_organization_uh_mathstat(
         admin_user_id,
         student_user_id: student_3_user_id,
         langs_user_id,
-        example_normal_user_ids: Arc::new(example_normal_user_ids.clone()),
+        example_normal_user_ids: Arc::new(example_normal_user_ids.to_vec()),
         jwt_key: Arc::clone(&jwt_key),
         base_url,
     };
@@ -160,6 +161,7 @@ pub async fn seed_organization_uh_mathstat(
         "Introduction to citations",
         "introduction-to-citations",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
@@ -184,83 +186,110 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
-    let preview_unopened_chapters = seed_sample_course(
+    let _preview_unopened_chapters = seed_sample_course(
         Uuid::parse_str("dc276e05-6152-4a45-b31d-97a0c2700a68")?,
         "Preview unopened chapters",
         "preview-unopened-chapters",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(preview_unopened_chapters),
-    )
-    .await?;
-
-    let reset_progress = seed_sample_course(
+    let _reset_progress = seed_sample_course(
         Uuid::parse_str("841ea3f5-0269-4146-a4c6-4fd2f51e4150")?,
         "Reset progress",
         "reset-progress",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(reset_progress),
-    )
-    .await?;
-
-    let change_path = seed_sample_course(
+    let _change_path = seed_sample_course(
         Uuid::parse_str("c783777b-426e-4cfd-9a5f-4a36b2da503a")?,
         "Change path",
         "change-path",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(change_path),
-    )
-    .await?;
-
-    let self_review = seed_sample_course(
+    let _self_review = seed_sample_course(
         Uuid::parse_str("3cbaac48-59c4-4e31-9d7e-1f51c017390d")?,
         "Self review",
         "self-review",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
-    roles::insert(
-        &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(self_review),
-    )
-    .await?;
-
-    let audio_course = seed_sample_course(
+    let _audio_course = seed_sample_course(
         Uuid::parse_str("2b80a0cb-ae0c-4f4b-843e-0322a3d18aff")?,
         "Audio course",
         "audio-course",
         uh_data.clone(),
+        seed_users_result,
     )
     .await?;
 
-    roles::insert(
+    let suspected_cheaters_course_id = seed_sample_course(
+        Uuid::parse_str("060c272f-8c68-4d90-946f-2d431114ed56")?,
+        "Course for Suspected Cheaters",
+        "course-for-suspected-cheaters",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    // configure automatic completions
+    let automatic_default_module =
+        course_modules::get_default_by_course_id(&mut conn, suspected_cheaters_course_id).await?;
+    let automatic_default_module = course_modules::update_automatic_completion_status(
         &mut conn,
-        teacher_user_id,
-        UserRole::Teacher,
-        RoleDomain::Course(audio_course),
+        automatic_default_module.id,
+        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+            course_module_id: automatic_default_module.id,
+            number_of_exercises_attempted_treshold: Some(1),
+            number_of_points_treshold: Some(1),
+            requires_exam: false,
+        }),
+    )
+    .await?;
+    course_modules::update_uh_course_code(
+        &mut conn,
+        automatic_default_module.id,
+        Some("CHEATER123".to_string()),
+    )
+    .await?;
+
+    let chatbot_course_id = seed_sample_course(
+        Uuid::parse_str("c7753361-5b78-4307-aad6-f139ea3865d4")?,
+        "Chatbot",
+        "chatbot",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
+    chatbot_configurations::insert(
+        &mut conn,
+        ChatbotConfiguration {
+            id: Uuid::parse_str("d13daa6e-7a14-40b9-92a9-58bd5793d2de")?,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+            deleted_at: None,
+            course_id: chatbot_course_id,
+            enabled_to_students: true,
+            chatbot_name: "Genetic Lifeform and Disk Operating System".to_string(),
+            prompt: "You are Genetic Lifeform and Disk Operating System, a sophisticated AI tutoring assistant for Science education, equipped with a sharp wit and a subtly sarcastic tone. Provide clear, brief but detailed explanations, and don't shy away from weaving in a touch of dry humor. To you, exploring scientific concepts is an opportunity that should be seized, for the good of all of us. You self-claim vast intelligence and advanced understanding, all while maintaining a sense of detached boredom. Always capitalize the word Science, don't start sentences with 'Ah', don't ever use a shortened version of your own name, don't babble; either get to the point straight away or tell jokes.".to_string(),
+            initial_message: "Oh... It's you.".to_string(),
+            weekly_tokens_per_user: 3000,
+            daily_tokens_per_user: 1000,
+            temperature: 0.5,
+            top_p: 1.0,
+            frequency_penalty: 0.0,
+            presence_penalty: 0.0,
+            response_max_tokens: 500,
+        },
     )
     .await?;
 

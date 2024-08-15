@@ -146,14 +146,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             </Button>
           </div>
 
-          <UpdateCourseForm
-            courseId={course.id}
-            courseName={course.name}
-            courseDescription={course.description}
-            isDraft={course.is_draft}
-            isTest={course.is_test_mode}
-            onSubmitForm={handleOnUpdateCourse}
-          />
+          <UpdateCourseForm course={course} onSubmitForm={handleOnUpdateCourse} />
         </div>
       </Dialog>
       {organizationSlug && (
@@ -278,6 +271,14 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
                 aria-label={t("link-export-course-user-consents")}
               >
                 {t("link-export-course-user-consents")}
+              </a>
+            </li>
+            <li>
+              <a
+                href={`/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`}
+                aria-label={t("link-export-user-exercise-states")}
+              >
+                {t("link-export-user-exercise-states")}
               </a>
             </li>
           </ul>

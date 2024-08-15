@@ -48,7 +48,15 @@ const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttrib
             <TextField
               value={attributes.heightPx?.toString() ?? IFRAME_BLOCK_DEFAULT_HEIGHT_PX}
               onChangeByValue={(newValue) => setAttributes({ heightPx: Number(newValue) })}
-              label="Height"
+              label="Height px"
+            />
+            <TextField
+              value={attributes.widthPx}
+              onChangeByValue={(newValue) =>
+                setAttributes({ widthPx: newValue === "" ? undefined : Number(newValue) })
+              }
+              placeholder="Auto"
+              label="Width px (leave empty for auto)"
             />
           </PanelBody>
         </InspectorControls>

@@ -45,6 +45,7 @@ pub struct Course {
     pub is_test_mode: bool,
     pub is_unlisted: bool,
     pub base_module_completion_requires_n_submodule_completions: i32,
+    pub can_add_chatbot: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -151,8 +152,9 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot,
+  is_unlisted
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -184,7 +186,8 @@ SELECT id,
   is_draft,
   is_test_mode,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -222,6 +225,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  can_add_chatbot,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
@@ -273,8 +277,9 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
-  is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot,
+  is_unlisted
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -309,8 +314,9 @@ SELECT
     c.description,
     c.is_draft,
     c.is_test_mode,
-    c.is_unlisted,
-    c.base_module_completion_requires_n_submodule_completions
+    c.base_module_completion_requires_n_submodule_completions,
+    can_add_chatbot,
+    c.is_unlisted
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -370,6 +376,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  can_add_chatbot,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
@@ -473,8 +480,9 @@ SELECT courses.id,
   courses.description,
   courses.is_draft,
   courses.is_test_mode,
-  courses.is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  can_add_chatbot,
+  courses.is_unlisted
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -531,11 +539,12 @@ WHERE organization_id = $1
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseUpdate {
-    name: String,
-    description: Option<String>,
-    is_draft: bool,
-    is_test_mode: bool,
-    is_unlisted: bool,
+    pub name: String,
+    pub description: Option<String>,
+    pub is_draft: bool,
+    pub is_test_mode: bool,
+    pub can_add_chatbot: bool,
+    pub is_unlisted: bool,
 }
 
 pub async fn update_course(
@@ -551,8 +560,9 @@ SET name = $1,
   description = $2,
   is_draft = $3,
   is_test_mode = $4,
-  is_unlisted = $5
-WHERE id = $6
+  can_add_chatbot = $5,
+  is_unlisted = $6
+WHERE id = $7
 RETURNING id,
   name,
   created_at,
@@ -567,6 +577,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  can_add_chatbot,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "#,
@@ -574,6 +585,7 @@ RETURNING id,
         course_update.description,
         course_update.is_draft,
         course_update.is_test_mode,
+        course_update.can_add_chatbot,
         course_update.is_unlisted,
         course_id
     )
@@ -623,6 +635,7 @@ RETURNING id,
   description,
   is_draft,
   is_test_mode,
+  can_add_chatbot,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions
     "#,
@@ -651,6 +664,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  can_add_chatbot,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses
@@ -724,6 +738,7 @@ SELECT id,
   description,
   is_draft,
   is_test_mode,
+  can_add_chatbot,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions
 FROM courses

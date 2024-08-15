@@ -6,4 +6,7 @@ BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../kubernetes/staging"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
 
+
+make_sure_skaffold_local_env_patch_files_exists
+
 run_command kustomize build "$RELATIVE_PATH" "$@"

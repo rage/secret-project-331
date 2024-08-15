@@ -1,3 +1,4 @@
+/* eslint-disable i18next/no-literal-string */
 import { RawAxiosRequestHeaders } from "axios"
 import { Dictionary } from "lodash"
 
@@ -5,6 +6,8 @@ import { courseMaterialClient } from "./courseMaterialClient"
 
 import {
   ChaptersWithStatus,
+  ChatbotConversation,
+  ChatbotConversationInfo,
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
@@ -49,6 +52,8 @@ import {
 } from "@/shared-module/common/bindings"
 import {
   isChaptersWithStatus,
+  isChatbotConversation,
+  isChatbotConversationInfo,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
@@ -587,6 +592,15 @@ export const fetchResearchFormAnswersWithUserId = async (
   return validateResponse(response, isArray(isResearchFormQuestionAnswer))
 }
 
+export const getChatbotConfigurationForCourse = async (
+  course_id: string,
+): Promise<string | null> => {
+  const response = await courseMaterialClient.get(`/chatbot/for-course/${course_id}`, {
+    responseType: "json",
+  })
+  return validateResponse(response, isUnion(isString, isNull))
+}
+
 export const postResearchFormUserAnswer = async (
   courseId: string,
   user_id: string,
@@ -657,4 +671,47 @@ export const fetchExerciseSubmissions = async (
 export const endExamTime = async (examId: string): Promise<void> => {
   const response = await courseMaterialClient.post(`/exams/${examId}/end-exam-time`)
   return response.data
+}
+
+export const getChatbotCurrentConversationInfo = async (
+  chatBotConfigurationId: string,
+): Promise<ChatbotConversationInfo> => {
+  const response = await courseMaterialClient.get(
+    `/chatbot/${chatBotConfigurationId}/conversations/current`,
+  )
+  return validateResponse(response, isChatbotConversationInfo)
+}
+
+export const newChatbotConversation = async (
+  chatBotConfigurationId: string,
+): Promise<ChatbotConversation> => {
+  const response = await courseMaterialClient.post(
+    `/chatbot/${chatBotConfigurationId}/conversations/new`,
+  )
+  return validateResponse(response, isChatbotConversation)
+}
+
+export const sendChatbotMessage = async (
+  chatBotConfigurationId: string,
+  conversationId: string,
+  message: string,
+): Promise<ReadableStream<Uint8Array>> => {
+  const res = await fetch(
+    `/api/v0/course-material/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`,
+    {
+      method: "POST",
+      body: JSON.stringify(message),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    },
+  )
+
+  const stream = res.body
+
+  if (!stream) {
+    throw new Error("No response body")
+  }
+
+  return stream
 }

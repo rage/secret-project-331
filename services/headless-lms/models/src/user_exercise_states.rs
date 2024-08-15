@@ -1,3 +1,4 @@
+use derive_more::Display;
 use std::collections::HashMap;
 
 use futures::Stream;
@@ -13,7 +14,7 @@ use crate::{
     user_course_settings,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display)]
 #[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 /**
@@ -1229,6 +1230,50 @@ WHERE exercises.deleted_at IS NULL
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExportedUserExerciseState {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub exercise_id: Uuid,
+    pub course_instance_id: Option<Uuid>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub score_given: Option<f32>,
+    pub grading_progress: GradingProgress,
+    pub activity_progress: ActivityProgress,
+    pub reviewing_stage: ReviewingStage,
+    pub selected_exercise_slide_id: Option<Uuid>,
+}
+
+pub fn stream_user_exercise_states_for_course<'a>(
+    conn: &'a mut PgConnection,
+    course_instance_ids: &'a [Uuid],
+) -> impl Stream<Item = sqlx::Result<ExportedUserExerciseState>> + 'a {
+    let res = sqlx::query_as!(
+        ExportedUserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  created_at,
+  updated_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE course_instance_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        course_instance_ids
+    )
+    .fetch(conn);
+    res
 }
 
 #[cfg(test)]

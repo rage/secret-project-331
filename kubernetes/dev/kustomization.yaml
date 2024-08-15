@@ -26,5 +26,5 @@ patches:
     target:
       version: v1
       kind: Role
-patchesStrategicMerge:
-  - main-frontend/patch-env.yml
+  - path: main-frontend/patch-env.yml
+  - path: headless-lms/env-local-patch.secret.yml

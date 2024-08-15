@@ -1,6 +1,8 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 use chrono::Utc;
+use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
+use headless_lms_models::suspected_cheaters::{SuspectedCheaters, ThresholdData};
 use std::sync::Arc;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
@@ -167,6 +169,12 @@ async fn update_course(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let course_update = payload.0;
+    let course_before_update = models::courses::get_course(&mut conn, *course_id).await?;
+    if course_update.can_add_chatbot != course_before_update.can_add_chatbot {
+        // Only global admins can change the chatbot status
+        let _token2 =
+            authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+    }
     let course = models::courses::update_course(&mut conn, *course_id, course_update).await?;
     token.authorized_ok(web::Json(course))
 }
@@ -1101,6 +1109,44 @@ pub async fn course_consent_form_answers_export(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`
+
+gets CSV for course specific user exercise states
+*/
+#[instrument(skip(pool))]
+pub async fn user_exercise_states_export(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+
+    let course = models::courses::get_course(&mut conn, *course_id).await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Course: {} - User exercise states {}.csv\"",
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        UserExerciseStatesExportOperation {
+            course_id: *course_id,
+        },
+        token,
+    )
+    .await
+}
+
+/**
 GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
 */
 pub async fn get_page_visit_datum_summary(
@@ -1298,6 +1344,111 @@ pub async fn teacher_reset_course_progress_for_everyone(
     token.authorized_ok(web::Json(true))
 }
 
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct GetSuspectedCheatersQuery {
+    archive: bool,
+}
+
+/**
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
+*/
+#[instrument(skip(pool))]
+async fn get_all_suspected_cheaters(
+    user: AuthUser,
+    params: web::Path<Uuid>,
+    query: web::Query<GetSuspectedCheatersQuery>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<SuspectedCheaters>>> {
+    let course_id = params.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let course_cheaters = models::suspected_cheaters::get_all_suspected_cheaters_in_course(
+        &mut conn,
+        course_id,
+        query.archive,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(course_cheaters))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/${course.id}/threshold - post course threshold information.
+*/
+#[instrument(skip(pool))]
+async fn insert_threshold(
+    pool: web::Data<PgPool>,
+    params: web::Path<Uuid>,
+    payload: web::Json<ThresholdData>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+
+    let course_id = params.into_inner();
+    let new_threshold = payload.0;
+    let duration: Option<i32> = new_threshold.duration_seconds;
+
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::insert_thresholds(
+        &mut conn,
+        course_id,
+        duration,
+        new_threshold.points,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
+*/
+#[instrument(skip(pool))]
+async fn teacher_archive_suspected_cheater(
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, user_id) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::archive_suspected_cheater(&mut conn, user_id).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
+*/
+#[instrument(skip(pool))]
+async fn teacher_approve_suspected_cheater(
+    user: AuthUser,
+    path: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<()>> {
+    let (course_id, user_id) = path.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::suspected_cheaters::approve_suspected_cheater(&mut conn, user_id).await?;
+
+    // Fail student
+    //find by user_id and course_id
+    models::course_module_completions::update_passed_and_grade_status(
+        &mut conn, course_id, user_id, false, 0,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -1428,6 +1579,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(course_consent_form_answers_export),
         )
         .route(
+            "/{course_id}/export-user-exercise-states",
+            web::get().to(user_exercise_states_export),
+        )
+        .route(
             "/{course_id}/page-visit-datum-summary",
             web::get().to(get_page_visit_datum_summary),
         )
@@ -1446,6 +1601,19 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/teacher-reset-course-progress-for-themselves",
             web::delete().to(teacher_reset_course_progress_for_themselves),
+        )
+        .route("/{course_id}/threshold", web::post().to(insert_threshold))
+        .route(
+            "/{course_id}/suspected-cheaters",
+            web::get().to(get_all_suspected_cheaters),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/archive/{id}",
+            web::post().to(teacher_archive_suspected_cheater),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/approve/{id}",
+            web::post().to(teacher_approve_suspected_cheater),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",

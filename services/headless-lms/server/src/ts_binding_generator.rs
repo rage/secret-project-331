@@ -83,6 +83,9 @@ fn models(target: &mut File) {
         courses::CourseBreadcrumbInfo,
         certificate_configurations::CertificateConfigurationAndRequirements,
         certificate_configuration_to_requirements::CertificateAllRequirements,
+        chatbot_conversations::ChatbotConversation,
+        chatbot_conversations::ChatbotConversationInfo,
+        chatbot_conversation_messages::ChatbotConversationMessage,
 
         email_templates::EmailTemplate,
         email_templates::EmailTemplateNew,
@@ -238,6 +241,8 @@ fn models(target: &mut File) {
         roles::RoleUser,
         roles::UserRole,
         student_countries::StudentCountry,
+        suspected_cheaters::SuspectedCheaters,
+        suspected_cheaters::ThresholdData,
 
         teacher_grading_decisions::NewTeacherGradingDecision,
         teacher_grading_decisions::TeacherDecisionType,

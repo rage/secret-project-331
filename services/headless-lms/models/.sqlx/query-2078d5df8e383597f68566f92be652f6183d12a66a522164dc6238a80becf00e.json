@@ -1,0 +1,116 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "organization_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "slug",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "content_search_language",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "language_code",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "copied_from",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 10,
+        "name": "course_language_group_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 11,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 12,
+        "name": "is_draft",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 13,
+        "name": "is_test_mode",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 14,
+        "name": "can_add_chatbot",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      null,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2078d5df8e383597f68566f92be652f6183d12a66a522164dc6238a80becf00e"
+}

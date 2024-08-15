@@ -1,3 +1,4 @@
+use derive_more::Display;
 use futures::future::BoxFuture;
 use itertools::Itertools;
 use url::Url;
@@ -130,7 +131,9 @@ Indicates what is the user's completion status for a exercise.
 
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type)]
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, Display, sqlx::Type,
+)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
 pub enum ActivityProgress {
@@ -154,7 +157,7 @@ Tells what's the status of the grading progress for a user and exercise.
 As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
 #[derive(
-    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, sqlx::Type,
+    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, Display, sqlx::Type,
 )]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]

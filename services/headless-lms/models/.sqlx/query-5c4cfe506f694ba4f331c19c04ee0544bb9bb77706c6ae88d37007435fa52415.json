@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT * FROM\nchatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -85,7 +85,20 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Float4",
+        "Int4"
+      ]
     },
     "nullable": [
       false,
@@ -106,5 +119,5 @@
       false
     ]
   },
-  "hash": "2939fc04307805d0fe798d09032b6ad4586732fe99ac09a37afbb79802f08e8e"
+  "hash": "5c4cfe506f694ba4f331c19c04ee0544bb9bb77706c6ae88d37007435fa52415"
 }

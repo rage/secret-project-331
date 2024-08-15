@@ -97,11 +97,11 @@ async fn send_message(
 
     let chat_request = ChatRequest {
         messages: api_chat_messages,
-        temperature: 0.7,
-        top_p: 1.0,
-        frequency_penalty: 0.0,
-        presence_penalty: 0.0,
-        max_tokens: 100,
+        temperature: configuration.temperature,
+        top_p: configuration.top_p,
+        frequency_penalty: configuration.frequency_penalty,
+        presence_penalty: configuration.presence_penalty,
+        max_tokens: configuration.response_max_tokens,
         stop: None,
         stream: true,
     };

@@ -57,12 +57,54 @@
         "ordinal": 10,
         "name": "daily_tokens_per_user",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "temperature",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 12,
+        "name": "top_p",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 13,
+        "name": "frequency_penalty",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 14,
+        "name": "presence_penalty",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 15,
+        "name": "response_max_tokens",
+        "type_info": "Int4"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "354c0e0f69b443cdb89c099d504ab1cfe9d4fded8d1bf0a759378acb720649ee"
 }

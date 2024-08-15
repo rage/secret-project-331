@@ -284,6 +284,11 @@ pub async fn seed_organization_uh_mathstat(
             initial_message: "Oh... It's you.".to_string(),
             weekly_tokens_per_user: 3000,
             daily_tokens_per_user: 1000,
+            temperature: 0.5,
+            top_p: 1.0,
+            frequency_penalty: 0.0,
+            presence_penalty: 0.0,
+            response_max_tokens: 500,
         },
     )
     .await?;

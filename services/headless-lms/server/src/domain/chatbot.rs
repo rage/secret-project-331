@@ -90,10 +90,10 @@ impl From<ChatbotConversationMessage> for ApiChatMessage {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChatRequest {
     pub messages: Vec<ApiChatMessage>,
-    pub temperature: f64,
-    pub top_p: f64,
-    pub frequency_penalty: f64,
-    pub presence_penalty: f64,
+    pub temperature: f32,
+    pub top_p: f32,
+    pub frequency_penalty: f32,
+    pub presence_penalty: f32,
     pub max_tokens: i32,
     pub stop: Option<String>,
     pub stream: bool,

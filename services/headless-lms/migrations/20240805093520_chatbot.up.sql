@@ -14,6 +14,12 @@ CREATE TABLE chatbot_configurations (
   initial_message VARCHAR(32376) NOT NULL,
   weekly_tokens_per_user INT NOT NULL,
   daily_tokens_per_user INT NOT NULL,
+  -- Options passed to the api
+  temperature FLOAT4 NOT NULL DEFAULT 0.7,
+  top_p FLOAT4 NOT NULL DEFAULT 1.0,
+  frequency_penalty FLOAT4 NOT NULL DEFAULT 0.0,
+  presence_penalty FLOAT4 NOT NULL DEFAULT 0.0,
+  response_max_tokens INT NOT NULL DEFAULT 500,
   -- Course can have only one chatbot configuration
   UNIQUE NULLS NOT DISTINCT (course_id, deleted_at)
 );
@@ -33,6 +39,11 @@ COMMENT ON COLUMN chatbot_configurations.prompt IS 'The prompt that the chatbot 
 COMMENT ON COLUMN chatbot_configurations.initial_message IS 'The message the chatbot will send to the student when they open the chat for the first time.';
 COMMENT ON COLUMN chatbot_configurations.weekly_tokens_per_user IS 'The number of tokens a student can use per week. Limits the number of messages a student can send to the chatbot based on the complexity of the messages and responses.';
 COMMENT ON COLUMN chatbot_configurations.daily_tokens_per_user IS 'The number of tokens a student can use per day. Limits the number of messages a student can send to the chatbot based on the complexity of the messages and responses.';
+COMMENT ON COLUMN chatbot_configurations.temperature IS 'The temperature parameter for the chatbot. The higher the temperature, the more creative the chatbot will be. The value should be between 0 and 1.';
+COMMENT ON COLUMN chatbot_configurations.top_p IS 'The top_p parameter for the chatbot. The higher the top_p, the more creative the chatbot will be. The value should be between 0 and 1.';
+COMMENT ON COLUMN chatbot_configurations.frequency_penalty IS 'The frequency penalty parameter for the chatbot. The value should be between 0 and 1.';
+COMMENT ON COLUMN chatbot_configurations.presence_penalty IS 'The presence penalty parameter for the chatbot. The value should be between 0 and 1.';
+COMMENT ON COLUMN chatbot_configurations.response_max_tokens IS 'The maximum number of tokens the chatbot can use to generate a response.';
 
 CREATE TABLE chatbot_page_sync_statuses (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

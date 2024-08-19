@@ -366,6 +366,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     create_exam(
@@ -381,6 +382,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     create_exam(
@@ -396,6 +398,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
 
@@ -412,6 +415,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        true,
     )
     .await?;
     create_exam(
@@ -427,6 +431,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     create_exam(
@@ -442,6 +447,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     let automatic_course_exam = create_exam(
@@ -457,6 +463,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     course_exams::upsert(

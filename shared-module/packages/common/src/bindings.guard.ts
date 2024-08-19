@@ -1101,7 +1101,8 @@ export function isExam(obj: unknown): obj is Exam {
     (typedObj["ends_at"] === null || typeof typedObj["ends_at"] === "string") &&
     typeof typedObj["time_minutes"] === "number" &&
     typeof typedObj["minimum_points_treshold"] === "number" &&
-    typeof typedObj["language"] === "string"
+    typeof typedObj["language"] === "string" &&
+    typeof typedObj["grade_manually"] === "boolean"
   )
 }
 
@@ -1142,7 +1143,8 @@ export function isNewExam(obj: unknown): obj is NewExam {
     (typedObj["ends_at"] === null || typeof typedObj["ends_at"] === "string") &&
     typeof typedObj["time_minutes"] === "number" &&
     typeof typedObj["organization_id"] === "string" &&
-    typeof typedObj["minimum_points_treshold"] === "number"
+    typeof typedObj["minimum_points_treshold"] === "number" &&
+    typeof typedObj["grade_manually"] === "boolean"
   )
 }
 

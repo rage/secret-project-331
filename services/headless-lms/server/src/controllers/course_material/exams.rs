@@ -176,100 +176,106 @@ pub async fn fetch_exam_for_user(
     let enrollment = if let Some(enrollment) =
         exams::get_enrollment(&mut conn, *exam_id, user.id).await?
     {
-        // Get the grading results, if the student has any
-        let teachers_grading_decisions_list =
-            teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_exam_id(
-                &mut conn, user.id, *exam_id,
-            )
-            .await?;
-        let teacher_grading_decisions = teachers_grading_decisions_list.clone();
+        if exam.grade_manually {
+            // Get the grading results, if the student has any
+            let teachers_grading_decisions_list =
+                teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_exam_id(
+                    &mut conn, user.id, *exam_id,
+                )
+                .await?;
+            let teacher_grading_decisions = teachers_grading_decisions_list.clone();
 
-        let exam_exercises = exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
+            let exam_exercises = exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
 
-        let user_exercise_states =
-            user_exercise_states::get_all_for_user_and_course_instance_or_exam(
-                &mut conn,
-                user.id,
-                CourseInstanceOrExamId::Exam(*exam_id),
-            )
-            .await?;
+            let user_exercise_states =
+                user_exercise_states::get_all_for_user_and_course_instance_or_exam(
+                    &mut conn,
+                    user.id,
+                    CourseInstanceOrExamId::Exam(*exam_id),
+                )
+                .await?;
 
-        let mut grading_decision_and_exercise_list: Vec<(TeacherGradingDecision, Exercise)> =
-            Vec::new();
+            let mut grading_decision_and_exercise_list: Vec<(TeacherGradingDecision, Exercise)> =
+                Vec::new();
 
-        // Check if student has any published grading results they can view at the exam page
-        for grading_decision in teachers_grading_decisions_list.into_iter() {
-            if let Some(hidden) = grading_decision.hidden {
-                if !hidden {
-                    // Get the corresponding exercise for the grading result
-                    for grading in teacher_grading_decisions.into_iter() {
-                        let user_exercise_state = user_exercise_states
-                            .iter()
-                            .find(|state| state.id == grading.user_exercise_state_id)
-                            .ok_or_else(|| {
-                                ModelError::new(
-                                    ModelErrorType::Generic,
-                                    "User_exercise_state not found".into(),
-                                    None,
-                                )
-                            })?;
+            // Check if student has any published grading results they can view at the exam page
+            for grading_decision in teachers_grading_decisions_list.into_iter() {
+                if let Some(hidden) = grading_decision.hidden {
+                    if !hidden {
+                        // Get the corresponding exercise for the grading result
+                        for grading in teacher_grading_decisions.into_iter() {
+                            let user_exercise_state = user_exercise_states
+                                .iter()
+                                .find(|state| state.id == grading.user_exercise_state_id)
+                                .ok_or_else(|| {
+                                    ModelError::new(
+                                        ModelErrorType::Generic,
+                                        "User_exercise_state not found".into(),
+                                        None,
+                                    )
+                                })?;
 
-                        let exercise = exam_exercises
-                            .iter()
-                            .find(|exercise| exercise.id == user_exercise_state.exercise_id)
-                            .ok_or_else(|| {
-                                ModelError::new(
-                                    ModelErrorType::Generic,
-                                    "Exercise not found".into(),
-                                    None,
-                                )
-                            })?;
+                            let exercise = exam_exercises
+                                .iter()
+                                .find(|exercise| exercise.id == user_exercise_state.exercise_id)
+                                .ok_or_else(|| {
+                                    ModelError::new(
+                                        ModelErrorType::Generic,
+                                        "Exercise not found".into(),
+                                        None,
+                                    )
+                                })?;
 
-                        grading_decision_and_exercise_list.push((grading, exercise.clone()));
+                            grading_decision_and_exercise_list.push((grading, exercise.clone()));
+                        }
+
+                        let token =
+                            authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id))
+                                .await?;
+                        return token.authorized_ok(web::Json(ExamData {
+                            id: exam.id,
+                            name: exam.name,
+                            instructions: exam.instructions,
+                            starts_at,
+                            ends_at,
+                            ended,
+                            time_minutes: exam.time_minutes,
+                            enrollment_data: ExamEnrollmentData::StudentCanViewGrading {
+                                gradings: grading_decision_and_exercise_list,
+                                enrollment,
+                            },
+                            language: exam.language,
+                        }));
                     }
-
-                    let token =
-                        authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
-                    return token.authorized_ok(web::Json(ExamData {
-                        id: exam.id,
-                        name: exam.name,
-                        instructions: exam.instructions,
-                        starts_at,
-                        ends_at,
-                        ended,
-                        time_minutes: exam.time_minutes,
-                        enrollment_data: ExamEnrollmentData::StudentCanViewGrading {
-                            gradings: grading_decision_and_exercise_list,
-                            enrollment,
-                        },
-                        language: exam.language,
-                    }));
                 }
             }
-        }
-        // user has ended the exam
-        if enrollment.ended_at.is_some() {
-            let token: domain::authorization::AuthorizationToken =
-                authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
-            return token.authorized_ok(web::Json(ExamData {
-                id: exam.id,
-                name: exam.name,
-                instructions: exam.instructions,
-                starts_at,
-                ends_at,
-                ended,
-                time_minutes: exam.time_minutes,
-                enrollment_data: ExamEnrollmentData::StudentTimeUp,
-                language: exam.language,
-            }));
+            // user has ended the exam
+            if enrollment.ended_at.is_some() {
+                let token: domain::authorization::AuthorizationToken =
+                    authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+                return token.authorized_ok(web::Json(ExamData {
+                    id: exam.id,
+                    name: exam.name,
+                    instructions: exam.instructions,
+                    starts_at,
+                    ends_at,
+                    ended,
+                    time_minutes: exam.time_minutes,
+                    enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                    language: exam.language,
+                }));
+            }
         }
 
         // user has started the exam
         if Utc::now() < ends_at
-            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+            && (Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+                || enrollment.ended_at.is_some())
         {
-            // exam is still open but the student's time has expired
-            exams::update_exam_ended_at(&mut conn, *exam_id, user.id, Utc::now()).await?;
+            // exam is still open but the student's time has expired or student has ended their exam
+            if enrollment.ended_at.is_none() {
+                exams::update_exam_ended_at(&mut conn, *exam_id, user.id, Utc::now()).await?;
+            }
             let token: domain::authorization::AuthorizationToken =
                 authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             return token.authorized_ok(web::Json(ExamData {

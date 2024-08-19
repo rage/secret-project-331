@@ -18,6 +18,7 @@ pub struct Exam {
     pub time_minutes: i32,
     pub minimum_points_treshold: i32,
     pub language: String,
+    pub grade_manually: bool,
 }
 
 impl Exam {
@@ -64,7 +65,8 @@ SELECT exams.id,
   exams.ends_at,
   exams.time_minutes,
   exams.minimum_points_treshold,
-  exams.language
+  exams.language,
+  exams.grade_manually
 FROM exams
   JOIN pages ON pages.exam_id = exams.id
 WHERE exams.id = $1
@@ -116,6 +118,7 @@ WHERE course_exams.exam_id = $1
         courses,
         minimum_points_treshold: exam.minimum_points_treshold,
         language: exam.language.unwrap_or("en-US".to_string()),
+        grade_manually: exam.grade_manually,
     })
 }
 
@@ -137,6 +140,7 @@ pub struct NewExam {
     pub time_minutes: i32,
     pub organization_id: Uuid,
     pub minimum_points_treshold: i32,
+    pub grade_manually: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -167,9 +171,10 @@ INSERT INTO exams (
     ends_at,
     time_minutes,
     organization_id,
-    minimum_points_treshold
+    minimum_points_treshold,
+    grade_manually
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id
         ",
         pkey_policy.into_uuid(),
@@ -180,6 +185,7 @@ RETURNING id
         exam.time_minutes,
         exam.organization_id,
         exam.minimum_points_treshold,
+        exam.grade_manually,
     )
     .fetch_one(conn)
     .await?;
@@ -195,7 +201,8 @@ SET name = COALESCE($2, name),
   starts_at = $3,
   ends_at = $4,
   time_minutes = $5,
-  minimum_points_treshold = $6
+  minimum_points_treshold = $6,
+  grade_manually = $7
 WHERE id = $1
 ",
         id,
@@ -204,6 +211,7 @@ WHERE id = $1
         new_exam.ends_at,
         new_exam.time_minutes,
         new_exam.minimum_points_treshold,
+        new_exam.grade_manually,
     )
     .execute(conn)
     .await?;

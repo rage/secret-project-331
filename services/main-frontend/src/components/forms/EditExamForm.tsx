@@ -24,6 +24,7 @@ interface EditExamFields {
   parentId: string | null
   automaticCompletionEnabled: boolean
   minimumPointsTreshold: number
+  manualGradingEnabled: boolean
 }
 
 const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
@@ -51,6 +52,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         ? Number(data.minimumPointsTreshold)
         : 0,
       organization_id: organizationId,
+      grade_manually: data.manualGradingEnabled,
     })
   })
 
@@ -88,6 +90,11 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           defaultValue={initialData?.time_minutes}
           label={t("label-time-minutes")}
           {...register("timeMinutes", { required: t("required-field") })}
+        />
+        <CheckBox
+          defaultChecked={initialData?.grade_manually}
+          label={t("label-grade-exam-manually")}
+          {...register("manualGradingEnabled")}
         />
         <CheckBox
           label={t("label-related-courses-can-be-completed-automatically")}

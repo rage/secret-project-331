@@ -534,6 +534,7 @@ export interface Exam {
   time_minutes: number
   minimum_points_treshold: number
   language: string
+  grade_manually: boolean
 }
 
 export interface ExamEnrollment {
@@ -561,6 +562,7 @@ export interface NewExam {
   time_minutes: number
   organization_id: string
   minimum_points_treshold: number
+  grade_manually: boolean
 }
 
 export interface OrgExam {

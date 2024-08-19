@@ -1,5 +1,7 @@
 import { BrowserContext, expect, test } from "@playwright/test"
 
+import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -45,6 +47,11 @@ test("Grade exams manually", async ({}) => {
     .getByRole("button", { name: "Submit" })
     .click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor()
+  await scrollLocatorsParentIframeToViewIfNeeded(
+    student1Page
+      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      .getByRole("checkbox", { name: "b" }),
+  )
   await student1Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("checkbox", { name: "b" })

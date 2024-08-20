@@ -8,6 +8,7 @@ import SubmissionIFrame from "../../../components/page-specific/submissions/id/S
 import { Block } from "../../../services/backend/exercises"
 import { fetchSubmissionInfo } from "../../../services/backend/submissions"
 
+import { fetchExam } from "@/services/backend/exams"
 import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -41,6 +42,12 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
 
   const examId = getSubmissionInfo.data?.exercise.exam_id
   const exerciseId = getSubmissionInfo.data?.exercise.id
+
+  const getExam = useQuery({
+    queryKey: [`/exams/${examId}/`, examId],
+    queryFn: () => fetchExam(examId ?? ""),
+  })
+
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
       // eslint-disable-next-line i18next/no-literal-string
@@ -72,7 +79,7 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
         <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
       )}
       {getSubmissionInfo.isPending && <Spinner variant={"medium"} />}
-      {getSubmissionInfo.isSuccess && (
+      {getSubmissionInfo.isSuccess && getExam.isSuccess && (
         <Centered variant="narrow">
           <div>
             <h1
@@ -100,10 +107,33 @@ const Submission: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ qu
                     {handleGetAssignments(task)}
                   </div>
                   <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+                  {!getExam.data?.grade_manually && (
+                    <div
+                      className={css`
+                        padding: 1.5rem 2rem;
+                        display: flex;
+                      `}
+                    >
+                      {t("message-this-submission-has-been-graded-automatically")}:
+                      <div
+                        className={css`
+                          padding-left: 0.5rem;
+                        `}
+                      >
+                        {task.previous_submission_grading?.score_given} /
+                        {task.previous_submission_grading?.unscaled_score_maximum}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
           </div>
-          <GradeExamAnswerForm submissionId={getSubmissionInfo.data.exercise_slide_submission.id} />
+
+          {getExam.data?.grade_manually && (
+            <GradeExamAnswerForm
+              submissionId={getSubmissionInfo.data.exercise_slide_submission.id}
+            />
+          )}
         </Centered>
       )}
     </div>

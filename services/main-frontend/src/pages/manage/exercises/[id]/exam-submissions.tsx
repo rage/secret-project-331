@@ -1,10 +1,12 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import useExamSubmissionsInfo from "../../../../hooks/useExamSubmissionsInfo"
 
+import { fetchExam } from "@/services/backend/exams"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -31,6 +33,11 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   const getSubmissions = useExamSubmissionsInfo(query.id, paginationInfo.page, paginationInfo.limit)
 
   const examId = getSubmissions.data?.data[0].exercise.exam_id
+  const getExam = useQuery({
+    queryKey: [`/exams/${examId}/`, examId],
+    queryFn: () => fetchExam(examId ?? ""),
+  })
+
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
       // eslint-disable-next-line i18next/no-literal-string
@@ -55,7 +62,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
       </BreakFromCentered>
       {getSubmissions.isError && <ErrorBanner variant={"readOnly"} error={getSubmissions.error} />}
       {getSubmissions.isPending && <Spinner variant={"medium"} />}
-      {getSubmissions.isSuccess && (
+      {getSubmissions.isSuccess && getExam.isSuccess && (
         <>
           <h3
             className={css`
@@ -108,7 +115,33 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
               {getSubmissions.data.data.map((submission) => (
                 <tr key={submission.exercise_slide_submission.id}>
                   <td>
-                    {submission.teacher_grading_decision ? (
+                    {getExam.data?.grade_manually ? (
+                      submission.teacher_grading_decision ? (
+                        <Button
+                          variant={"secondary"}
+                          size={"small"}
+                          transform="none"
+                          onClick={() => {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
+                          }}
+                        >
+                          {t("label-review")}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant={"primary"}
+                          size={"small"}
+                          transform="none"
+                          onClick={() => {
+                            // eslint-disable-next-line i18next/no-literal-string
+                            location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
+                          }}
+                        >
+                          {t("grade")}
+                        </Button>
+                      )
+                    ) : (
                       <Button
                         variant={"secondary"}
                         size={"small"}
@@ -120,58 +153,60 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                       >
                         {t("label-review")}
                       </Button>
-                    ) : (
-                      <Button
-                        variant={"primary"}
-                        size={"small"}
-                        transform="none"
-                        onClick={() => {
-                          // eslint-disable-next-line i18next/no-literal-string
-                          location.href = `/submissions/${submission.exercise_slide_submission.id}/grading/`
-                        }}
-                      >
-                        {t("grade")}
-                      </Button>
                     )}
                   </td>
                   <td>{submission.exercise_slide_submission.user_id}</td>
                   <td>
-                    {submission.teacher_grading_decision ? (
-                      <div
-                        className={css`
-                          color: #32bea6;
-                        `}
-                      >
-                        {t("status-graded")}
-                      </div>
-                    ) : (
-                      <div
-                        className={css`
-                          color: #f76d82;
-                        `}
-                      >
-                        {t("status-ungraded")}
-                      </div>
-                    )}
-                  </td>
-                  <td>
-                    {submission.teacher_grading_decision ? (
-                      submission.teacher_grading_decision.hidden ? (
-                        <div
-                          className={css`
-                            color: #f76d82;
-                          `}
-                        >
-                          {t("unpublished")}
-                        </div>
-                      ) : (
+                    {getExam.data?.grade_manually ? (
+                      submission.teacher_grading_decision ? (
                         <div
                           className={css`
                             color: #32bea6;
                           `}
                         >
-                          {t("published")}
+                          {t("status-graded")}
                         </div>
+                      ) : (
+                        <div
+                          className={css`
+                            color: #f76d82;
+                          `}
+                        >
+                          {t("status-ungraded")}
+                        </div>
+                      )
+                    ) : (
+                      <div
+                        className={css`
+                          color: #32bea6;
+                        `}
+                      >
+                        {t("label-graded-automatically")}
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    {getExam.data?.grade_manually ? (
+                      submission.teacher_grading_decision ? (
+                        submission.teacher_grading_decision.hidden ? (
+                          <div
+                            className={css`
+                              color: #f76d82;
+                            `}
+                          >
+                            {t("unpublished")}
+                          </div>
+                        ) : (
+                          <div
+                            className={css`
+                              color: #32bea6;
+                            `}
+                          >
+                            {t("published")}
+                          </div>
+                        )
+                      ) : (
+                        <>-</>
                       )
                     ) : (
                       <>-</>
@@ -181,9 +216,11 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                     {parseISO(submission.exercise_slide_submission.created_at).toLocaleString()}
                   </td>
                   <td>
-                    {submission.teacher_grading_decision
-                      ? submission.teacher_grading_decision.score_given
-                      : 0}
+                    {getExam.data?.grade_manually
+                      ? submission.teacher_grading_decision
+                        ? submission.teacher_grading_decision.score_given
+                        : 0
+                      : submission.user_exercise_state.score_given}
                     / {submission.exercise.score_maximum}
                   </td>
                 </tr>

@@ -116,11 +116,9 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
                 {t("link-export-submissions")}
               </a>
             </li>
-            {getExam.data.grade_manually && (
-              <li>
-                <a href={`/manage/exams/${getExam.data.id}/questions`}>{t("grading")}</a>
-              </li>
-            )}
+            <li>
+              <a href={`/manage/exams/${getExam.data.id}/questions`}>{t("grading")}</a>
+            </li>
             <li>
               <a href={`/org/${organizationSlug}/exams/testexam/${getExam.data.id}`}>
                 {t("link-test-exam")}

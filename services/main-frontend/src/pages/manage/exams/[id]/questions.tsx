@@ -108,6 +108,18 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   }
 
   const gradedCheck = (id: string) => {
+    if (!getExam.data?.grade_manually) {
+      return (
+        <div
+          className={css`
+            color: #32bea6;
+          `}
+        >
+          {t("label-graded-automatically")}
+        </div>
+      )
+    }
+
     const submissions = allSubmissionsList?.[id]
     if (submissions) {
       const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
@@ -157,6 +169,9 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   }
 
   const totalGraded = (id: string) => {
+    if (!getExam.data?.grade_manually) {
+      return <div>{totalAnswered(id)}</div>
+    }
     const submissions = allSubmissionsList?.[id]
     if (submissions) {
       return submissions.filter((sub) => sub.teacher_grading_decision).length
@@ -166,6 +181,9 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
   }
 
   const totalPublished = (id: string) => {
+    if (!getExam.data?.grade_manually) {
+      return <div>0</div>
+    }
     const submissions = allSubmissionsList?.[id]
     let count = 0
     if (submissions) {
@@ -255,17 +273,31 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
               {sorted?.map((exercise) => (
                 <tr key={exercise.name}>
                   <td>
-                    <Button
-                      variant={"primary"}
-                      size={"small"}
-                      transform="none"
-                      onClick={() => {
-                        // eslint-disable-next-line i18next/no-literal-string
-                        location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
-                      }}
-                    >
-                      {t("grade")}
-                    </Button>
+                    {getExam.data?.grade_manually ? (
+                      <Button
+                        variant={"primary"}
+                        size={"small"}
+                        transform="none"
+                        onClick={() => {
+                          // eslint-disable-next-line i18next/no-literal-string
+                          location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
+                        }}
+                      >
+                        {t("grade")}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant={"primary"}
+                        size={"small"}
+                        transform="none"
+                        onClick={() => {
+                          // eslint-disable-next-line i18next/no-literal-string
+                          location.href = `/manage/exercises/${exercise.id}/exam-submissions/`
+                        }}
+                      >
+                        {t("label-review")}
+                      </Button>
+                    )}
                   </td>
                   <td>{t("question-n", { n: exercise.order_number + 1 })}</td>
                   <td>{exercise.id && gradedCheck(exercise.id)}</td>
@@ -277,18 +309,19 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
               ))}
             </tbody>
           </table>
-          <div
-            className={css`
-              margin-top: 1.5rem;
-            `}
-          >
-            {checkPublishable() != 0 && (
-              <GenericInfobox>
-                {t("unpublishable-grading-results", { amount: checkPublishable() })}
-              </GenericInfobox>
-            )}
-          </div>
-
+          {getExam.data?.grade_manually && (
+            <div
+              className={css`
+                margin-top: 1.5rem;
+              `}
+            >
+              {checkPublishable() != 0 && (
+                <GenericInfobox>
+                  {t("unpublishable-grading-results", { amount: checkPublishable() })}
+                </GenericInfobox>
+              )}
+            </div>
+          )}
           <div
             className={css`
               margin-top: 1.5rem;
@@ -297,6 +330,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
             `}
           >
             <Button
+              disabled={!getExam.data?.grade_manually}
               variant={"primary"}
               size={"small"}
               onClick={() => {

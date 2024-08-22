@@ -84,6 +84,11 @@ test("Grade exams manually", async ({}) => {
     .getByRole("button", { name: "Submit" })
     .click()
   await student2Page.getByRole("button", { name: "Try again" }).waitFor()
+  await scrollLocatorsParentIframeToViewIfNeeded(
+    student2Page
+      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      .getByRole("checkbox", { name: "b" }),
+  )
   await student2Page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
     .getByRole("checkbox", { name: "b" })

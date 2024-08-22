@@ -45,6 +45,9 @@ import CourseProgressBlock from "./moocfi/CourseProgressBlock"
 import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseCustomViewBlock from "./moocfi/ExerciseCustomViewBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
+import BackCardBlock from "./moocfi/FlipCard/BackCardBlock"
+import FlipCardBlock from "./moocfi/FlipCard/FlipCardBlock"
+import FrontCardBlock from "./moocfi/FlipCard/FrontCardBlock"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
@@ -159,6 +162,9 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/author-inner-block": AuthorInnerBlock,
   "moocfi/research-consent-question": ResearchConsentQuestionBlock,
   "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
+  "moocfi/flip-card": FlipCardBlock,
+  "moocfi/front-card": FrontCardBlock,
+  "moocfi/back-card": BackCardBlock,
 }
 
 const highlightedBlockStyles = css`

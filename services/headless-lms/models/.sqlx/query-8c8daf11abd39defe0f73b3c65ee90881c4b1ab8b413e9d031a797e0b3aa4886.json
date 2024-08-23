@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO exams(\n    name,\n    organization_id,\n    instructions,\n    starts_at,\n    ends_at,\n    language,\n    time_minutes,\n    minimum_points_treshold\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO exams(\n    name,\n    organization_id,\n    instructions,\n    starts_at,\n    ends_at,\n    language,\n    time_minutes,\n    minimum_points_treshold,\n    grade_manually\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -62,12 +62,41 @@
         "ordinal": 11,
         "name": "minimum_points_treshold",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 12,
+        "name": "grade_manually",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Uuid", "Jsonb", "Timestamptz", "Timestamptz", "Varchar", "Int4", "Int4"]
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "Varchar",
+        "Int4",
+        "Int4",
+        "Bool"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, true, true, true, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
   },
-  "hash": "da0f676c3df132fa6eee840e03ac3313356905100e6ad145abba619f8d1df249"
+  "hash": "8c8daf11abd39defe0f73b3c65ee90881c4b1ab8b413e9d031a797e0b3aa4886"
 }

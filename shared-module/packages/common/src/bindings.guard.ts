@@ -103,6 +103,8 @@ import {
   ExerciseServiceNewOrUpdate,
   ExerciseSlide,
   ExerciseSlideSubmission,
+  ExerciseSlideSubmissionAndUserExerciseState,
+  ExerciseSlideSubmissionAndUserExerciseStateList,
   ExerciseSlideSubmissionCount,
   ExerciseSlideSubmissionCountByExercise,
   ExerciseSlideSubmissionCountByWeekAndHour,
@@ -1099,7 +1101,8 @@ export function isExam(obj: unknown): obj is Exam {
     (typedObj["ends_at"] === null || typeof typedObj["ends_at"] === "string") &&
     typeof typedObj["time_minutes"] === "number" &&
     typeof typedObj["minimum_points_treshold"] === "number" &&
-    typeof typedObj["language"] === "string"
+    typeof typedObj["language"] === "string" &&
+    typeof typedObj["grade_manually"] === "boolean"
   )
 }
 
@@ -1110,6 +1113,7 @@ export function isExamEnrollment(obj: unknown): obj is ExamEnrollment {
     typeof typedObj["user_id"] === "string" &&
     typeof typedObj["exam_id"] === "string" &&
     typeof typedObj["started_at"] === "string" &&
+    (typedObj["ended_at"] === null || typeof typedObj["ended_at"] === "string") &&
     typeof typedObj["is_teacher_testing"] === "boolean" &&
     (typedObj["show_exercise_answers"] === null ||
       typedObj["show_exercise_answers"] === false ||
@@ -1139,7 +1143,8 @@ export function isNewExam(obj: unknown): obj is NewExam {
     (typedObj["ends_at"] === null || typeof typedObj["ends_at"] === "string") &&
     typeof typedObj["time_minutes"] === "number" &&
     typeof typedObj["organization_id"] === "string" &&
-    typeof typedObj["minimum_points_treshold"] === "number"
+    typeof typedObj["minimum_points_treshold"] === "number" &&
+    typeof typedObj["grade_manually"] === "boolean"
   )
 }
 
@@ -1335,6 +1340,35 @@ export function isExerciseSlideSubmissionInfo(obj: unknown): obj is ExerciseSlid
     typedObj["tasks"].every((e: any) => isCourseMaterialExerciseTask(e) as boolean) &&
     (isExercise(typedObj["exercise"]) as boolean) &&
     (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean)
+  )
+}
+
+export function isExerciseSlideSubmissionAndUserExerciseState(
+  obj: unknown,
+): obj is ExerciseSlideSubmissionAndUserExerciseState {
+  const typedObj = obj as ExerciseSlideSubmissionAndUserExerciseState
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (isExercise(typedObj["exercise"]) as boolean) &&
+    (isExerciseSlideSubmission(typedObj["exercise_slide_submission"]) as boolean) &&
+    (isUserExerciseState(typedObj["user_exercise_state"]) as boolean) &&
+    (typedObj["teacher_grading_decision"] === null ||
+      (isTeacherGradingDecision(typedObj["teacher_grading_decision"]) as boolean)) &&
+    (isExamEnrollment(typedObj["user_exam_enrollment"]) as boolean)
+  )
+}
+
+export function isExerciseSlideSubmissionAndUserExerciseStateList(
+  obj: unknown,
+): obj is ExerciseSlideSubmissionAndUserExerciseStateList {
+  const typedObj = obj as ExerciseSlideSubmissionAndUserExerciseStateList
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    Array.isArray(typedObj["data"]) &&
+    typedObj["data"].every(
+      (e: any) => isExerciseSlideSubmissionAndUserExerciseState(e) as boolean,
+    ) &&
+    typeof typedObj["total_pages"] === "number"
   )
 }
 
@@ -3048,7 +3082,9 @@ export function isNewTeacherGradingDecision(obj: unknown): obj is NewTeacherGrad
     typeof typedObj["user_exercise_state_id"] === "string" &&
     typeof typedObj["exercise_id"] === "string" &&
     (isTeacherDecisionType(typedObj["action"]) as boolean) &&
-    (typedObj["manual_points"] === null || typeof typedObj["manual_points"] === "number")
+    (typedObj["manual_points"] === null || typeof typedObj["manual_points"] === "number") &&
+    (typedObj["justification"] === null || typeof typedObj["justification"] === "string") &&
+    typeof typedObj["hidden"] === "boolean"
   )
 }
 
@@ -3072,7 +3108,9 @@ export function isTeacherGradingDecision(obj: unknown): obj is TeacherGradingDec
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["score_given"] === "number" &&
-    (isTeacherDecisionType(typedObj["teacher_decision"]) as boolean)
+    (isTeacherDecisionType(typedObj["teacher_decision"]) as boolean) &&
+    (typedObj["justification"] === null || typeof typedObj["justification"] === "string") &&
+    (typedObj["hidden"] === null || typedObj["hidden"] === false || typedObj["hidden"] === true)
   )
 }
 
@@ -3408,7 +3446,17 @@ export function isExamEnrollmentData(obj: unknown): obj is ExamEnrollmentData {
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
       typedObj["tag"] === "NotYetStarted") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      typedObj["tag"] === "StudentTimeUp")
+      typedObj["tag"] === "StudentTimeUp") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "StudentCanViewGrading" &&
+      Array.isArray(typedObj["gradings"]) &&
+      typedObj["gradings"].every(
+        (e: any) =>
+          Array.isArray(e) &&
+          (isTeacherGradingDecision(e[0]) as boolean) &&
+          (isExercise(e[1]) as boolean),
+      ) &&
+      (isExamEnrollment(typedObj["enrollment"]) as boolean))
   )
 }
 

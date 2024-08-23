@@ -1,9 +1,13 @@
-use std::{collections::HashSet, env};
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+};
 
 use crate::setup_tracing;
-use chrono::Utc;
+use chrono::{Duration, Utc};
 use dotenv::dotenv;
-use headless_lms_models as models;
+use headless_lms_models::{self as models, ModelError, ModelErrorType};
+use headless_lms_utils::prelude::BackendError;
 use sqlx::{Connection, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -15,7 +19,8 @@ pub async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
-    process_ended_exams(&mut conn).await
+    process_ended_exams(&mut conn).await?;
+    process_ended_exam_enrollments(&mut conn).await
 }
 
 /// Fetches ended exams that haven't yet been processed and updates completions for them.
@@ -64,5 +69,63 @@ async fn process_ended_exam(
     }
     models::ended_processed_exams::upsert(&mut tx, exam_id).await?;
     tx.commit().await?;
+    Ok(())
+}
+
+/// Processes ended exam enrollments
+async fn process_ended_exam_enrollments(conn: &mut PgConnection) -> anyhow::Result<()> {
+    let mut tx = conn.begin().await?;
+    let mut success = 0;
+    let mut failed = 0;
+
+    let ongoing_exam_enrollments: Vec<headless_lms_models::exams::ExamEnrollment> =
+        models::exams::get_ongoing_exam_enrollments(&mut tx).await?;
+    let exams = models::exams::get_exams(&mut tx).await?;
+
+    let mut needs_ended_at_date: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+    for enrollment in ongoing_exam_enrollments {
+        let exam = exams.get(&enrollment.exam_id).ok_or_else(|| {
+            ModelError::new(ModelErrorType::Generic, "Exam not found".into(), None)
+        })?;
+
+        //Check if users exams should have ended
+        if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {
+            needs_ended_at_date
+                .entry(exam.id)
+                .or_default()
+                .push(enrollment.user_id);
+        }
+    }
+
+    for entry in needs_ended_at_date.into_iter() {
+        let exam_id = entry.0;
+        let user_ids = entry.1;
+        match models::exams::update_exam_ended_at_for_users_with_exam_id(
+            &mut tx,
+            exam_id,
+            &user_ids,
+            Utc::now(),
+        )
+        .await
+        {
+            Ok(_) => success += user_ids.len(),
+            Err(err) => {
+                failed += user_ids.len();
+                tracing::error!(
+                    "Failed to end exam enrolments for exam {}: {:#?}",
+                    exam_id,
+                    err
+                );
+            }
+        }
+    }
+
+    tracing::info!(
+        "Exam enrollments processed. Succeeded: {}, failed: {}.",
+        success,
+        failed
+    );
+    tx.commit().await?;
+
     Ok(())
 }

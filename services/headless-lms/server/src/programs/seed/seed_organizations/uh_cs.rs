@@ -366,6 +366,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     create_exam(
@@ -381,6 +382,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     create_exam(
@@ -396,6 +398,24 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
+    )
+    .await?;
+
+    create_exam(
+        &mut conn,
+        "Exam for manual grading".to_string(),
+        Some(Utc::now()),
+        Some(Utc::now() + Duration::minutes(120)),
+        1,
+        uh_cs_organization_id,
+        cs_intro,
+        Uuid::parse_str("fee8bb0c-8629-477c-86eb-1785005143ae")?,
+        teacher_user_id,
+        0,
+        base_url.clone(),
+        Arc::clone(&jwt_key),
+        true,
     )
     .await?;
     create_exam(
@@ -411,6 +431,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     create_exam(
@@ -426,6 +447,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     let automatic_course_exam = create_exam(
@@ -441,6 +463,7 @@ pub async fn seed_organization_uh_cs(
         0,
         base_url.clone(),
         Arc::clone(&jwt_key),
+        false,
     )
     .await?;
     course_exams::upsert(

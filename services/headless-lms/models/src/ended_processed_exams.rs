@@ -18,7 +18,7 @@ RETURNING exam_id
     Ok(res)
 }
 
-/// Get ids for exams that have ended but haven't yet been added to the table for processed ones.
+/// Get ids for automatically graded exams that have ended but haven't yet been added to the table for processed ones.
 pub async fn get_unprocessed_ended_exams_by_timestamp(
     conn: &mut PgConnection,
     timestamp: DateTime<Utc>,
@@ -29,6 +29,7 @@ SELECT exams.id
 FROM exams
   LEFT JOIN ended_processed_exams ON (ended_processed_exams.exam_id = exams.id)
 WHERE exams.ends_at <= $1
+  AND exams.grade_manually IS false
   AND ended_processed_exams.created_at IS NULL
   AND exams.deleted_at IS NULL
   AND ended_processed_exams.deleted_at IS NULL

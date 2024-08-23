@@ -117,6 +117,9 @@ const Organization: React.FC<React.PropsWithChildren<OrganizationPageProps>> = (
               </a>
             </li>
             <li>
+              <a href={`/manage/exams/${getExam.data.id}/questions`}>{t("grading")}</a>
+            </li>
+            <li>
               <a href={`/org/${organizationSlug}/exams/testexam/${getExam.data.id}`}>
                 {t("link-test-exam")}
               </a>

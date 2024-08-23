@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/quic.rs`."><title>quic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/quic.rs`."><title>quic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -909,416 +909,503 @@
 <a href="#908" id="908">908</a>
 <a href="#909" id="909">909</a>
 <a href="#910" id="910">910</a>
-</pre></div><pre class="rust"><code><span class="doccomment">/// This module contains optional APIs for implementing QUIC TLS.
-</span><span class="kw">use </span><span class="kw">crate</span>::client::{ClientConfig, ClientConnectionData};
-<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Protocol, Side};
-<span class="kw">use </span><span class="kw">crate</span>::conn::{ConnectionCore, SideData};
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::collections::VecDeque;
+<span class="kw">use </span>alloc::vec::Vec;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>core::fmt::Debug;
+
+<span class="doccomment">/// This module contains optional APIs for implementing QUIC TLS.
+</span><span class="kw">use </span><span class="kw">crate</span>::common_state::Side;
 <span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{AeadKey, Iv};
 <span class="kw">use </span><span class="kw">crate</span>::crypto::tls13::{Hkdf, HkdfExpander, OkmBlock};
-<span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, ProtocolVersion};
+<span class="kw">use </span><span class="kw">crate</span>::enums::AlertDescription;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::DeframerVecBuffer;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientExtension, ServerExtension};
-<span class="kw">use </span><span class="kw">crate</span>::server::{ServerConfig, ServerConnectionData};
 <span class="kw">use </span><span class="kw">crate</span>::tls13::key_schedule::{
     hkdf_expand_label, hkdf_expand_label_aead_key, hkdf_expand_label_block,
 };
 <span class="kw">use </span><span class="kw">crate</span>::tls13::Tls13CipherSuite;
 
-<span class="kw">use </span>pki_types::ServerName;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">mod </span>connection {
+    <span class="kw">use </span>alloc::sync::Arc;
+    <span class="kw">use </span>alloc::vec;
+    <span class="kw">use </span>alloc::vec::Vec;
+    <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug};
+    <span class="kw">use </span>core::ops::{Deref, DerefMut};
 
-<span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>alloc::collections::VecDeque;
-<span class="kw">use </span>alloc::sync::Arc;
-<span class="kw">use </span>alloc::vec;
-<span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug};
-<span class="kw">use </span>core::ops::{Deref, DerefMut};
+    <span class="kw">use </span>pki_types::ServerName;
 
-<span class="doccomment">/// A QUIC client or server connection.
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>Connection {
-    <span class="doccomment">/// A client connection
-    </span>Client(ClientConnection),
-    <span class="doccomment">/// A server connection
-    </span>Server(ServerConnection),
-}
+    <span class="kw">use super</span>::{DirectionalKeys, KeyChange, Version};
+    <span class="kw">use </span><span class="kw">crate</span>::client::{ClientConfig, ClientConnectionData};
+    <span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Protocol, DEFAULT_BUFFER_LIMIT};
+    <span class="kw">use </span><span class="kw">crate</span>::conn::{ConnectionCore, SideData};
+    <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, ProtocolVersion};
+    <span class="kw">use </span><span class="kw">crate</span>::error::Error;
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::DeframerVecBuffer;
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientExtension, ServerExtension};
+    <span class="kw">use </span><span class="kw">crate</span>::server::{ServerConfig, ServerConnectionData};
+    <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
 
-<span class="kw">impl </span>Connection {
-    <span class="doccomment">/// Return the TLS-encoded transport parameters for the session's peer.
-    ///
-    /// See [`ConnectionCommon::quic_transport_parameters()`] for more details.
-    </span><span class="kw">pub fn </span>quic_transport_parameters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.quic_transport_parameters(),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.quic_transport_parameters(),
+    <span class="doccomment">/// A QUIC client or server connection.
+    </span><span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub enum </span>Connection {
+        <span class="doccomment">/// A client connection
+        </span>Client(ClientConnection),
+        <span class="doccomment">/// A server connection
+        </span>Server(ServerConnection),
+    }
+
+    <span class="kw">impl </span>Connection {
+        <span class="doccomment">/// Return the TLS-encoded transport parameters for the session's peer.
+        ///
+        /// See [`ConnectionCommon::quic_transport_parameters()`] for more details.
+        </span><span class="kw">pub fn </span>quic_transport_parameters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.quic_transport_parameters(),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.quic_transport_parameters(),
+            }
+        }
+
+        <span class="doccomment">/// Compute the keys for encrypting/decrypting 0-RTT packets, if available
+        </span><span class="kw">pub fn </span>zero_rtt_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DirectionalKeys&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.zero_rtt_keys(),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.zero_rtt_keys(),
+            }
+        }
+
+        <span class="doccomment">/// Consume unencrypted TLS handshake data.
+        ///
+        /// Handshake data obtained from separate encryption levels should be supplied in separate calls.
+        </span><span class="kw">pub fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.read_hs(plaintext),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.read_hs(plaintext),
+            }
+        }
+
+        <span class="doccomment">/// Emit unencrypted TLS handshake data.
+        ///
+        /// When this returns `Some(_)`, the new keys must be used for future handshake data.
+        </span><span class="kw">pub fn </span>write_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;KeyChange&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.write_hs(buf),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.write_hs(buf),
+            }
+        }
+
+        <span class="doccomment">/// Emit the TLS description code of a fatal alert, if one has arisen.
+        ///
+        /// Check after `read_hs` returns `Err(_)`.
+        </span><span class="kw">pub fn </span>alert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AlertDescription&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.alert(),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.alert(),
+            }
+        }
+
+        <span class="doccomment">/// Derives key material from the agreed connection secrets.
+        ///
+        /// This function fills in `output` with `output.len()` bytes of key
+        /// material derived from the master session secret using `label`
+        /// and `context` for diversification. Ownership of the buffer is taken
+        /// by the function and returned via the Ok result to ensure no key
+        /// material leaks if the function fails.
+        ///
+        /// See RFC5705 for more details on what this does and is for.
+        ///
+        /// For TLS1.3 connections, this function does not use the
+        /// "early" exporter at any point.
+        ///
+        /// This function fails if called prior to the handshake completing;
+        /// check with [`CommonState::is_handshaking`] first.
+        </span><span class="attr">#[inline]
+        </span><span class="kw">pub fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
+            <span class="kw-2">&amp;</span><span class="self">self</span>,
+            output: T,
+            label: <span class="kw-2">&amp;</span>[u8],
+            context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn
+                    .core
+                    .export_keying_material(output, label, context),
+                <span class="self">Self</span>::Server(conn) =&gt; conn
+                    .core
+                    .export_keying_material(output, label, context),
+            }
         }
     }
 
-    <span class="doccomment">/// Compute the keys for encrypting/decrypting 0-RTT packets, if available
-    </span><span class="kw">pub fn </span>zero_rtt_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DirectionalKeys&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.zero_rtt_keys(),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.zero_rtt_keys(),
+    <span class="kw">impl </span>Deref <span class="kw">for </span>Connection {
+        <span class="kw">type </span>Target = CommonState;
+
+        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
+                <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
+            }
         }
     }
 
-    <span class="doccomment">/// Consume unencrypted TLS handshake data.
-    ///
-    /// Handshake data obtained from separate encryption levels should be supplied in separate calls.
-    </span><span class="kw">pub fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.read_hs(plaintext),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.read_hs(plaintext),
+    <span class="kw">impl </span>DerefMut <span class="kw">for </span>Connection {
+        <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
+                <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
+            }
         }
     }
 
-    <span class="doccomment">/// Emit unencrypted TLS handshake data.
-    ///
-    /// When this returns `Some(_)`, the new keys must be used for future handshake data.
-    </span><span class="kw">pub fn </span>write_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;KeyChange&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.write_hs(buf),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.write_hs(buf),
+    <span class="doccomment">/// A QUIC client connection.
+    </span><span class="kw">pub struct </span>ClientConnection {
+        inner: ConnectionCommon&lt;ClientConnectionData&gt;,
+    }
+
+    <span class="kw">impl </span>ClientConnection {
+        <span class="doccomment">/// Make a new QUIC ClientConnection.
+        ///
+        /// This differs from `ClientConnection::new()` in that it takes an extra `params` argument,
+        /// which contains the TLS-encoded transport parameters to send.
+        </span><span class="kw">pub fn </span>new(
+            config: Arc&lt;ClientConfig&gt;,
+            quic_version: Version,
+            name: ServerName&lt;<span class="lifetime">'static</span>&gt;,
+            params: Vec&lt;u8&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+            <span class="kw">if </span>!config.supports_version(ProtocolVersion::TLSv1_3) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
+                    <span class="string">"TLS 1.3 support is required for QUIC"</span>.into(),
+                ));
+            }
+
+            <span class="kw">if </span>!config.supports_protocol(Protocol::Quic) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
+                    <span class="string">"at least one ciphersuite must support QUIC"</span>.into(),
+                ));
+            }
+
+            <span class="kw">let </span>ext = <span class="kw">match </span>quic_version {
+                Version::V1Draft =&gt; ClientExtension::TransportParametersDraft(params),
+                Version::V1 | Version::V2 =&gt; ClientExtension::TransportParameters(params),
+            };
+
+            <span class="kw">let </span><span class="kw-2">mut </span>inner = ConnectionCore::for_client(config, name, <span class="macro">vec!</span>[ext], Protocol::Quic)<span class="question-mark">?</span>;
+            inner.common_state.quic.version = quic_version;
+            <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                inner: inner.into(),
+            })
+        }
+
+        <span class="doccomment">/// Returns True if the server signalled it will process early data.
+        ///
+        /// If you sent early data and this returns false at the end of the
+        /// handshake then the server will not process the data.  This
+        /// is not an error, but you may wish to resend the data.
+        </span><span class="kw">pub fn </span>is_early_data_accepted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+            <span class="self">self</span>.inner.core.is_early_data_accepted()
         }
     }
 
-    <span class="doccomment">/// Emit the TLS description code of a fatal alert, if one has arisen.
-    ///
-    /// Check after `read_hs` returns `Err(_)`.
-    </span><span class="kw">pub fn </span>alert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AlertDescription&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.alert(),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.alert(),
+    <span class="kw">impl </span>Deref <span class="kw">for </span>ClientConnection {
+        <span class="kw">type </span>Target = ConnectionCommon&lt;ClientConnectionData&gt;;
+
+        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.inner
         }
     }
 
-    <span class="doccomment">/// Derives key material from the agreed connection secrets.
-    ///
-    /// This function fills in `output` with `output.len()` bytes of key
-    /// material derived from the master session secret using `label`
-    /// and `context` for diversification. Ownership of the buffer is taken
-    /// by the function and returned via the Ok result to ensure no key
-    /// material leaks if the function fails.
-    ///
-    /// See RFC5705 for more details on what this does and is for.
-    ///
-    /// For TLS1.3 connections, this function does not use the
-    /// "early" exporter at any point.
-    ///
-    /// This function fails if called prior to the handshake completing;
-    /// check with [`CommonState::is_handshaking`] first.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        output: T,
-        label: <span class="kw-2">&amp;</span>[u8],
-        context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn
-                .core
-                .export_keying_material(output, label, context),
-            <span class="self">Self</span>::Server(conn) =&gt; conn
-                .core
-                .export_keying_material(output, label, context),
+    <span class="kw">impl </span>DerefMut <span class="kw">for </span>ClientConnection {
+        <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
         }
     }
-}
 
-<span class="kw">impl </span>Deref <span class="kw">for </span>Connection {
-    <span class="kw">type </span>Target = CommonState;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
-            <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
+    <span class="kw">impl </span>Debug <span class="kw">for </span>ClientConnection {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+            f.debug_struct(<span class="string">"quic::ClientConnection"</span>)
+                .finish()
         }
     }
-}
 
-<span class="kw">impl </span>DerefMut <span class="kw">for </span>Connection {
-    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
-            <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
+    <span class="kw">impl </span>From&lt;ClientConnection&gt; <span class="kw">for </span>Connection {
+        <span class="kw">fn </span>from(c: ClientConnection) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>::Client(c)
         }
     }
-}
 
-<span class="doccomment">/// A QUIC client connection.
-</span><span class="kw">pub struct </span>ClientConnection {
-    inner: ConnectionCommon&lt;ClientConnectionData&gt;,
-}
+    <span class="doccomment">/// A QUIC server connection.
+    </span><span class="kw">pub struct </span>ServerConnection {
+        inner: ConnectionCommon&lt;ServerConnectionData&gt;,
+    }
 
-<span class="kw">impl </span>ClientConnection {
-    <span class="doccomment">/// Make a new QUIC ClientConnection.
-    ///
-    /// This differs from `ClientConnection::new()` in that it takes an extra `params` argument,
-    /// which contains the TLS-encoded transport parameters to send.
-    </span><span class="kw">pub fn </span>new(
-        config: Arc&lt;ClientConfig&gt;,
-        quic_version: Version,
-        name: ServerName&lt;<span class="lifetime">'static</span>&gt;,
-        params: Vec&lt;u8&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="kw">if </span>!config.supports_version(ProtocolVersion::TLSv1_3) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
-                <span class="string">"TLS 1.3 support is required for QUIC"</span>.into(),
-            ));
+    <span class="kw">impl </span>ServerConnection {
+        <span class="doccomment">/// Make a new QUIC ServerConnection.
+        ///
+        /// This differs from `ServerConnection::new()` in that it takes an extra `params` argument,
+        /// which contains the TLS-encoded transport parameters to send.
+        </span><span class="kw">pub fn </span>new(
+            config: Arc&lt;ServerConfig&gt;,
+            quic_version: Version,
+            params: Vec&lt;u8&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+            <span class="kw">if </span>!config.supports_version(ProtocolVersion::TLSv1_3) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
+                    <span class="string">"TLS 1.3 support is required for QUIC"</span>.into(),
+                ));
+            }
+
+            <span class="kw">if </span>!config.supports_protocol(Protocol::Quic) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
+                    <span class="string">"at least one ciphersuite must support QUIC"</span>.into(),
+                ));
+            }
+
+            <span class="kw">if </span>config.max_early_data_size != <span class="number">0 </span>&amp;&amp; config.max_early_data_size != <span class="number">0xffff_ffff </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
+                    <span class="string">"QUIC sessions must set a max early data of 0 or 2^32-1"</span>.into(),
+                ));
+            }
+
+            <span class="kw">let </span>ext = <span class="kw">match </span>quic_version {
+                Version::V1Draft =&gt; ServerExtension::TransportParametersDraft(params),
+                Version::V1 | Version::V2 =&gt; ServerExtension::TransportParameters(params),
+            };
+
+            <span class="kw">let </span><span class="kw-2">mut </span>core = ConnectionCore::for_server(config, <span class="macro">vec!</span>[ext])<span class="question-mark">?</span>;
+            core.common_state.protocol = Protocol::Quic;
+            core.common_state.quic.version = quic_version;
+            <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ inner: core.into() })
         }
 
-        <span class="kw">if </span>!config.supports_protocol(Protocol::Quic) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
-                <span class="string">"at least one ciphersuite must support QUIC"</span>.into(),
-            ));
+        <span class="doccomment">/// Explicitly discard early data, notifying the client
+        ///
+        /// Useful if invariants encoded in `received_resumption_data()` cannot be respected.
+        ///
+        /// Must be called while `is_handshaking` is true.
+        </span><span class="kw">pub fn </span>reject_early_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+            <span class="self">self</span>.inner.core.reject_early_data()
         }
 
-        <span class="kw">let </span>ext = <span class="kw">match </span>quic_version {
-            Version::V1Draft =&gt; ClientExtension::TransportParametersDraft(params),
-            Version::V1 | Version::V2 =&gt; ClientExtension::TransportParameters(params),
-        };
-
-        <span class="kw">let </span><span class="kw-2">mut </span>inner = ConnectionCore::for_client(config, name, <span class="macro">vec!</span>[ext], Protocol::Quic)<span class="question-mark">?</span>;
-        inner.common_state.quic.version = quic_version;
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
-            inner: inner.into(),
-        })
-    }
-
-    <span class="doccomment">/// Returns True if the server signalled it will process early data.
-    ///
-    /// If you sent early data and this returns false at the end of the
-    /// handshake then the server will not process the data.  This
-    /// is not an error, but you may wish to resend the data.
-    </span><span class="kw">pub fn </span>is_early_data_accepted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.inner.core.is_early_data_accepted()
-    }
-}
-
-<span class="kw">impl </span>Deref <span class="kw">for </span>ClientConnection {
-    <span class="kw">type </span>Target = ConnectionCommon&lt;ClientConnectionData&gt;;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
-    }
-}
-
-<span class="kw">impl </span>DerefMut <span class="kw">for </span>ClientConnection {
-    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
-    }
-}
-
-<span class="kw">impl </span>Debug <span class="kw">for </span>ClientConnection {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">"quic::ClientConnection"</span>)
-            .finish()
-    }
-}
-
-<span class="kw">impl </span>From&lt;ClientConnection&gt; <span class="kw">for </span>Connection {
-    <span class="kw">fn </span>from(c: ClientConnection) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Client(c)
-    }
-}
-
-<span class="doccomment">/// A QUIC server connection.
-</span><span class="kw">pub struct </span>ServerConnection {
-    inner: ConnectionCommon&lt;ServerConnectionData&gt;,
-}
-
-<span class="kw">impl </span>ServerConnection {
-    <span class="doccomment">/// Make a new QUIC ServerConnection.
-    ///
-    /// This differs from `ServerConnection::new()` in that it takes an extra `params` argument,
-    /// which contains the TLS-encoded transport parameters to send.
-    </span><span class="kw">pub fn </span>new(
-        config: Arc&lt;ServerConfig&gt;,
-        quic_version: Version,
-        params: Vec&lt;u8&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="kw">if </span>!config.supports_version(ProtocolVersion::TLSv1_3) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
-                <span class="string">"TLS 1.3 support is required for QUIC"</span>.into(),
-            ));
+        <span class="doccomment">/// Retrieves the server name, if any, used to select the certificate and
+        /// private key.
+        ///
+        /// This returns `None` until some time after the client's server name indication
+        /// (SNI) extension value is processed during the handshake. It will never be
+        /// `None` when the connection is ready to send or process application data,
+        /// unless the client does not support SNI.
+        ///
+        /// This is useful for application protocols that need to enforce that the
+        /// server name matches an application layer protocol hostname. For
+        /// example, HTTP/1.1 servers commonly expect the `Host:` header field of
+        /// every request on a connection to match the hostname in the SNI extension
+        /// when the client provides the SNI extension.
+        ///
+        /// The server name is also used to match sessions during session resumption.
+        </span><span class="kw">pub fn </span>server_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+            <span class="self">self</span>.inner.core.get_sni_str()
         }
+    }
 
-        <span class="kw">if </span>!config.supports_protocol(Protocol::Quic) {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
-                <span class="string">"at least one ciphersuite must support QUIC"</span>.into(),
-            ));
+    <span class="kw">impl </span>Deref <span class="kw">for </span>ServerConnection {
+        <span class="kw">type </span>Target = ConnectionCommon&lt;ServerConnectionData&gt;;
+
+        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.inner
         }
+    }
 
-        <span class="kw">if </span>config.max_early_data_size != <span class="number">0 </span>&amp;&amp; config.max_early_data_size != <span class="number">0xffff_ffff </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(
-                <span class="string">"QUIC sessions must set a max early data of 0 or 2^32-1"</span>.into(),
-            ));
+    <span class="kw">impl </span>DerefMut <span class="kw">for </span>ServerConnection {
+        <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
         }
-
-        <span class="kw">let </span>ext = <span class="kw">match </span>quic_version {
-            Version::V1Draft =&gt; ServerExtension::TransportParametersDraft(params),
-            Version::V1 | Version::V2 =&gt; ServerExtension::TransportParameters(params),
-        };
-
-        <span class="kw">let </span><span class="kw-2">mut </span>core = ConnectionCore::for_server(config, <span class="macro">vec!</span>[ext])<span class="question-mark">?</span>;
-        core.common_state.protocol = Protocol::Quic;
-        core.common_state.quic.version = quic_version;
-        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{ inner: core.into() })
     }
 
-    <span class="doccomment">/// Explicitly discard early data, notifying the client
-    ///
-    /// Useful if invariants encoded in `received_resumption_data()` cannot be respected.
-    ///
-    /// Must be called while `is_handshaking` is true.
-    </span><span class="kw">pub fn </span>reject_early_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.inner.core.reject_early_data()
+    <span class="kw">impl </span>Debug <span class="kw">for </span>ServerConnection {
+        <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
+            f.debug_struct(<span class="string">"quic::ServerConnection"</span>)
+                .finish()
+        }
     }
 
-    <span class="doccomment">/// Retrieves the server name, if any, used to select the certificate and
-    /// private key.
-    ///
-    /// This returns `None` until some time after the client's server name indication
-    /// (SNI) extension value is processed during the handshake. It will never be
-    /// `None` when the connection is ready to send or process application data,
-    /// unless the client does not support SNI.
-    ///
-    /// This is useful for application protocols that need to enforce that the
-    /// server name matches an application layer protocol hostname. For
-    /// example, HTTP/1.1 servers commonly expect the `Host:` header field of
-    /// every request on a connection to match the hostname in the SNI extension
-    /// when the client provides the SNI extension.
-    ///
-    /// The server name is also used to match sessions during session resumption.
-    </span><span class="kw">pub fn </span>server_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.inner.core.get_sni_str()
-    }
-}
-
-<span class="kw">impl </span>Deref <span class="kw">for </span>ServerConnection {
-    <span class="kw">type </span>Target = ConnectionCommon&lt;ServerConnectionData&gt;;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.inner
-    }
-}
-
-<span class="kw">impl </span>DerefMut <span class="kw">for </span>ServerConnection {
-    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner
-    }
-}
-
-<span class="kw">impl </span>Debug <span class="kw">for </span>ServerConnection {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">"quic::ServerConnection"</span>)
-            .finish()
-    }
-}
-
-<span class="kw">impl </span>From&lt;ServerConnection&gt; <span class="kw">for </span>Connection {
-    <span class="kw">fn </span>from(c: ServerConnection) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::Server(c)
-    }
-}
-
-<span class="doccomment">/// A shared interface for QUIC connections.
-</span><span class="kw">pub struct </span>ConnectionCommon&lt;Data&gt; {
-    core: ConnectionCore&lt;Data&gt;,
-    deframer_buffer: DeframerVecBuffer,
-}
-
-<span class="kw">impl</span>&lt;Data: SideData&gt; ConnectionCommon&lt;Data&gt; {
-    <span class="doccomment">/// Return the TLS-encoded transport parameters for the session's peer.
-    ///
-    /// While the transport parameters are technically available prior to the
-    /// completion of the handshake, they cannot be fully trusted until the
-    /// handshake completes, and reliance on them should be minimized.
-    /// However, any tampering with the parameters will cause the handshake
-    /// to fail.
-    </span><span class="kw">pub fn </span>quic_transport_parameters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
-        <span class="self">self</span>.core
-            .common_state
-            .quic
-            .params
-            .as_ref()
-            .map(|v| v.as_ref())
+    <span class="kw">impl </span>From&lt;ServerConnection&gt; <span class="kw">for </span>Connection {
+        <span class="kw">fn </span>from(c: ServerConnection) -&gt; <span class="self">Self </span>{
+            <span class="self">Self</span>::Server(c)
+        }
     }
 
-    <span class="doccomment">/// Compute the keys for encrypting/decrypting 0-RTT packets, if available
-    </span><span class="kw">pub fn </span>zero_rtt_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DirectionalKeys&gt; {
-        <span class="kw">let </span>suite = <span class="self">self
-            </span>.core
-            .common_state
-            .suite
-            .and_then(|suite| suite.tls13())<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(DirectionalKeys::new(
-            suite,
-            suite.quic<span class="question-mark">?</span>,
+    <span class="doccomment">/// A shared interface for QUIC connections.
+    </span><span class="kw">pub struct </span>ConnectionCommon&lt;Data&gt; {
+        core: ConnectionCore&lt;Data&gt;,
+        deframer_buffer: DeframerVecBuffer,
+        sendable_plaintext: ChunkVecBuffer,
+    }
+
+    <span class="kw">impl</span>&lt;Data: SideData&gt; ConnectionCommon&lt;Data&gt; {
+        <span class="doccomment">/// Return the TLS-encoded transport parameters for the session's peer.
+        ///
+        /// While the transport parameters are technically available prior to the
+        /// completion of the handshake, they cannot be fully trusted until the
+        /// handshake completes, and reliance on them should be minimized.
+        /// However, any tampering with the parameters will cause the handshake
+        /// to fail.
+        </span><span class="kw">pub fn </span>quic_transport_parameters(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
             <span class="self">self</span>.core
                 .common_state
                 .quic
-                .early_secret
-                .as_ref()<span class="question-mark">?</span>,
-            <span class="self">self</span>.core.common_state.quic.version,
-        ))
+                .params
+                .as_ref()
+                .map(|v| v.as_ref())
+        }
+
+        <span class="doccomment">/// Compute the keys for encrypting/decrypting 0-RTT packets, if available
+        </span><span class="kw">pub fn </span>zero_rtt_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DirectionalKeys&gt; {
+            <span class="kw">let </span>suite = <span class="self">self
+                </span>.core
+                .common_state
+                .suite
+                .and_then(|suite| suite.tls13())<span class="question-mark">?</span>;
+            <span class="prelude-val">Some</span>(DirectionalKeys::new(
+                suite,
+                suite.quic<span class="question-mark">?</span>,
+                <span class="self">self</span>.core
+                    .common_state
+                    .quic
+                    .early_secret
+                    .as_ref()<span class="question-mark">?</span>,
+                <span class="self">self</span>.core.common_state.quic.version,
+            ))
+        }
+
+        <span class="doccomment">/// Consume unencrypted TLS handshake data.
+        ///
+        /// Handshake data obtained from separate encryption levels should be supplied in separate calls.
+        </span><span class="kw">pub fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+            <span class="self">self</span>.core.message_deframer.push(
+                ProtocolVersion::TLSv1_3,
+                plaintext,
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer,
+            )<span class="question-mark">?</span>;
+            <span class="self">self</span>.core
+                .process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer, <span class="kw-2">&amp;mut </span><span class="self">self</span>.sendable_plaintext)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(())
+        }
+
+        <span class="doccomment">/// Emit unencrypted TLS handshake data.
+        ///
+        /// When this returns `Some(_)`, the new keys must be used for future handshake data.
+        </span><span class="kw">pub fn </span>write_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;KeyChange&gt; {
+            <span class="self">self</span>.core
+                .common_state
+                .quic
+                .write_hs(buf)
+        }
+
+        <span class="doccomment">/// Emit the TLS description code of a fatal alert, if one has arisen.
+        ///
+        /// Check after `read_hs` returns `Err(_)`.
+        </span><span class="kw">pub fn </span>alert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AlertDescription&gt; {
+            <span class="self">self</span>.core.common_state.quic.alert
+        }
     }
 
-    <span class="doccomment">/// Consume unencrypted TLS handshake data.
-    ///
-    /// Handshake data obtained from separate encryption levels should be supplied in separate calls.
-    </span><span class="kw">pub fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-        <span class="self">self</span>.core.message_deframer.push(
-            ProtocolVersion::TLSv1_3,
-            plaintext,
-            <span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer,
-        )<span class="question-mark">?</span>;
-        <span class="self">self</span>.core
-            .process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(())
+    <span class="kw">impl</span>&lt;Data&gt; Deref <span class="kw">for </span>ConnectionCommon&lt;Data&gt; {
+        <span class="kw">type </span>Target = CommonState;
+
+        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.core.common_state
+        }
     }
 
-    <span class="doccomment">/// Emit unencrypted TLS handshake data.
-    ///
-    /// When this returns `Some(_)`, the new keys must be used for future handshake data.
-    </span><span class="kw">pub fn </span>write_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;KeyChange&gt; {
-        <span class="self">self</span>.core
-            .common_state
-            .quic
-            .write_hs(buf)
+    <span class="kw">impl</span>&lt;Data&gt; DerefMut <span class="kw">for </span>ConnectionCommon&lt;Data&gt; {
+        <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.core.common_state
+        }
     }
 
-    <span class="doccomment">/// Emit the TLS description code of a fatal alert, if one has arisen.
-    ///
-    /// Check after `read_hs` returns `Err(_)`.
-    </span><span class="kw">pub fn </span>alert(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AlertDescription&gt; {
-        <span class="self">self</span>.core.common_state.quic.alert
-    }
-}
-
-<span class="kw">impl</span>&lt;Data&gt; Deref <span class="kw">for </span>ConnectionCommon&lt;Data&gt; {
-    <span class="kw">type </span>Target = CommonState;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.core.common_state
-    }
-}
-
-<span class="kw">impl</span>&lt;Data&gt; DerefMut <span class="kw">for </span>ConnectionCommon&lt;Data&gt; {
-    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>.core.common_state
-    }
-}
-
-<span class="kw">impl</span>&lt;Data&gt; From&lt;ConnectionCore&lt;Data&gt;&gt; <span class="kw">for </span>ConnectionCommon&lt;Data&gt; {
-    <span class="kw">fn </span>from(core: ConnectionCore&lt;Data&gt;) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{
-            core,
-            deframer_buffer: DeframerVecBuffer::default(),
+    <span class="kw">impl</span>&lt;Data&gt; From&lt;ConnectionCore&lt;Data&gt;&gt; <span class="kw">for </span>ConnectionCommon&lt;Data&gt; {
+        <span class="kw">fn </span>from(core: ConnectionCore&lt;Data&gt;) -&gt; <span class="self">Self </span>{
+            <span class="self">Self </span>{
+                core,
+                deframer_buffer: DeframerVecBuffer::default(),
+                sendable_plaintext: ChunkVecBuffer::new(<span class="prelude-val">Some</span>(DEFAULT_BUFFER_LIMIT)),
+            }
         }
     }
 }
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span>connection::{ClientConnection, Connection, ConnectionCommon, ServerConnection};
 
 <span class="attr">#[derive(Default)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Quic {
@@ -1330,11 +1417,13 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) hs_secrets: <span class="prelude-ty">Option</span>&lt;Secrets&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) traffic_secrets: <span class="prelude-ty">Option</span>&lt;Secrets&gt;,
     <span class="doccomment">/// Whether keys derived from traffic_secrets have been passed to the QUIC implementation
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) returned_traffic_keys: bool,
     <span class="kw">pub</span>(<span class="kw">crate</span>) version: Version,
 }
 
-<span class="kw">impl </span>Quic {
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl </span>Quic {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;KeyChange&gt; {
         <span class="kw">while let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, msg)) = <span class="self">self</span>.hs_queue.pop_front() {
             buf.extend_from_slice(<span class="kw-2">&amp;</span>msg);
@@ -1495,6 +1584,11 @@
     ///
     /// This controls the size of `AeadKey`s presented to `packet_key()` and `header_protection_key()`.
     </span><span class="kw">fn </span>aead_key_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+
+    <span class="doccomment">/// Whether this algorithm is FIPS-approved.
+    </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// A QUIC header protection key
@@ -1566,7 +1660,7 @@
     /// the additional authenticated data; and the `payload`. The authentication tag is returned if
     /// encryption succeeds.
     ///
-    /// Fails iff the payload is longer than allowed by the cipher suite's AEAD algorithm.
+    /// Fails if and only if the payload is longer than allowed by the cipher suite's AEAD algorithm.
     </span><span class="kw">fn </span>encrypt_in_place(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         packet_number: u64,
@@ -1590,6 +1684,28 @@
 
     <span class="doccomment">/// Tag length for the underlying AEAD algorithm
     </span><span class="kw">fn </span>tag_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+
+    <span class="doccomment">/// Number of QUIC messages that can be safely encrypted with a single key of this type.
+    ///
+    /// Once a `MessageEncrypter` produced for this suite has encrypted more than
+    /// `confidentiality_limit` messages, an attacker gains an advantage in distinguishing it
+    /// from an ideal pseudorandom permutation (PRP).
+    ///
+    /// This is to be set on the assumption that messages are maximally sized --
+    /// 2 ** 16. For non-QUIC TCP connections see [`CipherSuiteCommon::confidentiality_limit`][csc-limit].
+    ///
+    /// [csc-limit]: crate::crypto::CipherSuiteCommon::confidentiality_limit
+    </span><span class="kw">fn </span>confidentiality_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
+
+    <span class="doccomment">/// Number of QUIC messages that can be safely decrypted with a single key of this type
+    ///
+    /// Once a `MessageDecrypter` produced for this suite has failed to decrypt `integrity_limit`
+    /// messages, an attacker gains an advantage in forging messages.
+    ///
+    /// This is not relevant for TLS over TCP (which is also implemented in this crate)
+    /// because a single failed decryption is fatal to the connection.
+    /// However, this quantity is used by QUIC.
+    </span><span class="kw">fn </span>integrity_limit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
 }
 
 <span class="doccomment">/// Packet protection keys for bidirectional 1-RTT communication
@@ -1660,6 +1776,28 @@
     }
 }
 
+<span class="doccomment">/// Produces QUIC initial keys from a TLS 1.3 ciphersuite and a QUIC key generation algorithm.
+</span><span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">pub struct </span>Suite {
+    <span class="doccomment">/// The TLS 1.3 ciphersuite used to derive keys.
+    </span><span class="kw">pub </span>suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite,
+    <span class="doccomment">/// The QUIC key generation algorithm used to derive keys.
+    </span><span class="kw">pub </span>quic: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>Algorithm,
+}
+
+<span class="kw">impl </span>Suite {
+    <span class="doccomment">/// Produce a set of initial keys given the connection ID, side and version
+    </span><span class="kw">pub fn </span>keys(<span class="kw-2">&amp;</span><span class="self">self</span>, client_dst_connection_id: <span class="kw-2">&amp;</span>[u8], side: Side, version: Version) -&gt; Keys {
+        Keys::initial(
+            version,
+            <span class="self">self</span>.suite,
+            <span class="self">self</span>.quic,
+            client_dst_connection_id,
+            side,
+        )
+    }
+}
+
 <span class="doccomment">/// Complete set of keys used to communicate with the peer
 </span><span class="kw">pub struct </span>Keys {
     <span class="doccomment">/// Encrypts outgoing packets
@@ -1717,7 +1855,6 @@
 /// Once the 1-RTT keys have been exchanged, either side may initiate a key update. Progressive
 /// update keys can be obtained from the [`Secrets`] returned in [`KeyChange::OneRtt`]. Note that
 /// only packet keys are updated by key updates; header protection keys remain the same.
-</span><span class="attr">#[allow(clippy::large_enum_variant)]
 </span><span class="kw">pub enum </span>KeyChange {
     <span class="doccomment">/// Keys for the handshake space
     </span>Handshake {
@@ -1808,9 +1945,10 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
+
     <span class="kw">use </span><span class="kw">super</span>::PacketKey;
     <span class="kw">use </span><span class="kw">crate</span>::quic::HeaderProtectionKey;
-    <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>auto_traits() {

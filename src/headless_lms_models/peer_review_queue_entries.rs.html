@@ -550,6 +550,8 @@
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
 <a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     exercises,
     library::user_exercise_state_updater,
@@ -1014,6 +1016,8 @@ WHERE exercise_id = $1
             exercise.score_maximum <span class="kw">as </span>f32,
             <span class="comment">// Giver is none because the system made the decision
             </span><span class="prelude-val">None</span>,
+            <span class="prelude-val">None</span>,
+            <span class="bool-val">false</span>,
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
         user_exercise_state_updater::update_user_exercise_state(<span class="kw-2">&amp;mut </span>tx, user_exercise_state.id)

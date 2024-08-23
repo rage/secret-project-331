@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/msgs/codec.rs`."><title>codec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/msgs/codec.rs`."><title>codec.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -335,15 +335,88 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::InvalidMessage;
-
-<span class="kw">use </span>alloc::vec::Vec;
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
+<span class="kw">use </span>core::mem;
+
+<span class="kw">use </span><span class="kw">crate</span>::error::InvalidMessage;
 
 <span class="doccomment">/// Wrapper over a slice of bytes that allows reading chunks from
 /// with the current position state held using a cursor.
 ///
-/// A new reader for a sub section of the the buffer can be created
+/// A new reader for a sub section of the buffer can be created
 /// using the `sub` function or a section of a certain length can
 /// be obtained using the `take` function
 </span><span class="kw">pub struct </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
@@ -356,7 +429,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Reader&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Creates a new Reader of the provided `bytes` slice with
     /// the initial cursor position of zero.
-    </span><span class="kw">pub fn </span>init(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; Reader {
+    </span><span class="kw">pub fn </span>init(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="self">Self </span>{
         Reader {
             buffer: bytes,
             cursor: <span class="number">0</span>,
@@ -366,7 +439,7 @@
     <span class="doccomment">/// Attempts to create a new Reader on a sub section of this
     /// readers bytes by taking a slice of the provided `length`
     /// will return None if there is not enough bytes
-    </span><span class="kw">pub fn </span>sub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;Reader, InvalidMessage&gt; {
+    </span><span class="kw">pub fn </span>sub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">match </span><span class="self">self</span>.take(length) {
             <span class="prelude-val">Some</span>(bytes) =&gt; <span class="prelude-val">Ok</span>(Reader::init(bytes)),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MessageTooShort),
@@ -377,7 +450,7 @@
     /// that appear after the cursor position.
     ///
     /// Moves the cursor to the end of the buffer length.
-    </span><span class="kw">pub fn </span>rest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
+    </span><span class="kw">pub fn </span>rest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8] {
         <span class="kw">let </span>rest = <span class="kw-2">&amp;</span><span class="self">self</span>.buffer[<span class="self">self</span>.cursor..];
         <span class="self">self</span>.cursor = <span class="self">self</span>.buffer.len();
         rest
@@ -387,7 +460,7 @@
     /// cursor position of `length` if there is not enough
     /// bytes remaining after the cursor to take the length
     /// then None is returned instead.
-    </span><span class="kw">pub fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">if </span><span class="self">self</span>.left() &lt; length {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -422,9 +495,70 @@
     }
 }
 
+<span class="doccomment">/// A version of [`Reader`] that operates on mutable slices
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ReaderMut&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="doccomment">/// The underlying buffer storing the readers content
+    </span>buffer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8],
+    used: usize,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; ReaderMut&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>init(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            buffer: bytes,
+            used: <span class="number">0</span>,
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sub(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+        <span class="kw">match </span><span class="self">self</span>.take(length) {
+            <span class="prelude-val">Some</span>(bytes) =&gt; <span class="prelude-val">Ok</span>(ReaderMut::init(bytes)),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MessageTooShort),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rest(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8] {
+        <span class="kw">let </span>rest = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer);
+        <span class="self">self</span>.used += rest.len();
+        rest
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>[u8]&gt; {
+        <span class="kw">if </span><span class="self">self</span>.left() &lt; length {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="kw">let </span>(taken, rest) = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer).split_at_mut(length);
+        <span class="self">self</span>.used += taken.len();
+        <span class="self">self</span>.buffer = rest;
+        <span class="prelude-val">Some</span>(taken)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>used(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.used
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>left(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.buffer.len()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_reader&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; T) -&gt; T {
+        <span class="kw">let </span><span class="kw-2">mut </span>r = Reader {
+            buffer: <span class="self">self</span>.buffer,
+            cursor: <span class="number">0</span>,
+        };
+        <span class="kw">let </span>ret = f(<span class="kw-2">&amp;mut </span>r);
+        <span class="kw">let </span>cursor = r.cursor;
+        <span class="self">self</span>.used += cursor;
+        <span class="kw">let </span>(_used, rest) = mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.buffer).split_at_mut(cursor);
+        <span class="self">self</span>.buffer = rest;
+
+        ret
+    }
+}
+
 <span class="doccomment">/// Trait for implementing encoding and decoding functionality
 /// on something.
-</span><span class="kw">pub trait </span>Codec: Debug + Sized {
+</span><span class="kw">pub trait </span>Codec&lt;<span class="lifetime">'a</span>&gt;: Debug + Sized {
     <span class="doccomment">/// Function for encoding itself by appending itself to
     /// the provided vec of bytes.
     </span><span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;);
@@ -432,7 +566,7 @@
     <span class="doccomment">/// Function for decoding itself from the provided reader
     /// will return Some if the decoding was successful or
     /// None if it was not.
-    </span><span class="kw">fn </span>read(<span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt;;
+    </span><span class="kw">fn </span>read(<span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt;;
 
     <span class="doccomment">/// Convenience function for encoding the implementation
     /// into a vec and returning it
@@ -444,18 +578,24 @@
 
     <span class="doccomment">/// Function for wrapping a call to the read function in
     /// a Reader for the slice of bytes provided
-    </span><span class="kw">fn </span>read_bytes(bytes: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    ///
+    /// Returns `Err(InvalidMessage::ExcessData(_))` if
+    /// `Self::read` does not read the entirety of `bytes`.
+    </span><span class="kw">fn </span>read_bytes(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>reader = Reader::init(bytes);
-        <span class="self">Self</span>::read(<span class="kw-2">&amp;mut </span>reader)
+        <span class="self">Self</span>::read(<span class="kw-2">&amp;mut </span>reader).and_then(|r| {
+            reader.expect_empty(<span class="string">"read_bytes"</span>)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(r)
+        })
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>u8 {
+<span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>u8 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         bytes.push(<span class="kw-2">*</span><span class="self">self</span>);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">match </span>r.take(<span class="number">1</span>) {
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[byte]) =&gt; <span class="prelude-val">Ok</span>(byte),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"u8"</span>)),
@@ -468,17 +608,17 @@
     <span class="kw-2">*</span>out = u16::to_be_bytes(v);
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>u16 {
+<span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>u16 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">let </span><span class="kw-2">mut </span>b16 = [<span class="number">0u8</span>; <span class="number">2</span>];
         put_u16(<span class="kw-2">*</span><span class="self">self</span>, <span class="kw-2">&amp;mut </span>b16);
         bytes.extend_from_slice(<span class="kw-2">&amp;</span>b16);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">match </span>r.take(<span class="number">2</span>) {
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[b1, b2]) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_be_bytes([b1, b2])),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"u8"</span>)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"u16"</span>)),
         }
     }
 }
@@ -496,13 +636,13 @@
     </span>}
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>u24 {
+<span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>u24 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">let </span>be_bytes = u32::to_be_bytes(<span class="self">self</span>.<span class="number">0</span>);
         bytes.extend_from_slice(<span class="kw-2">&amp;</span>be_bytes[<span class="number">1</span>..]);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">match </span>r.take(<span class="number">3</span>) {
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[a, b, c]) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>(u32::from_be_bytes([<span class="number">0</span>, a, b, c]))),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"u24"</span>)),
@@ -510,12 +650,12 @@
     }
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>u32 {
+<span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>u32 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         bytes.extend(<span class="self">Self</span>::to_be_bytes(<span class="kw-2">*</span><span class="self">self</span>));
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">match </span>r.take(<span class="number">4</span>) {
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[a, b, c, d]) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_be_bytes([a, b, c, d])),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"u32"</span>)),
@@ -528,14 +668,14 @@
     <span class="kw-2">*</span>bytes = u64::to_be_bytes(v);
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>u64 {
+<span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>u64 {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">let </span><span class="kw-2">mut </span>b64 = [<span class="number">0u8</span>; <span class="number">8</span>];
         put_u64(<span class="kw-2">*</span><span class="self">self</span>, <span class="kw-2">&amp;mut </span>b64);
         bytes.extend_from_slice(<span class="kw-2">&amp;</span>b64);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">match </span>r.take(<span class="number">8</span>) {
             <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>[a, b, c, d, e, f, g, h]) =&gt; <span class="prelude-val">Ok</span>(<span class="self">Self</span>::from_be_bytes([a, b, c, d, e, f, g, h])),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(InvalidMessage::MissingData(<span class="string">"u64"</span>)),
@@ -546,7 +686,7 @@
 <span class="doccomment">/// Implement `Codec` for lists of elements that implement `TlsListElement`.
 ///
 /// `TlsListElement` provides the size of the length prefix for the list.
-</span><span class="kw">impl</span>&lt;T: Codec + TlsListElement + Debug&gt; Codec <span class="kw">for </span>Vec&lt;T&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, T: Codec&lt;<span class="lifetime">'a</span>&gt; + TlsListElement + Debug&gt; Codec&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>Vec&lt;T&gt; {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">let </span>nest = LengthPrefixedBuffer::new(T::SIZE_LEN, bytes);
 
@@ -555,11 +695,14 @@
         }
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'a</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">let </span>len = <span class="kw">match </span>T::SIZE_LEN {
             ListLength::U8 =&gt; usize::from(u8::read(r)<span class="question-mark">?</span>),
             ListLength::U16 =&gt; usize::from(u16::read(r)<span class="question-mark">?</span>),
-            ListLength::U24 { max } =&gt; Ord::min(usize::from(u24::read(r)<span class="question-mark">?</span>), max),
+            ListLength::U24 { max, error } =&gt; <span class="kw">match </span>usize::from(u24::read(r)<span class="question-mark">?</span>) {
+                len <span class="kw">if </span>len &gt; max =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(error),
+                len =&gt; len,
+            },
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>sub = r.sub(len)<span class="question-mark">?</span>;
@@ -586,11 +729,11 @@
 ///
 /// The types that appear in lists are limited to three kinds of length prefixes:
 /// 1, 2, and 3 bytes. For the latter kind, we require a `TlsListElement` implementer
-/// to specify a maximum length.
+/// to specify a maximum length and error if the actual length is larger.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ListLength {
     U8,
     U16,
-    U24 { max: usize },
+    U24 { max: usize, error: InvalidMessage },
 }
 
 <span class="doccomment">/// Tracks encoding a length-delimited structure in a single pass.
@@ -653,9 +796,10 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
     <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
     <span class="kw">use </span>std::vec;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>interrupted_length_prefixed_buffer_leaves_maximum_length() {
@@ -663,8 +807,8 @@
         <span class="kw">let </span>nested = LengthPrefixedBuffer::new(ListLength::U16, <span class="kw-2">&amp;mut </span>buf);
         nested.buf.push(<span class="number">0xaa</span>);
         <span class="macro">assert_eq!</span>(nested.buf, <span class="kw-2">&amp;</span><span class="macro">vec!</span>[<span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xaa</span>]);
-        <span class="comment">// &lt;- if the buffer is accidentally read here, there is no possiblity
-        //    that the contents of the length-prefixed buffer are interpretted
+        <span class="comment">// &lt;- if the buffer is accidentally read here, there is no possibility
+        //    that the contents of the length-prefixed buffer are interpreted
         //    as a subsequent encoding (perhaps allowing injection of a different
         //    extension)
         </span>drop(nested);

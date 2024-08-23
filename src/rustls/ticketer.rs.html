@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/ticketer.rs`."><title>ticketer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/ticketer.rs`."><title>ticketer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -165,16 +165,78 @@
 <a href="#164" id="164">164</a>
 <a href="#165" id="165">165</a>
 <a href="#166" id="166">166</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::rand;
-<span class="kw">use </span><span class="kw">crate</span>::server::ProducesTickets;
-<span class="kw">use </span><span class="kw">crate</span>::Error;
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::mem;
 
 <span class="kw">use </span>pki_types::UnixTime;
 
-<span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::mem;
-<span class="kw">use </span>std::sync::{Mutex, MutexGuard};
+<span class="kw">use </span><span class="kw">crate</span>::lock::{Mutex, MutexGuard};
+<span class="kw">use </span><span class="kw">crate</span>::server::ProducesTickets;
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::time_provider::TimeProvider;
+<span class="kw">use crate</span>::{rand, Error};
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TicketSwitcherState {
@@ -187,11 +249,13 @@
 <span class="doccomment">/// A ticketer that has a 'current' sub-ticketer and a single
 /// 'previous' ticketer.  It creates a new ticketer every so
 /// often, demoting the current ticketer.
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[cfg_attr(feature = <span class="string">"std"</span>, derive(Debug))]
 </span><span class="kw">pub struct </span>TicketSwitcher {
     <span class="kw">pub</span>(<span class="kw">crate</span>) generator: <span class="kw">fn</span>() -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ProducesTickets&gt;, rand::GetRandomFailed&gt;,
     lifetime: u32,
     state: Mutex&lt;TicketSwitcherState&gt;,
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span>time_provider: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>TimeProvider,
 }
 
 <span class="kw">impl </span>TicketSwitcher {
@@ -202,6 +266,7 @@
     /// is used to generate new tickets.  Tickets are accepted for no
     /// longer than twice this duration.  `generator` produces a new
     /// `ProducesTickets` implementation.
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>new(
         lifetime: u32,
         generator: <span class="kw">fn</span>() -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ProducesTickets&gt;, rand::GetRandomFailed&gt;,
@@ -220,6 +285,36 @@
         })
     }
 
+    <span class="doccomment">/// Creates a new `TicketSwitcher`, which rotates through sub-ticketers
+    /// based on the passage of time.
+    ///
+    /// `lifetime` is in seconds, and is how long the current ticketer
+    /// is used to generate new tickets.  Tickets are accepted for no
+    /// longer than twice this duration.  `generator` produces a new
+    /// `ProducesTickets` implementation.
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">pub fn </span>new&lt;M: <span class="kw">crate</span>::lock::MakeMutex&gt;(
+        lifetime: u32,
+        generator: <span class="kw">fn</span>() -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ProducesTickets&gt;, rand::GetRandomFailed&gt;,
+        time_provider: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>TimeProvider,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            generator,
+            lifetime,
+            state: Mutex::new::&lt;M&gt;(TicketSwitcherState {
+                next: <span class="prelude-val">Some</span>(generator()<span class="question-mark">?</span>),
+                current: generator()<span class="question-mark">?</span>,
+                previous: <span class="prelude-val">None</span>,
+                next_switch_time: time_provider
+                    .current_time()
+                    .unwrap()
+                    .as_secs()
+                    .saturating_add(u64::from(lifetime)),
+            }),
+            time_provider,
+        })
+    }
+
     <span class="doccomment">/// If it's time, demote the `current` ticketer to `previous` (so it
     /// does no new encryptions but can do decryption) and use next for a
     /// new `current` ticketer.
@@ -229,7 +324,7 @@
     ///
     /// For efficiency, this is also responsible for locking the state mutex
     /// and returning the mutexguard.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>maybe_roll(<span class="kw-2">&amp;</span><span class="self">self</span>, now: UnixTime) -&gt; <span class="prelude-ty">Option</span>&lt;MutexGuard&lt;TicketSwitcherState&gt;&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>maybe_roll(<span class="kw-2">&amp;</span><span class="self">self</span>, now: UnixTime) -&gt; <span class="prelude-ty">Option</span>&lt;MutexGuard&lt;<span class="lifetime">'_</span>, TicketSwitcherState&gt;&gt; {
         <span class="comment">// The code below aims to make switching as efficient as possible
         // in the common case that the generator never fails. To achieve this
         // we run the following steps:
@@ -262,7 +357,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>are_recovering = <span class="bool-val">false</span>; <span class="comment">// Are we recovering from previous failure?
         </span>{
             <span class="comment">// Scope the mutex so we only take it for as long as needed
-            </span><span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock().ok()<span class="question-mark">?</span>;
+            </span><span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock()<span class="question-mark">?</span>;
 
             <span class="comment">// Fast path in case we do not need to switch to the next ticketer yet
             </span><span class="kw">if </span>now &lt;= state.next_switch_time {
@@ -282,7 +377,7 @@
         </span><span class="kw">let </span>next = (<span class="self">self</span>.generator)().ok()<span class="question-mark">?</span>;
         <span class="kw">if </span>!are_recovering {
             <span class="comment">// Normal path, generate new next and place it in the state
-            </span><span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock().ok()<span class="question-mark">?</span>;
+            </span><span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock()<span class="question-mark">?</span>;
             state.next = <span class="prelude-val">Some</span>(next);
             <span class="prelude-val">Some</span>(state)
         } <span class="kw">else </span>{
@@ -290,7 +385,7 @@
             // as needed. (we need to redo the time check, otherwise this might
             // result in very rapid switching of ticketers)
             </span><span class="kw">let </span>new_current = (<span class="self">self</span>.generator)().ok()<span class="question-mark">?</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock().ok()<span class="question-mark">?</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.state.lock()<span class="question-mark">?</span>;
             state.next = <span class="prelude-val">Some</span>(next);
             <span class="kw">if </span>now &gt; state.next_switch_time {
                 state.previous = <span class="prelude-val">Some</span>(mem::replace(<span class="kw-2">&amp;mut </span>state.current, new_current));
@@ -311,13 +406,29 @@
     </span>}
 
     <span class="kw">fn </span>encrypt(<span class="kw-2">&amp;</span><span class="self">self</span>, message: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span>state = <span class="self">self</span>.maybe_roll(UnixTime::now())<span class="question-mark">?</span>;
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+        </span><span class="kw">let </span>now = UnixTime::now();
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+        </span><span class="kw">let </span>now = <span class="self">self
+            </span>.time_provider
+            .current_time()
+            .unwrap();
 
-        state.current.encrypt(message)
+        <span class="self">self</span>.maybe_roll(now)<span class="question-mark">?
+            </span>.current
+            .encrypt(message)
     }
 
     <span class="kw">fn </span>decrypt(<span class="kw-2">&amp;</span><span class="self">self</span>, ciphertext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="kw">let </span>state = <span class="self">self</span>.maybe_roll(UnixTime::now())<span class="question-mark">?</span>;
+        <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+        </span><span class="kw">let </span>now = UnixTime::now();
+        <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+        </span><span class="kw">let </span>now = <span class="self">self
+            </span>.time_provider
+            .current_time()
+            .unwrap();
+
+        <span class="kw">let </span>state = <span class="self">self</span>.maybe_roll(now)<span class="question-mark">?</span>;
 
         <span class="comment">// Decrypt with the current key; if that fails, try with the previous.
         </span>state
@@ -329,6 +440,17 @@
                     .as_ref()
                     .and_then(|previous| previous.decrypt(ciphertext))
             })
+    }
+}
+
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>TicketSwitcher {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>core::fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; core::fmt::Result {
+        f.debug_struct(<span class="string">"TicketSwitcher"</span>)
+            .field(<span class="string">"generator"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.generator)
+            .field(<span class="string">"lifetime"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.lifetime)
+            .field(<span class="string">"state"</span>, <span class="kw-2">&amp;**</span><span class="self">self</span>.state.lock().unwrap())
+            .finish()
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -244,15 +244,59 @@
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
-<span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::versions;
-
-<span class="kw">use </span>alloc::format;
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::format;
+<span class="kw">use </span>alloc::sync::Arc;
+<span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::marker::PhantomData;
-<span class="kw">use </span>std::sync::Arc;
 
+<span class="kw">use </span><span class="kw">crate</span>::client::EchMode;
+<span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::ALL_KEY_EXCHANGE_ALGORITHMS;
+<span class="kw">use </span><span class="kw">crate</span>::time_provider::TimeProvider;
+<span class="kw">use </span><span class="kw">crate</span>::versions;
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use crate</span>::{ClientConfig, ServerConfig};
 
@@ -273,7 +317,8 @@
 /// supported protocol versions.
 ///
 /// ```
-/// # #[cfg(feature = "ring")] {
+/// # #[cfg(feature = "aws_lc_rs")] {
+/// # rustls::crypto::aws_lc_rs::default_provider().install_default();
 /// use rustls::{ClientConfig, ServerConfig};
 /// ClientConfig::builder()
 /// //  ...
@@ -288,7 +333,8 @@
 /// You may also override the choice of protocol versions:
 ///
 /// ```no_run
-/// # #[cfg(feature = "ring")] {
+/// # #[cfg(feature = "aws_lc_rs")] {
+/// # rustls::crypto::aws_lc_rs::default_provider().install_default();
 /// # use rustls::ServerConfig;
 /// ServerConfig::builder_with_protocol_versions(&amp;[&amp;rustls::version::TLS13])
 /// //  ...
@@ -323,7 +369,8 @@
 /// For example:
 ///
 /// ```
-/// # #[cfg(feature = "ring")] {
+/// # #[cfg(feature = "aws_lc_rs")] {
+/// # rustls::crypto::aws_lc_rs::default_provider().install_default();
 /// # use rustls::ClientConfig;
 /// # let root_certs = rustls::RootCertStore::empty();
 /// ClientConfig::builder()
@@ -346,7 +393,8 @@
 /// For example:
 ///
 /// ```no_run
-/// # #[cfg(feature = "ring")] {
+/// # #[cfg(feature = "aws_lc_rs")] {
+/// # rustls::crypto::aws_lc_rs::default_provider().install_default();
 /// # use rustls::ServerConfig;
 /// # let certs = vec![];
 /// # let private_key = pki_types::PrivateKeyDer::from(
@@ -382,7 +430,7 @@
 /// Additionally, ServerConfig and ClientConfig carry a private field containing a
 /// [`CryptoProvider`], from [`ClientConfig::builder_with_provider()`] or
 /// [`ServerConfig::builder_with_provider()`]. This determines which cryptographic backend
-/// is used. The default is [`ring::provider`].
+/// is used. The default is [the process-default provider](`CryptoProvider::get_default`).
 ///
 /// [builder]: https://rust-unofficial.github.io/patterns/patterns/creational/builder.html
 /// [typestate]: http://cliffle.com/blog/rust-typestate/
@@ -397,7 +445,7 @@
 /// [`ConfigBuilder&lt;ServerConfig, WantsVerifier&gt;`]: struct.ConfigBuilder.html#impl-6
 /// [`WantsClientCert`]: crate::client::WantsClientCert
 /// [`WantsServerCert`]: crate::server::WantsServerCert
-/// [`ring::provider`]: crate::crypto::ring::default_provider
+/// [`CryptoProvider::get_default`]: crate::crypto::CryptoProvider::get_default
 /// [`DangerousClientConfigBuilder::with_custom_certificate_verifier`]: crate::client::danger::DangerousClientConfigBuilder::with_custom_certificate_verifier
 </span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>ConfigBuilder&lt;Side: ConfigSide, State&gt; {
@@ -425,6 +473,7 @@
 </span><span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub struct </span>WantsVersions {
     <span class="kw">pub</span>(<span class="kw">crate</span>) provider: Arc&lt;CryptoProvider&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) time_provider: Arc&lt;<span class="kw">dyn </span>TimeProvider&gt;,
 }
 
 <span class="kw">impl</span>&lt;S: ConfigSide&gt; ConfigBuilder&lt;S, WantsVersions&gt; {
@@ -456,10 +505,41 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="string">"no kx groups configured"</span>.into()));
         }
 
+        <span class="comment">// verifying cipher suites have matching kx groups
+        </span><span class="kw">let </span><span class="kw-2">mut </span>supported_kx_algos = Vec::with_capacity(ALL_KEY_EXCHANGE_ALGORITHMS.len());
+        <span class="kw">for </span>group <span class="kw">in </span><span class="self">self</span>.state.provider.kx_groups.iter() {
+            <span class="kw">let </span>kx = group.name().key_exchange_algorithm();
+            <span class="kw">if </span>!supported_kx_algos.contains(<span class="kw-2">&amp;</span>kx) {
+                supported_kx_algos.push(kx);
+            }
+            <span class="comment">// Small optimization. We don't need to go over other key exchange groups
+            // if we already cover all supported key exchange algorithms
+            </span><span class="kw">if </span>supported_kx_algos.len() == ALL_KEY_EXCHANGE_ALGORITHMS.len() {
+                <span class="kw">break</span>;
+            }
+        }
+
+        <span class="kw">for </span>cs <span class="kw">in </span><span class="self">self</span>.state.provider.cipher_suites.iter() {
+            <span class="kw">let </span>cs_kx = cs.key_exchange_algorithms();
+            <span class="kw">if </span>cs_kx
+                .iter()
+                .any(|kx| supported_kx_algos.contains(kx))
+            {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">let </span>suite_name = cs.common().suite;
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="macro">alloc::format!</span>(
+                <span class="string">"Ciphersuite {suite_name:?} requires {cs_kx:?} key exchange, but no {cs_kx:?}-compatible \
+                key exchange groups were present in `CryptoProvider`'s `kx_groups` field"</span>,
+            )));
+        }
+
         <span class="prelude-val">Ok</span>(ConfigBuilder {
             state: WantsVerifier {
                 provider: <span class="self">self</span>.state.provider,
                 versions: versions::EnabledVersions::new(versions),
+                time_provider: <span class="self">self</span>.state.time_provider,
+                client_ech_mode: <span class="prelude-val">None</span>,
             },
             side: <span class="self">self</span>.side,
         })
@@ -473,6 +553,8 @@
 </span><span class="kw">pub struct </span>WantsVerifier {
     <span class="kw">pub</span>(<span class="kw">crate</span>) provider: Arc&lt;CryptoProvider&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) versions: versions::EnabledVersions,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) time_provider: Arc&lt;<span class="kw">dyn </span>TimeProvider&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) client_ech_mode: <span class="prelude-ty">Option</span>&lt;EchMode&gt;,
 }
 
 <span class="doccomment">/// Helper trait to abstract [`ConfigBuilder`] over building a [`ClientConfig`] or [`ServerConfig`].

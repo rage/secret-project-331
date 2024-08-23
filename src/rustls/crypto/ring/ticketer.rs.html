@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/crypto/ring/ticketer.rs`."><title>ticketer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/crypto/ring/ticketer.rs`."><title>ticketer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -211,20 +211,135 @@
 <a href="#210" id="210">210</a>
 <a href="#211" id="211">211</a>
 <a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::duplicate_mod)]
 
-</span><span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::rand::GetRandomFailed;
-<span class="kw">use </span><span class="kw">crate</span>::server::ProducesTickets;
-
-<span class="kw">use </span><span class="kw">super</span>::ring_like::aead;
-<span class="kw">use </span><span class="kw">super</span>::ring_like::rand::{SecureRandom, SystemRandom};
-
-<span class="kw">use </span>alloc::boxed::Box;
+</span><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::fmt::{Debug, Formatter};
+<span class="kw">use </span>core::sync::atomic::{AtomicUsize, Ordering};
+
+<span class="kw">use </span>subtle::ConstantTimeEq;
+
+<span class="kw">use </span><span class="kw">super</span>::ring_like::aead;
+<span class="kw">use </span><span class="kw">super</span>::ring_like::rand::{SecureRandom, SystemRandom};
+<span class="kw">use </span><span class="kw">super</span>::TICKETER_AEAD;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::log::debug;
+<span class="kw">use </span><span class="kw">crate</span>::rand::GetRandomFailed;
+<span class="kw">use </span><span class="kw">crate</span>::server::ProducesTickets;
 
 <span class="doccomment">/// A concrete, safe ticket creation mechanism.
 </span><span class="kw">pub struct </span>Ticketer {}
@@ -233,11 +348,28 @@
     <span class="doccomment">/// Make the recommended Ticketer.  This produces tickets
     /// with a 12 hour life and randomly generated keys.
     ///
-    /// The encryption mechanism used is Chacha20Poly1305.
+    /// The encryption mechanism used is injected via TICKETER_AEAD;
+    /// it must take a 256-bit key and 96-bit nonce.
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;<span class="kw">dyn </span>ProducesTickets&gt;, Error&gt; {
         <span class="prelude-val">Ok</span>(Arc::new(<span class="kw">crate</span>::ticketer::TicketSwitcher::new(
             <span class="number">6 </span>* <span class="number">60 </span>* <span class="number">60</span>,
             make_ticket_generator,
+        )<span class="question-mark">?</span>))
+    }
+
+    <span class="doccomment">/// Make the recommended Ticketer.  This produces tickets
+    /// with a 12 hour life and randomly generated keys.
+    ///
+    /// The encryption mechanism used is Chacha20Poly1305.
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">pub fn </span>new&lt;M: <span class="kw">crate</span>::lock::MakeMutex&gt;(
+        time_provider: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>TimeProvider,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;<span class="kw">dyn </span>ProducesTickets&gt;, Error&gt; {
+        <span class="prelude-val">Ok</span>(Arc::new(<span class="kw">crate</span>::ticketer::TicketSwitcher::new::&lt;M&gt;(
+            <span class="number">6 </span>* <span class="number">60 </span>* <span class="number">60</span>,
+            make_ticket_generator,
+            time_provider,
         )<span class="question-mark">?</span>))
     }
 }
@@ -248,13 +380,19 @@
         .fill(<span class="kw-2">&amp;mut </span>key)
         .map_err(|<span class="kw">_</span>| GetRandomFailed)<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>alg = <span class="kw-2">&amp;</span>aead::CHACHA20_POLY1305;
-    <span class="kw">let </span>key = aead::UnboundKey::new(alg, <span class="kw-2">&amp;</span>key).unwrap();
+    <span class="kw">let </span>key = aead::UnboundKey::new(TICKETER_AEAD, <span class="kw-2">&amp;</span>key).unwrap();
+
+    <span class="kw">let </span><span class="kw-2">mut </span>key_name = [<span class="number">0u8</span>; <span class="number">16</span>];
+    SystemRandom::new()
+        .fill(<span class="kw-2">&amp;mut </span>key_name)
+        .map_err(|<span class="kw">_</span>| GetRandomFailed)<span class="question-mark">?</span>;
 
     <span class="prelude-val">Ok</span>(Box::new(AeadTicketer {
-        alg,
+        alg: TICKETER_AEAD,
         key: aead::LessSafeKey::new(key),
+        key_name,
         lifetime: <span class="number">60 </span>* <span class="number">60 </span>* <span class="number">12</span>,
+        maximum_ciphertext_len: AtomicUsize::new(<span class="number">0</span>),
     }))
 }
 
@@ -265,7 +403,18 @@
 </span><span class="kw">struct </span>AeadTicketer {
     alg: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>aead::Algorithm,
     key: aead::LessSafeKey,
+    key_name: [u8; <span class="number">16</span>],
     lifetime: u32,
+
+    <span class="doccomment">/// Tracks the largest ciphertext produced by `encrypt`, and
+    /// uses it to early-reject `decrypt` queries that are too long.
+    ///
+    /// Accepting excessively long ciphertexts means a "Partitioning
+    /// Oracle Attack" (see &lt;https://eprint.iacr.org/2020/1491.pdf&gt;)
+    /// can be more efficient, though also note that these are thought
+    /// to be cryptographically hard if the key is full-entropy (as it
+    /// is here).
+    </span>maximum_ciphertext_len: AtomicUsize,
 }
 
 <span class="kw">impl </span>ProducesTickets <span class="kw">for </span>AeadTicketer {
@@ -284,26 +433,70 @@
             .fill(<span class="kw-2">&amp;mut </span>nonce_buf)
             .ok()<span class="question-mark">?</span>;
         <span class="kw">let </span>nonce = aead::Nonce::assume_unique_for_key(nonce_buf);
-        <span class="kw">let </span>aad = aead::Aad::empty();
+        <span class="kw">let </span>aad = aead::Aad::from(<span class="self">self</span>.key_name);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>ciphertext =
-            Vec::with_capacity(nonce_buf.len() + message.len() + <span class="self">self</span>.key.algorithm().tag_len());
+        <span class="comment">// ciphertext structure is:
+        // key_name: [u8; 16]
+        // nonce: [u8; 12]
+        // message: [u8, _]
+        // tag: [u8; 16]
+
+        </span><span class="kw">let </span><span class="kw-2">mut </span>ciphertext = Vec::with_capacity(
+            <span class="self">self</span>.key_name.len() + nonce_buf.len() + message.len() + <span class="self">self</span>.key.algorithm().tag_len(),
+        );
+        ciphertext.extend(<span class="self">self</span>.key_name);
         ciphertext.extend(nonce_buf);
         ciphertext.extend(message);
-        <span class="self">self</span>.key
-            .seal_in_place_separate_tag(nonce, aad, <span class="kw-2">&amp;mut </span>ciphertext[nonce_buf.len()..])
+        <span class="kw">let </span>ciphertext = <span class="self">self
+            </span>.key
+            .seal_in_place_separate_tag(
+                nonce,
+                aad,
+                <span class="kw-2">&amp;mut </span>ciphertext[<span class="self">self</span>.key_name.len() + nonce_buf.len()..],
+            )
             .map(|tag| {
                 ciphertext.extend(tag.as_ref());
                 ciphertext
             })
-            .ok()
+            .ok()<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.maximum_ciphertext_len
+            .fetch_max(ciphertext.len(), Ordering::SeqCst);
+        <span class="prelude-val">Some</span>(ciphertext)
     }
 
     <span class="doccomment">/// Decrypt `ciphertext` and recover the original message.
     </span><span class="kw">fn </span>decrypt(<span class="kw-2">&amp;</span><span class="self">self</span>, ciphertext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
-        <span class="comment">// Non-panicking `let (nonce, ciphertext) = ciphertext.split_at(...)`.
-        </span><span class="kw">let </span>nonce = ciphertext.get(..<span class="self">self</span>.alg.nonce_len())<span class="question-mark">?</span>;
-        <span class="kw">let </span>ciphertext = ciphertext.get(nonce.len()..)<span class="question-mark">?</span>;
+        <span class="kw">if </span>ciphertext.len()
+            &gt; <span class="self">self
+                </span>.maximum_ciphertext_len
+                .load(Ordering::SeqCst)
+        {
+            <span class="attr">#[cfg(debug_assertions)]
+            </span><span class="macro">debug!</span>(<span class="string">"rejected over-length ticket"</span>);
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
+        <span class="kw">let </span>(alleged_key_name, ciphertext) = try_split_at(ciphertext, <span class="self">self</span>.key_name.len())<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>(nonce, ciphertext) = try_split_at(ciphertext, <span class="self">self</span>.alg.nonce_len())<span class="question-mark">?</span>;
+
+        <span class="comment">// checking the key_name is the expected one, *and* then putting it into the
+        // additionally authenticated data is duplicative.  this check quickly rejects
+        // tickets for a different ticketer (see `TicketSwitcher`), while including it
+        // in the AAD ensures it is authenticated independent of that check and that
+        // any attempted attack on the integrity such as [^1] must happen for each
+        // `key_label`, not over a population of potential keys.  this approach
+        // is overall similar to [^2].
+        //
+        // [^1]: https://eprint.iacr.org/2020/1491.pdf
+        // [^2]: "Authenticated Encryption with Key Identification", fig 6
+        //       &lt;https://eprint.iacr.org/2022/1680.pdf&gt;
+        </span><span class="kw">if </span>ConstantTimeEq::ct_ne(<span class="kw-2">&amp;</span><span class="self">self</span>.key_name[..], alleged_key_name).into() {
+            <span class="attr">#[cfg(debug_assertions)]
+            </span><span class="macro">debug!</span>(<span class="string">"rejected ticket with wrong ticket_name"</span>);
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
 
         <span class="comment">// This won't fail since `nonce` has the required length.
         </span><span class="kw">let </span>nonce = aead::Nonce::try_assume_unique_for_key(nonce).ok()<span class="question-mark">?</span>;
@@ -312,7 +505,7 @@
 
         <span class="kw">let </span>plain_len = <span class="self">self
             </span>.key
-            .open_in_place(nonce, aead::Aad::empty(), <span class="kw-2">&amp;mut </span>out)
+            .open_in_place(nonce, aead::Aad::from(alleged_key_name), <span class="kw-2">&amp;mut </span>out)
             .ok()<span class="question-mark">?
             </span>.len();
         out.truncate(plain_len);
@@ -331,12 +524,21 @@
     }
 }
 
+<span class="doccomment">/// Non-panicking `let (nonce, ciphertext) = ciphertext.split_at(...)`.
+</span><span class="kw">fn </span>try_split_at(slice: <span class="kw-2">&amp;</span>[u8], mid: usize) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>[u8], <span class="kw-2">&amp;</span>[u8])&gt; {
+    <span class="kw">match </span>mid &gt; slice.len() {
+        <span class="bool-val">true </span>=&gt; <span class="prelude-val">None</span>,
+        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Some</span>(slice.split_at(mid)),
+    }
+}
+
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-
     <span class="kw">use </span>core::time::Duration;
+
     <span class="kw">use </span>pki_types::UnixTime;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>basic_pairwise_test() {
@@ -345,6 +547,25 @@
         <span class="kw">let </span>cipher = t.encrypt(<span class="string">b"hello world"</span>).unwrap();
         <span class="kw">let </span>plain = t.decrypt(<span class="kw-2">&amp;</span>cipher).unwrap();
         <span class="macro">assert_eq!</span>(plain, <span class="string">b"hello world"</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>refuses_decrypt_before_encrypt() {
+        <span class="kw">let </span>t = Ticketer::new().unwrap();
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="string">b"hello"</span>), <span class="prelude-val">None</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>refuses_decrypt_larger_than_largest_encryption() {
+        <span class="kw">let </span>t = Ticketer::new().unwrap();
+        <span class="kw">let </span><span class="kw-2">mut </span>cipher = t.encrypt(<span class="string">b"hello world"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher), <span class="prelude-val">Some</span>(<span class="string">b"hello world"</span>.to_vec()));
+
+        <span class="comment">// obviously this would never work anyway, but this
+        // and `cannot_decrypt_before_encrypt` exercise the
+        // first branch in `decrypt()`
+        </span>cipher.push(<span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(t.decrypt(<span class="kw-2">&amp;</span>cipher), <span class="prelude-val">None</span>);
     }
 
     <span class="attr">#[test]
@@ -410,15 +631,14 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>aeadticketer_is_debug_and_producestickets() {
-        <span class="kw">use super</span>::<span class="kw-2">*</span>;
         <span class="kw">use </span>alloc::format;
+
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
         <span class="kw">let </span>t = make_ticket_generator().unwrap();
 
-        <span class="macro">assert_eq!</span>(
-            <span class="macro">format!</span>(<span class="string">"{:?}"</span>, t),
-            <span class="string">"AeadTicketer { alg: CHACHA20_POLY1305, lifetime: 43200 }"
-        </span>);
+        <span class="kw">let </span>expect = <span class="macro">format!</span>(<span class="string">"AeadTicketer {{ alg: {TICKETER_AEAD:?}, lifetime: 43200 }}"</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">"{:?}"</span>, t), expect);
         <span class="macro">assert!</span>(t.enabled());
         <span class="macro">assert_eq!</span>(t.lifetime(), <span class="number">43200</span>);
     }

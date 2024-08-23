@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/client/hs.rs`."><title>hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/client/hs.rs`."><title>hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -904,49 +904,290 @@
 <a href="#903" id="903">903</a>
 <a href="#904" id="904">904</a>
 <a href="#905" id="905">905</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::bs_debug;
-<span class="kw">use </span><span class="kw">crate</span>::check::inappropriate_handshake_message;
-<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, State};
-<span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
-<span class="kw">use </span><span class="kw">crate</span>::crypto::ActiveKeyExchange;
-<span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, CipherSuite, ContentType, HandshakeType, ProtocolVersion};
-<span class="kw">use </span><span class="kw">crate</span>::error::{Error, PeerIncompatible, PeerMisbehaved};
-<span class="kw">use </span><span class="kw">crate</span>::hash_hs::HandshakeHashBuffer;
-<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, trace};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{Compression, ExtensionType};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{ECPointFormat, PSKKeyExchangeMode};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::ConvertProtocolNameList;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{CertificateStatusRequest, ClientSessionTicket};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientExtension, HasServerExtensions};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientHelloPayload, HandshakeMessagePayload, HandshakePayload};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{HelloRetryRequest, KeyShareEntry};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{Random, SessionId};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::persist;
-<span class="kw">use </span><span class="kw">crate</span>::tls13::key_schedule::KeyScheduleEarly;
-<span class="kw">use </span><span class="kw">crate</span>::SupportedCipherSuite;
-
-<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-</span><span class="kw">use </span><span class="kw">super</span>::tls12;
-<span class="kw">use </span><span class="kw">super</span>::Tls12Resumption;
-<span class="kw">use </span><span class="kw">crate</span>::client::client_conn::ClientConnectionData;
-<span class="kw">use </span><span class="kw">crate</span>::client::common::ClientHelloDetails;
-<span class="kw">use </span><span class="kw">crate</span>::client::{tls13, ClientConfig};
-
-<span class="kw">use </span>pki_types::{ServerName, UnixTime};
-
-<span class="kw">use </span>alloc::borrow::ToOwned;
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::ToOwned;
 <span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::ops::Deref;
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextState = Box&lt;<span class="kw">dyn </span>State&lt;ClientConnectionData&gt;&gt;;
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextStateOrError = <span class="prelude-ty">Result</span>&lt;NextState, Error&gt;;
+<span class="kw">use </span>pki_types::ServerName;
+
+<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::tls12;
+<span class="kw">use </span><span class="kw">super</span>::Tls12Resumption;
+<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::bs_debug;
+<span class="kw">use </span><span class="kw">crate</span>::check::inappropriate_handshake_message;
+<span class="kw">use </span><span class="kw">crate</span>::client::client_conn::ClientConnectionData;
+<span class="kw">use </span><span class="kw">crate</span>::client::common::ClientHelloDetails;
+<span class="kw">use </span><span class="kw">crate</span>::client::ech::EchState;
+<span class="kw">use </span><span class="kw">crate</span>::client::{tls13, ClientConfig, EchMode, EchStatus};
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, HandshakeKind, KxState, State};
+<span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
+<span class="kw">use </span><span class="kw">crate</span>::crypto::{ActiveKeyExchange, KeyExchangeAlgorithm};
+<span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, CipherSuite, ContentType, HandshakeType, ProtocolVersion};
+<span class="kw">use </span><span class="kw">crate</span>::error::{Error, PeerIncompatible, PeerMisbehaved};
+<span class="kw">use </span><span class="kw">crate</span>::hash_hs::HandshakeHashBuffer;
+<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, trace};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{Compression, ECPointFormat, ExtensionType, PSKKeyExchangeMode};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{
+    CertificateStatusRequest, ClientExtension, ClientHelloPayload, ClientSessionTicket,
+    ConvertProtocolNameList, HandshakeMessagePayload, HandshakePayload, HasServerExtensions,
+    HelloRetryRequest, KeyShareEntry, Random, SessionId,
+};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::persist;
+<span class="kw">use </span><span class="kw">crate</span>::tls13::key_schedule::KeyScheduleEarly;
+<span class="kw">use </span><span class="kw">crate</span>::SupportedCipherSuite;
+
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextState&lt;<span class="lifetime">'a</span>&gt; = Box&lt;<span class="kw">dyn </span>State&lt;ClientConnectionData&gt; + <span class="lifetime">'a</span>&gt;;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextStateOrError&lt;<span class="lifetime">'a</span>&gt; = <span class="prelude-ty">Result</span>&lt;NextState&lt;<span class="lifetime">'a</span>&gt;, Error&gt;;
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>ClientContext&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">crate</span>::common_state::Context&lt;<span class="lifetime">'a</span>, ClientConnectionData&gt;;
 
 <span class="kw">fn </span>find_session(
@@ -954,8 +1195,7 @@
     config: <span class="kw-2">&amp;</span>ClientConfig,
     cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;persist::Retrieved&lt;ClientSessionValue&gt;&gt; {
-    <span class="attr">#[allow(clippy::let_and_return, clippy::unnecessary_lazy_evaluations)]
-    </span><span class="kw">let </span>found = config
+    <span class="kw">let </span>found = config
         .resumption
         .store
         .take_tls13_ticket(server_name)
@@ -974,7 +1214,12 @@
             </span><span class="prelude-val">None
         </span>})
         .and_then(|resuming| {
-            <span class="kw">let </span>retrieved = persist::Retrieved::new(resuming, UnixTime::now());
+            <span class="kw">let </span>now = config
+                .current_time()
+                .map_err(|_err| <span class="macro">debug!</span>(<span class="string">"Could not get current time: {_err}"</span>))
+                .ok()<span class="question-mark">?</span>;
+
+            <span class="kw">let </span>retrieved = persist::Retrieved::new(resuming, now);
             <span class="kw">match </span>retrieved.has_expired() {
                 <span class="bool-val">false </span>=&gt; <span class="prelude-val">Some</span>(retrieved),
                 <span class="bool-val">true </span>=&gt; <span class="prelude-val">None</span>,
@@ -1001,7 +1246,7 @@
     extra_exts: Vec&lt;ClientExtension&gt;,
     config: Arc&lt;ClientConfig&gt;,
     cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;,
-) -&gt; NextStateOrError {
+) -&gt; NextStateOrError&lt;<span class="lifetime">'static</span>&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>transcript_buffer = HandshakeHashBuffer::new();
     <span class="kw">if </span>config
         .client_auth_cert_resolver
@@ -1013,29 +1258,35 @@
     <span class="kw">let </span><span class="kw-2">mut </span>resuming = find_session(<span class="kw-2">&amp;</span>server_name, <span class="kw-2">&amp;</span>config, cx);
 
     <span class="kw">let </span>key_share = <span class="kw">if </span>config.supports_version(ProtocolVersion::TLSv1_3) {
-        <span class="prelude-val">Some</span>(tls13::initial_key_share(<span class="kw-2">&amp;</span>config, <span class="kw-2">&amp;</span>server_name)<span class="question-mark">?</span>)
+        <span class="prelude-val">Some</span>(tls13::initial_key_share(
+            <span class="kw-2">&amp;</span>config,
+            <span class="kw-2">&amp;</span>server_name,
+            <span class="kw-2">&amp;mut </span>cx.common.kx_state,
+        )<span class="question-mark">?</span>)
     } <span class="kw">else </span>{
         <span class="prelude-val">None
     </span>};
 
-    <span class="attr">#[cfg_attr(not(feature = <span class="string">"tls12"</span>), allow(unused_mut))]
-    </span><span class="kw">let </span><span class="kw-2">mut </span>session_id = <span class="prelude-val">None</span>;
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(_resuming) = <span class="kw-2">&amp;mut </span>resuming {
-        <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-        </span><span class="kw">if let </span>ClientSessionValue::Tls12(inner) = <span class="kw-2">&amp;mut </span>_resuming.value {
-            <span class="comment">// If we have a ticket, we use the sessionid as a signal that
-            // we're  doing an abbreviated handshake.  See section 3.4 in
-            // RFC5077.
-            </span><span class="kw">if </span>!inner.ticket().is_empty() {
-                inner.session_id = SessionId::random(config.provider.secure_random)<span class="question-mark">?</span>;
-            }
-            session_id = <span class="prelude-val">Some</span>(inner.session_id);
-        }
-
+    <span class="kw">let </span>session_id = <span class="kw">if let </span><span class="prelude-val">Some</span>(_resuming) = <span class="kw-2">&amp;mut </span>resuming {
         <span class="macro">debug!</span>(<span class="string">"Resuming session"</span>);
+
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span>_resuming.value {
+            <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+            </span>ClientSessionValue::Tls12(inner) =&gt; {
+                <span class="comment">// If we have a ticket, we use the sessionid as a signal that
+                // we're  doing an abbreviated handshake.  See section 3.4 in
+                // RFC5077.
+                </span><span class="kw">if </span>!inner.ticket().is_empty() {
+                    inner.session_id = SessionId::random(config.provider.secure_random)<span class="question-mark">?</span>;
+                }
+                <span class="prelude-val">Some</span>(inner.session_id)
+            }
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
     } <span class="kw">else </span>{
         <span class="macro">debug!</span>(<span class="string">"Not resuming any session"</span>);
-    }
+        <span class="prelude-val">None
+    </span>};
 
     <span class="comment">// https://tools.ietf.org/html/rfc8446#appendix-D.4
     // https://tools.ietf.org/html/draft-ietf-quic-tls-34#section-8.4
@@ -1047,8 +1298,22 @@
     };
 
     <span class="kw">let </span>random = Random::new(config.provider.secure_random)<span class="question-mark">?</span>;
+    <span class="kw">let </span>extension_order_seed = <span class="kw">crate</span>::rand::random_u16(config.provider.secure_random)<span class="question-mark">?</span>;
 
-    <span class="prelude-val">Ok</span>(emit_client_hello_for_retry(
+    <span class="kw">let </span>ech_state = <span class="kw">match </span>config.ech_mode.as_ref() {
+        <span class="prelude-val">Some</span>(EchMode::Enable(ech_config)) =&gt; <span class="prelude-val">Some</span>(EchState::new(
+            ech_config,
+            server_name.clone(),
+            config
+                .client_auth_cert_resolver
+                .has_certs(),
+            config.provider.secure_random,
+            config.enable_sni,
+        )<span class="question-mark">?</span>),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    };
+
+    emit_client_hello_for_retry(
         transcript_buffer,
         <span class="prelude-val">None</span>,
         key_share,
@@ -1061,12 +1326,14 @@
             <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
             </span>using_ems: <span class="bool-val">false</span>,
             sent_tls13_fake_ccs: <span class="bool-val">false</span>,
-            hello: ClientHelloDetails::new(),
+            hello: ClientHelloDetails::new(extension_order_seed),
             session_id,
             server_name,
+            prev_ech_ext: <span class="prelude-val">None</span>,
         },
         cx,
-    ))
+        ech_state,
+    )
 }
 
 <span class="kw">struct </span>ExpectServerHello {
@@ -1075,6 +1342,7 @@
     early_key_schedule: <span class="prelude-ty">Option</span>&lt;KeyScheduleEarly&gt;,
     offered_key_share: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>ActiveKeyExchange&gt;&gt;,
     suite: <span class="prelude-ty">Option</span>&lt;SupportedCipherSuite&gt;,
+    ech_state: <span class="prelude-ty">Option</span>&lt;EchState&gt;,
 }
 
 <span class="kw">struct </span>ExpectServerHelloOrHelloRetryRequest {
@@ -1092,6 +1360,7 @@
     hello: ClientHelloDetails,
     session_id: SessionId,
     server_name: ServerName&lt;<span class="lifetime">'static</span>&gt;,
+    prev_ech_ext: <span class="prelude-ty">Option</span>&lt;ClientExtension&gt;,
 }
 
 <span class="kw">fn </span>emit_client_hello_for_retry(
@@ -1102,9 +1371,13 @@
     suite: <span class="prelude-ty">Option</span>&lt;SupportedCipherSuite&gt;,
     <span class="kw-2">mut </span>input: ClientHelloInput,
     cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;,
-) -&gt; NextState {
+    <span class="kw-2">mut </span>ech_state: <span class="prelude-ty">Option</span>&lt;EchState&gt;,
+) -&gt; NextStateOrError&lt;<span class="lifetime">'static</span>&gt; {
     <span class="kw">let </span>config = <span class="kw-2">&amp;</span>input.config;
-    <span class="kw">let </span>support_tls12 = config.supports_version(ProtocolVersion::TLSv1_2) &amp;&amp; !cx.common.is_quic();
+    <span class="comment">// Defense in depth: the ECH state should be None if ECH is disabled based on config
+    // builder semantics.
+    </span><span class="kw">let </span>forbids_tls12 = cx.common.is_quic() || ech_state.is_some();
+    <span class="kw">let </span>support_tls12 = config.supports_version(ProtocolVersion::TLSv1_2) &amp;&amp; !forbids_tls12;
     <span class="kw">let </span>support_tls13 = config.supports_version(ProtocolVersion::TLSv1_3);
 
     <span class="kw">let </span><span class="kw-2">mut </span>supported_versions = Vec::new();
@@ -1121,7 +1394,6 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>exts = <span class="macro">vec!</span>[
         ClientExtension::SupportedVersions(supported_versions),
-        ClientExtension::EcPointFormats(ECPointFormat::SUPPORTED.to_vec()),
         ClientExtension::NamedGroups(
             config
                 .provider
@@ -1139,10 +1411,36 @@
         ClientExtension::CertificateStatusRequest(CertificateStatusRequest::build_ocsp()),
     ];
 
-    <span class="kw">if let </span>(ServerName::DnsName(dns), <span class="bool-val">true</span>) = (<span class="kw-2">&amp;</span>input.server_name, config.enable_sni) {
-        <span class="comment">// We only want to send the SNI extension if the server name contains a DNS name.
-        </span>exts.push(ClientExtension::make_sni(dns));
+    <span class="comment">// Send the ECPointFormat extension only if we are proposing ECDHE
+    </span><span class="kw">if </span>config
+        .provider
+        .kx_groups
+        .iter()
+        .any(|skxg| skxg.name().key_exchange_algorithm() == KeyExchangeAlgorithm::ECDHE)
+    {
+        exts.push(ClientExtension::EcPointFormats(
+            ECPointFormat::SUPPORTED.to_vec(),
+        ));
     }
+
+    <span class="kw">match </span>(ech_state.as_ref(), config.enable_sni) {
+        <span class="comment">// If we have ECH state we have a "cover name" to send in the outer hello
+        // as the SNI domain name. This happens unconditionally so we ignore the
+        // `enable_sni` value. That will be used later to decide what to do for
+        // the protected inner hello's SNI.
+        </span>(<span class="prelude-val">Some</span>(ech_state), <span class="kw">_</span>) =&gt; exts.push(ClientExtension::make_sni(<span class="kw-2">&amp;</span>ech_state.outer_name)),
+
+        <span class="comment">// If we have no ECH state, and SNI is enabled, try to use the input server_name
+        // for the SNI domain name.
+        </span>(<span class="prelude-val">None</span>, <span class="bool-val">true</span>) =&gt; {
+            <span class="kw">if let </span>ServerName::DnsName(dns_name) = <span class="kw-2">&amp;</span>input.server_name {
+                exts.push(ClientExtension::make_sni(dns_name))
+            }
+        }
+
+        <span class="comment">// If we have no ECH state, and SNI is not enabled, there's nothing to do.
+        </span>(<span class="prelude-val">None</span>, <span class="bool-val">false</span>) =&gt; {}
+    };
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(key_share) = <span class="kw-2">&amp;</span>key_share {
         <span class="macro">debug_assert!</span>(support_tls13);
@@ -1150,7 +1448,7 @@
         exts.push(ClientExtension::KeyShare(<span class="macro">vec!</span>[key_share]));
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(cookie) = retryreq.and_then(HelloRetryRequest::get_cookie) {
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(cookie) = retryreq.and_then(HelloRetryRequest::cookie) {
         exts.push(ClientExtension::Cookie(cookie.clone()));
     }
 
@@ -1171,17 +1469,55 @@
         )));
     }
 
+    input.hello.offered_cert_compression = <span class="kw">if </span>support_tls13 &amp;&amp; !config.cert_decompressors.is_empty()
+    {
+        exts.push(ClientExtension::CertificateCompressionAlgorithms(
+            config
+                .cert_decompressors
+                .iter()
+                .map(|dec| dec.algorithm())
+                .collect(),
+        ));
+        <span class="bool-val">true
+    </span>} <span class="kw">else </span>{
+        <span class="bool-val">false
+    </span>};
+
     <span class="comment">// Extra extensions must be placed before the PSK extension
     </span>exts.extend(extra_exts.iter().cloned());
+
+    <span class="comment">// If this is a second client hello we're constructing in response to an HRR, and
+    // we've rejected ECH or sent GREASE ECH, then we need to carry forward the
+    // exact same ECH extension we used in the first hello.
+    </span><span class="kw">if </span><span class="macro">matches!</span>(cx.data.ech_status, EchStatus::Rejected | EchStatus::Grease) &amp; retryreq.is_some() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_ech_ext) = input.prev_ech_ext.take() {
+            exts.push(prev_ech_ext);
+        }
+    }
 
     <span class="comment">// Do we have a SessionID or ticket cached for this host?
     </span><span class="kw">let </span>tls13_session = prepare_resumption(<span class="kw-2">&amp;</span>input.resuming, <span class="kw-2">&amp;mut </span>exts, suite, cx, config);
 
-    <span class="comment">// Note what extensions we sent.
-    </span>input.hello.sent_extensions = exts
-        .iter()
-        .map(ClientExtension::get_type)
-        .collect();
+    <span class="comment">// Extensions MAY be randomized
+    // but they also need to keep the same order as the previous ClientHello
+    </span>exts.sort_by_cached_key(|new_ext| {
+        <span class="kw">match </span>(<span class="kw-2">&amp;</span>cx.data.ech_status, new_ext) {
+            <span class="comment">// When not offering ECH/GREASE, the PSK extension is always last.
+            </span>(EchStatus::NotOffered, ClientExtension::PresharedKey(..)) =&gt; <span class="kw">return </span>u32::MAX,
+            <span class="comment">// When ECH or GREASE are in-play, the ECH extension is always last.
+            </span>(<span class="kw">_</span>, ClientExtension::EncryptedClientHello(<span class="kw">_</span>)) =&gt; <span class="kw">return </span>u32::MAX,
+            <span class="comment">// ... and the PSK extension should be second-to-last.
+            </span>(<span class="kw">_</span>, ClientExtension::PresharedKey(..)) =&gt; <span class="kw">return </span>u32::MAX - <span class="number">1</span>,
+            <span class="kw">_ </span>=&gt; {}
+        };
+
+        <span class="kw">let </span>seed = (input.hello.extension_order_seed <span class="kw">as </span>u32) &lt;&lt; <span class="number">16
+            </span>| (u16::from(new_ext.ext_type()) <span class="kw">as </span>u32);
+        <span class="kw">match </span>low_quality_integer_hash(seed) {
+            u32::MAX =&gt; <span class="number">0</span>,
+            key =&gt; key,
+        }
+    });
 
     <span class="kw">let </span><span class="kw-2">mut </span>cipher_suites: Vec&lt;<span class="kw">_</span>&gt; = config
         .provider
@@ -1195,33 +1531,98 @@
     <span class="comment">// We don't do renegotiation at all, in fact.
     </span>cipher_suites.push(CipherSuite::TLS_EMPTY_RENEGOTIATION_INFO_SCSV);
 
-    <span class="kw">let </span><span class="kw-2">mut </span>chp = HandshakeMessagePayload {
-        typ: HandshakeType::ClientHello,
-        payload: HandshakePayload::ClientHello(ClientHelloPayload {
-            client_version: ProtocolVersion::TLSv1_2,
-            random: input.random,
-            session_id: input.session_id,
-            cipher_suites,
-            compression_methods: <span class="macro">vec!</span>[Compression::Null],
-            extensions: exts,
-        }),
+    <span class="kw">let </span><span class="kw-2">mut </span>chp_payload = ClientHelloPayload {
+        client_version: ProtocolVersion::TLSv1_2,
+        random: input.random,
+        session_id: input.session_id,
+        cipher_suites,
+        compression_methods: <span class="macro">vec!</span>[Compression::Null],
+        extensions: exts,
     };
 
-    <span class="kw">let </span>early_key_schedule = <span class="kw">if let </span><span class="prelude-val">Some</span>(resuming) = tls13_session {
-        <span class="kw">let </span>schedule = tls13::fill_in_psk_binder(<span class="kw-2">&amp;</span>resuming, <span class="kw-2">&amp;</span>transcript_buffer, <span class="kw-2">&amp;mut </span>chp);
-        <span class="prelude-val">Some</span>((resuming.suite(), schedule))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>};
+    <span class="kw">let </span>ech_grease_ext = config
+        .ech_mode
+        .as_ref()
+        .and_then(|mode| <span class="kw">match </span>mode {
+            EchMode::Grease(cfg) =&gt; <span class="prelude-val">Some</span>(cfg.grease_ext(
+                config.provider.secure_random,
+                input.server_name.clone(),
+                <span class="kw-2">&amp;</span>chp_payload,
+            )),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        });
+
+    <span class="kw">match </span>(cx.data.ech_status, <span class="kw-2">&amp;mut </span>ech_state) {
+        <span class="comment">// If we haven't offered ECH, or have offered ECH but got a non-rejecting HRR, then
+        // we need to replace the client hello payload with an ECH client hello payload.
+        </span>(EchStatus::NotOffered | EchStatus::Offered, <span class="prelude-val">Some</span>(ech_state)) =&gt; {
+            <span class="comment">// Replace the client hello payload with an ECH client hello payload.
+            </span>chp_payload = ech_state.ech_hello(chp_payload, retryreq, <span class="kw-2">&amp;</span>tls13_session)<span class="question-mark">?</span>;
+            cx.data.ech_status = EchStatus::Offered;
+            <span class="comment">// Store the ECH extension in case we need to carry it forward in a subsequent hello.
+            </span>input.prev_ech_ext = chp_payload.extensions.last().cloned();
+        }
+        <span class="comment">// If we haven't offered ECH, and have no ECH state, then consider whether to use GREASE
+        // ECH.
+        </span>(EchStatus::NotOffered, <span class="prelude-val">None</span>) =&gt; {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(grease_ext) = ech_grease_ext {
+                <span class="comment">// Add the GREASE ECH extension.
+                </span><span class="kw">let </span>grease_ext = grease_ext<span class="question-mark">?</span>;
+                chp_payload
+                    .extensions
+                    .push(grease_ext.clone());
+                cx.data.ech_status = EchStatus::Grease;
+                <span class="comment">// Store the GREASE ECH extension in case we need to carry it forward in a
+                // subsequent hello.
+                </span>input.prev_ech_ext = <span class="prelude-val">Some</span>(grease_ext);
+            }
+        }
+        <span class="kw">_ </span>=&gt; {}
+    }
+
+    <span class="comment">// Note what extensions we sent.
+    </span>input.hello.sent_extensions = chp_payload
+        .extensions
+        .iter()
+        .map(ClientExtension::ext_type)
+        .collect();
+
+    <span class="kw">let </span><span class="kw-2">mut </span>chp = HandshakeMessagePayload {
+        typ: HandshakeType::ClientHello,
+        payload: HandshakePayload::ClientHello(chp_payload),
+    };
+
+    <span class="kw">let </span>early_key_schedule = <span class="kw">match </span>(ech_state.as_mut(), tls13_session) {
+        <span class="comment">// If we're performing ECH and resuming, then the PSK binder will have been dealt with
+        // separately, and we need to take the early_data_key_schedule computed for the inner hello.
+        </span>(<span class="prelude-val">Some</span>(ech_state), <span class="prelude-val">Some</span>(tls13_session)) =&gt; ech_state
+            .early_data_key_schedule
+            .take()
+            .map(|schedule| (tls13_session.suite(), schedule)),
+
+        <span class="comment">// When we're not doing ECH and resuming, then the PSK binder need to be filled in as
+        // normal.
+        </span>(<span class="kw">_</span>, <span class="prelude-val">Some</span>(tls13_session)) =&gt; <span class="prelude-val">Some</span>((
+            tls13_session.suite(),
+            tls13::fill_in_psk_binder(<span class="kw-2">&amp;</span>tls13_session, <span class="kw-2">&amp;</span>transcript_buffer, <span class="kw-2">&amp;mut </span>chp),
+        )),
+
+        <span class="comment">// No early key schedule in other cases.
+        </span><span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    };
 
     <span class="kw">let </span>ch = Message {
-        <span class="comment">// "This value MUST be set to 0x0303 for all records generated
-        //  by a TLS 1.3 implementation other than an initial ClientHello
-        //  (i.e., one not generated after a HelloRetryRequest)"
-        </span>version: <span class="kw">if </span>retryreq.is_some() {
-            ProtocolVersion::TLSv1_2
-        } <span class="kw">else </span>{
-            ProtocolVersion::TLSv1_0
+        version: <span class="kw">match </span>retryreq {
+            <span class="comment">// &lt;https://datatracker.ietf.org/doc/html/rfc8446#section-5.1&gt;:
+            // "This value MUST be set to 0x0303 for all records generated
+            //  by a TLS 1.3 implementation ..."
+            </span><span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; ProtocolVersion::TLSv1_2,
+            <span class="comment">// "... other than an initial ClientHello (i.e., one not
+            // generated after a HelloRetryRequest), where it MAY also be
+            // 0x0301 for compatibility purposes"
+            //
+            // (retryreq == None means we're in the "initial ClientHello" case)
+            </span><span class="prelude-val">None </span>=&gt; ProtocolVersion::TLSv1_0,
         },
         payload: MessagePayload::handshake(chp),
     };
@@ -1243,14 +1644,24 @@
             <span class="kw">return </span>schedule;
         }
 
+        <span class="kw">let </span>(transcript_buffer, random) = <span class="kw">match </span><span class="kw-2">&amp;</span>ech_state {
+            <span class="comment">// When using ECH the early data key schedule is derived based on the inner
+            // hello transcript and random.
+            </span><span class="prelude-val">Some</span>(ech_state) =&gt; (
+                <span class="kw-2">&amp;</span>ech_state.inner_hello_transcript,
+                <span class="kw-2">&amp;</span>ech_state.inner_hello_random.<span class="number">0</span>,
+            ),
+            <span class="prelude-val">None </span>=&gt; (<span class="kw-2">&amp;</span>transcript_buffer, <span class="kw-2">&amp;</span>input.random.<span class="number">0</span>),
+        };
+
         tls13::derive_early_traffic_secret(
             <span class="kw-2">&amp;*</span>config.key_log,
             cx,
             resuming_suite,
             <span class="kw-2">&amp;</span>schedule,
             <span class="kw-2">&amp;mut </span>input.sent_tls13_fake_ccs,
-            <span class="kw-2">&amp;</span>transcript_buffer,
-            <span class="kw-2">&amp;</span>input.random.<span class="number">0</span>,
+            transcript_buffer,
+            random,
         );
         schedule
     });
@@ -1261,13 +1672,14 @@
         early_key_schedule,
         offered_key_share: key_share,
         suite,
+        ech_state,
     };
 
-    <span class="kw">if </span>support_tls13 &amp;&amp; retryreq.is_none() {
+    <span class="prelude-val">Ok</span>(<span class="kw">if </span>support_tls13 &amp;&amp; retryreq.is_none() {
         Box::new(ExpectServerHelloOrHelloRetryRequest { next, extra_exts })
     } <span class="kw">else </span>{
         Box::new(next)
-    }
+    })
 }
 
 <span class="doccomment">/// Prepare resumption with the session state retrieved from storage.
@@ -1362,7 +1774,7 @@
     <span class="comment">// RFC 9001 says: "While ALPN only specifies that servers use this alert, QUIC clients MUST
     // use error 0x0178 to terminate a connection when ALPN negotiation fails." We judge that
     // the user intended to use ALPN (rather than some out-of-band protocol negotiation
-    // mechanism) iff any ALPN protocols were configured. This defends against badly-behaved
+    // mechanism) if and only if any ALPN protocols were configured. This defends against badly-behaved
     // servers which accept a connection that requires an application-layer protocol they do not
     // understand.
     </span><span class="kw">if </span>common.is_quic() &amp;&amp; common.alpn_protocol.is_none() &amp;&amp; !config.alpn_protocols.is_empty() {
@@ -1383,7 +1795,14 @@
 }
 
 <span class="kw">impl </span>State&lt;ClientConnectionData&gt; <span class="kw">for </span>ExpectServerHello {
-    <span class="kw">fn </span>handle(<span class="kw-2">mut </span><span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;, m: Message) -&gt; NextStateOrError {
+    <span class="kw">fn </span>handle&lt;<span class="lifetime">'m</span>&gt;(
+        <span class="kw-2">mut </span><span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;,
+        m: Message&lt;<span class="lifetime">'m</span>&gt;,
+    ) -&gt; NextStateOrError&lt;<span class="lifetime">'m</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'m</span>,
+    {
         <span class="kw">let </span>server_hello =
             <span class="macro">require_handshake_msg!</span>(m, HandshakeType::ServerHello, HandshakePayload::ServerHello)<span class="question-mark">?</span>;
         <span class="macro">trace!</span>(<span class="string">"We got ServerHello {:#?}"</span>, server_hello);
@@ -1394,7 +1813,7 @@
 
         <span class="kw">let </span>server_version = <span class="kw">if </span>server_hello.legacy_version == TLSv1_2 {
             server_hello
-                .get_supported_versions()
+                .supported_versions()
                 .unwrap_or(server_hello.legacy_version)
         } <span class="kw">else </span>{
             server_hello.legacy_version
@@ -1410,7 +1829,7 @@
                 }
 
                 <span class="kw">if </span>server_hello
-                    .get_supported_versions()
+                    .supported_versions()
                     .is_some()
                 {
                     <span class="kw">return </span><span class="prelude-val">Err</span>({
@@ -1466,12 +1885,12 @@
 
         <span class="comment">// Extract ALPN protocol
         </span><span class="kw">if </span>!cx.common.is_tls13() {
-            process_alpn_protocol(cx.common, config, server_hello.get_alpn_protocol())<span class="question-mark">?</span>;
+            process_alpn_protocol(cx.common, config, server_hello.alpn_protocol())<span class="question-mark">?</span>;
         }
 
         <span class="comment">// If ECPointFormats extension is supplied by the server, it must contain
         // Uncompressed.  But it's allowed to be omitted.
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(point_fmts) = server_hello.get_ecpoints_extension() {
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(point_fmts) = server_hello.ecpoints_extension() {
             <span class="kw">if </span>!point_fmts.contains(<span class="kw-2">&amp;</span>ECPointFormat::Uncompressed) {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
                     AlertDescription::HandshakeFailure,
@@ -1549,6 +1968,8 @@
                     <span class="comment">// We always send a key share when TLS 1.3 is enabled.
                     </span><span class="self">self</span>.offered_key_share.unwrap(),
                     <span class="self">self</span>.input.sent_tls13_fake_ccs,
+                    <span class="kw-2">&amp;</span>m,
+                    <span class="self">self</span>.ech_state,
                 )
             }
             <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
@@ -1573,18 +1994,22 @@
             }
         }
     }
+
+    <span class="kw">fn </span>into_owned(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; NextState&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">impl </span>ExpectServerHelloOrHelloRetryRequest {
-    <span class="kw">fn </span>into_expect_server_hello(<span class="self">self</span>) -&gt; NextState {
+    <span class="kw">fn </span>into_expect_server_hello(<span class="self">self</span>) -&gt; NextState&lt;<span class="lifetime">'static</span>&gt; {
         Box::new(<span class="self">self</span>.next)
     }
 
     <span class="kw">fn </span>handle_hello_retry_request(
-        <span class="self">self</span>,
+        <span class="kw-2">mut </span><span class="self">self</span>,
         cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;,
-        m: Message,
-    ) -&gt; NextStateOrError {
+        m: Message&lt;<span class="lifetime">'_</span>&gt;,
+    ) -&gt; NextStateOrError&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw">let </span>hrr = <span class="macro">require_handshake_msg!</span>(
             m,
             HandshakeType::HelloRetryRequest,
@@ -1594,8 +2019,8 @@
 
         cx.common.check_aligned_handshake()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>cookie = hrr.get_cookie();
-        <span class="kw">let </span>req_group = hrr.get_requested_key_share_group();
+        <span class="kw">let </span>cookie = hrr.cookie();
+        <span class="kw">let </span>req_group = hrr.requested_key_share_group();
 
         <span class="comment">// We always send a key share when TLS 1.3 is enabled.
         </span><span class="kw">let </span>offered_key_share = <span class="self">self</span>.next.offered_key_share.unwrap();
@@ -1674,7 +2099,7 @@
         }
 
         <span class="comment">// Or asks us to talk a protocol we didn't offer, or doesn't support HRR at all.
-        </span><span class="kw">match </span>hrr.get_supported_versions() {
+        </span><span class="kw">match </span>hrr.supported_versions() {
             <span class="prelude-val">Some</span>(ProtocolVersion::TLSv1_3) =&gt; {
                 cx.common.negotiated_version = <span class="prelude-val">Some</span>(ProtocolVersion::TLSv1_3);
             }
@@ -1702,8 +2127,35 @@
             }
         };
 
+        <span class="comment">// Or offers ECH related extensions when we didn't offer ECH.
+        </span><span class="kw">if </span>cx.data.ech_status == EchStatus::NotOffered &amp;&amp; hrr.ech().is_some() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>({
+                cx.common.send_fatal_alert(
+                    AlertDescription::UnsupportedExtension,
+                    PeerMisbehaved::IllegalHelloRetryRequestWithInvalidEch,
+                )
+            });
+        }
+
         <span class="comment">// HRR selects the ciphersuite.
         </span>cx.common.suite = <span class="prelude-val">Some</span>(cs);
+        cx.common.handshake_kind = <span class="prelude-val">Some</span>(HandshakeKind::FullWithHelloRetryRequest);
+
+        <span class="comment">// If we offered ECH, we need to confirm that the server accepted it.
+        </span><span class="kw">match </span>(<span class="self">self</span>.next.ech_state.as_ref(), cs.tls13()) {
+            (<span class="prelude-val">Some</span>(ech_state), <span class="prelude-val">Some</span>(tls13_cs)) =&gt; {
+                <span class="kw">if </span>!ech_state.confirm_hrr_acceptance(hrr, tls13_cs, cx.common)<span class="question-mark">? </span>{
+                    <span class="comment">// If the server did not confirm, then note the new ECH status but
+                    // continue the handshake. We will abort with an ECH required error
+                    // at the end.
+                    </span>cx.data.ech_status = EchStatus::Rejected;
+                }
+            }
+            (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) =&gt; {
+                <span class="macro">unreachable!</span>(<span class="string">"ECH state should only be set when TLS 1.3 was negotiated"</span>)
+            }
+            <span class="kw">_ </span>=&gt; {}
+        };
 
         <span class="comment">// This is the draft19 change where the transcript became a tree
         </span><span class="kw">let </span>transcript = <span class="self">self
@@ -1712,6 +2164,12 @@
             .start_hash(cs.hash_provider());
         <span class="kw">let </span><span class="kw-2">mut </span>transcript_buffer = transcript.into_hrr_buffer();
         transcript_buffer.add_message(<span class="kw-2">&amp;</span>m);
+
+        <span class="comment">// If we offered ECH and the server accepted, we also need to update the separate
+        // ECH transcript with the hello retry request message.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ech_state) = <span class="self">self</span>.next.ech_state.as_mut() {
+            ech_state.transcript_hrr_update(cs.hash_provider(), <span class="kw-2">&amp;</span>m);
+        }
 
         <span class="comment">// Early data is not allowed after HelloRetryrequest
         </span><span class="kw">if </span>cx.data.early_data.is_enabled() {
@@ -1730,13 +2188,13 @@
                     }
                 };
 
-                skxg.start()
-                    .map_err(|<span class="kw">_</span>| Error::FailedToGetRandomBytes)<span class="question-mark">?
+                cx.common.kx_state = KxState::Start(skxg);
+                skxg.start()<span class="question-mark">?
             </span>}
             <span class="kw">_ </span>=&gt; offered_key_share,
         };
 
-        <span class="prelude-val">Ok</span>(emit_client_hello_for_retry(
+        emit_client_hello_for_retry(
             transcript_buffer,
             <span class="prelude-val">Some</span>(hrr),
             <span class="prelude-val">Some</span>(key_share),
@@ -1744,12 +2202,20 @@
             <span class="prelude-val">Some</span>(cs),
             <span class="self">self</span>.next.input,
             cx,
-        ))
+            <span class="self">self</span>.next.ech_state,
+        )
     }
 }
 
 <span class="kw">impl </span>State&lt;ClientConnectionData&gt; <span class="kw">for </span>ExpectServerHelloOrHelloRetryRequest {
-    <span class="kw">fn </span>handle(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;, m: Message) -&gt; NextStateOrError {
+    <span class="kw">fn </span>handle&lt;<span class="lifetime">'m</span>&gt;(
+        <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>ClientContext&lt;<span class="lifetime">'_</span>&gt;,
+        m: Message&lt;<span class="lifetime">'m</span>&gt;,
+    ) -&gt; NextStateOrError&lt;<span class="lifetime">'m</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'m</span>,
+    {
         <span class="kw">match </span>m.payload {
             MessagePayload::Handshake {
                 parsed:
@@ -1776,6 +2242,10 @@
             )),
         }
     }
+
+    <span class="kw">fn </span>into_owned(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; NextState&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="self">self
+    </span>}
 }
 
 <span class="kw">enum </span>ClientSessionValue {
@@ -1808,5 +2278,21 @@
     <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
         <span class="self">self</span>.common()
     }
+}
+
+<span class="kw">fn </span>low_quality_integer_hash(<span class="kw-2">mut </span>x: u32) -&gt; u32 {
+    x = x
+        .wrapping_add(<span class="number">0x7ed55d16</span>)
+        .wrapping_add(x &lt;&lt; <span class="number">12</span>);
+    x = (x ^ <span class="number">0xc761c23c</span>) ^ (x &gt;&gt; <span class="number">19</span>);
+    x = x
+        .wrapping_add(<span class="number">0x165667b1</span>)
+        .wrapping_add(x &lt;&lt; <span class="number">5</span>);
+    x = x.wrapping_add(<span class="number">0xd3a2646c</span>) ^ (x &lt;&lt; <span class="number">9</span>);
+    x = x
+        .wrapping_add(<span class="number">0xfd7046c5</span>)
+        .wrapping_add(x &lt;&lt; <span class="number">3</span>);
+    x = (x ^ <span class="number">0xb55a4f09</span>) ^ (x &gt;&gt; <span class="number">16</span>);
+    x
 }
 </code></pre></div></section></main></body></html>

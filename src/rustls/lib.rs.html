@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -550,70 +550,139 @@
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
 <a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Rustls - a modern TLS library
 //!
 //! Rustls is a TLS library that aims to provide a good level of cryptographic security,
 //! requires no configuration to achieve that security, and provides no unsafe features or
 //! obsolete cryptography by default.
 //!
-//! ## Current functionality (with default crate features)
-//!
-//! * TLS1.2 and TLS1.3.
-//! * ECDSA, Ed25519 or RSA server authentication by clients.
-//! * ECDSA, Ed25519 or RSA server authentication by servers.
-//! * Forward secrecy using ECDHE; with curve25519, nistp256 or nistp384 curves.
-//! * AES128-GCM and AES256-GCM bulk encryption, with safe nonces.
-//! * ChaCha20-Poly1305 bulk encryption ([RFC7905](https://tools.ietf.org/html/rfc7905)).
-//! * ALPN support.
-//! * SNI support.
-//! * Tunable fragment size to make TLS messages match size of underlying transport.
-//! * Optional use of vectored IO to minimise system calls.
-//! * TLS1.2 session resumption.
-//! * TLS1.2 resumption via tickets ([RFC5077](https://tools.ietf.org/html/rfc5077)).
-//! * TLS1.3 resumption via tickets or session storage.
-//! * TLS1.3 0-RTT data for clients.
-//! * TLS1.3 0-RTT data for servers.
-//! * Client authentication by clients.
-//! * Client authentication by servers.
-//! * Extended master secret support ([RFC7627](https://tools.ietf.org/html/rfc7627)).
-//! * Exporters ([RFC5705](https://tools.ietf.org/html/rfc5705)).
-//! * OCSP stapling by servers.
-//!
-//! ## Non-features
-//!
-//! For reasons [explained in the manual](manual),
-//! rustls does not and will not support:
-//!
-//! * SSL1, SSL2, SSL3, TLS1 or TLS1.1.
-//! * RC4.
-//! * DES or triple DES.
-//! * EXPORT ciphersuites.
-//! * MAC-then-encrypt ciphersuites.
-//! * Ciphersuites without forward secrecy.
-//! * Renegotiation.
-//! * Kerberos.
-//! * TLS 1.2 protocol compression.
-//! * Discrete-log Diffie-Hellman.
-//! * Automatic protocol version downgrade.
-//! * Using CA certificates directly to authenticate a server/client (often called "self-signed
-//!   certificates"). _Rustls' default certificate verifier does not support using a trust anchor as
-//!   both a CA certificate and an end-entity certificate in order to limit complexity and risk in
-//!   path building. While dangerous, all authentication can be turned off if required --
-//!   see the [example code](https://github.com/rustls/rustls/blob/992e2364a006b2e84a8cf6a7c3eaf0bdb773c9de/examples/src/bin/tlsclient-mio.rs#L318)_.
-//!
-//! There are plenty of other libraries that provide these features should you
-//! need them.
+//! Rustls implements TLS1.2 and TLS1.3 for both clients and servers. See [the full
+//! list of protocol features](manual::_04_features).
 //!
 //! ### Platform support
 //!
-//! While Rustls itself is platform independent, by default it uses
-//! [`ring`](https://crates.io/crates/ring) for implementing the cryptography in
-//! TLS. As a result, rustls only runs on platforms
-//! supported by `ring`. At the time of writing, this means 32-bit ARM, Aarch64 (64-bit ARM),
-//! x86, x86-64, LoongArch64, 32-bit &amp; 64-bit Little Endian MIPS, 32-bit PowerPC (Big Endian),
-//! 64-bit PowerPC (Big and Little Endian), 64-bit RISC-V, and s390x. We do not presently
-//! support WebAssembly.
-//! For more information, see [the supported `ring` target platforms][ring-target-platforms].
+//! While Rustls itself is platform independent, by default it uses [`aws-lc-rs`] for implementing
+//! the cryptography in TLS.  See [the aws-lc-rs FAQ][aws-lc-rs-platforms-faq] for more details of the
+//! platform/architecture support constraints in aws-lc-rs.
+//!
+//! [`ring`] is also available via the `ring` crate feature: see
+//! [the supported `ring` target platforms][ring-target-platforms].
 //!
 //! By providing a custom instance of the [`crypto::CryptoProvider`] struct, you
 //! can replace all cryptography dependencies of rustls.  This is a route to being portable
@@ -621,19 +690,87 @@
 //! [`crypto::CryptoProvider`] documentation for more details.
 //!
 //! Specifying `default-features = false` when depending on rustls will remove the
-//! dependency on *ring*.
+//! dependency on aws-lc-rs.
 //!
-//! Rustls requires Rust 1.61 or later.
+//! Rustls requires Rust 1.63 or later. It has an optional dependency on zlib-rs which requires 1.75 or later.
 //!
 //! [ring-target-platforms]: https://github.com/briansmith/ring/blob/2e8363b433fa3b3962c877d9ed2e9145612f3160/include/ring-core/target.h#L18-L64
-//! [crypto::CryptoProvider]: https://docs.rs/rustls/latest/rustls/crypto/trait.CryptoProvider.html
+//! [`crypto::CryptoProvider`]: crate::crypto::CryptoProvider
+//! [`ring`]: https://crates.io/crates/ring
+//! [aws-lc-rs-platforms-faq]: https://aws.github.io/aws-lc-rs/faq.html#can-i-run-aws-lc-rs-on-x-platform-or-architecture
+//! [`aws-lc-rs`]: https://crates.io/crates/aws-lc-rs
 //!
-//! ## Design Overview
+//! ### Cryptography providers
+//!
+//! Since Rustls 0.22 it has been possible to choose the provider of the cryptographic primitives
+//! that Rustls uses. This may be appealing if you have specific platform, compliance or feature
+//! requirements that aren't met by the default provider, [`aws-lc-rs`].
+//!
+//! Users that wish to customize the provider in use can do so when constructing `ClientConfig`
+//! and `ServerConfig` instances using the `with_crypto_provider` method on the respective config
+//! builder types. See the [`crypto::CryptoProvider`] documentation for more details.
+//!
+//! #### Built-in providers
+//!
+//! Rustls ships with two built-in providers controlled with associated feature flags:
+//!
+//!   * [`aws-lc-rs`] - enabled by default, available with the `aws_lc_rs` feature flag enabled.
+//!   * [`ring`] - available with the `ring` feature flag enabled.
+//!
+//! See the documentation for [`crypto::CryptoProvider`] for details on how providers are
+//! selected.
+//!
+//! #### Third-party providers
+//!
+//! The community has also started developing third-party providers for Rustls:
+//!
+//!   * [`rustls-mbedtls-provider`] - a provider that uses [`mbedtls`] for cryptography.
+//!   * [`boring-rustls-provider`] - a work-in-progress provider that uses [`boringssl`] for
+//!     cryptography.
+//!   * [`rustls-rustcrypto`] - an experimental provider that uses the crypto primitives
+//!     from [`RustCrypto`] for cryptography.
+//!   * [`rustls-post-quantum`]: an experimental provider that adds support for post-quantum
+//!     key exchange to the default aws-lc-rs provider.
+//!
+//! [`rustls-mbedtls-provider`]: https://github.com/fortanix/rustls-mbedtls-provider
+//! [`mbedtls`]: https://github.com/Mbed-TLS/mbedtls
+//! [`boring-rustls-provider`]: https://github.com/janrueth/boring-rustls-provider
+//! [`boringssl`]: https://github.com/google/boringssl
+//! [`rustls-rustcrypto`]: https://github.com/RustCrypto/rustls-rustcrypto
+//! [`RustCrypto`]: https://github.com/RustCrypto
+//! [`rustls-post-quantum`]: https://crates.io/crates/rustls-post-quantum
+//!
+//! #### Custom provider
+//!
+//! We also provide a simple example of writing your own provider in the [`custom-provider`]
+//! example. This example implements a minimal provider using parts of the [`RustCrypto`]
+//! ecosystem.
+//!
+//! See the [Making a custom CryptoProvider] section of the documentation for more information
+//! on this topic.
+//!
+//! [`custom-provider`]: https://github.com/rustls/rustls/tree/main/provider-example/
+//! [`RustCrypto`]: https://github.com/RustCrypto
+//! [Making a custom CryptoProvider]: https://docs.rs/rustls/latest/rustls/crypto/struct.CryptoProvider.html#making-a-custom-cryptoprovider
+//!
+//! ## Design overview
+//!
+//! Rustls is a low-level library. If your goal is to make HTTPS connections you may prefer
+//! to use a library built on top of Rustls like [hyper] or [ureq].
+//!
+//! [hyper]: https://crates.io/crates/hyper
+//! [ureq]: https://crates.io/crates/ureq
+//!
 //! ### Rustls does not take care of network IO
 //! It doesn't make or accept TCP connections, or do DNS, or read or write files.
 //!
-//! There's example client and server code which uses mio to do all needed network
-//! IO.
+//! Our [examples] directory contains demos that show how to handle I/O using the
+//! [`stream::Stream`] helper, as well as more complex asynchronous I/O using [`mio`].
+//! If you're already using Tokio for an async runtime you may prefer to use [`tokio-rustls`] instead
+//! of interacting with rustls directly.
+//!
+//! [examples]: https://github.com/rustls/rustls/tree/main/examples
+//! [`tokio-rustls`]: https://github.com/rustls/tokio-rustls
 //!
 //! ### Rustls provides encrypted pipes
 //! These are the [`ServerConnection`] and [`ClientConnection`] types.  You supply raw TLS traffic
@@ -667,12 +804,11 @@
 //! the Mozilla set of root certificates.
 //!
 //! ```rust,no_run
-//! # #[cfg(feature = "ring")] {
-//! let mut root_store = rustls::RootCertStore::empty();
-//! root_store.extend(
+//! # #[cfg(feature = "aws-lc-rs")] {
+//! let root_store = rustls::RootCertStore::from_iter(
 //!     webpki_roots::TLS_SERVER_ROOTS
 //!         .iter()
-//!         .cloned()
+//!         .cloned(),
 //! );
 //! # }
 //! ```
@@ -683,7 +819,7 @@
 //! and use it for all connections made by that process.
 //!
 //! ```rust,no_run
-//! # #[cfg(feature = "ring")] {
+//! # #[cfg(feature = "aws_lc_rs")] {
 //! # let root_store: rustls::RootCertStore = panic!();
 //! let config = rustls::ClientConfig::builder()
 //!     .with_root_certificates(root_store)
@@ -695,15 +831,15 @@
 //! know what to expect to find in the server's certificate.
 //!
 //! ```rust
-//! # #[cfg(feature = "ring")] {
+//! # #[cfg(feature = "aws_lc_rs")] {
 //! # use rustls;
 //! # use webpki;
 //! # use std::sync::Arc;
-//! # let mut root_store = rustls::RootCertStore::empty();
-//! # root_store.extend(
+//! # rustls::crypto::aws_lc_rs::default_provider().install_default();
+//! # let root_store = rustls::RootCertStore::from_iter(
 //! #  webpki_roots::TLS_SERVER_ROOTS
 //! #      .iter()
-//! #      .cloned()
+//! #      .cloned(),
 //! # );
 //! # let config = rustls::ClientConfig::builder()
 //! #     .with_root_certificates(root_store)
@@ -738,7 +874,7 @@
 //! errors.
 //!
 //! ```rust,no_run
-//! # #[cfg(feature = "ring")] {
+//! # #[cfg(feature = "aws_lc_rs")] {
 //! # let mut client = rustls::ClientConnection::new(panic!(), panic!()).unwrap();
 //! # struct Socket { }
 //! # impl Socket {
@@ -785,9 +921,10 @@
 //!
 //! # Examples
 //!
-//! [`tlsserver-mio`](https://github.com/rustls/rustls/blob/main/examples/src/bin/tlsserver-mio.rs)
+//! You can find several client and server examples of varying complexity in the [examples]
+//! directory, including [`tlsserver-mio`](https://github.com/rustls/rustls/blob/main/examples/src/bin/tlsserver-mio.rs)
 //! and [`tlsclient-mio`](https://github.com/rustls/rustls/blob/main/examples/src/bin/tlsclient-mio.rs)
-//! are full worked examples using [`mio`].
+//! \- full worked examples using [`mio`].
 //!
 //! [`mio`]: https://docs.rs/mio/latest/mio/
 //!
@@ -795,17 +932,25 @@
 //! Here's a list of what features are exposed by the rustls crate and what
 //! they mean.
 //!
-//! - `ring` (enabled by default): makes the rustls crate depend on the *ring* crate, which is
-//!    used for cryptography by default. Without this feature, these items must be provided
-//!    externally to the core rustls crate: see [`CryptoProvider`].
-//!
-//! - `aws_lc_rs`: makes the rustls crate depend on the aws-lc-rs crate,
-//!   which can be used for cryptography as an alternative to *ring*.
-//!   Use `rustls::crypto::aws_lc_rs::default_provider()` as a `CryptoProvider`
-//!   when making a `ClientConfig` or `ServerConfig` to use aws-lc-rs
+//! - `aws_lc_rs` (enabled by default): makes the rustls crate depend on the [`aws-lc-rs`] crate.
+//!   Use `rustls::crypto::aws_lc_rs::default_provider().install_default()` to
+//!   use it as the default `CryptoProvider`, or provide it explicitly
+//!   when making a `ClientConfig` or `ServerConfig`.
 //!
 //!   Note that aws-lc-rs has additional build-time dependencies like cmake.
 //!   See [the documentation](https://aws.github.io/aws-lc-rs/requirements/index.html) for details.
+//!
+//! - `ring`: makes the rustls crate depend on the *ring* crate for cryptography.
+//!   Use `rustls::crypto::ring::default_provider().install_default()` to
+//!   use it as the default `CryptoProvider`, or provide it explicitly
+//!   when making a `ClientConfig` or `ServerConfig`.
+//!
+//! - `fips`: enable support for FIPS140-3-approved cryptography, via the aws-lc-rs crate.
+//!   This feature enables the `aws_lc_rs` feature, which makes the rustls crate depend
+//!   on [aws-lc-rs](https://github.com/aws/aws-lc-rs).  It also changes the default
+//!   for [`ServerConfig::require_ems`] and [`ClientConfig::require_ems`].
+//!
+//!   See [manual::_06_fips] for more details.
 //!
 //! - `tls12` (enabled by default): enable support for TLS version 1.2. Note that, due to the
 //!   additive nature of Cargo features and because it is enabled by default, other crates
@@ -822,19 +967,24 @@
 //!   `std::io::ReadBuf` and related APIs. This reduces costs from initializing
 //!   buffers. Will do nothing on non-Nightly releases.
 //!
+//! - `brotli`: uses the `brotli` crate for RFC8879 certificate compression support.
+//!
+//! - `zlib`: uses the `zlib-rs` crate for RFC8879 certificate compression support.
+//!
 
 </span><span class="comment">// Require docs for public APIs, deny unsafe code, etc.
 </span><span class="attr">#![forbid(unsafe_code, unused_must_use)]
 #![cfg_attr(not(any(read_buf, bench)), forbid(unstable_features))]
-#![deny(
+#![warn(
     clippy::alloc_instead_of_core,
     clippy::clone_on_ref_ptr,
     clippy::std_instead_of_core,
     clippy::use_self,
     clippy::upper_case_acronyms,
+    elided_lifetimes_in_paths,
+    missing_docs,
     trivial_casts,
     trivial_numeric_casts,
-    missing_docs,
     unreachable_pub,
     unused_import_braces,
     unused_extern_crates,
@@ -878,6 +1028,7 @@
 // is in `std::prelude` but not in `core::prelude`. This helps maintain no-std support as even
 // developers that are not interested in, or aware of, no-std support and / or that never run
 // `cargo build --no-default-features` locally will get errors when they rely on `std::prelude` API.
+</span><span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">extern crate </span>std;
 
 <span class="comment">// Import `test` sysroot crate for `Bencher` definitions.
@@ -885,12 +1036,12 @@
 #[allow(unused_extern_crates)]
 </span><span class="kw">extern crate </span>test;
 
-<span class="attr">#[cfg(doc)]
-</span><span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
-
 <span class="comment">// log for logging (optional).
 </span><span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
 </span><span class="kw">use </span>log;
+
+<span class="attr">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
 
 <span class="attr">#[cfg(not(feature = <span class="string">"logging"</span>))]
 #[macro_use]
@@ -898,20 +1049,27 @@
     <span class="macro">macro_rules! </span>trace    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
     <span class="macro">macro_rules! </span>debug    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
     <span class="macro">macro_rules! </span>warn     ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
+    <span class="macro">macro_rules! </span>error    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
 }
+
+<span class="attr">#[macro_use]
+</span><span class="kw">mod </span>test_macros;
 
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>msgs;
 <span class="kw">mod </span>common_state;
+<span class="kw">pub mod </span>compress;
 <span class="kw">mod </span>conn;
 <span class="doccomment">/// Crypto provider interface.
 </span><span class="kw">pub mod </span>crypto;
 <span class="kw">mod </span>error;
 <span class="kw">mod </span>hash_hs;
-<span class="kw">mod </span>limited_cache;
+<span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+</span><span class="kw">mod </span>limited_cache;
 <span class="kw">mod </span>rand;
 <span class="kw">mod </span>record_layer;
-<span class="kw">mod </span>stream;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">mod </span>stream;
 <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
 </span><span class="kw">mod </span>tls12;
 <span class="kw">mod </span>tls13;
@@ -922,11 +1080,13 @@
 <span class="kw">mod </span>x509;
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>check;
-<span class="kw">mod </span>bs_debug;
+<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+</span><span class="kw">mod </span>bs_debug;
 <span class="kw">mod </span>builder;
 <span class="kw">mod </span>enums;
 <span class="kw">mod </span>key_log;
-<span class="kw">mod </span>key_log_file;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">mod </span>key_log_file;
 <span class="kw">mod </span>suites;
 <span class="kw">mod </span>versions;
 <span class="kw">mod </span>webpki;
@@ -934,11 +1094,12 @@
 <span class="doccomment">/// Internal classes that are used in integration tests.
 /// The contents of this section DO NOT form part of the stable interface.
 </span><span class="attr">#[allow(missing_docs)]
+#[doc(hidden)]
 </span><span class="kw">pub mod </span>internal {
     <span class="doccomment">/// Low-level TLS message parsing and encoding functions.
     </span><span class="kw">pub mod </span>msgs {
         <span class="kw">pub mod </span>base {
-            <span class="kw">pub use </span><span class="kw">crate</span>::msgs::base::Payload;
+            <span class="kw">pub use </span><span class="kw">crate</span>::msgs::base::{Payload, PayloadU16};
         }
         <span class="kw">pub mod </span>codec {
             <span class="kw">pub use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
@@ -957,12 +1118,15 @@
         <span class="kw">pub mod </span>handshake {
             <span class="kw">pub use </span><span class="kw">crate</span>::msgs::handshake::{
                 CertificateChain, ClientExtension, ClientHelloPayload, DistinguishedName,
-                EchConfig, EchConfigContents, HandshakeMessagePayload, HandshakePayload,
-                HpkeKeyConfig, HpkeSymmetricCipherSuite, KeyShareEntry, Random, SessionId,
+                EchConfigContents, EchConfigPayload, HandshakeMessagePayload, HandshakePayload,
+                HpkeKeyConfig, HpkeSymmetricCipherSuite, KeyShareEntry, Random, ServerName,
+                SessionId,
             };
         }
         <span class="kw">pub mod </span>message {
-            <span class="kw">pub use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload, OpaqueMessage, PlainMessage};
+            <span class="kw">pub use </span><span class="kw">crate</span>::msgs::message::{
+                Message, MessagePayload, OutboundOpaqueMessage, PlainMessage,
+            };
         }
         <span class="kw">pub mod </span>persist {
             <span class="kw">pub use </span><span class="kw">crate</span>::msgs::persist::ServerSessionValue;
@@ -974,31 +1138,68 @@
     }
 }
 
-<span class="comment">// Have a (non-public) "test provider" mod which supplies
-// tests that need part of a *ring*-compatible provider module.
-</span><span class="attr">#[cfg(all(any(test, bench), not(feature = <span class="string">"ring"</span>), feature = <span class="string">"aws_lc_rs"</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::crypto::aws_lc_rs <span class="kw">as </span>test_provider;
-<span class="attr">#[cfg(all(any(test, bench), feature = <span class="string">"ring"</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::crypto::ring <span class="kw">as </span>test_provider;
+<span class="doccomment">/// Unbuffered connection API
+///
+/// This is an alternative to the [`crate::ConnectionCommon`] API that does not internally buffer
+/// TLS nor plaintext data. Instead those buffers are managed by the API user so they have
+/// control over when and how to allocate, resize and dispose of them.
+///
+/// This API is lower level than the `ConnectionCommon` API and is built around a state machine
+/// interface where the API user must handle each state to advance and complete the
+/// handshake process.
+///
+/// Like the `ConnectionCommon` API, no IO happens internally so all IO must be handled by the API
+/// user. Unlike the `ConnectionCommon` API, this API does not make use of the [`std::io::Read`] and
+/// [`std::io::Write`] traits so it's usable in no-std context.
+///
+/// The entry points into this API are [`crate::client::UnbufferedClientConnection::new`],
+/// [`crate::server::UnbufferedServerConnection::new`] and
+/// [`unbuffered::UnbufferedConnectionCommon::process_tls_records`]. The state machine API is
+/// documented in [`unbuffered::ConnectionState`].
+///
+/// # Examples
+///
+/// [`unbuffered-client`] and [`unbuffered-server`] are examples that fully exercise the API in
+/// std, non-async context.
+///
+/// [`unbuffered-client`]: https://github.com/rustls/rustls/blob/main/examples/src/bin/unbuffererd-client.rs
+/// [`unbuffered-server`]: https://github.com/rustls/rustls/blob/main/examples/src/bin/unbuffererd-server.rs
+</span><span class="kw">pub mod </span>unbuffered {
+    <span class="kw">pub use </span><span class="kw">crate</span>::conn::unbuffered::{
+        AppDataRecord, ConnectionState, EncodeError, EncodeTlsData, EncryptError,
+        InsufficientSizeError, ReadEarlyData, ReadTraffic, TransmitTlsData, UnbufferedStatus,
+        WriteTraffic,
+    };
+    <span class="kw">pub use </span><span class="kw">crate</span>::conn::UnbufferedConnectionCommon;
+}
 
 <span class="comment">// The public interface is:
 </span><span class="kw">pub use </span><span class="kw">crate</span>::builder::{ConfigBuilder, ConfigSide, WantsVerifier, WantsVersions};
-<span class="kw">pub use </span><span class="kw">crate</span>::common_state::{CommonState, IoState, Side};
-<span class="kw">pub use </span><span class="kw">crate</span>::conn::{Connection, ConnectionCommon, Reader, SideData, Writer};
+<span class="kw">pub use </span><span class="kw">crate</span>::common_state::{CommonState, HandshakeKind, IoState, Side};
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::conn::{Connection, Reader, Writer};
+<span class="kw">pub use </span><span class="kw">crate</span>::conn::{ConnectionCommon, SideData};
 <span class="kw">pub use </span><span class="kw">crate</span>::enums::{
-    AlertDescription, CipherSuite, ContentType, HandshakeType, ProtocolVersion, SignatureAlgorithm,
-    SignatureScheme,
+    AlertDescription, CertificateCompressionAlgorithm, CipherSuite, ContentType, HandshakeType,
+    ProtocolVersion, SignatureAlgorithm, SignatureScheme,
 };
 <span class="kw">pub use </span><span class="kw">crate</span>::error::{
-    CertRevocationListError, CertificateError, Error, InvalidMessage, OtherError, PeerIncompatible,
-    PeerMisbehaved,
+    CertRevocationListError, CertificateError, EncryptedClientHelloError, Error, InconsistentKeys,
+    InvalidMessage, OtherError, PeerIncompatible, PeerMisbehaved,
 };
 <span class="kw">pub use </span><span class="kw">crate</span>::key_log::{KeyLog, NoKeyLog};
-<span class="kw">pub use </span><span class="kw">crate</span>::key_log_file::KeyLogFile;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::key_log_file::KeyLogFile;
 <span class="kw">pub use </span><span class="kw">crate</span>::msgs::enums::NamedGroup;
+<span class="kw">pub use </span><span class="kw">crate</span>::msgs::ffdhe_groups;
 <span class="kw">pub use </span><span class="kw">crate</span>::msgs::handshake::DistinguishedName;
-<span class="kw">pub use </span><span class="kw">crate</span>::stream::{Stream, StreamOwned};
-<span class="kw">pub use </span><span class="kw">crate</span>::suites::{ConnectionTrafficSecrets, ExtractedSecrets, SupportedCipherSuite};
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::stream::{Stream, StreamOwned};
+<span class="kw">pub use </span><span class="kw">crate</span>::suites::{
+    CipherSuiteCommon, ConnectionTrafficSecrets, ExtractedSecrets, SupportedCipherSuite,
+};
+<span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::ticketer::TicketSwitcher;
 <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::tls12::Tls12CipherSuite;
 <span class="kw">pub use </span><span class="kw">crate</span>::tls13::Tls13CipherSuite;
@@ -1011,6 +1212,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>builder;
     <span class="kw">mod </span>client_conn;
     <span class="kw">mod </span>common;
+    <span class="kw">mod </span>ech;
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>handy;
     <span class="kw">mod </span>hs;
     <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
@@ -1019,10 +1221,14 @@
 
     <span class="kw">pub use </span>builder::WantsClientCert;
     <span class="kw">pub use </span>client_conn::{
-        ClientConfig, ClientConnection, ClientConnectionData, ClientSessionStore,
-        ResolvesClientCert, Resumption, Tls12Resumption, WriteEarlyData,
+        ClientConfig, ClientConnectionData, ClientSessionStore, EarlyDataError, ResolvesClientCert,
+        Resumption, Tls12Resumption, UnbufferedClientConnection,
     };
-    <span class="kw">pub use </span>handy::ClientSessionMemoryCache;
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub use </span>client_conn::{ClientConnection, WriteEarlyData};
+    <span class="kw">pub use </span>ech::{EchConfig, EchGreaseConfig, EchMode, EchStatus};
+    <span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+    </span><span class="kw">pub use </span>handy::ClientSessionMemoryCache;
 
     <span class="doccomment">/// Dangerous configuration that should be audited and used with extreme care.
     </span><span class="kw">pub mod </span>danger {
@@ -1031,16 +1237,16 @@
         <span class="kw">pub use </span><span class="kw">crate</span>::verify::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
     }
 
+    <span class="kw">pub use </span><span class="kw">crate</span>::msgs::persist::{Tls12ClientSessionValue, Tls13ClientSessionValue};
     <span class="kw">pub use </span><span class="kw">crate</span>::webpki::{
         verify_server_cert_signed_by_trust_anchor, verify_server_name, ServerCertVerifierBuilder,
         VerifierBuilderError, WebPkiServerVerifier,
     };
-
-    <span class="kw">pub use </span><span class="kw">crate</span>::msgs::persist::Tls12ClientSessionValue;
-    <span class="kw">pub use </span><span class="kw">crate</span>::msgs::persist::Tls13ClientSessionValue;
 }
 
-<span class="kw">pub use </span>client::{ClientConfig, ClientConnection};
+<span class="kw">pub use </span>client::ClientConfig;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span>client::ClientConnection;
 
 <span class="doccomment">/// Items for use in a server.
 </span><span class="kw">pub mod </span>server {
@@ -1053,18 +1259,23 @@
     </span><span class="kw">mod </span>tls12;
     <span class="kw">mod </span>tls13;
 
+    <span class="kw">pub use </span>builder::WantsServerCert;
+    <span class="kw">pub use </span>handy::NoServerSessionStorage;
+    <span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+    </span><span class="kw">pub use </span>handy::ResolvesServerCertUsingSni;
+    <span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+    </span><span class="kw">pub use </span>handy::ServerSessionMemoryCache;
+    <span class="kw">pub use </span>server_conn::{
+        Accepted, ClientHello, ProducesTickets, ResolvesServerCert, ServerConfig,
+        ServerConnectionData, StoresServerSessions, UnbufferedServerConnection,
+    };
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub use </span>server_conn::{AcceptedAlert, Acceptor, ReadEarlyData, ServerConnection};
+
     <span class="kw">pub use </span><span class="kw">crate</span>::verify::NoClientAuth;
     <span class="kw">pub use </span><span class="kw">crate</span>::webpki::{
         ClientCertVerifierBuilder, ParsedCertificate, VerifierBuilderError, WebPkiClientVerifier,
     };
-    <span class="kw">pub use </span>builder::WantsServerCert;
-    <span class="kw">pub use </span>handy::ResolvesServerCertUsingSni;
-    <span class="kw">pub use </span>handy::{NoServerSessionStorage, ServerSessionMemoryCache};
-    <span class="kw">pub use </span>server_conn::StoresServerSessions;
-    <span class="kw">pub use </span>server_conn::{
-        Accepted, Acceptor, ReadEarlyData, ServerConfig, ServerConnection, ServerConnectionData,
-    };
-    <span class="kw">pub use </span>server_conn::{ClientHello, ProducesTickets, ResolvesServerCert};
 
     <span class="doccomment">/// Dangerous configuration that should be audited and used with extreme care.
     </span><span class="kw">pub mod </span>danger {
@@ -1072,7 +1283,9 @@
     }
 }
 
-<span class="kw">pub use </span>server::{ServerConfig, ServerConnection};
+<span class="kw">pub use </span>server::ServerConfig;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span>server::ServerConnection;
 
 <span class="doccomment">/// All defined protocol versions appear in this module.
 ///
@@ -1096,9 +1309,28 @@
 <span class="doccomment">/// APIs for implementing QUIC TLS
 </span><span class="kw">pub mod </span>quic;
 
-<span class="doccomment">/// APIs for implementing TLS tickets
+<span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+</span><span class="doccomment">/// APIs for implementing TLS tickets
 </span><span class="kw">pub mod </span>ticketer;
 
 <span class="doccomment">/// This is the rustls manual.
 </span><span class="kw">pub mod </span>manual;
+
+<span class="kw">pub mod </span>time_provider;
+
+<span class="doccomment">/// APIs abstracting over locking primitives.
+</span><span class="kw">pub mod </span>lock;
+
+<span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
+</span><span class="kw">mod </span>hash_map {
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::collections::hash_map::Entry;
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>std::collections::HashMap;
+
+    <span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"hashbrown"</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>hashbrown::hash_map::Entry;
+    <span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"hashbrown"</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>hashbrown::HashMap;
+}
 </code></pre></div></section></main></body></html>

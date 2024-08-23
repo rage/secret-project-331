@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/server/hs.rs`."><title>hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/server/hs.rs`."><title>hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -524,46 +524,169 @@
 <a href="#523" id="523">523</a>
 <a href="#524" id="524">524</a>
 <a href="#525" id="525">525</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common_state::State;
-<span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
-<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::enums::CipherSuite;
-<span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, HandshakeType, ProtocolVersion, SignatureScheme};
-<span class="kw">use </span><span class="kw">crate</span>::error::{Error, PeerIncompatible, PeerMisbehaved};
-<span class="kw">use </span><span class="kw">crate</span>::hash_hs::{HandshakeHash, HandshakeHashBuffer};
-<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, trace};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{Compression, ExtensionType};
-<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::SessionId;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientHelloPayload, Random, ServerExtension};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ConvertProtocolNameList, ConvertServerNameList, HandshakePayload};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::persist;
-<span class="kw">use </span><span class="kw">crate</span>::server::{ClientHello, ServerConfig};
-<span class="kw">use </span><span class="kw">crate</span>::suites;
-<span class="kw">use </span><span class="kw">crate</span>::SupportedCipherSuite;
-
-<span class="kw">use </span><span class="kw">super</span>::server_conn::ServerConnectionData;
-<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-</span><span class="kw">use </span><span class="kw">super</span>::tls12;
-<span class="kw">use </span><span class="kw">crate</span>::server::common::ActiveCertifiedKey;
-<span class="kw">use </span><span class="kw">crate</span>::server::tls13;
-
-<span class="kw">use </span>pki_types::DnsName;
-
-<span class="kw">use </span>alloc::borrow::ToOwned;
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::ToOwned;
 <span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
 
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextState = Box&lt;<span class="kw">dyn </span>State&lt;ServerConnectionData&gt;&gt;;
-<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextStateOrError = <span class="prelude-ty">Result</span>&lt;NextState, Error&gt;;
+<span class="kw">use </span>pki_types::DnsName;
+
+<span class="kw">use </span><span class="kw">super</span>::server_conn::ServerConnectionData;
+<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+</span><span class="kw">use </span><span class="kw">super</span>::tls12;
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{KxState, Protocol, State};
+<span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
+<span class="kw">use </span><span class="kw">crate</span>::crypto::SupportedKxGroup;
+<span class="kw">use </span><span class="kw">crate</span>::enums::{
+    AlertDescription, CipherSuite, HandshakeType, ProtocolVersion, SignatureAlgorithm,
+    SignatureScheme,
+};
+<span class="kw">use </span><span class="kw">crate</span>::error::{Error, PeerIncompatible, PeerMisbehaved};
+<span class="kw">use </span><span class="kw">crate</span>::hash_hs::{HandshakeHash, HandshakeHashBuffer};
+<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, trace};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{Compression, ExtensionType, NamedGroup};
+<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::SessionId;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{
+    ClientHelloPayload, ConvertProtocolNameList, ConvertServerNameList, HandshakePayload,
+    KeyExchangeAlgorithm, Random, ServerExtension,
+};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::persist;
+<span class="kw">use </span><span class="kw">crate</span>::server::common::ActiveCertifiedKey;
+<span class="kw">use </span><span class="kw">crate</span>::server::{tls13, ClientHello, ServerConfig};
+<span class="kw">use crate</span>::{suites, SupportedCipherSuite};
+
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextState&lt;<span class="lifetime">'a</span>&gt; = Box&lt;<span class="kw">dyn </span>State&lt;ServerConnectionData&gt; + <span class="lifetime">'a</span>&gt;;
+<span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>NextStateOrError&lt;<span class="lifetime">'a</span>&gt; = <span class="prelude-ty">Result</span>&lt;NextState&lt;<span class="lifetime">'a</span>&gt;, Error&gt;;
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">type </span>ServerContext&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">crate</span>::common_state::Context&lt;<span class="lifetime">'a</span>, ServerConnectionData&gt;;
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>can_resume(
     suite: SupportedCipherSuite,
-    sni: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;DnsName&gt;,
+    sni: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;DnsName&lt;<span class="lifetime">'_</span>&gt;&gt;,
     using_ems: bool,
     resumedata: <span class="kw-2">&amp;</span>persist::ServerSessionValue,
 ) -&gt; bool {
@@ -603,7 +726,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="comment">// ALPN
         </span><span class="kw">let </span>our_protocols = <span class="kw-2">&amp;</span>config.alpn_protocols;
-        <span class="kw">let </span>maybe_their_protocols = hello.get_alpn_extension();
+        <span class="kw">let </span>maybe_their_protocols = hello.alpn_extension();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(their_protocols) = maybe_their_protocols {
             <span class="kw">let </span>their_protocols = their_protocols.to_slices();
 
@@ -634,7 +757,7 @@
             <span class="comment">// QUIC has strict ALPN, unlike TLS's more backwards-compatible behavior. RFC 9001
             // says: "The server MUST treat the inability to select a compatible application
             // protocol as a connection error of type 0x0178". We judge that ALPN was desired
-            // (rather than some out-of-band protocol negotiation mechanism) iff any ALPN
+            // (rather than some out-of-band protocol negotiation mechanism) if and only if any ALPN
             // protocols were configured locally or offered by the client. This helps prevent
             // successful establishment of connections between peers that can't understand
             // each other.
@@ -647,7 +770,7 @@
                 ));
             }
 
-            <span class="kw">match </span>hello.get_quic_params_extension() {
+            <span class="kw">match </span>hello.quic_params_extension() {
                 <span class="prelude-val">Some</span>(params) =&gt; cx.common.quic.params = <span class="prelude-val">Some</span>(params),
                 <span class="prelude-val">None </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(cx
@@ -659,7 +782,7 @@
 
         <span class="kw">let </span>for_resume = resumedata.is_some();
         <span class="comment">// SNI
-        </span><span class="kw">if </span>!for_resume &amp;&amp; hello.get_sni_extension().is_some() {
+        </span><span class="kw">if </span>!for_resume &amp;&amp; hello.sni_extension().is_some() {
             <span class="self">self</span>.exts
                 .push(ServerExtension::ServerNameAck);
         }
@@ -767,9 +890,9 @@
         <span class="self">self</span>,
         <span class="kw-2">mut </span>sig_schemes: Vec&lt;SignatureScheme&gt;,
         client_hello: <span class="kw-2">&amp;</span>ClientHelloPayload,
-        m: <span class="kw-2">&amp;</span>Message,
+        m: <span class="kw-2">&amp;</span>Message&lt;<span class="lifetime">'_</span>&gt;,
         cx: <span class="kw-2">&amp;mut </span>ServerContext&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; NextStateOrError {
+    ) -&gt; NextStateOrError&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw">let </span>tls13_enabled = <span class="self">self
             </span>.config
             .supports_version(ProtocolVersion::TLSv1_3);
@@ -778,7 +901,7 @@
             .supports_version(ProtocolVersion::TLSv1_2);
 
         <span class="comment">// Are we doing TLS1.3?
-        </span><span class="kw">let </span>maybe_versions_ext = client_hello.get_versions_extension();
+        </span><span class="kw">let </span>maybe_versions_ext = client_hello.versions_extension();
         <span class="kw">let </span>version = <span class="kw">if let </span><span class="prelude-val">Some</span>(versions) = maybe_versions_ext {
             <span class="kw">if </span>versions.contains(<span class="kw-2">&amp;</span>ProtocolVersion::TLSv1_3) &amp;&amp; tls13_enabled {
                 ProtocolVersion::TLSv1_3
@@ -795,7 +918,7 @@
             } <span class="kw">else </span>{
                 ProtocolVersion::TLSv1_2
             }
-        } <span class="kw">else if </span>client_hello.client_version.get_u16() &lt; ProtocolVersion::TLSv1_2.get_u16() {
+        } <span class="kw">else if </span>u16::from(client_hello.client_version) &lt; u16::from(ProtocolVersion::TLSv1_2) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
                 AlertDescription::ProtocolVersion,
                 PeerIncompatible::Tls12NotOffered,
@@ -842,7 +965,7 @@
             <span class="kw">let </span>client_hello = ClientHello::new(
                 <span class="kw-2">&amp;</span>cx.data.sni,
                 <span class="kw-2">&amp;</span>sig_schemes,
-                client_hello.get_alpn_extension(),
+                client_hello.alpn_extension(),
                 <span class="kw-2">&amp;</span>client_hello.cipher_suites,
             );
 
@@ -860,40 +983,24 @@
         </span>};
         <span class="kw">let </span>certkey = ActiveCertifiedKey::from_certified_key(<span class="kw-2">&amp;</span>certkey);
 
-        <span class="comment">// Reduce our supported ciphersuites by the certificate.
-        // (no-op for TLS1.3)
-        </span><span class="kw">let </span>suitable_suites = suites::reduce_given_sigalg(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.config.provider.cipher_suites,
-            certkey.get_key().algorithm(),
-        );
-
-        <span class="comment">// And version
-        </span><span class="kw">let </span>suitable_suites = suites::reduce_given_version_and_protocol(
-            <span class="kw-2">&amp;</span>suitable_suites,
-            version,
-            cx.common.protocol,
-        );
-
-        <span class="kw">let </span>suite = <span class="kw">if </span><span class="self">self</span>.config.ignore_client_order {
-            suites::choose_ciphersuite_preferring_server(
+        <span class="kw">let </span>(suite, skxg) = <span class="self">self
+            </span>.choose_suite_and_kx_group(
+                version,
+                certkey.get_key().algorithm(),
+                cx.common.protocol,
+                client_hello
+                    .namedgroups_extension()
+                    .unwrap_or(<span class="kw-2">&amp;</span>[]),
                 <span class="kw-2">&amp;</span>client_hello.cipher_suites,
-                <span class="kw-2">&amp;</span>suitable_suites,
             )
-        } <span class="kw">else </span>{
-            suites::choose_ciphersuite_preferring_client(
-                <span class="kw-2">&amp;</span>client_hello.cipher_suites,
-                <span class="kw-2">&amp;</span>suitable_suites,
-            )
-        }
-        .ok_or_else(|| {
-            cx.common.send_fatal_alert(
-                AlertDescription::HandshakeFailure,
-                PeerIncompatible::NoCipherSuitesInCommon,
-            )
-        })<span class="question-mark">?</span>;
+            .map_err(|incompat| {
+                cx.common
+                    .send_fatal_alert(AlertDescription::HandshakeFailure, incompat)
+            })<span class="question-mark">?</span>;
 
         <span class="macro">debug!</span>(<span class="string">"decided upon suite {:?}"</span>, suite);
         cx.common.suite = <span class="prelude-val">Some</span>(suite);
+        cx.common.kx_state = KxState::Start(skxg);
 
         <span class="comment">// Start handshake hash.
         </span><span class="kw">let </span>starting_hash = suite.hash_provider();
@@ -927,7 +1034,7 @@
                 send_tickets: <span class="self">self</span>.send_tickets,
                 extra_exts: <span class="self">self</span>.extra_exts,
             }
-            .handle_client_hello(cx, certkey, m, client_hello, sig_schemes),
+            .handle_client_hello(cx, certkey, m, client_hello, skxg, sig_schemes),
             <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
             </span>SupportedCipherSuite::Tls12(suite) =&gt; tls12::CompleteClientHelloHandling {
                 config: <span class="self">self</span>.config,
@@ -944,18 +1051,156 @@
                 certkey,
                 m,
                 client_hello,
+                skxg,
                 sig_schemes,
                 tls13_enabled,
             ),
         }
     }
+
+    <span class="kw">fn </span>choose_suite_and_kx_group(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        selected_version: ProtocolVersion,
+        sig_key_algorithm: SignatureAlgorithm,
+        protocol: Protocol,
+        client_groups: <span class="kw-2">&amp;</span>[NamedGroup],
+        client_suites: <span class="kw-2">&amp;</span>[CipherSuite],
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(SupportedCipherSuite, <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>SupportedKxGroup), PeerIncompatible&gt; {
+        <span class="comment">// Determine which `KeyExchangeAlgorithm`s are theoretically possible, based
+        // on the offered and supported groups.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>ecdhe_possible = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ffdhe_possible = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ffdhe_offered = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>supported_groups = Vec::with_capacity(client_groups.len());
+
+        <span class="kw">for </span>offered_group <span class="kw">in </span>client_groups {
+            <span class="kw">let </span>supported = <span class="self">self
+                </span>.config
+                .provider
+                .kx_groups
+                .iter()
+                .find(|skxg| skxg.name() == <span class="kw-2">*</span>offered_group);
+
+            <span class="kw">match </span>offered_group.key_exchange_algorithm() {
+                KeyExchangeAlgorithm::DHE =&gt; {
+                    ffdhe_possible |= supported.is_some();
+                    ffdhe_offered = <span class="bool-val">true</span>;
+                }
+                KeyExchangeAlgorithm::ECDHE =&gt; {
+                    ecdhe_possible |= supported.is_some();
+                }
+            }
+
+            supported_groups.push(supported);
+        }
+
+        <span class="kw">let </span>first_supported_dhe_kxg = <span class="kw">if </span>selected_version == ProtocolVersion::TLSv1_2 {
+            <span class="comment">// https://datatracker.ietf.org/doc/html/rfc7919#section-4 (paragraph 2)
+            </span><span class="kw">let </span>first_supported_dhe_kxg = <span class="self">self
+                </span>.config
+                .provider
+                .kx_groups
+                .iter()
+                .find(|skxg| skxg.name().key_exchange_algorithm() == KeyExchangeAlgorithm::DHE);
+            ffdhe_possible |= !ffdhe_offered &amp;&amp; first_supported_dhe_kxg.is_some();
+            first_supported_dhe_kxg
+        } <span class="kw">else </span>{
+            <span class="comment">// In TLS1.3, the server may only directly negotiate a group.
+            </span><span class="prelude-val">None
+        </span>};
+
+        <span class="kw">if </span>!ecdhe_possible &amp;&amp; !ffdhe_possible {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(PeerIncompatible::NoKxGroupsInCommon);
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>suitable_suites_iter = <span class="self">self
+            </span>.config
+            .provider
+            .cipher_suites
+            .iter()
+            .filter(|suite| {
+                <span class="comment">// Reduce our supported ciphersuites by the certified key's algorithm.
+                </span>suite.usable_for_signature_algorithm(sig_key_algorithm)
+                <span class="comment">// And version
+                </span>&amp;&amp; suite.version().version == selected_version
+                <span class="comment">// And protocol
+                </span>&amp;&amp; suite.usable_for_protocol(protocol)
+                <span class="comment">// And support one of key exchange groups
+                </span>&amp;&amp; (ecdhe_possible &amp;&amp; suite.usable_for_kx_algorithm(KeyExchangeAlgorithm::ECDHE)
+                || ffdhe_possible &amp;&amp; suite.usable_for_kx_algorithm(KeyExchangeAlgorithm::DHE))
+            });
+
+        <span class="comment">// RFC 7919 (https://datatracker.ietf.org/doc/html/rfc7919#section-4) requires us to send
+        // the InsufficientSecurity alert in case we don't recognize client's FFDHE groups (i.e.,
+        // `suitable_suites` becomes empty). But that does not make a lot of sense (e.g., client
+        // proposes FFDHE4096 and we only support FFDHE2048), so we ignore that requirement here,
+        // and continue to send HandshakeFailure.
+
+        </span><span class="kw">let </span>suite = <span class="kw">if </span><span class="self">self</span>.config.ignore_client_order {
+            suitable_suites_iter.find(|suite| client_suites.contains(<span class="kw-2">&amp;</span>suite.suite()))
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>suitable_suites = suitable_suites_iter.collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            client_suites
+                .iter()
+                .find_map(|client_suite| {
+                    suitable_suites
+                        .iter()
+                        .find(|x| <span class="kw-2">*</span>client_suite == x.suite())
+                })
+                .copied()
+        }
+        .ok_or(PeerIncompatible::NoCipherSuitesInCommon)<span class="question-mark">?</span>;
+
+        <span class="comment">// Finally, choose a key exchange group that is compatible with the selected cipher
+        // suite.
+        </span><span class="kw">let </span>maybe_skxg = supported_groups
+            .iter()
+            .find_map(|maybe_skxg| <span class="kw">match </span>maybe_skxg {
+                <span class="prelude-val">Some</span>(skxg) =&gt; suite
+                    .usable_for_kx_algorithm(skxg.name().key_exchange_algorithm())
+                    .then_some(<span class="kw-2">*</span>skxg),
+                <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
+            });
+
+        <span class="kw">if </span>selected_version == ProtocolVersion::TLSv1_3 {
+            <span class="comment">// This unwrap is structurally guaranteed by the early return for `!ffdhe_possible &amp;&amp; !ecdhe_possible`
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>((<span class="kw-2">*</span>suite, <span class="kw-2">*</span>maybe_skxg.unwrap()));
+        }
+
+        <span class="comment">// For TLS1.2, the server can unilaterally choose a DHE group if it has one and
+        // there was no better option.
+        </span><span class="kw">match </span>maybe_skxg {
+            <span class="prelude-val">Some</span>(skxg) =&gt; <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>suite, <span class="kw-2">*</span>skxg)),
+            <span class="prelude-val">None </span><span class="kw">if </span>suite.usable_for_kx_algorithm(KeyExchangeAlgorithm::DHE) =&gt; {
+                <span class="comment">// If kx for the selected cipher suite is DHE and no DHE groups are specified in the extension,
+                // the server is free to choose DHE params, we choose the first DHE kx group of the provider.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(server_selected_ffdhe_skxg) = first_supported_dhe_kxg {
+                    <span class="prelude-val">Ok</span>((<span class="kw-2">*</span>suite, <span class="kw-2">*</span>server_selected_ffdhe_skxg))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">Err</span>(PeerIncompatible::NoKxGroupsInCommon)
+                }
+            }
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(PeerIncompatible::NoKxGroupsInCommon),
+        }
+    }
 }
 
 <span class="kw">impl </span>State&lt;ServerConnectionData&gt; <span class="kw">for </span>ExpectClientHello {
-    <span class="kw">fn </span>handle(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>ServerContext&lt;<span class="lifetime">'_</span>&gt;, m: Message) -&gt; NextStateOrError {
+    <span class="kw">fn </span>handle&lt;<span class="lifetime">'m</span>&gt;(
+        <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>ServerContext&lt;<span class="lifetime">'_</span>&gt;,
+        m: Message&lt;<span class="lifetime">'m</span>&gt;,
+    ) -&gt; NextStateOrError&lt;<span class="lifetime">'m</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'m</span>,
+    {
         <span class="kw">let </span>(client_hello, sig_schemes) = process_client_hello(<span class="kw-2">&amp;</span>m, <span class="self">self</span>.done_retry, cx)<span class="question-mark">?</span>;
         <span class="self">self</span>.with_certified_key(sig_schemes, client_hello, <span class="kw-2">&amp;</span>m, cx)
     }
+
+    <span class="kw">fn </span>into_owned(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; NextState&lt;<span class="lifetime">'static</span>&gt; {
+        <span class="self">self
+    </span>}
 }
 
 <span class="doccomment">/// Configuration-independent validation of a `ClientHello` message.
@@ -967,11 +1212,11 @@
 /// Note that this will modify `data.sni` even if config or certificate resolution fail.
 ///
 /// [`ResolvesServerCert`]: crate::server::ResolvesServerCert
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>process_client_hello&lt;<span class="lifetime">'a</span>&gt;(
-    m: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Message,
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>process_client_hello&lt;<span class="lifetime">'m</span>&gt;(
+    m: <span class="kw-2">&amp;</span><span class="lifetime">'m </span>Message&lt;<span class="lifetime">'m</span>&gt;,
     done_retry: bool,
-    cx: <span class="kw-2">&amp;mut </span>ServerContext,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ClientHelloPayload, Vec&lt;SignatureScheme&gt;), Error&gt; {
+    cx: <span class="kw-2">&amp;mut </span>ServerContext&lt;<span class="lifetime">'_</span>&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'m </span>ClientHelloPayload, Vec&lt;SignatureScheme&gt;), Error&gt; {
     <span class="kw">let </span>client_hello =
         <span class="macro">require_handshake_msg!</span>(m, HandshakeType::ClientHello, HandshakePayload::ClientHello)<span class="question-mark">?</span>;
     <span class="macro">trace!</span>(<span class="string">"we got a clienthello {:?}"</span>, client_hello);
@@ -1001,7 +1246,7 @@
     // send an Illegal Parameter alert instead of the Internal Error alert
     // (or whatever) that we'd send if this were checked later or in a
     // different way.
-    </span><span class="kw">let </span>sni: <span class="prelude-ty">Option</span>&lt;DnsName&gt; = <span class="kw">match </span>client_hello.get_sni_extension() {
+    </span><span class="kw">let </span>sni: <span class="prelude-ty">Option</span>&lt;DnsName&lt;<span class="lifetime">'_</span>&gt;&gt; = <span class="kw">match </span>client_hello.sni_extension() {
         <span class="prelude-val">Some</span>(sni) =&gt; {
             <span class="kw">if </span>sni.has_duplicate_names_for_type() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
@@ -1010,7 +1255,7 @@
                 ));
             }
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(hostname) = sni.get_single_hostname() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(hostname) = sni.single_hostname() {
                 <span class="prelude-val">Some</span>(hostname.to_lowercase_owned())
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(cx.common.send_fatal_alert(
@@ -1033,7 +1278,7 @@
     }
 
     <span class="kw">let </span>sig_schemes = client_hello
-        .get_sigalgs_extension()
+        .sigalgs_extension()
         .ok_or_else(|| {
             cx.common.send_fatal_alert(
                 AlertDescription::HandshakeFailure,
@@ -1044,8 +1289,7 @@
     <span class="prelude-val">Ok</span>((client_hello, sig_schemes.to_owned()))
 }
 
-<span class="attr">#[allow(clippy::large_enum_variant)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>HandshakeHashOrBuffer {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>HandshakeHashOrBuffer {
     Buffer(HandshakeHashBuffer),
     Hash(HandshakeHash),
 }

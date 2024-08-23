@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/webpki/server_verifier.rs`."><title>server_verifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/webpki/server_verifier.rs`."><title>server_verifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -416,15 +416,49 @@
 <a href="#415" id="415">415</a>
 <a href="#416" id="416">416</a>
 <a href="#417" id="417">417</a>
-</pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::log::trace;
-<span class="kw">use </span>alloc::sync::Arc;
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
 
 <span class="kw">use </span>pki_types::{CertificateDer, CertificateRevocationListDer, ServerName, UnixTime};
-<span class="kw">use </span>webpki::{CertRevocationList, RevocationCheckDepth, UnknownStatusPolicy};
+<span class="kw">use </span>webpki::{CertRevocationList, ExpirationPolicy, RevocationCheckDepth, UnknownStatusPolicy};
 
 <span class="kw">use </span><span class="kw">crate</span>::crypto::{CryptoProvider, WebPkiSupportedAlgorithms};
+<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::log::trace;
 <span class="kw">use </span><span class="kw">crate</span>::verify::{
     DigitallySignedStruct, HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier,
 };
@@ -433,10 +467,9 @@
     ParsedCertificate,
 };
 <span class="kw">use </span><span class="kw">crate</span>::webpki::{parse_crls, verify_server_name, VerifierBuilderError};
-<span class="kw">use crate</span>::{Error, RootCertStore, SignatureScheme};
-
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use crate</span>::{crypto, ConfigBuilder, ServerConfig};
+<span class="kw">use crate</span>::{Error, RootCertStore, SignatureScheme};
 
 <span class="doccomment">/// A builder for configuring a `webpki` server certificate verifier.
 ///
@@ -447,6 +480,7 @@
     crls: Vec&lt;CertificateRevocationListDer&lt;<span class="lifetime">'static</span>&gt;&gt;,
     revocation_check_depth: RevocationCheckDepth,
     unknown_revocation_policy: UnknownStatusPolicy,
+    revocation_expiration_policy: ExpirationPolicy,
     supported_algs: WebPkiSupportedAlgorithms,
 }
 
@@ -460,6 +494,7 @@
             crls: Vec::new(),
             revocation_check_depth: RevocationCheckDepth::Chain,
             unknown_revocation_policy: UnknownStatusPolicy::Deny,
+            revocation_expiration_policy: ExpirationPolicy::Ignore,
             supported_algs,
         }
     }
@@ -502,6 +537,19 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Enforce the CRL nextUpdate field (i.e. expiration)
+    ///
+    /// If CRLs are provided with [`with_crls`][Self::with_crls] and the verification time is
+    /// beyond the time in the CRL nextUpdate field, it is expired and treated as an error condition.
+    /// Overrides the default behavior where expired CRLs are not treated as an error condition.
+    ///
+    /// If no CRLs are provided then this setting has no effect as revocation status checks
+    /// are not performed.
+    </span><span class="kw">pub fn </span>enforce_revocation_expiration(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.revocation_expiration_policy = ExpirationPolicy::Enforce;
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Build a server certificate verifier, allowing control over the root certificates to use as
     /// trust anchors, and to control how server certificate revocation checking is performed.
     ///
@@ -513,7 +561,7 @@
     /// [`with_client_cert_verifier`][ConfigBuilder&lt;ClientConfig, WantsVerifier&gt;::with_client_cert_verifier].
     ///
     /// # Errors
-    /// This function will return a `CertVerifierBuilderError` if:
+    /// This function will return a [`VerifierBuilderError`] if:
     /// 1. No trust anchors have been provided.
     /// 2. DER encoded CRLs have been provided that can not be parsed successfully.
     </span><span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;WebPkiServerVerifier&gt;, VerifierBuilderError&gt; {
@@ -526,6 +574,7 @@
             parse_crls(<span class="self">self</span>.crls)<span class="question-mark">?</span>,
             <span class="self">self</span>.revocation_check_depth,
             <span class="self">self</span>.unknown_revocation_policy,
+            <span class="self">self</span>.revocation_expiration_policy,
             <span class="self">self</span>.supported_algs,
         )
         .into())
@@ -540,23 +589,25 @@
     crls: Vec&lt;CertRevocationList&lt;<span class="lifetime">'static</span>&gt;&gt;,
     revocation_check_depth: RevocationCheckDepth,
     unknown_revocation_policy: UnknownStatusPolicy,
+    revocation_expiration_policy: ExpirationPolicy,
     supported: WebPkiSupportedAlgorithms,
 }
 
 <span class="attr">#[allow(unreachable_pub)]
 </span><span class="kw">impl </span>WebPkiServerVerifier {
     <span class="doccomment">/// Create a builder for the `webpki` server certificate verifier configuration using
-    /// the default [`CryptoProvider`].
+    /// the [process-default `CryptoProvider`][CryptoProvider#using-the-per-process-default-cryptoprovider].
     ///
     /// Server certificates will be verified using the trust anchors found in the provided `roots`.
     ///
-    /// The cryptography used comes from the default [`CryptoProvider`]: [`crypto::ring::default_provider`].
-    /// Use [`Self::builder_with_provider`] if you wish to customize this.
+    /// Use [`Self::builder_with_provider`] if you wish to specify an explicit provider.
     ///
     /// For more information, see the [`ServerCertVerifierBuilder`] documentation.
-    </span><span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
     </span><span class="kw">pub fn </span>builder(roots: Arc&lt;RootCertStore&gt;) -&gt; ServerCertVerifierBuilder {
-        <span class="self">Self</span>::builder_with_provider(roots, <span class="kw">crate</span>::crypto::ring::default_provider().into())
+        <span class="self">Self</span>::builder_with_provider(
+            roots,
+            Arc::clone(CryptoProvider::get_default_or_install_from_crate_features()),
+        )
     }
 
     <span class="doccomment">/// Create a builder for the `webpki` server certificate verifier configuration using
@@ -585,6 +636,7 @@
             Vec::default(),
             RevocationCheckDepth::Chain,
             UnknownStatusPolicy::Allow,
+            ExpirationPolicy::Ignore,
             supported_algs,
         )
     }
@@ -605,6 +657,7 @@
         crls: Vec&lt;CertRevocationList&lt;<span class="lifetime">'static</span>&gt;&gt;,
         revocation_check_depth: RevocationCheckDepth,
         unknown_revocation_policy: UnknownStatusPolicy,
+        revocation_expiration_policy: ExpirationPolicy,
         supported: WebPkiSupportedAlgorithms,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
@@ -612,6 +665,7 @@
             crls,
             revocation_check_depth,
             unknown_revocation_policy,
+            revocation_expiration_policy,
             supported,
         }
     }
@@ -652,6 +706,7 @@
                     </span>.unwrap()
                     .with_depth(<span class="self">self</span>.revocation_check_depth)
                     .with_status_policy(<span class="self">self</span>.unknown_revocation_policy)
+                    .with_expiration_policy(<span class="self">self</span>.revocation_expiration_policy)
                     .build(),
             )
         };
@@ -698,16 +753,15 @@
     }
 }
 
-<span class="attr">#[cfg(all(test, any(feature = <span class="string">"ring"</span>, feature = <span class="string">"aws_lc_rs"</span>)))]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
+<span class="macro">test_for_each_provider! </span>{
     <span class="kw">use </span>std::sync::Arc;
-    <span class="kw">use </span>std::{println, vec};
+    <span class="kw">use </span>std::{vec, println};
+    <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
 
     <span class="kw">use </span>pki_types::{CertificateDer, CertificateRevocationListDer};
 
     <span class="kw">use super</span>::{VerifierBuilderError, WebPkiServerVerifier};
-    <span class="kw">use crate</span>::{test_provider, RootCertStore};
+    <span class="kw">use </span><span class="kw">crate</span>::RootCertStore;
 
     <span class="kw">fn </span>load_crls(crls_der: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>[u8]]) -&gt; Vec&lt;CertificateRevocationListDer&lt;<span class="lifetime">'static</span>&gt;&gt; {
         crls_der
@@ -724,7 +778,7 @@
     <span class="kw">fn </span>test_crls() -&gt; Vec&lt;CertificateRevocationListDer&lt;<span class="lifetime">'static</span>&gt;&gt; {
         load_crls(<span class="kw-2">&amp;</span>[
             <span class="macro">include_bytes!</span>(<span class="string">"../../../test-ca/ecdsa-p256/client.revoked.crl.pem"</span>).as_slice(),
-            <span class="macro">include_bytes!</span>(<span class="string">"../../../test-ca/rsa/client.revoked.crl.pem"</span>).as_slice(),
+            <span class="macro">include_bytes!</span>(<span class="string">"../../../test-ca/rsa-2048/client.revoked.crl.pem"</span>).as_slice(),
         ])
     }
 
@@ -741,7 +795,7 @@
     <span class="kw">fn </span>test_roots() -&gt; Arc&lt;RootCertStore&gt; {
         load_roots(<span class="kw-2">&amp;</span>[
             <span class="macro">include_bytes!</span>(<span class="string">"../../../test-ca/ecdsa-p256/ca.der"</span>).as_slice(),
-            <span class="macro">include_bytes!</span>(<span class="string">"../../../test-ca/rsa/ca.der"</span>).as_slice(),
+            <span class="macro">include_bytes!</span>(<span class="string">"../../../test-ca/rsa-2048/ca.der"</span>).as_slice(),
         ])
     }
 
@@ -750,7 +804,7 @@
         <span class="comment">// Trying to build a server verifier with invalid CRLs should error at build time.
         </span><span class="kw">let </span>result = WebPkiServerVerifier::builder_with_provider(
             test_roots(),
-            test_provider::default_provider().into(),
+            provider::default_provider().into(),
         )
         .with_crls(<span class="macro">vec!</span>[CertificateRevocationListDer::from(<span class="macro">vec!</span>[<span class="number">0xFF</span>])])
         .build();
@@ -768,7 +822,7 @@
 
         <span class="kw">let </span>builder = WebPkiServerVerifier::builder_with_provider(
             test_roots(),
-            test_provider::default_provider().into(),
+            provider::default_provider().into(),
         )
         .with_crls(initial_crls.clone())
         .with_crls(extra_crls.clone());
@@ -785,7 +839,7 @@
         <span class="comment">// Trying to create a server verifier builder with no trust anchors should fail at build time
         </span><span class="kw">let </span>result = WebPkiServerVerifier::builder_with_provider(
             RootCertStore::empty().into(),
-            test_provider::default_provider().into(),
+            provider::default_provider().into(),
         )
         .build();
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(result, <span class="prelude-val">Err</span>(VerifierBuilderError::NoRootAnchors)));
@@ -796,7 +850,7 @@
         <span class="comment">// We should be able to build a server cert. verifier that only checks the EE cert.
         </span><span class="kw">let </span>builder = WebPkiServerVerifier::builder_with_provider(
             test_roots(),
-            test_provider::default_provider().into(),
+            provider::default_provider().into(),
         )
         .only_check_end_entity_revocation();
         <span class="comment">// The builder should be Debug.
@@ -810,7 +864,7 @@
         // status.
         </span><span class="kw">let </span>builder = WebPkiServerVerifier::builder_with_provider(
             test_roots(),
-            test_provider::default_provider().into(),
+            provider::default_provider().into(),
         )
         .allow_unknown_revocation_status();
         <span class="comment">// The builder should be Debug.
@@ -824,10 +878,24 @@
         // status and only checks the EE cert.
         </span><span class="kw">let </span>builder = WebPkiServerVerifier::builder_with_provider(
             test_roots(),
-            test_provider::default_provider().into(),
+            provider::default_provider().into(),
         )
         .allow_unknown_revocation_status()
         .only_check_end_entity_revocation();
+        <span class="comment">// The builder should be Debug.
+        </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
+        builder.build().unwrap();
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_server_verifier_enforce_expiration() {
+        <span class="comment">// We should be able to build a server cert. verifier that allows unknown revocation
+        // status.
+        </span><span class="kw">let </span>builder = WebPkiServerVerifier::builder_with_provider(
+            test_roots(),
+            provider::default_provider().into(),
+        )
+        .enforce_revocation_expiration();
         <span class="comment">// The builder should be Debug.
         </span><span class="macro">println!</span>(<span class="string">"{:?}"</span>, builder);
         builder.build().unwrap();

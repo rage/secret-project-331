@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_submission_info","update_answer_requiring_attention"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_teacher_grading","get_submission_info","get_user_exercise_state_info","update_answer_requiring_attention"],"struct":["ExerciseStateIds"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["WantsProtocols1","WantsProtocols2","WantsSchemes","WantsTlsConfig"]};
+window.SIDEBAR_ITEMS = {"struct":["WantsProtocols1","WantsProtocols2","WantsProtocols3","WantsSchemes","WantsTlsConfig"]};

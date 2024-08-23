@@ -643,6 +643,8 @@
 <a href="#642" id="642">642</a>
 <a href="#643" id="643">643</a>
 <a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>chrono::{DateTime, Utc};
 <span class="kw">use </span>headless_lms_models::{
@@ -1117,6 +1119,7 @@
     minimum_points_treshold: i32,
     base_url: String,
     jwt_key: Arc&lt;JwtKey&gt;,
+    grade_manually: bool,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Uuid&gt; {
     <span class="kw">let </span>new_exam_id = exams::insert(
         conn,
@@ -1128,6 +1131,7 @@
             time_minutes,
             organization_id,
             minimum_points_treshold,
+            grade_manually,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/proto/h1/conn.rs`."><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.4.1/src/proto/h1/conn.rs`."><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -1449,19 +1449,81 @@
 <a href="#1448" id="1448">1448</a>
 <a href="#1449" id="1449">1449</a>
 <a href="#1450" id="1450">1450</a>
+<a href="#1451" id="1451">1451</a>
+<a href="#1452" id="1452">1452</a>
+<a href="#1453" id="1453">1453</a>
+<a href="#1454" id="1454">1454</a>
+<a href="#1455" id="1455">1455</a>
+<a href="#1456" id="1456">1456</a>
+<a href="#1457" id="1457">1457</a>
+<a href="#1458" id="1458">1458</a>
+<a href="#1459" id="1459">1459</a>
+<a href="#1460" id="1460">1460</a>
+<a href="#1461" id="1461">1461</a>
+<a href="#1462" id="1462">1462</a>
+<a href="#1463" id="1463">1463</a>
+<a href="#1464" id="1464">1464</a>
+<a href="#1465" id="1465">1465</a>
+<a href="#1466" id="1466">1466</a>
+<a href="#1467" id="1467">1467</a>
+<a href="#1468" id="1468">1468</a>
+<a href="#1469" id="1469">1469</a>
+<a href="#1470" id="1470">1470</a>
+<a href="#1471" id="1471">1471</a>
+<a href="#1472" id="1472">1472</a>
+<a href="#1473" id="1473">1473</a>
+<a href="#1474" id="1474">1474</a>
+<a href="#1475" id="1475">1475</a>
+<a href="#1476" id="1476">1476</a>
+<a href="#1477" id="1477">1477</a>
+<a href="#1478" id="1478">1478</a>
+<a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
+<span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+</span><span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::marker::{PhantomData, Unpin};
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::task::{Context, Poll};
 <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-</span><span class="kw">use </span>std::time::Duration;
+</span><span class="kw">use </span>std::time::{Duration, Instant};
 
 <span class="kw">use </span><span class="kw">crate</span>::rt::{Read, Write};
 <span class="kw">use </span>bytes::{Buf, Bytes};
 <span class="kw">use </span>futures_util::ready;
 <span class="kw">use </span>http::header::{HeaderValue, CONNECTION, TE};
 <span class="kw">use </span>http::{HeaderMap, Method, Version};
+<span class="kw">use </span>http_body::Frame;
 <span class="kw">use </span>httparse::ParserConfig;
 
 <span class="kw">use </span><span class="kw">super</span>::io::Buffered;
@@ -1512,6 +1574,8 @@
                 </span>h1_header_read_timeout_fut: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
                 </span>h1_header_read_timeout_running: <span class="bool-val">false</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>date_header: <span class="bool-val">true</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
                 </span>timer: Time::Empty,
                 preserve_header_case: <span class="bool-val">false</span>,
@@ -1657,32 +1721,66 @@
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.can_read_head());
         <span class="macro">trace!</span>(<span class="string">"Conn::read_head"</span>);
 
-        <span class="kw">let </span>msg = <span class="kw">match </span><span class="macro">ready!</span>(<span class="self">self</span>.io.parse::&lt;T&gt;(
+        <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+        </span><span class="kw">if </span>!<span class="self">self</span>.state.h1_header_read_timeout_running {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(h1_header_read_timeout) = <span class="self">self</span>.state.h1_header_read_timeout {
+                <span class="kw">let </span>deadline = Instant::now() + h1_header_read_timeout;
+                <span class="self">self</span>.state.h1_header_read_timeout_running = <span class="bool-val">true</span>;
+                <span class="kw">match </span><span class="self">self</span>.state.h1_header_read_timeout_fut {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>h1_header_read_timeout_fut) =&gt; {
+                        <span class="macro">trace!</span>(<span class="string">"resetting h1 header read timeout timer"</span>);
+                        <span class="self">self</span>.state.timer.reset(h1_header_read_timeout_fut, deadline);
+                    }
+                    <span class="prelude-val">None </span>=&gt; {
+                        <span class="macro">trace!</span>(<span class="string">"setting h1 header read timeout timer"</span>);
+                        <span class="self">self</span>.state.h1_header_read_timeout_fut =
+                            <span class="prelude-val">Some</span>(<span class="self">self</span>.state.timer.sleep_until(deadline));
+                    }
+                }
+            }
+        }
+
+        <span class="kw">let </span>msg = <span class="kw">match </span><span class="self">self</span>.io.parse::&lt;T&gt;(
             cx,
             ParseContext {
                 cached_headers: <span class="kw-2">&amp;mut </span><span class="self">self</span>.state.cached_headers,
                 req_method: <span class="kw-2">&amp;mut </span><span class="self">self</span>.state.method,
                 h1_parser_config: <span class="self">self</span>.state.h1_parser_config.clone(),
                 h1_max_headers: <span class="self">self</span>.state.h1_max_headers,
-                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                </span>h1_header_read_timeout: <span class="self">self</span>.state.h1_header_read_timeout,
-                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                </span>h1_header_read_timeout_fut: <span class="kw-2">&amp;mut </span><span class="self">self</span>.state.h1_header_read_timeout_fut,
-                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                </span>h1_header_read_timeout_running: <span class="kw-2">&amp;mut </span><span class="self">self</span>.state.h1_header_read_timeout_running,
-                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                </span>timer: <span class="self">self</span>.state.timer.clone(),
                 preserve_header_case: <span class="self">self</span>.state.preserve_header_case,
                 <span class="attr">#[cfg(feature = <span class="string">"ffi"</span>)]
                 </span>preserve_header_order: <span class="self">self</span>.state.preserve_header_order,
                 h09_responses: <span class="self">self</span>.state.h09_responses,
                 <span class="attr">#[cfg(feature = <span class="string">"ffi"</span>)]
                 </span>on_informational: <span class="kw-2">&amp;mut </span><span class="self">self</span>.state.on_informational,
+            },
+        ) {
+            Poll::Ready(<span class="prelude-val">Ok</span>(msg)) =&gt; msg,
+            Poll::Ready(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">return </span><span class="self">self</span>.on_read_head_error(e),
+            Poll::Pending =&gt; {
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span><span class="kw">if </span><span class="self">self</span>.state.h1_header_read_timeout_running {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>h1_header_read_timeout_fut) =
+                        <span class="self">self</span>.state.h1_header_read_timeout_fut
+                    {
+                        <span class="kw">if </span>Pin::new(h1_header_read_timeout_fut).poll(cx).is_ready() {
+                            <span class="self">self</span>.state.h1_header_read_timeout_running = <span class="bool-val">false</span>;
+
+                            <span class="macro">warn!</span>(<span class="string">"read header from client timeout"</span>);
+                            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_header_timeout())));
+                        }
+                    }
+                }
+
+                <span class="kw">return </span>Poll::Pending;
             }
-        )) {
-            <span class="prelude-val">Ok</span>(msg) =&gt; msg,
-            <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="self">self</span>.on_read_head_error(e),
         };
+
+        <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+        </span>{
+            <span class="self">self</span>.state.h1_header_read_timeout_running = <span class="bool-val">false</span>;
+            <span class="self">self</span>.state.h1_header_read_timeout_fut = <span class="prelude-val">None</span>;
+        }
 
         <span class="comment">// Note: don't deconstruct `msg` into local variables, it appears
         // the optimizer doesn't remove the extra copies.
@@ -1717,18 +1815,27 @@
                 <span class="self">self</span>.try_keep_alive(cx);
             }
         } <span class="kw">else if </span>msg.expect_continue &amp;&amp; msg.head.version.gt(<span class="kw-2">&amp;</span>Version::HTTP_10) {
-            <span class="self">self</span>.state.reading = Reading::Continue(Decoder::new(msg.decode));
+            <span class="kw">let </span>h1_max_header_size = <span class="prelude-val">None</span>; <span class="comment">// TODO: remove this when we land h1_max_header_size support
+            </span><span class="self">self</span>.state.reading = Reading::Continue(Decoder::new(
+                msg.decode,
+                <span class="self">self</span>.state.h1_max_headers,
+                h1_max_header_size,
+            ));
             wants = wants.add(Wants::EXPECT);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.state.reading = Reading::Body(Decoder::new(msg.decode));
+            <span class="kw">let </span>h1_max_header_size = <span class="prelude-val">None</span>; <span class="comment">// TODO: remove this when we land h1_max_header_size support
+            </span><span class="self">self</span>.state.reading = Reading::Body(Decoder::new(
+                msg.decode,
+                <span class="self">self</span>.state.h1_max_headers,
+                h1_max_header_size,
+            ));
         }
 
         <span class="self">self</span>.state.allow_trailer_fields = msg
             .head
             .headers
             .get(TE)
-            .map(|te_header| te_header == <span class="string">"trailers"</span>)
-            .unwrap_or(<span class="bool-val">false</span>);
+            .map_or(<span class="bool-val">false</span>, |te_header| te_header == <span class="string">"trailers"</span>);
 
         Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>((msg.head, msg.decode, wants))))
     }
@@ -1762,33 +1869,41 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>poll_read_body(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
-    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;io::Result&lt;Bytes&gt;&gt;&gt; {
+    ) -&gt; Poll&lt;<span class="prelude-ty">Option</span>&lt;io::Result&lt;Frame&lt;Bytes&gt;&gt;&gt;&gt; {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.can_read_body());
 
         <span class="kw">let </span>(reading, ret) = <span class="kw">match </span><span class="self">self</span>.state.reading {
             Reading::Body(<span class="kw-2">ref mut </span>decoder) =&gt; {
                 <span class="kw">match </span><span class="macro">ready!</span>(decoder.decode(cx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.io)) {
-                    <span class="prelude-val">Ok</span>(slice) =&gt; {
-                        <span class="kw">let </span>(reading, chunk) = <span class="kw">if </span>decoder.is_eof() {
-                            <span class="macro">debug!</span>(<span class="string">"incoming body completed"</span>);
-                            (
-                                Reading::KeepAlive,
-                                <span class="kw">if </span>!slice.is_empty() {
-                                    <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(slice))
-                                } <span class="kw">else </span>{
-                                    <span class="prelude-val">None
-                                </span>},
-                            )
-                        } <span class="kw">else if </span>slice.is_empty() {
-                            <span class="macro">error!</span>(<span class="string">"incoming body unexpectedly ended"</span>);
-                            <span class="comment">// This should be unreachable, since all 3 decoders
-                            // either set eof=true or return an Err when reading
-                            // an empty slice...
-                            </span>(Reading::Closed, <span class="prelude-val">None</span>)
+                    <span class="prelude-val">Ok</span>(frame) =&gt; {
+                        <span class="kw">if </span>frame.is_data() {
+                            <span class="kw">let </span>slice = frame.data_ref().unwrap_or_else(|| <span class="macro">unreachable!</span>());
+                            <span class="kw">let </span>(reading, maybe_frame) = <span class="kw">if </span>decoder.is_eof() {
+                                <span class="macro">debug!</span>(<span class="string">"incoming body completed"</span>);
+                                (
+                                    Reading::KeepAlive,
+                                    <span class="kw">if </span>!slice.is_empty() {
+                                        <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame))
+                                    } <span class="kw">else </span>{
+                                        <span class="prelude-val">None
+                                    </span>},
+                                )
+                            } <span class="kw">else if </span>slice.is_empty() {
+                                <span class="macro">error!</span>(<span class="string">"incoming body unexpectedly ended"</span>);
+                                <span class="comment">// This should be unreachable, since all 3 decoders
+                                // either set eof=true or return an Err when reading
+                                // an empty slice...
+                                </span>(Reading::Closed, <span class="prelude-val">None</span>)
+                            } <span class="kw">else </span>{
+                                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame)));
+                            };
+                            (reading, Poll::Ready(maybe_frame))
+                        } <span class="kw">else if </span>frame.is_trailers() {
+                            (Reading::Closed, Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(frame))))
                         } <span class="kw">else </span>{
-                            <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(slice)));
-                        };
-                        (reading, Poll::Ready(chunk))
+                            <span class="macro">trace!</span>(<span class="string">"discarding unknown frame"</span>);
+                            (Reading::Closed, Poll::Ready(<span class="prelude-val">None</span>))
+                        }
                     }
                     <span class="prelude-val">Err</span>(e) =&gt; {
                         <span class="macro">debug!</span>(<span class="string">"incoming body decode error: {}"</span>, e);
@@ -2016,6 +2131,8 @@
                 </span>keep_alive: <span class="self">self</span>.state.wants_keep_alive(),
                 req_method: <span class="kw-2">&amp;mut </span><span class="self">self</span>.state.method,
                 title_case_headers: <span class="self">self</span>.state.title_case_headers,
+                <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+                </span>date_header: <span class="self">self</span>.state.date_header,
             },
             buf,
         ) {
@@ -2045,8 +2162,7 @@
         <span class="kw">let </span>outgoing_is_keep_alive = head
             .headers
             .get(CONNECTION)
-            .map(connection_keep_alive)
-            .unwrap_or(<span class="bool-val">false</span>);
+            .map_or(<span class="bool-val">false</span>, connection_keep_alive);
 
         <span class="kw">if </span>!outgoing_is_keep_alive {
             <span class="kw">match </span>head.version {
@@ -2311,6 +2427,8 @@
     </span>h1_header_read_timeout_fut: <span class="prelude-ty">Option</span>&lt;Pin&lt;Box&lt;<span class="kw">dyn </span>Sleep&gt;&gt;&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
     </span>h1_header_read_timeout_running: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    </span>date_header: bool,
     <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
     </span>timer: Time,
     preserve_header_case: bool,

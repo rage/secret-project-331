@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/enums.rs`."><title>enums.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/enums.rs`."><title>enums.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -585,6 +585,38 @@
 <a href="#584" id="584">584</a>
 <a href="#585" id="585">585</a>
 <a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(non_camel_case_types)]
 #![allow(missing_docs)]
 </span><span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
@@ -628,7 +660,8 @@
         BadCertificateHashValue =&gt; <span class="number">0x72</span>,
         UnknownPSKIdentity =&gt; <span class="number">0x73</span>,
         CertificateRequired =&gt; <span class="number">0x74</span>,
-        NoApplicationProtocol =&gt; <span class="number">0x78
+        NoApplicationProtocol =&gt; <span class="number">0x78</span>,
+        EncryptedClientHelloRequired =&gt; <span class="number">0x79</span>, <span class="comment">// https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18#section-11.2
     </span>}
 }
 
@@ -656,8 +689,9 @@
         CertificateURL =&gt; <span class="number">0x15</span>,
         CertificateStatus =&gt; <span class="number">0x16</span>,
         KeyUpdate =&gt; <span class="number">0x18</span>,
-        MessageHash =&gt; <span class="number">0xfe
-    </span>}
+        CompressedCertificate =&gt; <span class="number">0x19</span>,
+        MessageHash =&gt; <span class="number">0xfe</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -670,8 +704,8 @@
         Alert =&gt; <span class="number">0x15</span>,
         Handshake =&gt; <span class="number">0x16</span>,
         ApplicationData =&gt; <span class="number">0x17</span>,
-        Heartbeat =&gt; <span class="number">0x18
-    </span>}
+        Heartbeat =&gt; <span class="number">0x18</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -688,8 +722,8 @@
         TLSv1_3 =&gt; <span class="number">0x0304</span>,
         DTLSv1_0 =&gt; <span class="number">0xFEFF</span>,
         DTLSv1_2 =&gt; <span class="number">0xFEFD</span>,
-        DTLSv1_3 =&gt; <span class="number">0xFEFC
-    </span>}
+        DTLSv1_3 =&gt; <span class="number">0xFEFC</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -1073,8 +1107,8 @@
         TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xccad</span>,
         TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256 =&gt; <span class="number">0xccae</span>,
         SSL_RSA_FIPS_WITH_DES_CBC_SHA =&gt; <span class="number">0xfefe</span>,
-        SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xfeff
-    </span>}
+        SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA =&gt; <span class="number">0xfeff</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -1095,12 +1129,12 @@
         RSA_PSS_SHA384 =&gt; <span class="number">0x0805</span>,
         RSA_PSS_SHA512 =&gt; <span class="number">0x0806</span>,
         ED25519 =&gt; <span class="number">0x0807</span>,
-        ED448 =&gt; <span class="number">0x0808
-    </span>}
+        ED448 =&gt; <span class="number">0x0808</span>,
+    }
 }
 
 <span class="kw">impl </span>SignatureScheme {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SignatureAlgorithm {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>algorithm(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SignatureAlgorithm {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::RSA_PKCS1_SHA1
             | <span class="self">Self</span>::RSA_PKCS1_SHA256
@@ -1151,14 +1185,40 @@
         DSA =&gt; <span class="number">0x02</span>,
         ECDSA =&gt; <span class="number">0x03</span>,
         ED25519 =&gt; <span class="number">0x07</span>,
-        ED448 =&gt; <span class="number">0x08
+        ED448 =&gt; <span class="number">0x08</span>,
+    }
+}
+
+<span class="macro">enum_builder! </span>{
+    <span class="doccomment">/// The "TLS Certificate Compression Algorithm IDs" TLS protocol enum.
+    /// Values in this enum are taken from [RFC8879].
+    ///
+    /// [RFC8879]: https://www.rfc-editor.org/rfc/rfc8879.html#section-7.3
+    </span>@U16
+    <span class="kw">pub enum </span>CertificateCompressionAlgorithm {
+        Zlib =&gt; <span class="number">1</span>,
+        Brotli =&gt; <span class="number">2</span>,
+        Zstd =&gt; <span class="number">3</span>,
+    }
+}
+
+<span class="macro">enum_builder! </span>{
+    <span class="doccomment">/// The type of Encrypted Client Hello (`EchClientHelloType`).
+    ///
+    /// Specified in [draft-ietf-tls-esni Section 5].
+    ///
+    /// [draft-ietf-tls-esni Section 5]: &lt;https://www.ietf.org/archive/id/draft-ietf-tls-esni-18.html#section-5&gt;
+    </span>@U8
+    <span class="kw">pub enum </span>EchClientHelloType {
+        ClientHelloOuter =&gt; <span class="number">0</span>,
+        ClientHelloInner =&gt; <span class="number">1
     </span>}
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::tests::test_enum8;
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::tests::{test_enum16, test_enum8};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_enums() {
@@ -1168,6 +1228,10 @@
         test_enum8::&lt;AlertDescription&gt;(
             AlertDescription::CloseNotify,
             AlertDescription::NoApplicationProtocol,
+        );
+        test_enum16::&lt;CertificateCompressionAlgorithm&gt;(
+            CertificateCompressionAlgorithm::Zlib,
+            CertificateCompressionAlgorithm::Zstd,
         );
     }
 }

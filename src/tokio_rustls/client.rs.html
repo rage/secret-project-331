@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-rustls-0.25.0/src/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-rustls-0.26.0/src/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tokio_rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -249,12 +249,74 @@
 <a href="#248" id="248">248</a>
 <a href="#249" id="249">249</a>
 <a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::io;
 <span class="attr">#[cfg(unix)]
 </span><span class="kw">use </span>std::os::unix::io::{AsRawFd, RawFd};
 <span class="attr">#[cfg(windows)]
 </span><span class="kw">use </span>std::os::windows::io::{AsRawSocket, RawSocket};
 <span class="kw">use </span>std::pin::Pin;
+<span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
+</span><span class="kw">use </span>std::task::Waker;
 <span class="kw">use </span>std::task::{Context, Poll};
 
 <span class="kw">use </span>rustls::ClientConnection;
@@ -271,7 +333,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) state: TlsState,
 
     <span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) early_waker: <span class="prelude-ty">Option</span>&lt;std::task::Waker&gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) early_waker: <span class="prelude-ty">Option</span>&lt;Waker&gt;,
 }
 
 <span class="kw">impl</span>&lt;IO&gt; TlsStream&lt;IO&gt; {
@@ -403,49 +465,56 @@
         <span class="kw">let </span><span class="kw-2">mut </span>stream =
             Stream::new(<span class="kw-2">&amp;mut </span>this.io, <span class="kw-2">&amp;mut </span>this.session).set_eof(!this.state.readable());
 
-        <span class="attr">#[allow(clippy::match_single_binding)]
-        </span><span class="kw">match </span>this.state {
-            <span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
-            </span>TlsState::EarlyData(<span class="kw-2">ref mut </span>pos, <span class="kw-2">ref mut </span>data) =&gt; {
-                <span class="kw">use </span>std::io::Write;
-
-                <span class="comment">// write early data
-                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>early_data) = stream.session.early_data() {
-                    <span class="kw">let </span>len = <span class="kw">match </span>early_data.write(buf) {
-                        <span class="prelude-val">Ok</span>(n) =&gt; n,
-                        <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err)),
-                    };
-                    <span class="kw">if </span>len != <span class="number">0 </span>{
-                        data.extend_from_slice(<span class="kw-2">&amp;</span>buf[..len]);
-                        <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(len));
-                    }
-                }
-
-                <span class="comment">// complete handshake
-                </span><span class="kw">while </span>stream.session.is_handshaking() {
-                    <span class="macro">ready!</span>(stream.handshake(cx))<span class="question-mark">?</span>;
-                }
-
-                <span class="comment">// write early data (fallback)
-                </span><span class="kw">if </span>!stream.session.is_early_data_accepted() {
-                    <span class="kw">while </span><span class="kw-2">*</span>pos &lt; data.len() {
-                        <span class="kw">let </span>len = <span class="macro">ready!</span>(stream.as_mut_pin().poll_write(cx, <span class="kw-2">&amp;</span>data[<span class="kw-2">*</span>pos..]))<span class="question-mark">?</span>;
-                        <span class="kw-2">*</span>pos += len;
-                    }
-                }
-
-                <span class="comment">// end
-                </span>this.state = TlsState::Stream;
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = this.early_waker.take() {
-                    waker.wake();
-                }
-
-                stream.as_mut_pin().poll_write(cx, buf)
+        <span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
+        </span>{
+            <span class="kw">let </span>bufs = [io::IoSlice::new(buf)];
+            <span class="kw">let </span>written = <span class="macro">ready!</span>(poll_handle_early_data(
+                <span class="kw-2">&amp;mut </span>this.state,
+                <span class="kw-2">&amp;mut </span>stream,
+                <span class="kw-2">&amp;mut </span>this.early_waker,
+                cx,
+                <span class="kw-2">&amp;</span>bufs
+            ))<span class="question-mark">?</span>;
+            <span class="kw">if </span>written != <span class="number">0 </span>{
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(written));
             }
-            <span class="kw">_ </span>=&gt; stream.as_mut_pin().poll_write(cx, buf),
         }
+
+        stream.as_mut_pin().poll_write(cx, buf)
     }
+
+    <span class="doccomment">/// Note: that it does not guarantee the final data to be sent.
+    /// To be cautious, you must manually call `flush`.
+    </span><span class="kw">fn </span>poll_write_vectored(
+        <span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;,
+        cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
+        bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;],
+    ) -&gt; Poll&lt;io::Result&lt;usize&gt;&gt; {
+        <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>stream =
+            Stream::new(<span class="kw-2">&amp;mut </span>this.io, <span class="kw-2">&amp;mut </span>this.session).set_eof(!this.state.readable());
+
+        <span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
+        </span>{
+            <span class="kw">let </span>written = <span class="macro">ready!</span>(poll_handle_early_data(
+                <span class="kw-2">&amp;mut </span>this.state,
+                <span class="kw-2">&amp;mut </span>stream,
+                <span class="kw-2">&amp;mut </span>this.early_waker,
+                cx,
+                bufs
+            ))<span class="question-mark">?</span>;
+            <span class="kw">if </span>written != <span class="number">0 </span>{
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(written));
+            }
+        }
+
+        stream.as_mut_pin().poll_write_vectored(cx, bufs)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>is_write_vectored(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
 
     <span class="kw">fn </span>poll_flush(<span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;) -&gt; Poll&lt;io::Result&lt;()&gt;&gt; {
         <span class="kw">let </span>this = <span class="self">self</span>.get_mut();
@@ -453,28 +522,13 @@
             Stream::new(<span class="kw-2">&amp;mut </span>this.io, <span class="kw-2">&amp;mut </span>this.session).set_eof(!this.state.readable());
 
         <span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
-        </span>{
-            <span class="kw">if let </span>TlsState::EarlyData(<span class="kw-2">ref mut </span>pos, <span class="kw-2">ref mut </span>data) = this.state {
-                <span class="comment">// complete handshake
-                </span><span class="kw">while </span>stream.session.is_handshaking() {
-                    <span class="macro">ready!</span>(stream.handshake(cx))<span class="question-mark">?</span>;
-                }
-
-                <span class="comment">// write early data (fallback)
-                </span><span class="kw">if </span>!stream.session.is_early_data_accepted() {
-                    <span class="kw">while </span><span class="kw-2">*</span>pos &lt; data.len() {
-                        <span class="kw">let </span>len = <span class="macro">ready!</span>(stream.as_mut_pin().poll_write(cx, <span class="kw-2">&amp;</span>data[<span class="kw-2">*</span>pos..]))<span class="question-mark">?</span>;
-                        <span class="kw-2">*</span>pos += len;
-                    }
-                }
-
-                this.state = TlsState::Stream;
-
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = this.early_waker.take() {
-                    waker.wake();
-                }
-            }
-        }
+        </span><span class="macro">ready!</span>(poll_handle_early_data(
+            <span class="kw-2">&amp;mut </span>this.state,
+            <span class="kw-2">&amp;mut </span>stream,
+            <span class="kw-2">&amp;mut </span>this.early_waker,
+            cx,
+            <span class="kw-2">&amp;</span>[]
+        ))<span class="question-mark">?</span>;
 
         stream.as_mut_pin().poll_flush(cx)
     }
@@ -498,5 +552,71 @@
             Stream::new(<span class="kw-2">&amp;mut </span>this.io, <span class="kw-2">&amp;mut </span>this.session).set_eof(!this.state.readable());
         stream.as_mut_pin().poll_shutdown(cx)
     }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"early-data"</span>)]
+</span><span class="kw">fn </span>poll_handle_early_data&lt;IO&gt;(
+    state: <span class="kw-2">&amp;mut </span>TlsState,
+    stream: <span class="kw-2">&amp;mut </span>Stream&lt;IO, ClientConnection&gt;,
+    early_waker: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;Waker&gt;,
+    cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
+    bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;],
+) -&gt; Poll&lt;io::Result&lt;usize&gt;&gt;
+<span class="kw">where
+    </span>IO: AsyncRead + AsyncWrite + Unpin,
+{
+    <span class="kw">if let </span>TlsState::EarlyData(pos, data) = state {
+        <span class="kw">use </span>std::io::Write;
+
+        <span class="comment">// write early data
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>early_data) = stream.session.early_data() {
+            <span class="kw">let </span><span class="kw-2">mut </span>written = <span class="number">0</span>;
+
+            <span class="kw">for </span>buf <span class="kw">in </span>bufs {
+                <span class="kw">if </span>buf.is_empty() {
+                    <span class="kw">continue</span>;
+                }
+
+                <span class="kw">let </span>len = <span class="kw">match </span>early_data.write(buf) {
+                    <span class="prelude-val">Ok</span>(<span class="number">0</span>) =&gt; <span class="kw">break</span>,
+                    <span class="prelude-val">Ok</span>(n) =&gt; n,
+                    <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(err)),
+                };
+
+                written += len;
+                data.extend_from_slice(<span class="kw-2">&amp;</span>buf[..len]);
+
+                <span class="kw">if </span>len &lt; buf.len() {
+                    <span class="kw">break</span>;
+                }
+            }
+
+            <span class="kw">if </span>written != <span class="number">0 </span>{
+                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(written));
+            }
+        }
+
+        <span class="comment">// complete handshake
+        </span><span class="kw">while </span>stream.session.is_handshaking() {
+            <span class="macro">ready!</span>(stream.handshake(cx))<span class="question-mark">?</span>;
+        }
+
+        <span class="comment">// write early data (fallback)
+        </span><span class="kw">if </span>!stream.session.is_early_data_accepted() {
+            <span class="kw">while </span><span class="kw-2">*</span>pos &lt; data.len() {
+                <span class="kw">let </span>len = <span class="macro">ready!</span>(stream.as_mut_pin().poll_write(cx, <span class="kw-2">&amp;</span>data[<span class="kw-2">*</span>pos..]))<span class="question-mark">?</span>;
+                <span class="kw-2">*</span>pos += len;
+            }
+        }
+
+        <span class="comment">// end
+        </span><span class="kw-2">*</span>state = TlsState::Stream;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(waker) = early_waker.take() {
+            waker.wake();
+        }
+    }
+
+    Poll::Ready(<span class="prelude-val">Ok</span>(<span class="number">0</span>))
 }
 </code></pre></div></section></main></body></html>

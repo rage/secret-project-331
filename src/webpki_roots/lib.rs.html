@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-roots-0.26.2/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki_roots" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/webpki-roots-0.26.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki_roots" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -5570,51 +5570,6 @@
 <a href="#5569" id="5569">5569</a>
 <a href="#5570" id="5570">5570</a>
 <a href="#5571" id="5571">5571</a>
-<a href="#5572" id="5572">5572</a>
-<a href="#5573" id="5573">5573</a>
-<a href="#5574" id="5574">5574</a>
-<a href="#5575" id="5575">5575</a>
-<a href="#5576" id="5576">5576</a>
-<a href="#5577" id="5577">5577</a>
-<a href="#5578" id="5578">5578</a>
-<a href="#5579" id="5579">5579</a>
-<a href="#5580" id="5580">5580</a>
-<a href="#5581" id="5581">5581</a>
-<a href="#5582" id="5582">5582</a>
-<a href="#5583" id="5583">5583</a>
-<a href="#5584" id="5584">5584</a>
-<a href="#5585" id="5585">5585</a>
-<a href="#5586" id="5586">5586</a>
-<a href="#5587" id="5587">5587</a>
-<a href="#5588" id="5588">5588</a>
-<a href="#5589" id="5589">5589</a>
-<a href="#5590" id="5590">5590</a>
-<a href="#5591" id="5591">5591</a>
-<a href="#5592" id="5592">5592</a>
-<a href="#5593" id="5593">5593</a>
-<a href="#5594" id="5594">5594</a>
-<a href="#5595" id="5595">5595</a>
-<a href="#5596" id="5596">5596</a>
-<a href="#5597" id="5597">5597</a>
-<a href="#5598" id="5598">5598</a>
-<a href="#5599" id="5599">5599</a>
-<a href="#5600" id="5600">5600</a>
-<a href="#5601" id="5601">5601</a>
-<a href="#5602" id="5602">5602</a>
-<a href="#5603" id="5603">5603</a>
-<a href="#5604" id="5604">5604</a>
-<a href="#5605" id="5605">5605</a>
-<a href="#5606" id="5606">5606</a>
-<a href="#5607" id="5607">5607</a>
-<a href="#5608" id="5608">5608</a>
-<a href="#5609" id="5609">5609</a>
-<a href="#5610" id="5610">5610</a>
-<a href="#5611" id="5611">5611</a>
-<a href="#5612" id="5612">5612</a>
-<a href="#5613" id="5613">5613</a>
-<a href="#5614" id="5614">5614</a>
-<a href="#5615" id="5615">5615</a>
-<a href="#5616" id="5616">5616</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A compiled-in copy of the root certificates trusted by Mozilla.
 //!
 //! To use this library with rustls 0.22:
@@ -9121,51 +9076,6 @@
   </span>TrustAnchor {
     subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02NO1\x1d0\x1b\x06\x03U\x04\n\x0c\x14Buypass AS-9831633271 0\x1e\x06\x03U\x04\x03\x0c\x17Buypass Class 2 Root CA"</span>),
     subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\xd7\xc7^\xf7\xc1\x07\xd4w\xfbC!\xf4\xf4\xf5i\xe4\xee2\x01\xdb\xa3\x86\x1f\xe4Y\r\xba\xe7u\x83R\xeb\xea\x1ca\x15H\xbb\x1d\x07\xca\x8c\xae\xb0\xdc\x96\x9d\xea\xc3`\x92\x86\x82(s\x9cV\x06\xffKd\xf0\x0c*7I\xb5\xe5\xcf\x0c|\xee\xf1J\xbbs0e\xf3\xd5/\x83\xb6~\xe3\xe7\xf5\x9e\xab`\xf9\xd3\xf1\x9d\x92t\x8a\xe4\x1c\x96\xac[\x80\xe9\xb5\xf41\x87\xa3Q\xfc\xc7~\xa1o\x8eSw\xd4\x97\xc1U3\x92&gt;\x18/u\xd4\xad\x86I\xcb\x95\xafT\x06l\xd8\x06\x13\x8d[\xff\xe1&amp;\x19Y\xc0$\xba\x81qy\x90DPh$\x94_\xb8\xb3\x11\xf1)Aa\xa3A\xcb#6\xd5\xc1\xf12P\x10N\x7f\xf4\x86\x93\xec\x84\xd3\x8e\xbcK\xbf\\\x01N\x07=\xdc\x14\x8a\x94\n\xa4\xeas\xfb\x0bQ\xe8\x13\x07\x18\xfa\x0e\xf1+\xd1T\x15}&lt;\xe1\xf7\xb4\x19Bgb^w\xe0\xa2U\xec\xb6\xd9i\x17\xd5:\xafD\xedJ\xc5\x9e\xe4z\'|\xe5u\xd7\xaa\xcb%\xe7\xdfk\n\xdb\x0fM\x93N\xa8\xa0\xcd{.\xf2Y\x01j\xb7\r\xb8\x07\x81~\x8b8\x1b8\xe6\nW\x99=\xee!\xe8\xa3\xf5\x0c\x16\xdd\x8b\xec4\x8e\x9c*\x1c\x00\x15\x17\x8dh\x83\xd2p\x9f\x18\x08\xcd\x11h\xd5\xc9kR\xcd\xc4F\x8f\xdc\xb5\xf3\xd8Ws\x1e\xe9\x949\x04\xbf\xd3\xde8\xde\xb4S\xeci\x1c\xa2~\xc4\x8f\xe4\x1bp\xad\xf2\xa2\xf9\xfb\xf7\x16dfi\x9fIQ\xa2\xe2\x15\x18g\x06J\x7f\xd5l\xb5M\xb33\xe0a\xeb]\xbe\xe9\x98\x0f2\xd7\x1dK&lt;.Z\x01R\x91\t\xf2\xdf\xea\x8d\xd8\x06@c\xaa\x11\xe4\xfe\xc37\x9e\x14R?\xf4\xe2\xcc\xf2a\x93\xd1\xfdgk\xd7R\xae\xbfh\xab@C\xa0W5Sx\xf0S\xf8aB\x07d\xc6\xd7o\x9bL8\rc\xacb\xaf6\x8b\xa2s\n\r\xf5!\xbdt\xaaM\xear\x03I\xdb\xc7_\x1dbc\xc7\xfd\xdd\x91\xec3\xee\xf5m\xb4n0h\xde\xc8\xd6&amp;\xb0u^{\xb4\x07 \x98\xa1v2\xb8MlO\x02\x03\x01\x00\x01"</span>),
-    name_constraints: <span class="prelude-val">None
-  </span>},
-
-  <span class="comment">/*
-   * Issuer: CN=GLOBALTRUST 2020 O=e-commerce monitoring GmbH
-   * Subject: CN=GLOBALTRUST 2020 O=e-commerce monitoring GmbH
-   * Label: "GLOBALTRUST 2020"
-   * Serial: 109160994242082918454945253
-   * SHA256 Fingerprint: 9a:29:6a:51:82:d1:d4:51:a2:e3:7f:43:9b:74:da:af:a2:67:52:33:29:f9:0f:9a:0d:20:07:c3:34:e2:3c:9a
-   * -----BEGIN CERTIFICATE-----
-   * MIIFgjCCA2qgAwIBAgILWku9WvtPilv6ZeUwDQYJKoZIhvcNAQELBQAwTTELMAkG
-   * A1UEBhMCQVQxIzAhBgNVBAoTGmUtY29tbWVyY2UgbW9uaXRvcmluZyBHbWJIMRkw
-   * FwYDVQQDExBHTE9CQUxUUlVTVCAyMDIwMB4XDTIwMDIxMDAwMDAwMFoXDTQwMDYx
-   * MDAwMDAwMFowTTELMAkGA1UEBhMCQVQxIzAhBgNVBAoTGmUtY29tbWVyY2UgbW9u
-   * aXRvcmluZyBHbWJIMRkwFwYDVQQDExBHTE9CQUxUUlVTVCAyMDIwMIICIjANBgkq
-   * hkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAri5WrRsc7/aVj6B3GyvTY4+ETUWiD59b
-   * RatZe1E0+eyLinjF3WuvvcTfk0Uev5E4C64OFudBc/jbu9G4UeDLgztzOG53ig9Z
-   * YybNpyrOVPu44sB8R85gfD+yc/LAGbaKkoc1DZAoouQVBGM+uq/ufF7MpotQsjj3
-   * QWPKzv9pj2gOlTblzLmMCcpL3TGQlsjMH/1WljTbjhzqLL6FLmPdqqmV0/0plRPw
-   * yJiT2S0WR5ARg6I6IqIoV6Lr/sCMKKCmfecqQjuCgGOlYx8ZzHyyZqjC0203b+J+
-   * BlHZRYQfEs4kUmSFC0iAToexIiIwquuuvuAC4EDosEKAA1GqtH6qRNdDYfOiaxaJ
-   * SaSjpCuKAsR49GiKweR6NrFvG5Ybd0mN1MkGco/PU+PcF4UgStyYJ9ORJitHHmkH
-   * r96i5OTUawuzXnzUJIBHKWk7buis/UDr2O1xcSvy6Fgd60GXIsUf1DnQJ4+H4xj0
-   * 4KlGDfV0OoIu0G4skaMxXDtG6nsEEFZegB31pWXogvziB4xiRfUg3kZwhqG8k9Me
-   * dKZssCz3AwyIDMvUclOGvGBG85hqwvG/Q/lwIHfKN0F5VVJjjVsSn8VoxIidrPIw
-   * q7ejMZdnrY8XD2zHc+0klGvIg5rQmjdJBKuxFshsSUktq6HQjJLyQUp5ISXbY9e2
-   * nKd+Qmn7OmMCAwEAAaNjMGEwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMC
-   * AQYwHQYDVR0OBBYEFNwuH9FhN3nkq9XVsxJxaD1qaJwiMB8GA1UdIwQYMBaAFNwu
-   * H9FhN3nkq9XVsxJxaD1qaJwiMA0GCSqGSIb3DQEBCwUAA4ICAQCR8EICaEDuw2jA
-   * VC/f7GLDw56KoDEoqoOOpFaWEhCGVrqXctJUMHytGdUdaG/7FELYjQ7ztdGl4wJC
-   * XtzoRlgHNQIw4Lx0SsFDKv/bGtCwr2zD/cuz9X9tAy5ZVp0tLTWMstZDFyySCstd
-   * 6IwPS3BD0IL/qMy/pJTAvoe9iuOTe8aPmxadJ2W8esVCgmxcB9CpwYhgROmYhRZf
-   * +I/KARDOJcP5YBugxZfD0yyIMaK9MOzQ0MAS8cE54+X1+NZK3TTN+2/BT+MAi1bi
-   * kvcoskJ3ciNnxz8RFbLEAwW+uxF7Cr+obuf/WEPPm2eggAe2HcqtbepBEX4tdJP7
-   * wry+UUTF72glJ4DjyKDUEuzZpTcdN3y0kcra1LGWge9oXHYQSa9+pTeAsRxSvTOB
-   * TI/53WXZFM2KJVj04sWDpQmQ1GwUY7VA3+vA/MRYfg0UFodUJ25W5HCEuGwyEn6C
-   * MUO+1918oa2u1qsgEu8KwxCMSZY13At1XrFP1U80DhEgB3VDRemjEdqso5nCtnkn
-   * 4rnvyOL2NSl6dPrFf4IFYqYK6miyeUcGbvJXqBUzxvd4Sj1Ce2t+/vdG6tHrju+I
-   * aFvowdlxfv1k7/9nR4hYJS8+hge9+6jlgqispdNpQ80xiEmEU5LAsTkbOYMBMMTy
-   * qfrQA71yN2BWHzZ8vTmR9W0Nv3vXkg==
-   * -----END CERTIFICATE-----
-   */
-  </span>TrustAnchor {
-    subject: Der::from_slice(<span class="string">b"1\x0b0\t\x06\x03U\x04\x06\x13\x02AT1#0!\x06\x03U\x04\n\x13\x1ae-commerce monitoring GmbH1\x190\x17\x06\x03U\x04\x03\x13\x10GLOBALTRUST 2020"</span>),
-    subject_public_key_info: Der::from_slice(<span class="string">b"0\r\x06\t*\x86H\x86\xf7\r\x01\x01\x01\x05\x00\x03\x82\x02\x0f\x000\x82\x02\n\x02\x82\x02\x01\x00\xae.V\xad\x1b\x1c\xef\xf6\x95\x8f\xa0w\x1b+\xd3c\x8f\x84ME\xa2\x0f\x9f[E\xabY{Q4\xf9\xec\x8b\x8ax\xc5\xddk\xaf\xbd\xc4\xdf\x93E\x1e\xbf\x918\x0b\xae\x0e\x16\xe7As\xf8\xdb\xbb\xd1\xb8Q\xe0\xcb\x83;s8nw\x8a\x0fYc&amp;\xcd\xa7*\xceT\xfb\xb8\xe2\xc0|G\xce`|?\xb2s\xf2\xc0\x19\xb6\x8a\x92\x875\r\x90(\xa2\xe4\x15\x04c&gt;\xba\xaf\xee|^\xcc\xa6\x8bP\xb28\xf7Ac\xca\xce\xffi\x8fh\x0e\x956\xe5\xcc\xb9\x8c\t\xcaK\xdd1\x90\x96\xc8\xcc\x1f\xfdV\x964\xdb\x8e\x1c\xea,\xbe\x85.c\xdd\xaa\xa9\x95\xd3\xfd)\x95\x13\xf0\xc8\x98\x93\xd9-\x16G\x90\x11\x83\xa2:\"\xa2(W\xa2\xeb\xfe\xc0\x8c(\xa0\xa6}\xe7*B;\x82\x80c\xa5c\x1f\x19\xcc|\xb2f\xa8\xc2\xd3m7o\xe2~\x06Q\xd9E\x84\x1f\x12\xce$Rd\x85\x0bH\x80N\x87\xb1\"\"0\xaa\xeb\xae\xbe\xe0\x02\xe0@\xe8\xb0B\x80\x03Q\xaa\xb4~\xaaD\xd7Ca\xf3\xa2k\x16\x89I\xa4\xa3\xa4+\x8a\x02\xc4x\xf4h\x8a\xc1\xe4z6\xb1o\x1b\x96\x1bwI\x8d\xd4\xc9\x06r\x8f\xcfS\xe3\xdc\x17\x85 J\xdc\x98\'\xd3\x91&amp;+G\x1ei\x07\xaf\xde\xa2\xe4\xe4\xd4k\x0b\xb3^|\xd4$\x80G)i;n\xe8\xac\xfd@\xeb\xd8\xedqq+\xf2\xe8X\x1d\xebA\x97\"\xc5\x1f\xd49\xd0\'\x8f\x87\xe3\x18\xf4\xe0\xa9F\r\xf5t:\x82.\xd0n,\x91\xa31\\;F\xea{\x04\x10V^\x80\x1d\xf5\xa5e\xe8\x82\xfc\xe2\x07\x8cbE\xf5 \xdeFp\x86\xa1\xbc\x93\xd3\x1et\xa6l\xb0,\xf7\x03\x0c\x88\x0c\xcb\xd4rS\x86\xbc`F\xf3\x98j\xc2\xf1\xbfC\xf9p w\xca7AyURc\x8d[\x12\x9f\xc5h\xc4\x88\x9d\xac\xf20\xab\xb7\xa31\x97g\xad\x8f\x17\x0fl\xc7s\xed$\x94k\xc8\x83\x9a\xd0\x9a7I\x04\xab\xb1\x16\xc8lII-\xab\xa1\xd0\x8c\x92\xf2AJy!%\xdbc\xd7\xb6\x9c\xa7~Bi\xfb:c\x02\x03\x01\x00\x01"</span>),
     name_constraints: <span class="prelude-val">None
   </span>},
 

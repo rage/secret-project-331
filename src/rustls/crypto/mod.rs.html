@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/crypto/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/crypto/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -288,18 +288,333 @@
 <a href="#287" id="287">287</a>
 <a href="#288" id="288">288</a>
 <a href="#289" id="289">289</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::sign::SigningKey;
-<span class="kw">use </span><span class="kw">crate</span>::suites;
-<span class="kw">use crate</span>::{Error, NamedGroup};
-
-<span class="kw">use </span>alloc::boxed::Box;
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
+<a href="#492" id="492">492</a>
+<a href="#493" id="493">493</a>
+<a href="#494" id="494">494</a>
+<a href="#495" id="495">495</a>
+<a href="#496" id="496">496</a>
+<a href="#497" id="497">497</a>
+<a href="#498" id="498">498</a>
+<a href="#499" id="499">499</a>
+<a href="#500" id="500">500</a>
+<a href="#501" id="501">501</a>
+<a href="#502" id="502">502</a>
+<a href="#503" id="503">503</a>
+<a href="#504" id="504">504</a>
+<a href="#505" id="505">505</a>
+<a href="#506" id="506">506</a>
+<a href="#507" id="507">507</a>
+<a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
+<a href="#540" id="540">540</a>
+<a href="#541" id="541">541</a>
+<a href="#542" id="542">542</a>
+<a href="#543" id="543">543</a>
+<a href="#544" id="544">544</a>
+<a href="#545" id="545">545</a>
+<a href="#546" id="546">546</a>
+<a href="#547" id="547">547</a>
+<a href="#548" id="548">548</a>
+<a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
 
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">use </span>once_cell::race::OnceBox;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>once_cell::sync::OnceCell;
 <span class="kw">use </span>pki_types::PrivateKeyDer;
 <span class="kw">use </span>zeroize::Zeroize;
 
+<span class="kw">use </span><span class="kw">crate</span>::sign::SigningKey;
+<span class="kw">pub use </span><span class="kw">crate</span>::webpki::{
+    verify_tls12_signature, verify_tls13_signature, WebPkiSupportedAlgorithms,
+};
 <span class="attr">#[cfg(all(doc, feature = <span class="string">"tls12"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::Tls12CipherSuite;
 <span class="attr">#[cfg(doc)]
@@ -307,10 +622,7 @@
     client, crypto, server, sign, ClientConfig, ConfigBuilder, ServerConfig, SupportedCipherSuite,
     Tls13CipherSuite,
 };
-
-<span class="kw">pub use </span><span class="kw">crate</span>::webpki::{
-    verify_tls12_signature, verify_tls13_signature, WebPkiSupportedAlgorithms,
-};
+<span class="kw">use crate</span>::{suites, Error, NamedGroup, ProtocolVersion, SupportedProtocolVersion};
 
 <span class="doccomment">/// *ring* based CryptoProvider.
 </span><span class="attr">#[cfg(feature = <span class="string">"ring"</span>)]
@@ -329,40 +641,57 @@
 <span class="doccomment">/// HMAC interfaces.
 </span><span class="kw">pub mod </span>hmac;
 
-<span class="doccomment">/// Cryptography specific to TLS1.2.
+<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+</span><span class="doccomment">/// Cryptography specific to TLS1.2.
 </span><span class="kw">pub mod </span>tls12;
 
 <span class="doccomment">/// Cryptography specific to TLS1.3.
 </span><span class="kw">pub mod </span>tls13;
 
 <span class="doccomment">/// Hybrid public key encryption (RFC 9180).
-</span><span class="attr">#[doc(hidden)]
 </span><span class="kw">pub mod </span>hpke;
 
 <span class="comment">// Message signing interfaces. Re-exported under rustls::sign. Kept crate-internal here to
 // avoid having two import paths to the same types.
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>signer;
 
-<span class="kw">pub use </span><span class="kw">crate</span>::rand::GetRandomFailed;
-
-<span class="kw">pub use </span><span class="kw">crate</span>::suites::CipherSuiteCommon;
-
 <span class="kw">pub use </span><span class="kw">crate</span>::msgs::handshake::KeyExchangeAlgorithm;
+<span class="kw">pub use </span><span class="kw">crate</span>::rand::GetRandomFailed;
+<span class="kw">pub use </span><span class="kw">crate</span>::suites::CipherSuiteCommon;
 
 <span class="doccomment">/// Controls core cryptography used by rustls.
 ///
 /// This crate comes with two built-in options, provided as
 /// `CryptoProvider` structures:
 ///
-/// - [`crypto::ring::default_provider`]: (behind the `ring` crate feature, which
-///   is enabled by default).  This provider uses the [*ring*](https://github.com/briansmith/ring)
-///   crate.
 /// - [`crypto::aws_lc_rs::default_provider`]: (behind the `aws_lc_rs` feature,
-///   which is optional).  This provider uses the [aws-lc-rs](https://github.com/aws/aws-lc-rs)
+///   which is enabled by default).  This provider uses the [aws-lc-rs](https://github.com/aws/aws-lc-rs)
+///   crate.  The `fips` crate feature makes this option use FIPS140-3-approved cryptography.
+/// - [`crypto::ring::default_provider`]: (behind the `ring` crate feature, which
+///   is optional).  This provider uses the [*ring*](https://github.com/briansmith/ring)
 ///   crate.
 ///
 /// This structure provides defaults. Everything in it can be overridden at
 /// runtime by replacing field values as needed.
+///
+/// # Using the per-process default `CryptoProvider`
+///
+/// There is the concept of an implicit default provider, configured at run-time once in
+/// a given process.
+///
+/// It is used for functions like [`ClientConfig::builder()`] and [`ServerConfig::builder()`].
+///
+/// The intention is that an application can specify the [`CryptoProvider`] they wish to use
+/// once, and have that apply to the variety of places where their application does TLS
+/// (which may be wrapped inside other libraries).
+/// They should do this by calling [`CryptoProvider::install_default()`] early on.
+///
+/// To achieve this goal:
+///
+/// - _libraries_ should use [`ClientConfig::builder()`]/[`ServerConfig::builder()`]
+///   or otherwise rely on the [`CryptoProvider::get_default()`] provider.
+/// - _applications_ should call [`CryptoProvider::install_default()`] early
+///   in their `fn main()`.
 ///
 /// # Using a specific `CryptoProvider`
 ///
@@ -392,15 +721,15 @@
 /// API ([`ConfigBuilder::with_single_cert`] etc.), it might look like this:
 ///
 /// ```
-/// # #[cfg(feature = "ring")] {
+/// # #[cfg(feature = "aws_lc_rs")] {
 /// # use std::sync::Arc;
 /// # mod fictious_hsm_api { pub fn load_private_key(key_der: pki_types::PrivateKeyDer&lt;'static&gt;) -&gt; ! { unreachable!(); } }
-/// use rustls::crypto::ring;
+/// use rustls::crypto::aws_lc_rs;
 ///
 /// pub fn provider() -&gt; rustls::crypto::CryptoProvider {
 ///   rustls::crypto::CryptoProvider{
 ///     key_provider: &amp;HsmKeyLoader,
-///     ..ring::default_provider()
+///     ..aws_lc_rs::default_provider()
 ///   }
 /// }
 ///
@@ -443,12 +772,21 @@
 /// [provider-example/]: https://github.com/rustls/rustls/tree/main/provider-example/
 /// [rust-crypto]: https://github.com/rustcrypto
 /// [dalek-cryptography]: https://github.com/dalek-cryptography
+///
+/// # FIPS-approved cryptography
+/// The `fips` crate feature enables use of the `aws-lc-rs` crate in FIPS mode.
+///
+/// You can verify the configuration at runtime by checking
+/// [`ServerConfig::fips()`]/[`ClientConfig::fips()`] return `true`.
 </span><span class="attr">#[derive(Debug, Clone)]
 </span><span class="kw">pub struct </span>CryptoProvider {
     <span class="doccomment">/// List of supported ciphersuites, in preference order -- the first element
     /// is the highest priority.
     ///
     /// The `SupportedCipherSuite` type carries both configuration and implementation.
+    ///
+    /// A valid `CryptoProvider` must ensure that all cipher suites are accompanied by at least
+    /// one matching key exchange group in [`CryptoProvider::kx_groups`].
     </span><span class="kw">pub </span>cipher_suites: Vec&lt;suites::SupportedCipherSuite&gt;,
 
     <span class="doccomment">/// List of supported key exchange groups, in preference order -- the
@@ -476,6 +814,102 @@
     </span><span class="kw">pub </span>key_provider: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>KeyProvider,
 }
 
+<span class="kw">impl </span>CryptoProvider {
+    <span class="doccomment">/// Sets this `CryptoProvider` as the default for this process.
+    ///
+    /// This can be called successfully at most once in any process execution.
+    ///
+    /// Call this early in your process to configure which provider is used for
+    /// the provider.  The configuration should happen before any use of
+    /// [`ClientConfig::builder()`] or [`ServerConfig::builder()`].
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub fn </span>install_default(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Arc&lt;<span class="self">Self</span>&gt;&gt; {
+        PROCESS_DEFAULT_PROVIDER.set(Arc::new(<span class="self">self</span>))
+    }
+
+    <span class="doccomment">/// Sets this `CryptoProvider` as the default for this process.
+    ///
+    /// This can be called successfully at most once in any process execution.
+    ///
+    /// Call this early in your process to configure which provider is used for
+    /// the provider.  The configuration should happen before any use of
+    /// [`ClientConfig::builder()`] or [`ServerConfig::builder()`].
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">pub fn </span>install_default(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;Arc&lt;<span class="self">Self</span>&gt;&gt;&gt; {
+        PROCESS_DEFAULT_PROVIDER.set(Box::new(Arc::new(<span class="self">self</span>)))
+    }
+
+    <span class="doccomment">/// Returns the default `CryptoProvider` for this process.
+    ///
+    /// This will be `None` if no default has been set yet.
+    </span><span class="kw">pub fn </span>get_default() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Arc&lt;<span class="self">Self</span>&gt;&gt; {
+        PROCESS_DEFAULT_PROVIDER.get()
+    }
+
+    <span class="doccomment">/// An internal function that:
+    ///
+    /// - gets the pre-installed default, or
+    /// - installs one `from_crate_features()`, or else
+    /// - panics about the need to call [`CryptoProvider::install_default()`]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_default_or_install_from_crate_features() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Arc&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(provider) = <span class="self">Self</span>::get_default() {
+            <span class="kw">return </span>provider;
+        }
+
+        <span class="kw">let </span>provider = <span class="self">Self</span>::from_crate_features()
+            .expect(<span class="string">"no process-level CryptoProvider available -- call CryptoProvider::install_default() before this point"</span>);
+        <span class="comment">// Ignore the error resulting from us losing a race, and accept the outcome.
+        </span><span class="kw">let _ </span>= provider.install_default();
+        <span class="self">Self</span>::get_default().unwrap()
+    }
+
+    <span class="doccomment">/// Returns a provider named unambiguously by rustls crate features.
+    ///
+    /// This function returns `None` if the crate features are ambiguous (ie, specify two
+    /// providers), or specify no providers.  In both cases the application should
+    /// explicitly specify the provider to use with [`CryptoProvider::install_default`].
+    </span><span class="kw">fn </span>from_crate_features() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="attr">#[cfg(all(feature = <span class="string">"ring"</span>, not(feature = <span class="string">"aws_lc_rs"</span>)))]
+        </span>{
+            <span class="kw">return </span><span class="prelude-val">Some</span>(ring::default_provider());
+        }
+
+        <span class="attr">#[cfg(all(feature = <span class="string">"aws_lc_rs"</span>, not(feature = <span class="string">"ring"</span>)))]
+        </span>{
+            <span class="kw">return </span><span class="prelude-val">Some</span>(aws_lc_rs::default_provider());
+        }
+
+        <span class="attr">#[allow(unreachable_code)]
+        </span><span class="prelude-val">None
+    </span>}
+
+    <span class="doccomment">/// Returns `true` if this `CryptoProvider` is operating in FIPS mode.
+    ///
+    /// This covers only the cryptographic parts of FIPS approval.  There are
+    /// also TLS protocol-level recommendations made by NIST.  You should
+    /// prefer to call [`ClientConfig::fips()`] or [`ServerConfig::fips()`]
+    /// which take these into account.
+    </span><span class="kw">pub fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">let </span><span class="self">Self </span>{
+            cipher_suites,
+            kx_groups,
+            signature_verification_algorithms,
+            secure_random,
+            key_provider,
+        } = <span class="self">self</span>;
+        cipher_suites.iter().all(|cs| cs.fips())
+            &amp;&amp; kx_groups.iter().all(|kx| kx.fips())
+            &amp;&amp; signature_verification_algorithms.fips()
+            &amp;&amp; secure_random.fips()
+            &amp;&amp; key_provider.fips()
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceCell&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceCell::new();
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceBox&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceBox::new();
+
 <span class="doccomment">/// A source of cryptographically secure randomness.
 </span><span class="kw">pub trait </span>SecureRandom: Send + Sync + Debug {
     <span class="doccomment">/// Fill the given buffer with random bytes.
@@ -489,9 +923,21 @@
     /// an ephemeral key exchange key, but this is not included in the interface with
     /// rustls: it is assumed that the cryptography library provides for this itself.
     </span><span class="kw">fn </span>fill(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), GetRandomFailed&gt;;
+
+    <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
+    </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// A mechanism for loading private [SigningKey]s from [PrivateKeyDer].
+///
+/// This trait is intended to be used with private key material that is sourced from DER,
+/// such as a private-key that may be present on-disk. It is not intended to be used with
+/// keys held in hardware security modules (HSMs) or physical tokens. For these use-cases
+/// see the Rustls manual section on [customizing private key usage].
+///
+/// [customizing private key usage]: &lt;https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#customising-private-key-usage&gt;
 </span><span class="kw">pub trait </span>KeyProvider: Send + Sync + Debug {
     <span class="doccomment">/// Decode and validate a private signing key from `key_der`.
     ///
@@ -504,6 +950,14 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         key_der: PrivateKeyDer&lt;<span class="lifetime">'static</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Arc&lt;<span class="kw">dyn </span>SigningKey&gt;, Error&gt;;
+
+    <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
+    ///
+    /// If this returns `true`, that must be the case for all possible key types
+    /// supported by [`KeyProvider::load_private_key()`].
+    </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// A supported key exchange group.
@@ -525,11 +979,35 @@
     /// This can fail if the random source fails during ephemeral key generation.
     </span><span class="kw">fn </span>start(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>ActiveKeyExchange&gt;, Error&gt;;
 
+    <span class="doccomment">/// Start and complete a key exchange, in one operation.
+    ///
+    /// The default implementation for this calls `start()` and then calls
+    /// `complete()` on the result.  This is suitable for Diffie-Hellman-like
+    /// key exchange algorithms, where there is not a data dependency between
+    /// our key share (named "pub_key" in this API) and the peer's (`peer_pub_key`).
+    ///
+    /// If there is such a data dependency (like key encapsulation mechanisms), this
+    /// function should be implemented.
+    </span><span class="kw">fn </span>start_and_complete(<span class="kw-2">&amp;</span><span class="self">self</span>, peer_pub_key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;CompletedKeyExchange, Error&gt; {
+        <span class="kw">let </span>kx = <span class="self">self</span>.start()<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(CompletedKeyExchange {
+            group: kx.group(),
+            pub_key: kx.pub_key().to_vec(),
+            secret: kx.complete(peer_pub_key)<span class="question-mark">?</span>,
+        })
+    }
+
     <span class="doccomment">/// Named group the SupportedKxGroup operates in.
     ///
     /// If the `NamedGroup` enum does not have a name for the algorithm you are implementing,
     /// you can use [`NamedGroup::Unknown`].
     </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NamedGroup;
+
+    <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
+    </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// An in-progress key exchange originating from a [`SupportedKxGroup`].
@@ -540,41 +1018,185 @@
     /// mis-encoded, or an invalid public key (such as, but not limited to, being
     /// in a small order subgroup).
     ///
+    /// If the key exchange algorithm is FFDHE, the result must be left-padded with zeros,
+    /// as required by [RFC 8446](https://www.rfc-editor.org/rfc/rfc8446#section-7.4.1)
+    /// (see [`complete_for_tls_version()`](Self::complete_for_tls_version) for more details).
+    ///
     /// The shared secret is returned as a [`SharedSecret`] which can be constructed
     /// from a `&amp;[u8]`.
     ///
     /// This consumes and so terminates the [`ActiveKeyExchange`].
     </span><span class="kw">fn </span>complete(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, peer_pub_key: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;SharedSecret, Error&gt;;
 
+    <span class="doccomment">/// Completes the key exchange for the given TLS version, given the peer's public key.
+    ///
+    /// Note that finite-field Diffie–Hellman key exchange has different requirements for the derived
+    /// shared secret in TLS 1.2 and TLS 1.3 (ECDHE key exchange is the same in TLS 1.2 and TLS 1.3):
+    ///
+    /// In TLS 1.2, the calculated secret is required to be stripped of leading zeros
+    /// [(RFC 5246)](https://www.rfc-editor.org/rfc/rfc5246#section-8.1.2).
+    ///
+    /// In TLS 1.3, the calculated secret is required to be padded with leading zeros to be the same
+    /// byte-length as the group modulus [(RFC 8446)](https://www.rfc-editor.org/rfc/rfc8446#section-7.4.1).
+    ///
+    /// The default implementation of this method delegates to [`complete()`](Self::complete) assuming it is
+    /// implemented for TLS 1.3 (i.e., for FFDHE KX, removes padding as needed). Implementers of this trait
+    /// are encouraged to just implement [`complete()`](Self::complete) assuming TLS 1.3, and let the default
+    /// implementation of this method handle TLS 1.2-specific requirements.
+    ///
+    /// This method must return an error if `peer_pub_key` is invalid: either
+    /// mis-encoded, or an invalid public key (such as, but not limited to, being
+    /// in a small order subgroup).
+    ///
+    /// The shared secret is returned as a [`SharedSecret`] which can be constructed
+    /// from a `&amp;[u8]`.
+    ///
+    /// This consumes and so terminates the [`ActiveKeyExchange`].
+    </span><span class="kw">fn </span>complete_for_tls_version(
+        <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
+        peer_pub_key: <span class="kw-2">&amp;</span>[u8],
+        tls_version: <span class="kw-2">&amp;</span>SupportedProtocolVersion,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;SharedSecret, Error&gt; {
+        <span class="kw">if </span>tls_version.version != ProtocolVersion::TLSv1_2 {
+            <span class="kw">return </span><span class="self">self</span>.complete(peer_pub_key);
+        }
+
+        <span class="kw">let </span>group = <span class="self">self</span>.group();
+        <span class="kw">let </span><span class="kw-2">mut </span>complete_res = <span class="self">self</span>.complete(peer_pub_key)<span class="question-mark">?</span>;
+        <span class="kw">if </span>group.key_exchange_algorithm() == KeyExchangeAlgorithm::DHE {
+            complete_res.strip_leading_zeros();
+        }
+        <span class="prelude-val">Ok</span>(complete_res)
+    }
+
     <span class="doccomment">/// Return the public key being used.
     ///
-    /// The encoding required is defined in
+    /// For ECDHE, the encoding required is defined in
     /// [RFC8446 section 4.2.8.2](https://www.rfc-editor.org/rfc/rfc8446#section-4.2.8.2).
+    ///
+    /// For FFDHE, the encoding required is defined in
+    /// [RFC8446 section 4.2.8.1](https://www.rfc-editor.org/rfc/rfc8446#section-4.2.8.1).
     </span><span class="kw">fn </span>pub_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8];
 
     <span class="doccomment">/// Return the group being used.
     </span><span class="kw">fn </span>group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NamedGroup;
 }
 
+<span class="doccomment">/// The result from [`SupportedKxGroup::start_and_complete()`].
+</span><span class="kw">pub struct </span>CompletedKeyExchange {
+    <span class="doccomment">/// Which group was used.
+    </span><span class="kw">pub </span>group: NamedGroup,
+
+    <span class="doccomment">/// Our key share (sometimes a public key).
+    </span><span class="kw">pub </span>pub_key: Vec&lt;u8&gt;,
+
+    <span class="doccomment">/// The computed shared secret.
+    </span><span class="kw">pub </span>secret: SharedSecret,
+}
+
 <span class="doccomment">/// The result from [`ActiveKeyExchange::complete`].
-</span><span class="kw">pub struct </span>SharedSecret(Vec&lt;u8&gt;);
+</span><span class="kw">pub struct </span>SharedSecret {
+    buf: Vec&lt;u8&gt;,
+    offset: usize,
+}
 
 <span class="kw">impl </span>SharedSecret {
     <span class="doccomment">/// Returns the shared secret as a slice of bytes.
     </span><span class="kw">pub fn </span>secret_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
-    </span>}
+        <span class="kw-2">&amp;</span><span class="self">self</span>.buf[<span class="self">self</span>.offset..]
+    }
+
+    <span class="doccomment">/// Removes leading zeros from `secret_bytes()` by adjusting the `offset`.
+    ///
+    /// This function does not re-allocate.
+    </span><span class="kw">fn </span>strip_leading_zeros(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>start = <span class="self">self
+            </span>.secret_bytes()
+            .iter()
+            .enumerate()
+            .find(|(_i, x)| <span class="kw-2">**</span>x != <span class="number">0</span>)
+            .map(|(i, _x)| i)
+            .unwrap_or(<span class="self">self</span>.secret_bytes().len());
+        <span class="self">self</span>.offset += start;
+    }
 }
 
 <span class="kw">impl </span>Drop <span class="kw">for </span>SharedSecret {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.zeroize();
+        <span class="self">self</span>.buf.zeroize();
     }
 }
 
 <span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>[u8]&gt; <span class="kw">for </span>SharedSecret {
     <span class="kw">fn </span>from(source: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(source.to_vec())
+        <span class="self">Self </span>{
+            buf: source.to_vec(),
+            offset: <span class="number">0</span>,
+        }
+    }
+}
+
+<span class="doccomment">/// This function returns a [`CryptoProvider`] that uses
+/// FIPS140-3-approved cryptography.
+///
+/// Using this function expresses in your code that you require
+/// FIPS-approved cryptography, and will not compile if you make
+/// a mistake with cargo features.
+///
+/// See our [FIPS documentation](crate::manual::_06_fips) for
+/// more detail.
+///
+/// Install this as the process-default provider, like:
+///
+/// ```rust
+/// # #[cfg(feature = "fips")] {
+/// rustls::crypto::default_fips_provider().install_default()
+///     .expect("default provider already set elsewhere");
+/// # }
+/// ```
+///
+/// You can also use this explicitly, like:
+///
+/// ```rust
+/// # #[cfg(feature = "fips")] {
+/// # let root_store = rustls::RootCertStore::empty();
+/// let config = rustls::ClientConfig::builder_with_provider(
+///         rustls::crypto::default_fips_provider().into()
+///     )
+///     .with_safe_default_protocol_versions()
+///     .unwrap()
+///     .with_root_certificates(root_store)
+///     .with_no_client_auth();
+/// # }
+/// ```
+</span><span class="attr">#[cfg(any(feature = <span class="string">"fips"</span>, docsrs))]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"fips"</span>)))]
+</span><span class="kw">pub fn </span>default_fips_provider() -&gt; CryptoProvider {
+    aws_lc_rs::default_provider()
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span>std::vec;
+
+    <span class="kw">use </span><span class="kw">super</span>::SharedSecret;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_shared_secret_strip_leading_zeros() {
+        <span class="kw">let </span>test_cases = [
+            (<span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>], <span class="macro">vec!</span>[<span class="number">1</span>]),
+            (<span class="macro">vec!</span>[<span class="number">1</span>], <span class="macro">vec!</span>[<span class="number">1</span>]),
+            (<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>], <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>]),
+            (<span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>], <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>]),
+            (<span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>], <span class="macro">vec!</span>[]),
+            (<span class="macro">vec!</span>[], <span class="macro">vec!</span>[]),
+        ];
+        <span class="kw">for </span>(buf, expected) <span class="kw">in </span>test_cases {
+            <span class="kw">let </span><span class="kw-2">mut </span>secret = SharedSecret::from(<span class="kw-2">&amp;</span>buf[..]);
+            <span class="macro">assert_eq!</span>(secret.secret_bytes(), buf);
+            secret.strip_leading_zeros();
+            <span class="macro">assert_eq!</span>(secret.secret_bytes(), expected);
+        }
     }
 }
 </code></pre></div></section></main></body></html>

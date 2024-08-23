@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/tls12/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/tls12/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -355,7 +355,32 @@
 <a href="#354" id="354">354</a>
 <a href="#355" id="355">355</a>
 <a href="#356" id="356">356</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Side};
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::vec;
+<span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::fmt;
+
+<span class="kw">use </span>zeroize::Zeroize;
+
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Side};
 <span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
 <span class="kw">use </span><span class="kw">crate</span>::crypto;
 <span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{AeadKey, MessageDecrypter, MessageEncrypter, Tls12AeadAlgorithm};
@@ -363,15 +388,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, SignatureScheme};
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, InvalidMessage};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::KeyExchangeAlgorithm;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{KeyExchangeAlgorithm, KxDecode};
 <span class="kw">use </span><span class="kw">crate</span>::suites::{CipherSuiteCommon, PartiallyExtractedSecrets, SupportedCipherSuite};
-
-<span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>alloc::vec;
-<span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::fmt;
-
-<span class="kw">use </span>zeroize::Zeroize;
 
 <span class="doccomment">/// A TLS 1.2 cipher suite supported by rustls.
 </span><span class="kw">pub struct </span>Tls12CipherSuite {
@@ -418,6 +436,13 @@
             .filter(|pref| offered.contains(pref))
             .cloned()
             .collect()
+    }
+
+    <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
+    ///
+    /// This means all the constituent parts that do cryptography return `true` for `fips()`.
+    </span><span class="kw">pub fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.common.fips() &amp;&amp; <span class="self">self</span>.prf_provider.fips() &amp;&amp; <span class="self">self</span>.aead_alg.fips()
     }
 }
 
@@ -670,14 +695,15 @@
 
 <span class="kw">type </span>MessageCipherPair = (Box&lt;<span class="kw">dyn </span>MessageDecrypter&gt;, Box&lt;<span class="kw">dyn </span>MessageEncrypter&gt;);
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decode_ecdh_params&lt;T: Codec&gt;(
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decode_kx_params&lt;<span class="lifetime">'a</span>, T: KxDecode&lt;<span class="lifetime">'a</span>&gt;&gt;(
+    kx_algorithm: KeyExchangeAlgorithm,
     common: <span class="kw-2">&amp;mut </span>CommonState,
-    kx_params: <span class="kw-2">&amp;</span>[u8],
+    kx_params: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8],
 ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>rd = Reader::init(kx_params);
-    <span class="kw">let </span>ecdh_params = T::read(<span class="kw-2">&amp;mut </span>rd)<span class="question-mark">?</span>;
+    <span class="kw">let </span>kx_params = T::decode(<span class="kw-2">&amp;mut </span>rd, kx_algorithm)<span class="question-mark">?</span>;
     <span class="kw">match </span>rd.any_left() {
-        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(ecdh_params),
+        <span class="bool-val">false </span>=&gt; <span class="prelude-val">Ok</span>(kx_params),
         <span class="bool-val">true </span>=&gt; <span class="prelude-val">Err</span>(common.send_fatal_alert(
             AlertDescription::DecodeError,
             InvalidMessage::InvalidDhParams,
@@ -687,11 +713,11 @@
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DOWNGRADE_SENTINEL: [u8; <span class="number">8</span>] = [<span class="number">0x44</span>, <span class="number">0x4f</span>, <span class="number">0x57</span>, <span class="number">0x4e</span>, <span class="number">0x47</span>, <span class="number">0x52</span>, <span class="number">0x44</span>, <span class="number">0x01</span>];
 
-<span class="attr">#[cfg(all(test, any(feature = <span class="string">"ring"</span>, feature = <span class="string">"aws_lc_rs"</span>)))]
-</span><span class="kw">mod </span>tests {
+<span class="macro">test_for_each_provider! </span>{
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientEcdhParams, ServerEcdhParams};
-    <span class="kw">use </span><span class="kw">crate</span>::test_provider::kx_group::X25519;
+    <span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Side};
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ServerEcdhParams, ServerKeyExchangeParams};
+    <span class="kw">use </span>provider::kx_group::X25519;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>server_ecdhe_remaining_bytes() {
@@ -702,13 +728,23 @@
         server_buf.push(<span class="number">34</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>common = CommonState::new(Side::Client);
-        <span class="macro">assert!</span>(decode_ecdh_params::&lt;ServerEcdhParams&gt;(<span class="kw-2">&amp;mut </span>common, <span class="kw-2">&amp;</span>server_buf).is_err());
+        <span class="macro">assert!</span>(decode_kx_params::&lt;ServerKeyExchangeParams&gt;(
+            KeyExchangeAlgorithm::ECDHE,
+            <span class="kw-2">&amp;mut </span>common,
+            <span class="kw-2">&amp;</span>server_buf
+        )
+        .is_err());
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>client_ecdhe_invalid() {
         <span class="kw">let </span><span class="kw-2">mut </span>common = CommonState::new(Side::Server);
-        <span class="macro">assert!</span>(decode_ecdh_params::&lt;ClientEcdhParams&gt;(<span class="kw-2">&amp;mut </span>common, <span class="kw-2">&amp;</span>[<span class="number">34</span>]).is_err());
+        <span class="macro">assert!</span>(decode_kx_params::&lt;ServerKeyExchangeParams&gt;(
+            KeyExchangeAlgorithm::ECDHE,
+            <span class="kw-2">&amp;mut </span>common,
+            <span class="kw-2">&amp;</span>[<span class="number">34</span>],
+        )
+        .is_err());
     }
 }
 </code></pre></div></section></main></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.3.1/src/proto/h1/io.rs`."><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.4.1/src/proto/h1/io.rs`."><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -954,46 +954,8 @@
 <a href="#953" id="953">953</a>
 <a href="#954" id="954">954</a>
 <a href="#955" id="955">955</a>
-<a href="#956" id="956">956</a>
-<a href="#957" id="957">957</a>
-<a href="#958" id="958">958</a>
-<a href="#959" id="959">959</a>
-<a href="#960" id="960">960</a>
-<a href="#961" id="961">961</a>
-<a href="#962" id="962">962</a>
-<a href="#963" id="963">963</a>
-<a href="#964" id="964">964</a>
-<a href="#965" id="965">965</a>
-<a href="#966" id="966">966</a>
-<a href="#967" id="967">967</a>
-<a href="#968" id="968">968</a>
-<a href="#969" id="969">969</a>
-<a href="#970" id="970">970</a>
-<a href="#971" id="971">971</a>
-<a href="#972" id="972">972</a>
-<a href="#973" id="973">973</a>
-<a href="#974" id="974">974</a>
-<a href="#975" id="975">975</a>
-<a href="#976" id="976">976</a>
-<a href="#977" id="977">977</a>
-<a href="#978" id="978">978</a>
-<a href="#979" id="979">979</a>
-<a href="#980" id="980">980</a>
-<a href="#981" id="981">981</a>
-<a href="#982" id="982">982</a>
-<a href="#983" id="983">983</a>
-<a href="#984" id="984">984</a>
-<a href="#985" id="985">985</a>
-<a href="#986" id="986">986</a>
-<a href="#987" id="987">987</a>
-<a href="#988" id="988">988</a>
-<a href="#989" id="989">989</a>
-<a href="#990" id="990">990</a>
-<a href="#991" id="991">991</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::cmp;
 <span class="kw">use </span>std::fmt;
-<span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-</span><span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, IoSlice};
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::task::{Context, Poll};
@@ -1175,14 +1137,6 @@
                     req_method: parse_ctx.req_method,
                     h1_parser_config: parse_ctx.h1_parser_config.clone(),
                     h1_max_headers: parse_ctx.h1_max_headers,
-                    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                    </span>h1_header_read_timeout: parse_ctx.h1_header_read_timeout,
-                    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                    </span>h1_header_read_timeout_fut: parse_ctx.h1_header_read_timeout_fut,
-                    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                    </span>h1_header_read_timeout_running: parse_ctx.h1_header_read_timeout_running,
-                    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                    </span>timer: parse_ctx.timer.clone(),
                     preserve_header_case: parse_ctx.preserve_header_case,
                     <span class="attr">#[cfg(feature = <span class="string">"ffi"</span>)]
                     </span>preserve_header_order: parse_ctx.preserve_header_order,
@@ -1193,12 +1147,6 @@
             )<span class="question-mark">? </span>{
                 <span class="prelude-val">Some</span>(msg) =&gt; {
                     <span class="macro">debug!</span>(<span class="string">"parsed {} headers"</span>, msg.head.headers.len());
-
-                    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                    </span>{
-                        <span class="kw-2">*</span>parse_ctx.h1_header_read_timeout_running = <span class="bool-val">false</span>;
-                        parse_ctx.h1_header_read_timeout_fut.take();
-                    }
                     <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Ok</span>(msg));
                 }
                 <span class="prelude-val">None </span>=&gt; {
@@ -1206,20 +1154,6 @@
                     <span class="kw">if </span><span class="self">self</span>.read_buf.len() &gt;= max {
                         <span class="macro">debug!</span>(<span class="string">"max_buf_size ({}) reached, closing"</span>, max);
                         <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_too_large()));
-                    }
-
-                    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
-                    </span><span class="kw">if </span><span class="kw-2">*</span>parse_ctx.h1_header_read_timeout_running {
-                        <span class="kw">if let </span><span class="prelude-val">Some</span>(h1_header_read_timeout_fut) =
-                            parse_ctx.h1_header_read_timeout_fut
-                        {
-                            <span class="kw">if </span>Pin::new(h1_header_read_timeout_fut).poll(cx).is_ready() {
-                                <span class="kw-2">*</span>parse_ctx.h1_header_read_timeout_running = <span class="bool-val">false</span>;
-
-                                <span class="macro">warn!</span>(<span class="string">"read header from client timeout"</span>);
-                                <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(<span class="kw">crate</span>::Error::new_header_timeout()));
-                            }
-                        }
                     }
                 }
             }
@@ -1442,7 +1376,7 @@
     <span class="comment">// Only way this shift can underflow is if n is less than 4.
     // (Which would means `usize::MAX &gt;&gt; 64` and underflowed!)
     </span><span class="macro">debug_assert!</span>(n &gt;= <span class="number">4</span>);
-    (::std::usize::MAX &gt;&gt; (n.leading_zeros() + <span class="number">2</span>)) + <span class="number">1
+    (usize::MAX &gt;&gt; (n.leading_zeros() + <span class="number">2</span>)) + <span class="number">1
 </span>}
 
 <span class="kw">impl </span>Default <span class="kw">for </span>ReadStrategy {
@@ -1652,10 +1586,8 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span><span class="kw">crate</span>::common::io::Compat;
-    <span class="kw">use </span><span class="kw">crate</span>::common::time::Time;
-
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::common::io::Compat;
     <span class="kw">use </span>std::time::Duration;
 
     <span class="kw">use </span>tokio_test::io::Builder <span class="kw">as </span>Mock;
@@ -1718,10 +1650,6 @@
                 req_method: <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
                 h1_parser_config: Default::default(),
                 h1_max_headers: <span class="prelude-val">None</span>,
-                h1_header_read_timeout: <span class="prelude-val">None</span>,
-                h1_header_read_timeout_fut: <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
-                h1_header_read_timeout_running: <span class="kw-2">&amp;mut </span><span class="bool-val">false</span>,
-                timer: Time::Empty,
                 preserve_header_case: <span class="bool-val">false</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"ffi"</span>)]
                 </span>preserve_header_order: <span class="bool-val">false</span>,
@@ -1755,7 +1683,7 @@
         <span class="macro">assert_eq!</span>(strategy.next(), <span class="number">32768</span>);
 
         <span class="comment">// Enormous records still increment at same rate
-        </span>strategy.record(::std::usize::MAX);
+        </span>strategy.record(usize::MAX);
         <span class="macro">assert_eq!</span>(strategy.next(), <span class="number">65536</span>);
 
         <span class="kw">let </span>max = strategy.max();
@@ -1825,7 +1753,7 @@
         <span class="kw">fn </span>fuzz(max: usize) {
             <span class="kw">let </span><span class="kw-2">mut </span>strategy = ReadStrategy::with_max(max);
             <span class="kw">while </span>strategy.next() &lt; max {
-                strategy.record(::std::usize::MAX);
+                strategy.record(usize::MAX);
             }
             <span class="kw">let </span><span class="kw-2">mut </span>next = strategy.next();
             <span class="kw">while </span>next &gt; <span class="number">8192 </span>{
@@ -1846,7 +1774,7 @@
             fuzz(max);
             max = (max / <span class="number">2</span>).saturating_mul(<span class="number">3</span>);
         }
-        fuzz(::std::usize::MAX);
+        fuzz(usize::MAX);
     }
 
     <span class="attr">#[test]

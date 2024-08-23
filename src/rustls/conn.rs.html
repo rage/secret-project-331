@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/conn.rs`."><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/conn.rs`."><title>conn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -807,314 +807,564 @@
 <a href="#806" id="806">806</a>
 <a href="#807" id="807">807</a>
 <a href="#808" id="808">808</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Context, IoState, State};
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>core::fmt::Debug;
+<span class="kw">use </span>core::mem;
+<span class="kw">use </span>core::ops::{Deref, DerefMut};
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>std::io;
+
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Context, IoState, State, DEFAULT_BUFFER_LIMIT};
 <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, ContentType};
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, PeerMisbehaved};
 <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::log::trace;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::{Deframed, DeframerSliceBuffer, DeframerVecBuffer, MessageDeframer};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::{
+    Deframed, DeframerSliceBuffer, DeframerVecBuffer, FilledDeframerBuffer, MessageDeframer,
+};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::Random;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload, PlainMessage};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{InboundPlainMessage, Message, MessagePayload};
 <span class="kw">use </span><span class="kw">crate</span>::suites::{ExtractedSecrets, PartiallyExtractedSecrets};
 <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
 
-<span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>core::fmt::Debug;
-<span class="kw">use </span>core::mem;
-<span class="kw">use </span>core::ops::{Deref, DerefMut};
-<span class="kw">use </span>std::io;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>unbuffered;
 
-<span class="doccomment">/// A client or server connection.
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub enum </span>Connection {
-    <span class="doccomment">/// A client connection
-    </span>Client(<span class="kw">crate</span>::client::ClientConnection),
-    <span class="doccomment">/// A server connection
-    </span>Server(<span class="kw">crate</span>::server::ServerConnection),
-}
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">mod </span>connection {
+    <span class="kw">use </span>alloc::vec::Vec;
+    <span class="kw">use </span>core::fmt::Debug;
+    <span class="kw">use </span>core::ops::{Deref, DerefMut};
+    <span class="kw">use </span>std::io;
 
-<span class="kw">impl </span>Connection {
-    <span class="doccomment">/// Read TLS content from `rd`.
-    ///
-    /// See [`ConnectionCommon::read_tls()`] for more information.
-    </span><span class="kw">pub fn </span>read_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Read) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.read_tls(rd),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.read_tls(rd),
+    <span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, IoState};
+    <span class="kw">use </span><span class="kw">crate</span>::error::Error;
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::message::OutboundChunks;
+    <span class="kw">use </span><span class="kw">crate</span>::suites::ExtractedSecrets;
+    <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
+    <span class="kw">use </span><span class="kw">crate</span>::ConnectionCommon;
+
+    <span class="doccomment">/// A client or server connection.
+    </span><span class="attr">#[derive(Debug)]
+    </span><span class="kw">pub enum </span>Connection {
+        <span class="doccomment">/// A client connection
+        </span>Client(<span class="kw">crate</span>::client::ClientConnection),
+        <span class="doccomment">/// A server connection
+        </span>Server(<span class="kw">crate</span>::server::ServerConnection),
+    }
+
+    <span class="kw">impl </span>Connection {
+        <span class="doccomment">/// Read TLS content from `rd`.
+        ///
+        /// See [`ConnectionCommon::read_tls()`] for more information.
+        </span><span class="kw">pub fn </span>read_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Read) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.read_tls(rd),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.read_tls(rd),
+            }
+        }
+
+        <span class="doccomment">/// Writes TLS messages to `wr`.
+        ///
+        /// See [`ConnectionCommon::write_tls()`] for more information.
+        </span><span class="kw">pub fn </span>write_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, wr: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Write) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
+            <span class="self">self</span>.sendable_tls.write_to(wr)
+        }
+
+        <span class="doccomment">/// Returns an object that allows reading plaintext.
+        </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Reader&lt;<span class="lifetime">'_</span>&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.reader(),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.reader(),
+            }
+        }
+
+        <span class="doccomment">/// Returns an object that allows writing plaintext.
+        </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Writer&lt;<span class="lifetime">'_</span>&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
+                <span class="self">Self</span>::Server(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
+            }
+        }
+
+        <span class="doccomment">/// Processes any new packets read by a previous call to [`Connection::read_tls`].
+        ///
+        /// See [`ConnectionCommon::process_new_packets()`] for more information.
+        </span><span class="kw">pub fn </span>process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IoState, Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.process_new_packets(),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.process_new_packets(),
+            }
+        }
+
+        <span class="doccomment">/// Derives key material from the agreed connection secrets.
+        ///
+        /// See [`ConnectionCommon::export_keying_material()`] for more information.
+        </span><span class="kw">pub fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
+            <span class="kw-2">&amp;</span><span class="self">self</span>,
+            output: T,
+            label: <span class="kw-2">&amp;</span>[u8],
+            context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
+        ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.export_keying_material(output, label, context),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.export_keying_material(output, label, context),
+            }
+        }
+
+        <span class="doccomment">/// This function uses `io` to complete any outstanding IO for this connection.
+        ///
+        /// See [`ConnectionCommon::complete_io()`] for more information.
+        </span><span class="kw">pub fn </span>complete_io&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, io: <span class="kw-2">&amp;mut </span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, usize), io::Error&gt;
+        <span class="kw">where
+            </span><span class="self">Self</span>: Sized,
+            T: io::Read + io::Write,
+        {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; conn.complete_io(io),
+                <span class="self">Self</span>::Server(conn) =&gt; conn.complete_io(io),
+            }
+        }
+
+        <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
+        /// Should be used with care as it exposes secret key material.
+        </span><span class="kw">pub fn </span>dangerous_extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(client) =&gt; client.dangerous_extract_secrets(),
+                <span class="self">Self</span>::Server(server) =&gt; server.dangerous_extract_secrets(),
+            }
+        }
+
+        <span class="doccomment">/// Sets a limit on the internal buffers
+        ///
+        /// See [`ConnectionCommon::set_buffer_limit()`] for more information.
+        </span><span class="kw">pub fn </span>set_buffer_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, limit: <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(client) =&gt; client.set_buffer_limit(limit),
+                <span class="self">Self</span>::Server(server) =&gt; server.set_buffer_limit(limit),
+            }
+        }
+
+        <span class="doccomment">/// Sends a TLS1.3 `key_update` message to refresh a connection's keys
+        ///
+        /// See [`ConnectionCommon::refresh_traffic_keys()`] for more information.
+        </span><span class="kw">pub fn </span>refresh_traffic_keys(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(client) =&gt; client.refresh_traffic_keys(),
+                <span class="self">Self</span>::Server(server) =&gt; server.refresh_traffic_keys(),
+            }
         }
     }
 
-    <span class="doccomment">/// Writes TLS messages to `wr`.
-    ///
-    /// See [`ConnectionCommon::write_tls()`] for more information.
-    </span><span class="kw">pub fn </span>write_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, wr: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Write) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
-        <span class="self">self</span>.sendable_tls.write_to(wr)
-    }
+    <span class="kw">impl </span>Deref <span class="kw">for </span>Connection {
+        <span class="kw">type </span>Target = CommonState;
 
-    <span class="doccomment">/// Returns an object that allows reading plaintext.
-    </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Reader {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.reader(),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.reader(),
+        <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
+                <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
+            }
         }
     }
 
-    <span class="doccomment">/// Returns an object that allows writing plaintext.
-    </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Writer {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
-            <span class="self">Self</span>::Server(conn) =&gt; Writer::new(<span class="kw-2">&amp;mut **</span>conn),
+    <span class="kw">impl </span>DerefMut <span class="kw">for </span>Connection {
+        <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
+            <span class="kw">match </span><span class="self">self </span>{
+                <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
+                <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
+            }
         }
     }
 
-    <span class="doccomment">/// Processes any new packets read by a previous call to [`Connection::read_tls`].
-    ///
-    /// See [`ConnectionCommon::process_new_packets()`] for more information.
-    </span><span class="kw">pub fn </span>process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IoState, Error&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.process_new_packets(),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.process_new_packets(),
-        }
+    <span class="doccomment">/// A structure that implements [`std::io::Read`] for reading plaintext.
+    </span><span class="kw">pub struct </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="kw">pub</span>(<span class="kw">super</span>) received_plaintext: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ChunkVecBuffer,
+        <span class="kw">pub</span>(<span class="kw">super</span>) has_received_close_notify: bool,
+        <span class="kw">pub</span>(<span class="kw">super</span>) has_seen_eof: bool,
     }
 
-    <span class="doccomment">/// Derives key material from the agreed connection secrets.
-    ///
-    /// See [`ConnectionCommon::export_keying_material()`] for more information.
-    </span><span class="kw">pub fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        output: T,
-        label: <span class="kw-2">&amp;</span>[u8],
-        context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.export_keying_material(output, label, context),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.export_keying_material(output, label, context),
-        }
-    }
-
-    <span class="doccomment">/// This function uses `io` to complete any outstanding IO for this connection.
-    ///
-    /// See [`ConnectionCommon::complete_io()`] for more information.
-    </span><span class="kw">pub fn </span>complete_io&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, io: <span class="kw-2">&amp;mut </span>T) -&gt; <span class="prelude-ty">Result</span>&lt;(usize, usize), io::Error&gt;
-    <span class="kw">where
-        </span><span class="self">Self</span>: Sized,
-        T: io::Read + io::Write,
-    {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; conn.complete_io(io),
-            <span class="self">Self</span>::Server(conn) =&gt; conn.complete_io(io),
-        }
-    }
-
-    <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
-    /// Should be used with care as it exposes secret key material.
-    </span><span class="kw">pub fn </span>dangerous_extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(client) =&gt; client.dangerous_extract_secrets(),
-            <span class="self">Self</span>::Server(server) =&gt; server.dangerous_extract_secrets(),
-        }
-    }
-}
-
-<span class="kw">impl </span>Deref <span class="kw">for </span>Connection {
-    <span class="kw">type </span>Target = CommonState;
-
-    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
-            <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;</span>conn.core.common_state,
-        }
-    }
-}
-
-<span class="kw">impl </span>DerefMut <span class="kw">for </span>Connection {
-    <span class="kw">fn </span>deref_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self</span>::Target {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Client(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
-            <span class="self">Self</span>::Server(conn) =&gt; <span class="kw-2">&amp;mut </span>conn.core.common_state,
-        }
-    }
-}
-
-<span class="doccomment">/// A structure that implements [`std::io::Read`] for reading plaintext.
-</span><span class="kw">pub struct </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
-    received_plaintext: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ChunkVecBuffer,
-    peer_cleanly_closed: bool,
-    has_seen_eof: bool,
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Read <span class="kw">for </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// Obtain plaintext data received from the peer over this TLS connection.
-    ///
-    /// If the peer closes the TLS session cleanly, this returns `Ok(0)`  once all
-    /// the pending data has been read. No further data can be received on that
-    /// connection, so the underlying TCP connection should be half-closed too.
-    ///
-    /// If the peer closes the TLS session uncleanly (a TCP EOF without sending a
-    /// `close_notify` alert) this function returns a `std::io::Error` of type
-    /// `ErrorKind::UnexpectedEof` once any pending data has been read.
-    ///
-    /// Note that support for `close_notify` varies in peer TLS libraries: many do not
-    /// support it and uncleanly close the TCP connection (this might be
-    /// vulnerable to truncation attacks depending on the application protocol).
-    /// This means applications using rustls must both handle EOF
-    /// from this function, *and* unexpected EOF of the underlying TCP connection.
-    ///
-    /// If there are no bytes to read, this returns `Err(ErrorKind::WouldBlock.into())`.
-    ///
-    /// You may learn the number of bytes available at any time by inspecting
-    /// the return of [`Connection::process_new_packets`].
-    </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
-        <span class="kw">let </span>len = <span class="self">self</span>.received_plaintext.read(buf)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>len == <span class="number">0 </span>&amp;&amp; !buf.is_empty() {
-            <span class="comment">// No bytes available:
-            </span><span class="kw">match </span>(<span class="self">self</span>.peer_cleanly_closed, <span class="self">self</span>.has_seen_eof) {
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Reader&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="doccomment">/// Check the connection's state if no bytes are available for reading.
+        </span><span class="kw">fn </span>check_no_bytes_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+            <span class="kw">match </span>(<span class="self">self</span>.has_received_close_notify, <span class="self">self</span>.has_seen_eof) {
                 <span class="comment">// cleanly closed; don't care about TCP EOF: express this as Ok(0)
-                </span>(<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; {}
+                </span>(<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(()),
                 <span class="comment">// unclean closure
-                </span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
-                        io::ErrorKind::UnexpectedEof,
-                        UNEXPECTED_EOF_MESSAGE,
-                    ))
-                }
+                </span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; <span class="prelude-val">Err</span>(io::Error::new(
+                    io::ErrorKind::UnexpectedEof,
+                    UNEXPECTED_EOF_MESSAGE,
+                )),
                 <span class="comment">// connection still going, but needs more data: signal `WouldBlock` so that
                 // the caller knows this
-                </span>(<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::ErrorKind::WouldBlock.into()),
+                </span>(<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="prelude-val">Err</span>(io::ErrorKind::WouldBlock.into()),
             }
         }
-
-        <span class="prelude-val">Ok</span>(len)
     }
 
-    <span class="doccomment">/// Obtain plaintext data received from the peer over this TLS connection.
-    ///
-    /// If the peer closes the TLS session, this returns `Ok(())` without filling
-    /// any more of the buffer once all the pending data has been read. No further
-    /// data can be received on that connection, so the underlying TCP connection
-    /// should be half-closed too.
-    ///
-    /// If the peer closes the TLS session uncleanly (a TCP EOF without sending a
-    /// `close_notify` alert) this function returns a `std::io::Error` of type
-    /// `ErrorKind::UnexpectedEof` once any pending data has been read.
-    ///
-    /// Note that support for `close_notify` varies in peer TLS libraries: many do not
-    /// support it and uncleanly close the TCP connection (this might be
-    /// vulnerable to truncation attacks depending on the application protocol).
-    /// This means applications using rustls must both handle EOF
-    /// from this function, *and* unexpected EOF of the underlying TCP connection.
-    ///
-    /// If there are no bytes to read, this returns `Err(ErrorKind::WouldBlock.into())`.
-    ///
-    /// You may learn the number of bytes available at any time by inspecting
-    /// the return of [`Connection::process_new_packets`].
-    </span><span class="attr">#[cfg(read_buf)]
-    </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cursor: core::io::BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>before = cursor.written();
-        <span class="self">self</span>.received_plaintext
-            .read_buf(cursor.reborrow())<span class="question-mark">?</span>;
-        <span class="kw">let </span>len = cursor.written() - before;
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Read <span class="kw">for </span>Reader&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="doccomment">/// Obtain plaintext data received from the peer over this TLS connection.
+        ///
+        /// If the peer closes the TLS session cleanly, this returns `Ok(0)`  once all
+        /// the pending data has been read. No further data can be received on that
+        /// connection, so the underlying TCP connection should be half-closed too.
+        ///
+        /// If the peer closes the TLS session uncleanly (a TCP EOF without sending a
+        /// `close_notify` alert) this function returns a `std::io::Error` of type
+        /// `ErrorKind::UnexpectedEof` once any pending data has been read.
+        ///
+        /// Note that support for `close_notify` varies in peer TLS libraries: many do not
+        /// support it and uncleanly close the TCP connection (this might be
+        /// vulnerable to truncation attacks depending on the application protocol).
+        /// This means applications using rustls must both handle EOF
+        /// from this function, *and* unexpected EOF of the underlying TCP connection.
+        ///
+        /// If there are no bytes to read, this returns `Err(ErrorKind::WouldBlock.into())`.
+        ///
+        /// You may learn the number of bytes available at any time by inspecting
+        /// the return of [`Connection::process_new_packets`].
+        </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
+            <span class="kw">let </span>len = <span class="self">self</span>.received_plaintext.read(buf)<span class="question-mark">?</span>;
+            <span class="kw">if </span>len &gt; <span class="number">0 </span>|| buf.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(len);
+            }
 
-        <span class="kw">if </span>len == <span class="number">0 </span>&amp;&amp; cursor.capacity() &gt; <span class="number">0 </span>{
-            <span class="comment">// No bytes available:
-            </span><span class="kw">match </span>(<span class="self">self</span>.peer_cleanly_closed, <span class="self">self</span>.has_seen_eof) {
-                <span class="comment">// cleanly closed; don't care about TCP EOF: express this as Ok(0)
-                </span>(<span class="bool-val">true</span>, <span class="kw">_</span>) =&gt; {}
-                <span class="comment">// unclean closure
-                </span>(<span class="bool-val">false</span>, <span class="bool-val">true</span>) =&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::new(
-                        io::ErrorKind::UnexpectedEof,
-                        UNEXPECTED_EOF_MESSAGE,
-                    ));
+            <span class="self">self</span>.check_no_bytes_state()
+                .map(|()| len)
+        }
+
+        <span class="doccomment">/// Obtain plaintext data received from the peer over this TLS connection.
+        ///
+        /// If the peer closes the TLS session, this returns `Ok(())` without filling
+        /// any more of the buffer once all the pending data has been read. No further
+        /// data can be received on that connection, so the underlying TCP connection
+        /// should be half-closed too.
+        ///
+        /// If the peer closes the TLS session uncleanly (a TCP EOF without sending a
+        /// `close_notify` alert) this function returns a `std::io::Error` of type
+        /// `ErrorKind::UnexpectedEof` once any pending data has been read.
+        ///
+        /// Note that support for `close_notify` varies in peer TLS libraries: many do not
+        /// support it and uncleanly close the TCP connection (this might be
+        /// vulnerable to truncation attacks depending on the application protocol).
+        /// This means applications using rustls must both handle EOF
+        /// from this function, *and* unexpected EOF of the underlying TCP connection.
+        ///
+        /// If there are no bytes to read, this returns `Err(ErrorKind::WouldBlock.into())`.
+        ///
+        /// You may learn the number of bytes available at any time by inspecting
+        /// the return of [`Connection::process_new_packets`].
+        </span><span class="attr">#[cfg(read_buf)]
+        </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>cursor: core::io::BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
+            <span class="kw">let </span>before = cursor.written();
+            <span class="self">self</span>.received_plaintext
+                .read_buf(cursor.reborrow())<span class="question-mark">?</span>;
+            <span class="kw">let </span>len = cursor.written() - before;
+            <span class="kw">if </span>len &gt; <span class="number">0 </span>|| cursor.capacity() == <span class="number">0 </span>{
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+            }
+
+            <span class="self">self</span>.check_no_bytes_state()
+        }
+    }
+
+    <span class="kw">const </span>UNEXPECTED_EOF_MESSAGE: <span class="kw-2">&amp;</span>str =
+        <span class="string">"peer closed connection without sending TLS close_notify: \
+https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"</span>;
+
+    <span class="doccomment">/// A structure that implements [`std::io::Write`] for writing plaintext.
+    </span><span class="kw">pub struct </span>Writer&lt;<span class="lifetime">'a</span>&gt; {
+        sink: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>PlaintextSink,
+    }
+
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Writer&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="doccomment">/// Create a new Writer.
+        ///
+        /// This is not an external interface.  Get one of these objects
+        /// from [`Connection::writer`].
+        </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(sink: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>PlaintextSink) -&gt; <span class="self">Self </span>{
+            Writer { sink }
+        }
+    }
+
+    <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Write <span class="kw">for </span>Writer&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="doccomment">/// Send the plaintext `buf` to the peer, encrypting
+        /// and authenticating it.  Once this function succeeds
+        /// you should call [`Connection::write_tls`] which will output the
+        /// corresponding TLS records.
+        ///
+        /// This function buffers plaintext sent before the
+        /// TLS handshake completes, and sends it as soon
+        /// as it can.  See [`ConnectionCommon::set_buffer_limit`] to control
+        /// the size of this buffer.
+        </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+            <span class="self">self</span>.sink.write(buf)
+        }
+
+        <span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+            <span class="self">self</span>.sink.write_vectored(bufs)
+        }
+
+        <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+            <span class="self">self</span>.sink.flush()
+        }
+    }
+
+    <span class="doccomment">/// Internal trait implemented by the [`ServerConnection`]/[`ClientConnection`]
+    /// allowing them to be the subject of a [`Writer`].
+    ///
+    /// [`ServerConnection`]: crate::ServerConnection
+    /// [`ClientConnection`]: crate::ClientConnection
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>PlaintextSink {
+        <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt;;
+        <span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt;;
+        <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt;;
+    }
+
+    <span class="kw">impl</span>&lt;T&gt; PlaintextSink <span class="kw">for </span>ConnectionCommon&lt;T&gt; {
+        <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+            <span class="kw">let </span>len = <span class="self">self
+                </span>.core
+                .common_state
+                .buffer_plaintext(buf.into(), <span class="kw-2">&amp;mut </span><span class="self">self</span>.sendable_plaintext);
+            <span class="self">self</span>.core.maybe_refresh_traffic_keys();
+            <span class="prelude-val">Ok</span>(len)
+        }
+
+        <span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+            <span class="kw">let </span>payload_owner: Vec&lt;<span class="kw-2">&amp;</span>[u8]&gt;;
+            <span class="kw">let </span>payload = <span class="kw">match </span>bufs.len() {
+                <span class="number">0 </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="number">0</span>),
+                <span class="number">1 </span>=&gt; OutboundChunks::Single(bufs[<span class="number">0</span>].deref()),
+                <span class="kw">_ </span>=&gt; {
+                    payload_owner = bufs
+                        .iter()
+                        .map(|io_slice| io_slice.deref())
+                        .collect();
+
+                    OutboundChunks::new(<span class="kw-2">&amp;</span>payload_owner)
                 }
-                <span class="comment">// connection still going, but need more data: signal `WouldBlock` so that
-                // the caller knows this
-                </span>(<span class="bool-val">false</span>, <span class="bool-val">false</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::ErrorKind::WouldBlock.into()),
-            }
+            };
+            <span class="kw">let </span>len = <span class="self">self
+                </span>.core
+                .common_state
+                .buffer_plaintext(payload, <span class="kw-2">&amp;mut </span><span class="self">self</span>.sendable_plaintext);
+            <span class="self">self</span>.core.maybe_refresh_traffic_keys();
+            <span class="prelude-val">Ok</span>(len)
         }
 
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="doccomment">/// Internal trait implemented by the [`ServerConnection`]/[`ClientConnection`]
-/// allowing them to be the subject of a [`Writer`].
-///
-/// [`ServerConnection`]: crate::ServerConnection
-/// [`ClientConnection`]: crate::ClientConnection
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>PlaintextSink {
-    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt;;
-    <span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt;;
-    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt;;
-}
-
-<span class="kw">impl</span>&lt;T&gt; PlaintextSink <span class="kw">for </span>ConnectionCommon&lt;T&gt; {
-    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.send_some_plaintext(buf))
-    }
-
-    <span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>sz = <span class="number">0</span>;
-        <span class="kw">for </span>buf <span class="kw">in </span>bufs {
-            sz += <span class="self">self</span>.send_some_plaintext(buf);
+        <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+            <span class="prelude-val">Ok</span>(())
         }
-        <span class="prelude-val">Ok</span>(sz)
-    }
-
-    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-        <span class="prelude-val">Ok</span>(())
     }
 }
 
-<span class="doccomment">/// A structure that implements [`std::io::Write`] for writing plaintext.
-</span><span class="kw">pub struct </span>Writer&lt;<span class="lifetime">'a</span>&gt; {
-    sink: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>PlaintextSink,
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Writer&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// Create a new Writer.
-    ///
-    /// This is not an external interface.  Get one of these objects
-    /// from [`Connection::writer`].
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(sink: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>PlaintextSink) -&gt; <span class="self">Self </span>{
-        Writer { sink }
-    }
-}
-
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; io::Write <span class="kw">for </span>Writer&lt;<span class="lifetime">'a</span>&gt; {
-    <span class="doccomment">/// Send the plaintext `buf` to the peer, encrypting
-    /// and authenticating it.  Once this function succeeds
-    /// you should call [`Connection::write_tls`] which will output the
-    /// corresponding TLS records.
-    ///
-    /// This function buffers plaintext sent before the
-    /// TLS handshake completes, and sends it as soon
-    /// as it can.  See [`CommonState::set_buffer_limit`] to control
-    /// the size of this buffer.
-    </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
-        <span class="self">self</span>.sink.write(buf)
-    }
-
-    <span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
-        <span class="self">self</span>.sink.write_vectored(bufs)
-    }
-
-    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
-        <span class="self">self</span>.sink.flush()
-    }
-}
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">pub use </span>connection::{Connection, Reader, Writer};
 
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ConnectionRandoms {
     <span class="kw">pub</span>(<span class="kw">crate</span>) client: [u8; <span class="number">32</span>],
     <span class="kw">pub</span>(<span class="kw">crate</span>) server: [u8; <span class="number">32</span>],
 }
-
-<span class="doccomment">/// How many ChangeCipherSpec messages we accept and drop in TLS1.3 handshakes.
-/// The spec says 1, but implementations (namely the boringssl test suite) get
-/// this wrong.  BoringSSL itself accepts up to 32.
-</span><span class="kw">static </span>TLS13_MAX_DROPPED_CCS: u8 = <span class="number">2u8</span>;
 
 <span class="kw">impl </span>ConnectionRandoms {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(client: Random, server: Random) -&gt; <span class="self">Self </span>{
@@ -1125,37 +1375,178 @@
     }
 }
 
-<span class="comment">// --- Common (to client and server) connection functions ---
-
-</span><span class="kw">fn </span>is_valid_ccs(msg: <span class="kw-2">&amp;</span>PlainMessage) -&gt; bool {
-    <span class="comment">// We passthrough ChangeCipherSpec messages in the deframer without decrypting them.
-    // Note: this is prior to the record layer, so is unencrypted. See
-    // third paragraph of section 5 in RFC8446.
-    </span>msg.typ == ContentType::ChangeCipherSpec &amp;&amp; msg.payload.<span class="number">0 </span>== [<span class="number">0x01</span>]
-}
-
 <span class="doccomment">/// Interface shared by client and server connections.
 </span><span class="kw">pub struct </span>ConnectionCommon&lt;Data&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) core: ConnectionCore&lt;Data&gt;,
     deframer_buffer: DeframerVecBuffer,
+    sendable_plaintext: ChunkVecBuffer,
 }
 
 <span class="kw">impl</span>&lt;Data&gt; ConnectionCommon&lt;Data&gt; {
+    <span class="doccomment">/// Processes any new packets read by a previous call to
+    /// [`Connection::read_tls`].
+    ///
+    /// Errors from this function relate to TLS protocol errors, and
+    /// are fatal to the connection.  Future calls after an error will do
+    /// no new work and will return the same error. After an error is
+    /// received from [`process_new_packets`], you should not call [`read_tls`]
+    /// any more (it will fill up buffers to no purpose). However, you
+    /// may call the other methods on the connection, including `write`,
+    /// `send_close_notify`, and `write_tls`. Most likely you will want to
+    /// call `write_tls` to send any alerts queued by the error and then
+    /// close the underlying connection.
+    ///
+    /// Success from this function comes with some sundry state data
+    /// about the connection.
+    ///
+    /// [`read_tls`]: Connection::read_tls
+    /// [`process_new_packets`]: Connection::process_new_packets
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IoState, Error&gt; {
+        <span class="self">self</span>.core
+            .process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer, <span class="kw-2">&amp;mut </span><span class="self">self</span>.sendable_plaintext)
+    }
+
+    <span class="doccomment">/// Derives key material from the agreed connection secrets.
+    ///
+    /// This function fills in `output` with `output.len()` bytes of key
+    /// material derived from the master session secret using `label`
+    /// and `context` for diversification. Ownership of the buffer is taken
+    /// by the function and returned via the Ok result to ensure no key
+    /// material leaks if the function fails.
+    ///
+    /// See RFC5705 for more details on what this does and is for.
+    ///
+    /// For TLS1.3 connections, this function does not use the
+    /// "early" exporter at any point.
+    ///
+    /// This function fails if called prior to the handshake completing;
+    /// check with [`CommonState::is_handshaking`] first.
+    ///
+    /// This function fails if `output.len()` is zero.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        output: T,
+        label: <span class="kw-2">&amp;</span>[u8],
+        context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
+        <span class="self">self</span>.core
+            .export_keying_material(output, label, context)
+    }
+
+    <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
+    /// Should be used with care as it exposes secret key material.
+    </span><span class="kw">pub fn </span>dangerous_extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
+        <span class="kw">if </span>!<span class="self">self</span>.enable_secret_extraction {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="string">"Secret extraction is disabled"</span>.into()));
+        }
+
+        <span class="kw">let </span>st = <span class="self">self</span>.core.state<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>record_layer = <span class="self">self</span>.core.common_state.record_layer;
+        <span class="kw">let </span>PartiallyExtractedSecrets { tx, rx } = st.extract_secrets()<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(ExtractedSecrets {
+            tx: (record_layer.write_seq(), tx),
+            rx: (record_layer.read_seq(), rx),
+        })
+    }
+
+    <span class="doccomment">/// Sets a limit on the internal buffers used to buffer
+    /// unsent plaintext (prior to completing the TLS handshake)
+    /// and unsent TLS records.  This limit acts only on application
+    /// data written through [`Connection::writer`].
+    ///
+    /// By default the limit is 64KB.  The limit can be set
+    /// at any time, even if the current buffer use is higher.
+    ///
+    /// [`None`] means no limit applies, and will mean that written
+    /// data is buffered without bound -- it is up to the application
+    /// to appropriately schedule its plaintext and TLS writes to bound
+    /// memory usage.
+    ///
+    /// For illustration: `Some(1)` means a limit of one byte applies:
+    /// [`Connection::writer`] will accept only one byte, encrypt it and
+    /// add a TLS header.  Once this is sent via [`Connection::write_tls`],
+    /// another byte may be sent.
+    ///
+    /// # Internal write-direction buffering
+    /// rustls has two buffers whose size are bounded by this setting:
+    ///
+    /// ## Buffering of unsent plaintext data prior to handshake completion
+    ///
+    /// Calls to [`Connection::writer`] before or during the handshake
+    /// are buffered (up to the limit specified here).  Once the
+    /// handshake completes this data is encrypted and the resulting
+    /// TLS records are added to the outgoing buffer.
+    ///
+    /// ## Buffering of outgoing TLS records
+    ///
+    /// This buffer is used to store TLS records that rustls needs to
+    /// send to the peer.  It is used in these two circumstances:
+    ///
+    /// - by [`Connection::process_new_packets`] when a handshake or alert
+    ///   TLS record needs to be sent.
+    /// - by [`Connection::writer`] post-handshake: the plaintext is
+    ///   encrypted and the resulting TLS record is buffered.
+    ///
+    /// This buffer is emptied by [`Connection::write_tls`].
+    ///
+    /// [`Connection::writer`]: crate::Connection::writer
+    /// [`Connection::write_tls`]: crate::Connection::write_tls
+    /// [`Connection::process_new_packets`]: crate::Connection::process_new_packets
+    </span><span class="kw">pub fn </span>set_buffer_limit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, limit: <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="self">self</span>.sendable_plaintext.set_limit(limit);
+        <span class="self">self</span>.sendable_tls.set_limit(limit);
+    }
+
+    <span class="doccomment">/// Sends a TLS1.3 `key_update` message to refresh a connection's keys.
+    ///
+    /// This call refreshes our encryption keys. Once the peer receives the message,
+    /// it refreshes _its_ encryption and decryption keys and sends a response.
+    /// Once we receive that response, we refresh our decryption keys to match.
+    /// At the end of this process, keys in both directions have been refreshed.
+    ///
+    /// Note that this process does not happen synchronously: this call just
+    /// arranges that the `key_update` message will be included in the next
+    /// `write_tls` output.
+    ///
+    /// This fails with `Error::HandshakeNotComplete` if called before the initial
+    /// handshake is complete, or if a version prior to TLS1.3 is negotiated.
+    ///
+    /// # Usage advice
+    /// Note that other implementations (including rustls) may enforce limits on
+    /// the number of `key_update` messages allowed on a given connection to prevent
+    /// denial of service.  Therefore, this should be called sparingly.
+    ///
+    /// rustls implicitly and automatically refreshes traffic keys when needed
+    /// according to the selected cipher suite's cryptographic constraints.  There
+    /// is therefore no need to call this manually to avoid cryptographic keys
+    /// "wearing out".
+    ///
+    /// The main reason to call this manually is to roll keys when it is known
+    /// a connection will be idle for a long period.
+    </span><span class="kw">pub fn </span>refresh_traffic_keys(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="self">self</span>.core.refresh_traffic_keys()
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;Data&gt; ConnectionCommon&lt;Data&gt; {
     <span class="doccomment">/// Returns an object that allows reading plaintext.
-    </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Reader {
+    </span><span class="kw">pub fn </span>reader(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Reader&lt;<span class="lifetime">'_</span>&gt; {
         <span class="kw">let </span>common = <span class="kw-2">&amp;mut </span><span class="self">self</span>.core.common_state;
         Reader {
             received_plaintext: <span class="kw-2">&amp;mut </span>common.received_plaintext,
             <span class="comment">// Are we done? i.e., have we processed all received messages, and received a
             // close_notify to indicate that no new messages will arrive?
-            </span>peer_cleanly_closed: common.has_received_close_notify
-                &amp;&amp; !<span class="self">self</span>.deframer_buffer.has_pending(),
+            </span>has_received_close_notify: common.has_received_close_notify,
             has_seen_eof: common.has_seen_eof,
         }
     }
 
     <span class="doccomment">/// Returns an object that allows writing plaintext.
-    </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Writer {
+    </span><span class="kw">pub fn </span>writer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Writer&lt;<span class="lifetime">'_</span>&gt; {
         Writer::new(<span class="self">self</span>)
     }
 
@@ -1265,15 +1656,16 @@
     ///
     /// This is a shortcut to the `process_new_packets()` -&gt; `process_msg()` -&gt;
     /// `process_handshake_messages()` path, specialized for the first handshake message.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>first_handshake_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Message&gt;, Error&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>first_handshake_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Message&lt;<span class="lifetime">'static</span>&gt;&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>deframer_buffer = <span class="self">self</span>.deframer_buffer.borrow();
         <span class="kw">let </span>res = <span class="self">self
             </span>.core
-            .deframe(<span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>deframer_buffer);
+            .deframe(<span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>deframer_buffer)
+            .map(|opt| opt.map(|pm| Message::try_from(pm).map(|m| m.into_owned())));
         <span class="kw">let </span>discard = deframer_buffer.pending_discard();
         <span class="self">self</span>.deframer_buffer.discard(discard);
 
-        <span class="kw">match </span>res<span class="question-mark">?</span>.map(Message::try_from) {
+        <span class="kw">match </span>res<span class="question-mark">? </span>{
             <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(msg)) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(msg)),
             <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="prelude-val">Err</span>(<span class="self">self</span>.send_fatal_alert(AlertDescription::DecodeError, err)),
             <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
@@ -1282,30 +1674,6 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>replace_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new: Box&lt;<span class="kw">dyn </span>State&lt;Data&gt;&gt;) {
         <span class="self">self</span>.core.state = <span class="prelude-val">Ok</span>(new);
-    }
-
-    <span class="doccomment">/// Processes any new packets read by a previous call to
-    /// [`Connection::read_tls`].
-    ///
-    /// Errors from this function relate to TLS protocol errors, and
-    /// are fatal to the connection.  Future calls after an error will do
-    /// no new work and will return the same error. After an error is
-    /// received from [`process_new_packets`], you should not call [`read_tls`]
-    /// any more (it will fill up buffers to no purpose). However, you
-    /// may call the other methods on the connection, including `write`,
-    /// `send_close_notify`, and `write_tls`. Most likely you will want to
-    /// call `write_tls` to send any alerts queued by the error and then
-    /// close the underlying connection.
-    ///
-    /// Success from this function comes with some sundry state data
-    /// about the connection.
-    ///
-    /// [`read_tls`]: Connection::read_tls
-    /// [`process_new_packets`]: Connection::process_new_packets
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;IoState, Error&gt; {
-        <span class="self">self</span>.core
-            .process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer)
     }
 
     <span class="doccomment">/// Read TLS content from `rd` into the internal buffer.
@@ -1325,6 +1693,9 @@
     /// * In order to empty the incoming plaintext data buffer, you should empty it through
     ///   the [`reader()`] after the call to [`process_new_packets()`].
     ///
+    /// This function also returns `Ok(0)` once a `close_notify` alert has been successfully
+    /// received.  No additional data is ever read in this state.
+    ///
     /// [`process_new_packets()`]: ConnectionCommon::process_new_packets
     /// [`reader()`]: ConnectionCommon::reader
     </span><span class="kw">pub fn </span>read_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rd: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Read) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
@@ -1333,6 +1704,10 @@
                 io::ErrorKind::Other,
                 <span class="string">"received plaintext buffer full"</span>,
             ));
+        }
+
+        <span class="kw">if </span><span class="self">self</span>.has_received_close_notify {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="number">0</span>);
         }
 
         <span class="kw">let </span>res = <span class="self">self
@@ -1355,51 +1730,6 @@
     </span><span class="kw">pub fn </span>write_tls(<span class="kw-2">&amp;mut </span><span class="self">self</span>, wr: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>io::Write) -&gt; <span class="prelude-ty">Result</span>&lt;usize, io::Error&gt; {
         <span class="self">self</span>.sendable_tls.write_to(wr)
     }
-
-    <span class="doccomment">/// Derives key material from the agreed connection secrets.
-    ///
-    /// This function fills in `output` with `output.len()` bytes of key
-    /// material derived from the master session secret using `label`
-    /// and `context` for diversification. Ownership of the buffer is taken
-    /// by the function and returned via the Ok result to ensure no key
-    /// material leaks if the function fails.
-    ///
-    /// See RFC5705 for more details on what this does and is for.
-    ///
-    /// For TLS1.3 connections, this function does not use the
-    /// "early" exporter at any point.
-    ///
-    /// This function fails if called prior to the handshake completing;
-    /// check with [`CommonState::is_handshaking`] first.
-    ///
-    /// This function fails if `output.len()` is zero.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        output: T,
-        label: <span class="kw-2">&amp;</span>[u8],
-        context: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
-        <span class="self">self</span>.core
-            .export_keying_material(output, label, context)
-    }
-
-    <span class="doccomment">/// Extract secrets, so they can be used when configuring kTLS, for example.
-    /// Should be used with care as it exposes secret key material.
-    </span><span class="kw">pub fn </span>dangerous_extract_secrets(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ExtractedSecrets, Error&gt; {
-        <span class="kw">if </span>!<span class="self">self</span>.enable_secret_extraction {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::General(<span class="string">"Secret extraction is disabled"</span>.into()));
-        }
-
-        <span class="kw">let </span>st = <span class="self">self</span>.core.state<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>record_layer = <span class="self">self</span>.core.common_state.record_layer;
-        <span class="kw">let </span>PartiallyExtractedSecrets { tx, rx } = st.extract_secrets()<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(ExtractedSecrets {
-            tx: (record_layer.write_seq(), tx),
-            rx: (record_layer.read_seq(), rx),
-        })
-    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Data&gt; From&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>ConnectionCommon&lt;Data&gt;&gt; <span class="kw">for </span>Context&lt;<span class="lifetime">'a</span>, Data&gt; {
@@ -1407,6 +1737,7 @@
         <span class="self">Self </span>{
             common: <span class="kw-2">&amp;mut </span>conn.core.common_state,
             data: <span class="kw-2">&amp;mut </span>conn.core.data,
+            sendable_plaintext: <span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>conn.sendable_plaintext),
         }
     }
 }
@@ -1430,7 +1761,31 @@
         <span class="self">Self </span>{
             core,
             deframer_buffer: DeframerVecBuffer::default(),
+            sendable_plaintext: ChunkVecBuffer::new(<span class="prelude-val">Some</span>(DEFAULT_BUFFER_LIMIT)),
         }
+    }
+}
+
+<span class="doccomment">/// Interface shared by unbuffered client and server connections.
+</span><span class="kw">pub struct </span>UnbufferedConnectionCommon&lt;Data&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) core: ConnectionCore&lt;Data&gt;,
+    wants_write: bool,
+}
+
+<span class="kw">impl</span>&lt;Data&gt; From&lt;ConnectionCore&lt;Data&gt;&gt; <span class="kw">for </span>UnbufferedConnectionCommon&lt;Data&gt; {
+    <span class="kw">fn </span>from(core: ConnectionCore&lt;Data&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            core,
+            wants_write: <span class="bool-val">false</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span>&lt;T&gt; Deref <span class="kw">for </span>UnbufferedConnectionCommon&lt;T&gt; {
+    <span class="kw">type </span>Target = CommonState;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.core.common_state
     }
 }
 
@@ -1454,6 +1809,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>process_new_packets(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         deframer_buffer: <span class="kw-2">&amp;mut </span>DeframerVecBuffer,
+        sendable_plaintext: <span class="kw-2">&amp;mut </span>ChunkVecBuffer,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;IoState, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="kw">match </span>mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.state, <span class="prelude-val">Err</span>(Error::HandshakeNotComplete)) {
             <span class="prelude-val">Ok</span>(state) =&gt; state,
@@ -1463,31 +1819,60 @@
             }
         };
 
-        <span class="kw">let </span><span class="kw-2">mut </span>borrowed_buffer = deframer_buffer.borrow();
-        <span class="kw">while let </span><span class="prelude-val">Some</span>(msg) = <span class="self">self</span>.deframe(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>state), <span class="kw-2">&amp;mut </span>borrowed_buffer)<span class="question-mark">? </span>{
-            <span class="kw">match </span><span class="self">self</span>.process_msg(msg, state) {
+        <span class="kw">let </span><span class="kw-2">mut </span>discard = <span class="number">0</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>borrowed_buffer = deframer_buffer.borrow();
+            borrowed_buffer.queue_discard(discard);
+
+            <span class="kw">let </span>res = <span class="self">self</span>.deframe(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;*</span>state), <span class="kw-2">&amp;mut </span>borrowed_buffer);
+            discard = borrowed_buffer.pending_discard();
+
+            <span class="kw">let </span>opt_msg = <span class="kw">match </span>res {
+                <span class="prelude-val">Ok</span>(opt_msg) =&gt; opt_msg,
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="self">self</span>.state = <span class="prelude-val">Err</span>(e.clone());
+                    deframer_buffer.discard(discard);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(e);
+                }
+            };
+
+            <span class="kw">let </span>msg = <span class="kw">match </span>opt_msg {
+                <span class="prelude-val">Some</span>(msg) =&gt; msg,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
+            };
+
+            <span class="kw">match </span><span class="self">self</span>.process_msg(msg, state, <span class="prelude-val">Some</span>(sendable_plaintext)) {
                 <span class="prelude-val">Ok</span>(new) =&gt; state = new,
                 <span class="prelude-val">Err</span>(e) =&gt; {
                     <span class="self">self</span>.state = <span class="prelude-val">Err</span>(e.clone());
-                    <span class="kw">let </span>discard = borrowed_buffer.pending_discard();
                     deframer_buffer.discard(discard);
                     <span class="kw">return </span><span class="prelude-val">Err</span>(e);
                 }
             }
+
+            <span class="kw">if </span><span class="self">self
+                </span>.common_state
+                .has_received_close_notify
+            {
+                <span class="comment">// "Any data received after a closure alert has been received MUST be ignored."
+                // -- &lt;https://datatracker.ietf.org/doc/html/rfc8446#section-6.1&gt;
+                // This is data that has already been accepted in `read_tls`.
+                </span>discard += borrowed_buffer.filled().len();
+                <span class="kw">break</span>;
+            }
         }
 
-        <span class="kw">let </span>discard = borrowed_buffer.pending_discard();
         deframer_buffer.discard(discard);
         <span class="self">self</span>.state = <span class="prelude-val">Ok</span>(state);
         <span class="prelude-val">Ok</span>(<span class="self">self</span>.common_state.current_io_state())
     }
 
     <span class="doccomment">/// Pull a message out of the deframer and send any messages that need to be sent as a result.
-    </span><span class="kw">fn </span>deframe(
+    </span><span class="kw">fn </span>deframe&lt;<span class="lifetime">'b</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         state: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>State&lt;Data&gt;&gt;,
-        deframer_buffer: <span class="kw-2">&amp;mut </span>DeframerSliceBuffer,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;PlainMessage&gt;, Error&gt; {
+        deframer_buffer: <span class="kw-2">&amp;mut </span>DeframerSliceBuffer&lt;<span class="lifetime">'b</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;InboundPlainMessage&lt;<span class="lifetime">'b</span>&gt;&gt;, Error&gt; {
         <span class="kw">match </span><span class="self">self</span>.message_deframer.pop(
             <span class="kw-2">&amp;mut </span><span class="self">self</span>.common_state.record_layer,
             <span class="self">self</span>.common_state.negotiated_version,
@@ -1542,8 +1927,9 @@
 
     <span class="kw">fn </span>process_msg(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        msg: PlainMessage,
+        msg: InboundPlainMessage&lt;<span class="lifetime">'_</span>&gt;,
         state: Box&lt;<span class="kw">dyn </span>State&lt;Data&gt;&gt;,
+        sendable_plaintext: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ChunkVecBuffer&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="kw">dyn </span>State&lt;Data&gt;&gt;, Error&gt; {
         <span class="comment">// Drop CCS messages during handshake in TLS1.3
         </span><span class="kw">if </span>msg.typ == ContentType::ChangeCipherSpec
@@ -1552,9 +1938,7 @@
                 .may_receive_application_data
             &amp;&amp; <span class="self">self</span>.common_state.is_tls13()
         {
-            <span class="kw">if </span>!is_valid_ccs(<span class="kw-2">&amp;</span>msg)
-                || <span class="self">self</span>.common_state.received_middlebox_ccs &gt; TLS13_MAX_DROPPED_CCS
-            {
+            <span class="kw">if </span>!msg.is_valid_ccs() {
                 <span class="comment">// "An implementation which receives any other change_cipher_spec value or
                 //  which receives a protected change_cipher_spec record MUST abort the
                 //  handshake with an "unexpected_message" alert."
@@ -1562,11 +1946,12 @@
                     AlertDescription::UnexpectedMessage,
                     PeerMisbehaved::IllegalMiddleboxChangeCipherSpec,
                 ));
-            } <span class="kw">else </span>{
-                <span class="self">self</span>.common_state.received_middlebox_ccs += <span class="number">1</span>;
-                <span class="macro">trace!</span>(<span class="string">"Dropping CCS"</span>);
-                <span class="kw">return </span><span class="prelude-val">Ok</span>(state);
             }
+
+            <span class="self">self</span>.common_state
+                .received_tls13_change_cipher_spec()<span class="question-mark">?</span>;
+            <span class="macro">trace!</span>(<span class="string">"Dropping CCS"</span>);
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(state);
         }
 
         <span class="comment">// Now we can fully parse the message payload.
@@ -1586,7 +1971,7 @@
         }
 
         <span class="self">self</span>.common_state
-            .process_main_protocol(msg, state, <span class="kw-2">&amp;mut </span><span class="self">self</span>.data)
+            .process_main_protocol(msg, state, <span class="kw-2">&amp;mut </span><span class="self">self</span>.data, sendable_plaintext)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>export_keying_material&lt;T: AsMut&lt;[u8]&gt;&gt;(
@@ -1608,11 +1993,26 @@
             <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e.clone()),
         }
     }
+
+    <span class="doccomment">/// Trigger a `refresh_traffic_keys` if required by `CommonState`.
+    </span><span class="kw">fn </span>maybe_refresh_traffic_keys(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span>mem::take(
+            <span class="kw-2">&amp;mut </span><span class="self">self
+                </span>.common_state
+                .refresh_traffic_keys_pending,
+        ) {
+            <span class="kw">let _ </span>= <span class="self">self</span>.refresh_traffic_keys();
+        }
+    }
+
+    <span class="kw">fn </span>refresh_traffic_keys(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.state {
+            <span class="prelude-val">Ok</span>(st) =&gt; st.send_key_update_request(<span class="kw-2">&amp;mut </span><span class="self">self</span>.common_state),
+            <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e.clone()),
+        }
+    }
 }
 
 <span class="doccomment">/// Data specific to the peer's side (client or server).
 </span><span class="kw">pub trait </span>SideData: Debug {}
-
-<span class="kw">const </span>UNEXPECTED_EOF_MESSAGE: <span class="kw-2">&amp;</span>str = <span class="string">"peer closed connection without sending TLS close_notify: \
-https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof"</span>;
 </code></pre></div></section></main></body></html>

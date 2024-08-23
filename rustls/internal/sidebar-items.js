@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["msgs","record_layer"]};

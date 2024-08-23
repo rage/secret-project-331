@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.4/src/async_impl/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.5/src/async_impl/client.rs`."><title>client.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -2773,6 +2773,34 @@
 <a href="#2772" id="2772">2772</a>
 <a href="#2773" id="2773">2773</a>
 <a href="#2774" id="2774">2774</a>
+<a href="#2775" id="2775">2775</a>
+<a href="#2776" id="2776">2776</a>
+<a href="#2777" id="2777">2777</a>
+<a href="#2778" id="2778">2778</a>
+<a href="#2779" id="2779">2779</a>
+<a href="#2780" id="2780">2780</a>
+<a href="#2781" id="2781">2781</a>
+<a href="#2782" id="2782">2782</a>
+<a href="#2783" id="2783">2783</a>
+<a href="#2784" id="2784">2784</a>
+<a href="#2785" id="2785">2785</a>
+<a href="#2786" id="2786">2786</a>
+<a href="#2787" id="2787">2787</a>
+<a href="#2788" id="2788">2788</a>
+<a href="#2789" id="2789">2789</a>
+<a href="#2790" id="2790">2790</a>
+<a href="#2791" id="2791">2791</a>
+<a href="#2792" id="2792">2792</a>
+<a href="#2793" id="2793">2793</a>
+<a href="#2794" id="2794">2794</a>
+<a href="#2795" id="2795">2795</a>
+<a href="#2796" id="2796">2796</a>
+<a href="#2797" id="2797">2797</a>
+<a href="#2798" id="2798">2798</a>
+<a href="#2799" id="2799">2799</a>
+<a href="#2800" id="2800">2800</a>
+<a href="#2801" id="2801">2801</a>
+<a href="#2802" id="2802">2802</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>,))]
 </span><span class="kw">use </span>std::any::Any;
 <span class="kw">use </span>std::net::IpAddr;
@@ -3340,10 +3368,23 @@
                         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::builder(<span class="string">"empty supported tls versions"</span>));
                     }
 
+                    <span class="comment">// Allow user to have installed a runtime default.
+                    // If not, we use ring.
+                    </span><span class="kw">let </span>provider = rustls::crypto::CryptoProvider::get_default()
+                        .map(|arc| arc.clone())
+                        .unwrap_or_else(|| {
+                            <span class="attr">#[cfg(not(feature = <span class="string">"__rustls-ring"</span>))]
+                            </span><span class="macro">panic!</span>(<span class="string">"No provider set"</span>);
+
+                            <span class="attr">#[cfg(feature = <span class="string">"__rustls-ring"</span>)]
+                            </span>Arc::new(rustls::crypto::ring::default_provider())
+                        });
+
                     <span class="comment">// Build TLS config
-                    </span><span class="kw">let </span>config_builder =
-                        rustls::ClientConfig::builder_with_protocol_versions(<span class="kw-2">&amp;</span>versions)
-                            .with_root_certificates(root_cert_store);
+                    </span><span class="kw">let </span>config_builder = rustls::ClientConfig::builder_with_provider(provider)
+                        .with_protocol_versions(<span class="kw-2">&amp;</span>versions)
+                        .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::error::builder(<span class="string">"invalid TLS versions"</span>))<span class="question-mark">?
+                        </span>.with_root_certificates(root_cert_store);
 
                     <span class="comment">// Finalize TLS config
                     </span><span class="kw">let </span><span class="kw-2">mut </span>tls = <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = config.identity {
@@ -4080,6 +4121,8 @@
     /// # Example
     ///
     /// ```
+    /// # #[cfg(all(feature = "__rustls", not(feature = "__rustls-ring")))]
+    /// # let _ = rustls::crypto::ring::default_provider().install_default();
     /// use std::net::IpAddr;
     /// let local_addr = IpAddr::from([12, 4, 1, 8]);
     /// let client = reqwest::Client::builder()
@@ -4099,6 +4142,8 @@
     /// # Example
     ///
     /// ```
+    /// # #[cfg(all(feature = "__rustls", not(feature = "__rustls-ring")))]
+    /// # let _ = rustls::crypto::ring::default_provider().install_default();
     /// let interface = "lo";
     /// let client = reqwest::Client::builder()
     ///     .interface(interface)
@@ -4573,7 +4618,7 @@
     /// The default is false.
     </span><span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     #[cfg_attr(docsrs, doc(cfg(all(reqwest_unstable, feature = <span class="string">"http3"</span>,))))]
-    </span><span class="kw">pub fn </span>set_tls_enable_early_data(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
+    </span><span class="kw">pub fn </span>tls_early_data(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.tls_enable_early_data = enabled;
         <span class="self">self
     </span>}
@@ -4585,7 +4630,7 @@
     /// [`TransportConfig`]: https://docs.rs/quinn/latest/quinn/struct.TransportConfig.html
     </span><span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     #[cfg_attr(docsrs, doc(cfg(all(reqwest_unstable, feature = <span class="string">"http3"</span>,))))]
-    </span><span class="kw">pub fn </span>set_quic_max_idle_timeout(<span class="kw-2">mut </span><span class="self">self</span>, value: Duration) -&gt; ClientBuilder {
+    </span><span class="kw">pub fn </span>http3_max_idle_timeout(<span class="kw-2">mut </span><span class="self">self</span>, value: Duration) -&gt; ClientBuilder {
         <span class="self">self</span>.config.quic_max_idle_timeout = <span class="prelude-val">Some</span>(value);
         <span class="self">self
     </span>}
@@ -4596,10 +4641,14 @@
     /// Please see docs in [`TransportConfig`] in [`quinn`].
     ///
     /// [`TransportConfig`]: https://docs.rs/quinn/latest/quinn/struct.TransportConfig.html
+    ///
+    /// # Panics
+    ///
+    /// Panics if the value is over 2^62.
     </span><span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     #[cfg_attr(docsrs, doc(cfg(all(reqwest_unstable, feature = <span class="string">"http3"</span>,))))]
-    </span><span class="kw">pub fn </span>set_quic_stream_receive_window(<span class="kw-2">mut </span><span class="self">self</span>, value: VarInt) -&gt; ClientBuilder {
-        <span class="self">self</span>.config.quic_stream_receive_window = <span class="prelude-val">Some</span>(value);
+    </span><span class="kw">pub fn </span>http3_stream_receive_window(<span class="kw-2">mut </span><span class="self">self</span>, value: u64) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.quic_stream_receive_window = <span class="prelude-val">Some</span>(value.try_into().unwrap());
         <span class="self">self
     </span>}
 
@@ -4609,10 +4658,14 @@
     /// Please see docs in [`TransportConfig`] in [`quinn`].
     ///
     /// [`TransportConfig`]: https://docs.rs/quinn/latest/quinn/struct.TransportConfig.html
+    ///
+    /// # Panics
+    ///
+    /// Panics if the value is over 2^62.
     </span><span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     #[cfg_attr(docsrs, doc(cfg(all(reqwest_unstable, feature = <span class="string">"http3"</span>,))))]
-    </span><span class="kw">pub fn </span>set_quic_receive_window(<span class="kw-2">mut </span><span class="self">self</span>, value: VarInt) -&gt; ClientBuilder {
-        <span class="self">self</span>.config.quic_receive_window = <span class="prelude-val">Some</span>(value);
+    </span><span class="kw">pub fn </span>http3_conn_receive_window(<span class="kw-2">mut </span><span class="self">self</span>, value: u64) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.quic_receive_window = <span class="prelude-val">Some</span>(value.try_into().unwrap());
         <span class="self">self
     </span>}
 
@@ -4623,7 +4676,7 @@
     /// [`TransportConfig`]: https://docs.rs/quinn/latest/quinn/struct.TransportConfig.html
     </span><span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
     #[cfg_attr(docsrs, doc(cfg(all(reqwest_unstable, feature = <span class="string">"http3"</span>,))))]
-    </span><span class="kw">pub fn </span>set_quic_send_window(<span class="kw-2">mut </span><span class="self">self</span>, value: u64) -&gt; ClientBuilder {
+    </span><span class="kw">pub fn </span>http3_send_window(<span class="kw-2">mut </span><span class="self">self</span>, value: u64) -&gt; ClientBuilder {
         <span class="self">self</span>.config.quic_send_window = <span class="prelude-val">Some</span>(value);
         <span class="self">self
     </span>}
@@ -5154,7 +5207,7 @@
         <span class="self">self</span>.project().headers
     }
 
-    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    <span class="attr">#[cfg(any(feature = <span class="string">"http2"</span>, feature = <span class="string">"http3"</span>))]
     </span><span class="kw">fn </span>retry_error(<span class="kw-2">mut </span><span class="self">self</span>: Pin&lt;<span class="kw-2">&amp;mut </span><span class="self">Self</span>&gt;, err: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) -&gt; bool {
         <span class="kw">use </span>log::trace;
 
@@ -5214,7 +5267,7 @@
     </span>}
 }
 
-<span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+<span class="attr">#[cfg(any(feature = <span class="string">"http2"</span>, feature = <span class="string">"http3"</span>))]
 </span><span class="kw">fn </span>is_retryable_error(err: <span class="kw-2">&amp;</span>(<span class="kw">dyn </span>std::error::Error + <span class="lifetime">'static</span>)) -&gt; bool {
     <span class="comment">// pop the legacy::Error
     </span><span class="kw">let </span>err = <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = err.source() {
@@ -5232,7 +5285,8 @@
         }
     }
 
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(cause) = err.source() {
+    <span class="attr">#[cfg(feature = <span class="string">"http2"</span>)]
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(cause) = err.source() {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = cause.downcast_ref::&lt;h2::Error&gt;() {
             <span class="comment">// They sent us a graceful shutdown, try with a new connection!
             </span><span class="kw">if </span>err.is_go_away() &amp;&amp; err.is_remote() &amp;&amp; err.reason() == <span class="prelude-val">Some</span>(h2::Reason::NO_ERROR) {
@@ -5308,7 +5362,7 @@
                             <span class="kw">crate</span>::error::request(e).with_url(<span class="self">self</span>.url.clone())
                         ));
                     }
-                    Poll::Ready(<span class="prelude-val">Ok</span>(res)) =&gt; res,
+                    Poll::Ready(<span class="prelude-val">Ok</span>(res)) =&gt; res.map(<span class="kw">super</span>::body::boxed),
                     Poll::Pending =&gt; <span class="kw">return </span>Poll::Pending,
                 },
                 <span class="attr">#[cfg(feature = <span class="string">"http3"</span>)]
@@ -5522,7 +5576,9 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="attr">#[tokio::test]
+    <span class="attr">#![cfg(not(feature = <span class="string">"rustls-tls-manual-roots-no-provider"</span>))]
+
+    #[tokio::test]
     </span><span class="kw">async fn </span>execute_request_rejects_invalid_urls() {
         <span class="kw">let </span>url_str = <span class="string">"hxxps://www.rust-lang.org/"</span>;
         <span class="kw">let </span>url = url::Url::parse(url_str).unwrap();

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/msgs/enums.rs`."><title>enums.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/msgs/enums.rs`."><title>enums.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -425,10 +425,65 @@
 <a href="#424" id="424">424</a>
 <a href="#425" id="425">425</a>
 <a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::upper_case_acronyms)]
 #![allow(non_camel_case_types)]
-</span><span class="doccomment">/// This file is autogenerated.  See https://github.com/ctz/tls-hacking/
-</span><span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
+</span><span class="kw">use </span><span class="kw">crate</span>::crypto::KeyExchangeAlgorithm;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
 
 <span class="macro">enum_builder! </span>{
     <span class="doccomment">/// The `HashAlgorithm` TLS protocol enum.  Values in this enum are taken
@@ -442,8 +497,8 @@
         SHA224 =&gt; <span class="number">0x03</span>,
         SHA256 =&gt; <span class="number">0x04</span>,
         SHA384 =&gt; <span class="number">0x05</span>,
-        SHA512 =&gt; <span class="number">0x06
-    </span>}
+        SHA512 =&gt; <span class="number">0x06</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -461,8 +516,8 @@
         FortezzaDMS =&gt; <span class="number">0x14</span>,
         ECDSASign =&gt; <span class="number">0x40</span>,
         RSAFixedECDH =&gt; <span class="number">0x41</span>,
-        ECDSAFixedECDH =&gt; <span class="number">0x42
-    </span>}
+        ECDSAFixedECDH =&gt; <span class="number">0x42</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -473,8 +528,8 @@
     <span class="kw">pub enum </span>Compression {
         Null =&gt; <span class="number">0x00</span>,
         Deflate =&gt; <span class="number">0x01</span>,
-        LSZ =&gt; <span class="number">0x40
-    </span>}
+        LSZ =&gt; <span class="number">0x40</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -484,8 +539,8 @@
     </span>@U8
     <span class="kw">pub enum </span>AlertLevel {
         Warning =&gt; <span class="number">0x01</span>,
-        Fatal =&gt; <span class="number">0x02
-    </span>}
+        Fatal =&gt; <span class="number">0x02</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -495,8 +550,8 @@
     </span>@U8
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>HeartbeatMessageType {
         Request =&gt; <span class="number">0x01</span>,
-        Response =&gt; <span class="number">0x02
-    </span>}
+        Response =&gt; <span class="number">0x02</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -504,7 +559,7 @@
     /// from the various RFCs covering TLS, and are listed by IANA.
     /// The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U16
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ExtensionType {
+    <span class="kw">pub enum </span>ExtensionType {
         ServerName =&gt; <span class="number">0x0000</span>,
         MaxFragmentLength =&gt; <span class="number">0x0001</span>,
         ClientCertificateUrl =&gt; <span class="number">0x0002</span>,
@@ -525,6 +580,7 @@
         SCT =&gt; <span class="number">0x0012</span>,
         Padding =&gt; <span class="number">0x0015</span>,
         ExtendedMasterSecret =&gt; <span class="number">0x0017</span>,
+        CompressCertificate =&gt; <span class="number">0x001b</span>,
         SessionTicket =&gt; <span class="number">0x0023</span>,
         PreSharedKey =&gt; <span class="number">0x0029</span>,
         EarlyData =&gt; <span class="number">0x002a</span>,
@@ -541,8 +597,38 @@
         NextProtocolNegotiation =&gt; <span class="number">0x3374</span>,
         ChannelId =&gt; <span class="number">0x754f</span>,
         RenegotiationInfo =&gt; <span class="number">0xff01</span>,
-        TransportParametersDraft =&gt; <span class="number">0xffa5
+        TransportParametersDraft =&gt; <span class="number">0xffa5</span>,
+        EncryptedClientHello =&gt; <span class="number">0xfe0d</span>, <span class="comment">// https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18#section-11.1
+        </span>EncryptedClientHelloOuterExtensions =&gt; <span class="number">0xfd00</span>, <span class="comment">// https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18#section-5.1
     </span>}
+}
+
+<span class="kw">impl </span>ExtensionType {
+    <span class="doccomment">/// Returns true if the extension type can be compressed in an "inner" client hello for ECH.
+    ///
+    /// This function should only return true for extension types where the inner hello and outer
+    /// hello extensions values will always be identical. Extensions that may be identical
+    /// sometimes (e.g. server name, cert compression methods), but not always, SHOULD NOT be
+    /// compressed.
+    ///
+    /// See [draft-ietf-esni-18 §5](https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18#section-5)
+    /// and [draft-ietf-esni-18 §10.5](https://datatracker.ietf.org/doc/html/draft-ietf-tls-esni-18#section-10.5)
+    /// for more information.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>ech_compress(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="comment">// We match which extensions we will compress with BoringSSL and Go's stdlib.
+        </span><span class="macro">matches!</span>(
+            <span class="self">self</span>,
+            <span class="self">Self</span>::StatusRequest
+                | <span class="self">Self</span>::EllipticCurves
+                | <span class="self">Self</span>::SignatureAlgorithms
+                | <span class="self">Self</span>::SignatureAlgorithmsCert
+                | <span class="self">Self</span>::ALProtocolNegotiation
+                | <span class="self">Self</span>::SupportedVersions
+                | <span class="self">Self</span>::Cookie
+                | <span class="self">Self</span>::KeyShare
+                | <span class="self">Self</span>::PSKKeyExchangeModes
+        )
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -551,8 +637,8 @@
     /// The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ServerNameType {
-        HostName =&gt; <span class="number">0x00
-    </span>}
+        HostName =&gt; <span class="number">0x00</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -597,8 +683,8 @@
         X25519 =&gt; <span class="number">0x001d</span>,
         X448 =&gt; <span class="number">0x001e</span>,
         arbitrary_explicit_prime_curves =&gt; <span class="number">0xff01</span>,
-        arbitrary_explicit_char2_curves =&gt; <span class="number">0xff02
-    </span>}
+        arbitrary_explicit_char2_curves =&gt; <span class="number">0xff02</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -616,8 +702,18 @@
         FFDHE3072 =&gt; <span class="number">0x0101</span>,
         FFDHE4096 =&gt; <span class="number">0x0102</span>,
         FFDHE6144 =&gt; <span class="number">0x0103</span>,
-        FFDHE8192 =&gt; <span class="number">0x0104
-    </span>}
+        FFDHE8192 =&gt; <span class="number">0x0104</span>,
+    }
+}
+
+<span class="kw">impl </span>NamedGroup {
+    <span class="doccomment">/// Return the key exchange algorithm associated with this `NamedGroup`
+    </span><span class="kw">pub fn </span>key_exchange_algorithm(<span class="self">self</span>) -&gt; KeyExchangeAlgorithm {
+        <span class="kw">match </span>u16::from(<span class="self">self</span>) {
+            x <span class="kw">if </span>(<span class="number">0x100</span>..<span class="number">0x200</span>).contains(<span class="kw-2">&amp;</span>x) =&gt; KeyExchangeAlgorithm::DHE,
+            <span class="kw">_ </span>=&gt; KeyExchangeAlgorithm::ECDHE,
+        }
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -628,8 +724,8 @@
     <span class="kw">pub enum </span>ECPointFormat {
         Uncompressed =&gt; <span class="number">0x00</span>,
         ANSIX962CompressedPrime =&gt; <span class="number">0x01</span>,
-        ANSIX962CompressedChar2 =&gt; <span class="number">0x02
-    </span>}
+        ANSIX962CompressedChar2 =&gt; <span class="number">0x02</span>,
+    }
 }
 
 <span class="kw">impl </span>ECPointFormat {
@@ -643,8 +739,8 @@
     </span>@U8
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>HeartbeatMode {
         PeerAllowedToSend =&gt; <span class="number">0x01</span>,
-        PeerNotAllowedToSend =&gt; <span class="number">0x02
-    </span>}
+        PeerNotAllowedToSend =&gt; <span class="number">0x02</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -655,8 +751,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ECCurveType {
         ExplicitPrime =&gt; <span class="number">0x01</span>,
         ExplicitChar2 =&gt; <span class="number">0x02</span>,
-        NamedCurve =&gt; <span class="number">0x03
-    </span>}
+        NamedCurve =&gt; <span class="number">0x03</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -666,8 +762,8 @@
     </span>@U8
     <span class="kw">pub enum </span>PSKKeyExchangeMode {
         PSK_KE =&gt; <span class="number">0x00</span>,
-        PSK_DHE_KE =&gt; <span class="number">0x01
-    </span>}
+        PSK_DHE_KE =&gt; <span class="number">0x01</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -677,8 +773,8 @@
     </span>@U8
     <span class="kw">pub enum </span>KeyUpdateRequest {
         UpdateNotRequested =&gt; <span class="number">0x00</span>,
-        UpdateRequested =&gt; <span class="number">0x01
-    </span>}
+        UpdateRequested =&gt; <span class="number">0x01</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -687,8 +783,8 @@
     /// The `Unknown` item is used when processing unrecognised ordinals.
     </span>@U8
     <span class="kw">pub enum </span>CertificateStatusType {
-        OCSP =&gt; <span class="number">0x01
-    </span>}
+        OCSP =&gt; <span class="number">0x01</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -702,8 +798,8 @@
         DHKEM_P384_HKDF_SHA384 =&gt; <span class="number">0x0011</span>,
         DHKEM_P521_HKDF_SHA512 =&gt; <span class="number">0x0012</span>,
         DHKEM_X25519_HKDF_SHA256 =&gt; <span class="number">0x0020</span>,
-        DHKEM_X448_HKDF_SHA512 =&gt; <span class="number">0x0021
-    </span>}
+        DHKEM_X448_HKDF_SHA512 =&gt; <span class="number">0x0021</span>,
+    }
 }
 
 <span class="macro">enum_builder! </span>{
@@ -715,8 +811,8 @@
     <span class="kw">pub enum </span>HpkeKdf {
         HKDF_SHA256 =&gt; <span class="number">0x0001</span>,
         HKDF_SHA384 =&gt; <span class="number">0x0002</span>,
-        HKDF_SHA512 =&gt; <span class="number">0x0003
-    </span>}
+        HKDF_SHA512 =&gt; <span class="number">0x0003</span>,
+    }
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>HpkeKdf {
@@ -736,8 +832,21 @@
         AES_128_GCM =&gt; <span class="number">0x0001</span>,
         AES_256_GCM =&gt; <span class="number">0x0002</span>,
         CHACHA20_POLY_1305 =&gt; <span class="number">0x0003</span>,
-        EXPORT_ONLY =&gt; <span class="number">0xFFFF
-    </span>}
+        EXPORT_ONLY =&gt; <span class="number">0xFFFF</span>,
+    }
+}
+
+<span class="kw">impl </span>HpkeAead {
+    <span class="doccomment">/// Returns the length of the tag for the AEAD algorithm, or none if the AEAD is EXPORT_ONLY.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>tag_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            <span class="comment">// See RFC 9180 Section 7.3, column `Nt`, the length in bytes of the authentication tag
+            // for the algorithm.
+            // https://www.rfc-editor.org/rfc/rfc9180.html#section-7.3
+            </span><span class="self">Self</span>::AES_128_GCM | <span class="self">Self</span>::AES_256_GCM | <span class="self">Self</span>::CHACHA20_POLY_1305 =&gt; <span class="prelude-val">Some</span>(<span class="number">16</span>),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+        }
+    }
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>HpkeAead {
@@ -756,8 +865,8 @@
     /// [draft-ietf-tls-esni Section 4]: &lt;https://www.ietf.org/archive/id/draft-ietf-tls-esni-17.html#section-4&gt;
     </span>@U16
     <span class="kw">pub enum </span>EchVersion {
-        V14 =&gt; <span class="number">0xfe0d
-    </span>}
+        V18 =&gt; <span class="number">0xfe0d</span>,
+    }
 }
 
 <span class="attr">#[cfg(test)]
@@ -765,8 +874,9 @@
     <span class="comment">// These tests are intended to provide coverage and
     // check panic-safety of relatively unused values.
 
-    </span><span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
+    </span><span class="kw">use </span>std::prelude::v1::<span class="kw-2">*</span>;
+
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_enums() {
@@ -811,7 +921,7 @@
         );
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>test_enum8&lt;T: Codec&gt;(first: T, last: T) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>test_enum8&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Codec&lt;<span class="lifetime">'a</span>&gt;&gt;(first: T, last: T) {
         <span class="kw">let </span>first_v = get8(<span class="kw-2">&amp;</span>first);
         <span class="kw">let </span>last_v = get8(<span class="kw-2">&amp;</span>last);
 
@@ -825,7 +935,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>test_enum16&lt;T: Codec&gt;(first: T, last: T) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>test_enum16&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Codec&lt;<span class="lifetime">'a</span>&gt;&gt;(first: T, last: T) {
         <span class="kw">let </span>first_v = get16(<span class="kw-2">&amp;</span>first);
         <span class="kw">let </span>last_v = get16(<span class="kw-2">&amp;</span>last);
 
@@ -839,13 +949,13 @@
         }
     }
 
-    <span class="kw">fn </span>get8&lt;T: Codec&gt;(enum_value: <span class="kw-2">&amp;</span>T) -&gt; u8 {
+    <span class="kw">fn </span>get8&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Codec&lt;<span class="lifetime">'a</span>&gt;&gt;(enum_value: <span class="kw-2">&amp;</span>T) -&gt; u8 {
         <span class="kw">let </span>enc = enum_value.get_encoding();
         <span class="macro">assert_eq!</span>(enc.len(), <span class="number">1</span>);
         enc[<span class="number">0</span>]
     }
 
-    <span class="kw">fn </span>get16&lt;T: Codec&gt;(enum_value: <span class="kw-2">&amp;</span>T) -&gt; u16 {
+    <span class="kw">fn </span>get16&lt;T: <span class="kw">for</span>&lt;<span class="lifetime">'a</span>&gt; Codec&lt;<span class="lifetime">'a</span>&gt;&gt;(enum_value: <span class="kw-2">&amp;</span>T) -&gt; u16 {
         <span class="kw">let </span>enc = enum_value.get_encoding();
         <span class="macro">assert_eq!</span>(enc.len(), <span class="number">2</span>);
         (enc[<span class="number">0</span>] <span class="kw">as </span>u16 &gt;&gt; <span class="number">8</span>) | (enc[<span class="number">1</span>] <span class="kw">as </span>u16)

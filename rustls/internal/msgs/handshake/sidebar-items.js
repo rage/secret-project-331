@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ClientExtension","HandshakePayload"],"struct":["CertificateChain","ClientHelloPayload","DistinguishedName","EchConfig","EchConfigContents","HandshakeMessagePayload","HpkeKeyConfig","HpkeSymmetricCipherSuite","KeyShareEntry","Random","SessionId"]};

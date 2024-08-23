@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes","duplicate_exam","edit_exam","export_points","export_submissions","get_exam","set_course","unset_course"],"struct":["ExamCourseInfo"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","duplicate_exam","edit_exam","export_points","export_submissions","get_exam","get_exercise_slide_submissions_and_user_exercise_states_with_exam_id","get_exercise_slide_submissions_and_user_exercise_states_with_exercise_id","get_exercises_with_exam_id","release_grades","set_course","unset_course"],"struct":["ExamCourseInfo"]};

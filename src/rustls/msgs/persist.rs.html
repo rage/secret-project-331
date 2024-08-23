@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/msgs/persist.rs`."><title>persist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/msgs/persist.rs`."><title>persist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -448,7 +448,15 @@
 <a href="#447" id="447">447</a>
 <a href="#448" id="448">448</a>
 <a href="#449" id="449">449</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, ProtocolVersion};
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::cmp;
+<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+</span><span class="kw">use </span>core::mem;
+
+<span class="kw">use </span>pki_types::{DnsName, UnixTime};
+<span class="kw">use </span>zeroize::Zeroizing;
+
+<span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, ProtocolVersion};
 <span class="kw">use </span><span class="kw">crate</span>::error::InvalidMessage;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::{PayloadU16, PayloadU8};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
@@ -458,14 +466,6 @@
 <span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::tls12::Tls12CipherSuite;
 <span class="kw">use </span><span class="kw">crate</span>::tls13::Tls13CipherSuite;
-
-<span class="kw">use </span>pki_types::{DnsName, UnixTime};
-<span class="kw">use </span>zeroize::Zeroizing;
-
-<span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::cmp;
-<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
-</span><span class="kw">use </span>core::mem;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Retrieved&lt;T&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) value: T,
@@ -532,7 +532,7 @@
         suite: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>Tls13CipherSuite,
         ticket: Vec&lt;u8&gt;,
         secret: <span class="kw-2">&amp;</span>[u8],
-        server_cert_chain: CertificateChain,
+        server_cert_chain: CertificateChain&lt;<span class="lifetime">'static</span>&gt;,
         time_now: UnixTime,
         lifetime_secs: u32,
         age_add: u32,
@@ -604,7 +604,7 @@
         session_id: SessionId,
         ticket: Vec&lt;u8&gt;,
         master_secret: <span class="kw-2">&amp;</span>[u8],
-        server_cert_chain: CertificateChain,
+        server_cert_chain: CertificateChain&lt;<span class="lifetime">'static</span>&gt;,
         time_now: UnixTime,
         lifetime_secs: u32,
         extended_ms: bool,
@@ -657,7 +657,7 @@
     secret: Zeroizing&lt;PayloadU8&gt;,
     epoch: u64,
     lifetime_secs: u32,
-    server_cert_chain: CertificateChain,
+    server_cert_chain: CertificateChain&lt;<span class="lifetime">'static</span>&gt;,
 }
 
 <span class="kw">impl </span>ClientSessionCommon {
@@ -666,7 +666,7 @@
         secret: <span class="kw-2">&amp;</span>[u8],
         time_now: UnixTime,
         lifetime_secs: u32,
-        server_cert_chain: CertificateChain,
+        server_cert_chain: CertificateChain&lt;<span class="lifetime">'static</span>&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             ticket: PayloadU16(ticket),
@@ -677,7 +677,7 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>server_cert_chain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CertificateChain {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>server_cert_chain(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CertificateChain&lt;<span class="lifetime">'static</span>&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.server_cert_chain
     }
 
@@ -706,7 +706,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) cipher_suite: CipherSuite,
     <span class="kw">pub</span>(<span class="kw">crate</span>) master_secret: Zeroizing&lt;PayloadU8&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) extended_ms: bool,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) client_cert_chain: <span class="prelude-ty">Option</span>&lt;CertificateChain&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) client_cert_chain: <span class="prelude-ty">Option</span>&lt;CertificateChain&lt;<span class="lifetime">'static</span>&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) alpn: <span class="prelude-ty">Option</span>&lt;PayloadU8&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) application_data: PayloadU16,
     <span class="kw">pub </span>creation_time_sec: u64,
@@ -714,7 +714,7 @@
     freshness: <span class="prelude-ty">Option</span>&lt;bool&gt;,
 }
 
-<span class="kw">impl </span>Codec <span class="kw">for </span>ServerSessionValue {
+<span class="kw">impl </span>Codec&lt;<span class="lifetime">'_</span>&gt; <span class="kw">for </span>ServerSessionValue {
     <span class="kw">fn </span>encode(<span class="kw-2">&amp;</span><span class="self">self</span>, bytes: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) {
         <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>sni) = <span class="self">self</span>.sni {
             <span class="number">1u8</span>.encode(bytes);
@@ -745,7 +745,7 @@
             .encode(bytes);
     }
 
-    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
+    <span class="kw">fn </span>read(r: <span class="kw-2">&amp;mut </span>Reader&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidMessage&gt; {
         <span class="kw">let </span>has_sni = u8::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>sni = <span class="kw">if </span>has_sni == <span class="number">1 </span>{
             <span class="kw">let </span>dns_name = PayloadU8::read(r)<span class="question-mark">?</span>;
@@ -765,7 +765,7 @@
         <span class="kw">let </span>ems = u8::read(r)<span class="question-mark">?</span>;
         <span class="kw">let </span>has_ccert = u8::read(r)<span class="question-mark">? </span>== <span class="number">1</span>;
         <span class="kw">let </span>ccert = <span class="kw">if </span>has_ccert {
-            <span class="prelude-val">Some</span>(CertificateChain::read(r)<span class="question-mark">?</span>)
+            <span class="prelude-val">Some</span>(CertificateChain::read(r)<span class="question-mark">?</span>.into_owned())
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>};
@@ -801,7 +801,7 @@
         v: ProtocolVersion,
         cs: CipherSuite,
         ms: <span class="kw-2">&amp;</span>[u8],
-        client_cert_chain: <span class="prelude-ty">Option</span>&lt;CertificateChain&gt;,
+        client_cert_chain: <span class="prelude-ty">Option</span>&lt;CertificateChain&lt;<span class="lifetime">'static</span>&gt;&gt;,
         alpn: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
         application_data: Vec&lt;u8&gt;,
         creation_time: UnixTime,
@@ -856,9 +856,9 @@
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span><span class="kw">crate</span>::enums::<span class="kw-2">*</span>;
 
-    <span class="attr">#[test]
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)] </span><span class="comment">// for UnixTime::now
+    </span><span class="attr">#[test]
     </span><span class="kw">fn </span>serversessionvalue_is_debug() {
         <span class="kw">use </span>std::{println, vec};
         <span class="kw">let </span>ssv = ServerSessionValue::new(

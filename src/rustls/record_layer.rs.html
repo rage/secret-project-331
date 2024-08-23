@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/record_layer.rs`."><title>record_layer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/record_layer.rs`."><title>record_layer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -295,17 +295,55 @@
 <a href="#294" id="294">294</a>
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{MessageDecrypter, MessageEncrypter};
-<span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{BorrowedPlainMessage, OpaqueMessage, PlainMessage};
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>core::cmp::min;
 
+<span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{InboundOpaqueMessage, MessageDecrypter, MessageEncrypter};
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::log::trace;
-
-<span class="kw">use </span>alloc::boxed::Box;
-
-<span class="kw">static </span>SEQ_SOFT_LIMIT: u64 = <span class="number">0xffff_ffff_ffff_0000u64</span>;
-<span class="kw">static </span>SEQ_HARD_LIMIT: u64 = <span class="number">0xffff_ffff_ffff_fffeu64</span>;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{InboundPlainMessage, OutboundOpaqueMessage, OutboundPlainMessage};
 
 <span class="attr">#[derive(PartialEq)]
 </span><span class="kw">enum </span>DirectionState {
@@ -323,6 +361,7 @@
 </span><span class="kw">pub struct </span>RecordLayer {
     message_encrypter: Box&lt;<span class="kw">dyn </span>MessageEncrypter&gt;,
     message_decrypter: Box&lt;<span class="kw">dyn </span>MessageDecrypter&gt;,
+    write_seq_max: u64,
     write_seq: u64,
     read_seq: u64,
     has_decrypted: bool,
@@ -341,6 +380,7 @@
         <span class="self">Self </span>{
             message_encrypter: &lt;<span class="kw">dyn </span>MessageEncrypter&gt;::invalid(),
             message_decrypter: &lt;<span class="kw">dyn </span>MessageDecrypter&gt;::invalid(),
+            write_seq_max: <span class="number">0</span>,
             write_seq: <span class="number">0</span>,
             read_seq: <span class="number">0</span>,
             has_decrypted: <span class="bool-val">false</span>,
@@ -355,10 +395,10 @@
     /// `encr` is a decoded message allegedly received from the peer.
     /// If it can be decrypted, its decryption is returned.  Otherwise,
     /// an error is returned.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decrypt_incoming(
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decrypt_incoming&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        encr: OpaqueMessage,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Decrypted&gt;, Error&gt; {
+        encr: InboundOpaqueMessage&lt;<span class="lifetime">'a</span>&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Decrypted&lt;<span class="lifetime">'a</span>&gt;&gt;, Error&gt; {
         <span class="kw">if </span><span class="self">self</span>.decrypt_state != DirectionState::Active {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(Decrypted {
                 want_close_before_decrypt: <span class="bool-val">false</span>,
@@ -376,7 +416,7 @@
         // failure has already happened.
         </span><span class="kw">let </span>want_close_before_decrypt = <span class="self">self</span>.read_seq == SEQ_SOFT_LIMIT;
 
-        <span class="kw">let </span>encrypted_len = encr.payload().len();
+        <span class="kw">let </span>encrypted_len = encr.payload.len();
         <span class="kw">match </span><span class="self">self
             </span>.message_decrypter
             .decrypt(encr, <span class="self">self</span>.read_seq)
@@ -403,9 +443,12 @@
     ///
     /// `plain` is a TLS message we'd like to send.  This function
     /// panics if the requisite keying material hasn't been established yet.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encrypt_outgoing(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plain: BorrowedPlainMessage) -&gt; OpaqueMessage {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encrypt_outgoing(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        plain: OutboundPlainMessage&lt;<span class="lifetime">'_</span>&gt;,
+    ) -&gt; OutboundOpaqueMessage {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.encrypt_state == DirectionState::Active);
-        <span class="macro">assert!</span>(!<span class="self">self</span>.encrypt_exhausted());
+        <span class="macro">assert!</span>(<span class="self">self</span>.next_pre_encrypt_action() != PreEncryptAction::Refuse);
         <span class="kw">let </span>seq = <span class="self">self</span>.write_seq;
         <span class="self">self</span>.write_seq += <span class="number">1</span>;
         <span class="self">self</span>.message_encrypter
@@ -415,9 +458,14 @@
 
     <span class="doccomment">/// Prepare to use the given `MessageEncrypter` for future message encryption.
     /// It is not used until you call `start_encrypting`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>prepare_message_encrypter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cipher: Box&lt;<span class="kw">dyn </span>MessageEncrypter&gt;) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>prepare_message_encrypter(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        cipher: Box&lt;<span class="kw">dyn </span>MessageEncrypter&gt;,
+        max_messages: u64,
+    ) {
         <span class="self">self</span>.message_encrypter = cipher;
         <span class="self">self</span>.write_seq = <span class="number">0</span>;
+        <span class="self">self</span>.write_seq_max = min(SEQ_SOFT_LIMIT, max_messages);
         <span class="self">self</span>.encrypt_state = DirectionState::Prepared;
     }
 
@@ -445,8 +493,12 @@
 
     <span class="doccomment">/// Set and start using the given `MessageEncrypter` for future outgoing
     /// message encryption.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_message_encrypter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cipher: Box&lt;<span class="kw">dyn </span>MessageEncrypter&gt;) {
-        <span class="self">self</span>.prepare_message_encrypter(cipher);
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_message_encrypter(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        cipher: Box&lt;<span class="kw">dyn </span>MessageEncrypter&gt;,
+        max_messages: u64,
+    ) {
+        <span class="self">self</span>.prepare_message_encrypter(cipher, max_messages);
         <span class="self">self</span>.start_encrypting();
     }
 
@@ -475,16 +527,20 @@
         <span class="self">self</span>.trial_decryption_len = <span class="prelude-val">None</span>;
     }
 
-    <span class="doccomment">/// Return true if we are getting close to encrypting too many
-    /// messages with our encryption key.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>wants_close_before_encrypt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.write_seq == SEQ_SOFT_LIMIT
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>next_pre_encrypt_action(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PreEncryptAction {
+        <span class="self">self</span>.pre_encrypt_action(<span class="number">0</span>)
     }
 
-    <span class="doccomment">/// Return true if we outright refuse to do anything with the
-    /// encryption key.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encrypt_exhausted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.write_seq &gt;= SEQ_HARD_LIMIT
+    <span class="doccomment">/// Return a remedial action when we are near to encrypting too many messages.
+    ///
+    /// `add` is added to the current sequence number.  `add` as `0` means
+    /// "the next message processed by `encrypt_outgoing`"
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>pre_encrypt_action(<span class="kw-2">&amp;</span><span class="self">self</span>, add: u64) -&gt; PreEncryptAction {
+        <span class="kw">match </span><span class="self">self</span>.write_seq.saturating_add(add) {
+            v <span class="kw">if </span>v == <span class="self">self</span>.write_seq_max =&gt; PreEncryptAction::RefreshOrClose,
+            SEQ_HARD_LIMIT.. =&gt; PreEncryptAction::Refuse,
+            <span class="kw">_ </span>=&gt; PreEncryptAction::Nothing,
+        }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_encrypting(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -505,6 +561,11 @@
         <span class="self">self</span>.read_seq
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>encrypted_len(<span class="kw-2">&amp;</span><span class="self">self</span>, payload_len: usize) -&gt; usize {
+        <span class="self">self</span>.message_encrypter
+            .encrypted_payload_len(payload_len)
+    }
+
     <span class="kw">fn </span>doing_trial_decryption(<span class="kw-2">&amp;mut </span><span class="self">self</span>, requested: usize) -&gt; bool {
         <span class="kw">match </span><span class="self">self
             </span>.trial_decryption_len
@@ -521,17 +582,35 @@
 
 <span class="doccomment">/// Result of decryption.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Decrypted {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Decrypted&lt;<span class="lifetime">'a</span>&gt; {
     <span class="doccomment">/// Whether the peer appears to be getting close to encrypting too many messages with this key.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) want_close_before_decrypt: bool,
     <span class="doccomment">/// The decrypted message.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) plaintext: PlainMessage,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) plaintext: InboundPlainMessage&lt;<span class="lifetime">'a</span>&gt;,
 }
+
+<span class="attr">#[derive(Debug, Eq, PartialEq)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>PreEncryptAction {
+    <span class="doccomment">/// No action is needed before calling `encrypt_outgoing`
+    </span>Nothing,
+
+    <span class="doccomment">/// A `key_update` request should be sent ASAP.
+    ///
+    /// If that is not possible (for example, the connection is TLS1.2), a `close_notify`
+    /// alert should be sent instead.
+    </span>RefreshOrClose,
+
+    <span class="doccomment">/// Do not call `encrypt_outgoing` further, it will panic rather than
+    /// over-use the key.
+    </span>Refuse,
+}
+
+<span class="kw">const </span>SEQ_SOFT_LIMIT: u64 = <span class="number">0xffff_ffff_ffff_0000u64</span>;
+<span class="kw">const </span>SEQ_HARD_LIMIT: u64 = <span class="number">0xffff_ffff_ffff_fffeu64</span>;
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>std::vec;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_has_decrypted() {
@@ -539,7 +618,11 @@
 
         <span class="kw">struct </span>PassThroughDecrypter;
         <span class="kw">impl </span>MessageDecrypter <span class="kw">for </span>PassThroughDecrypter {
-            <span class="kw">fn </span>decrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, m: OpaqueMessage, <span class="kw">_</span>: u64) -&gt; <span class="prelude-ty">Result</span>&lt;PlainMessage, Error&gt; {
+            <span class="kw">fn </span>decrypt&lt;<span class="lifetime">'a</span>&gt;(
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+                m: InboundOpaqueMessage&lt;<span class="lifetime">'a</span>&gt;,
+                <span class="kw">_</span>: u64,
+            ) -&gt; <span class="prelude-ty">Result</span>&lt;InboundPlainMessage&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
                 <span class="prelude-val">Ok</span>(m.into_plain_message())
             }
         }
@@ -571,13 +654,12 @@
 
         <span class="comment">// Decrypting a message should update the read_seq and track that we have now performed
         // a decryption.
-        </span><span class="kw">let </span>msg = OpaqueMessage::new(
-            ContentType::Handshake,
-            ProtocolVersion::TLSv1_2,
-            <span class="macro">vec!</span>[<span class="number">0xC0</span>, <span class="number">0xFF</span>, <span class="number">0xEE</span>],
-        );
-        record_layer
-            .decrypt_incoming(msg)
+        </span>record_layer
+            .decrypt_incoming(InboundOpaqueMessage::new(
+                ContentType::Handshake,
+                ProtocolVersion::TLSv1_2,
+                <span class="kw-2">&amp;mut </span>[<span class="number">0xC0</span>, <span class="number">0xFF</span>, <span class="number">0xEE</span>],
+            ))
             .unwrap();
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(record_layer.decrypt_state, DirectionState::Active));
         <span class="macro">assert_eq!</span>(record_layer.read_seq, <span class="number">1</span>);

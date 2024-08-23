@@ -1166,6 +1166,9 @@
 <a href="#1165" id="1165">1165</a>
 <a href="#1166" id="1166">1166</a>
 <a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1407,9 +1410,10 @@ INSERT INTO exams(
     ends_at,
     language,
     time_minutes,
-    minimum_points_treshold
+    minimum_points_treshold,
+    grade_manually
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *
         "</span>,
         new_exam.name,
@@ -1420,6 +1424,7 @@ RETURNING *
         parent_exam_fields.language,
         new_exam.time_minutes,
         parent_exam_fields.minimum_points_treshold,
+        new_exam.grade_manually,
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -1490,6 +1495,7 @@ WHERE id = $2;
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
         language: copied_exam.language.unwrap_or(<span class="string">"en-US"</span>.to_string()),
+        grade_manually: copied_exam.grade_manually,
     })
 }
 

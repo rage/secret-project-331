@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/hash_hs.rs`."><title>hash_hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/hash_hs.rs`."><title>hash_hs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -244,21 +244,65 @@
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
 <a href="#245" id="245">245</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::crypto::hash;
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+<span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::mem;
+
+<span class="kw">use </span><span class="kw">crate</span>::crypto::hash;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::Codec;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::HashAlgorithm;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::HandshakeMessagePayload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::{Message, MessagePayload};
-
-<span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::mem;
 
 <span class="doccomment">/// Early stage buffering of handshake payloads.
 ///
 /// Before we know the hash algorithm to use to verify the handshake, we just buffer the messages.
 /// During the handshake, we may restart the transcript due to a HelloRetryRequest, reverting
 /// from the `HandshakeHash` to a `HandshakeHashBuffer` again.
+</span><span class="attr">#[derive(Clone)]
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>HandshakeHashBuffer {
     buffer: Vec&lt;u8&gt;,
     client_auth_enabled: bool,
@@ -279,10 +323,10 @@
     }
 
     <span class="doccomment">/// Hash/buffer a handshake message.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, m: <span class="kw-2">&amp;</span>Message) {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, m: <span class="kw-2">&amp;</span>Message&lt;<span class="lifetime">'_</span>&gt;) {
         <span class="kw">if let </span>MessagePayload::Handshake { encoded, .. } = <span class="kw-2">&amp;</span>m.payload {
             <span class="self">self</span>.buffer
-                .extend_from_slice(<span class="kw-2">&amp;</span>encoded.<span class="number">0</span>);
+                .extend_from_slice(encoded.bytes());
         }
     }
 
@@ -293,7 +337,7 @@
     }
 
     <span class="doccomment">/// Get the hash value if we were to hash `extra` too.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_hash_given(
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>hash_given(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         provider: <span class="kw-2">&amp;</span><span class="lifetime">'static </span><span class="kw">dyn </span>hash::Hash,
         extra: <span class="kw-2">&amp;</span>[u8],
@@ -342,9 +386,9 @@
     }
 
     <span class="doccomment">/// Hash/buffer a handshake message.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, m: <span class="kw-2">&amp;</span>Message) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add_message(<span class="kw-2">&amp;mut </span><span class="self">self</span>, m: <span class="kw-2">&amp;</span>Message&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="kw">if let </span>MessagePayload::Handshake { encoded, .. } = <span class="kw-2">&amp;</span>m.payload {
-            <span class="self">self</span>.update_raw(<span class="kw-2">&amp;</span>encoded.<span class="number">0</span>);
+            <span class="self">self</span>.update_raw(encoded.bytes());
         }
         <span class="self">self
     </span>}
@@ -362,7 +406,7 @@
 
     <span class="doccomment">/// Get the hash value if we were to hash `extra` too,
     /// using hash function `hash`.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_hash_given(<span class="kw-2">&amp;</span><span class="self">self</span>, extra: <span class="kw-2">&amp;</span>[u8]) -&gt; hash::Output {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>hash_given(<span class="kw-2">&amp;</span><span class="self">self</span>, extra: <span class="kw-2">&amp;</span>[u8]) -&gt; hash::Output {
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = <span class="self">self</span>.ctx.fork();
         ctx.update(extra);
         ctx.finish()
@@ -394,7 +438,7 @@
     }
 
     <span class="doccomment">/// Get the current hash value.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_current_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; hash::Output {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>current_hash(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; hash::Output {
         <span class="self">self</span>.ctx.fork_finish()
     }
 
@@ -412,10 +456,19 @@
     }
 }
 
-<span class="attr">#[cfg(all(test, any(feature = <span class="string">"ring"</span>, feature = <span class="string">"aws_lc_rs"</span>)))]
-</span><span class="kw">mod </span>tests {
+<span class="kw">impl </span>Clone <span class="kw">for </span>HandshakeHash {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            provider: <span class="self">self</span>.provider,
+            ctx: <span class="self">self</span>.ctx.fork(),
+            client_auth: <span class="self">self</span>.client_auth.clone(),
+        }
+    }
+}
+
+<span class="macro">test_for_each_provider! </span>{
     <span class="kw">use </span><span class="kw">super</span>::HandshakeHashBuffer;
-    <span class="kw">use </span><span class="kw">crate</span>::test_provider::hash::SHA256;
+    <span class="kw">use </span>provider::hash::SHA256;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>hashes_correctly() {
@@ -425,7 +478,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>hh = hhb.start_hash(<span class="kw-2">&amp;</span>SHA256);
         <span class="macro">assert!</span>(hh.client_auth.is_none());
         hh.update_raw(<span class="string">b"world"</span>);
-        <span class="kw">let </span>h = hh.get_current_hash();
+        <span class="kw">let </span>h = hh.current_hash();
         <span class="kw">let </span>h = h.as_ref();
         <span class="macro">assert_eq!</span>(h[<span class="number">0</span>], <span class="number">0x93</span>);
         <span class="macro">assert_eq!</span>(h[<span class="number">1</span>], <span class="number">0x6a</span>);
@@ -454,7 +507,7 @@
                 .map(|buf| buf.len()),
             <span class="prelude-val">Some</span>(<span class="number">10</span>)
         );
-        <span class="kw">let </span>h = hh.get_current_hash();
+        <span class="kw">let </span>h = hh.current_hash();
         <span class="kw">let </span>h = h.as_ref();
         <span class="macro">assert_eq!</span>(h[<span class="number">0</span>], <span class="number">0x93</span>);
         <span class="macro">assert_eq!</span>(h[<span class="number">1</span>], <span class="number">0x6a</span>);
@@ -481,12 +534,45 @@
         <span class="macro">assert_eq!</span>(hh.client_auth, <span class="prelude-val">None</span>);
         hh.update_raw(<span class="string">b"world"</span>);
         <span class="macro">assert_eq!</span>(hh.client_auth, <span class="prelude-val">None</span>);
-        <span class="kw">let </span>h = hh.get_current_hash();
+        <span class="kw">let </span>h = hh.current_hash();
         <span class="kw">let </span>h = h.as_ref();
         <span class="macro">assert_eq!</span>(h[<span class="number">0</span>], <span class="number">0x93</span>);
         <span class="macro">assert_eq!</span>(h[<span class="number">1</span>], <span class="number">0x6a</span>);
         <span class="macro">assert_eq!</span>(h[<span class="number">2</span>], <span class="number">0x18</span>);
         <span class="macro">assert_eq!</span>(h[<span class="number">3</span>], <span class="number">0x5c</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>clones_correctly() {
+        <span class="kw">let </span><span class="kw-2">mut </span>hhb = HandshakeHashBuffer::new();
+        hhb.set_client_auth_enabled();
+        hhb.update_raw(<span class="string">b"hello"</span>);
+        <span class="macro">assert_eq!</span>(hhb.buffer.len(), <span class="number">5</span>);
+
+        <span class="comment">// Cloning the HHB should result in the same buffer and client auth state.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>hhb_prime = hhb.clone();
+        <span class="macro">assert_eq!</span>(hhb_prime.buffer, hhb.buffer);
+        <span class="macro">assert!</span>(hhb_prime.client_auth_enabled);
+
+        <span class="comment">// Updating the HHB clone shouldn't affect the original.
+        </span>hhb_prime.update_raw(<span class="string">b"world"</span>);
+        <span class="macro">assert_eq!</span>(hhb_prime.buffer.len(), <span class="number">10</span>);
+        <span class="macro">assert_ne!</span>(hhb.buffer, hhb_prime.buffer);
+
+        <span class="kw">let </span>hh = hhb.start_hash(<span class="kw-2">&amp;</span>SHA256);
+        <span class="kw">let </span>hh_hash = hh.current_hash();
+        <span class="kw">let </span>hh_hash = hh_hash.as_ref();
+
+        <span class="comment">// Cloning the HH should result in the same current hash.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>hh_prime = hh.clone();
+        <span class="kw">let </span>hh_prime_hash = hh_prime.current_hash();
+        <span class="kw">let </span>hh_prime_hash = hh_prime_hash.as_ref();
+        <span class="macro">assert_eq!</span>(hh_hash, hh_prime_hash);
+
+        <span class="comment">// Updating the HH clone shouldn't affect the original.
+        </span>hh_prime.update_raw(<span class="string">b"goodbye"</span>);
+        <span class="macro">assert_eq!</span>(hh.current_hash().as_ref(), hh_hash);
+        <span class="macro">assert_ne!</span>(hh_prime.current_hash().as_ref(), hh_hash);
     }
 }
 </code></pre></div></section></main></body></html>

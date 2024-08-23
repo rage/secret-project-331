@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["MessagePayload"],"struct":["Message","OpaqueMessage","PlainMessage"]};

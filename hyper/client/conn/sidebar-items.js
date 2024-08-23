@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["http1","http2"]};
+window.SIDEBAR_ITEMS = {"mod":["http1","http2"],"struct":["TrySendError"]};

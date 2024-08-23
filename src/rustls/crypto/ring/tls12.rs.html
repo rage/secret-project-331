@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/crypto/ring/tls12.rs`."><title>tls12.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/crypto/ring/tls12.rs`."><title>tls12.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -387,23 +387,41 @@
 <a href="#386" id="386">386</a>
 <a href="#387" id="387">387</a>
 <a href="#388" id="388">388</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{
-    make_tls12_aad, AeadKey, Iv, KeyBlockShape, MessageDecrypter, MessageEncrypter, Nonce,
-    Tls12AeadAlgorithm, UnsupportedOperationError, NONCE_LEN,
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
+
+<span class="kw">use </span><span class="kw">super</span>::ring_like::aead;
+<span class="kw">use </span><span class="kw">crate</span>::crypto::cipher::{
+    make_tls12_aad, AeadKey, InboundOpaqueMessage, Iv, KeyBlockShape, MessageDecrypter,
+    MessageEncrypter, Nonce, Tls12AeadAlgorithm, UnsupportedOperationError, NONCE_LEN,
 };
 <span class="kw">use </span><span class="kw">crate</span>::crypto::tls12::PrfUsingHmac;
 <span class="kw">use </span><span class="kw">crate</span>::crypto::KeyExchangeAlgorithm;
 <span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, SignatureScheme};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::fragmenter::MAX_FRAGMENT_LEN;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{BorrowedPlainMessage, OpaqueMessage, PlainMessage};
+<span class="kw">use </span><span class="kw">crate</span>::msgs::message::{
+    InboundPlainMessage, OutboundOpaqueMessage, OutboundPlainMessage, PrefixedPayload,
+};
 <span class="kw">use </span><span class="kw">crate</span>::suites::{CipherSuiteCommon, ConnectionTrafficSecrets, SupportedCipherSuite};
 <span class="kw">use </span><span class="kw">crate</span>::tls12::Tls12CipherSuite;
-
-<span class="kw">use </span>alloc::boxed::Box;
-<span class="kw">use </span>alloc::vec::Vec;
-
-<span class="kw">use </span><span class="kw">super</span>::ring_like::aead;
 
 <span class="doccomment">/// The TLS1.2 ciphersuite TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256.
 </span><span class="kw">pub static </span>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
@@ -412,7 +430,6 @@
             suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
             hash_provider: <span class="kw-2">&amp;</span><span class="kw">super</span>::hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: <span class="number">1 </span>&lt;&lt; <span class="number">36</span>,
         },
         kx: KeyExchangeAlgorithm::ECDHE,
         sign: TLS12_ECDSA_SCHEMES,
@@ -427,7 +444,6 @@
             suite: CipherSuite::TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
             hash_provider: <span class="kw-2">&amp;</span><span class="kw">super</span>::hash::SHA256,
             confidentiality_limit: u64::MAX,
-            integrity_limit: <span class="number">1 </span>&lt;&lt; <span class="number">36</span>,
         },
         kx: KeyExchangeAlgorithm::ECDHE,
         sign: TLS12_RSA_SCHEMES,
@@ -441,8 +457,7 @@
         common: CipherSuiteCommon {
             suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
             hash_provider: <span class="kw-2">&amp;</span><span class="kw">super</span>::hash::SHA256,
-            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">23</span>,
-            integrity_limit: <span class="number">1 </span>&lt;&lt; <span class="number">52</span>,
+            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">24</span>,
         },
         kx: KeyExchangeAlgorithm::ECDHE,
         sign: TLS12_RSA_SCHEMES,
@@ -456,8 +471,7 @@
         common: CipherSuiteCommon {
             suite: CipherSuite::TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
             hash_provider: <span class="kw-2">&amp;</span><span class="kw">super</span>::hash::SHA384,
-            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">23</span>,
-            integrity_limit: <span class="number">1 </span>&lt;&lt; <span class="number">52</span>,
+            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">24</span>,
         },
         kx: KeyExchangeAlgorithm::ECDHE,
         sign: TLS12_RSA_SCHEMES,
@@ -471,8 +485,7 @@
         common: CipherSuiteCommon {
             suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
             hash_provider: <span class="kw-2">&amp;</span><span class="kw">super</span>::hash::SHA256,
-            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">23</span>,
-            integrity_limit: <span class="number">1 </span>&lt;&lt; <span class="number">52</span>,
+            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">24</span>,
         },
         kx: KeyExchangeAlgorithm::ECDHE,
         sign: TLS12_ECDSA_SCHEMES,
@@ -486,8 +499,7 @@
         common: CipherSuiteCommon {
             suite: CipherSuite::TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
             hash_provider: <span class="kw-2">&amp;</span><span class="kw">super</span>::hash::SHA384,
-            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">23</span>,
-            integrity_limit: <span class="number">1 </span>&lt;&lt; <span class="number">52</span>,
+            confidentiality_limit: <span class="number">1 </span>&lt;&lt; <span class="number">24</span>,
         },
         kx: KeyExchangeAlgorithm::ECDHE,
         sign: TLS12_ECDSA_SCHEMES,
@@ -564,6 +576,10 @@
             <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         })
     }
+
+    <span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">super</span>::fips()
+    }
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChaCha20Poly1305;
@@ -610,6 +626,10 @@
             iv: Iv::new(iv[..].try_into().unwrap()),
         })
     }
+
+    <span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false </span><span class="comment">// not fips approved
+    </span>}
 }
 
 <span class="doccomment">/// A `MessageEncrypter` for AES-GCM AEAD ciphersuites. TLS 1.2 only.
@@ -628,8 +648,12 @@
 <span class="kw">const </span>GCM_OVERHEAD: usize = GCM_EXPLICIT_NONCE_LEN + <span class="number">16</span>;
 
 <span class="kw">impl </span>MessageDecrypter <span class="kw">for </span>GcmMessageDecrypter {
-    <span class="kw">fn </span>decrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>msg: OpaqueMessage, seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;PlainMessage, Error&gt; {
-        <span class="kw">let </span>payload = msg.payload();
+    <span class="kw">fn </span>decrypt&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw-2">mut </span>msg: InboundOpaqueMessage&lt;<span class="lifetime">'a</span>&gt;,
+        seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InboundPlainMessage&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;</span>msg.payload;
         <span class="kw">if </span>payload.len() &lt; GCM_OVERHEAD {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DecryptError);
         }
@@ -648,7 +672,7 @@
             payload.len() - GCM_OVERHEAD,
         ));
 
-        <span class="kw">let </span>payload = msg.payload_mut();
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut </span>msg.payload;
         <span class="kw">let </span>plain_len = <span class="self">self
             </span>.dec_key
             .open_within(nonce, aad, payload, GCM_EXPLICIT_NONCE_LEN..)
@@ -665,21 +689,25 @@
 }
 
 <span class="kw">impl </span>MessageEncrypter <span class="kw">for </span>GcmMessageEncrypter {
-    <span class="kw">fn </span>encrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: BorrowedPlainMessage, seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, Error&gt; {
+    <span class="kw">fn </span>encrypt(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        msg: OutboundPlainMessage&lt;<span class="lifetime">'_</span>&gt;,
+        seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;OutboundOpaqueMessage, Error&gt; {
+        <span class="kw">let </span>total_len = <span class="self">self</span>.encrypted_payload_len(msg.payload.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>payload = PrefixedPayload::with_capacity(total_len);
+
         <span class="kw">let </span>nonce = aead::Nonce::assume_unique_for_key(Nonce::new(<span class="kw-2">&amp;</span><span class="self">self</span>.iv, seq).<span class="number">0</span>);
         <span class="kw">let </span>aad = aead::Aad::from(make_tls12_aad(seq, msg.typ, msg.version, msg.payload.len()));
-
-        <span class="kw">let </span>total_len = <span class="self">self</span>.encrypted_payload_len(msg.payload.len());
-        <span class="kw">let </span><span class="kw-2">mut </span>payload = Vec::with_capacity(total_len);
         payload.extend_from_slice(<span class="kw-2">&amp;</span>nonce.as_ref()[<span class="number">4</span>..]);
-        payload.extend_from_slice(msg.payload);
+        payload.extend_from_chunks(<span class="kw-2">&amp;</span>msg.payload);
 
         <span class="self">self</span>.enc_key
-            .seal_in_place_separate_tag(nonce, aad, <span class="kw-2">&amp;mut </span>payload[GCM_EXPLICIT_NONCE_LEN..])
-            .map(|tag| payload.extend(tag.as_ref()))
+            .seal_in_place_separate_tag(nonce, aad, <span class="kw-2">&amp;mut </span>payload.as_mut()[GCM_EXPLICIT_NONCE_LEN..])
+            .map(|tag| payload.extend_from_slice(tag.as_ref()))
             .map_err(|<span class="kw">_</span>| Error::EncryptError)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(OpaqueMessage::new(msg.typ, msg.version, payload))
+        <span class="prelude-val">Ok</span>(OutboundOpaqueMessage::new(msg.typ, msg.version, payload))
     }
 
     <span class="kw">fn </span>encrypted_payload_len(<span class="kw-2">&amp;</span><span class="self">self</span>, payload_len: usize) -&gt; usize {
@@ -706,8 +734,12 @@
 <span class="kw">const </span>CHACHAPOLY1305_OVERHEAD: usize = <span class="number">16</span>;
 
 <span class="kw">impl </span>MessageDecrypter <span class="kw">for </span>ChaCha20Poly1305MessageDecrypter {
-    <span class="kw">fn </span>decrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>msg: OpaqueMessage, seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;PlainMessage, Error&gt; {
-        <span class="kw">let </span>payload = msg.payload();
+    <span class="kw">fn </span>decrypt&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw-2">mut </span>msg: InboundOpaqueMessage&lt;<span class="lifetime">'a</span>&gt;,
+        seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InboundPlainMessage&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;</span>msg.payload;
 
         <span class="kw">if </span>payload.len() &lt; CHACHAPOLY1305_OVERHEAD {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::DecryptError);
@@ -721,7 +753,7 @@
             payload.len() - CHACHAPOLY1305_OVERHEAD,
         ));
 
-        <span class="kw">let </span>payload = msg.payload_mut();
+        <span class="kw">let </span>payload = <span class="kw-2">&amp;mut </span>msg.payload;
         <span class="kw">let </span>plain_len = <span class="self">self
             </span>.dec_key
             .open_in_place(nonce, aad, payload)
@@ -738,19 +770,23 @@
 }
 
 <span class="kw">impl </span>MessageEncrypter <span class="kw">for </span>ChaCha20Poly1305MessageEncrypter {
-    <span class="kw">fn </span>encrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: BorrowedPlainMessage, seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, Error&gt; {
+    <span class="kw">fn </span>encrypt(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        msg: OutboundPlainMessage&lt;<span class="lifetime">'_</span>&gt;,
+        seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;OutboundOpaqueMessage, Error&gt; {
+        <span class="kw">let </span>total_len = <span class="self">self</span>.encrypted_payload_len(msg.payload.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>payload = PrefixedPayload::with_capacity(total_len);
+
         <span class="kw">let </span>nonce = aead::Nonce::assume_unique_for_key(Nonce::new(<span class="kw-2">&amp;</span><span class="self">self</span>.enc_offset, seq).<span class="number">0</span>);
         <span class="kw">let </span>aad = aead::Aad::from(make_tls12_aad(seq, msg.typ, msg.version, msg.payload.len()));
-
-        <span class="kw">let </span>total_len = <span class="self">self</span>.encrypted_payload_len(msg.payload.len());
-        <span class="kw">let </span><span class="kw-2">mut </span>buf = Vec::with_capacity(total_len);
-        buf.extend_from_slice(msg.payload);
+        payload.extend_from_chunks(<span class="kw-2">&amp;</span>msg.payload);
 
         <span class="self">self</span>.enc_key
-            .seal_in_place_append_tag(nonce, aad, <span class="kw-2">&amp;mut </span>buf)
+            .seal_in_place_append_tag(nonce, aad, <span class="kw-2">&amp;mut </span>payload)
             .map_err(|<span class="kw">_</span>| Error::EncryptError)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(OpaqueMessage::new(msg.typ, msg.version, buf))
+        <span class="prelude-val">Ok</span>(OutboundOpaqueMessage::new(msg.typ, msg.version, payload))
     }
 
     <span class="kw">fn </span>encrypted_payload_len(<span class="kw-2">&amp;</span><span class="self">self</span>, payload_len: usize) -&gt; usize {

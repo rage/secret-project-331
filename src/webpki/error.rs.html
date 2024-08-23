@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.102.4/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.102.6/src/error.rs`."><title>error.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -534,7 +534,7 @@
 <span class="kw">impl </span>Error {
     <span class="comment">// Compare the Error with the new error by rank, returning the higher rank of the two as
     // the most specific error.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>most_specific(<span class="self">self</span>, new: Error) -&gt; Error {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>most_specific(<span class="self">self</span>, new: <span class="self">Self</span>) -&gt; <span class="self">Self </span>{
         <span class="comment">// Assign an error a numeric value ranking it by specificity.
         </span><span class="kw">if </span><span class="self">self</span>.rank() &gt;= new.rank() {
             <span class="self">self
@@ -550,55 +550,55 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>rank(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
             <span class="comment">// Errors related to certificate validity
-            </span>Error::CertNotValidYet | Error::CertExpired =&gt; <span class="number">290</span>,
-            Error::CertNotValidForName =&gt; <span class="number">280</span>,
-            Error::CertRevoked | Error::UnknownRevocationStatus | Error::CrlExpired =&gt; <span class="number">270</span>,
-            Error::InvalidCrlSignatureForPublicKey | Error::InvalidSignatureForPublicKey =&gt; <span class="number">260</span>,
-            Error::SignatureAlgorithmMismatch =&gt; <span class="number">250</span>,
-            Error::RequiredEkuNotFound =&gt; <span class="number">240</span>,
-            Error::NameConstraintViolation =&gt; <span class="number">230</span>,
-            Error::PathLenConstraintViolated =&gt; <span class="number">220</span>,
-            Error::CaUsedAsEndEntity | Error::EndEntityUsedAsCa =&gt; <span class="number">210</span>,
-            Error::IssuerNotCrlSigner =&gt; <span class="number">200</span>,
+            </span><span class="self">Self</span>::CertNotValidYet | <span class="self">Self</span>::CertExpired =&gt; <span class="number">290</span>,
+            <span class="self">Self</span>::CertNotValidForName =&gt; <span class="number">280</span>,
+            <span class="self">Self</span>::CertRevoked | <span class="self">Self</span>::UnknownRevocationStatus | <span class="self">Self</span>::CrlExpired =&gt; <span class="number">270</span>,
+            <span class="self">Self</span>::InvalidCrlSignatureForPublicKey | <span class="self">Self</span>::InvalidSignatureForPublicKey =&gt; <span class="number">260</span>,
+            <span class="self">Self</span>::SignatureAlgorithmMismatch =&gt; <span class="number">250</span>,
+            <span class="self">Self</span>::RequiredEkuNotFound =&gt; <span class="number">240</span>,
+            <span class="self">Self</span>::NameConstraintViolation =&gt; <span class="number">230</span>,
+            <span class="self">Self</span>::PathLenConstraintViolated =&gt; <span class="number">220</span>,
+            <span class="self">Self</span>::CaUsedAsEndEntity | <span class="self">Self</span>::EndEntityUsedAsCa =&gt; <span class="number">210</span>,
+            <span class="self">Self</span>::IssuerNotCrlSigner =&gt; <span class="number">200</span>,
 
             <span class="comment">// Errors related to supported features used in an invalid way.
-            </span>Error::InvalidCertValidity =&gt; <span class="number">190</span>,
-            Error::InvalidNetworkMaskConstraint =&gt; <span class="number">180</span>,
-            Error::InvalidSerialNumber =&gt; <span class="number">170</span>,
-            Error::InvalidCrlNumber =&gt; <span class="number">160</span>,
+            </span><span class="self">Self</span>::InvalidCertValidity =&gt; <span class="number">190</span>,
+            <span class="self">Self</span>::InvalidNetworkMaskConstraint =&gt; <span class="number">180</span>,
+            <span class="self">Self</span>::InvalidSerialNumber =&gt; <span class="number">170</span>,
+            <span class="self">Self</span>::InvalidCrlNumber =&gt; <span class="number">160</span>,
 
             <span class="comment">// Errors related to unsupported features.
-            </span>Error::UnsupportedCrlSignatureAlgorithmForPublicKey
-            | Error::UnsupportedSignatureAlgorithmForPublicKey =&gt; <span class="number">150</span>,
-            Error::UnsupportedCrlSignatureAlgorithm | Error::UnsupportedSignatureAlgorithm =&gt; <span class="number">140</span>,
-            Error::UnsupportedCriticalExtension =&gt; <span class="number">130</span>,
-            Error::UnsupportedCertVersion =&gt; <span class="number">130</span>,
-            Error::UnsupportedCrlVersion =&gt; <span class="number">120</span>,
-            Error::UnsupportedDeltaCrl =&gt; <span class="number">110</span>,
-            Error::UnsupportedIndirectCrl =&gt; <span class="number">100</span>,
-            Error::UnsupportedNameType =&gt; <span class="number">95</span>,
-            Error::UnsupportedRevocationReason =&gt; <span class="number">90</span>,
-            Error::UnsupportedRevocationReasonsPartitioning =&gt; <span class="number">80</span>,
-            Error::UnsupportedCrlIssuingDistributionPoint =&gt; <span class="number">70</span>,
-            Error::MaximumPathDepthExceeded =&gt; <span class="number">61</span>,
+            </span><span class="self">Self</span>::UnsupportedCrlSignatureAlgorithmForPublicKey
+            | <span class="self">Self</span>::UnsupportedSignatureAlgorithmForPublicKey =&gt; <span class="number">150</span>,
+            <span class="self">Self</span>::UnsupportedCrlSignatureAlgorithm | <span class="self">Self</span>::UnsupportedSignatureAlgorithm =&gt; <span class="number">140</span>,
+            <span class="self">Self</span>::UnsupportedCriticalExtension =&gt; <span class="number">130</span>,
+            <span class="self">Self</span>::UnsupportedCertVersion =&gt; <span class="number">130</span>,
+            <span class="self">Self</span>::UnsupportedCrlVersion =&gt; <span class="number">120</span>,
+            <span class="self">Self</span>::UnsupportedDeltaCrl =&gt; <span class="number">110</span>,
+            <span class="self">Self</span>::UnsupportedIndirectCrl =&gt; <span class="number">100</span>,
+            <span class="self">Self</span>::UnsupportedNameType =&gt; <span class="number">95</span>,
+            <span class="self">Self</span>::UnsupportedRevocationReason =&gt; <span class="number">90</span>,
+            <span class="self">Self</span>::UnsupportedRevocationReasonsPartitioning =&gt; <span class="number">80</span>,
+            <span class="self">Self</span>::UnsupportedCrlIssuingDistributionPoint =&gt; <span class="number">70</span>,
+            <span class="self">Self</span>::MaximumPathDepthExceeded =&gt; <span class="number">61</span>,
 
             <span class="comment">// Errors related to malformed data.
-            </span>Error::MalformedDnsIdentifier =&gt; <span class="number">60</span>,
-            Error::MalformedNameConstraint =&gt; <span class="number">50</span>,
-            Error::MalformedExtensions | Error::TrailingData(<span class="kw">_</span>) =&gt; <span class="number">40</span>,
-            Error::ExtensionValueInvalid =&gt; <span class="number">30</span>,
+            </span><span class="self">Self</span>::MalformedDnsIdentifier =&gt; <span class="number">60</span>,
+            <span class="self">Self</span>::MalformedNameConstraint =&gt; <span class="number">50</span>,
+            <span class="self">Self</span>::MalformedExtensions | <span class="self">Self</span>::TrailingData(<span class="kw">_</span>) =&gt; <span class="number">40</span>,
+            <span class="self">Self</span>::ExtensionValueInvalid =&gt; <span class="number">30</span>,
 
             <span class="comment">// Generic DER errors.
-            </span>Error::BadDerTime =&gt; <span class="number">20</span>,
-            Error::BadDer =&gt; <span class="number">10</span>,
+            </span><span class="self">Self</span>::BadDerTime =&gt; <span class="number">20</span>,
+            <span class="self">Self</span>::BadDer =&gt; <span class="number">10</span>,
 
             <span class="comment">// Special case errors - not subject to ranking.
-            </span>Error::MaximumSignatureChecksExceeded =&gt; <span class="number">0</span>,
-            Error::MaximumPathBuildCallsExceeded =&gt; <span class="number">0</span>,
-            Error::MaximumNameConstraintComparisonsExceeded =&gt; <span class="number">0</span>,
+            </span><span class="self">Self</span>::MaximumSignatureChecksExceeded =&gt; <span class="number">0</span>,
+            <span class="self">Self</span>::MaximumPathBuildCallsExceeded =&gt; <span class="number">0</span>,
+            <span class="self">Self</span>::MaximumNameConstraintComparisonsExceeded =&gt; <span class="number">0</span>,
 
             <span class="comment">// Default catch all error - should be renamed in the future.
-            </span>Error::UnknownIssuer =&gt; <span class="number">0</span>,
+            </span><span class="self">Self</span>::UnknownIssuer =&gt; <span class="number">0</span>,
         }
     }
 
@@ -608,9 +608,9 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_fatal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
             <span class="self">self</span>,
-            Error::MaximumSignatureChecksExceeded
-                | Error::MaximumPathBuildCallsExceeded
-                | Error::MaximumNameConstraintComparisonsExceeded
+            <span class="self">Self</span>::MaximumSignatureChecksExceeded
+                | <span class="self">Self</span>::MaximumPathBuildCallsExceeded
+                | <span class="self">Self</span>::MaximumNameConstraintComparisonsExceeded
         )
     }
 }
@@ -627,7 +627,7 @@
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="macro">write!</span>(f, <span class="string">"{:?}"</span>, <span class="self">self</span>)
     }
 }

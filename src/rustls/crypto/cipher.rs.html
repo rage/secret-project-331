@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.22.4/src/crypto/cipher.rs`."><title>cipher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/crypto/cipher.rs`."><title>cipher.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -319,18 +319,50 @@
 <a href="#318" id="318">318</a>
 <a href="#319" id="319">319</a>
 <a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::string::ToString;
 <span class="kw">use </span>core::fmt;
-<span class="kw">use </span>std::error::Error <span class="kw">as </span>StdError;
+
+<span class="kw">use </span>zeroize::Zeroize;
 
 <span class="kw">use </span><span class="kw">crate</span>::enums::{ContentType, ProtocolVersion};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec;
-<span class="kw">pub use </span><span class="kw">crate</span>::msgs::message::{BorrowedPlainMessage, OpaqueMessage, PlainMessage};
+<span class="kw">pub use </span><span class="kw">crate</span>::msgs::message::{
+    BorrowedPayload, InboundOpaqueMessage, InboundPlainMessage, OutboundChunks,
+    OutboundOpaqueMessage, OutboundPlainMessage, PlainMessage, PrefixedPayload,
+};
 <span class="kw">use </span><span class="kw">crate</span>::suites::ConnectionTrafficSecrets;
-
-<span class="kw">use </span>zeroize::Zeroize;
 
 <span class="doccomment">/// Factory trait for building `MessageEncrypter` and `MessageDecrypter` for a TLS1.3 cipher suite.
 </span><span class="kw">pub trait </span>Tls13AeadAlgorithm: Send + Sync {
@@ -352,6 +384,11 @@
         key: AeadKey,
         iv: Iv,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionTrafficSecrets, UnsupportedOperationError&gt;;
+
+    <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
+    </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// Factory trait for building `MessageEncrypter` and `MessageDecrypter` for a TLS1.2 cipher suite.
@@ -393,6 +430,11 @@
         iv: <span class="kw-2">&amp;</span>[u8],
         explicit: <span class="kw-2">&amp;</span>[u8],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ConnectionTrafficSecrets, UnsupportedOperationError&gt;;
+
+    <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
+    </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
 }
 
 <span class="doccomment">/// An error indicating that the AEAD algorithm does not support the requested operation.
@@ -411,7 +453,8 @@
     }
 }
 
-<span class="kw">impl </span>StdError <span class="kw">for </span>UnsupportedOperationError {}
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>UnsupportedOperationError {}
 
 <span class="doccomment">/// How a TLS1.2 `key_block` is partitioned.
 ///
@@ -445,14 +488,22 @@
 </span><span class="kw">pub trait </span>MessageDecrypter: Send + Sync {
     <span class="doccomment">/// Decrypt the given TLS message `msg`, using the sequence number
     /// `seq` which can be used to derive a unique [`Nonce`].
-    </span><span class="kw">fn </span>decrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: OpaqueMessage, seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;PlainMessage, Error&gt;;
+    </span><span class="kw">fn </span>decrypt&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        msg: InboundOpaqueMessage&lt;<span class="lifetime">'a</span>&gt;,
+        seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InboundPlainMessage&lt;<span class="lifetime">'a</span>&gt;, Error&gt;;
 }
 
 <span class="doccomment">/// Objects with this trait can encrypt TLS messages.
 </span><span class="kw">pub trait </span>MessageEncrypter: Send + Sync {
     <span class="doccomment">/// Encrypt the given TLS message `msg`, using the sequence number
-    /// `seq which can be used to derive a unique [`Nonce`].
-    </span><span class="kw">fn </span>encrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, msg: BorrowedPlainMessage, seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, Error&gt;;
+    /// `seq` which can be used to derive a unique [`Nonce`].
+    </span><span class="kw">fn </span>encrypt(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        msg: OutboundPlainMessage&lt;<span class="lifetime">'_</span>&gt;,
+        seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;OutboundOpaqueMessage, Error&gt;;
 
     <span class="doccomment">/// Return the length of the ciphertext that results from encrypting plaintext of
     /// length `payload_len`
@@ -537,11 +588,12 @@
 /// See RFC8446 s5.2 for the `additional_data` definition.
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>make_tls13_aad(payload_len: usize) -&gt; [u8; <span class="number">5</span>] {
+    <span class="kw">let </span>version = ProtocolVersion::TLSv1_2.to_array();
     [
-        ContentType::ApplicationData.get_u8(),
+        ContentType::ApplicationData.into(),
         <span class="comment">// Note: this is `legacy_record_version`, i.e. TLS1.2 even for TLS1.3.
-        </span>(ProtocolVersion::TLSv1_2.get_u16() &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
-        (ProtocolVersion::TLSv1_2.get_u16() &amp; <span class="number">0xff</span>) <span class="kw">as </span>u8,
+        </span>version[<span class="number">0</span>],
+        version[<span class="number">1</span>],
         (payload_len &gt;&gt; <span class="number">8</span>) <span class="kw">as </span>u8,
         (payload_len &amp; <span class="number">0xff</span>) <span class="kw">as </span>u8,
     ]
@@ -559,8 +611,8 @@
 ) -&gt; [u8; TLS12_AAD_SIZE] {
     <span class="kw">let </span><span class="kw-2">mut </span>out = [<span class="number">0</span>; TLS12_AAD_SIZE];
     codec::put_u64(seq, <span class="kw-2">&amp;mut </span>out[<span class="number">0</span>..]);
-    out[<span class="number">8</span>] = typ.get_u8();
-    codec::put_u16(vers.get_u16(), <span class="kw-2">&amp;mut </span>out[<span class="number">9</span>..]);
+    out[<span class="number">8</span>] = typ.into();
+    codec::put_u16(vers.into(), <span class="kw-2">&amp;mut </span>out[<span class="number">9</span>..]);
     codec::put_u16(len <span class="kw">as </span>u16, <span class="kw-2">&amp;mut </span>out[<span class="number">11</span>..]);
     out
 }
@@ -622,7 +674,11 @@
 </span><span class="kw">struct </span>InvalidMessageEncrypter {}
 
 <span class="kw">impl </span>MessageEncrypter <span class="kw">for </span>InvalidMessageEncrypter {
-    <span class="kw">fn </span>encrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _m: BorrowedPlainMessage, _seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;OpaqueMessage, Error&gt; {
+    <span class="kw">fn </span>encrypt(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        _m: OutboundPlainMessage&lt;<span class="lifetime">'_</span>&gt;,
+        _seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;OutboundOpaqueMessage, Error&gt; {
         <span class="prelude-val">Err</span>(Error::EncryptError)
     }
 
@@ -635,7 +691,11 @@
 </span><span class="kw">struct </span>InvalidMessageDecrypter {}
 
 <span class="kw">impl </span>MessageDecrypter <span class="kw">for </span>InvalidMessageDecrypter {
-    <span class="kw">fn </span>decrypt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _m: OpaqueMessage, _seq: u64) -&gt; <span class="prelude-ty">Result</span>&lt;PlainMessage, Error&gt; {
+    <span class="kw">fn </span>decrypt&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        _m: InboundOpaqueMessage&lt;<span class="lifetime">'a</span>&gt;,
+        _seq: u64,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;InboundPlainMessage&lt;<span class="lifetime">'a</span>&gt;, Error&gt; {
         <span class="prelude-val">Err</span>(Error::DecryptError)
     }
 }

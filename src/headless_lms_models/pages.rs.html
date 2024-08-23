@@ -3504,6 +3504,7 @@
 <a href="#3503" id="3503">3503</a>
 <a href="#3504" id="3504">3504</a>
 <a href="#3505" id="3505">3505</a>
+<a href="#3506" id="3506">3506</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -6790,6 +6791,7 @@ WHERE id = $1
                 time_minutes: <span class="number">120</span>,
                 organization_id: org,
                 minimum_points_treshold: <span class="number">24</span>,
+                grade_manually: <span class="bool-val">false</span>,
             },
         )
         .<span class="kw">await

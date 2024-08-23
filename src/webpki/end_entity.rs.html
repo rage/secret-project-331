@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.102.4/src/end_entity.rs`."><title>end_entity.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-webpki-0.102.6/src/end_entity.rs`."><title>end_entity.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="webpki" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
     <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
@@ -243,6 +243,7 @@
 <a href="#242" id="242">242</a>
 <a href="#243" id="243">243</a>
 <a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2015-2021 Brian Smith.
 //
 // Permission to use, copy, modify, and/or distribute this software for any
@@ -274,21 +275,22 @@
 /// Server certificate processing in a TLS connection consists of several
 /// steps. All of these steps are necessary:
 ///
-/// * `EndEntityCert.verify_is_valid_tls_server_cert`: Verify that the server's
-///   certificate is currently valid *for use by a TLS server*.
-/// * `EndEntityCert.verify_is_valid_for_subject_name`: Verify that the server's
+/// * [`EndEntityCert::verify_for_usage()`]: Verify that the peer's certificate
+///   is valid for the current usage scenario. For server authentication, use
+///   [`KeyUsage::server_auth()`].
+/// * [`EndEntityCert::verify_is_valid_for_subject_name()`]: Verify that the server's
 ///   certificate is valid for the host or IP address that is being connected to.
-///
-/// * `EndEntityCert.verify_signature`: Verify that the signature of server's
+/// * [`EndEntityCert::verify_signature()`]: Verify that the signature of server's
 ///   `ServerKeyExchange` message is valid for the server's certificate.
 ///
 /// Client certificate processing in a TLS connection consists of analogous
 /// steps. All of these steps are necessary:
 ///
-/// * `EndEntityCert.verify_is_valid_tls_client_cert`: Verify that the client's
-///   certificate is currently valid *for use by a TLS client*.
-/// * `EndEntityCert.verify_signature`: Verify that the client's signature in
-///   its `CertificateVerify` message is valid using the public key from the
+/// * [`EndEntityCert::verify_for_usage()`]: Verify that the peer's certificate
+///   is valid for the current usage scenario. For client authentication, use
+///   [`KeyUsage::client_auth()`].
+/// * [`EndEntityCert::verify_signature()`]: Verify that the signature of client's
+///   `CertificateVerify` message is valid using the public key from the
 ///   client's certificate.
 ///
 /// Although it would be less error-prone to combine all these steps into a
@@ -296,10 +298,10 @@
 /// three steps are processed separately (in parallel). It does not matter much
 /// which order the steps are done in, but **all of these steps must completed
 /// before application data is sent and before received application data is
-/// processed**. `EndEntityCert::from` is an inexpensive operation and is
-/// deterministic, so if these tasks are done in multiple threads, it is
-/// probably best to just call `EndEntityCert::from` multiple times (before each
-/// operation) for the same DER-encoded ASN.1 certificate bytes.
+/// processed**. The [`TryFrom`] conversion from `&amp;CertificateDer&lt;'_&gt;` is an
+/// inexpensive operation and is deterministic, so if these tasks are done in
+/// multiple threads, it is probably best to just create multiple [`EndEntityCert`]
+/// instances for the same DER-encoded ASN.1 certificate bytes.
 </span><span class="kw">pub struct </span>EndEntityCert&lt;<span class="lifetime">'a</span>&gt; {
     inner: cert::Cert&lt;<span class="lifetime">'a</span>&gt;,
 }
@@ -346,7 +348,7 @@
     </span><span class="kw">pub fn </span>verify_for_usage&lt;<span class="lifetime">'p</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'p </span><span class="self">self</span>,
         supported_sig_algs: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>SignatureVerificationAlgorithm],
-        trust_anchors: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[TrustAnchor],
+        trust_anchors: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[TrustAnchor&lt;<span class="lifetime">'_</span>&gt;],
         intermediate_certs: <span class="kw-2">&amp;</span><span class="lifetime">'p </span>[CertificateDer&lt;<span class="lifetime">'p</span>&gt;],
         time: UnixTime,
         usage: KeyUsage,

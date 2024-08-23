@@ -513,6 +513,29 @@
 <a href="#512" id="512">512</a>
 <a href="#513" id="513">513</a>
 <a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
+<a href="#536" id="536">536</a>
+<a href="#537" id="537">537</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
@@ -881,6 +904,7 @@
         <span class="number">0</span>,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -896,6 +920,7 @@
         <span class="number">0</span>,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -911,6 +936,24 @@
         <span class="number">0</span>,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">false</span>,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    create_exam(
+        <span class="kw-2">&amp;mut </span>conn,
+        <span class="string">"Exam for manual grading"</span>.to_string(),
+        <span class="prelude-val">Some</span>(Utc::now()),
+        <span class="prelude-val">Some</span>(Utc::now() + Duration::minutes(<span class="number">120</span>)),
+        <span class="number">1</span>,
+        uh_cs_organization_id,
+        cs_intro,
+        Uuid::parse_str(<span class="string">"fee8bb0c-8629-477c-86eb-1785005143ae"</span>)<span class="question-mark">?</span>,
+        teacher_user_id,
+        <span class="number">0</span>,
+        base_url.clone(),
+        Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">true</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -926,6 +969,7 @@
         <span class="number">0</span>,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     create_exam(
@@ -941,6 +985,7 @@
         <span class="number">0</span>,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>automatic_course_exam = create_exam(
@@ -956,6 +1001,7 @@
         <span class="number">0</span>,
         base_url.clone(),
         Arc::clone(<span class="kw-2">&amp;</span>jwt_key),
+        <span class="bool-val">false</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
     course_exams::upsert(

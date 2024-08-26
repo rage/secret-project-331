@@ -1,3 +1,4 @@
+use futures::Stream;
 use sqlx::{QueryBuilder, Row};
 
 use crate::prelude::*;
@@ -127,6 +128,25 @@ RETURNING *
     .fetch_optional(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn stream_code_giveaway_codes<'a>(
+    conn: &'a mut PgConnection,
+    code_giveaway_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<CodeGiveawayCode>> + 'a {
+    let stream = sqlx::query_as!(
+        CodeGiveawayCode,
+        r#"
+SELECT *
+FROM code_giveaway_codes
+WHERE code_giveaway_id = $1
+  AND deleted_at IS NULL
+            "#,
+        code_giveaway_id
+    )
+    .fetch(conn);
+
+    stream
 }
 
 #[cfg(test)]

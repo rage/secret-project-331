@@ -21,6 +21,9 @@ pub async fn insert_many(
     input: &[String],
     added_by_user_id: Uuid,
 ) -> ModelResult<Vec<CodeGiveawayCode>> {
+    if input.is_empty() {
+        return Ok(vec![]);
+    }
     let mut query_builder = QueryBuilder::new(
         "INSERT INTO code_giveaway_codes (code_giveaway_id, code, added_by_user_id) ",
     );
@@ -133,27 +136,50 @@ mod tests {
 
     #[tokio::test]
     async fn test_insert_many_empty() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+        insert_data!(:tx, :user, :org, :course);
 
-        let insert_result = insert_many(tx.as_mut(), &[]).await.unwrap();
+        let code_giveaway = crate::code_giveaways::insert(tx.as_mut(), course)
+            .await
+            .unwrap();
 
-        let inserted_data = get_inserted_data(tx.as_mut()).await.unwrap();
+        let insert_result = insert_many(tx.as_mut(), code_giveaway.id, &[], user)
+            .await
+            .unwrap();
 
         assert!(insert_result.is_empty());
-        assert!(inserted_data.is_empty());
     }
 
     #[tokio::test]
     async fn test_insert_many_with_data() {
-        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, chapter: _chapter, page: _page, exercise: exercise_id);
+        insert_data!(:tx, :user, :org, :course);
 
-        let data_to_insert = vec![/* your data here */];
+        let code_giveaway = crate::code_giveaways::insert(tx.as_mut(), course)
+            .await
+            .unwrap();
 
-        let insert_result = insert_many(tx.as_mut(), &data_to_insert).await.unwrap();
+        let codes = vec![
+            "code1".to_string(),
+            "code2".to_string(),
+            "code3".to_string(),
+        ];
 
-        let inserted_data = get_inserted_data(tx.as_mut()).await.unwrap();
+        let insert_result = insert_many(tx.as_mut(), code_giveaway.id, &codes, user)
+            .await
+            .unwrap();
 
-        assert_eq!(insert_result.len(), data_to_insert.len());
-        assert_eq!(inserted_data.len(), data_to_insert.len());
+        assert_eq!(insert_result.len(), codes.len());
+        for code in &codes {
+            let found = insert_result.iter().find(|c| c.code == *code);
+            assert!(found.is_some());
+        }
+        // Double checking
+        let all_codes = get_all_by_code_giveaway_id(tx.as_mut(), code_giveaway.id)
+            .await
+            .unwrap();
+        assert_eq!(all_codes.len(), codes.len());
+        for code in &codes {
+            let found = all_codes.iter().find(|c| c.code == *code);
+            assert!(found.is_some());
+        }
     }
 }

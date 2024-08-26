@@ -12,7 +12,7 @@ pub struct CodeGiveaway {
     pub enabled: bool,
 }
 
-async fn insert(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<CodeGiveaway> {
+pub async fn insert(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<CodeGiveaway> {
     let res = sqlx::query_as!(
         CodeGiveaway,
         r#"
@@ -28,7 +28,7 @@ RETURNING *
     Ok(res)
 }
 
-async fn get_all_for_course(
+pub async fn get_all_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<Vec<CodeGiveaway>> {
@@ -48,7 +48,7 @@ WHERE course_id = $1
     Ok(res)
 }
 
-async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<CodeGiveaway>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<CodeGiveaway>> {
     let res = sqlx::query_as!(
         CodeGiveaway,
         r#"
@@ -64,7 +64,7 @@ WHERE id = $1
     Ok(res)
 }
 
-async fn set_enabled(
+pub async fn set_enabled(
     conn: &mut PgConnection,
     id: Uuid,
     enabled: bool,

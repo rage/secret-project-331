@@ -1160,7 +1160,7 @@ mod tests {
 
     #[tokio::test]
     async fn tags_suspected_cheater() {
-        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide);
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
 
         crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
             .await
@@ -1228,7 +1228,7 @@ mod tests {
 
     #[tokio::test]
     async fn doesnt_tag_suspected_cheater() {
-        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
 
         crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
             .await

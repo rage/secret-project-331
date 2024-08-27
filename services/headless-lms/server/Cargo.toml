@@ -25,7 +25,7 @@ actix-multipart = "0.6.1"
 # Strongly Typed Mimes
 mime = "0.3.17"
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.36.0", features = ["fs", "io-util"] }
+tokio.workspace = true
 # Utilities to work with `Stream` and `tokio`.
 tokio-stream = "0.1.14"
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
@@ -39,14 +39,7 @@ listenfd = "1.0.1"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.80"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
-sqlx = { version = "0.7.3", features = [
-  "postgres",
-  "runtime-tokio",
-  "tls-rustls",
-  "uuid",
-  "chrono",
-  "json",
-] }
+sqlx.workspace = true
 # A library to generate and parse UUIDs.
 uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework

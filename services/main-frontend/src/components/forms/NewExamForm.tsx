@@ -27,6 +27,7 @@ interface NewExamFields {
   parentId: string | null
   automaticCompletionEnabled: boolean
   minimumPointsTreshold: number
+  manualGradingEnabled: boolean
 }
 
 const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
@@ -63,6 +64,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
       minimum_points_treshold: data.automaticCompletionEnabled
         ? Number(data.minimumPointsTreshold)
         : 0,
+      grade_manually: data.manualGradingEnabled,
     })
   })
 
@@ -77,6 +79,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
         minimum_points_treshold: data.automaticCompletionEnabled
           ? Number(data.minimumPointsTreshold)
           : 0,
+        grade_manually: data.manualGradingEnabled,
       }
       const examId = String(parentId)
       onDuplicateExam(examId, newExam)
@@ -126,10 +129,12 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
           label={t("label-time-minutes")}
           {...register("timeMinutes", { required: t("required-field") })}
         />
+        <CheckBox label={t("label-grade-exam-manually")} {...register("manualGradingEnabled")} />
         <CheckBox
           label={t("label-related-courses-can-be-completed-automatically")}
           {...register("automaticCompletionEnabled")}
         />
+
         {automaticEnabled && (
           <TextField
             id={"minimumPointsTreshold"}

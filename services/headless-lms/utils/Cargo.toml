@@ -11,7 +11,7 @@ license.workspace = true
 # and the comment from there.
 [dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.36.0", features = ["fs", "io-util"] }
+tokio.workspace = true
 # Additional utilities for working with Tokio.
 tokio-util = { version = "0.7.10", features = ["io"] }
 # Utilities to work with `Stream` and `tokio`.

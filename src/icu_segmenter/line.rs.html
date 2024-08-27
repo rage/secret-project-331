@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.4.0/src/line.rs`."><title>line.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_segmenter-1.5.0/src/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_segmenter" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1640,6 +1639,15 @@
 <a href="#1639" id="1639">1639</a>
 <a href="#1640" id="1640">1640</a>
 <a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1647,7 +1655,6 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::complex::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::indices::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::provider::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">crate</span>::symbols::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::SegmenterError;
 <span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>alloc::vec;
@@ -1656,6 +1663,104 @@
 <span class="kw">use </span>core::str::CharIndices;
 <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>utf8_iter::Utf8CharIndices;
+
+<span class="comment">// TODO(#1637): These constants should be data driven.
+</span><span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>UNKNOWN: u8 = <span class="number">0</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>AI: u8 = <span class="number">1</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>AL: u8 = <span class="number">2</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>B2: u8 = <span class="number">3</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>BA: u8 = <span class="number">4</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>BB: u8 = <span class="number">5</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>BK: u8 = <span class="number">6</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>CB: u8 = <span class="number">7</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>CJ: u8 = <span class="number">8</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>CL: u8 = <span class="number">9</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>CM: u8 = <span class="number">10</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>CP: u8 = <span class="number">11</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>CR: u8 = <span class="number">12</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>EB: u8 = <span class="number">13</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>EM: u8 = <span class="number">14</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>EX: u8 = <span class="number">15</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>GL: u8 = <span class="number">16</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>H2: u8 = <span class="number">17</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>H3: u8 = <span class="number">18</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>HL: u8 = <span class="number">19</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>HY: u8 = <span class="number">20</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>ID: u8 = <span class="number">21</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>ID_CN: u8 = <span class="number">22</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>IN: u8 = <span class="number">23</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>IS: u8 = <span class="number">24</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>JL: u8 = <span class="number">25</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>JT: u8 = <span class="number">26</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>JV: u8 = <span class="number">27</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>LF: u8 = <span class="number">28</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>NL: u8 = <span class="number">29</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>NS: u8 = <span class="number">30</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>NU: u8 = <span class="number">31</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>OP_EA: u8 = <span class="number">32</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>OP_OP30: u8 = <span class="number">33</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>PO: u8 = <span class="number">34</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>PO_EAW: u8 = <span class="number">35</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>PR: u8 = <span class="number">36</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>PR_EAW: u8 = <span class="number">37</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>QU: u8 = <span class="number">38</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>RI: u8 = <span class="number">39</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>SA: u8 = <span class="number">40</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>SG: u8 = <span class="number">41</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>SP: u8 = <span class="number">42</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>SY: u8 = <span class="number">43</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>WJ: u8 = <span class="number">44</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>XX: u8 = <span class="number">45</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>ZW: u8 = <span class="number">46</span>;
+<span class="attr">#[allow(dead_code)]
+</span><span class="kw">const </span>ZWJ: u8 = <span class="number">47</span>;
 
 <span class="doccomment">/// An enum specifies the strictness of line-breaking rules. It can be passed as
 /// an argument when creating a line segmenter.
@@ -1715,7 +1820,7 @@
 
 <span class="doccomment">/// Options to tailor line-breaking behavior.
 </span><span class="attr">#[non_exhaustive]
-#[derive(Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 </span><span class="kw">pub struct </span>LineBreakOptions {
     <span class="doccomment">/// Strictness of line-breaking rules. See [`LineBreakStrictness`].
     </span><span class="kw">pub </span>strictness: LineBreakStrictness,
@@ -1785,7 +1890,7 @@
 /// [LB5]: https://www.unicode.org/reports/tr14/#LB5
 ///
 /// ```rust
-/// # use icu_segmenter::LineSegmenter;
+/// # use icu::segmenter::LineSegmenter;
 /// #
 /// # let segmenter = LineSegmenter::new_auto();
 /// #
@@ -1793,6 +1898,21 @@
 /// let breakpoints: Vec&lt;usize&gt; = segmenter.segment_str(text).collect();
 /// // 9 and 22 are mandatory breaks, 14 is a line break opportunity.
 /// assert_eq!(&amp;breakpoints, &amp;[0, 9, 14, 22]);
+///
+/// // There is a break opportunity between emoji, but not within the ZWJ sequence 🏳️‍🌈.
+/// let flag_equation = "🏳️➕🌈🟰🏳️\u{200D}🌈";
+/// let possible_first_lines: Vec&lt;&amp;str&gt; =
+///     segmenter.segment_str(flag_equation).skip(1).map(|i| &amp;flag_equation[..i]).collect();
+/// assert_eq!(
+///     &amp;possible_first_lines,
+///     &amp;[
+///         "🏳️",
+///         "🏳️➕",
+///         "🏳️➕🌈",
+///         "🏳️➕🌈🟰",
+///         "🏳️➕🌈🟰🏳️‍🌈"
+///     ]
+/// );
 /// ```
 ///
 /// # Examples
@@ -1800,7 +1920,7 @@
 /// Segment a string with default options:
 ///
 /// ```rust
-/// use icu_segmenter::LineSegmenter;
+/// use icu::segmenter::LineSegmenter;
 ///
 /// let segmenter = LineSegmenter::new_auto();
 ///
@@ -1812,7 +1932,7 @@
 /// Segment a string with CSS option overrides:
 ///
 /// ```rust
-/// use icu_segmenter::{
+/// use icu::segmenter::{
 ///     LineBreakOptions, LineBreakStrictness, LineBreakWordOption,
 ///     LineSegmenter,
 /// };
@@ -1831,7 +1951,7 @@
 /// Segment a Latin1 byte string:
 ///
 /// ```rust
-/// use icu_segmenter::LineSegmenter;
+/// use icu::segmenter::LineSegmenter;
 ///
 /// let segmenter = LineSegmenter::new_auto();
 ///
@@ -1844,7 +1964,7 @@
 ///
 /// ```rust
 /// use icu::properties::{maps, LineBreak};
-/// use icu_segmenter::LineSegmenter;
+/// use icu::segmenter::LineSegmenter;
 ///
 /// # let segmenter = LineSegmenter::new_auto();
 /// #
@@ -2236,57 +2356,47 @@
     }
 }
 
-<span class="kw">fn </span>get_linebreak_property_utf32_with_rule(
-    property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;,
-    codepoint: u32,
-    strictness: LineBreakStrictness,
-    word_option: LineBreakWordOption,
-) -&gt; u8 {
-    <span class="comment">// Note: Default value is 0 == UNKNOWN
-    </span><span class="kw">let </span>prop = property_table.<span class="number">0</span>.get32(codepoint);
+<span class="kw">impl </span>RuleBreakDataV1&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>get_linebreak_property_utf32_with_rule(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        codepoint: u32,
+        strictness: LineBreakStrictness,
+        word_option: LineBreakWordOption,
+    ) -&gt; u8 {
+        <span class="comment">// Note: Default value is 0 == UNKNOWN
+        </span><span class="kw">let </span>prop = <span class="self">self</span>.property_table.get32(codepoint);
 
-    <span class="kw">if </span>word_option == LineBreakWordOption::BreakAll
-        || strictness == LineBreakStrictness::Loose
-        || strictness == LineBreakStrictness::Normal
-    {
-        <span class="kw">return match </span>prop {
-            CJ =&gt; ID, <span class="comment">// All CJ's General_Category is Other_Letter (Lo).
-            </span><span class="kw">_ </span>=&gt; prop,
-        };
+        <span class="kw">if </span>word_option == LineBreakWordOption::BreakAll
+            || strictness == LineBreakStrictness::Loose
+            || strictness == LineBreakStrictness::Normal
+        {
+            <span class="kw">return match </span>prop {
+                CJ =&gt; ID, <span class="comment">// All CJ's General_Category is Other_Letter (Lo).
+                </span><span class="kw">_ </span>=&gt; prop,
+            };
+        }
+
+        <span class="comment">// CJ is treated as NS by default, yielding strict line breaking.
+        // https://www.unicode.org/reports/tr14/#CJ
+        </span>prop
     }
 
-    <span class="comment">// CJ is treated as NS by default, yielding strict line breaking.
-    // https://www.unicode.org/reports/tr14/#CJ
-    </span>prop
-}
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>get_break_state_from_table(<span class="kw-2">&amp;</span><span class="self">self</span>, left: u8, right: u8) -&gt; BreakState {
+        <span class="kw">let </span>idx = (left <span class="kw">as </span>usize) * (<span class="self">self</span>.property_count <span class="kw">as </span>usize) + (right <span class="kw">as </span>usize);
+        <span class="comment">// We use unwrap_or to fall back to the base case and prevent panics on bad data.
+        </span><span class="self">self</span>.break_state_table.get(idx).unwrap_or(BreakState::Keep)
+    }
 
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>get_linebreak_property_latin1(property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;, codepoint: u8) -&gt; u8 {
-    <span class="comment">// Note: Default value is 0 == UNKNOWN
-    </span>property_table.<span class="number">0</span>.get32(codepoint <span class="kw">as </span>u32)
-}
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>use_complex_breaking_utf32(<span class="kw-2">&amp;</span><span class="self">self</span>, codepoint: u32) -&gt; bool {
+        <span class="kw">let </span>line_break_property = <span class="self">self</span>.get_linebreak_property_utf32_with_rule(
+            codepoint,
+            LineBreakStrictness::Strict,
+            LineBreakWordOption::Normal,
+        );
 
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>get_linebreak_property_with_rule(
-    property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;,
-    codepoint: char,
-    linebreak_rule: LineBreakStrictness,
-    wordbreak_rule: LineBreakWordOption,
-) -&gt; u8 {
-    get_linebreak_property_utf32_with_rule(
-        property_table,
-        codepoint <span class="kw">as </span>u32,
-        linebreak_rule,
-        wordbreak_rule,
-    )
-}
-
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>is_break_utf32_by_normal(codepoint: u32, ja_zh: bool) -&gt; bool {
-    <span class="kw">match </span>codepoint {
-        <span class="number">0x301C </span>=&gt; ja_zh,
-        <span class="number">0x30A0 </span>=&gt; ja_zh,
-        <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+        line_break_property == SA
     }
 }
 
@@ -2352,84 +2462,7 @@
     <span class="prelude-val">None
 </span>}
 
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>is_break_from_table(
-    break_state_table: <span class="kw-2">&amp;</span>RuleBreakStateTable&lt;<span class="lifetime">'_</span>&gt;,
-    property_count: u8,
-    left: u8,
-    right: u8,
-) -&gt; bool {
-    <span class="kw">let </span>rule = get_break_state_from_table(break_state_table, property_count, left, right);
-    <span class="kw">if </span>rule == KEEP_RULE {
-        <span class="kw">return </span><span class="bool-val">false</span>;
-    }
-    <span class="kw">if </span>rule &gt;= <span class="number">0 </span>{
-        <span class="comment">// need additional next characters to get break rule.
-        </span><span class="kw">return </span><span class="bool-val">false</span>;
-    }
-    <span class="bool-val">true
-</span>}
-
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>is_non_break_by_keepall(left: u8, right: u8) -&gt; bool {
-    <span class="comment">//  typographic letter units shouldn't be break
-    </span>(left == AI
-        || left == AL
-        || left == ID
-        || left == NU
-        || left == HY
-        || left == H2
-        || left == H3
-        || left == JL
-        || left == JV
-        || left == JT
-        || left == CJ)
-        &amp;&amp; (right == AI
-            || right == AL
-            || right == ID
-            || right == NU
-            || right == HY
-            || right == H2
-            || right == H3
-            || right == JL
-            || right == JV
-            || right == JT
-            || right == CJ)
-}
-
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>get_break_state_from_table(
-    break_state_table: <span class="kw-2">&amp;</span>RuleBreakStateTable&lt;<span class="lifetime">'_</span>&gt;,
-    property_count: u8,
-    left: u8,
-    right: u8,
-) -&gt; i8 {
-    <span class="kw">let </span>idx = (left <span class="kw">as </span>usize) * (property_count <span class="kw">as </span>usize) + (right <span class="kw">as </span>usize);
-    <span class="comment">// We use unwrap_or to fall back to the base case and prevent panics on bad data.
-    </span>break_state_table.<span class="number">0</span>.get(idx).unwrap_or(KEEP_RULE)
-}
-
-<span class="attr">#[inline]
-</span><span class="kw">fn </span>use_complex_breaking_utf32(property_table: <span class="kw-2">&amp;</span>RuleBreakPropertyTable&lt;<span class="lifetime">'_</span>&gt;, codepoint: u32) -&gt; bool {
-    <span class="kw">let </span>line_break_property = get_linebreak_property_utf32_with_rule(
-        property_table,
-        codepoint,
-        LineBreakStrictness::Strict,
-        LineBreakWordOption::Normal,
-    );
-
-    line_break_property == SA
-}
-
-<span class="comment">/*
-#[inline]
-fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
-    // Thai, Lao and Khmer
-    (codepoint &gt;= 0xe01 &amp;&amp; codepoint &lt;= 0xeff) || (codepoint &gt;= 0x1780 &amp;&amp; codepoint &lt;= 0x17ff)
-}
-*/
-
-</span><span class="doccomment">/// A trait allowing for LineBreakIterator to be generalized to multiple string iteration methods.
+<span class="doccomment">/// A trait allowing for LineBreakIterator to be generalized to multiple string iteration methods.
 ///
 /// This is implemented by ICU4X for several common string types.
 </span><span class="kw">pub trait </span>LineBreakType&lt;<span class="lifetime">'l</span>, <span class="lifetime">'s</span>&gt; {
@@ -2504,7 +2537,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             }
         }
 
-        <span class="kw">loop </span>{
+        <span class="lifetime">'a</span>: <span class="kw">loop </span>{
             <span class="macro">debug_assert!</span>(!<span class="self">self</span>.is_eof());
             <span class="kw">let </span>left_codepoint = <span class="self">self</span>.get_current_codepoint()<span class="question-mark">?</span>;
             <span class="kw">let </span><span class="kw-2">mut </span>left_prop = <span class="self">self</span>.get_linebreak_property(left_codepoint);
@@ -2516,19 +2549,17 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             <span class="kw">let </span>right_prop = <span class="self">self</span>.get_linebreak_property(right_codepoint);
 
             <span class="comment">// CSS word-break property handling
-            </span><span class="kw">match </span><span class="self">self</span>.options.word_option {
-                LineBreakWordOption::BreakAll =&gt; {
-                    left_prop = <span class="kw">match </span>left_prop {
-                        AL =&gt; ID,
-                        NU =&gt; ID,
-                        SA =&gt; ID,
-                        <span class="kw">_ </span>=&gt; left_prop,
-                    };
+            </span><span class="kw">match </span>(<span class="self">self</span>.options.word_option, left_prop, right_prop) {
+                (LineBreakWordOption::BreakAll, AL | NU | SA, <span class="kw">_</span>) =&gt; {
+                    left_prop = ID;
                 }
-                LineBreakWordOption::KeepAll =&gt; {
-                    <span class="kw">if </span>is_non_break_by_keepall(left_prop, right_prop) {
-                        <span class="kw">continue</span>;
-                    }
+                <span class="comment">//  typographic letter units shouldn't be break
+                </span>(
+                    LineBreakWordOption::KeepAll,
+                    AI | AL | ID | NU | HY | H2 | H3 | JL | JV | JT | CJ,
+                    AI | AL | ID | NU | HY | H2 | H3 | JL | JV | JT | CJ,
+                ) =&gt; {
+                    <span class="kw">continue</span>;
                 }
                 <span class="kw">_ </span>=&gt; (),
             }
@@ -2572,48 +2603,54 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
             </span>}
 
             <span class="comment">// If break_state is equals or grater than 0, it is alias of property.
-            </span><span class="kw">let </span><span class="kw-2">mut </span>break_state = <span class="self">self</span>.get_break_state_from_table(left_prop, right_prop);
-            <span class="kw">if </span>break_state &gt;= <span class="number">0_i8 </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>previous_iter = <span class="self">self</span>.iter.clone();
-                <span class="kw">let </span><span class="kw-2">mut </span>previous_pos_data = <span class="self">self</span>.current_pos_data;
+            </span><span class="kw">let </span><span class="kw-2">mut </span>index = <span class="kw">match </span><span class="self">self</span>.data.get_break_state_from_table(left_prop, right_prop) {
+                BreakState::Index(index) =&gt; index,
+                <span class="comment">// Line break uses more that 64 states, so they spill over into the intermediate range,
+                // and we cannot change that at the moment
+                </span>BreakState::Intermediate(index) =&gt; index + <span class="number">64</span>,
+                BreakState::Break | BreakState::NoMatch =&gt; <span class="kw">return </span><span class="self">self</span>.get_current_position(),
+                BreakState::Keep =&gt; <span class="kw">continue</span>,
+            };
 
-                <span class="kw">loop </span>{
-                    <span class="self">self</span>.advance_iter();
+            <span class="kw">let </span><span class="kw-2">mut </span>previous_iter = <span class="self">self</span>.iter.clone();
+            <span class="kw">let </span><span class="kw-2">mut </span>previous_pos_data = <span class="self">self</span>.current_pos_data;
 
-                    <span class="kw">let </span><span class="prelude-val">Some</span>(prop) = <span class="self">self</span>.get_current_linebreak_property() <span class="kw">else </span>{
-                        <span class="comment">// Reached EOF. But we are analyzing multiple characters now, so next break may be previous point.
-                        </span><span class="kw">let </span>break_state = <span class="self">self
-                            </span>.get_break_state_from_table(break_state <span class="kw">as </span>u8, <span class="self">self</span>.data.eot_property);
-                        <span class="kw">if </span>break_state == NOT_MATCH_RULE {
-                            <span class="self">self</span>.iter = previous_iter;
-                            <span class="self">self</span>.current_pos_data = previous_pos_data;
-                            <span class="kw">return </span><span class="self">self</span>.get_current_position();
-                        }
-                        <span class="comment">// EOF
-                        </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.len);
-                    };
+            <span class="kw">loop </span>{
+                <span class="self">self</span>.advance_iter();
 
-                    break_state = <span class="self">self</span>.get_break_state_from_table(break_state <span class="kw">as </span>u8, prop);
-                    <span class="kw">if </span>break_state &lt; <span class="number">0 </span>{
-                        <span class="kw">break</span>;
+                <span class="kw">let </span><span class="prelude-val">Some</span>(prop) = <span class="self">self</span>.get_current_linebreak_property() <span class="kw">else </span>{
+                    <span class="comment">// Reached EOF. But we are analyzing multiple characters now, so next break may be previous point.
+                    </span><span class="kw">let </span>break_state = <span class="self">self
+                        </span>.data
+                        .get_break_state_from_table(index, <span class="self">self</span>.data.eot_property);
+                    <span class="kw">if </span>break_state == BreakState::NoMatch {
+                        <span class="self">self</span>.iter = previous_iter;
+                        <span class="self">self</span>.current_pos_data = previous_pos_data;
+                        <span class="kw">return </span><span class="self">self</span>.get_current_position();
                     }
+                    <span class="comment">// EOF
+                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>.len);
+                };
 
-                    previous_iter = <span class="self">self</span>.iter.clone();
-                    previous_pos_data = <span class="self">self</span>.current_pos_data;
+                <span class="kw">match </span><span class="self">self</span>.data.get_break_state_from_table(index, prop) {
+                    BreakState::Keep =&gt; <span class="kw">continue </span><span class="lifetime">'a</span>,
+                    BreakState::NoMatch =&gt; {
+                        <span class="self">self</span>.iter = previous_iter;
+                        <span class="self">self</span>.current_pos_data = previous_pos_data;
+                        <span class="kw">return </span><span class="self">self</span>.get_current_position();
+                    }
+                    BreakState::Break =&gt; <span class="kw">return </span><span class="self">self</span>.get_current_position(),
+                    BreakState::Index(i) =&gt; {
+                        index = i;
+                        previous_iter = <span class="self">self</span>.iter.clone();
+                        previous_pos_data = <span class="self">self</span>.current_pos_data;
+                    }
+                    BreakState::Intermediate(i) =&gt; {
+                        index = i + <span class="number">64</span>;
+                        previous_iter = <span class="self">self</span>.iter.clone();
+                        previous_pos_data = <span class="self">self</span>.current_pos_data;
+                    }
                 }
-                <span class="kw">if </span>break_state == KEEP_RULE {
-                    <span class="kw">continue</span>;
-                }
-                <span class="kw">if </span>break_state == NOT_MATCH_RULE {
-                    <span class="self">self</span>.iter = previous_iter;
-                    <span class="self">self</span>.current_pos_data = previous_pos_data;
-                    <span class="kw">return </span><span class="self">self</span>.get_current_position();
-                }
-                <span class="kw">return </span><span class="self">self</span>.get_current_position();
-            }
-
-            <span class="kw">if </span><span class="self">self</span>.is_break_from_table(left_prop, right_prop) {
-                <span class="kw">return </span><span class="self">self</span>.get_current_position();
             }
         }
     }
@@ -2674,25 +2711,10 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     }
 
     <span class="kw">fn </span>is_break_by_normal(<span class="kw-2">&amp;</span><span class="self">self</span>, codepoint: Y::CharType) -&gt; bool {
-        is_break_utf32_by_normal(codepoint.into(), <span class="self">self</span>.options.ja_zh)
-    }
-
-    <span class="kw">fn </span>get_break_state_from_table(<span class="kw-2">&amp;</span><span class="self">self</span>, left: u8, right: u8) -&gt; i8 {
-        get_break_state_from_table(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.data.break_state_table,
-            <span class="self">self</span>.data.property_count,
-            left,
-            right,
-        )
-    }
-
-    <span class="kw">fn </span>is_break_from_table(<span class="kw-2">&amp;</span><span class="self">self</span>, left: u8, right: u8) -&gt; bool {
-        is_break_from_table(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.data.break_state_table,
-            <span class="self">self</span>.data.property_count,
-            left,
-            right,
-        )
+        <span class="kw">match </span>codepoint.into() {
+            <span class="number">0x301C </span>| <span class="number">0x30A0 </span>=&gt; <span class="self">self</span>.options.ja_zh,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
+        }
     }
 }
 
@@ -2704,9 +2726,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     <span class="kw">type </span>CharType = char;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: char) -&gt; u8 {
-        get_linebreak_property_with_rule(
-            <span class="kw-2">&amp;</span>iterator.data.property_table,
-            c,
+        iterator.data.get_linebreak_property_utf32_with_rule(
+            c <span class="kw">as </span>u32,
             iterator.options.strictness,
             iterator.options.word_option,
         )
@@ -2714,7 +2735,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>use_complex_breaking(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: char) -&gt; bool {
-        use_complex_breaking_utf32(<span class="kw-2">&amp;</span>iterator.data.property_table, c <span class="kw">as </span>u32)
+        iterator.data.use_complex_breaking_utf32(c <span class="kw">as </span>u32)
     }
 
     <span class="kw">fn </span>get_current_position_character_len(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;) -&gt; usize {
@@ -2737,9 +2758,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     <span class="kw">type </span>CharType = char;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: char) -&gt; u8 {
-        get_linebreak_property_with_rule(
-            <span class="kw-2">&amp;</span>iterator.data.property_table,
-            c,
+        iterator.data.get_linebreak_property_utf32_with_rule(
+            c <span class="kw">as </span>u32,
             iterator.options.strictness,
             iterator.options.word_option,
         )
@@ -2747,7 +2767,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>use_complex_breaking(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: char) -&gt; bool {
-        use_complex_breaking_utf32(<span class="kw-2">&amp;</span>iterator.data.property_table, c <span class="kw">as </span>u32)
+        iterator.data.use_complex_breaking_utf32(c <span class="kw">as </span>u32)
     }
 
     <span class="kw">fn </span>get_current_position_character_len(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;) -&gt; usize {
@@ -2824,7 +2844,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: u8) -&gt; u8 {
         <span class="comment">// No CJ on Latin1
-        </span>get_linebreak_property_latin1(<span class="kw-2">&amp;</span>iterator.data.property_table, c)
+        // Note: Default value is 0 == UNKNOWN
+        </span>iterator.data.property_table.get32(c <span class="kw">as </span>u32)
     }
 
     <span class="attr">#[inline]
@@ -2852,8 +2873,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
     <span class="kw">type </span>CharType = u32;
 
     <span class="kw">fn </span>get_linebreak_property_with_rule(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: u32) -&gt; u8 {
-        get_linebreak_property_utf32_with_rule(
-            <span class="kw-2">&amp;</span>iterator.data.property_table,
+        iterator.data.get_linebreak_property_utf32_with_rule(
             c,
             iterator.options.strictness,
             iterator.options.word_option,
@@ -2862,7 +2882,7 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>use_complex_breaking(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;, c: u32) -&gt; bool {
-        use_complex_breaking_utf32(<span class="kw-2">&amp;</span>iterator.data.property_table, c)
+        iterator.data.use_complex_breaking_utf32(c)
     }
 
     <span class="kw">fn </span>get_current_position_character_len(iterator: <span class="kw-2">&amp;</span>LineBreakIterator&lt;<span class="self">Self</span>&gt;) -&gt; usize {
@@ -2946,9 +2966,8 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         .expect(<span class="string">"Data should be present!"</span>);
 
         <span class="kw">let </span>get_linebreak_property = |codepoint| {
-            get_linebreak_property_with_rule(
-                <span class="kw-2">&amp;</span>payload.get().property_table,
-                codepoint,
+            payload.get().get_linebreak_property_utf32_with_rule(
+                codepoint <span class="kw">as </span>u32,
                 LineBreakStrictness::Strict,
                 LineBreakWordOption::Normal,
             )
@@ -2983,11 +3002,9 @@ fn use_complex_breaking_utf32(codepoint: u32) -&gt; bool {
         <span class="kw">let </span>lb_data: <span class="kw-2">&amp;</span>RuleBreakDataV1 = payload.get();
 
         <span class="kw">let </span>is_break = |left, right| {
-            is_break_from_table(
-                <span class="kw-2">&amp;</span>lb_data.break_state_table,
-                lb_data.property_count,
-                left,
-                right,
+            <span class="macro">matches!</span>(
+                lb_data.get_break_state_from_table(left, right),
+                BreakState::Break | BreakState::NoMatch
             )
         };
 

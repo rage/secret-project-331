@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/query/args.rs`."><title>args.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.8.1/src/query/args.rs`."><title>args.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -153,50 +152,14 @@
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::DatabaseExt;
 <span class="kw">use </span><span class="kw">crate</span>::query::QueryMacroInput;
 <span class="kw">use </span>either::Either;
-<span class="kw">use </span>proc_macro2::{Ident, TokenStream};
+<span class="kw">use </span>proc_macro2::TokenStream;
 <span class="kw">use </span>quote::{format_ident, quote, quote_spanned};
 <span class="kw">use </span>sqlx_core::describe::Describe;
 <span class="kw">use </span>syn::spanned::Spanned;
-<span class="kw">use </span>syn::{Expr, ExprCast, ExprGroup, ExprType, Type};
+<span class="kw">use </span>syn::{Expr, ExprCast, ExprGroup, Type};
 
 <span class="doccomment">/// Returns a tokenstream which typechecks the arguments passed to the macro
 /// and binds them to `DB::Arguments` with the ident `query_args`.
@@ -207,8 +170,8 @@
     <span class="kw">let </span>db_path = DB::db_path();
 
     <span class="kw">if </span>input.arg_exprs.is_empty() {
-        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
-            <span class="kw">let </span>query_args = &lt;#db_path <span class="kw">as </span>::sqlx::database::HasArguments&gt;::Arguments::default();
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
+            <span class="kw">let </span>query_args = ::core::result::Result::&lt;<span class="kw">_</span>, ::sqlx::error::BoxDynError&gt;::Ok(&lt;#db_path <span class="kw">as </span>::sqlx::database::Database&gt;::Arguments::&lt;<span class="lifetime">'_</span>&gt;::default());
         });
     }
 
@@ -219,7 +182,7 @@
     <span class="kw">let </span>arg_name = <span class="kw-2">&amp;</span>arg_names;
     <span class="kw">let </span>arg_expr = input.arg_exprs.iter().cloned().map(strip_wildcard);
 
-    <span class="kw">let </span>arg_bindings = <span class="macro">quote! </span>{
+    <span class="kw">let </span>arg_bindings = <span class="macro">quote!</span> {
         #(<span class="kw">let </span>#arg_name = <span class="kw-2">&amp;</span>(#arg_expr);)*
     };
 
@@ -240,31 +203,28 @@
                 .zip(arg_names.iter().zip(<span class="kw-2">&amp;</span>input.arg_exprs))
                 .enumerate()
                 .map(|(i, (param_ty, (name, expr)))| -&gt; <span class="kw">crate</span>::Result&lt;<span class="kw">_</span>&gt; {
-                    <span class="kw">let </span>param_ty = <span class="kw">match </span>get_type_override(expr) {
+                    <span class="kw">if </span>get_type_override(expr).is_some() {
                         <span class="comment">// cast will fail to compile if the type does not match
                         // and we strip casts to wildcard
-                        </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="bool-val">false</span>)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span>()),
-                        <span class="comment">// type ascription is deprecated
-                        </span><span class="prelude-val">Some</span>((ty, <span class="bool-val">true</span>)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(create_warning(name.clone(), <span class="kw-2">&amp;</span>ty, <span class="kw-2">&amp;</span>expr)),
-                        <span class="prelude-val">None </span>=&gt; {
-                            DB::param_type_for_id(<span class="kw-2">&amp;</span>param_ty)
-                                .ok_or_else(|| {
-                                    <span class="kw">if let </span><span class="prelude-val">Some</span>(feature_gate) = &lt;DB <span class="kw">as </span>DatabaseExt&gt;::get_feature_gate(<span class="kw-2">&amp;</span>param_ty) {
-                                        <span class="macro">format!</span>(
-                                            <span class="string">"optional sqlx feature `{}` required for type {} of param #{}"</span>,
-                                            feature_gate,
-                                            param_ty,
-                                            i + <span class="number">1</span>,
-                                        )
-                                    } <span class="kw">else </span>{
-                                        <span class="macro">format!</span>(<span class="string">"unsupported type {} for param #{}"</span>, param_ty, i + <span class="number">1</span>)
-                                    }
-                                })<span class="question-mark">?
-                                </span>.parse::&lt;TokenStream&gt;()
-                                .map_err(|<span class="kw">_</span>| <span class="macro">format!</span>(<span class="string">"Rust type mapping for {param_ty} not parsable"</span>))<span class="question-mark">?
+                        </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">quote!</span>());
+                    }
 
-                        </span>}
-                    };
+                    <span class="kw">let </span>param_ty =
+                        DB::param_type_for_id(param_ty)
+                            .ok_or_else(|| {
+                                <span class="kw">if let </span><span class="prelude-val">Some</span>(feature_gate) = DB::get_feature_gate(param_ty) {
+                                    <span class="macro">format!</span>(
+                                        <span class="string">"optional sqlx feature `{}` required for type {} of param #{}"</span>,
+                                        feature_gate,
+                                        param_ty,
+                                        i + <span class="number">1</span>,
+                                    )
+                                } <span class="kw">else </span>{
+                                    <span class="macro">format!</span>(<span class="string">"unsupported type {} for param #{}"</span>, param_ty, i + <span class="number">1</span>)
+                                }
+                            })<span class="question-mark">?
+                            </span>.parse::&lt;TokenStream&gt;()
+                            .map_err(|<span class="kw">_</span>| <span class="macro">format!</span>(<span class="string">"Rust type mapping for {param_ty} not parsable"</span>))<span class="question-mark">?</span>;
 
                     <span class="prelude-val">Ok</span>(<span class="macro">quote_spanned!</span>(expr.span() =&gt;
                         <span class="comment">// this shouldn't actually run
@@ -293,56 +253,25 @@
 
     <span class="kw">let </span>args_count = input.arg_exprs.len();
 
-    <span class="prelude-val">Ok</span>(<span class="macro">quote! </span>{
+    <span class="prelude-val">Ok</span>(<span class="macro">quote!</span> {
         #arg_bindings
 
         #args_check
 
-        <span class="kw">let </span><span class="kw-2">mut </span>query_args = &lt;#db_path <span class="kw">as </span>::sqlx::database::HasArguments&gt;::Arguments::default();
+        <span class="kw">let </span><span class="kw-2">mut </span>query_args = &lt;#db_path <span class="kw">as </span>::sqlx::database::Database&gt;::Arguments::&lt;<span class="lifetime">'_</span>&gt;::default();
         query_args.reserve(
             #args_count,
             <span class="number">0 </span>#(+ ::sqlx::encode::Encode::&lt;#db_path&gt;::size_hint(#arg_name))*
         );
-        #(query_args.add(#arg_name);)*
+        <span class="kw">let </span>query_args = ::core::result::Result::&lt;<span class="kw">_</span>, ::sqlx::error::BoxDynError&gt;::Ok(query_args)
+        #(.and_then(<span class="kw">move </span>|<span class="kw-2">mut </span>query_args| query_args.add(#arg_name).map(<span class="kw">move </span>|()| query_args) ))<span class="kw-2">*</span>;
     })
 }
 
-<span class="kw">fn </span>create_warning(name: Ident, ty: <span class="kw-2">&amp;</span>Type, expr: <span class="kw-2">&amp;</span>Expr) -&gt; TokenStream {
-    <span class="kw">let </span>Expr::Type(ExprType { expr: stripped, .. }) = expr <span class="kw">else </span>{
-        <span class="kw">return </span><span class="macro">quote!</span>();
-    };
-    <span class="kw">let </span>current = <span class="macro">quote!</span>(#stripped: #ty).to_string();
-    <span class="kw">let </span>fix = <span class="macro">quote!</span>(#stripped <span class="kw">as </span>#ty).to_string();
-    <span class="kw">let </span>name = Ident::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"warning_{name}"</span>), expr.span());
-
-    <span class="kw">let </span>message = <span class="macro">format!</span>(
-        <span class="string">"
-\t\tType ascription pattern is deprecated, prefer casting
-\t\tTry changing from
-\t\t\t`{current}`
-\t\tto
-\t\t\t`{fix}`
-
-\t\tSee &lt;https://github.com/rust-lang/rfcs/pull/3307&gt; for more information
-"
-    </span>);
-
-    <span class="macro">quote_spanned!</span>(expr.span() =&gt;
-        <span class="comment">// this shouldn't actually run
-        </span><span class="kw">if </span><span class="bool-val">false </span>{
-            <span class="attr">#[deprecated(note = #message)]
-            #[allow(non_upper_case_globals)]
-            </span><span class="kw">const </span>#name: () = ();
-            <span class="kw">let _ </span>= #name;
-        }
-    )
-}
-
-<span class="kw">fn </span>get_type_override(expr: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>Type, bool)&gt; {
+<span class="kw">fn </span>get_type_override(expr: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Type&gt; {
     <span class="kw">match </span>expr {
         Expr::Group(group) =&gt; get_type_override(<span class="kw-2">&amp;</span>group.expr),
-        Expr::Cast(cast) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>cast.ty, <span class="bool-val">false</span>)),
-        Expr::Type(ascription) =&gt; <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span>ascription.ty, <span class="bool-val">true</span>)),
+        Expr::Cast(cast) =&gt; <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>cast.ty),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
@@ -358,8 +287,6 @@
             group_token,
             expr: Box::new(strip_wildcard(<span class="kw-2">*</span>expr)),
         }),
-        <span class="comment">// type ascription syntax is experimental so we always strip it
-        </span>Expr::Type(ExprType { expr, .. }) =&gt; <span class="kw-2">*</span>expr,
         <span class="comment">// we want to retain casts if they semantically matter
         </span>Expr::Cast(ExprCast {
             attrs,

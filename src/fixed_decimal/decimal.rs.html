@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixed_decimal-0.5.5/src/decimal.rs`."><title>decimal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixed_decimal-0.5.6/src/decimal.rs`."><title>decimal.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fixed_decimal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -5499,301 +5498,6 @@
 <a href="#5498" id="5498">5498</a>
 <a href="#5499" id="5499">5499</a>
 <a href="#5500" id="5500">5500</a>
-<a href="#5501" id="5501">5501</a>
-<a href="#5502" id="5502">5502</a>
-<a href="#5503" id="5503">5503</a>
-<a href="#5504" id="5504">5504</a>
-<a href="#5505" id="5505">5505</a>
-<a href="#5506" id="5506">5506</a>
-<a href="#5507" id="5507">5507</a>
-<a href="#5508" id="5508">5508</a>
-<a href="#5509" id="5509">5509</a>
-<a href="#5510" id="5510">5510</a>
-<a href="#5511" id="5511">5511</a>
-<a href="#5512" id="5512">5512</a>
-<a href="#5513" id="5513">5513</a>
-<a href="#5514" id="5514">5514</a>
-<a href="#5515" id="5515">5515</a>
-<a href="#5516" id="5516">5516</a>
-<a href="#5517" id="5517">5517</a>
-<a href="#5518" id="5518">5518</a>
-<a href="#5519" id="5519">5519</a>
-<a href="#5520" id="5520">5520</a>
-<a href="#5521" id="5521">5521</a>
-<a href="#5522" id="5522">5522</a>
-<a href="#5523" id="5523">5523</a>
-<a href="#5524" id="5524">5524</a>
-<a href="#5525" id="5525">5525</a>
-<a href="#5526" id="5526">5526</a>
-<a href="#5527" id="5527">5527</a>
-<a href="#5528" id="5528">5528</a>
-<a href="#5529" id="5529">5529</a>
-<a href="#5530" id="5530">5530</a>
-<a href="#5531" id="5531">5531</a>
-<a href="#5532" id="5532">5532</a>
-<a href="#5533" id="5533">5533</a>
-<a href="#5534" id="5534">5534</a>
-<a href="#5535" id="5535">5535</a>
-<a href="#5536" id="5536">5536</a>
-<a href="#5537" id="5537">5537</a>
-<a href="#5538" id="5538">5538</a>
-<a href="#5539" id="5539">5539</a>
-<a href="#5540" id="5540">5540</a>
-<a href="#5541" id="5541">5541</a>
-<a href="#5542" id="5542">5542</a>
-<a href="#5543" id="5543">5543</a>
-<a href="#5544" id="5544">5544</a>
-<a href="#5545" id="5545">5545</a>
-<a href="#5546" id="5546">5546</a>
-<a href="#5547" id="5547">5547</a>
-<a href="#5548" id="5548">5548</a>
-<a href="#5549" id="5549">5549</a>
-<a href="#5550" id="5550">5550</a>
-<a href="#5551" id="5551">5551</a>
-<a href="#5552" id="5552">5552</a>
-<a href="#5553" id="5553">5553</a>
-<a href="#5554" id="5554">5554</a>
-<a href="#5555" id="5555">5555</a>
-<a href="#5556" id="5556">5556</a>
-<a href="#5557" id="5557">5557</a>
-<a href="#5558" id="5558">5558</a>
-<a href="#5559" id="5559">5559</a>
-<a href="#5560" id="5560">5560</a>
-<a href="#5561" id="5561">5561</a>
-<a href="#5562" id="5562">5562</a>
-<a href="#5563" id="5563">5563</a>
-<a href="#5564" id="5564">5564</a>
-<a href="#5565" id="5565">5565</a>
-<a href="#5566" id="5566">5566</a>
-<a href="#5567" id="5567">5567</a>
-<a href="#5568" id="5568">5568</a>
-<a href="#5569" id="5569">5569</a>
-<a href="#5570" id="5570">5570</a>
-<a href="#5571" id="5571">5571</a>
-<a href="#5572" id="5572">5572</a>
-<a href="#5573" id="5573">5573</a>
-<a href="#5574" id="5574">5574</a>
-<a href="#5575" id="5575">5575</a>
-<a href="#5576" id="5576">5576</a>
-<a href="#5577" id="5577">5577</a>
-<a href="#5578" id="5578">5578</a>
-<a href="#5579" id="5579">5579</a>
-<a href="#5580" id="5580">5580</a>
-<a href="#5581" id="5581">5581</a>
-<a href="#5582" id="5582">5582</a>
-<a href="#5583" id="5583">5583</a>
-<a href="#5584" id="5584">5584</a>
-<a href="#5585" id="5585">5585</a>
-<a href="#5586" id="5586">5586</a>
-<a href="#5587" id="5587">5587</a>
-<a href="#5588" id="5588">5588</a>
-<a href="#5589" id="5589">5589</a>
-<a href="#5590" id="5590">5590</a>
-<a href="#5591" id="5591">5591</a>
-<a href="#5592" id="5592">5592</a>
-<a href="#5593" id="5593">5593</a>
-<a href="#5594" id="5594">5594</a>
-<a href="#5595" id="5595">5595</a>
-<a href="#5596" id="5596">5596</a>
-<a href="#5597" id="5597">5597</a>
-<a href="#5598" id="5598">5598</a>
-<a href="#5599" id="5599">5599</a>
-<a href="#5600" id="5600">5600</a>
-<a href="#5601" id="5601">5601</a>
-<a href="#5602" id="5602">5602</a>
-<a href="#5603" id="5603">5603</a>
-<a href="#5604" id="5604">5604</a>
-<a href="#5605" id="5605">5605</a>
-<a href="#5606" id="5606">5606</a>
-<a href="#5607" id="5607">5607</a>
-<a href="#5608" id="5608">5608</a>
-<a href="#5609" id="5609">5609</a>
-<a href="#5610" id="5610">5610</a>
-<a href="#5611" id="5611">5611</a>
-<a href="#5612" id="5612">5612</a>
-<a href="#5613" id="5613">5613</a>
-<a href="#5614" id="5614">5614</a>
-<a href="#5615" id="5615">5615</a>
-<a href="#5616" id="5616">5616</a>
-<a href="#5617" id="5617">5617</a>
-<a href="#5618" id="5618">5618</a>
-<a href="#5619" id="5619">5619</a>
-<a href="#5620" id="5620">5620</a>
-<a href="#5621" id="5621">5621</a>
-<a href="#5622" id="5622">5622</a>
-<a href="#5623" id="5623">5623</a>
-<a href="#5624" id="5624">5624</a>
-<a href="#5625" id="5625">5625</a>
-<a href="#5626" id="5626">5626</a>
-<a href="#5627" id="5627">5627</a>
-<a href="#5628" id="5628">5628</a>
-<a href="#5629" id="5629">5629</a>
-<a href="#5630" id="5630">5630</a>
-<a href="#5631" id="5631">5631</a>
-<a href="#5632" id="5632">5632</a>
-<a href="#5633" id="5633">5633</a>
-<a href="#5634" id="5634">5634</a>
-<a href="#5635" id="5635">5635</a>
-<a href="#5636" id="5636">5636</a>
-<a href="#5637" id="5637">5637</a>
-<a href="#5638" id="5638">5638</a>
-<a href="#5639" id="5639">5639</a>
-<a href="#5640" id="5640">5640</a>
-<a href="#5641" id="5641">5641</a>
-<a href="#5642" id="5642">5642</a>
-<a href="#5643" id="5643">5643</a>
-<a href="#5644" id="5644">5644</a>
-<a href="#5645" id="5645">5645</a>
-<a href="#5646" id="5646">5646</a>
-<a href="#5647" id="5647">5647</a>
-<a href="#5648" id="5648">5648</a>
-<a href="#5649" id="5649">5649</a>
-<a href="#5650" id="5650">5650</a>
-<a href="#5651" id="5651">5651</a>
-<a href="#5652" id="5652">5652</a>
-<a href="#5653" id="5653">5653</a>
-<a href="#5654" id="5654">5654</a>
-<a href="#5655" id="5655">5655</a>
-<a href="#5656" id="5656">5656</a>
-<a href="#5657" id="5657">5657</a>
-<a href="#5658" id="5658">5658</a>
-<a href="#5659" id="5659">5659</a>
-<a href="#5660" id="5660">5660</a>
-<a href="#5661" id="5661">5661</a>
-<a href="#5662" id="5662">5662</a>
-<a href="#5663" id="5663">5663</a>
-<a href="#5664" id="5664">5664</a>
-<a href="#5665" id="5665">5665</a>
-<a href="#5666" id="5666">5666</a>
-<a href="#5667" id="5667">5667</a>
-<a href="#5668" id="5668">5668</a>
-<a href="#5669" id="5669">5669</a>
-<a href="#5670" id="5670">5670</a>
-<a href="#5671" id="5671">5671</a>
-<a href="#5672" id="5672">5672</a>
-<a href="#5673" id="5673">5673</a>
-<a href="#5674" id="5674">5674</a>
-<a href="#5675" id="5675">5675</a>
-<a href="#5676" id="5676">5676</a>
-<a href="#5677" id="5677">5677</a>
-<a href="#5678" id="5678">5678</a>
-<a href="#5679" id="5679">5679</a>
-<a href="#5680" id="5680">5680</a>
-<a href="#5681" id="5681">5681</a>
-<a href="#5682" id="5682">5682</a>
-<a href="#5683" id="5683">5683</a>
-<a href="#5684" id="5684">5684</a>
-<a href="#5685" id="5685">5685</a>
-<a href="#5686" id="5686">5686</a>
-<a href="#5687" id="5687">5687</a>
-<a href="#5688" id="5688">5688</a>
-<a href="#5689" id="5689">5689</a>
-<a href="#5690" id="5690">5690</a>
-<a href="#5691" id="5691">5691</a>
-<a href="#5692" id="5692">5692</a>
-<a href="#5693" id="5693">5693</a>
-<a href="#5694" id="5694">5694</a>
-<a href="#5695" id="5695">5695</a>
-<a href="#5696" id="5696">5696</a>
-<a href="#5697" id="5697">5697</a>
-<a href="#5698" id="5698">5698</a>
-<a href="#5699" id="5699">5699</a>
-<a href="#5700" id="5700">5700</a>
-<a href="#5701" id="5701">5701</a>
-<a href="#5702" id="5702">5702</a>
-<a href="#5703" id="5703">5703</a>
-<a href="#5704" id="5704">5704</a>
-<a href="#5705" id="5705">5705</a>
-<a href="#5706" id="5706">5706</a>
-<a href="#5707" id="5707">5707</a>
-<a href="#5708" id="5708">5708</a>
-<a href="#5709" id="5709">5709</a>
-<a href="#5710" id="5710">5710</a>
-<a href="#5711" id="5711">5711</a>
-<a href="#5712" id="5712">5712</a>
-<a href="#5713" id="5713">5713</a>
-<a href="#5714" id="5714">5714</a>
-<a href="#5715" id="5715">5715</a>
-<a href="#5716" id="5716">5716</a>
-<a href="#5717" id="5717">5717</a>
-<a href="#5718" id="5718">5718</a>
-<a href="#5719" id="5719">5719</a>
-<a href="#5720" id="5720">5720</a>
-<a href="#5721" id="5721">5721</a>
-<a href="#5722" id="5722">5722</a>
-<a href="#5723" id="5723">5723</a>
-<a href="#5724" id="5724">5724</a>
-<a href="#5725" id="5725">5725</a>
-<a href="#5726" id="5726">5726</a>
-<a href="#5727" id="5727">5727</a>
-<a href="#5728" id="5728">5728</a>
-<a href="#5729" id="5729">5729</a>
-<a href="#5730" id="5730">5730</a>
-<a href="#5731" id="5731">5731</a>
-<a href="#5732" id="5732">5732</a>
-<a href="#5733" id="5733">5733</a>
-<a href="#5734" id="5734">5734</a>
-<a href="#5735" id="5735">5735</a>
-<a href="#5736" id="5736">5736</a>
-<a href="#5737" id="5737">5737</a>
-<a href="#5738" id="5738">5738</a>
-<a href="#5739" id="5739">5739</a>
-<a href="#5740" id="5740">5740</a>
-<a href="#5741" id="5741">5741</a>
-<a href="#5742" id="5742">5742</a>
-<a href="#5743" id="5743">5743</a>
-<a href="#5744" id="5744">5744</a>
-<a href="#5745" id="5745">5745</a>
-<a href="#5746" id="5746">5746</a>
-<a href="#5747" id="5747">5747</a>
-<a href="#5748" id="5748">5748</a>
-<a href="#5749" id="5749">5749</a>
-<a href="#5750" id="5750">5750</a>
-<a href="#5751" id="5751">5751</a>
-<a href="#5752" id="5752">5752</a>
-<a href="#5753" id="5753">5753</a>
-<a href="#5754" id="5754">5754</a>
-<a href="#5755" id="5755">5755</a>
-<a href="#5756" id="5756">5756</a>
-<a href="#5757" id="5757">5757</a>
-<a href="#5758" id="5758">5758</a>
-<a href="#5759" id="5759">5759</a>
-<a href="#5760" id="5760">5760</a>
-<a href="#5761" id="5761">5761</a>
-<a href="#5762" id="5762">5762</a>
-<a href="#5763" id="5763">5763</a>
-<a href="#5764" id="5764">5764</a>
-<a href="#5765" id="5765">5765</a>
-<a href="#5766" id="5766">5766</a>
-<a href="#5767" id="5767">5767</a>
-<a href="#5768" id="5768">5768</a>
-<a href="#5769" id="5769">5769</a>
-<a href="#5770" id="5770">5770</a>
-<a href="#5771" id="5771">5771</a>
-<a href="#5772" id="5772">5772</a>
-<a href="#5773" id="5773">5773</a>
-<a href="#5774" id="5774">5774</a>
-<a href="#5775" id="5775">5775</a>
-<a href="#5776" id="5776">5776</a>
-<a href="#5777" id="5777">5777</a>
-<a href="#5778" id="5778">5778</a>
-<a href="#5779" id="5779">5779</a>
-<a href="#5780" id="5780">5780</a>
-<a href="#5781" id="5781">5781</a>
-<a href="#5782" id="5782">5782</a>
-<a href="#5783" id="5783">5783</a>
-<a href="#5784" id="5784">5784</a>
-<a href="#5785" id="5785">5785</a>
-<a href="#5786" id="5786">5786</a>
-<a href="#5787" id="5787">5787</a>
-<a href="#5788" id="5788">5788</a>
-<a href="#5789" id="5789">5789</a>
-<a href="#5790" id="5790">5790</a>
-<a href="#5791" id="5791">5791</a>
-<a href="#5792" id="5792">5792</a>
-<a href="#5793" id="5793">5793</a>
-<a href="#5794" id="5794">5794</a>
-<a href="#5795" id="5795">5795</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -5955,33 +5659,6 @@
     </span>Negative,
 }
 
-<span class="doccomment">/// Increment used in a rounding operation.
-///
-/// Forces a rounding operation to round to only multiples of the specified increment.
-///
-/// &lt;div class="stab unstable"&gt;
-/// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-/// including in SemVer minor releases. Use with caution.
-/// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-/// &lt;/div&gt;
-</span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone, Copy, Default)]
-#[non_exhaustive]
-#[cfg(feature = <span class="string">"experimental"</span>)]
-</span><span class="kw">pub enum </span>RoundingIncrement {
-    <span class="doccomment">/// Round the last digit to any digit (0-9).
-    ///
-    /// This is the default rounding increment for all the methods that don't take a
-    /// `RoundingIncrement` as an argument.
-    </span><span class="attr">#[default]
-    </span>MultiplesOf1,
-    <span class="doccomment">/// Round the last digit to only multiples of two (0, 2, 4, 6, 8).
-    </span>MultiplesOf2,
-    <span class="doccomment">/// Round the last digit to only multiples of five (0, 5).
-    </span>MultiplesOf5,
-    <span class="doccomment">/// Round the last two digits to only multiples of twenty-five (0, 25, 50, 75).
-    </span>MultiplesOf25,
-}
-
 <span class="kw">impl </span>Default <span class="kw">for </span>FixedDecimal {
     <span class="doccomment">/// Returns a `FixedDecimal` representing zero.
     </span><span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
@@ -5995,7 +5672,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>impl_from_signed_integer_type {
+<span class="macro">macro_rules!</span> impl_from_signed_integer_type {
     (<span class="macro-nonterminal">$itype</span>:ident, <span class="macro-nonterminal">$utype</span>: ident) =&gt; {
         <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$itype</span>&gt; <span class="kw">for </span>FixedDecimal {
             <span class="kw">fn </span>from(value: <span class="macro-nonterminal">$itype</span>) -&gt; <span class="self">Self </span>{
@@ -6014,7 +5691,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>impl_from_unsigned_integer_type {
+<span class="macro">macro_rules!</span> impl_from_unsigned_integer_type {
     (<span class="macro-nonterminal">$utype</span>: ident) =&gt; {
         <span class="kw">impl </span>From&lt;<span class="macro-nonterminal">$utype</span>&gt; <span class="kw">for </span>FixedDecimal {
             <span class="kw">fn </span>from(value: <span class="macro-nonterminal">$utype</span>) -&gt; <span class="self">Self </span>{
@@ -6039,6 +5716,59 @@
 <span class="macro">impl_from_unsigned_integer_type!</span>(u16);
 <span class="macro">impl_from_unsigned_integer_type!</span>(u8);
 
+<span class="doccomment">/// Increment used in a rounding operation.
+///
+/// Forces a rounding operation to round to only multiples of the specified increment.
+</span><span class="attr">#[derive(Debug, Eq, PartialEq, Clone, Copy, Default)]
+#[non_exhaustive]
+</span><span class="kw">pub enum </span>RoundingIncrement {
+    <span class="doccomment">/// Round the last digit to any digit (0-9).
+    ///
+    /// This is the default rounding increment for all the methods that don't take a
+    /// `RoundingIncrement` as an argument.
+    </span><span class="attr">#[default]
+    </span>MultiplesOf1,
+    <span class="doccomment">/// Round the last digit to only multiples of two (0, 2, 4, 6, 8).
+    </span>MultiplesOf2,
+    <span class="doccomment">/// Round the last digit to only multiples of five (0, 5).
+    </span>MultiplesOf5,
+    <span class="doccomment">/// Round the last two digits to only multiples of twenty-five (0, 25, 50, 75).
+    </span>MultiplesOf25,
+}
+
+<span class="comment">// Adapters to convert runtime dispatched calls into const-inlined methods.
+// This allows reducing the codesize for the common case of no increment.
+
+</span><span class="attr">#[derive(Copy, Clone, PartialEq)]
+</span><span class="kw">struct </span>NoIncrement;
+
+<span class="kw">trait </span>IncrementLike: Copy + Sized + PartialEq {
+    <span class="kw">const </span>MULTIPLES_OF_1: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;;
+    <span class="kw">const </span>MULTIPLES_OF_2: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;;
+    <span class="kw">const </span>MULTIPLES_OF_5: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;;
+    <span class="kw">const </span>MULTIPLES_OF_25: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;;
+}
+
+<span class="kw">impl </span>IncrementLike <span class="kw">for </span>RoundingIncrement {
+    <span class="kw">const </span>MULTIPLES_OF_1: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">Some</span>(<span class="self">Self</span>::MultiplesOf1);
+
+    <span class="kw">const </span>MULTIPLES_OF_2: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">Some</span>(<span class="self">Self</span>::MultiplesOf2);
+
+    <span class="kw">const </span>MULTIPLES_OF_5: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">Some</span>(<span class="self">Self</span>::MultiplesOf5);
+
+    <span class="kw">const </span>MULTIPLES_OF_25: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">Some</span>(<span class="self">Self</span>::MultiplesOf25);
+}
+
+<span class="kw">impl </span>IncrementLike <span class="kw">for </span>NoIncrement {
+    <span class="kw">const </span>MULTIPLES_OF_1: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">Some</span>(<span class="self">Self</span>);
+
+    <span class="kw">const </span>MULTIPLES_OF_2: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">None</span>;
+
+    <span class="kw">const </span>MULTIPLES_OF_5: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">None</span>;
+
+    <span class="kw">const </span>MULTIPLES_OF_25: <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; = <span class="prelude-val">None</span>;
+}
+
 <span class="kw">impl </span>FixedDecimal {
     <span class="doccomment">/// Initialize a `FixedDecimal` with an iterator of digits in ascending
     /// order of magnitude, starting with the digit at magnitude 0.
@@ -6059,8 +5789,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>trailing_zeros: usize = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>i: usize = <span class="number">0</span>;
         <span class="kw">for </span>(x, d) <span class="kw">in </span>digits_iter.enumerate() {
-            <span class="comment">// Take only up to core::i16::MAX values so that we have enough capacity
-            </span><span class="kw">if </span>x &gt; core::i16::MAX <span class="kw">as </span>usize {
+            <span class="comment">// Take only up to i16::MAX values so that we have enough capacity
+            </span><span class="kw">if </span>x &gt; i16::MAX <span class="kw">as </span>usize {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Limit);
             }
             <span class="comment">// TODO: Should we check here that `d` is between 0 and 9?
@@ -6080,7 +5810,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>result: <span class="self">Self </span>= Default::default();
         <span class="kw">if </span>i != <span class="number">0 </span>{
             <span class="kw">let </span>magnitude = trailing_zeros + i - <span class="number">1</span>;
-            <span class="macro">debug_assert!</span>(magnitude &lt;= core::i16::MAX <span class="kw">as </span>usize);
+            <span class="macro">debug_assert!</span>(magnitude &lt;= i16::MAX <span class="kw">as </span>usize);
             result.magnitude = magnitude <span class="kw">as </span>i16;
             result.upper_magnitude = result.magnitude;
             <span class="macro">debug_assert!</span>(i &lt;= X);
@@ -6125,7 +5855,6 @@
     <span class="doccomment">/// Gets the digit at the specified order of next upper magnitude (magnitude + 1).
     /// Returns 0 if the next upper magnitude is out of range of currently visible digits or
     /// the magnitude is equal to `i16::MAX`.
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">fn </span>digit_at_previous_position(<span class="kw-2">&amp;</span><span class="self">self</span>, magnitude: i16) -&gt; u8 {
         <span class="kw">if </span>magnitude == i16::MAX {
             <span class="number">0
@@ -6146,7 +5875,6 @@
     }
 
     <span class="doccomment">/// Returns the relative ordering of the digits after `magnitude` with respect to 5.
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">fn </span>half_at_next_magnitude(<span class="kw-2">&amp;</span><span class="self">self</span>, magnitude: i16) -&gt; Ordering {
         <span class="attr">#[cfg(debug_assertions)] </span><span class="comment">// Depends on having no trailing zeroes.
         </span><span class="self">self</span>.check_invariants();
@@ -6179,18 +5907,17 @@
 
     <span class="doccomment">/// Returns the relative ordering of the digits from `magnitude` onwards
     /// with respect to the half increment of `increment`.
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-    </span><span class="kw">fn </span>half_increment_at_magnitude(
+    </span><span class="kw">fn </span>half_increment_at_magnitude&lt;R: IncrementLike&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         magnitude: i16,
-        increment: RoundingIncrement,
+        increment: R,
     ) -&gt; Ordering {
         <span class="attr">#[cfg(debug_assertions)] </span><span class="comment">// Depends on having no trailing zeroes.
         </span><span class="self">self</span>.check_invariants();
 
-        <span class="kw">match </span>increment {
-            RoundingIncrement::MultiplesOf1 =&gt; <span class="self">self</span>.half_at_next_magnitude(magnitude),
-            RoundingIncrement::MultiplesOf2 =&gt; {
+        <span class="kw">match </span><span class="prelude-val">Some</span>(increment) {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_1 =&gt; <span class="self">self</span>.half_at_next_magnitude(magnitude),
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_2 =&gt; {
                 <span class="kw">let </span>current_digit = <span class="self">self</span>.digit_at(magnitude);
 
                 <span class="comment">// Equivalent to "if current_digit is odd".
@@ -6217,7 +5944,7 @@
                     </span>Ordering::Less
                 }
             }
-            RoundingIncrement::MultiplesOf5 =&gt; {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_5 =&gt; {
                 <span class="kw">let </span>current_digit = <span class="self">self</span>.digit_at(magnitude);
                 <span class="kw">match </span>(current_digit % <span class="number">5</span>).cmp(<span class="kw-2">&amp;</span><span class="number">2</span>) {
                     Ordering::Equal =&gt; {
@@ -6229,7 +5956,7 @@
                     </span>ord =&gt; ord,
                 }
             }
-            RoundingIncrement::MultiplesOf25 =&gt; {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_25 =&gt; {
                 <span class="kw">let </span>current_digit = <span class="self">self</span>.digit_at(magnitude);
                 <span class="kw">let </span>prev_digit = <span class="self">self</span>.digit_at_previous_position(magnitude);
                 <span class="kw">let </span>number = prev_digit * <span class="number">10 </span>+ current_digit;
@@ -6244,25 +5971,28 @@
                     </span>ord =&gt; ord,
                 }
             }
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"increment should be 1, 2, 5, or 25"</span>);
+                Ordering::Equal
+            }
         }
     }
 
     <span class="doccomment">/// Checks if this number is already rounded to the specified magnitude and
     /// increment.
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-    </span><span class="kw">fn </span>is_rounded(<span class="kw-2">&amp;</span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; bool {
+    </span><span class="kw">fn </span>is_rounded&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, position: i16, increment: R) -&gt; bool {
         <span class="comment">// The number is rounded if it's already zero, since zero is a multiple of
         // all increments.
         </span><span class="kw">if </span><span class="self">self</span>.is_zero() {
             <span class="kw">return </span><span class="bool-val">true</span>;
         }
 
-        <span class="kw">match </span>increment {
-            RoundingIncrement::MultiplesOf1 =&gt; {
+        <span class="kw">match </span><span class="prelude-val">Some</span>(increment) {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_1 =&gt; {
                 <span class="comment">// The number is rounded if `position` is the last digit
                 </span>position &lt;= <span class="self">self</span>.nonzero_magnitude_end()
             }
-            RoundingIncrement::MultiplesOf2 =&gt; {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_2 =&gt; {
                 <span class="comment">// The number is rounded if the digit at `position` is zero or
                 // the position is the last digit and the digit is a multiple of the increment
                 // already.
@@ -6272,7 +6002,7 @@
                     Ordering::Greater =&gt; <span class="bool-val">false</span>,
                 }
             }
-            RoundingIncrement::MultiplesOf5 =&gt; {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_5 =&gt; {
                 <span class="comment">// The number is rounded if the digit at `position` is zero or
                 // the position is the last digit and the digit is a multiple of the increment
                 // already.
@@ -6282,7 +6012,7 @@
                     Ordering::Greater =&gt; <span class="bool-val">false</span>,
                 }
             }
-            RoundingIncrement::MultiplesOf25 =&gt; {
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_25 =&gt; {
                 <span class="comment">// The number is rounded if the digits at `position` and `position + 1` are
                 // both zeroes or if the last two digits are a multiple of the increment already.
                 </span><span class="kw">match </span>position.cmp(<span class="kw-2">&amp;</span><span class="self">self</span>.nonzero_magnitude_end()) {
@@ -6307,6 +6037,10 @@
                     Ordering::Greater =&gt; <span class="bool-val">false</span>,
                 }
             }
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"INCREMENT should be 1, 2, 5, or 25"</span>);
+                <span class="bool-val">false
+            </span>}
         }
     }
 
@@ -6935,33 +6669,6 @@
         </span><span class="self">self</span>.check_invariants();
     }
 
-    <span class="doccomment">/// Truncate the number on the right to a particular position, deleting
-    /// digits if necessary.
-    ///
-    /// Also see [`FixedDecimal::padded_end()`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fixed_decimal::FixedDecimal;
-    /// # use std::str::FromStr;
-    ///
-    /// let dec = FixedDecimal::from_str("-1.5").unwrap();
-    /// assert_eq!("-1", dec.trunced(0).to_string());
-    /// let dec = FixedDecimal::from_str("0.4").unwrap();
-    /// assert_eq!("0", dec.trunced(0).to_string());
-    /// let dec = FixedDecimal::from_str("0.5").unwrap();
-    /// assert_eq!("0", dec.trunced(0).to_string());
-    /// let dec = FixedDecimal::from_str("0.6").unwrap();
-    /// assert_eq!("0", dec.trunced(0).to_string());
-    /// let dec = FixedDecimal::from_str("1.5").unwrap();
-    /// assert_eq!("1", dec.trunced(0).to_string());
-    /// ```
-    </span><span class="kw">pub fn </span>trunced(<span class="kw-2">mut </span><span class="self">self</span>, position: i16) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.trunc(position);
-        <span class="self">self
-    </span>}
-
     <span class="doccomment">/// Truncates the number on the right to a particular position, deleting
     /// digits if necessary.
     ///
@@ -6989,57 +6696,156 @@
     /// dec.trunc(0);
     /// assert_eq!("1", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>trunc(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.trunc_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.trunc_internal(position);
-        }
+        <span class="self">self</span>.trunc_to_increment_internal(position, NoIncrement)
     }
 
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">fn </span>trunc_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
+    <span class="doccomment">/// Truncates the number on the right to a particular position and rounding
+    /// increment, deleting digits if necessary.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fixed_decimal::{FixedDecimal, RoundingIncrement};
+    /// # use std::str::FromStr;
+    ///
+    /// let mut dec = FixedDecimal::from_str("-3.5").unwrap();
+    /// dec.trunc_to_increment(0, RoundingIncrement::MultiplesOf2);
+    /// assert_eq!("-2", dec.to_string());
+    /// let mut dec = FixedDecimal::from_str("7.57").unwrap();
+    /// dec.trunc_to_increment(-1, RoundingIncrement::MultiplesOf5);
+    /// assert_eq!("7.5", dec.to_string());
+    /// let mut dec = FixedDecimal::from_str("5.45").unwrap();
+    /// dec.trunc_to_increment(-2, RoundingIncrement::MultiplesOf25);
+    /// assert_eq!("5.25", dec.to_string());
+    /// let mut dec = FixedDecimal::from_str("9.99").unwrap();
+    /// dec.trunc_to_increment(-1, RoundingIncrement::MultiplesOf25);
+    /// assert_eq!("7.5", dec.to_string());
+    /// let mut dec = FixedDecimal::from_str("9.99").unwrap();
+    /// dec.trunc_to_increment(-2, RoundingIncrement::MultiplesOf2);
+    /// assert_eq!("9.98", dec.to_string());
+    /// ```
+    </span><span class="attr">#[inline(never)]
+    </span><span class="kw">pub fn </span>trunc_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.trunc_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>trunc_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, inner_increment: R) {
+        <span class="kw">let </span>increment = <span class="prelude-val">Some</span>(inner_increment);
+
         <span class="comment">// 1. Set upper and lower magnitude
         </span><span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
-        <span class="kw">if </span>position == i16::MIN {
-            <span class="comment">// Nothing more to do
-            </span><span class="attr">#[cfg(debug_assertions)]
-            </span><span class="self">self</span>.check_invariants();
-            <span class="kw">return</span>;
-        }
-        <span class="kw">let </span>magnitude = position - <span class="number">1</span>;
-        <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, magnitude);
 
-        <span class="comment">// 2. If the rounding position is *lower than* the rightmost nonzero digit, exit early
-        </span><span class="kw">if </span><span class="self">self</span>.is_zero() || magnitude &lt; <span class="self">self</span>.nonzero_magnitude_end() {
+        <span class="kw">match </span>position.cmp(<span class="kw-2">&amp;</span>i16::MIN) {
+            <span class="comment">// Don't return if the increment is not one, because we
+            // also need to round to the next increment if necessary.
+            </span>Ordering::Equal <span class="kw">if </span>increment == R::MULTIPLES_OF_1 =&gt; {
+                <span class="comment">// Nothing more to do
+                </span><span class="attr">#[cfg(debug_assertions)]
+                </span><span class="self">self</span>.check_invariants();
+                <span class="kw">return</span>;
+            }
+            Ordering::Greater =&gt; {
+                <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, position - <span class="number">1</span>);
+            }
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Ordering::Less is unreachable, and Ordering::Equal needs to apply roundings
+                // when the increment is not equal to 1.
+                // We don't override `self.upper_magnitude` because `self.upper_magnitude` is
+                // always equal or bigger than `i16::MIN`.
+            </span>}
+        }
+
+        <span class="comment">// 2. If the number is already rounded, exit early.
+        </span><span class="kw">if </span><span class="self">self</span>.is_rounded(position, inner_increment) {
             <span class="attr">#[cfg(debug_assertions)]
             </span><span class="self">self</span>.check_invariants();
             <span class="kw">return</span>;
         }
 
         <span class="comment">// 3. If the rounding position is *in the middle* of the nonzero digits
-        </span><span class="kw">if </span>magnitude &lt; <span class="self">self</span>.magnitude {
+        </span><span class="kw">if </span>position &lt;= <span class="self">self</span>.magnitude {
             <span class="comment">// 3a. Calculate the number of digits to retain and remove the rest
-            </span><span class="kw">let </span>digits_to_retain = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, magnitude);
+            </span><span class="kw">let </span>digits_to_retain = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, position) + <span class="number">1</span>;
             <span class="self">self</span>.digits.truncate(digits_to_retain <span class="kw">as </span>usize);
-            <span class="comment">// 3b. Remove trailing zeros from self.digits to retain invariants
-            // Note: this does not affect visible trailing zeros,
-            // which is tracked by self.lower_magnitude
-            </span><span class="kw">let </span>position_past_last_nonzero_digit = <span class="self">self
+
+            <span class="comment">// 3b. Truncate to the previous multiple.
+            </span><span class="kw">match </span>increment {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_1 =&gt; {
+                    <span class="comment">// No need to do more work, trailing zeroes are removed below.
+                </span>}
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_2 =&gt; {
+                    <span class="kw">let </span><span class="prelude-val">Some</span>(last_digit) = <span class="self">self</span>.digits.last_mut() <span class="kw">else </span>{
+                        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"`self.digits` should have at least a digit"</span>);
+                        <span class="kw">return</span>;
+                    };
+
+                    <span class="comment">// Equivalent to (n / 2) * 2, which truncates to the previous
+                    // multiple of two
+                    </span><span class="kw-2">*</span>last_digit &amp;= <span class="number">0xFE</span>;
+                }
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_5 =&gt; {
+                    <span class="kw">let </span><span class="prelude-val">Some</span>(last_digit) = <span class="self">self</span>.digits.last_mut() <span class="kw">else </span>{
+                        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"`self.digits` should have at least a digit"</span>);
+                        <span class="kw">return</span>;
+                    };
+
+                    <span class="kw-2">*</span>last_digit = <span class="kw">if </span><span class="kw-2">*</span>last_digit &lt; <span class="number">5 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">5 </span>};
+                }
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_25 =&gt; {
+                    <span class="comment">// Extend with zeroes to have the correct trailing digits.
+                    </span><span class="self">self</span>.digits.resize(digits_to_retain <span class="kw">as </span>usize, <span class="number">0</span>);
+
+                    <span class="kw">let </span><span class="prelude-val">Some</span>((last_digit, digits)) = <span class="self">self</span>.digits.split_last_mut() <span class="kw">else </span>{
+                        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"`self.digits` should have at least a digit"</span>);
+                        <span class="kw">return</span>;
+                    };
+
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(second_last_digit) = digits.last_mut() {
+                        <span class="kw">let </span>number = <span class="kw-2">*</span>second_last_digit * <span class="number">10 </span>+ <span class="kw-2">*</span>last_digit;
+
+                        <span class="comment">// Trailing zeroes will be removed below. We can defer
+                        // the deletion to there.
+                        </span>(<span class="kw-2">*</span>second_last_digit, <span class="kw-2">*</span>last_digit) = <span class="kw">if </span>number &lt; <span class="number">25 </span>{
+                            (<span class="number">0</span>, <span class="number">0</span>)
+                        } <span class="kw">else if </span>number &lt; <span class="number">50 </span>{
+                            (<span class="number">2</span>, <span class="number">5</span>)
+                        } <span class="kw">else if </span>number &lt; <span class="number">75 </span>{
+                            (<span class="number">5</span>, <span class="number">0</span>)
+                        } <span class="kw">else </span>{
+                            (<span class="number">7</span>, <span class="number">5</span>)
+                        };
+                    } <span class="kw">else </span>{
+                        <span class="comment">// The number has no other digits aside from the last,
+                        // making it strictly less than 25.
+                        </span><span class="kw-2">*</span>last_digit = <span class="number">0</span>;
+                    };
+                }
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"INCREMENT should be 1, 2, 5, or 25"</span>);
+                    <span class="kw">return</span>;
+                }
+            }
+
+            <span class="comment">// 3c. Handle the case where `digits` has trailing zeroes after
+            // truncating to the previous multiple.
+            </span><span class="kw">let </span>position_last_nonzero_digit = <span class="self">self
                 </span>.digits
                 .iter()
                 .rposition(|x| <span class="kw-2">*</span>x != <span class="number">0</span>)
                 .map(|x| x + <span class="number">1</span>)
                 .unwrap_or(<span class="number">0</span>);
-            <span class="self">self</span>.digits.truncate(position_past_last_nonzero_digit);
-            <span class="comment">// 3c. By the invariant, there should still be at least 1 nonzero digit
-            </span><span class="macro">debug_assert!</span>(!<span class="self">self</span>.digits.is_empty());
+            <span class="self">self</span>.digits.truncate(position_last_nonzero_digit);
+
+            <span class="comment">// 3d. If `digits` had only trailing zeroes after truncating,
+            // reset to zero.
+            </span><span class="kw">if </span><span class="self">self</span>.digits.is_empty() {
+                <span class="self">self</span>.magnitude = <span class="number">0</span>;
+            }
         } <span class="kw">else </span>{
-            <span class="comment">// 4. If the rounding position is *above* the leftmost nonzero digit, set to zero
+            <span class="comment">// 4. If the rounding position is *above* the leftmost nonzero
+            // digit, set to zero
             </span><span class="self">self</span>.digits.clear();
             <span class="self">self</span>.magnitude = <span class="number">0</span>;
         }
@@ -7048,14 +6854,35 @@
         </span><span class="self">self</span>.check_invariants();
     }
 
+    <span class="doccomment">/// Truncate the number on the right to a particular position, deleting
+    /// digits if necessary.
+    ///
+    /// Also see [`FixedDecimal::padded_end()`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fixed_decimal::FixedDecimal;
+    /// # use std::str::FromStr;
+    ///
+    /// let dec = FixedDecimal::from_str("-1.5").unwrap();
+    /// assert_eq!("-1", dec.trunced(0).to_string());
+    /// let dec = FixedDecimal::from_str("0.4").unwrap();
+    /// assert_eq!("0", dec.trunced(0).to_string());
+    /// let dec = FixedDecimal::from_str("0.5").unwrap();
+    /// assert_eq!("0", dec.trunced(0).to_string());
+    /// let dec = FixedDecimal::from_str("0.6").unwrap();
+    /// assert_eq!("0", dec.trunced(0).to_string());
+    /// let dec = FixedDecimal::from_str("1.5").unwrap();
+    /// assert_eq!("1", dec.trunced(0).to_string());
+    /// ```
+    </span><span class="kw">pub fn </span>trunced(<span class="kw-2">mut </span><span class="self">self</span>, position: i16) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.trunc(position);
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Truncates the number on the right to a particular position and rounding
     /// increment, deleting digits if necessary.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -7094,160 +6921,10 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>trunced_to_increment(<span class="kw-2">mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.trunc_to_increment(position, increment);
         <span class="self">self
     </span>}
-
-    <span class="doccomment">/// Truncates the number on the right to a particular position and rounding
-    /// increment, deleting digits if necessary.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use fixed_decimal::{FixedDecimal, RoundingIncrement};
-    /// # use std::str::FromStr;
-    ///
-    /// let mut dec = FixedDecimal::from_str("-3.5").unwrap();
-    /// dec.trunc_to_increment(0, RoundingIncrement::MultiplesOf2);
-    /// assert_eq!("-2", dec.to_string());
-    /// let mut dec = FixedDecimal::from_str("7.57").unwrap();
-    /// dec.trunc_to_increment(-1, RoundingIncrement::MultiplesOf5);
-    /// assert_eq!("7.5", dec.to_string());
-    /// let mut dec = FixedDecimal::from_str("5.45").unwrap();
-    /// dec.trunc_to_increment(-2, RoundingIncrement::MultiplesOf25);
-    /// assert_eq!("5.25", dec.to_string());
-    /// let mut dec = FixedDecimal::from_str("9.99").unwrap();
-    /// dec.trunc_to_increment(-1, RoundingIncrement::MultiplesOf25);
-    /// assert_eq!("7.5", dec.to_string());
-    /// let mut dec = FixedDecimal::from_str("9.99").unwrap();
-    /// dec.trunc_to_increment(-2, RoundingIncrement::MultiplesOf2);
-    /// assert_eq!("9.98", dec.to_string());
-    /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-    </span><span class="kw">pub fn </span>trunc_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
-        <span class="comment">// 1. Set upper and lower magnitude
-        </span><span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
-
-        <span class="kw">match </span>position.cmp(<span class="kw-2">&amp;</span>i16::MIN) {
-            <span class="comment">// Don't return if the increment is not one, because we
-            // also need to round to the next increment if necessary.
-            </span>Ordering::Equal <span class="kw">if </span>increment == RoundingIncrement::MultiplesOf1 =&gt; {
-                <span class="comment">// Nothing more to do
-                </span><span class="attr">#[cfg(debug_assertions)]
-                </span><span class="self">self</span>.check_invariants();
-                <span class="kw">return</span>;
-            }
-            Ordering::Greater =&gt; {
-                <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, position - <span class="number">1</span>);
-            }
-            <span class="kw">_ </span>=&gt; {
-                <span class="comment">// Ordering::Less is unreachable, and Ordering::Equal needs to apply roundings
-                // when the increment is not equal to 1.
-                // We don't override `self.upper_magnitude` because `self.upper_magnitude` is
-                // always equal or bigger than `i16::MIN`.
-            </span>}
-        }
-
-        <span class="comment">// 2. If the number is already rounded, exit early.
-        </span><span class="kw">if </span><span class="self">self</span>.is_rounded(position, increment) {
-            <span class="attr">#[cfg(debug_assertions)]
-            </span><span class="self">self</span>.check_invariants();
-            <span class="kw">return</span>;
-        }
-
-        <span class="comment">// 3. If the rounding position is *in the middle* of the nonzero digits
-        </span><span class="kw">if </span>position &lt;= <span class="self">self</span>.magnitude {
-            <span class="comment">// 3a. Calculate the number of digits to retain and remove the rest
-            </span><span class="kw">let </span>digits_to_retain = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, position) + <span class="number">1</span>;
-            <span class="self">self</span>.digits.truncate(digits_to_retain <span class="kw">as </span>usize);
-
-            <span class="comment">// 3b. Truncate to the previous multiple.
-            </span><span class="kw">match </span>increment {
-                RoundingIncrement::MultiplesOf1 =&gt; {
-                    <span class="comment">// No need to do more work, trailing zeroes are removed below.
-                </span>}
-                RoundingIncrement::MultiplesOf2 =&gt; {
-                    <span class="kw">let </span><span class="prelude-val">Some</span>(last_digit) = <span class="self">self</span>.digits.last_mut() <span class="kw">else </span>{
-                        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"`self.digits` should have at least a digit"</span>);
-                        <span class="kw">return</span>;
-                    };
-
-                    <span class="comment">// Equivalent to (n / 2) * 2, which truncates to the previous
-                    // multiple of two
-                    </span><span class="kw-2">*</span>last_digit &amp;= <span class="number">0xFE</span>;
-                }
-                RoundingIncrement::MultiplesOf5 =&gt; {
-                    <span class="kw">let </span><span class="prelude-val">Some</span>(last_digit) = <span class="self">self</span>.digits.last_mut() <span class="kw">else </span>{
-                        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"`self.digits` should have at least a digit"</span>);
-                        <span class="kw">return</span>;
-                    };
-
-                    <span class="kw-2">*</span>last_digit = <span class="kw">if </span><span class="kw-2">*</span>last_digit &lt; <span class="number">5 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">5 </span>};
-                }
-                RoundingIncrement::MultiplesOf25 =&gt; {
-                    <span class="comment">// Extend with zeroes to have the correct trailing digits.
-                    </span><span class="self">self</span>.digits.resize(digits_to_retain <span class="kw">as </span>usize, <span class="number">0</span>);
-
-                    <span class="kw">let </span><span class="prelude-val">Some</span>((last_digit, digits)) = <span class="self">self</span>.digits.split_last_mut() <span class="kw">else </span>{
-                        <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"`self.digits` should have at least a digit"</span>);
-                        <span class="kw">return</span>;
-                    };
-
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(second_last_digit) = digits.last_mut() {
-                        <span class="kw">let </span>number = <span class="kw-2">*</span>second_last_digit * <span class="number">10 </span>+ <span class="kw-2">*</span>last_digit;
-
-                        <span class="comment">// Trailing zeroes will be removed below. We can defer
-                        // the deletion to there.
-                        </span>(<span class="kw-2">*</span>second_last_digit, <span class="kw-2">*</span>last_digit) = <span class="kw">if </span>number &lt; <span class="number">25 </span>{
-                            (<span class="number">0</span>, <span class="number">0</span>)
-                        } <span class="kw">else if </span>number &lt; <span class="number">50 </span>{
-                            (<span class="number">2</span>, <span class="number">5</span>)
-                        } <span class="kw">else if </span>number &lt; <span class="number">75 </span>{
-                            (<span class="number">5</span>, <span class="number">0</span>)
-                        } <span class="kw">else </span>{
-                            (<span class="number">7</span>, <span class="number">5</span>)
-                        };
-                    } <span class="kw">else </span>{
-                        <span class="comment">// The number has no other digits aside from the last,
-                        // making it strictly less than 25.
-                        </span><span class="kw-2">*</span>last_digit = <span class="number">0</span>;
-                    };
-                }
-            }
-
-            <span class="comment">// 3c. Handle the case where `digits` has trailing zeroes after
-            // truncating to the previous multiple.
-            </span><span class="kw">let </span>position_last_nonzero_digit = <span class="self">self
-                </span>.digits
-                .iter()
-                .rposition(|x| <span class="kw-2">*</span>x != <span class="number">0</span>)
-                .map(|x| x + <span class="number">1</span>)
-                .unwrap_or(<span class="number">0</span>);
-            <span class="self">self</span>.digits.truncate(position_last_nonzero_digit);
-
-            <span class="comment">// 3d. If `digits` had only trailing zeroes after truncating,
-            // reset to zero.
-            </span><span class="kw">if </span><span class="self">self</span>.digits.is_empty() {
-                <span class="self">self</span>.magnitude = <span class="number">0</span>;
-            }
-        } <span class="kw">else </span>{
-            <span class="comment">// 4. If the rounding position is *above* the leftmost nonzero
-            // digit, set to zero
-            </span><span class="self">self</span>.digits.clear();
-            <span class="self">self</span>.magnitude = <span class="number">0</span>;
-        }
-
-        <span class="attr">#[cfg(debug_assertions)]
-        </span><span class="self">self</span>.check_invariants();
-    }
 
     <span class="doccomment">/// Half Truncates the number on the right to a particular position, deleting
     /// digits if necessary.
@@ -7277,46 +6954,13 @@
     /// dec.half_trunc(0);
     /// assert_eq!("4", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_trunc(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.half_trunc_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.half_trunc_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">fn </span>half_trunc_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">let </span>digit_after_position = <span class="self">self</span>.digit_at_next_position(position);
-        <span class="kw">let </span>should_expand = <span class="kw">match </span>digit_after_position.cmp(<span class="kw-2">&amp;</span><span class="number">5</span>) {
-            Ordering::Less =&gt; <span class="bool-val">false</span>,
-            Ordering::Greater =&gt; <span class="bool-val">true</span>,
-            Ordering::Equal =&gt;
-            <span class="comment">// NOTE: `digit_after_position` equals 5, this means, position does not equal to `i16::MIN`.
-            </span>{
-                <span class="self">self</span>.nonzero_magnitude_end() &lt; position - <span class="number">1
-            </span>}
-        };
-
-        <span class="kw">if </span>should_expand {
-            <span class="self">self</span>.expand(position);
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.trunc(position);
-        }
+        <span class="self">self</span>.half_trunc_to_increment_internal(position, NoIncrement);
     }
 
     <span class="doccomment">/// Half Truncates the number on the right to a particular position and rounding increment,
     /// deleting digits if necessary.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -7340,17 +6984,21 @@
     /// dec.half_trunc_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("9.98", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_trunc_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.half_trunc_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>half_trunc_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="comment">// Only expand if the rounding position is strictly greater than the half increment.
         // At the half increment, `half_trunc` always truncates.
         </span><span class="kw">let </span>should_expand =
             <span class="self">self</span>.half_increment_at_magnitude(position, increment) == Ordering::Greater;
 
         <span class="kw">if </span>should_expand {
-            <span class="self">self</span>.expand_to_increment(position, increment);
+            <span class="self">self</span>.expand_to_increment_internal(position, increment);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.trunc_to_increment(position, increment);
+            <span class="self">self</span>.trunc_to_increment_internal(position, increment);
         }
     }
 
@@ -7383,12 +7031,6 @@
 
     <span class="doccomment">/// Half Truncates the number on the right to a particular position and rounding increment,
     /// deleting digits if necessary.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -7427,7 +7069,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>half_trunced_to_increment(
         <span class="kw-2">mut </span><span class="self">self</span>,
         position: i16,
@@ -7461,86 +7102,12 @@
     /// dec.expand(0);
     /// assert_eq!("2", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>expand(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.expand_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.expand_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">fn </span>expand_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="comment">// 1. Set upper and lower magnitude
-        </span><span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
-        <span class="kw">if </span>position == i16::MIN {
-            <span class="comment">// Nothing more to do
-            </span><span class="attr">#[cfg(debug_assertions)]
-            </span><span class="self">self</span>.check_invariants();
-            <span class="kw">return</span>;
-        }
-        <span class="kw">let </span>magnitude = position - <span class="number">1</span>;
-        <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, magnitude);
-
-        <span class="comment">// 2. If the rounding position is *lower than* the rightmost nonzero digit, exit early
-        </span><span class="kw">if </span><span class="self">self</span>.is_zero() || magnitude &lt; <span class="self">self</span>.nonzero_magnitude_end() {
-            <span class="attr">#[cfg(debug_assertions)]
-            </span><span class="self">self</span>.check_invariants();
-            <span class="kw">return</span>;
-        }
-
-        <span class="comment">// 3. If the rounding position is *in the middle* of the nonzero digits
-        </span><span class="kw">if </span>magnitude &lt; <span class="self">self</span>.magnitude {
-            <span class="comment">// 3a. Calculate the number of digits to retain and remove the rest
-            </span><span class="kw">let </span>digits_to_retain = <span class="kw">crate</span>::ops::i16_abs_sub(<span class="self">self</span>.magnitude, magnitude);
-            <span class="self">self</span>.digits.truncate(digits_to_retain <span class="kw">as </span>usize);
-            <span class="comment">// 3b. Increment the rightmost remaining digit since we are rounding up; this might
-            // require bubbling the addition to higher magnitudes, like 199 + 1 = 200
-            </span><span class="kw">for </span>(zero_count, digit) <span class="kw">in </span><span class="self">self</span>.digits.iter_mut().rev().enumerate() {
-                <span class="kw-2">*</span>digit += <span class="number">1</span>;
-                <span class="kw">if </span><span class="kw-2">*</span>digit &lt; <span class="number">10 </span>{
-                    <span class="self">self</span>.digits.truncate(<span class="self">self</span>.digits.len() - zero_count);
-                    <span class="attr">#[cfg(debug_assertions)]
-                    </span><span class="self">self</span>.check_invariants();
-                    <span class="kw">return</span>;
-                }
-            }
-            <span class="comment">// 3c. If we get here, the mantissa is fully saturated, and we continue into case 4
-        </span>}
-
-        <span class="comment">// 4. If the rounding position is *above* the leftmost nonzero digit, OR if we saturated,
-        // set the value to a single digit 1 at the appropriate position
-        </span><span class="kw">if </span><span class="self">self</span>.magnitude == i16::MAX {
-            <span class="comment">// TODO(#2297): Decide on behavior here
-            </span><span class="self">self</span>.magnitude = <span class="number">0</span>;
-            <span class="self">self</span>.digits.clear();
-            <span class="attr">#[cfg(debug_assertions)]
-            </span><span class="self">self</span>.check_invariants();
-            <span class="kw">return</span>;
-        }
-        <span class="self">self</span>.digits.clear();
-        <span class="self">self</span>.digits.push(<span class="number">1</span>);
-        <span class="comment">// If we got here from case 3, we should use self.magnitude + 1
-        // If we got here directly from case 4, we should use magnitude + 1
-        // We can use cmp::max to pick the right one
-        </span><span class="self">self</span>.magnitude = cmp::max(<span class="self">self</span>.magnitude, magnitude) + <span class="number">1</span>;
-        <span class="self">self</span>.upper_magnitude = cmp::max(<span class="self">self</span>.upper_magnitude, <span class="self">self</span>.magnitude);
-
-        <span class="attr">#[cfg(debug_assertions)]
-        </span><span class="self">self</span>.check_invariants();
+        <span class="self">self</span>.expand_to_increment_internal(position, NoIncrement)
     }
 
     <span class="doccomment">/// Take the expand of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -7564,8 +7131,16 @@
     /// dec.expand_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("10.00", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>expand_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.expand_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>expand_to_increment_internal&lt;R: IncrementLike&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        position: i16,
+        inner_increment: R,
+    ) {
         <span class="doccomment">/// Modifies `number` to signal that an overflow happened.
         </span><span class="kw">fn </span>overflow(number: <span class="kw-2">&amp;mut </span>FixedDecimal) {
             <span class="comment">// TODO(#2297): Decide on behavior here
@@ -7575,13 +7150,15 @@
             </span>number.check_invariants();
         }
 
+        <span class="kw">let </span>increment = <span class="prelude-val">Some</span>(inner_increment);
+
         <span class="comment">// 1. Set upper and lower magnitude
         </span><span class="self">self</span>.lower_magnitude = cmp::min(position, <span class="number">0</span>);
 
         <span class="kw">match </span>position.cmp(<span class="kw-2">&amp;</span>i16::MIN) {
             <span class="comment">// Don't return if the increment is not one, because we
             // also need to round to the next increment if necessary.
-            </span>Ordering::Equal <span class="kw">if </span>increment == RoundingIncrement::MultiplesOf1 =&gt; {
+            </span>Ordering::Equal <span class="kw">if </span>increment == R::MULTIPLES_OF_1 =&gt; {
                 <span class="comment">// Nothing more to do
                 </span><span class="attr">#[cfg(debug_assertions)]
                 </span><span class="self">self</span>.check_invariants();
@@ -7599,7 +7176,7 @@
         }
 
         <span class="comment">// 2. If the number is already rounded, exit early.
-        </span><span class="kw">if </span><span class="self">self</span>.is_rounded(position, increment) {
+        </span><span class="kw">if </span><span class="self">self</span>.is_rounded(position, inner_increment) {
             <span class="attr">#[cfg(debug_assertions)]
             </span><span class="self">self</span>.check_invariants();
             <span class="kw">return</span>;
@@ -7613,12 +7190,12 @@
 
             <span class="comment">// 3b. Handle the last digit considering the increment.
             </span><span class="kw">let </span>iter = <span class="kw">match </span>increment {
-                RoundingIncrement::MultiplesOf1 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_1 =&gt; {
                     <span class="comment">// Can just execute the algorithm normally.
 
                     </span><span class="self">self</span>.digits.iter_mut().rev().enumerate()
                 }
-                RoundingIncrement::MultiplesOf2 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_2 =&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.digits.iter_mut().rev().enumerate();
 
                     <span class="comment">// Must round the last digit to the next increment.
@@ -7640,7 +7217,7 @@
 
                     iter
                 }
-                RoundingIncrement::MultiplesOf5 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_5 =&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.digits.iter_mut().rev().enumerate();
 
                     <span class="comment">// Must round the last digit to the next increment.
@@ -7662,7 +7239,7 @@
 
                     iter
                 }
-                RoundingIncrement::MultiplesOf25 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_25 =&gt; {
                     <span class="comment">// Extend the digits to have the correct
                     // number of trailing zeroes.
                     </span><span class="self">self</span>.digits.resize(digits_to_retain <span class="kw">as </span>usize, <span class="number">0</span>);
@@ -7726,6 +7303,10 @@
 
                     iter
                 }
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"INCREMENT should be 1, 2, 5, or 25"</span>);
+                    <span class="kw">return</span>;
+                }
             };
 
             <span class="comment">// 3b. Increment the rightmost remaining digit since we are rounding up; this might
@@ -7763,7 +7344,7 @@
         // set the value to the next increment at the appropriate position.
 
         // Check if we have enough available spaces to push a `25` at the start.
-        </span><span class="kw">if </span>increment == RoundingIncrement::MultiplesOf25 &amp;&amp; position == i16::MAX {
+        </span><span class="kw">if </span>increment == R::MULTIPLES_OF_25 &amp;&amp; position == i16::MAX {
             <span class="comment">// Need an extra digit to push a 25, which we don't have.
             </span>overflow(<span class="self">self</span>);
             <span class="kw">return</span>;
@@ -7775,16 +7356,20 @@
         // and we also need to adjust the magnitude to the
         // new upper magnitude.
         </span><span class="kw">let </span>increment_digits = <span class="kw">match </span>increment {
-            RoundingIncrement::MultiplesOf1 =&gt; [<span class="number">1</span>].as_slice(),
-            RoundingIncrement::MultiplesOf2 =&gt; [<span class="number">2</span>].as_slice(),
-            RoundingIncrement::MultiplesOf5 =&gt; [<span class="number">5</span>].as_slice(),
-            RoundingIncrement::MultiplesOf25 =&gt; [<span class="number">2</span>, <span class="number">5</span>].as_slice(),
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_1 =&gt; [<span class="number">1</span>].as_slice(),
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_2 =&gt; [<span class="number">2</span>].as_slice(),
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_5 =&gt; [<span class="number">5</span>].as_slice(),
+            x <span class="kw">if </span>x == R::MULTIPLES_OF_25 =&gt; [<span class="number">2</span>, <span class="number">5</span>].as_slice(),
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"INCREMENT should be 1, 2, 5, or 25"</span>);
+                <span class="kw">return</span>;
+            }
         };
         <span class="self">self</span>.digits.extend_from_slice(increment_digits);
 
         <span class="comment">// Could also be derived from `increment_digits.len() - 1`, but it makes
         // the logic a bit harder to follow.
-        </span><span class="self">self</span>.magnitude = <span class="kw">if </span>increment == RoundingIncrement::MultiplesOf25 {
+        </span><span class="self">self</span>.magnitude = <span class="kw">if </span>increment == R::MULTIPLES_OF_25 {
             position + <span class="number">1
         </span>} <span class="kw">else </span>{
             position
@@ -7821,12 +7406,6 @@
     </span>}
 
     <span class="doccomment">/// Take the expand of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -7865,7 +7444,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>expanded_to_increment(<span class="kw-2">mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.expand_to_increment(position, increment);
         <span class="self">self
@@ -7895,36 +7473,12 @@
     /// dec.half_expand(0);
     /// assert_eq!("2", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_expand(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.half_expand_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.half_expand_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">pub fn </span>half_expand_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">let </span>digit_after_position = <span class="self">self</span>.digit_at_next_position(position);
-
-        <span class="kw">if </span>digit_after_position &gt;= <span class="number">5 </span>{
-            <span class="self">self</span>.expand(position);
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.trunc(position);
-        }
+        <span class="self">self</span>.half_expand_to_increment_internal(position, NoIncrement)
     }
 
     <span class="doccomment">/// Take the half expand of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -7948,16 +7502,20 @@
     /// dec.half_expand_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("10.00", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_expand_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.half_expand_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>half_expand_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="comment">// Only truncate if the rounding position is strictly less than the half increment.
         // At the half increment, `half_expand` always expands.
         </span><span class="kw">let </span>should_trunc = <span class="self">self</span>.half_increment_at_magnitude(position, increment) == Ordering::Less;
 
         <span class="kw">if </span>should_trunc {
-            <span class="self">self</span>.trunc_to_increment(position, increment);
+            <span class="self">self</span>.trunc_to_increment_internal(position, increment);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.expand_to_increment(position, increment);
+            <span class="self">self</span>.expand_to_increment_internal(position, increment);
         }
     }
 
@@ -7986,12 +7544,6 @@
     </span>}
 
     <span class="doccomment">/// Take the half expand of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8030,7 +7582,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>half_expanded_to_increment(
         <span class="kw-2">mut </span><span class="self">self</span>,
         position: i16,
@@ -8064,35 +7615,12 @@
     /// dec.ceil(0);
     /// assert_eq!("2", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>ceil(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.ceil_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.ceil_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">fn </span>ceil_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.trunc(position);
-            <span class="kw">return</span>;
-        }
-
-        <span class="self">self</span>.expand(position);
+        <span class="self">self</span>.ceil_to_increment_internal(position, NoIncrement);
     }
 
     <span class="doccomment">/// Take the ceiling of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8116,14 +7644,18 @@
     /// dec.ceil_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("-9.98", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>ceil_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.ceil_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>ceil_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.trunc_to_increment(position, increment);
+            <span class="self">self</span>.trunc_to_increment_internal(position, increment);
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>.expand_to_increment(position, increment);
+        <span class="self">self</span>.expand_to_increment_internal(position, increment);
     }
 
     <span class="doccomment">/// Take the ceiling of the number at a particular position.
@@ -8151,12 +7683,6 @@
     </span>}
 
     <span class="doccomment">/// Take the ceiling of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8195,7 +7721,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>ceiled_to_increment(<span class="kw-2">mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.ceil_to_increment(position, increment);
         <span class="self">self
@@ -8225,35 +7750,12 @@
     /// dec.half_ceil(0);
     /// assert_eq!("2", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_ceil(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.half_ceil_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.half_ceil_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">fn </span>half_ceil_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.half_trunc(position);
-            <span class="kw">return</span>;
-        }
-
-        <span class="self">self</span>.half_expand(position);
+        <span class="self">self</span>.half_ceil_to_increment_internal(position, NoIncrement);
     }
 
     <span class="doccomment">/// Take the half ceiling of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8277,14 +7779,18 @@
     /// dec.half_ceil_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("-9.98", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_ceil_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.half_ceil_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>half_ceil_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.half_trunc_to_increment(position, increment);
+            <span class="self">self</span>.half_trunc_to_increment_internal(position, increment);
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>.half_expand_to_increment(position, increment);
+        <span class="self">self</span>.half_expand_to_increment_internal(position, increment);
     }
 
     <span class="doccomment">/// Take the half ceiling of the number at a particular position.
@@ -8312,12 +7818,6 @@
     </span>}
 
     <span class="doccomment">/// Take the half ceiling of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8356,7 +7856,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>half_ceiled_to_increment(<span class="kw-2">mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.half_ceil_to_increment(position, increment);
         <span class="self">self
@@ -8386,35 +7885,12 @@
     /// dec.floor(0);
     /// assert_eq!("1", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>floor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.floor_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.floor_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">pub fn </span>floor_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.expand(position);
-            <span class="kw">return</span>;
-        }
-
-        <span class="self">self</span>.trunc(position);
+        <span class="self">self</span>.floor_to_increment_internal(position, NoIncrement);
     }
 
     <span class="doccomment">/// Take the floor of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8438,14 +7914,18 @@
     /// dec.floor_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("-10.00", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>floor_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.floor_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>floor_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.expand_to_increment(position, increment);
+            <span class="self">self</span>.expand_to_increment_internal(position, increment);
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>.trunc_to_increment(position, increment);
+        <span class="self">self</span>.trunc_to_increment_internal(position, increment);
     }
 
     <span class="doccomment">/// Take the floor of the number at a particular position.
@@ -8473,12 +7953,6 @@
     </span>}
 
     <span class="doccomment">/// Take the floor of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8517,7 +7991,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>floored_to_increment(<span class="kw-2">mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.floor_to_increment(position, increment);
         <span class="self">self
@@ -8547,35 +8020,12 @@
     /// dec.half_floor(0);
     /// assert_eq!("1", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_floor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.half_floor_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.half_floor_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">fn </span>half_floor_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.half_expand(position);
-            <span class="kw">return</span>;
-        }
-
-        <span class="self">self</span>.half_trunc(position);
+        <span class="self">self</span>.half_floor_to_increment_internal(position, NoIncrement);
     }
 
     <span class="doccomment">/// Take the half floor of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8599,14 +8049,18 @@
     /// dec.half_floor_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("-10.00", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_floor_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.half_floor_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>half_floor_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="kw">if </span><span class="self">self</span>.sign == Sign::Negative {
-            <span class="self">self</span>.half_expand_to_increment(position, increment);
+            <span class="self">self</span>.half_expand_to_increment_internal(position, increment);
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>.half_trunc_to_increment(position, increment);
+        <span class="self">self</span>.half_trunc_to_increment_internal(position, increment);
     }
 
     <span class="doccomment">/// Take the half floor of the number at a particular position.
@@ -8634,12 +8088,6 @@
     </span>}
 
     <span class="doccomment">/// Take the half floor of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8678,7 +8126,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>half_floored_to_increment(
         <span class="kw-2">mut </span><span class="self">self</span>,
         position: i16,
@@ -8712,48 +8159,12 @@
     /// dec.half_even(0);
     /// assert_eq!("2", dec.to_string());
     /// ```
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_even(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-        </span>{
-            <span class="self">self</span>.half_even_to_increment(position, RoundingIncrement::MultiplesOf1);
-        }
-
-        <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-        </span>{
-            <span class="self">self</span>.half_even_internal(position);
-        }
-    }
-
-    <span class="attr">#[cfg(not(feature = <span class="string">"experimental"</span>))]
-    </span><span class="kw">pub fn </span>half_even_internal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16) {
-        <span class="kw">let </span>digit_after_position = <span class="self">self</span>.digit_at_next_position(position);
-        <span class="kw">let </span>should_expand = <span class="kw">match </span>digit_after_position.cmp(<span class="kw-2">&amp;</span><span class="number">5</span>) {
-            Ordering::Less =&gt; <span class="bool-val">false</span>,
-            Ordering::Greater =&gt; <span class="bool-val">true</span>,
-            Ordering::Equal =&gt; {
-                <span class="comment">// NOTE: `digit_after_position` equals to 5, this means that positon does not equal i16::MIN.
-                </span><span class="kw">if </span><span class="self">self</span>.nonzero_magnitude_end() &lt; position - <span class="number">1 </span>{
-                    <span class="bool-val">true
-                </span>} <span class="kw">else </span>{
-                    <span class="self">self</span>.digit_at(position) % <span class="number">2 </span>!= <span class="number">0
-                </span>}
-            }
-        };
-
-        <span class="kw">if </span>should_expand {
-            <span class="self">self</span>.expand(position);
-        } <span class="kw">else </span>{
-            <span class="self">self</span>.trunc(position);
-        }
+        <span class="self">self</span>.half_even_to_increment_internal(position, NoIncrement);
     }
 
     <span class="doccomment">/// Take the half even of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8777,17 +8188,21 @@
     /// dec.half_even_to_increment(-2, RoundingIncrement::MultiplesOf2);
     /// assert_eq!("10.00", dec.to_string());
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="attr">#[inline(never)]
     </span><span class="kw">pub fn </span>half_even_to_increment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) {
+        <span class="self">self</span>.half_even_to_increment_internal(position, increment)
+    }
+
+    <span class="kw">fn </span>half_even_to_increment_internal&lt;R: IncrementLike&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, position: i16, increment: R) {
         <span class="kw">let </span>should_expand = <span class="kw">match </span><span class="self">self</span>.half_increment_at_magnitude(position, increment) {
             Ordering::Greater =&gt; <span class="bool-val">true</span>,
             Ordering::Less =&gt; <span class="bool-val">false</span>,
-            Ordering::Equal =&gt; <span class="kw">match </span>increment {
-                RoundingIncrement::MultiplesOf1 =&gt; {
+            Ordering::Equal =&gt; <span class="kw">match </span><span class="prelude-val">Some</span>(increment) {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_1 =&gt; {
                     <span class="comment">// Expand if odd, truncate if even.
                     </span><span class="self">self</span>.digit_at(position) &amp; <span class="number">0x01 </span>== <span class="number">1
                 </span>}
-                RoundingIncrement::MultiplesOf2 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_2 =&gt; {
                     <span class="kw">let </span>current_digit = <span class="self">self</span>.digit_at(position);
                     <span class="kw">let </span>previous_digit = <span class="self">self</span>.digit_at_previous_position(position);
                     <span class="kw">let </span>full = previous_digit * <span class="number">10 </span>+ current_digit;
@@ -8804,11 +8219,11 @@
                     //   83 / 2 = 41, which is odd.
                     </span>(full &gt;&gt; <span class="number">1</span>) &amp; <span class="number">0x01 </span>== <span class="number">1
                 </span>}
-                RoundingIncrement::MultiplesOf5 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_5 =&gt; {
                     <span class="comment">// Expand 7.5 to 10 and truncate 2.5 to 0.
                     </span><span class="self">self</span>.digit_at(position) == <span class="number">7
                 </span>}
-                RoundingIncrement::MultiplesOf25 =&gt; {
+                x <span class="kw">if </span>x == R::MULTIPLES_OF_25 =&gt; {
                     <span class="kw">let </span>current_digit = <span class="self">self</span>.digit_at(position);
                     <span class="kw">let </span>prev_digit = <span class="self">self</span>.digit_at_previous_position(position);
                     <span class="kw">let </span>full_number = prev_digit * <span class="number">10 </span>+ current_digit;
@@ -8817,13 +8232,17 @@
                     // Truncate `12.5` to 0 and `62.5` to 50.
                     </span>full_number == <span class="number">37 </span>|| full_number == <span class="number">87
                 </span>}
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>, <span class="string">"INCREMENT should be 1, 2, 5, or 25"</span>);
+                    <span class="kw">return</span>;
+                }
             },
         };
 
         <span class="kw">if </span>should_expand {
-            <span class="self">self</span>.expand_to_increment(position, increment);
+            <span class="self">self</span>.expand_to_increment_internal(position, increment);
         } <span class="kw">else </span>{
-            <span class="self">self</span>.trunc_to_increment(position, increment);
+            <span class="self">self</span>.trunc_to_increment_internal(position, increment);
         }
     }
 
@@ -8852,12 +8271,6 @@
     </span>}
 
     <span class="doccomment">/// Take the half even of the number at a particular position and rounding increment.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/3929"&gt;#3929&lt;/a&gt;
-    /// &lt;/div&gt;
     ///
     /// # Examples
     ///
@@ -8896,7 +8309,6 @@
     ///         .to_string()
     /// );
     /// ```
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub fn </span>half_evened_to_increment(<span class="kw-2">mut </span><span class="self">self</span>, position: i16, increment: RoundingIncrement) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.half_even_to_increment(position, increment);
         <span class="self">self
@@ -9178,7 +8590,6 @@
         dec.upper_magnitude = temp_upper_magnitude <span class="kw">as </span>i16;
 
         <span class="comment">// Computing DecimalFixed.lower_magnitude
-        // Note: ((i16::MIN as u16) as usize) == 32768
         </span><span class="kw">let </span>temp_lower_magnitude = no_dot_str_len - dot_index;
         <span class="kw">if </span>temp_lower_magnitude &gt; (i16::MIN <span class="kw">as </span>u16) <span class="kw">as </span>usize {
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Limit);
@@ -9873,7 +9284,7 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_isize_limits() {
-    <span class="kw">for </span>num <span class="kw">in </span><span class="kw-2">&amp;</span>[core::isize::MAX, core::isize::MIN] {
+    <span class="kw">for </span>num <span class="kw">in </span><span class="kw-2">&amp;</span>[isize::MAX, isize::MIN] {
         <span class="kw">let </span>dec: FixedDecimal = (<span class="kw-2">*</span>num).into();
         <span class="kw">let </span>dec_str = dec.to_string();
         <span class="macro">assert_eq!</span>(num.to_string(), dec_str);
@@ -9884,14 +9295,14 @@
 
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_ui128_limits() {
-    <span class="kw">for </span>num <span class="kw">in </span><span class="kw-2">&amp;</span>[core::i128::MAX, core::i128::MIN] {
+    <span class="kw">for </span>num <span class="kw">in </span><span class="kw-2">&amp;</span>[i128::MAX, i128::MIN] {
         <span class="kw">let </span>dec: FixedDecimal = (<span class="kw-2">*</span>num).into();
         <span class="kw">let </span>dec_str = dec.to_string();
         <span class="macro">assert_eq!</span>(num.to_string(), dec_str);
         <span class="macro">assert_eq!</span>(dec, FixedDecimal::from_str(<span class="kw-2">&amp;</span>dec_str).unwrap());
         <span class="macro">writeable::assert_writeable_eq!</span>(dec, dec_str);
     }
-    <span class="kw">for </span>num <span class="kw">in </span><span class="kw-2">&amp;</span>[core::u128::MAX, core::u128::MIN] {
+    <span class="kw">for </span>num <span class="kw">in </span><span class="kw-2">&amp;</span>[u128::MAX, u128::MIN] {
         <span class="kw">let </span>dec: FixedDecimal = (<span class="kw-2">*</span>num).into();
         <span class="kw">let </span>dec_str = dec.to_string();
         <span class="macro">assert_eq!</span>(num.to_string(), dec_str);
@@ -9904,9 +9315,9 @@
 </span><span class="kw">fn </span>test_upper_magnitude_bounds() {
     <span class="kw">let </span><span class="kw-2">mut </span>dec: FixedDecimal = <span class="number">98765</span>.into();
     <span class="macro">assert_eq!</span>(dec.upper_magnitude, <span class="number">4</span>);
-    dec.multiply_pow10(<span class="number">32763</span>);
-    <span class="macro">assert_eq!</span>(dec.upper_magnitude, core::i16::MAX);
-    <span class="macro">assert_eq!</span>(dec.nonzero_magnitude_start(), core::i16::MAX);
+    dec.multiply_pow10(i16::MAX - <span class="number">4</span>);
+    <span class="macro">assert_eq!</span>(dec.upper_magnitude, i16::MAX);
+    <span class="macro">assert_eq!</span>(dec.nonzero_magnitude_start(), i16::MAX);
     <span class="kw">let </span>dec_backup = dec.clone();
     dec.multiply_pow10(<span class="number">1</span>);
     <span class="macro">assert!</span>(dec.is_zero());
@@ -9921,9 +9332,9 @@
 </span><span class="kw">fn </span>test_lower_magnitude_bounds() {
     <span class="kw">let </span><span class="kw-2">mut </span>dec: FixedDecimal = <span class="number">98765</span>.into();
     <span class="macro">assert_eq!</span>(dec.lower_magnitude, <span class="number">0</span>);
-    dec.multiply_pow10(-<span class="number">32768</span>);
-    <span class="macro">assert_eq!</span>(dec.lower_magnitude, core::i16::MIN);
-    <span class="macro">assert_eq!</span>(dec.nonzero_magnitude_end(), core::i16::MIN);
+    dec.multiply_pow10(i16::MIN);
+    <span class="macro">assert_eq!</span>(dec.lower_magnitude, i16::MIN);
+    <span class="macro">assert_eq!</span>(dec.nonzero_magnitude_end(), i16::MIN);
     <span class="kw">let </span>dec_backup = dec.clone();
     dec.multiply_pow10(-<span class="number">1</span>);
     <span class="macro">assert!</span>(dec.is_zero());
@@ -9942,56 +9353,55 @@
         <span class="kw">pub </span>zeros_after_dot: usize,
         <span class="kw">pub </span>expected_err: <span class="prelude-ty">Option</span>&lt;Error&gt;,
     }
-    <span class="comment">// Note that core::i16::MAX = 32768
-    </span><span class="kw">let </span>cases = [
+    <span class="kw">let </span>cases = [
         TestCase {
-            zeros_before_dot: <span class="number">32768</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>,
             zeros_after_dot: <span class="number">0</span>,
             expected_err: <span class="prelude-val">None</span>,
         },
         TestCase {
-            zeros_before_dot: <span class="number">32767</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize,
             zeros_after_dot: <span class="number">0</span>,
             expected_err: <span class="prelude-val">None</span>,
         },
         TestCase {
-            zeros_before_dot: <span class="number">32769</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">2</span>,
             zeros_after_dot: <span class="number">0</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Limit),
         },
         TestCase {
             zeros_before_dot: <span class="number">0</span>,
-            zeros_after_dot: <span class="number">32769</span>,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">2</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Limit),
         },
         TestCase {
-            zeros_before_dot: <span class="number">32768</span>,
-            zeros_after_dot: <span class="number">32768</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>,
             expected_err: <span class="prelude-val">None</span>,
         },
         TestCase {
-            zeros_before_dot: <span class="number">32769</span>,
-            zeros_after_dot: <span class="number">32768</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">2</span>,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Limit),
         },
         TestCase {
-            zeros_before_dot: <span class="number">32768</span>,
-            zeros_after_dot: <span class="number">32769</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">2</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Limit),
         },
         TestCase {
-            zeros_before_dot: <span class="number">32767</span>,
-            zeros_after_dot: <span class="number">32769</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">2</span>,
             expected_err: <span class="prelude-val">Some</span>(Error::Limit),
         },
         TestCase {
-            zeros_before_dot: <span class="number">32767</span>,
-            zeros_after_dot: <span class="number">32767</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize,
             expected_err: <span class="prelude-val">None</span>,
         },
         TestCase {
-            zeros_before_dot: <span class="number">32768</span>,
-            zeros_after_dot: <span class="number">32767</span>,
+            zeros_before_dot: i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>,
+            zeros_after_dot: i16::MAX <span class="kw">as </span>usize,
             expected_err: <span class="prelude-val">None</span>,
         },
     ];
@@ -10249,15 +9659,15 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_pad_start_bounds() {
     <span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">"299792.458"</span>).unwrap();
-    <span class="kw">let </span>max_integer_digits = core::i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>;
+    <span class="kw">let </span>max_integer_digits = i16::MAX <span class="kw">as </span>usize + <span class="number">1</span>;
 
-    dec.pad_start(core::i16::MAX - <span class="number">1</span>);
+    dec.pad_start(i16::MAX - <span class="number">1</span>);
     <span class="macro">assert_eq!</span>(
         max_integer_digits - <span class="number">2</span>,
         dec.to_string().split_once(<span class="string">'.'</span>).unwrap().<span class="number">0</span>.len()
     );
 
-    dec.pad_start(core::i16::MAX);
+    dec.pad_start(i16::MAX);
     <span class="macro">assert_eq!</span>(
         max_integer_digits - <span class="number">1</span>,
         dec.to_string().split_once(<span class="string">'.'</span>).unwrap().<span class="number">0</span>.len()
@@ -10267,15 +9677,15 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_pad_end_bounds() {
     <span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from_str(<span class="string">"299792.458"</span>).unwrap();
-    <span class="kw">let </span>max_fractional_digits = -(core::i16::MIN <span class="kw">as </span>isize) <span class="kw">as </span>usize;
+    <span class="kw">let </span>max_fractional_digits = -(i16::MIN <span class="kw">as </span>isize) <span class="kw">as </span>usize;
 
-    dec.pad_end(core::i16::MIN + <span class="number">1</span>);
+    dec.pad_end(i16::MIN + <span class="number">1</span>);
     <span class="macro">assert_eq!</span>(
         max_fractional_digits - <span class="number">1</span>,
         dec.to_string().split_once(<span class="string">'.'</span>).unwrap().<span class="number">1</span>.len()
     );
 
-    dec.pad_end(core::i16::MIN);
+    dec.pad_end(i16::MIN);
     <span class="macro">assert_eq!</span>(
         max_fractional_digits,
         dec.to_string().split_once(<span class="string">'.'</span>).unwrap().<span class="number">1</span>.len()
@@ -10795,7 +10205,6 @@
 }
 
 <span class="attr">#[test]
-#[cfg(feature = <span class="string">"experimental"</span>)]
 </span><span class="kw">fn </span>test_rounding_increment() {
     <span class="comment">// Test Truncate Right
     </span><span class="kw">let </span><span class="kw-2">mut </span>dec = FixedDecimal::from(<span class="number">4235970</span>).multiplied_pow10(-<span class="number">3</span>);

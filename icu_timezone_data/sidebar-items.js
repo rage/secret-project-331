@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_time_zone_bcp47_to_iana_v1","impl_time_zone_iana_to_bcp47_v1","impl_time_zone_metazone_period_v1","make_provider"]};
+window.SIDEBAR_ITEMS = {"macro":["impl_time_zone_bcp47_to_iana_v1","impl_time_zone_iana_to_bcp47_v1","impl_time_zone_iana_to_bcp47_v2","impl_time_zone_metazone_period_v1","impliterable_time_zone_bcp47_to_iana_v1","impliterable_time_zone_iana_to_bcp47_v1","impliterable_time_zone_iana_to_bcp47_v2","impliterable_time_zone_metazone_period_v1","make_provider"]};

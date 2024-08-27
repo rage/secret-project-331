@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/elf/attributes.rs`."><title>attributes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/elf/attributes.rs`."><title>attributes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -306,6 +305,39 @@
 <a href="#305" id="305">305</a>
 <a href="#306" id="306">306</a>
 <a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::convert::TryInto;
 
 <span class="kw">use </span><span class="kw">crate</span>::elf;
@@ -335,9 +367,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>data = Bytes(data);
 
         <span class="comment">// Skip the version field that is one byte long.
-        </span><span class="kw">let </span>version = <span class="kw-2">*</span>data
-            .read::&lt;u8&gt;()
-            .read_error(<span class="string">"Invalid ELF attributes section offset or size"</span>)<span class="question-mark">?</span>;
+        // If the section is empty then the version doesn't matter.
+        </span><span class="kw">let </span>version = data.read::&lt;u8&gt;().cloned().unwrap_or(<span class="string">b'A'</span>);
 
         <span class="prelude-val">Ok</span>(AttributesSection {
             endian,
@@ -379,14 +410,14 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let </span>result = <span class="self">self</span>.parse();
+        <span class="kw">let </span>result = <span class="self">self</span>.parse().map(<span class="prelude-val">Some</span>);
         <span class="kw">if </span>result.is_err() {
             <span class="self">self</span>.data = Bytes(<span class="kw-2">&amp;</span>[]);
         }
         result
     }
 
-    <span class="kw">fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;AttributesSubsection&lt;<span class="lifetime">'data</span>, Elf&gt;&gt;&gt; {
+    <span class="kw">fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;AttributesSubsection&lt;<span class="lifetime">'data</span>, Elf&gt;&gt; {
         <span class="comment">// First read the subsection length.
         </span><span class="kw">let </span><span class="kw-2">mut </span>data = <span class="self">self</span>.data;
         <span class="kw">let </span>length = data
@@ -403,16 +434,25 @@
         </span>data.skip(<span class="number">4</span>)
             .read_error(<span class="string">"Invalid ELF attributes subsection length"</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>vendor = data
+        <span class="comment">// TODO: errors here should not prevent reading the next subsection.
+        </span><span class="kw">let </span>vendor = data
             .read_string()
             .read_error(<span class="string">"Invalid ELF attributes vendor"</span>)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(AttributesSubsection {
+        <span class="prelude-val">Ok</span>(AttributesSubsection {
             endian: <span class="self">self</span>.endian,
             length,
             vendor,
             data,
-        }))
+        })
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; Iterator <span class="kw">for </span>AttributesSubsectionIterator&lt;<span class="lifetime">'data</span>, Elf&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;AttributesSubsection&lt;<span class="lifetime">'data</span>, Elf&gt;&gt;;
+
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.next().transpose()
     }
 }
 
@@ -462,14 +502,14 @@
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let </span>result = <span class="self">self</span>.parse();
+        <span class="kw">let </span>result = <span class="self">self</span>.parse().map(<span class="prelude-val">Some</span>);
         <span class="kw">if </span>result.is_err() {
             <span class="self">self</span>.data = Bytes(<span class="kw-2">&amp;</span>[]);
         }
         result
     }
 
-    <span class="kw">fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;AttributesSubsubsection&lt;<span class="lifetime">'data</span>&gt;&gt;&gt; {
+    <span class="kw">fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;AttributesSubsubsection&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="comment">// The format of a sub-section looks like this:
         //
         // &lt;file-tag&gt; &lt;size&gt; &lt;attribute&gt;*
@@ -493,7 +533,8 @@
         </span>data.skip(<span class="number">1 </span>+ <span class="number">4</span>)
             .read_error(<span class="string">"Invalid ELF attributes sub-subsection length"</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>indices = <span class="kw">if </span>tag == elf::Tag_Section || tag == elf::Tag_Symbol {
+        <span class="comment">// TODO: errors here should not prevent reading the next sub-subsection.
+        </span><span class="kw">let </span>indices = <span class="kw">if </span>tag == elf::Tag_Section || tag == elf::Tag_Symbol {
             data.read_string()
                 .map(Bytes)
                 .read_error(<span class="string">"Missing ELF attributes sub-subsection indices"</span>)<span class="question-mark">?
@@ -503,12 +544,20 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unimplemented ELF attributes sub-subsection tag"</span>));
         };
 
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(AttributesSubsubsection {
+        <span class="prelude-val">Ok</span>(AttributesSubsubsection {
             tag,
             length,
             indices,
             data,
-        }))
+        })
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Elf: FileHeader&gt; Iterator <span class="kw">for </span>AttributesSubsubsectionIterator&lt;<span class="lifetime">'data</span>, Elf&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;AttributesSubsubsection&lt;<span class="lifetime">'data</span>&gt;&gt;;
+
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.next().transpose()
     }
 }
 
@@ -572,6 +621,15 @@
         <span class="kw">if </span><span class="self">self</span>.data.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
+
+        <span class="kw">let </span>result = <span class="self">self</span>.parse().map(<span class="prelude-val">Some</span>);
+        <span class="kw">if </span>result.is_err() {
+            <span class="self">self</span>.data = Bytes(<span class="kw-2">&amp;</span>[]);
+        }
+        result
+    }
+
+    <span class="kw">fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;u32&gt; {
         <span class="kw">let </span>err = <span class="string">"Invalid ELF attribute index"</span>;
         <span class="self">self</span>.data
             .read_uleb128()
@@ -579,7 +637,14 @@
             </span>.try_into()
             .map_err(|<span class="kw">_</span>| ())
             .read_error(err)
-            .map(<span class="prelude-val">Some</span>)
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>&gt; Iterator <span class="kw">for </span>AttributeIndexIterator&lt;<span class="lifetime">'data</span>&gt; {
+    <span class="kw">type </span>Item = <span class="prelude-ty">Result</span>&lt;u32&gt;;
+
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.next().transpose()
     }
 }
 

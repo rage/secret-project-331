@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["connect","delete","get","head","main","options","patch","post","put","route","routes","test","trace"]};
+window.SIDEBAR_ITEMS = {"attr":["connect","delete","get","head","main","options","patch","post","put","route","routes","scope","test","trace"]};

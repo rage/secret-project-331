@@ -1,0 +1,1 @@
+searchState.loadedDescShard("icu_decimal_data", 0, "Data for the <code>icu_decimal</code> crate\nImplement <code>DataProvider&lt;DecimalSymbolsV1Marker&gt;</code> on the …\nImplement <code>IterableDataProvider&lt;DecimalSymbolsV1Marker&gt;</code> on …\nMarks a type as a data provider. You can then use macros …")

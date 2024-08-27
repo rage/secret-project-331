@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/derives/attributes.rs`."><title>attributes.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.8.1/src/derives/attributes.rs`."><title>attributes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -299,55 +298,14 @@
 <a href="#298" id="298">298</a>
 <a href="#299" id="299">299</a>
 <a href="#300" id="300">300</a>
-<a href="#301" id="301">301</a>
-<a href="#302" id="302">302</a>
-<a href="#303" id="303">303</a>
-<a href="#304" id="304">304</a>
-<a href="#305" id="305">305</a>
-<a href="#306" id="306">306</a>
-<a href="#307" id="307">307</a>
-<a href="#308" id="308">308</a>
-<a href="#309" id="309">309</a>
-<a href="#310" id="310">310</a>
-<a href="#311" id="311">311</a>
-<a href="#312" id="312">312</a>
-<a href="#313" id="313">313</a>
-<a href="#314" id="314">314</a>
-<a href="#315" id="315">315</a>
-<a href="#316" id="316">316</a>
-<a href="#317" id="317">317</a>
-<a href="#318" id="318">318</a>
-<a href="#319" id="319">319</a>
-<a href="#320" id="320">320</a>
-<a href="#321" id="321">321</a>
-<a href="#322" id="322">322</a>
-<a href="#323" id="323">323</a>
-<a href="#324" id="324">324</a>
-<a href="#325" id="325">325</a>
-<a href="#326" id="326">326</a>
-<a href="#327" id="327">327</a>
-<a href="#328" id="328">328</a>
-<a href="#329" id="329">329</a>
-<a href="#330" id="330">330</a>
-<a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a>
-<a href="#340" id="340">340</a>
-<a href="#341" id="341">341</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Ident, Span, TokenStream};
-<span class="kw">use </span>quote::quote;
+<span class="kw">use </span>quote::quote_spanned;
 <span class="kw">use </span>syn::{
-    punctuated::Punctuated, spanned::Spanned, token::Comma, Attribute, DeriveInput, Field, Lit,
-    Meta, MetaNameValue, NestedMeta, Type, Variant,
+    punctuated::Punctuated, token::Comma, Attribute, DeriveInput, Field, LitStr, Meta, Token, Type,
+    Variant,
 };
 
-<span class="macro">macro_rules! </span>assert_attribute {
+<span class="macro">macro_rules!</span> assert_attribute {
     (<span class="macro-nonterminal">$e</span>:expr, <span class="macro-nonterminal">$err</span>:expr, <span class="macro-nonterminal">$input</span>:expr) =&gt; {
         <span class="kw">if </span>!<span class="macro-nonterminal">$e </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="macro-nonterminal">$input</span>, <span class="macro-nonterminal">$err</span>));
@@ -355,13 +313,13 @@
     };
 }
 
-<span class="macro">macro_rules! </span>fail {
+<span class="macro">macro_rules!</span> fail {
     (<span class="macro-nonterminal">$t</span>:expr, <span class="macro-nonterminal">$m</span>:expr) =&gt; {
         <span class="kw">return </span><span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="macro-nonterminal">$t</span>, <span class="macro-nonterminal">$m</span>))
     };
 }
 
-<span class="macro">macro_rules! </span>try_set {
+<span class="macro">macro_rules!</span> try_set {
     (<span class="macro-nonterminal">$i</span>:ident, <span class="macro-nonterminal">$v</span>:expr, <span class="macro-nonterminal">$t</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$i </span>{
             <span class="prelude-val">None </span>=&gt; <span class="macro-nonterminal">$i </span>= <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$v</span>),
@@ -378,11 +336,12 @@
 <span class="kw">impl </span>TypeName {
     <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TokenStream {
         <span class="kw">let </span>val = <span class="kw-2">&amp;</span><span class="self">self</span>.val;
-        <span class="macro">quote! </span>{ #val }
+        <span class="macro">quote_spanned!</span> { <span class="self">self</span>.span =&gt; #val }
     }
 }
 
 <span class="attr">#[derive(Copy, Clone)]
+#[allow(clippy::enum_variant_names)]
 </span><span class="kw">pub enum </span>RenameAll {
     LowerCase,
     SnakeCase,
@@ -419,82 +378,53 @@
     <span class="kw">let </span><span class="kw-2">mut </span>no_pg_array = <span class="prelude-val">None</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>default = <span class="prelude-val">None</span>;
 
-    <span class="kw">for </span>attr <span class="kw">in </span>input
-        .iter()
-        .filter(|a| a.path.is_ident(<span class="string">"sqlx"</span>) || a.path.is_ident(<span class="string">"repr"</span>))
-    {
-        <span class="kw">let </span>meta = attr
-            .parse_meta()
-            .map_err(|e| syn::Error::new_spanned(attr, e))<span class="question-mark">?</span>;
-        <span class="kw">match </span>meta {
-            Meta::List(list) <span class="kw">if </span>list.path.is_ident(<span class="string">"sqlx"</span>) =&gt; {
-                <span class="kw">for </span>value <span class="kw">in </span>list.nested.iter() {
-                    <span class="kw">match </span>value {
-                        NestedMeta::Meta(meta) =&gt; <span class="kw">match </span>meta {
-                            Meta::Path(p) <span class="kw">if </span>p.is_ident(<span class="string">"transparent"</span>) =&gt; {
-                                <span class="macro">try_set!</span>(transparent, <span class="bool-val">true</span>, value)
-                            }
+    <span class="kw">for </span>attr <span class="kw">in </span>input {
+        <span class="kw">if </span>attr.path().is_ident(<span class="string">"sqlx"</span>) {
+            attr.parse_nested_meta(|meta| {
+                <span class="kw">if </span>meta.path.is_ident(<span class="string">"transparent"</span>) {
+                    <span class="macro">try_set!</span>(transparent, <span class="bool-val">true</span>, attr);
+                } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"no_pg_array"</span>) {
+                    <span class="macro">try_set!</span>(no_pg_array, <span class="bool-val">true</span>, attr);
+                } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"default"</span>) {
+                    <span class="macro">try_set!</span>(default, <span class="bool-val">true</span>, attr);
+                } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"rename_all"</span>) {
+                    meta.input.parse::&lt;<span class="macro">Token!</span>[=]&gt;()<span class="question-mark">?</span>;
+                    <span class="kw">let </span>lit: LitStr = meta.input.parse()<span class="question-mark">?</span>;
 
-                            Meta::Path(p) <span class="kw">if </span>p.is_ident(<span class="string">"no_pg_array"</span>) =&gt; {
-                                <span class="macro">try_set!</span>(no_pg_array, <span class="bool-val">true</span>, value);
-                            }
+                    <span class="kw">let </span>val = <span class="kw">match </span>lit.value().as_str() {
+                        <span class="string">"lowercase" </span>=&gt; RenameAll::LowerCase,
+                        <span class="string">"snake_case" </span>=&gt; RenameAll::SnakeCase,
+                        <span class="string">"UPPERCASE" </span>=&gt; RenameAll::UpperCase,
+                        <span class="string">"SCREAMING_SNAKE_CASE" </span>=&gt; RenameAll::ScreamingSnakeCase,
+                        <span class="string">"kebab-case" </span>=&gt; RenameAll::KebabCase,
+                        <span class="string">"camelCase" </span>=&gt; RenameAll::CamelCase,
+                        <span class="string">"PascalCase" </span>=&gt; RenameAll::PascalCase,
+                        <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>(lit, <span class="string">"unexpected value for rename_all"</span>),
+                    };
 
-                            Meta::NameValue(MetaNameValue {
-                                path,
-                                lit: Lit::Str(val),
-                                ..
-                            }) <span class="kw">if </span>path.is_ident(<span class="string">"rename_all"</span>) =&gt; {
-                                <span class="kw">let </span>val = <span class="kw">match </span><span class="kw-2">&amp;*</span>val.value() {
-                                    <span class="string">"lowercase" </span>=&gt; RenameAll::LowerCase,
-                                    <span class="string">"snake_case" </span>=&gt; RenameAll::SnakeCase,
-                                    <span class="string">"UPPERCASE" </span>=&gt; RenameAll::UpperCase,
-                                    <span class="string">"SCREAMING_SNAKE_CASE" </span>=&gt; RenameAll::ScreamingSnakeCase,
-                                    <span class="string">"kebab-case" </span>=&gt; RenameAll::KebabCase,
-                                    <span class="string">"camelCase" </span>=&gt; RenameAll::CamelCase,
-                                    <span class="string">"PascalCase" </span>=&gt; RenameAll::PascalCase,
-                                    <span class="kw">_ </span>=&gt; <span class="macro">fail!</span>(meta, <span class="string">"unexpected value for rename_all"</span>),
-                                };
+                    <span class="macro">try_set!</span>(rename_all, val, lit)
+                } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"type_name"</span>) {
+                    meta.input.parse::&lt;<span class="macro">Token!</span>[=]&gt;()<span class="question-mark">?</span>;
+                    <span class="kw">let </span>lit: LitStr = meta.input.parse()<span class="question-mark">?</span>;
+                    <span class="kw">let </span>name = TypeName {
+                        val: lit.value(),
+                        span: lit.span(),
+                    };
 
-                                <span class="macro">try_set!</span>(rename_all, val, value)
-                            }
-
-                            Meta::NameValue(MetaNameValue {
-                                path,
-                                lit: Lit::Str(val),
-                                ..
-                            }) <span class="kw">if </span>path.is_ident(<span class="string">"type_name"</span>) =&gt; {
-                                <span class="macro">try_set!</span>(
-                                    type_name,
-                                    TypeName {
-                                        val: val.value(),
-                                        span: value.span(),
-                                    },
-                                    value
-                                )
-                            }
-
-                            Meta::Path(p) <span class="kw">if </span>p.is_ident(<span class="string">"default"</span>) =&gt; {
-                                <span class="macro">try_set!</span>(default, <span class="bool-val">true</span>, value)
-                            }
-
-                            u =&gt; <span class="macro">fail!</span>(u, <span class="string">"unexpected attribute"</span>),
-                        },
-                        u =&gt; <span class="macro">fail!</span>(u, <span class="string">"unexpected attribute"</span>),
-                    }
+                    <span class="macro">try_set!</span>(type_name, name, lit)
+                } <span class="kw">else </span>{
+                    <span class="macro">fail!</span>(meta.path, <span class="string">"unexpected attribute"</span>)
                 }
+
+                <span class="prelude-val">Ok</span>(())
+            })<span class="question-mark">?</span>;
+        } <span class="kw">else if </span>attr.path().is_ident(<span class="string">"repr"</span>) {
+            <span class="kw">let </span>list: Punctuated&lt;Meta, <span class="macro">Token!</span>[,]&gt; =
+                attr.parse_args_with(&lt;Punctuated&lt;Meta, <span class="macro">Token!</span>[,]&gt;&gt;::parse_terminated)<span class="question-mark">?</span>;
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = list.iter().find_map(|f| f.require_path_only().ok()) {
+                <span class="macro">try_set!</span>(repr, path.get_ident().unwrap().clone(), list);
             }
-            Meta::List(list) <span class="kw">if </span>list.path.is_ident(<span class="string">"repr"</span>) =&gt; {
-                <span class="kw">if </span>list.nested.len() != <span class="number">1 </span>{
-                    <span class="macro">fail!</span>(<span class="kw-2">&amp;</span>list.nested, <span class="string">"expected one value"</span>)
-                }
-                <span class="kw">match </span>list.nested.first().unwrap() {
-                    NestedMeta::Meta(Meta::Path(p)) <span class="kw">if </span>p.get_ident().is_some() =&gt; {
-                        <span class="macro">try_set!</span>(repr, p.get_ident().unwrap().clone(), list);
-                    }
-                    u =&gt; <span class="macro">fail!</span>(u, <span class="string">"unexpected value"</span>),
-                }
-            }
-            <span class="kw">_ </span>=&gt; {}
         }
     }
 
@@ -516,35 +446,28 @@
     <span class="kw">let </span><span class="kw-2">mut </span>skip: bool = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>json = <span class="bool-val">false</span>;
 
-    <span class="kw">for </span>attr <span class="kw">in </span>input.iter().filter(|a| a.path.is_ident(<span class="string">"sqlx"</span>)) {
-        <span class="kw">let </span>meta = attr
-            .parse_meta()
-            .map_err(|e| syn::Error::new_spanned(attr, e))<span class="question-mark">?</span>;
-
-        <span class="kw">if let </span>Meta::List(list) = meta {
-            <span class="kw">for </span>value <span class="kw">in </span>list.nested.iter() {
-                <span class="kw">match </span>value {
-                    NestedMeta::Meta(meta) =&gt; <span class="kw">match </span>meta {
-                        Meta::NameValue(MetaNameValue {
-                            path,
-                            lit: Lit::Str(val),
-                            ..
-                        }) <span class="kw">if </span>path.is_ident(<span class="string">"rename"</span>) =&gt; <span class="macro">try_set!</span>(rename, val.value(), value),
-                        Meta::NameValue(MetaNameValue {
-                            path,
-                            lit: Lit::Str(val),
-                            ..
-                        }) <span class="kw">if </span>path.is_ident(<span class="string">"try_from"</span>) =&gt; <span class="macro">try_set!</span>(try_from, val.parse()<span class="question-mark">?</span>, value),
-                        Meta::Path(path) <span class="kw">if </span>path.is_ident(<span class="string">"default"</span>) =&gt; default = <span class="bool-val">true</span>,
-                        Meta::Path(path) <span class="kw">if </span>path.is_ident(<span class="string">"flatten"</span>) =&gt; flatten = <span class="bool-val">true</span>,
-                        Meta::Path(path) <span class="kw">if </span>path.is_ident(<span class="string">"skip"</span>) =&gt; skip = <span class="bool-val">true</span>,
-                        Meta::Path(path) <span class="kw">if </span>path.is_ident(<span class="string">"json"</span>) =&gt; json = <span class="bool-val">true</span>,
-                        u =&gt; <span class="macro">fail!</span>(u, <span class="string">"unexpected attribute"</span>),
-                    },
-                    u =&gt; <span class="macro">fail!</span>(u, <span class="string">"unexpected attribute"</span>),
-                }
+    <span class="kw">for </span>attr <span class="kw">in </span>input.iter().filter(|a| a.path().is_ident(<span class="string">"sqlx"</span>)) {
+        attr.parse_nested_meta(|meta| {
+            <span class="kw">if </span>meta.path.is_ident(<span class="string">"rename"</span>) {
+                meta.input.parse::&lt;<span class="macro">Token!</span>[=]&gt;()<span class="question-mark">?</span>;
+                <span class="kw">let </span>val: LitStr = meta.input.parse()<span class="question-mark">?</span>;
+                <span class="macro">try_set!</span>(rename, val.value(), val);
+            } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"try_from"</span>) {
+                meta.input.parse::&lt;<span class="macro">Token!</span>[=]&gt;()<span class="question-mark">?</span>;
+                <span class="kw">let </span>val: LitStr = meta.input.parse()<span class="question-mark">?</span>;
+                <span class="macro">try_set!</span>(try_from, val.parse()<span class="question-mark">?</span>, val);
+            } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"default"</span>) {
+                default = <span class="bool-val">true</span>;
+            } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"flatten"</span>) {
+                flatten = <span class="bool-val">true</span>;
+            } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"skip"</span>) {
+                skip = <span class="bool-val">true</span>;
+            } <span class="kw">else if </span>meta.path.is_ident(<span class="string">"json"</span>) {
+                json = <span class="bool-val">true</span>;
             }
-        }
+
+            <span class="prelude-val">Ok</span>(())
+        })<span class="question-mark">?</span>;
 
         <span class="kw">if </span>json &amp;&amp; flatten {
             <span class="macro">fail!</span>(
@@ -596,12 +519,6 @@
         input
     );
 
-    <span class="macro">assert_attribute!</span>(
-        !attributes.no_pg_array,
-        <span class="string">"unused #[sqlx(no_pg_array)]; derive does not emit `PgHasArrayType` impls for enums"</span>,
-        input
-    );
-
     <span class="prelude-val">Ok</span>(attributes)
 }
 
@@ -643,8 +560,8 @@
     <span class="prelude-val">Ok</span>(attributes)
 }
 
-<span class="kw">pub fn </span>check_struct_attributes&lt;<span class="lifetime">'a</span>&gt;(
-    input: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DeriveInput,
+<span class="kw">pub fn </span>check_struct_attributes(
+    input: <span class="kw-2">&amp;</span>DeriveInput,
     fields: <span class="kw-2">&amp;</span>Punctuated&lt;Field, Comma&gt;,
 ) -&gt; syn::Result&lt;SqlxContainerAttributes&gt; {
     <span class="kw">let </span>attributes = parse_container_attributes(<span class="kw-2">&amp;</span>input.attrs)<span class="question-mark">?</span>;

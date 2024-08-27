@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/connection/stream.rs`."><title>stream.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/connection/stream.rs`."><title>stream.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -252,13 +251,6 @@
 <a href="#251" id="251">251</a>
 <a href="#252" id="252">252</a>
 <a href="#253" id="253">253</a>
-<a href="#254" id="254">254</a>
-<a href="#255" id="255">255</a>
-<a href="#256" id="256">256</a>
-<a href="#257" id="257">257</a>
-<a href="#258" id="258">258</a>
-<a href="#259" id="259">259</a>
-<a href="#260" id="260">260</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 <span class="kw">use </span>std::ops::{Deref, DerefMut};
 <span class="kw">use </span>std::str::FromStr;
@@ -270,8 +262,10 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::connection::tls::MaybeUpgradeTls;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::io::{Decode, Encode};
-<span class="kw">use </span><span class="kw">crate</span>::message::{Message, MessageFormat, Notice, Notification, ParameterStatus};
+<span class="kw">use </span><span class="kw">crate</span>::message::{
+    BackendMessage, BackendMessageFormat, EncodeMessage, FrontendMessage, Notice, Notification,
+    ParameterStatus, ReceivedMessage,
+};
 <span class="kw">use </span><span class="kw">crate</span>::net::{<span class="self">self</span>, BufferedSocket, Socket};
 <span class="kw">use crate</span>::{PgConnectOptions, PgDatabaseError, PgSeverity};
 
@@ -316,59 +310,51 @@
         })
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>send&lt;<span class="lifetime">'en</span>, T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+    <span class="attr">#[inline(always)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_msg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: <span class="kw">impl </span>FrontendMessage) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="self">self</span>.write(EncodeMessage(message))
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>send&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, message: T) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
     <span class="kw">where
-        </span>T: Encode&lt;<span class="lifetime">'en</span>&gt;,
+        </span>T: FrontendMessage,
     {
-        <span class="self">self</span>.write(message);
+        <span class="self">self</span>.write_msg(message)<span class="question-mark">?</span>;
         <span class="self">self</span>.flush().<span class="kw">await</span><span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
     <span class="comment">// Expect a specific type and format
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv_expect&lt;<span class="lifetime">'de</span>, T: Decode&lt;<span class="lifetime">'de</span>&gt;&gt;(
-        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
-        format: MessageFormat,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt; {
-        <span class="kw">let </span>message = <span class="self">self</span>.recv().<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="kw">if </span>message.format != format {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
-                <span class="string">"expecting {:?} but received {:?}"</span>,
-                format,
-                message.format
-            ));
-        }
-
-        message.decode()
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv_expect&lt;B: BackendMessage&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;B, Error&gt; {
+        <span class="self">self</span>.recv().<span class="kw">await</span><span class="question-mark">?</span>.decode()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Message, Error&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv_unchecked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ReceivedMessage, Error&gt; {
         <span class="comment">// all packets in postgres start with a 5-byte header
         // this header contains the message type and the total length of the message
         </span><span class="kw">let </span><span class="kw-2">mut </span>header: Bytes = <span class="self">self</span>.inner.read(<span class="number">5</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let </span>format = MessageFormat::try_from_u8(header.get_u8())<span class="question-mark">?</span>;
+        <span class="kw">let </span>format = BackendMessageFormat::try_from_u8(header.get_u8())<span class="question-mark">?</span>;
         <span class="kw">let </span>size = (header.get_u32() - <span class="number">4</span>) <span class="kw">as </span>usize;
 
         <span class="kw">let </span>contents = <span class="self">self</span>.inner.read(size).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(Message { format, contents })
+        <span class="prelude-val">Ok</span>(ReceivedMessage { format, contents })
     }
 
     <span class="comment">// Get the next message from the server
     // May wait for more data from the server
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Message, Error&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">async fn </span>recv(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;ReceivedMessage, Error&gt; {
         <span class="kw">loop </span>{
             <span class="kw">let </span>message = <span class="self">self</span>.recv_unchecked().<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">match </span>message.format {
-                MessageFormat::ErrorResponse =&gt; {
+                BackendMessageFormat::ErrorResponse =&gt; {
                     <span class="comment">// An error returned from the database server.
-                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(PgDatabaseError(message.decode()<span class="question-mark">?</span>).into());
+                    </span><span class="kw">return </span><span class="prelude-val">Err</span>(message.decode::&lt;PgDatabaseError&gt;()<span class="question-mark">?</span>.into());
                 }
 
-                MessageFormat::NotificationResponse =&gt; {
+                BackendMessageFormat::NotificationResponse =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(buffer) = <span class="kw-2">&amp;mut </span><span class="self">self</span>.notifications {
                         <span class="kw">let </span>notification: Notification = message.decode()<span class="question-mark">?</span>;
                         <span class="kw">let _ </span>= buffer.send(notification).<span class="kw">await</span>;
@@ -377,7 +363,7 @@
                     }
                 }
 
-                MessageFormat::ParameterStatus =&gt; {
+                BackendMessageFormat::ParameterStatus =&gt; {
                     <span class="comment">// informs the frontend about the current (initial)
                     // setting of backend parameters
 
@@ -396,7 +382,7 @@
                     <span class="kw">continue</span>;
                 }
 
-                MessageFormat::NoticeResponse =&gt; {
+                BackendMessageFormat::NoticeResponse =&gt; {
                     <span class="comment">// do we need this to be more configurable?
                     // if you are reading this comment and think so, open an issue
 
@@ -420,11 +406,10 @@
                         tracing_level
                     );
                     <span class="kw">if </span>log_is_enabled {
-                        <span class="kw">let </span>message = <span class="macro">format!</span>(<span class="string">"{}"</span>, notice.message());
                         <span class="macro">sqlx_core::private_tracing_dynamic_event!</span>(
                             target: <span class="string">"sqlx::postgres::notice"</span>,
                             tracing_level,
-                            message
+                            message = notice.message()
                         );
                     }
 
@@ -472,7 +457,7 @@
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">_ if </span>ch.is_digit(<span class="number">10</span>) =&gt; {
+            <span class="kw">_ if </span>ch.is_ascii_digit() =&gt; {
                 <span class="kw">if </span>chs.peek().is_none() {
                     <span class="kw">if let </span><span class="prelude-val">Ok</span>(num) = u32::from_str(<span class="kw-2">&amp;</span>s[from..]) {
                         parts.push(num);

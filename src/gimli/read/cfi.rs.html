@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/cfi.rs`."><title>cfi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/cfi.rs`."><title>cfi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -7822,10 +7821,108 @@
 <a href="#7821" id="7821">7821</a>
 <a href="#7822" id="7822">7822</a>
 <a href="#7823" id="7823">7823</a>
+<a href="#7824" id="7824">7824</a>
+<a href="#7825" id="7825">7825</a>
+<a href="#7826" id="7826">7826</a>
+<a href="#7827" id="7827">7827</a>
+<a href="#7828" id="7828">7828</a>
+<a href="#7829" id="7829">7829</a>
+<a href="#7830" id="7830">7830</a>
+<a href="#7831" id="7831">7831</a>
+<a href="#7832" id="7832">7832</a>
+<a href="#7833" id="7833">7833</a>
+<a href="#7834" id="7834">7834</a>
+<a href="#7835" id="7835">7835</a>
+<a href="#7836" id="7836">7836</a>
+<a href="#7837" id="7837">7837</a>
+<a href="#7838" id="7838">7838</a>
+<a href="#7839" id="7839">7839</a>
+<a href="#7840" id="7840">7840</a>
+<a href="#7841" id="7841">7841</a>
+<a href="#7842" id="7842">7842</a>
+<a href="#7843" id="7843">7843</a>
+<a href="#7844" id="7844">7844</a>
+<a href="#7845" id="7845">7845</a>
+<a href="#7846" id="7846">7846</a>
+<a href="#7847" id="7847">7847</a>
+<a href="#7848" id="7848">7848</a>
+<a href="#7849" id="7849">7849</a>
+<a href="#7850" id="7850">7850</a>
+<a href="#7851" id="7851">7851</a>
+<a href="#7852" id="7852">7852</a>
+<a href="#7853" id="7853">7853</a>
+<a href="#7854" id="7854">7854</a>
+<a href="#7855" id="7855">7855</a>
+<a href="#7856" id="7856">7856</a>
+<a href="#7857" id="7857">7857</a>
+<a href="#7858" id="7858">7858</a>
+<a href="#7859" id="7859">7859</a>
+<a href="#7860" id="7860">7860</a>
+<a href="#7861" id="7861">7861</a>
+<a href="#7862" id="7862">7862</a>
+<a href="#7863" id="7863">7863</a>
+<a href="#7864" id="7864">7864</a>
+<a href="#7865" id="7865">7865</a>
+<a href="#7866" id="7866">7866</a>
+<a href="#7867" id="7867">7867</a>
+<a href="#7868" id="7868">7868</a>
+<a href="#7869" id="7869">7869</a>
+<a href="#7870" id="7870">7870</a>
+<a href="#7871" id="7871">7871</a>
+<a href="#7872" id="7872">7872</a>
+<a href="#7873" id="7873">7873</a>
+<a href="#7874" id="7874">7874</a>
+<a href="#7875" id="7875">7875</a>
+<a href="#7876" id="7876">7876</a>
+<a href="#7877" id="7877">7877</a>
+<a href="#7878" id="7878">7878</a>
+<a href="#7879" id="7879">7879</a>
+<a href="#7880" id="7880">7880</a>
+<a href="#7881" id="7881">7881</a>
+<a href="#7882" id="7882">7882</a>
+<a href="#7883" id="7883">7883</a>
+<a href="#7884" id="7884">7884</a>
+<a href="#7885" id="7885">7885</a>
+<a href="#7886" id="7886">7886</a>
+<a href="#7887" id="7887">7887</a>
+<a href="#7888" id="7888">7888</a>
+<a href="#7889" id="7889">7889</a>
+<a href="#7890" id="7890">7890</a>
+<a href="#7891" id="7891">7891</a>
+<a href="#7892" id="7892">7892</a>
+<a href="#7893" id="7893">7893</a>
+<a href="#7894" id="7894">7894</a>
+<a href="#7895" id="7895">7895</a>
+<a href="#7896" id="7896">7896</a>
+<a href="#7897" id="7897">7897</a>
+<a href="#7898" id="7898">7898</a>
+<a href="#7899" id="7899">7899</a>
+<a href="#7900" id="7900">7900</a>
+<a href="#7901" id="7901">7901</a>
+<a href="#7902" id="7902">7902</a>
+<a href="#7903" id="7903">7903</a>
+<a href="#7904" id="7904">7904</a>
+<a href="#7905" id="7905">7905</a>
+<a href="#7906" id="7906">7906</a>
+<a href="#7907" id="7907">7907</a>
+<a href="#7908" id="7908">7908</a>
+<a href="#7909" id="7909">7909</a>
+<a href="#7910" id="7910">7910</a>
+<a href="#7911" id="7911">7911</a>
+<a href="#7912" id="7912">7912</a>
+<a href="#7913" id="7913">7913</a>
+<a href="#7914" id="7914">7914</a>
+<a href="#7915" id="7915">7915</a>
+<a href="#7916" id="7916">7916</a>
+<a href="#7917" id="7917">7917</a>
+<a href="#7918" id="7918">7918</a>
+<a href="#7919" id="7919">7919</a>
+<a href="#7920" id="7920">7920</a>
+<a href="#7921" id="7921">7921</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">use </span>alloc::boxed::Box;
 
-<span class="kw">use </span>core::cmp::{Ord, Ordering};
+<span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::fmt::{<span class="self">self</span>, Debug};
 <span class="kw">use </span>core::iter::FromIterator;
 <span class="kw">use </span>core::mem;
@@ -8283,14 +8380,14 @@
     ///
     /// You must provide a function to get the associated CIE. See
     /// `PartialFrameDescriptionEntry::parse` for more information.
-    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, A: UnwindContextStorage&lt;R&gt;&gt;(
+    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, A: UnwindContextStorage&lt;R::Offset&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         frame: <span class="kw-2">&amp;</span>EhFrame&lt;R&gt;,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
         address: u64,
         get_cie: F,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R, A&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(
             <span class="kw-2">&amp;</span>EhFrame&lt;R&gt;,
@@ -8602,13 +8699,13 @@
     /// # }
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, A: UnwindContextStorage&lt;R&gt;&gt;(
+    </span><span class="kw">fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, A: UnwindContextStorage&lt;R::Offset&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
         address: u64,
         get_cie: F,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R, A&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="kw-2">&amp;</span>BaseAddresses, <span class="self">Self</span>::Offset) -&gt; <span class="prelude-ty">Result</span>&lt;CommonInformationEntry&lt;R&gt;&gt;,
     {
@@ -9558,11 +9655,11 @@
 
     <span class="doccomment">/// Return the table of unwind information for this FDE.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>rows&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, Section: UnwindSection&lt;R&gt;, A: UnwindContextStorage&lt;R&gt;&gt;(
+    </span><span class="kw">pub fn </span>rows&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, Section: UnwindSection&lt;R&gt;, A: UnwindContextStorage&lt;R::Offset&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, A&gt;&gt; {
         UnwindTable::new(section, bases, ctx, <span class="self">self</span>)
     }
@@ -9573,13 +9670,17 @@
     /// context in the form `Ok((unwind_info, context))`. If not found,
     /// `Err(gimli::Error::NoUnwindInfoForAddress)` is returned. If parsing or
     /// CFI evaluation fails, the error is returned.
-    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, Section: UnwindSection&lt;R&gt;, A: UnwindContextStorage&lt;R&gt;&gt;(
+    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;
+        <span class="lifetime">'ctx</span>,
+        Section: UnwindSection&lt;R&gt;,
+        A: UnwindContextStorage&lt;R::Offset&gt;,
+    &gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         section: <span class="kw-2">&amp;</span>Section,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
         address: u64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R, A&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>table = <span class="self">self</span>.rows(section, bases, ctx)<span class="question-mark">?</span>;
         <span class="kw">while let </span><span class="prelude-val">Some</span>(row) = table.next_row()<span class="question-mark">? </span>{
             <span class="kw">if </span>row.contains(address) {
@@ -9691,12 +9792,23 @@
     feature = <span class="string">"read"</span>,
     doc = <span class="string">"
 Normally you would only need to use [`StoreOnHeap`], which places the stack
-on the heap using [`Vec`]. This is the default storage type parameter for [`UnwindContext`].
+on the heap using [`Box`]. This is the default storage type parameter for [`UnwindContext`].
+
+You may want to supply your own storage type for one of the following reasons:
+
+  1. In rare cases you may run into failed unwinds due to the fixed stack size
+     used by [`StoreOnHeap`], so you may want to try a larger `Box`. If denial
+     of service is not a concern, then you could also try a `Vec`-based stack which
+     can grow as needed.
+  2. You may want to avoid heap allocations entirely. You can use a fixed-size
+     stack with in-line arrays, which will place the entire storage in-line into
+     [`UnwindContext`].
 "
 </span>)]
 </span><span class="doccomment">///
-/// If you need to avoid [`UnwindContext`] from allocating memory, e.g. for signal safety,
-/// you can provide you own storage specification:
+/// Here's an implementation which uses a fixed-size stack and allocates everything in-line,
+/// which will cause `UnwindContext` to be large:
+///
 /// ```rust,no_run
 /// # use gimli::*;
 /// #
@@ -9707,9 +9819,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// #
 /// struct StoreOnStack;
 ///
-/// impl&lt;R: Reader&gt; UnwindContextStorage&lt;R&gt; for StoreOnStack {
-///     type Rules = [(Register, RegisterRule&lt;R&gt;); 192];
-///     type Stack = [UnwindTableRow&lt;R, Self&gt;; 4];
+/// impl&lt;T: ReaderOffset&gt; UnwindContextStorage&lt;T&gt; for StoreOnStack {
+///     type Rules = [(Register, RegisterRule&lt;T&gt;); 192];
+///     type Stack = [UnwindTableRow&lt;T, Self&gt;; 4];
 /// }
 ///
 /// let mut ctx = UnwindContext::&lt;_, StoreOnStack&gt;::new_in();
@@ -9724,14 +9836,14 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// # unreachable!()
 /// # }
 /// ```
-</span><span class="kw">pub trait </span>UnwindContextStorage&lt;R: Reader&gt;: Sized {
+</span><span class="kw">pub trait </span>UnwindContextStorage&lt;T: ReaderOffset&gt;: Sized {
     <span class="doccomment">/// The storage used for register rules in a unwind table row.
     ///
     /// Note that this is nested within the stack.
-    </span><span class="kw">type </span>Rules: ArrayLike&lt;Item = (Register, RegisterRule&lt;R&gt;)&gt;;
+    </span><span class="kw">type </span>Rules: ArrayLike&lt;Item = (Register, RegisterRule&lt;T&gt;)&gt;;
 
     <span class="doccomment">/// The storage used for unwind table row stack.
-    </span><span class="kw">type </span>Stack: ArrayLike&lt;Item = UnwindTableRow&lt;R, <span class="self">Self</span>&gt;&gt;;
+    </span><span class="kw">type </span>Stack: ArrayLike&lt;Item = UnwindTableRow&lt;T, <span class="self">Self</span>&gt;&gt;;
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
@@ -9740,16 +9852,23 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 </span><span class="kw">const </span>MAX_UNWIND_STACK_DEPTH: usize = <span class="number">4</span>;
 
 <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
-</span><span class="kw">impl</span>&lt;R: Reader&gt; UnwindContextStorage&lt;R&gt; <span class="kw">for </span>StoreOnHeap {
-    <span class="kw">type </span>Rules = [(Register, RegisterRule&lt;R&gt;); MAX_RULES];
-    <span class="kw">type </span>Stack = Box&lt;[UnwindTableRow&lt;R, <span class="self">Self</span>&gt;; MAX_UNWIND_STACK_DEPTH]&gt;;
+</span><span class="kw">impl</span>&lt;T: ReaderOffset&gt; UnwindContextStorage&lt;T&gt; <span class="kw">for </span>StoreOnHeap {
+    <span class="kw">type </span>Rules = [(Register, RegisterRule&lt;T&gt;); MAX_RULES];
+    <span class="kw">type </span>Stack = Box&lt;[UnwindTableRow&lt;T, <span class="self">Self</span>&gt;; MAX_UNWIND_STACK_DEPTH]&gt;;
 }
 
 <span class="doccomment">/// Common context needed when evaluating the call frame unwinding information.
 ///
-/// This structure can be large so it is advisable to place it on the heap.
+/// By default, this structure is small and allocates its internal storage
+/// on the heap using [`Box`] during [`UnwindContext::new`].
+///
+/// This can be overridden by providing a custom [`UnwindContextStorage`] type parameter.
+/// When using a custom storage with in-line arrays, the [`UnwindContext`] type itself
+/// will be big, so in that case it's recommended to place [`UnwindContext`] on the
+/// heap, e.g. using `Box::new(UnwindContext::&lt;R, MyCustomStorage&gt;::new_in())`.
+///
 /// To avoid re-allocating the context multiple times when evaluating multiple
-/// CFI programs, it can be reused.
+/// CFI programs, the same [`UnwindContext`] can be reused for multiple unwinds.
 ///
 /// ```
 /// use gimli::{UnwindContext, UnwindTable};
@@ -9759,7 +9878,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// # let eh_frame: gimli::EhFrame&lt;_&gt; = unreachable!();
 /// # let bases = unimplemented!();
 /// // An uninitialized context.
-/// let mut ctx = Box::new(UnwindContext::new());
+/// let mut ctx = UnwindContext::new();
 ///
 /// // Initialize the context by evaluating the CIE's initial instruction program,
 /// // and generate the unwind table.
@@ -9772,7 +9891,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// # }
 /// ```
 </span><span class="attr">#[derive(Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>UnwindContext&lt;R: Reader, A: UnwindContextStorage&lt;R&gt; = StoreOnHeap&gt; {
+</span><span class="kw">pub struct </span>UnwindContext&lt;T: ReaderOffset, A: UnwindContextStorage&lt;T&gt; = StoreOnHeap&gt; {
     <span class="comment">// Stack of rows. The last row is the row currently being built by the
     // program. There is always at least one row. The vast majority of CFI
     // programs will only ever have one row on the stack.
@@ -9786,12 +9905,12 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     // `DW_CFA_restore`. Otherwise, when we are currently evaluating a CIE's
     // initial instructions, `is_initialized` will be `false` and initial rules
     // cannot be read.
-    </span>initial_rule: <span class="prelude-ty">Option</span>&lt;(Register, RegisterRule&lt;R&gt;)&gt;,
+    </span>initial_rule: <span class="prelude-ty">Option</span>&lt;(Register, RegisterRule&lt;T&gt;)&gt;,
 
     is_initialized: bool,
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Debug <span class="kw">for </span>UnwindContext&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Debug <span class="kw">for </span>UnwindContext&lt;T, S&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"UnwindContext"</span>)
             .field(<span class="string">"stack"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.stack)
@@ -9801,14 +9920,14 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader, A: UnwindContextStorage&lt;R&gt;&gt; Default <span class="kw">for </span>UnwindContext&lt;R, A&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, A: UnwindContextStorage&lt;T&gt;&gt; Default <span class="kw">for </span>UnwindContext&lt;T, A&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_in()
     }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
-</span><span class="kw">impl</span>&lt;R: Reader&gt; UnwindContext&lt;R&gt; {
+</span><span class="kw">impl</span>&lt;T: ReaderOffset&gt; UnwindContext&lt;T&gt; {
     <span class="doccomment">/// Construct a new call frame unwinding context.
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_in()
@@ -9819,7 +9938,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 ///
 /// These methods are guaranteed not to allocate, acquire locks, or perform any
 /// other signal-unsafe operations, if an non-allocating storage is used.
-</span><span class="kw">impl</span>&lt;R: Reader, A: UnwindContextStorage&lt;R&gt;&gt; UnwindContext&lt;R, A&gt; {
+</span><span class="kw">impl</span>&lt;T: ReaderOffset, A: UnwindContextStorage&lt;T&gt;&gt; UnwindContext&lt;T, A&gt; {
     <span class="doccomment">/// Construct a new call frame unwinding context.
     </span><span class="kw">pub fn </span>new_in() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = UnwindContext {
@@ -9832,12 +9951,16 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 
     <span class="doccomment">/// Run the CIE's initial instructions and initialize this `UnwindContext`.
-    </span><span class="kw">fn </span>initialize&lt;Section: UnwindSection&lt;R&gt;&gt;(
+    </span><span class="kw">fn </span>initialize&lt;Section, R&gt;(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         section: <span class="kw-2">&amp;</span>Section,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
         cie: <span class="kw-2">&amp;</span>CommonInformationEntry&lt;R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;
+    <span class="kw">where
+        </span>R: Reader&lt;Offset = T&gt;,
+        Section: UnwindSection&lt;R&gt;,
+    {
         <span class="comment">// Always reset because previous initialization failure may leave dirty state.
         </span><span class="self">self</span>.reset();
 
@@ -9856,11 +9979,11 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="self">self</span>.is_initialized = <span class="bool-val">false</span>;
     }
 
-    <span class="kw">fn </span>row(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>UnwindTableRow&lt;R, A&gt; {
+    <span class="kw">fn </span>row(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>UnwindTableRow&lt;T, A&gt; {
         <span class="self">self</span>.stack.last().unwrap()
     }
 
-    <span class="kw">fn </span>row_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>UnwindTableRow&lt;R, A&gt; {
+    <span class="kw">fn </span>row_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>UnwindTableRow&lt;T, A&gt; {
         <span class="self">self</span>.stack.last_mut().unwrap()
     }
 
@@ -9892,14 +10015,14 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         row.start_address = start_address;
     }
 
-    <span class="kw">fn </span>set_register_rule(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: Register, rule: RegisterRule&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">fn </span>set_register_rule(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: Register, rule: RegisterRule&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>row = <span class="self">self</span>.row_mut();
         row.registers.set(register, rule)
     }
 
     <span class="doccomment">/// Returns `None` if we have not completed evaluation of a CIE's initial
     /// instructions.
-    </span><span class="kw">fn </span>get_initial_rule(<span class="kw-2">&amp;</span><span class="self">self</span>, register: Register) -&gt; <span class="prelude-ty">Option</span>&lt;RegisterRule&lt;R&gt;&gt; {
+    </span><span class="kw">fn </span>get_initial_rule(<span class="kw-2">&amp;</span><span class="self">self</span>, register: Register) -&gt; <span class="prelude-ty">Option</span>&lt;RegisterRule&lt;T&gt;&gt; {
         <span class="kw">if </span>!<span class="self">self</span>.is_initialized {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
@@ -9910,11 +10033,11 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         })
     }
 
-    <span class="kw">fn </span>set_cfa(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cfa: CfaRule&lt;R&gt;) {
+    <span class="kw">fn </span>set_cfa(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cfa: CfaRule&lt;T&gt;) {
         <span class="self">self</span>.row_mut().cfa = cfa;
     }
 
-    <span class="kw">fn </span>cfa_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CfaRule&lt;R&gt; {
+    <span class="kw">fn </span>cfa_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>CfaRule&lt;T&gt; {
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.row_mut().cfa
     }
 
@@ -9994,7 +10117,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// &gt; recording just the differences starting at the beginning address of each
 /// &gt; subroutine in the program.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R: Reader, A: UnwindContextStorage&lt;R&gt; = StoreOnHeap&gt; {
+</span><span class="kw">pub struct </span>UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R: Reader, A: UnwindContextStorage&lt;R::Offset&gt; = StoreOnHeap&gt; {
     code_alignment_factor: Wrapping&lt;u64&gt;,
     data_alignment_factor: Wrapping&lt;i64&gt;,
     next_start_address: u64,
@@ -10002,20 +10125,20 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     returned_last_row: bool,
     current_row_valid: bool,
     instructions: CallFrameInstructionIter&lt;<span class="lifetime">'a</span>, R&gt;,
-    ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+    ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
 }
 
 <span class="doccomment">/// # Signal Safe Methods
 ///
 /// These methods are guaranteed not to allocate, acquire locks, or perform any
 /// other signal-unsafe operations.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R: Reader, A: UnwindContextStorage&lt;R&gt;&gt; UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, A&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R: Reader, A: UnwindContextStorage&lt;R::Offset&gt;&gt; UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, A&gt; {
     <span class="doccomment">/// Construct a new `UnwindTable` for the given
     /// `FrameDescriptionEntry`'s CFI unwinding program.
     </span><span class="kw">pub fn </span>new&lt;Section: UnwindSection&lt;R&gt;&gt;(
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
         fde: <span class="kw-2">&amp;</span>FrameDescriptionEntry&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         ctx.initialize(section, bases, fde.cie())<span class="question-mark">?</span>;
@@ -10025,7 +10148,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     <span class="kw">fn </span>new_for_fde&lt;Section: UnwindSection&lt;R&gt;&gt;(
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
         fde: <span class="kw-2">&amp;</span>FrameDescriptionEntry&lt;R&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(ctx.stack.len() &gt;= <span class="number">1</span>);
@@ -10044,7 +10167,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     <span class="kw">fn </span>new_for_cie&lt;Section: UnwindSection&lt;R&gt;&gt;(
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
         cie: <span class="kw-2">&amp;</span>CommonInformationEntry&lt;R&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(ctx.stack.len() &gt;= <span class="number">1</span>);
@@ -10065,7 +10188,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     ///
     /// Unfortunately, this cannot be used with `FallibleIterator` because of
     /// the restricted lifetime of the yielded item.
-    </span><span class="kw">pub fn </span>next_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>UnwindTableRow&lt;R, A&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>next_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>UnwindTableRow&lt;R::Offset, A&gt;&gt;&gt; {
         <span class="macro">assert!</span>(<span class="self">self</span>.ctx.stack.len() &gt;= <span class="number">1</span>);
         <span class="self">self</span>.ctx.set_start_address(<span class="self">self</span>.next_start_address);
         <span class="self">self</span>.current_row_valid = <span class="bool-val">false</span>;
@@ -10098,7 +10221,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 
     <span class="doccomment">/// Returns the current row with the lifetime of the context.
-    </span><span class="kw">pub fn </span>into_current_row(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R, A&gt;&gt; {
+    </span><span class="kw">pub fn </span>into_current_row(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.current_row_valid {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.ctx.row())
         } <span class="kw">else </span>{
@@ -10108,7 +10231,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="doccomment">/// Evaluate one call frame instruction. Return `Ok(true)` if the row is
     /// complete, `Ok(false)` otherwise.
-    </span><span class="kw">fn </span>evaluate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instruction: CallFrameInstruction&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
+    </span><span class="kw">fn </span>evaluate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, instruction: CallFrameInstruction&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt; {
         <span class="kw">use </span><span class="kw">crate</span>::CallFrameInstruction::<span class="kw-2">*</span>;
 
         <span class="kw">match </span>instruction {
@@ -10317,11 +10440,11 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 // - https://github.com/libunwind/libunwind/blob/11fd461095ea98f4b3e3a361f5a8a558519363fa/include/tdep-aarch64/dwarf-config.h#L32
 // - https://github.com/libunwind/libunwind/blob/11fd461095ea98f4b3e3a361f5a8a558519363fa/include/tdep-arm/dwarf-config.h#L31
 // - https://github.com/libunwind/libunwind/blob/11fd461095ea98f4b3e3a361f5a8a558519363fa/include/tdep-mips/dwarf-config.h#L31
-</span><span class="kw">struct </span>RegisterRuleMap&lt;R: Reader, S: UnwindContextStorage&lt;R&gt; = StoreOnHeap&gt; {
+</span><span class="kw">struct </span>RegisterRuleMap&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt; = StoreOnHeap&gt; {
     rules: ArrayVec&lt;S::Rules&gt;,
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Debug <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Debug <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"RegisterRuleMap"</span>)
             .field(<span class="string">"rules"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.rules)
@@ -10329,7 +10452,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Clone <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Clone <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             rules: <span class="self">self</span>.rules.clone(),
@@ -10337,7 +10460,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Default <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Default <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         RegisterRuleMap {
             rules: Default::default(),
@@ -10349,12 +10472,12 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 ///
 /// These methods are guaranteed not to allocate, acquire locks, or perform any
 /// other signal-unsafe operations.
-</span><span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; RegisterRuleMap&lt;R, S&gt; {
+</span><span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; RegisterRuleMap&lt;T, S&gt; {
     <span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.rules.is_empty()
     }
 
-    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, register: Register) -&gt; RegisterRule&lt;R&gt; {
+    <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, register: Register) -&gt; RegisterRule&lt;T&gt; {
         <span class="self">self</span>.rules
             .iter()
             .find(|rule| rule.<span class="number">0 </span>== register)
@@ -10365,7 +10488,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             .unwrap_or(RegisterRule::Undefined)
     }
 
-    <span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: Register, rule: RegisterRule&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, register: Register, rule: RegisterRule&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span>!rule.is_defined() {
             <span class="kw">let </span>idx = <span class="self">self
                 </span>.rules
@@ -10392,7 +10515,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             .map_err(|<span class="kw">_</span>| Error::TooManyRegisterRules)
     }
 
-    <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;R&gt; {
+    <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;T&gt; {
         RegisterRuleIter(<span class="self">self</span>.rules.iter())
     }
 }
@@ -10400,7 +10523,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R, S: UnwindContextStorage&lt;R&gt;&gt; FromIterator&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>(Register, RegisterRule&lt;R&gt;)&gt;
     <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt;
 <span class="kw">where
-    </span>R: <span class="lifetime">'a </span>+ Reader,
+    </span>R: <span class="lifetime">'a </span>+ ReaderOffset,
 {
     <span class="kw">fn </span>from_iter&lt;T&gt;(iter: T) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -10418,9 +10541,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R, S: UnwindContextStorage&lt;R&gt;&gt; PartialEq <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt;
+<span class="kw">impl</span>&lt;T, S: UnwindContextStorage&lt;T&gt;&gt; PartialEq <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
 <span class="kw">where
-    </span>R: Reader + PartialEq,
+    </span>T: ReaderOffset + PartialEq,
 {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, rhs: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="kw">for </span><span class="kw-2">&amp;</span>(reg, <span class="kw-2">ref </span>rule) <span class="kw">in </span><span class="kw-2">&amp;*</span><span class="self">self</span>.rules {
@@ -10441,16 +10564,16 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     </span>}
 }
 
-<span class="kw">impl</span>&lt;R, S: UnwindContextStorage&lt;R&gt;&gt; Eq <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt; <span class="kw">where </span>R: Reader + Eq {}
+<span class="kw">impl</span>&lt;T, S: UnwindContextStorage&lt;T&gt;&gt; Eq <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; <span class="kw">where </span>T: ReaderOffset + Eq {}
 
 <span class="doccomment">/// An unordered iterator for register rules.
 </span><span class="attr">#[derive(Debug, Clone)]
-</span><span class="kw">pub struct </span>RegisterRuleIter&lt;<span class="lifetime">'iter</span>, R&gt;(::core::slice::Iter&lt;<span class="lifetime">'iter</span>, (Register, RegisterRule&lt;R&gt;)&gt;)
+</span><span class="kw">pub struct </span>RegisterRuleIter&lt;<span class="lifetime">'iter</span>, T&gt;(::core::slice::Iter&lt;<span class="lifetime">'iter</span>, (Register, RegisterRule&lt;T&gt;)&gt;)
 <span class="kw">where
-    </span>R: Reader;
+    </span>T: ReaderOffset;
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'iter</span>, R: Reader&gt; Iterator <span class="kw">for </span>RegisterRuleIter&lt;<span class="lifetime">'iter</span>, R&gt; {
-    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'iter </span>(Register, RegisterRule&lt;R&gt;);
+<span class="kw">impl</span>&lt;<span class="lifetime">'iter</span>, T: ReaderOffset&gt; Iterator <span class="kw">for </span>RegisterRuleIter&lt;<span class="lifetime">'iter</span>, T&gt; {
+    <span class="kw">type </span>Item = <span class="kw-2">&amp;</span><span class="lifetime">'iter </span>(Register, RegisterRule&lt;T&gt;);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="self">self</span>.<span class="number">0</span>.next()
@@ -10460,15 +10583,15 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 <span class="doccomment">/// A row in the virtual unwind table that describes how to find the values of
 /// the registers in the *previous* frame for a range of PC addresses.
 </span><span class="attr">#[derive(PartialEq, Eq)]
-</span><span class="kw">pub struct </span>UnwindTableRow&lt;R: Reader, S: UnwindContextStorage&lt;R&gt; = StoreOnHeap&gt; {
+</span><span class="kw">pub struct </span>UnwindTableRow&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt; = StoreOnHeap&gt; {
     start_address: u64,
     end_address: u64,
     saved_args_size: u64,
-    cfa: CfaRule&lt;R&gt;,
-    registers: RegisterRuleMap&lt;R, S&gt;,
+    cfa: CfaRule&lt;T&gt;,
+    registers: RegisterRuleMap&lt;T, S&gt;,
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Debug <span class="kw">for </span>UnwindTableRow&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Debug <span class="kw">for </span>UnwindTableRow&lt;T, S&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"UnwindTableRow"</span>)
             .field(<span class="string">"start_address"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.start_address)
@@ -10480,7 +10603,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Clone <span class="kw">for </span>UnwindTableRow&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Clone <span class="kw">for </span>UnwindTableRow&lt;T, S&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             start_address: <span class="self">self</span>.start_address,
@@ -10492,7 +10615,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; Default <span class="kw">for </span>UnwindTableRow&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Default <span class="kw">for </span>UnwindTableRow&lt;T, S&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         UnwindTableRow {
             start_address: <span class="number">0</span>,
@@ -10504,7 +10627,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader, S: UnwindContextStorage&lt;R&gt;&gt; UnwindTableRow&lt;R, S&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; UnwindTableRow&lt;T, S&gt; {
     <span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.start_address == <span class="number">0
             </span>&amp;&amp; <span class="self">self</span>.end_address == <span class="number">0
@@ -10543,7 +10666,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 
     <span class="doccomment">/// Get the canonical frame address (CFA) recovery rule for this row.
-    </span><span class="kw">pub fn </span>cfa(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CfaRule&lt;R&gt; {
+    </span><span class="kw">pub fn </span>cfa(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CfaRule&lt;T&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.cfa
     }
 
@@ -10591,7 +10714,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     /// &gt;   &lt;tr&gt;&lt;td&gt;Vector Mask Registers 0–7&lt;/td&gt;        &lt;td&gt;118-125&lt;/td&gt; &lt;td&gt;%k0–%k7&lt;/td&gt;&lt;/tr&gt;
     /// &gt;   &lt;tr&gt;&lt;td&gt;Reserved&lt;/td&gt;                         &lt;td&gt;126-129&lt;/td&gt; &lt;td&gt;&lt;/td&gt;&lt;/tr&gt;
     /// &gt; &lt;/table&gt;
-    </span><span class="kw">pub fn </span>register(<span class="kw-2">&amp;</span><span class="self">self</span>, register: Register) -&gt; RegisterRule&lt;R&gt; {
+    </span><span class="kw">pub fn </span>register(<span class="kw-2">&amp;</span><span class="self">self</span>, register: Register) -&gt; RegisterRule&lt;T&gt; {
         <span class="self">self</span>.registers.get(register)
     }
 
@@ -10603,21 +10726,21 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     ///
     /// ```
     /// # use gimli::{EndianSlice, LittleEndian, UnwindTableRow};
-    /// # fn foo&lt;'input&gt;(unwind_table_row: UnwindTableRow&lt;EndianSlice&lt;'input, LittleEndian&gt;&gt;) {
+    /// # fn foo&lt;'input&gt;(unwind_table_row: UnwindTableRow&lt;usize&gt;) {
     /// for &amp;(register, ref rule) in unwind_table_row.registers() {
     ///     // ...
     ///     # drop(register); drop(rule);
     /// }
     /// # }
     /// ```
-    </span><span class="kw">pub fn </span>registers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;R&gt; {
+    </span><span class="kw">pub fn </span>registers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;T&gt; {
         <span class="self">self</span>.registers.iter()
     }
 }
 
 <span class="doccomment">/// The canonical frame address (CFA) recovery rules.
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
-</span><span class="kw">pub enum </span>CfaRule&lt;R: Reader&gt; {
+</span><span class="kw">pub enum </span>CfaRule&lt;T: ReaderOffset&gt; {
     <span class="doccomment">/// The CFA is given offset from the given register's value.
     </span>RegisterAndOffset {
         <span class="doccomment">/// The register containing the base value.
@@ -10627,10 +10750,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     },
     <span class="doccomment">/// The CFA is obtained by evaluating this `Reader` as a DWARF expression
     /// program.
-    </span>Expression(Expression&lt;R&gt;),
+    </span>Expression(UnwindExpression&lt;T&gt;),
 }
 
-<span class="kw">impl</span>&lt;R: Reader&gt; Default <span class="kw">for </span>CfaRule&lt;R&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset&gt; Default <span class="kw">for </span>CfaRule&lt;T&gt; {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         CfaRule::RegisterAndOffset {
             register: Register(<span class="number">0</span>),
@@ -10639,7 +10762,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 }
 
-<span class="kw">impl</span>&lt;R: Reader&gt; CfaRule&lt;R&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset&gt; CfaRule&lt;T&gt; {
     <span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             CfaRule::RegisterAndOffset { register, offset } =&gt; {
@@ -10658,7 +10781,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 /// previous frame."
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
-</span><span class="kw">pub enum </span>RegisterRule&lt;R: Reader&gt; {
+</span><span class="kw">pub enum </span>RegisterRule&lt;T: ReaderOffset&gt; {
     <span class="doccomment">/// &gt; A register that has this rule has no recoverable value in the previous
     /// &gt; frame. (By convention, it is not preserved by a callee.)
     </span>Undefined,
@@ -10682,11 +10805,11 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="doccomment">/// "The previous value of this register is located at the address produced
     /// by executing the DWARF expression."
-    </span>Expression(Expression&lt;R&gt;),
+    </span>Expression(UnwindExpression&lt;T&gt;),
 
     <span class="doccomment">/// "The previous value of this register is the value produced by executing
     /// the DWARF expression."
-    </span>ValExpression(Expression&lt;R&gt;),
+    </span>ValExpression(UnwindExpression&lt;T&gt;),
 
     <span class="doccomment">/// "The rule is defined externally to this specification by the augmenter."
     </span>Architectural,
@@ -10695,7 +10818,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     </span>Constant(u64),
 }
 
-<span class="kw">impl</span>&lt;R: Reader&gt; RegisterRule&lt;R&gt; {
+<span class="kw">impl</span>&lt;T: ReaderOffset&gt; RegisterRule&lt;T&gt; {
     <span class="kw">fn </span>is_defined(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         !<span class="macro">matches!</span>(<span class="kw-2">*</span><span class="self">self</span>, RegisterRule::Undefined)
     }
@@ -10704,7 +10827,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 <span class="doccomment">/// A parsed call frame instruction.
 </span><span class="attr">#[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
-</span><span class="kw">pub enum </span>CallFrameInstruction&lt;R: Reader&gt; {
+</span><span class="kw">pub enum </span>CallFrameInstruction&lt;T: ReaderOffset&gt; {
     <span class="comment">// 6.4.2.1 Row Creation Methods
     </span><span class="doccomment">/// &gt; 1. DW_CFA_set_loc
     /// &gt;
@@ -10808,8 +10931,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     /// &gt; expression. The required action is to establish that expression as the
     /// &gt; means by which the current CFA is computed.
     </span>DefCfaExpression {
-        <span class="doccomment">/// The DWARF expression.
-        </span>expression: Expression&lt;R&gt;,
+        <span class="doccomment">/// The location of the DWARF expression.
+        </span>expression: UnwindExpression&lt;T&gt;,
     },
 
     <span class="comment">// 6.4.2.3 Register Rule Instructions
@@ -10919,8 +11042,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     </span>Expression {
         <span class="doccomment">/// The target register's number.
         </span>register: Register,
-        <span class="doccomment">/// The DWARF expression.
-        </span>expression: Expression&lt;R&gt;,
+        <span class="doccomment">/// The location of the DWARF expression.
+        </span>expression: UnwindExpression&lt;T&gt;,
     },
 
     <span class="doccomment">/// &gt; 10. DW_CFA_val_expression
@@ -10936,8 +11059,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     </span>ValExpression {
         <span class="doccomment">/// The target register's number.
         </span>register: Register,
-        <span class="doccomment">/// The DWARF expression.
-        </span>expression: Expression&lt;R&gt;,
+        <span class="doccomment">/// The location of the DWARF expression.
+        </span>expression: UnwindExpression&lt;T&gt;,
     },
 
     <span class="doccomment">/// The `Restore` instruction represents both `DW_CFA_restore` and
@@ -11003,13 +11126,13 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 <span class="kw">const </span>CFI_INSTRUCTION_HIGH_BITS_MASK: u8 = <span class="number">0b1100_0000</span>;
 <span class="kw">const </span>CFI_INSTRUCTION_LOW_BITS_MASK: u8 = !CFI_INSTRUCTION_HIGH_BITS_MASK;
 
-<span class="kw">impl</span>&lt;R: Reader&gt; CallFrameInstruction&lt;R&gt; {
-    <span class="kw">fn </span>parse(
+<span class="kw">impl</span>&lt;T: ReaderOffset&gt; CallFrameInstruction&lt;T&gt; {
+    <span class="kw">fn </span>parse&lt;R: Reader&lt;Offset = T&gt;&gt;(
         input: <span class="kw-2">&amp;mut </span>R,
         address_encoding: <span class="prelude-ty">Option</span>&lt;DwEhPe&gt;,
         parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;R&gt;,
         vendor: Vendor,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallFrameInstruction&lt;R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallFrameInstruction&lt;T&gt;&gt; {
         <span class="kw">let </span>instruction = input.read_u8()<span class="question-mark">?</span>;
         <span class="kw">let </span>high_bits = instruction &amp; CFI_INSTRUCTION_HIGH_BITS_MASK;
 
@@ -11122,20 +11245,22 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             }
 
             constants::DW_CFA_def_cfa_expression =&gt; {
-                <span class="kw">let </span>len = input.read_uleb128().and_then(R::Offset::from_u64)<span class="question-mark">?</span>;
-                <span class="kw">let </span>expression = input.split(len)<span class="question-mark">?</span>;
+                <span class="kw">let </span>length = input.read_uleb128().and_then(R::Offset::from_u64)<span class="question-mark">?</span>;
+                <span class="kw">let </span>offset = input.offset_from(parameters.section);
+                input.skip(length)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(CallFrameInstruction::DefCfaExpression {
-                    expression: Expression(expression),
+                    expression: UnwindExpression { offset, length },
                 })
             }
 
             constants::DW_CFA_expression =&gt; {
                 <span class="kw">let </span>register = input.read_uleb128().and_then(Register::from_u64)<span class="question-mark">?</span>;
-                <span class="kw">let </span>len = input.read_uleb128().and_then(R::Offset::from_u64)<span class="question-mark">?</span>;
-                <span class="kw">let </span>expression = input.split(len)<span class="question-mark">?</span>;
+                <span class="kw">let </span>length = input.read_uleb128().and_then(R::Offset::from_u64)<span class="question-mark">?</span>;
+                <span class="kw">let </span>offset = input.offset_from(parameters.section);
+                input.skip(length)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(CallFrameInstruction::Expression {
                     register,
-                    expression: Expression(expression),
+                    expression: UnwindExpression { offset, length },
                 })
             }
 
@@ -11184,11 +11309,12 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
             constants::DW_CFA_val_expression =&gt; {
                 <span class="kw">let </span>register = input.read_uleb128().and_then(Register::from_u64)<span class="question-mark">?</span>;
-                <span class="kw">let </span>len = input.read_uleb128().and_then(R::Offset::from_u64)<span class="question-mark">?</span>;
-                <span class="kw">let </span>expression = input.split(len)<span class="question-mark">?</span>;
+                <span class="kw">let </span>length = input.read_uleb128().and_then(R::Offset::from_u64)<span class="question-mark">?</span>;
+                <span class="kw">let </span>offset = input.offset_from(parameters.section);
+                input.skip(length)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(CallFrameInstruction::ValExpression {
                     register,
-                    expression: Expression(expression),
+                    expression: UnwindExpression { offset, length },
                 })
             }
 
@@ -11220,7 +11346,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: Reader&gt; CallFrameInstructionIter&lt;<span class="lifetime">'a</span>, R&gt; {
     <span class="doccomment">/// Parse the next call frame instruction.
-    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CallFrameInstruction&lt;R&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CallFrameInstruction&lt;R::Offset&gt;&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.input.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
@@ -11242,11 +11368,39 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
 <span class="attr">#[cfg(feature = <span class="string">"fallible-iterator"</span>)]
 </span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: Reader&gt; fallible_iterator::FallibleIterator <span class="kw">for </span>CallFrameInstructionIter&lt;<span class="lifetime">'a</span>, R&gt; {
-    <span class="kw">type </span>Item = CallFrameInstruction&lt;R&gt;;
+    <span class="kw">type </span>Item = CallFrameInstruction&lt;R::Offset&gt;;
     <span class="kw">type </span>Error = Error;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; ::core::result::Result&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt;, <span class="self">Self</span>::Error&gt; {
         CallFrameInstructionIter::next(<span class="self">self</span>)
+    }
+}
+
+<span class="doccomment">/// The location of a DWARF expression within an unwind section.
+///
+/// This is stored as an offset and length within the section instead of as a
+/// `Reader` to avoid lifetime issues when reusing [`UnwindContext`].
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+</span><span class="kw">pub struct </span>UnwindExpression&lt;T: ReaderOffset&gt; {
+    <span class="doccomment">/// The offset of the expression within the section.
+    </span><span class="kw">pub </span>offset: T,
+    <span class="doccomment">/// The length of the expression.
+    </span><span class="kw">pub </span>length: T,
+}
+
+<span class="kw">impl</span>&lt;T: ReaderOffset&gt; UnwindExpression&lt;T&gt; {
+    <span class="doccomment">/// Get the expression from the section.
+    ///
+    /// The offset and length were previously validated when the
+    /// `UnwindExpression` was created, so this should not fail.
+    </span><span class="kw">pub fn </span>get&lt;R: Reader&lt;Offset = T&gt;, S: UnwindSection&lt;R&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        section: <span class="kw-2">&amp;</span>S,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;R&gt;&gt; {
+        <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>section.section().clone();
+        input.skip(<span class="self">self</span>.offset)<span class="question-mark">?</span>;
+        <span class="kw">let </span>data = input.split(<span class="self">self</span>.length)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(Expression(data))
     }
 }
 
@@ -11403,7 +11557,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     <span class="kw">use </span><span class="kw">crate</span>::constants;
     <span class="kw">use </span><span class="kw">crate</span>::endianity::{BigEndian, Endianity, LittleEndian, NativeEndian};
     <span class="kw">use </span><span class="kw">crate</span>::read::{
-        EndianSlice, Error, Expression, Pointer, ReaderOffsetId, <span class="prelude-ty">Result</span>, Section <span class="kw">as </span>ReadSection,
+        EndianSlice, Error, Pointer, ReaderOffsetId, <span class="prelude-ty">Result</span>, Section <span class="kw">as </span>ReadSection,
     };
     <span class="kw">use </span><span class="kw">crate</span>::test_util::GimliSectionMethods;
     <span class="kw">use </span>alloc::boxed::Box;
@@ -11762,7 +11916,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>start = Label::new();
         <span class="kw">let </span>end = Label::new();
 
-        <span class="kw">let </span>augmentation = <span class="prelude-val">Some</span>(<span class="string">"replicant"</span>);
+        <span class="kw">let </span>augmentation = <span class="string">"replicant"</span>;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
 
         <span class="kw">let </span>kind = debug_frame_le();
@@ -11775,7 +11929,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             <span class="comment">// Version
             </span>.D8(<span class="number">4</span>)
             <span class="comment">// Augmentation
-            </span>.append_bytes(augmentation.unwrap().as_bytes())
+            </span>.append_bytes(augmentation.as_bytes())
             <span class="comment">// Null terminator
             </span>.D8(<span class="number">0</span>)
             <span class="comment">// Extra augmented data that we can't understand.
@@ -12343,12 +12497,13 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     <span class="kw">fn </span>parse_cfi_instruction&lt;R: Reader + Default&gt;(
         input: <span class="kw-2">&amp;mut </span>R,
         address_size: u8,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallFrameInstruction&lt;R&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;CallFrameInstruction&lt;R::Offset&gt;&gt; {
+        <span class="kw">let </span>section = input.clone();
         <span class="kw">let </span>parameters = <span class="kw-2">&amp;</span>PointerEncodingParameters {
             bases: <span class="kw-2">&amp;</span>SectionBaseAddresses::default(),
             func_base: <span class="prelude-val">None</span>,
             address_size,
-            section: <span class="kw-2">&amp;</span>R::default(),
+            section: <span class="kw-2">&amp;</span>section,
         };
         CallFrameInstruction::parse(input, <span class="prelude-val">None</span>, parameters, Vendor::Default)
     }
@@ -12742,13 +12897,17 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             .append_bytes(<span class="kw-2">&amp;</span>expected_rest);
 
         length.set_const((<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>u64);
+        <span class="kw">let </span>expected_expression = UnwindExpression {
+            offset: (<span class="kw-2">&amp;</span>start - <span class="kw-2">&amp;</span>section.start()) <span class="kw">as </span>usize,
+            length: (<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>usize,
+        };
         <span class="kw">let </span>contents = section.get_contents().unwrap();
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>contents, LittleEndian);
 
         <span class="macro">assert_eq!</span>(
             parse_cfi_instruction(input, <span class="number">8</span>),
             <span class="prelude-val">Ok</span>(CallFrameInstruction::DefCfaExpression {
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expected_expr, LittleEndian)),
+                expression: expected_expression,
             })
         );
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>input, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
@@ -12774,6 +12933,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             .append_bytes(<span class="kw-2">&amp;</span>expected_rest);
 
         length.set_const((<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>u64);
+        <span class="kw">let </span>expected_expression = UnwindExpression {
+            offset: (<span class="kw-2">&amp;</span>start - <span class="kw-2">&amp;</span>section.start()) <span class="kw">as </span>usize,
+            length: (<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>usize,
+        };
         <span class="kw">let </span>contents = section.get_contents().unwrap();
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>contents, LittleEndian);
 
@@ -12781,7 +12944,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             parse_cfi_instruction(input, <span class="number">8</span>),
             <span class="prelude-val">Ok</span>(CallFrameInstruction::Expression {
                 register: Register(expected_reg),
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expected_expr, LittleEndian)),
+                expression: expected_expression,
             })
         );
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>input, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
@@ -12914,6 +13077,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             .append_bytes(<span class="kw-2">&amp;</span>expected_rest);
 
         length.set_const((<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>u64);
+        <span class="kw">let </span>expected_expression = UnwindExpression {
+            offset: (<span class="kw-2">&amp;</span>start - <span class="kw-2">&amp;</span>section.start()) <span class="kw">as </span>usize,
+            length: (<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>usize,
+        };
         <span class="kw">let </span>contents = section.get_contents().unwrap();
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>contents, LittleEndian);
 
@@ -12921,7 +13088,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             parse_cfi_instruction(input, <span class="number">8</span>),
             <span class="prelude-val">Ok</span>(CallFrameInstruction::ValExpression {
                 register: Register(expected_reg),
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expected_expr, LittleEndian)),
+                expression: expected_expression,
             })
         );
         <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>input, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
@@ -12984,13 +13151,17 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             .D8(expected_delta);
 
         length.set_const((<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>u64);
+        <span class="kw">let </span>expected_expression = UnwindExpression {
+            offset: (<span class="kw-2">&amp;</span>start - <span class="kw-2">&amp;</span>section.start()) <span class="kw">as </span>usize,
+            length: (<span class="kw-2">&amp;</span>end - <span class="kw-2">&amp;</span>start) <span class="kw">as </span>usize,
+        };
         <span class="kw">let </span>contents = section.get_contents().unwrap();
         <span class="kw">let </span>input = EndianSlice::new(<span class="kw-2">&amp;</span>contents, BigEndian);
         <span class="kw">let </span>parameters = PointerEncodingParameters {
             bases: <span class="kw-2">&amp;</span>SectionBaseAddresses::default(),
             func_base: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            section: <span class="kw-2">&amp;</span>EndianSlice::default(),
+            section: <span class="kw-2">&amp;</span>input,
         };
         <span class="kw">let </span><span class="kw-2">mut </span>iter = CallFrameInstructionIter {
             input,
@@ -13003,7 +13174,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             iter.next(),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(CallFrameInstruction::ValExpression {
                 register: Register(expected_reg),
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expected_expr, BigEndian)),
+                expression: expected_expression,
             }))
         );
 
@@ -13045,18 +13216,13 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     }
 
     <span class="kw">fn </span>assert_eval&lt;<span class="lifetime">'a</span>, I&gt;(
-        <span class="kw-2">mut </span>initial_ctx: UnwindContext&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;,
-        expected_ctx: UnwindContext&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;,
+        <span class="kw-2">mut </span>initial_ctx: UnwindContext&lt;usize&gt;,
+        expected_ctx: UnwindContext&lt;usize&gt;,
         cie: CommonInformationEntry&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;,
         fde: <span class="prelude-ty">Option</span>&lt;FrameDescriptionEntry&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;&gt;,
         instructions: I,
     ) <span class="kw">where
-        </span>I: AsRef&lt;
-            [(
-                <span class="prelude-ty">Result</span>&lt;bool&gt;,
-                CallFrameInstruction&lt;EndianSlice&lt;<span class="lifetime">'a</span>, LittleEndian&gt;&gt;,
-            )],
-        &gt;,
+        </span>I: AsRef&lt;[(<span class="prelude-ty">Result</span>&lt;bool&gt;, CallFrameInstruction&lt;usize&gt;)]&gt;,
     {
         {
             <span class="kw">let </span>section = <span class="kw-2">&amp;</span>DebugFrame::from(EndianSlice::default());
@@ -13065,7 +13231,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                 <span class="prelude-val">Some</span>(fde) =&gt; UnwindTable::new_for_fde(section, bases, <span class="kw-2">&amp;mut </span>initial_ctx, <span class="kw-2">&amp;</span>fde),
                 <span class="prelude-val">None </span>=&gt; UnwindTable::new_for_cie(section, bases, <span class="kw-2">&amp;mut </span>initial_ctx, <span class="kw-2">&amp;</span>cie),
             };
-            <span class="kw">for </span><span class="kw-2">&amp;</span>(<span class="kw-2">ref </span>expected_result, <span class="kw-2">ref </span>instruction) <span class="kw">in </span>instructions.as_ref() {
+            <span class="kw">for </span>(expected_result, instruction) <span class="kw">in </span>instructions.as_ref() {
                 <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>expected_result, table.evaluate(instruction.clone()));
             }
         }
@@ -13198,10 +13364,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     </span><span class="kw">fn </span>test_eval_def_cfa_register_invalid_context() {
         <span class="kw">let </span>cie = make_test_cie();
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = UnwindContext::new();
-        ctx.set_cfa(CfaRule::Expression(Expression(EndianSlice::new(
-            <span class="kw-2">&amp;</span>[],
-            LittleEndian,
-        ))));
+        ctx.set_cfa(CfaRule::Expression(UnwindExpression {
+            offset: <span class="number">0</span>,
+            length: <span class="number">0</span>,
+        }));
         <span class="kw">let </span>expected = ctx.clone();
         <span class="kw">let </span>instructions = [(
             <span class="prelude-val">Err</span>(Error::CfiInstructionInInvalidContext),
@@ -13233,10 +13399,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     </span><span class="kw">fn </span>test_eval_def_cfa_offset_invalid_context() {
         <span class="kw">let </span>cie = make_test_cie();
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = UnwindContext::new();
-        ctx.set_cfa(CfaRule::Expression(Expression(EndianSlice::new(
-            <span class="kw-2">&amp;</span>[],
-            LittleEndian,
-        ))));
+        ctx.set_cfa(CfaRule::Expression(UnwindExpression {
+            offset: <span class="number">10</span>,
+            length: <span class="number">11</span>,
+        }));
         <span class="kw">let </span>expected = ctx.clone();
         <span class="kw">let </span>instructions = [(
             <span class="prelude-val">Err</span>(Error::CfiInstructionInInvalidContext),
@@ -13247,19 +13413,17 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_def_cfa_expression() {
-        <span class="kw">let </span>expr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+        <span class="kw">let </span>expr = UnwindExpression {
+            offset: <span class="number">10</span>,
+            length: <span class="number">11</span>,
+        };
         <span class="kw">let </span>cie = make_test_cie();
         <span class="kw">let </span>ctx = UnwindContext::new();
         <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
-        expected.set_cfa(CfaRule::Expression(Expression(EndianSlice::new(
-            <span class="kw-2">&amp;</span>expr,
-            LittleEndian,
-        ))));
+        expected.set_cfa(CfaRule::Expression(expr));
         <span class="kw">let </span>instructions = [(
             <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
-            CallFrameInstruction::DefCfaExpression {
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expr, LittleEndian)),
-            },
+            CallFrameInstruction::DefCfaExpression { expression: expr },
         )];
         assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
     }
@@ -13384,21 +13548,21 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_expression() {
-        <span class="kw">let </span>expr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+        <span class="kw">let </span>expr = UnwindExpression {
+            offset: <span class="number">10</span>,
+            length: <span class="number">11</span>,
+        };
         <span class="kw">let </span>cie = make_test_cie();
         <span class="kw">let </span>ctx = UnwindContext::new();
         <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
         expected
-            .set_register_rule(
-                Register(<span class="number">9</span>),
-                RegisterRule::Expression(Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expr, LittleEndian))),
-            )
+            .set_register_rule(Register(<span class="number">9</span>), RegisterRule::Expression(expr))
             .unwrap();
         <span class="kw">let </span>instructions = [(
             <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
             CallFrameInstruction::Expression {
                 register: Register(<span class="number">9</span>),
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expr, LittleEndian)),
+                expression: expr,
             },
         )];
         assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
@@ -13406,21 +13570,21 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eval_val_expression() {
-        <span class="kw">let </span>expr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
+        <span class="kw">let </span>expr = UnwindExpression {
+            offset: <span class="number">10</span>,
+            length: <span class="number">11</span>,
+        };
         <span class="kw">let </span>cie = make_test_cie();
         <span class="kw">let </span>ctx = UnwindContext::new();
         <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
         expected
-            .set_register_rule(
-                Register(<span class="number">9</span>),
-                RegisterRule::ValExpression(Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expr, LittleEndian))),
-            )
+            .set_register_rule(Register(<span class="number">9</span>), RegisterRule::ValExpression(expr))
             .unwrap();
         <span class="kw">let </span>instructions = [(
             <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>),
             CallFrameInstruction::ValExpression {
                 register: Register(<span class="number">9</span>),
-                expression: Expression(EndianSlice::new(<span class="kw-2">&amp;</span>expr, LittleEndian)),
+                expression: expr,
             },
         )];
         assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
@@ -13811,7 +13975,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_unwind_table_next_row() {
-        <span class="kw">let </span>initial_instructions = Section::with_endian(Endian::Little)
+        <span class="attr">#[allow(clippy::identity_op)]
+        </span><span class="kw">let </span>initial_instructions = Section::with_endian(Endian::Little)
             <span class="comment">// The CFA is -12 from register 4.
             </span>.D8(constants::DW_CFA_def_cfa_sf.<span class="number">0</span>)
             .uleb(<span class="number">4</span>)
@@ -14367,14 +14532,14 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             iter.next(),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((
                 Pointer::Direct(<span class="number">10</span>),
-                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde1.value().unwrap() <span class="kw">as </span>u64)
+                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde1.value().unwrap())
             )))
         );
         <span class="macro">assert_eq!</span>(
             iter.next(),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((
                 Pointer::Direct(<span class="number">20</span>),
-                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde2.value().unwrap() <span class="kw">as </span>u64)
+                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde2.value().unwrap())
             )))
         );
         <span class="macro">assert_eq!</span>(iter.next(), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
@@ -14383,7 +14548,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             table.iter(<span class="kw-2">&amp;</span>bases).nth(<span class="number">0</span>),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((
                 Pointer::Direct(<span class="number">10</span>),
-                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde1.value().unwrap() <span class="kw">as </span>u64)
+                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde1.value().unwrap())
             )))
         );
 
@@ -14391,7 +14556,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             table.iter(<span class="kw-2">&amp;</span>bases).nth(<span class="number">1</span>),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>((
                 Pointer::Direct(<span class="number">20</span>),
-                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde2.value().unwrap() <span class="kw">as </span>u64)
+                Pointer::Direct(<span class="number">0x12345 </span>+ start_of_fde2.value().unwrap())
             )))
         );
         <span class="macro">assert_eq!</span>(table.iter(<span class="kw-2">&amp;</span>bases).nth(<span class="number">2</span>), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
@@ -14432,7 +14597,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>bases = Default::default();
 
         <span class="macro">assert_eq!</span>(
-            parse_cfi_entry(<span class="kw-2">&amp;</span>bases, <span class="kw-2">&amp;</span>EhFrame::new(<span class="kw-2">&amp;*</span>section, LittleEndian), rest),
+            parse_cfi_entry(<span class="kw-2">&amp;</span>bases, <span class="kw-2">&amp;</span>EhFrame::new(<span class="kw-2">&amp;</span>section, LittleEndian), rest),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
         );
 
@@ -14457,9 +14622,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
         <span class="kw">let </span>kind = eh_frame_le();
         <span class="kw">let </span>section = Section::with_endian(kind.endian())
-            .append_bytes(<span class="kw-2">&amp;</span>buf)
+            .append_bytes(buf)
             .fde(kind, cie_offset <span class="kw">as </span>u64, <span class="kw-2">&amp;mut </span>fde)
-            .append_bytes(<span class="kw-2">&amp;</span>buf);
+            .append_bytes(buf);
 
         <span class="kw">let </span>section = section.get_contents().unwrap();
         <span class="kw">let </span>eh_frame = kind.section(<span class="kw-2">&amp;</span>section);
@@ -14542,7 +14707,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>section = EndianSlice::new(<span class="kw-2">&amp;</span>section, LittleEndian);
 
         <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="prelude-val">None</span>;
-        <span class="kw">match </span>parse_fde(
+        <span class="kw">let </span>result = parse_fde(
             eh_frame,
             <span class="kw-2">&amp;mut </span>section.range_from(end_of_cie.value().unwrap() <span class="kw">as </span>usize..),
             |<span class="kw">_</span>, <span class="kw">_</span>, o| {
@@ -14550,7 +14715,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
                 <span class="macro">assert_eq!</span>(o, EhFrameOffset(start_of_cie.value().unwrap() <span class="kw">as </span>usize));
                 <span class="prelude-val">Ok</span>(cie.clone())
             },
-        ) {
+        );
+        <span class="kw">match </span>result {
             <span class="prelude-val">Ok</span>(actual) =&gt; <span class="macro">assert_eq!</span>(actual, fde),
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result {:?}"</span>, otherwise),
         }
@@ -14616,8 +14782,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>section = EhFrame::new(<span class="kw-2">&amp;</span>[], LittleEndian);
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>augmentation = Augmentation::default();
-        augmentation.is_signal_trampoline = <span class="bool-val">true</span>;
+        <span class="kw">let </span>augmentation = Augmentation {
+            is_signal_trampoline: <span class="bool-val">true</span>,
+            ..Default::default()
+        };
 
         <span class="macro">assert_eq!</span>(
             Augmentation::parse(aug_str, <span class="kw-2">&amp;</span>bases, address_size, <span class="kw-2">&amp;</span>section, input),
@@ -14661,8 +14829,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>section.section().clone();
         <span class="kw">let </span>aug_str = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="string">b"zL"</span>, LittleEndian);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>augmentation = Augmentation::default();
-        augmentation.lsda = <span class="prelude-val">Some</span>(constants::DW_EH_PE_uleb128);
+        <span class="kw">let </span>augmentation = Augmentation {
+            lsda: <span class="prelude-val">Some</span>(constants::DW_EH_PE_uleb128),
+            ..Default::default()
+        };
 
         <span class="macro">assert_eq!</span>(
             Augmentation::parse(aug_str, <span class="kw-2">&amp;</span>bases, address_size, <span class="kw-2">&amp;</span>section, input),
@@ -14689,8 +14859,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>section.section().clone();
         <span class="kw">let </span>aug_str = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="string">b"zP"</span>, LittleEndian);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>augmentation = Augmentation::default();
-        augmentation.personality = <span class="prelude-val">Some</span>((constants::DW_EH_PE_udata8, Pointer::Direct(<span class="number">0xf00d_f00d</span>)));
+        <span class="kw">let </span>augmentation = Augmentation {
+            personality: <span class="prelude-val">Some</span>((constants::DW_EH_PE_udata8, Pointer::Direct(<span class="number">0xf00d_f00d</span>))),
+            ..Default::default()
+        };
 
         <span class="macro">assert_eq!</span>(
             Augmentation::parse(aug_str, <span class="kw-2">&amp;</span>bases, address_size, <span class="kw-2">&amp;</span>section, input),
@@ -14716,8 +14888,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>section.section().clone();
         <span class="kw">let </span>aug_str = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="string">b"zR"</span>, LittleEndian);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>augmentation = Augmentation::default();
-        augmentation.fde_address_encoding = <span class="prelude-val">Some</span>(constants::DW_EH_PE_udata4);
+        <span class="kw">let </span>augmentation = Augmentation {
+            fde_address_encoding: <span class="prelude-val">Some</span>(constants::DW_EH_PE_udata4),
+            ..Default::default()
+        };
 
         <span class="macro">assert_eq!</span>(
             Augmentation::parse(aug_str, <span class="kw-2">&amp;</span>bases, address_size, <span class="kw-2">&amp;</span>section, input),
@@ -14742,8 +14916,10 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>section.section().clone();
         <span class="kw">let </span>aug_str = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="string">b"zS"</span>, LittleEndian);
 
-        <span class="kw">let </span><span class="kw-2">mut </span>augmentation = Augmentation::default();
-        augmentation.is_signal_trampoline = <span class="bool-val">true</span>;
+        <span class="kw">let </span>augmentation = Augmentation {
+            is_signal_trampoline: <span class="bool-val">true</span>,
+            ..Default::default()
+        };
 
         <span class="macro">assert_eq!</span>(
             Augmentation::parse(aug_str, <span class="kw-2">&amp;</span>bases, address_size, <span class="kw-2">&amp;</span>section, input),
@@ -14913,9 +15089,8 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         cie.format = Format::Dwarf32;
         cie.version = <span class="number">1</span>;
         cie.augmentation = <span class="prelude-val">Some</span>(Augmentation::default());
-        cie.augmentation.as_mut().unwrap().lsda = <span class="prelude-val">Some</span>(constants::DwEhPe(
-            constants::DW_EH_PE_funcrel.<span class="number">0 </span>| constants::DW_EH_PE_absptr.<span class="number">0</span>,
-        ));
+        cie.augmentation.as_mut().unwrap().lsda =
+            <span class="prelude-val">Some</span>(constants::DW_EH_PE_funcrel | constants::DW_EH_PE_absptr);
 
         <span class="kw">let </span><span class="kw-2">mut </span>fde = FrameDescriptionEntry {
             offset: <span class="number">0</span>,
@@ -15006,13 +15181,13 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     <span class="attr">#[test]
     </span><span class="kw">fn </span>register_rule_map_eq() {
         <span class="comment">// Different order, but still equal.
-        </span><span class="kw">let </span>map1: RegisterRuleMap&lt;EndianSlice&lt;LittleEndian&gt;&gt; = [
+        </span><span class="kw">let </span>map1: RegisterRuleMap&lt;usize&gt; = [
             (Register(<span class="number">0</span>), RegisterRule::SameValue),
             (Register(<span class="number">3</span>), RegisterRule::Offset(<span class="number">1</span>)),
         ]
         .iter()
         .collect();
-        <span class="kw">let </span>map2: RegisterRuleMap&lt;EndianSlice&lt;LittleEndian&gt;&gt; = [
+        <span class="kw">let </span>map2: RegisterRuleMap&lt;usize&gt; = [
             (Register(<span class="number">3</span>), RegisterRule::Offset(<span class="number">1</span>)),
             (Register(<span class="number">0</span>), RegisterRule::SameValue),
         ]
@@ -15022,13 +15197,13 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="macro">assert_eq!</span>(map2, map1);
 
         <span class="comment">// Not equal.
-        </span><span class="kw">let </span>map3: RegisterRuleMap&lt;EndianSlice&lt;LittleEndian&gt;&gt; = [
+        </span><span class="kw">let </span>map3: RegisterRuleMap&lt;usize&gt; = [
             (Register(<span class="number">0</span>), RegisterRule::SameValue),
             (Register(<span class="number">2</span>), RegisterRule::Offset(<span class="number">1</span>)),
         ]
         .iter()
         .collect();
-        <span class="kw">let </span>map4: RegisterRuleMap&lt;EndianSlice&lt;LittleEndian&gt;&gt; = [
+        <span class="kw">let </span>map4: RegisterRuleMap&lt;usize&gt; = [
             (Register(<span class="number">3</span>), RegisterRule::Offset(<span class="number">1</span>)),
             (Register(<span class="number">0</span>), RegisterRule::SameValue),
         ]
@@ -15038,24 +15213,26 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="macro">assert!</span>(map4 != map3);
 
         <span class="comment">// One has undefined explicitly set, other implicitly has undefined.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>map5 = RegisterRuleMap::&lt;EndianSlice&lt;LittleEndian&gt;&gt;::default();
+        </span><span class="kw">let </span><span class="kw-2">mut </span>map5 = RegisterRuleMap::&lt;usize&gt;::default();
         map5.set(Register(<span class="number">0</span>), RegisterRule::SameValue).unwrap();
         map5.set(Register(<span class="number">0</span>), RegisterRule::Undefined).unwrap();
-        <span class="kw">let </span>map6 = RegisterRuleMap::&lt;EndianSlice&lt;LittleEndian&gt;&gt;::default();
+        <span class="kw">let </span>map6 = RegisterRuleMap::&lt;usize&gt;::default();
         <span class="macro">assert_eq!</span>(map5, map6);
         <span class="macro">assert_eq!</span>(map6, map5);
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>iter_register_rules() {
-        <span class="kw">let </span><span class="kw-2">mut </span>row = UnwindTableRow::&lt;EndianSlice&lt;LittleEndian&gt;&gt;::default();
-        row.registers = [
-            (Register(<span class="number">0</span>), RegisterRule::SameValue),
-            (Register(<span class="number">1</span>), RegisterRule::Offset(<span class="number">1</span>)),
-            (Register(<span class="number">2</span>), RegisterRule::ValOffset(<span class="number">2</span>)),
-        ]
-        .iter()
-        .collect();
+        <span class="kw">let </span>row = UnwindTableRow::&lt;usize&gt; {
+            registers: [
+                (Register(<span class="number">0</span>), RegisterRule::SameValue),
+                (Register(<span class="number">1</span>), RegisterRule::Offset(<span class="number">1</span>)),
+                (Register(<span class="number">2</span>), RegisterRule::ValOffset(<span class="number">2</span>)),
+            ]
+            .iter()
+            .collect(),
+            ..Default::default()
+        };
 
         <span class="kw">let </span><span class="kw-2">mut </span>found0 = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>found1 = <span class="bool-val">false</span>;
@@ -15064,17 +15241,17 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
         <span class="kw">for </span><span class="kw-2">&amp;</span>(register, <span class="kw-2">ref </span>rule) <span class="kw">in </span>row.registers() {
             <span class="kw">match </span>register.<span class="number">0 </span>{
                 <span class="number">0 </span>=&gt; {
-                    <span class="macro">assert_eq!</span>(found0, <span class="bool-val">false</span>);
+                    <span class="macro">assert!</span>(!found0);
                     found0 = <span class="bool-val">true</span>;
                     <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rule, RegisterRule::SameValue);
                 }
                 <span class="number">1 </span>=&gt; {
-                    <span class="macro">assert_eq!</span>(found1, <span class="bool-val">false</span>);
+                    <span class="macro">assert!</span>(!found1);
                     found1 = <span class="bool-val">true</span>;
                     <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rule, RegisterRule::Offset(<span class="number">1</span>));
                 }
                 <span class="number">2 </span>=&gt; {
-                    <span class="macro">assert_eq!</span>(found2, <span class="bool-val">false</span>);
+                    <span class="macro">assert!</span>(!found2);
                     found2 = <span class="bool-val">true</span>;
                     <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rule, RegisterRule::ValOffset(<span class="number">2</span>));
                 }
@@ -15082,16 +15259,16 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             }
         }
 
-        <span class="macro">assert_eq!</span>(found0, <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(found1, <span class="bool-val">true</span>);
-        <span class="macro">assert_eq!</span>(found2, <span class="bool-val">true</span>);
+        <span class="macro">assert!</span>(found0);
+        <span class="macro">assert!</span>(found1);
+        <span class="macro">assert!</span>(found2);
     }
 
     <span class="attr">#[test]
     #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>size_of_unwind_ctx() {
         <span class="kw">use </span>core::mem;
-        <span class="kw">let </span>size = mem::size_of::&lt;UnwindContext&lt;EndianSlice&lt;NativeEndian&gt;&gt;&gt;();
+        <span class="kw">let </span>size = mem::size_of::&lt;UnwindContext&lt;usize&gt;&gt;();
         <span class="kw">let </span>max_size = <span class="number">30968</span>;
         <span class="kw">if </span>size &gt; max_size {
             <span class="macro">assert_eq!</span>(size, max_size);
@@ -15102,7 +15279,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     #[cfg(target_pointer_width = <span class="string">"64"</span>)]
     </span><span class="kw">fn </span>size_of_register_rule_map() {
         <span class="kw">use </span>core::mem;
-        <span class="kw">let </span>size = mem::size_of::&lt;RegisterRuleMap&lt;EndianSlice&lt;NativeEndian&gt;&gt;&gt;();
+        <span class="kw">let </span>size = mem::size_of::&lt;RegisterRuleMap&lt;usize&gt;&gt;();
         <span class="kw">let </span>max_size = <span class="number">6152</span>;
         <span class="kw">if </span>size &gt; max_size {
             <span class="macro">assert_eq!</span>(size, max_size);
@@ -15112,8 +15289,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_pointer_encoding_ok() {
         <span class="kw">use </span><span class="kw">crate</span>::endianity::NativeEndian;
-        <span class="kw">let </span>expected =
-            constants::DwEhPe(constants::DW_EH_PE_uleb128.<span class="number">0 </span>| constants::DW_EH_PE_pcrel.<span class="number">0</span>);
+        <span class="kw">let </span>expected = constants::DW_EH_PE_uleb128 | constants::DW_EH_PE_pcrel;
         <span class="kw">let </span>input = [expected.<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>input, NativeEndian);
         <span class="macro">assert_eq!</span>(parse_pointer_encoding(input), <span class="prelude-val">Ok</span>(expected));
@@ -15345,8 +15521,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_uleb128() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_uleb128.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_uleb128;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
@@ -15371,8 +15546,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_udata2() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_udata2.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_udata2;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
@@ -15397,8 +15571,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_udata4() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_udata4.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_udata4;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
@@ -15423,8 +15596,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_udata8() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_udata8.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_udata8;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
@@ -15449,8 +15621,7 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_sleb128() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_textrel.<span class="number">0 </span>| constants::DW_EH_PE_sleb128.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_textrel | constants::DW_EH_PE_sleb128;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
@@ -15475,10 +15646,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_sdata2() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_sdata2.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_sdata2;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
-        <span class="kw">let </span>expected = <span class="number">0x111 </span><span class="kw">as </span>i16;
+        <span class="kw">let </span>expected = <span class="number">0x111_i16</span>;
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
             .L16(expected <span class="kw">as </span>u16)
@@ -15502,10 +15672,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_sdata4() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_sdata4.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_sdata4;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
-        <span class="kw">let </span>expected = <span class="number">0x111_1111 </span><span class="kw">as </span>i32;
+        <span class="kw">let </span>expected = <span class="number">0x111_1111_i32</span>;
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
             .L32(expected <span class="kw">as </span>u32)
@@ -15529,10 +15698,9 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_encoded_pointer_sdata8() {
-        <span class="kw">let </span>encoding =
-            constants::DwEhPe(constants::DW_EH_PE_absptr.<span class="number">0 </span>| constants::DW_EH_PE_sdata8.<span class="number">0</span>);
+        <span class="kw">let </span>encoding = constants::DW_EH_PE_absptr | constants::DW_EH_PE_sdata8;
         <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
-        <span class="kw">let </span>expected = -<span class="number">0x11_1111_1222_2222 </span><span class="kw">as </span>i64;
+        <span class="kw">let </span>expected = -<span class="number">0x11_1111_1222_2222_i64</span>;
 
         <span class="kw">let </span>input = Section::with_endian(Endian::Little)
             .L64(expected <span class="kw">as </span>u64)
@@ -15643,6 +15811,33 @@ on the heap using [`Vec`]. This is the default storage type parameter for [`Unwi
             <span class="prelude-val">Ok</span>(Pointer::Indirect(<span class="number">0x1234_5678</span>))
         );
         <span class="macro">assert_eq!</span>(rest, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_unwind_context_reuse() {
+        <span class="kw">fn </span>unwind_one(ctx: <span class="kw-2">&amp;mut </span>UnwindContext&lt;usize&gt;, data: <span class="kw-2">&amp;</span>[u8]) {
+            <span class="kw">let </span>debug_frame = DebugFrame::new(data, NativeEndian);
+            <span class="kw">let </span>bases = Default::default();
+            <span class="kw">let </span>result = debug_frame.unwind_info_for_address(
+                <span class="kw-2">&amp;</span>bases,
+                ctx,
+                <span class="number">0xbadb_ad99</span>,
+                DebugFrame::cie_from_offset,
+            );
+            <span class="macro">assert!</span>(result.is_err());
+            <span class="macro">assert_eq!</span>(result.unwrap_err(), Error::NoUnwindInfoForAddress);
+        }
+
+        <span class="comment">// Use the same context for two different data lifetimes.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>ctx: UnwindContext&lt;usize&gt; = UnwindContext::new();
+        {
+            <span class="kw">let </span>data1 = <span class="macro">vec!</span>[];
+            unwind_one(<span class="kw-2">&amp;mut </span>ctx, <span class="kw-2">&amp;</span>data1);
+        }
+        {
+            <span class="kw">let </span>data2 = <span class="macro">vec!</span>[];
+            unwind_one(<span class="kw-2">&amp;mut </span>ctx, <span class="kw-2">&amp;</span>data2);
+        }
     }
 }
 </code></pre></div></section></main></body></html>

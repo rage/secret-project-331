@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/persian.rs`."><title>persian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/persian.rs`."><title>persian.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -597,6 +596,245 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -632,7 +870,7 @@
 </span><span class="kw">use </span><span class="kw">crate</span>::any_calendar::AnyCalendarKind;
 <span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::{ArithmeticDate, CalendarArithmetic};
 <span class="kw">use </span><span class="kw">crate</span>::iso::Iso;
-<span class="kw">use crate</span>::{types, Calendar, CalendarError, Date, DateDuration, DateDurationUnit, DateTime};
+<span class="kw">use crate</span>::{types, Calendar, CalendarError, Date, DateDuration, DateDurationUnit, DateTime, Time};
 <span class="kw">use </span>::tinystr::tinystr;
 <span class="kw">use </span>calendrical_calculations::helpers::I32CastError;
 <span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
@@ -663,42 +901,36 @@
 </span><span class="kw">pub struct </span>PersianDateInner(ArithmeticDate&lt;Persian&gt;);
 
 <span class="kw">impl </span>CalendarArithmetic <span class="kw">for </span>Persian {
-    <span class="kw">fn </span>month_days(year: i32, month: u8) -&gt; u8 {
+    <span class="kw">type </span>YearInfo = ();
+
+    <span class="kw">fn </span>month_days(year: i32, month: u8, _data: ()) -&gt; u8 {
         <span class="kw">match </span>month {
             <span class="number">1</span>..=<span class="number">6 </span>=&gt; <span class="number">31</span>,
             <span class="number">7</span>..=<span class="number">11 </span>=&gt; <span class="number">30</span>,
-            <span class="number">12 </span><span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) =&gt; <span class="number">30</span>,
+            <span class="number">12 </span><span class="kw">if </span><span class="self">Self</span>::is_leap_year(year, ()) =&gt; <span class="number">30</span>,
             <span class="number">12 </span>=&gt; <span class="number">29</span>,
             <span class="kw">_ </span>=&gt; <span class="number">0</span>,
         }
     }
 
-    <span class="kw">fn </span>months_for_every_year(<span class="kw">_</span>: i32) -&gt; u8 {
+    <span class="kw">fn </span>months_for_every_year(<span class="kw">_</span>: i32, _data: ()) -&gt; u8 {
         <span class="number">12
     </span>}
-    <span class="comment">// Lisp code reference: https://github.com/EdReingold/calendar-code2/blob/main/calendar.l#L4789
-    </span><span class="kw">fn </span>is_leap_year(p_year: i32) -&gt; bool {
-        <span class="kw">let </span><span class="kw-2">mut </span>p_year = p_year <span class="kw">as </span>i64;
-        <span class="kw">if </span><span class="number">0 </span>&lt; p_year {
-            p_year -= <span class="number">474</span>;
-        } <span class="kw">else </span>{
-            p_year -= <span class="number">473</span>;
-        };
-        <span class="kw">let </span>year = p_year.rem_euclid(<span class="number">2820</span>) + <span class="number">474</span>;
 
-        ((year + <span class="number">38</span>) * <span class="number">31</span>).rem_euclid(<span class="number">128</span>) &lt; <span class="number">31
-    </span>}
+    <span class="kw">fn </span>is_leap_year(p_year: i32, _data: ()) -&gt; bool {
+        calendrical_calculations::persian::is_leap_year(p_year, _data)
+    }
 
-    <span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u16 {
-        <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) {
+    <span class="kw">fn </span>days_in_provided_year(year: i32, _data: ()) -&gt; u16 {
+        <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year, ()) {
             <span class="number">366
         </span>} <span class="kw">else </span>{
             <span class="number">365
         </span>}
     }
 
-    <span class="kw">fn </span>last_month_day_in_year(year: i32) -&gt; (u8, u8) {
-        <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) {
+    <span class="kw">fn </span>last_month_day_in_year(year: i32, _data: ()) -&gt; (u8, u8) {
+        <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year, ()) {
             (<span class="number">12</span>, <span class="number">30</span>)
         } <span class="kw">else </span>{
             (<span class="number">12</span>, <span class="number">29</span>)
@@ -726,11 +958,11 @@
 
     <span class="kw">fn </span>date_from_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, iso: Date&lt;Iso&gt;) -&gt; PersianDateInner {
         <span class="kw">let </span>fixed_iso = Iso::fixed_from_iso(<span class="kw-2">*</span>iso.inner());
-        <span class="self">Self</span>::arithmetic_persian_from_fixed(fixed_iso)
+        <span class="self">Self</span>::fast_persian_from_fixed(fixed_iso)
     }
 
     <span class="kw">fn </span>date_to_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; Date&lt;Iso&gt; {
-        <span class="kw">let </span>fixed_persian = Persian::fixed_from_arithmetic_persian(<span class="kw-2">*</span>date);
+        <span class="kw">let </span>fixed_persian = Persian::fixed_from_fast_persian(<span class="kw-2">*</span>date);
         Iso::iso_from_fixed(fixed_persian)
     }
 
@@ -751,7 +983,7 @@
     }
 
     <span class="kw">fn </span>offset_date(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::DateInner, offset: DateDuration&lt;<span class="self">Self</span>&gt;) {
-        date.<span class="number">0</span>.offset_date(offset)
+        date.<span class="number">0</span>.offset_date(offset, <span class="kw-2">&amp;</span>())
     }
 
     <span class="attr">#[allow(clippy::field_reassign_with_default)]
@@ -771,7 +1003,7 @@
     }
 
     <span class="kw">fn </span>is_in_leap_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; bool {
-        <span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year)
+        <span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year, ())
     }
 
     <span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; types::FormattableMonth {
@@ -789,7 +1021,7 @@
             day_of_year: date.<span class="number">0</span>.day_of_year(),
             days_in_year: date.<span class="number">0</span>.days_in_year(),
             prev_year: Persian::year_as_persian(prev_year),
-            days_in_prev_year: Persian::days_in_provided_year(prev_year),
+            days_in_prev_year: Persian::days_in_provided_year(prev_year, ()),
             next_year: Persian::year_as_persian(next_year),
         }
     }
@@ -809,16 +1041,16 @@
         <span class="self">Self
     </span>}
 
-    <span class="kw">fn </span>fixed_from_arithmetic_persian(p_date: PersianDateInner) -&gt; RataDie {
-        calendrical_calculations::persian::fixed_from_arithmetic_persian(
+    <span class="kw">fn </span>fixed_from_fast_persian(p_date: PersianDateInner) -&gt; RataDie {
+        calendrical_calculations::persian::fixed_from_fast_persian(
             p_date.<span class="number">0</span>.year,
             p_date.<span class="number">0</span>.month,
             p_date.<span class="number">0</span>.day,
         )
     }
-    <span class="kw">fn </span>arithmetic_persian_from_fixed(date: RataDie) -&gt; PersianDateInner {
+    <span class="kw">fn </span>fast_persian_from_fixed(date: RataDie) -&gt; PersianDateInner {
         <span class="kw">let </span>(year, month, day) =
-            <span class="kw">match </span>calendrical_calculations::persian::arithmetic_persian_from_fixed(date) {
+            <span class="kw">match </span>calendrical_calculations::persian::fast_persian_from_fixed(date) {
                 <span class="prelude-val">Err</span>(I32CastError::BelowMin) =&gt; <span class="kw">return </span>PersianDateInner(ArithmeticDate::min_date()),
                 <span class="prelude-val">Err</span>(I32CastError::AboveMax) =&gt; <span class="kw">return </span>PersianDateInner(ArithmeticDate::max_date()),
                 <span class="prelude-val">Ok</span>(ymd) =&gt; ymd,
@@ -890,7 +1122,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;Persian&gt;, CalendarError&gt; {
         <span class="prelude-val">Ok</span>(DateTime {
             date: Date::try_new_persian_date(year, month, day)<span class="question-mark">?</span>,
-            time: types::Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
+            time: Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
         })
     }
 }
@@ -905,122 +1137,20 @@
         day: u8,
     }
 
-    <span class="kw">static </span>TEST_FIXED_DATE: [i64; <span class="number">33</span>] = [
-        -<span class="number">214193</span>, -<span class="number">61387</span>, <span class="number">25469</span>, <span class="number">49217</span>, <span class="number">171307</span>, <span class="number">210155</span>, <span class="number">253427</span>, <span class="number">369740</span>, <span class="number">400085</span>, <span class="number">434355</span>, <span class="number">452605</span>,
-        <span class="number">470160</span>, <span class="number">473837</span>, <span class="number">507850</span>, <span class="number">524156</span>, <span class="number">544676</span>, <span class="number">567118</span>, <span class="number">569477</span>, <span class="number">601716</span>, <span class="number">613424</span>, <span class="number">626596</span>, <span class="number">645554</span>,
-        <span class="number">664224</span>, <span class="number">671401</span>, <span class="number">694799</span>, <span class="number">704424</span>, <span class="number">708842</span>, <span class="number">709409</span>, <span class="number">709580</span>, <span class="number">727274</span>, <span class="number">728714</span>, <span class="number">744313</span>, <span class="number">764652</span>,
+    <span class="kw">static </span>TEST_FIXED_DATE: [i64; <span class="number">21</span>] = [
+        <span class="number">656786</span>, <span class="number">664224</span>, <span class="number">671401</span>, <span class="number">694799</span>, <span class="number">702806</span>, <span class="number">704424</span>, <span class="number">708842</span>, <span class="number">709409</span>, <span class="number">709580</span>, <span class="number">727274</span>, <span class="number">728714</span>,
+        <span class="number">739330</span>, <span class="number">739331</span>, <span class="number">744313</span>, <span class="number">763436</span>, <span class="number">763437</span>, <span class="number">764652</span>, <span class="number">775123</span>, <span class="number">775488</span>, <span class="number">775489</span>, <span class="number">1317874</span>,
     ];
 
-    <span class="kw">static </span>CASES: [DateCase; <span class="number">33</span>] = [
-        DateCase {
-            year: -<span class="number">1208</span>,
-            month: <span class="number">5</span>,
+    <span class="comment">// Test data are provided for the range 1178-3000 AP, for which
+    // we know the 33-year rule, with the override table, matches the
+    // astronomical calculations based on the 52.5 degrees east meridian.
+    </span><span class="kw">static </span>CASES: [DateCase; <span class="number">21</span>] = [
+        <span class="comment">// First year for which 33-year rule matches the astronomical calculation
+        </span>DateCase {
+            year: <span class="number">1178</span>,
+            month: <span class="number">1</span>,
             day: <span class="number">1</span>,
-        },
-        DateCase {
-            year: -<span class="number">790</span>,
-            month: <span class="number">9</span>,
-            day: <span class="number">14</span>,
-        },
-        DateCase {
-            year: -<span class="number">552</span>,
-            month: <span class="number">7</span>,
-            day: <span class="number">2</span>,
-        },
-        DateCase {
-            year: -<span class="number">487</span>,
-            month: <span class="number">7</span>,
-            day: <span class="number">9</span>,
-        },
-        DateCase {
-            year: -<span class="number">153</span>,
-            month: <span class="number">10</span>,
-            day: <span class="number">18</span>,
-        },
-        DateCase {
-            year: -<span class="number">46</span>,
-            month: <span class="number">2</span>,
-            day: <span class="number">30</span>,
-        },
-        DateCase {
-            year: <span class="number">73</span>,
-            month: <span class="number">8</span>,
-            day: <span class="number">19</span>,
-        },
-        DateCase {
-            year: <span class="number">392</span>,
-            month: <span class="number">2</span>,
-            day: <span class="number">5</span>,
-        },
-        DateCase {
-            year: <span class="number">475</span>,
-            month: <span class="number">3</span>,
-            day: <span class="number">3</span>,
-        },
-        DateCase {
-            year: <span class="number">569</span>,
-            month: <span class="number">1</span>,
-            day: <span class="number">3</span>,
-        },
-        DateCase {
-            year: <span class="number">618</span>,
-            month: <span class="number">12</span>,
-            day: <span class="number">20</span>,
-        },
-        DateCase {
-            year: <span class="number">667</span>,
-            month: <span class="number">1</span>,
-            day: <span class="number">14</span>,
-        },
-        DateCase {
-            year: <span class="number">677</span>,
-            month: <span class="number">2</span>,
-            day: <span class="number">8</span>,
-        },
-        DateCase {
-            year: <span class="number">770</span>,
-            month: <span class="number">3</span>,
-            day: <span class="number">22</span>,
-        },
-        DateCase {
-            year: <span class="number">814</span>,
-            month: <span class="number">11</span>,
-            day: <span class="number">13</span>,
-        },
-        DateCase {
-            year: <span class="number">871</span>,
-            month: <span class="number">1</span>,
-            day: <span class="number">21</span>,
-        },
-        DateCase {
-            year: <span class="number">932</span>,
-            month: <span class="number">6</span>,
-            day: <span class="number">28</span>,
-        },
-        DateCase {
-            year: <span class="number">938</span>,
-            month: <span class="number">12</span>,
-            day: <span class="number">14</span>,
-        },
-        DateCase {
-            year: <span class="number">1027</span>,
-            month: <span class="number">3</span>,
-            day: <span class="number">21</span>,
-        },
-        DateCase {
-            year: <span class="number">1059</span>,
-            month: <span class="number">4</span>,
-            day: <span class="number">10</span>,
-        },
-        DateCase {
-            year: <span class="number">1095</span>,
-            month: <span class="number">5</span>,
-            day: <span class="number">2</span>,
-        },
-        DateCase {
-            year: <span class="number">1147</span>,
-            month: <span class="number">3</span>,
-            day: <span class="number">30</span>,
         },
         DateCase {
             year: <span class="number">1198</span>,
@@ -1036,6 +1166,12 @@
             year: <span class="number">1282</span>,
             month: <span class="number">1</span>,
             day: <span class="number">29</span>,
+        },
+        <span class="comment">// The beginning of the year the calendar was adopted
+        </span>DateCase {
+            year: <span class="number">1304</span>,
+            month: <span class="number">1</span>,
+            day: <span class="number">1</span>,
         },
         DateCase {
             year: <span class="number">1308</span>,
@@ -1067,24 +1203,68 @@
             month: <span class="number">12</span>,
             day: <span class="number">6</span>,
         },
+        <span class="comment">// First day that the 2820-year rule fails
+        </span>DateCase {
+            year: <span class="number">1403</span>,
+            month: <span class="number">12</span>,
+            day: <span class="number">30</span>,
+        },
+        <span class="comment">// First Nowruz that the 2820-year rule fails
+        </span>DateCase {
+            year: <span class="number">1404</span>,
+            month: <span class="number">1</span>,
+            day: <span class="number">1</span>,
+        },
         DateCase {
             year: <span class="number">1417</span>,
             month: <span class="number">8</span>,
             day: <span class="number">19</span>,
+        },
+        <span class="comment">// First day the unmodified astronomical algorithm fails
+        </span>DateCase {
+            year: <span class="number">1469</span>,
+            month: <span class="number">12</span>,
+            day: <span class="number">30</span>,
+        },
+        <span class="comment">// First Nowruz the unmodified astronomical algorithm fails
+        </span>DateCase {
+            year: <span class="number">1470</span>,
+            month: <span class="number">1</span>,
+            day: <span class="number">1</span>,
         },
         DateCase {
             year: <span class="number">1473</span>,
             month: <span class="number">4</span>,
             day: <span class="number">28</span>,
         },
+        <span class="comment">// Last year the 33-year rule matches the modified astronomical calculation
+        </span>DateCase {
+            year: <span class="number">1501</span>,
+            month: <span class="number">12</span>,
+            day: <span class="number">29</span>,
+        },
+        DateCase {
+            year: <span class="number">1502</span>,
+            month: <span class="number">12</span>,
+            day: <span class="number">29</span>,
+        },
+        DateCase {
+            year: <span class="number">1503</span>,
+            month: <span class="number">1</span>,
+            day: <span class="number">1</span>,
+        },
+        DateCase {
+            year: <span class="number">2988</span>,
+            month: <span class="number">1</span>,
+            day: <span class="number">1</span>,
+        },
     ];
 
     <span class="kw">fn </span>days_in_provided_year_core(year: i32) -&gt; u16 {
         <span class="kw">let </span>fixed_year =
-            calendrical_calculations::persian::fixed_from_arithmetic_persian(year, <span class="number">1</span>, <span class="number">1</span>)
-                .to_i64_date();
+            calendrical_calculations::persian::fixed_from_fast_persian(year, <span class="number">1</span>, <span class="number">1</span>).to_i64_date();
         <span class="kw">let </span>next_fixed_year =
-            calendrical_calculations::persian::fixed_from_arithmetic_persian(year + <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)
+            calendrical_calculations::persian::fixed_from_fast_persian(year + <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)
                 .to_i64_date();
 
         (next_fixed_year - fixed_year) <span class="kw">as </span>u16
@@ -1092,31 +1272,18 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_persian_leap_year() {
-        <span class="kw">let </span><span class="kw-2">mut </span>leap_years: [i32; <span class="number">33</span>] = [<span class="number">0</span>; <span class="number">33</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>leap_years: [i32; <span class="number">21</span>] = [<span class="number">0</span>; <span class="number">21</span>];
         <span class="comment">// These values were computed from the "Calendrical Calculations" reference code output
         </span><span class="kw">let </span>expected_values = [
-            <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>,
-            <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>,
-            <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>,
+            <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>,
+            <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>,
         ];
-
-        <span class="kw">let </span><span class="kw-2">mut </span>leap_year_results: Vec&lt;bool&gt; = Vec::new();
-        <span class="kw">let </span>canonical_leap_year_cycle_start = <span class="number">474</span>;
-        <span class="kw">let </span>canonical_leap_year_cycle_end = <span class="number">3293</span>;
-        <span class="kw">for </span>year <span class="kw">in </span>canonical_leap_year_cycle_start..=canonical_leap_year_cycle_end {
-            <span class="kw">let </span>r = Persian::is_leap_year(year);
-            <span class="kw">if </span>r {
-                leap_year_results.push(r);
-            }
-        }
-        <span class="comment">// 683 is the amount of leap years in the 2820 Persian year cycle
-        </span><span class="macro">assert_eq!</span>(leap_year_results.len(), <span class="number">683</span>);
 
         <span class="kw">for </span>(index, case) <span class="kw">in </span>CASES.iter().enumerate() {
             leap_years[index] = case.year;
         }
         <span class="kw">for </span>(year, bool) <span class="kw">in </span>leap_years.iter().zip(expected_values.iter()) {
-            <span class="macro">assert_eq!</span>(Persian::is_leap_year(<span class="kw-2">*</span>year), <span class="kw-2">*</span>bool);
+            <span class="macro">assert_eq!</span>(Persian::is_leap_year(<span class="kw-2">*</span>year, ()), <span class="kw-2">*</span>bool);
         }
     }
 
@@ -1125,7 +1292,7 @@
         <span class="kw">for </span>case <span class="kw">in </span>CASES.iter() {
             <span class="macro">assert_eq!</span>(
                 days_in_provided_year_core(case.year),
-                Persian::days_in_provided_year(case.year)
+                Persian::days_in_provided_year(case.year, ())
             );
         }
     }
@@ -1136,7 +1303,7 @@
             <span class="kw">let </span>date = Date::try_new_persian_date(case.year, case.month, case.day).unwrap();
 
             <span class="macro">assert_eq!</span>(
-                Persian::fixed_from_arithmetic_persian(<span class="kw-2">*</span>date.inner()).to_i64_date(),
+                Persian::fixed_from_fast_persian(<span class="kw-2">*</span>date.inner()).to_i64_date(),
                 <span class="kw-2">*</span>f_date,
                 <span class="string">"{case:?}"
             </span>);
@@ -1147,7 +1314,7 @@
         <span class="kw">for </span>(case, f_date) <span class="kw">in </span>CASES.iter().zip(TEST_FIXED_DATE.iter()) {
             <span class="kw">let </span>date = Date::try_new_persian_date(case.year, case.month, case.day).unwrap();
             <span class="macro">assert_eq!</span>(
-                Persian::arithmetic_persian_from_fixed(RataDie::new(<span class="kw-2">*</span>f_date)),
+                Persian::fast_persian_from_fixed(RataDie::new(<span class="kw-2">*</span>f_date)),
                 date.inner,
                 <span class="string">"{case:?}"
             </span>);
@@ -1192,6 +1359,316 @@
 
             <span class="macro">assert_eq!</span>(info.prev_year.number, case.expected_prev, <span class="string">"{:?}"</span>, case);
             <span class="macro">assert_eq!</span>(info.next_year.number, case.expected_next, <span class="string">"{:?}"</span>, case);
+        }
+    }
+
+    <span class="comment">// From https://calendar.ut.ac.ir/Fa/News/Data/Doc/KabiseShamsi1206-1498-new.pdf
+    // Plain text version at https://github.com/roozbehp/persiancalendar/blob/main/kabise.txt
+    </span><span class="kw">static </span>CALENDAR_UT_AC_IR_TEST_DATA: [(i32, bool, i32, u32, u32); <span class="number">293</span>] = [
+        (<span class="number">1206</span>, <span class="bool-val">false</span>, <span class="number">1827</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1207</span>, <span class="bool-val">false</span>, <span class="number">1828</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1208</span>, <span class="bool-val">false</span>, <span class="number">1829</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1209</span>, <span class="bool-val">false</span>, <span class="number">1830</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1210</span>, <span class="bool-val">true</span>, <span class="number">1831</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1211</span>, <span class="bool-val">false</span>, <span class="number">1832</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1212</span>, <span class="bool-val">false</span>, <span class="number">1833</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1213</span>, <span class="bool-val">false</span>, <span class="number">1834</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1214</span>, <span class="bool-val">true</span>, <span class="number">1835</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1215</span>, <span class="bool-val">false</span>, <span class="number">1836</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1216</span>, <span class="bool-val">false</span>, <span class="number">1837</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1217</span>, <span class="bool-val">false</span>, <span class="number">1838</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1218</span>, <span class="bool-val">true</span>, <span class="number">1839</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1219</span>, <span class="bool-val">false</span>, <span class="number">1840</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1220</span>, <span class="bool-val">false</span>, <span class="number">1841</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1221</span>, <span class="bool-val">false</span>, <span class="number">1842</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1222</span>, <span class="bool-val">true</span>, <span class="number">1843</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1223</span>, <span class="bool-val">false</span>, <span class="number">1844</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1224</span>, <span class="bool-val">false</span>, <span class="number">1845</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1225</span>, <span class="bool-val">false</span>, <span class="number">1846</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1226</span>, <span class="bool-val">true</span>, <span class="number">1847</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1227</span>, <span class="bool-val">false</span>, <span class="number">1848</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1228</span>, <span class="bool-val">false</span>, <span class="number">1849</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1229</span>, <span class="bool-val">false</span>, <span class="number">1850</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1230</span>, <span class="bool-val">true</span>, <span class="number">1851</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1231</span>, <span class="bool-val">false</span>, <span class="number">1852</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1232</span>, <span class="bool-val">false</span>, <span class="number">1853</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1233</span>, <span class="bool-val">false</span>, <span class="number">1854</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1234</span>, <span class="bool-val">true</span>, <span class="number">1855</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1235</span>, <span class="bool-val">false</span>, <span class="number">1856</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1236</span>, <span class="bool-val">false</span>, <span class="number">1857</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1237</span>, <span class="bool-val">false</span>, <span class="number">1858</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1238</span>, <span class="bool-val">true</span>, <span class="number">1859</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1239</span>, <span class="bool-val">false</span>, <span class="number">1860</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1240</span>, <span class="bool-val">false</span>, <span class="number">1861</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1241</span>, <span class="bool-val">false</span>, <span class="number">1862</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1242</span>, <span class="bool-val">false</span>, <span class="number">1863</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1243</span>, <span class="bool-val">true</span>, <span class="number">1864</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1244</span>, <span class="bool-val">false</span>, <span class="number">1865</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1245</span>, <span class="bool-val">false</span>, <span class="number">1866</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1246</span>, <span class="bool-val">false</span>, <span class="number">1867</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1247</span>, <span class="bool-val">true</span>, <span class="number">1868</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1248</span>, <span class="bool-val">false</span>, <span class="number">1869</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1249</span>, <span class="bool-val">false</span>, <span class="number">1870</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1250</span>, <span class="bool-val">false</span>, <span class="number">1871</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1251</span>, <span class="bool-val">true</span>, <span class="number">1872</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1252</span>, <span class="bool-val">false</span>, <span class="number">1873</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1253</span>, <span class="bool-val">false</span>, <span class="number">1874</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1254</span>, <span class="bool-val">false</span>, <span class="number">1875</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1255</span>, <span class="bool-val">true</span>, <span class="number">1876</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1256</span>, <span class="bool-val">false</span>, <span class="number">1877</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1257</span>, <span class="bool-val">false</span>, <span class="number">1878</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1258</span>, <span class="bool-val">false</span>, <span class="number">1879</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1259</span>, <span class="bool-val">true</span>, <span class="number">1880</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1260</span>, <span class="bool-val">false</span>, <span class="number">1881</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1261</span>, <span class="bool-val">false</span>, <span class="number">1882</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1262</span>, <span class="bool-val">false</span>, <span class="number">1883</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1263</span>, <span class="bool-val">true</span>, <span class="number">1884</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1264</span>, <span class="bool-val">false</span>, <span class="number">1885</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1265</span>, <span class="bool-val">false</span>, <span class="number">1886</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1266</span>, <span class="bool-val">false</span>, <span class="number">1887</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1267</span>, <span class="bool-val">true</span>, <span class="number">1888</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1268</span>, <span class="bool-val">false</span>, <span class="number">1889</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1269</span>, <span class="bool-val">false</span>, <span class="number">1890</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1270</span>, <span class="bool-val">false</span>, <span class="number">1891</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1271</span>, <span class="bool-val">true</span>, <span class="number">1892</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1272</span>, <span class="bool-val">false</span>, <span class="number">1893</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1273</span>, <span class="bool-val">false</span>, <span class="number">1894</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1274</span>, <span class="bool-val">false</span>, <span class="number">1895</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1275</span>, <span class="bool-val">false</span>, <span class="number">1896</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1276</span>, <span class="bool-val">true</span>, <span class="number">1897</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1277</span>, <span class="bool-val">false</span>, <span class="number">1898</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1278</span>, <span class="bool-val">false</span>, <span class="number">1899</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1279</span>, <span class="bool-val">false</span>, <span class="number">1900</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1280</span>, <span class="bool-val">true</span>, <span class="number">1901</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1281</span>, <span class="bool-val">false</span>, <span class="number">1902</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1282</span>, <span class="bool-val">false</span>, <span class="number">1903</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1283</span>, <span class="bool-val">false</span>, <span class="number">1904</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1284</span>, <span class="bool-val">true</span>, <span class="number">1905</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1285</span>, <span class="bool-val">false</span>, <span class="number">1906</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1286</span>, <span class="bool-val">false</span>, <span class="number">1907</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1287</span>, <span class="bool-val">false</span>, <span class="number">1908</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1288</span>, <span class="bool-val">true</span>, <span class="number">1909</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1289</span>, <span class="bool-val">false</span>, <span class="number">1910</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1290</span>, <span class="bool-val">false</span>, <span class="number">1911</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1291</span>, <span class="bool-val">false</span>, <span class="number">1912</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1292</span>, <span class="bool-val">true</span>, <span class="number">1913</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1293</span>, <span class="bool-val">false</span>, <span class="number">1914</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1294</span>, <span class="bool-val">false</span>, <span class="number">1915</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1295</span>, <span class="bool-val">false</span>, <span class="number">1916</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1296</span>, <span class="bool-val">true</span>, <span class="number">1917</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1297</span>, <span class="bool-val">false</span>, <span class="number">1918</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1298</span>, <span class="bool-val">false</span>, <span class="number">1919</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1299</span>, <span class="bool-val">false</span>, <span class="number">1920</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1300</span>, <span class="bool-val">true</span>, <span class="number">1921</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1301</span>, <span class="bool-val">false</span>, <span class="number">1922</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1302</span>, <span class="bool-val">false</span>, <span class="number">1923</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1303</span>, <span class="bool-val">false</span>, <span class="number">1924</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1304</span>, <span class="bool-val">true</span>, <span class="number">1925</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1305</span>, <span class="bool-val">false</span>, <span class="number">1926</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1306</span>, <span class="bool-val">false</span>, <span class="number">1927</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1307</span>, <span class="bool-val">false</span>, <span class="number">1928</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1308</span>, <span class="bool-val">false</span>, <span class="number">1929</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1309</span>, <span class="bool-val">true</span>, <span class="number">1930</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1310</span>, <span class="bool-val">false</span>, <span class="number">1931</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1311</span>, <span class="bool-val">false</span>, <span class="number">1932</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1312</span>, <span class="bool-val">false</span>, <span class="number">1933</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1313</span>, <span class="bool-val">true</span>, <span class="number">1934</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1314</span>, <span class="bool-val">false</span>, <span class="number">1935</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1315</span>, <span class="bool-val">false</span>, <span class="number">1936</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1316</span>, <span class="bool-val">false</span>, <span class="number">1937</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1317</span>, <span class="bool-val">true</span>, <span class="number">1938</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1318</span>, <span class="bool-val">false</span>, <span class="number">1939</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1319</span>, <span class="bool-val">false</span>, <span class="number">1940</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1320</span>, <span class="bool-val">false</span>, <span class="number">1941</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1321</span>, <span class="bool-val">true</span>, <span class="number">1942</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1322</span>, <span class="bool-val">false</span>, <span class="number">1943</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1323</span>, <span class="bool-val">false</span>, <span class="number">1944</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1324</span>, <span class="bool-val">false</span>, <span class="number">1945</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1325</span>, <span class="bool-val">true</span>, <span class="number">1946</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1326</span>, <span class="bool-val">false</span>, <span class="number">1947</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1327</span>, <span class="bool-val">false</span>, <span class="number">1948</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1328</span>, <span class="bool-val">false</span>, <span class="number">1949</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1329</span>, <span class="bool-val">true</span>, <span class="number">1950</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1330</span>, <span class="bool-val">false</span>, <span class="number">1951</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1331</span>, <span class="bool-val">false</span>, <span class="number">1952</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1332</span>, <span class="bool-val">false</span>, <span class="number">1953</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1333</span>, <span class="bool-val">true</span>, <span class="number">1954</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1334</span>, <span class="bool-val">false</span>, <span class="number">1955</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1335</span>, <span class="bool-val">false</span>, <span class="number">1956</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1336</span>, <span class="bool-val">false</span>, <span class="number">1957</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1337</span>, <span class="bool-val">true</span>, <span class="number">1958</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1338</span>, <span class="bool-val">false</span>, <span class="number">1959</span>, <span class="number">3</span>, <span class="number">22</span>),
+        (<span class="number">1339</span>, <span class="bool-val">false</span>, <span class="number">1960</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1340</span>, <span class="bool-val">false</span>, <span class="number">1961</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1341</span>, <span class="bool-val">false</span>, <span class="number">1962</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1342</span>, <span class="bool-val">true</span>, <span class="number">1963</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1343</span>, <span class="bool-val">false</span>, <span class="number">1964</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1344</span>, <span class="bool-val">false</span>, <span class="number">1965</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1345</span>, <span class="bool-val">false</span>, <span class="number">1966</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1346</span>, <span class="bool-val">true</span>, <span class="number">1967</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1347</span>, <span class="bool-val">false</span>, <span class="number">1968</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1348</span>, <span class="bool-val">false</span>, <span class="number">1969</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1349</span>, <span class="bool-val">false</span>, <span class="number">1970</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1350</span>, <span class="bool-val">true</span>, <span class="number">1971</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1351</span>, <span class="bool-val">false</span>, <span class="number">1972</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1352</span>, <span class="bool-val">false</span>, <span class="number">1973</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1353</span>, <span class="bool-val">false</span>, <span class="number">1974</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1354</span>, <span class="bool-val">true</span>, <span class="number">1975</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1355</span>, <span class="bool-val">false</span>, <span class="number">1976</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1356</span>, <span class="bool-val">false</span>, <span class="number">1977</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1357</span>, <span class="bool-val">false</span>, <span class="number">1978</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1358</span>, <span class="bool-val">true</span>, <span class="number">1979</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1359</span>, <span class="bool-val">false</span>, <span class="number">1980</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1360</span>, <span class="bool-val">false</span>, <span class="number">1981</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1361</span>, <span class="bool-val">false</span>, <span class="number">1982</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1362</span>, <span class="bool-val">true</span>, <span class="number">1983</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1363</span>, <span class="bool-val">false</span>, <span class="number">1984</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1364</span>, <span class="bool-val">false</span>, <span class="number">1985</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1365</span>, <span class="bool-val">false</span>, <span class="number">1986</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1366</span>, <span class="bool-val">true</span>, <span class="number">1987</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1367</span>, <span class="bool-val">false</span>, <span class="number">1988</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1368</span>, <span class="bool-val">false</span>, <span class="number">1989</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1369</span>, <span class="bool-val">false</span>, <span class="number">1990</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1370</span>, <span class="bool-val">true</span>, <span class="number">1991</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1371</span>, <span class="bool-val">false</span>, <span class="number">1992</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1372</span>, <span class="bool-val">false</span>, <span class="number">1993</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1373</span>, <span class="bool-val">false</span>, <span class="number">1994</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1374</span>, <span class="bool-val">false</span>, <span class="number">1995</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1375</span>, <span class="bool-val">true</span>, <span class="number">1996</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1376</span>, <span class="bool-val">false</span>, <span class="number">1997</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1377</span>, <span class="bool-val">false</span>, <span class="number">1998</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1378</span>, <span class="bool-val">false</span>, <span class="number">1999</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1379</span>, <span class="bool-val">true</span>, <span class="number">2000</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1380</span>, <span class="bool-val">false</span>, <span class="number">2001</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1381</span>, <span class="bool-val">false</span>, <span class="number">2002</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1382</span>, <span class="bool-val">false</span>, <span class="number">2003</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1383</span>, <span class="bool-val">true</span>, <span class="number">2004</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1384</span>, <span class="bool-val">false</span>, <span class="number">2005</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1385</span>, <span class="bool-val">false</span>, <span class="number">2006</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1386</span>, <span class="bool-val">false</span>, <span class="number">2007</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1387</span>, <span class="bool-val">true</span>, <span class="number">2008</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1388</span>, <span class="bool-val">false</span>, <span class="number">2009</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1389</span>, <span class="bool-val">false</span>, <span class="number">2010</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1390</span>, <span class="bool-val">false</span>, <span class="number">2011</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1391</span>, <span class="bool-val">true</span>, <span class="number">2012</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1392</span>, <span class="bool-val">false</span>, <span class="number">2013</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1393</span>, <span class="bool-val">false</span>, <span class="number">2014</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1394</span>, <span class="bool-val">false</span>, <span class="number">2015</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1395</span>, <span class="bool-val">true</span>, <span class="number">2016</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1396</span>, <span class="bool-val">false</span>, <span class="number">2017</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1397</span>, <span class="bool-val">false</span>, <span class="number">2018</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1398</span>, <span class="bool-val">false</span>, <span class="number">2019</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1399</span>, <span class="bool-val">true</span>, <span class="number">2020</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1400</span>, <span class="bool-val">false</span>, <span class="number">2021</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1401</span>, <span class="bool-val">false</span>, <span class="number">2022</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1402</span>, <span class="bool-val">false</span>, <span class="number">2023</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1403</span>, <span class="bool-val">true</span>, <span class="number">2024</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1404</span>, <span class="bool-val">false</span>, <span class="number">2025</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1405</span>, <span class="bool-val">false</span>, <span class="number">2026</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1406</span>, <span class="bool-val">false</span>, <span class="number">2027</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1407</span>, <span class="bool-val">false</span>, <span class="number">2028</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1408</span>, <span class="bool-val">true</span>, <span class="number">2029</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1409</span>, <span class="bool-val">false</span>, <span class="number">2030</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1410</span>, <span class="bool-val">false</span>, <span class="number">2031</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1411</span>, <span class="bool-val">false</span>, <span class="number">2032</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1412</span>, <span class="bool-val">true</span>, <span class="number">2033</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1413</span>, <span class="bool-val">false</span>, <span class="number">2034</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1414</span>, <span class="bool-val">false</span>, <span class="number">2035</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1415</span>, <span class="bool-val">false</span>, <span class="number">2036</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1416</span>, <span class="bool-val">true</span>, <span class="number">2037</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1417</span>, <span class="bool-val">false</span>, <span class="number">2038</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1418</span>, <span class="bool-val">false</span>, <span class="number">2039</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1419</span>, <span class="bool-val">false</span>, <span class="number">2040</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1420</span>, <span class="bool-val">true</span>, <span class="number">2041</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1421</span>, <span class="bool-val">false</span>, <span class="number">2042</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1422</span>, <span class="bool-val">false</span>, <span class="number">2043</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1423</span>, <span class="bool-val">false</span>, <span class="number">2044</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1424</span>, <span class="bool-val">true</span>, <span class="number">2045</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1425</span>, <span class="bool-val">false</span>, <span class="number">2046</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1426</span>, <span class="bool-val">false</span>, <span class="number">2047</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1427</span>, <span class="bool-val">false</span>, <span class="number">2048</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1428</span>, <span class="bool-val">true</span>, <span class="number">2049</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1429</span>, <span class="bool-val">false</span>, <span class="number">2050</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1430</span>, <span class="bool-val">false</span>, <span class="number">2051</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1431</span>, <span class="bool-val">false</span>, <span class="number">2052</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1432</span>, <span class="bool-val">true</span>, <span class="number">2053</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1433</span>, <span class="bool-val">false</span>, <span class="number">2054</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1434</span>, <span class="bool-val">false</span>, <span class="number">2055</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1435</span>, <span class="bool-val">false</span>, <span class="number">2056</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1436</span>, <span class="bool-val">true</span>, <span class="number">2057</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1437</span>, <span class="bool-val">false</span>, <span class="number">2058</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1438</span>, <span class="bool-val">false</span>, <span class="number">2059</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1439</span>, <span class="bool-val">false</span>, <span class="number">2060</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1440</span>, <span class="bool-val">false</span>, <span class="number">2061</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1441</span>, <span class="bool-val">true</span>, <span class="number">2062</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1442</span>, <span class="bool-val">false</span>, <span class="number">2063</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1443</span>, <span class="bool-val">false</span>, <span class="number">2064</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1444</span>, <span class="bool-val">false</span>, <span class="number">2065</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1445</span>, <span class="bool-val">true</span>, <span class="number">2066</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1446</span>, <span class="bool-val">false</span>, <span class="number">2067</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1447</span>, <span class="bool-val">false</span>, <span class="number">2068</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1448</span>, <span class="bool-val">false</span>, <span class="number">2069</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1449</span>, <span class="bool-val">true</span>, <span class="number">2070</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1450</span>, <span class="bool-val">false</span>, <span class="number">2071</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1451</span>, <span class="bool-val">false</span>, <span class="number">2072</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1452</span>, <span class="bool-val">false</span>, <span class="number">2073</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1453</span>, <span class="bool-val">true</span>, <span class="number">2074</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1454</span>, <span class="bool-val">false</span>, <span class="number">2075</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1455</span>, <span class="bool-val">false</span>, <span class="number">2076</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1456</span>, <span class="bool-val">false</span>, <span class="number">2077</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1457</span>, <span class="bool-val">true</span>, <span class="number">2078</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1458</span>, <span class="bool-val">false</span>, <span class="number">2079</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1459</span>, <span class="bool-val">false</span>, <span class="number">2080</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1460</span>, <span class="bool-val">false</span>, <span class="number">2081</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1461</span>, <span class="bool-val">true</span>, <span class="number">2082</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1462</span>, <span class="bool-val">false</span>, <span class="number">2083</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1463</span>, <span class="bool-val">false</span>, <span class="number">2084</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1464</span>, <span class="bool-val">false</span>, <span class="number">2085</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1465</span>, <span class="bool-val">true</span>, <span class="number">2086</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1466</span>, <span class="bool-val">false</span>, <span class="number">2087</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1467</span>, <span class="bool-val">false</span>, <span class="number">2088</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1468</span>, <span class="bool-val">false</span>, <span class="number">2089</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1469</span>, <span class="bool-val">true</span>, <span class="number">2090</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1470</span>, <span class="bool-val">false</span>, <span class="number">2091</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1471</span>, <span class="bool-val">false</span>, <span class="number">2092</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1472</span>, <span class="bool-val">false</span>, <span class="number">2093</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1473</span>, <span class="bool-val">false</span>, <span class="number">2094</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1474</span>, <span class="bool-val">true</span>, <span class="number">2095</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1475</span>, <span class="bool-val">false</span>, <span class="number">2096</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1476</span>, <span class="bool-val">false</span>, <span class="number">2097</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1477</span>, <span class="bool-val">false</span>, <span class="number">2098</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1478</span>, <span class="bool-val">true</span>, <span class="number">2099</span>, <span class="number">3</span>, <span class="number">20</span>),
+        (<span class="number">1479</span>, <span class="bool-val">false</span>, <span class="number">2100</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1480</span>, <span class="bool-val">false</span>, <span class="number">2101</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1481</span>, <span class="bool-val">false</span>, <span class="number">2102</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1482</span>, <span class="bool-val">true</span>, <span class="number">2103</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1483</span>, <span class="bool-val">false</span>, <span class="number">2104</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1484</span>, <span class="bool-val">false</span>, <span class="number">2105</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1485</span>, <span class="bool-val">false</span>, <span class="number">2106</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1486</span>, <span class="bool-val">true</span>, <span class="number">2107</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1487</span>, <span class="bool-val">false</span>, <span class="number">2108</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1488</span>, <span class="bool-val">false</span>, <span class="number">2109</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1489</span>, <span class="bool-val">false</span>, <span class="number">2110</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1490</span>, <span class="bool-val">true</span>, <span class="number">2111</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1491</span>, <span class="bool-val">false</span>, <span class="number">2112</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1492</span>, <span class="bool-val">false</span>, <span class="number">2113</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1493</span>, <span class="bool-val">false</span>, <span class="number">2114</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1494</span>, <span class="bool-val">true</span>, <span class="number">2115</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1495</span>, <span class="bool-val">false</span>, <span class="number">2116</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1496</span>, <span class="bool-val">false</span>, <span class="number">2117</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1497</span>, <span class="bool-val">false</span>, <span class="number">2118</span>, <span class="number">3</span>, <span class="number">21</span>),
+        (<span class="number">1498</span>, <span class="bool-val">true</span>, <span class="number">2119</span>, <span class="number">3</span>, <span class="number">21</span>),
+    ];
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_calendar_ut_ac_ir_data() {
+        <span class="kw">for </span>(p_year, leap, iso_year, iso_month, iso_day) <span class="kw">in </span>CALENDAR_UT_AC_IR_TEST_DATA.iter() {
+            <span class="macro">assert_eq!</span>(Persian::is_leap_year(<span class="kw-2">*</span>p_year, ()), <span class="kw-2">*</span>leap);
+            <span class="kw">let </span>persian_date = Date::try_new_persian_date(<span class="kw-2">*</span>p_year, <span class="number">1</span>, <span class="number">1</span>).unwrap();
+            <span class="kw">let </span>iso_date = persian_date.to_calendar(Iso);
+            <span class="macro">assert_eq!</span>(iso_date.year().number, <span class="kw-2">*</span>iso_year);
+            <span class="macro">assert_eq!</span>(iso_date.month().ordinal, <span class="kw-2">*</span>iso_month);
+            <span class="macro">assert_eq!</span>(iso_date.day_of_month().<span class="number">0</span>, <span class="kw-2">*</span>iso_day);
         }
     }
 }

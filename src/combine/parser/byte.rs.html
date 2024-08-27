@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/parser/byte.rs`."><title>byte.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.7/src/parser/byte.rs`."><title>byte.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -660,27 +659,10 @@
 <a href="#659" id="659">659</a>
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
-<a href="#662" id="662">662</a>
-<a href="#663" id="663">663</a>
-<a href="#664" id="664">664</a>
-<a href="#665" id="665">665</a>
-<a href="#666" id="666">666</a>
-<a href="#667" id="667">667</a>
-<a href="#668" id="668">668</a>
-<a href="#669" id="669">669</a>
-<a href="#670" id="670">670</a>
-<a href="#671" id="671">671</a>
-<a href="#672" id="672">672</a>
-<a href="#673" id="673">673</a>
-<a href="#674" id="674">674</a>
-<a href="#675" id="675">675</a>
-<a href="#676" id="676">676</a>
-<a href="#677" id="677">677</a>
-<a href="#678" id="678">678</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Module containing parsers specialized on byte streams.
 
 </span><span class="kw">use crate</span>::{
-    error::{<span class="self">self</span>, ParseError, ParseResult::<span class="kw-2">*</span>},
+    error::{<span class="self">self</span>, ParseResult::<span class="kw-2">*</span>},
     parser::{
         combinator::no_partial,
         range::{take_fn, TakeRange},
@@ -703,12 +685,11 @@
 </span><span class="kw">pub fn </span>byte&lt;Input&gt;(c: u8) -&gt; Token&lt;Input&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     token(c)
 }
 
-<span class="macro">macro_rules! </span>byte_parser {
+<span class="macro">macro_rules!</span> byte_parser {
     (<span class="macro-nonterminal">$name</span>:ident, <span class="macro-nonterminal">$ty</span>:ident, <span class="macro-nonterminal">$f</span>: ident) =&gt; {{
         satisfy(|c: u8| c.<span class="macro-nonterminal">$f</span>())
             .expected(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$name</span>))
@@ -730,7 +711,6 @@
 </span><span class="kw">pub fn </span>digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(digit, Digit, is_ascii_digit())
 }
@@ -748,7 +728,6 @@
 </span><span class="kw">pub fn </span>space&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(space, Space, is_ascii_whitespace)
 }
@@ -766,7 +745,6 @@
 </span><span class="kw">pub fn </span>spaces&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     skip_many(space()).expected(<span class="string">"whitespaces"</span>)
 }
@@ -782,7 +760,6 @@
 </span><span class="kw">pub fn </span>newline&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     satisfy(|ch: u8| ch == <span class="string">b'\n'</span>).expected(<span class="string">"lf newline"</span>)
 }
@@ -799,7 +776,6 @@
 </span><span class="kw">pub fn </span>crlf&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     no_partial(satisfy(|ch: u8| ch == <span class="string">b'\r'</span>).with(newline())).expected(<span class="string">"crlf newline"</span>)
 }
@@ -815,7 +791,6 @@
 </span><span class="kw">pub fn </span>tab&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     satisfy(|ch| ch == <span class="string">b'\t'</span>).expected(<span class="string">"tab"</span>)
 }
@@ -831,7 +806,6 @@
 </span><span class="kw">pub fn </span>upper&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(upper, Upper, is_ascii_uppercase)
 }
@@ -847,7 +821,6 @@
 </span><span class="kw">pub fn </span>lower&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(lower, Lower, is_ascii_lowercase)
 }
@@ -864,7 +837,6 @@
 </span><span class="kw">pub fn </span>alpha_num&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(alpha_num, AlphaNum, is_ascii_alphanumeric)
 }
@@ -881,7 +853,6 @@
 </span><span class="kw">pub fn </span>letter&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(letter, Letter, is_ascii_alphabetic)
 }
@@ -897,7 +868,6 @@
 </span><span class="kw">pub fn </span>oct_digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     satisfy(|ch| (<span class="string">b'0'</span>..=<span class="string">b'7'</span>).contains(<span class="kw-2">&amp;</span>ch)).expected(<span class="string">"octal digit"</span>)
 }
@@ -913,12 +883,11 @@
 </span><span class="kw">pub fn </span>hex_digit&lt;Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = u8, PartialState = ()&gt;
 <span class="kw">where
     </span>Input: Stream&lt;Token = u8&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 {
     <span class="macro">byte_parser!</span>(hex_digit, HexDigit, is_ascii_hexdigit())
 }
 
-<span class="macro">parser! </span>{
+<span class="macro">parser!</span> {
 <span class="doccomment">/// Parses the bytes `s`.
 ///
 /// If you have a stream implementing [`RangeStream`] such as `&amp;[u8]` you can also use the
@@ -941,14 +910,13 @@
 </span><span class="kw">pub fn </span>bytes[<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, Input](s: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8])(Input) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]
 <span class="kw">where </span>[
     Input: Stream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 ]
 {
     bytes_cmp(s, |l: u8, r: u8| l == r)
 }
 }
 
-<span class="macro">parser! </span>{
+<span class="macro">parser!</span> {
 <span class="doccomment">/// Parses the bytes `s` using `cmp` to compare each token.
 ///
 /// If you have a stream implementing [`RangeStream`] such as `&amp;[u8]` you can also use the
@@ -972,7 +940,6 @@
 <span class="kw">where </span>[
     C: FnMut(u8, u8) -&gt; bool,
     Input: Stream&lt;Token = u8, Range = <span class="kw-2">&amp;</span><span class="lifetime">'b </span>[u8]&gt;,
-    Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 ]
 {
     <span class="kw">let </span>s = <span class="kw-2">*</span>s;
@@ -982,7 +949,7 @@
 }
 }
 
-<span class="macro">macro_rules! </span>take_until {
+<span class="macro">macro_rules!</span> take_until {
     (
         $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
         <span class="macro-nonterminal">$type_name</span>: ident, <span class="macro-nonterminal">$func_name</span>: ident, <span class="macro-nonterminal">$memchr</span>: ident, $(<span class="macro-nonterminal">$param</span>: ident),+
@@ -1010,7 +977,7 @@
     }
 }
 
-<span class="macro">take_until! </span>{
+<span class="macro">take_until!</span> {
     <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `a` is found.
     ///
     /// If `a` is not found, the parser will return an error.
@@ -1029,7 +996,7 @@
     /// ```
     </span>TakeUntilByte, take_until_byte, memchr, a
 }
-<span class="macro">take_until! </span>{
+<span class="macro">take_until!</span> {
     <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `a` or `b` is found.
     ///
     /// If `a` or `b` is not found, the parser will return an error.
@@ -1048,7 +1015,7 @@
     /// ```
     </span>TakeUntilByte2, take_until_byte2, memchr2, a, b
 }
-<span class="macro">take_until! </span>{
+<span class="macro">take_until!</span> {
     <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `a`, 'b' or `c` is found.
     ///
     /// If `a`, 'b' or `c` is not found, the parser will return an error.
@@ -1068,7 +1035,7 @@
     </span>TakeUntilByte3, take_until_byte3, memchr3, a, b, c
 }
 
-<span class="macro">parser! </span>{
+<span class="macro">parser!</span> {
 <span class="kw">type </span>PartialState = usize;
 <span class="doccomment">/// Zero-copy parser which reads a range of 0 or more tokens until `needle` is found.
 ///
@@ -1126,7 +1093,7 @@
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="macro">macro_rules! </span>integer_parser {
+    <span class="macro">macro_rules!</span> integer_parser {
         (
             $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
             <span class="kw">pub </span><span class="macro-nonterminal">$type_name</span>: ident,
@@ -1136,7 +1103,6 @@
             <span class="kw">pub fn </span><span class="macro-nonterminal">$be_name</span>&lt;<span class="lifetime">'a</span>, Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="macro-nonterminal">$output_type</span>, PartialState = ()&gt;
             <span class="kw">where
                 </span>Input: Stream&lt;Token = u8&gt;,
-                Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
             {
                 parser(|input: <span class="kw-2">&amp;mut </span>Input| {
                     <span class="kw">let </span>checkpoint = input.checkpoint();
@@ -1158,7 +1124,6 @@
             <span class="kw">pub fn </span><span class="macro-nonterminal">$le_name</span>&lt;<span class="lifetime">'a</span>, Input&gt;() -&gt; <span class="kw">impl </span>Parser&lt;Input, Output = <span class="macro-nonterminal">$output_type</span>, PartialState = ()&gt;
             <span class="kw">where
                 </span>Input: Stream&lt;Token = u8&gt;,
-                Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
             {
                 parser(|input: <span class="kw-2">&amp;mut </span>Input| {
                     <span class="kw">let </span>checkpoint = input.checkpoint();

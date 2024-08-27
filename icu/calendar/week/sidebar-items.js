@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["RelativeUnit"],"struct":["WeekCalculator","WeekOf"]};
+window.SIDEBAR_ITEMS = {"constant":["MIN_UNIT_DAYS"],"enum":["RelativeUnit"],"struct":["WeekCalculator","WeekOf"]};

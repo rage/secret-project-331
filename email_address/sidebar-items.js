@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Error"],"struct":["EmailAddress"]};
+window.SIDEBAR_ITEMS = {"enum":["Error"],"struct":["EmailAddress","Options"]};

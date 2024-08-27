@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/any.rs`."><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/any.rs`."><title>any.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1327,10 +1326,18 @@
 <a href="#1326" id="1326">1326</a>
 <a href="#1327" id="1327">1327</a>
 <a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::fmt;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::marker::PhantomData;
 
+<span class="attr">#[allow(unused_imports)] </span><span class="comment">// Unused for Wasm
+</span><span class="kw">use </span><span class="kw">crate</span>::endian::Endianness;
 <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::read::coff;
 <span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
@@ -1346,17 +1353,15 @@
 <span class="kw">use </span><span class="kw">crate</span>::read::{
     <span class="self">self</span>, Architecture, BinaryFormat, CodeView, ComdatKind, CompressedData, CompressedFileRange,
     Error, Export, FileFlags, FileKind, Import, Object, ObjectComdat, ObjectKind, ObjectMap,
-    ObjectSection, ObjectSegment, ObjectSymbol, ObjectSymbolTable, ReadRef, Relocation, <span class="prelude-ty">Result</span>,
-    SectionFlags, SectionIndex, SectionKind, SegmentFlags, SymbolFlags, SymbolIndex, SymbolKind,
-    SymbolMap, SymbolMapName, SymbolScope, SymbolSection,
+    ObjectSection, ObjectSegment, ObjectSymbol, ObjectSymbolTable, ReadRef, Relocation,
+    RelocationMap, <span class="prelude-ty">Result</span>, SectionFlags, SectionIndex, SectionKind, SegmentFlags, SubArchitecture,
+    SymbolFlags, SymbolIndex, SymbolKind, SymbolMap, SymbolMapName, SymbolScope, SymbolSection,
 };
-<span class="attr">#[allow(unused_imports)]
-</span><span class="kw">use crate</span>::{AddressSize, Endian, Endianness, SubArchitecture};
 
 <span class="doccomment">/// Evaluate an expression on the contents of a file format enum.
 ///
 /// This is a hack to avoid virtual calls.
-</span><span class="macro">macro_rules! </span>with_inner {
+</span><span class="macro">macro_rules!</span> with_inner {
     (<span class="macro-nonterminal">$inner</span>:expr, <span class="macro-nonterminal">$</span><span class="kw">enum</span>:<span class="macro-nonterminal">ident</span>, | <span class="macro-nonterminal">$var</span>:ident | <span class="macro-nonterminal">$body</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
@@ -1385,7 +1390,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>with_inner_mut {
+<span class="macro">macro_rules!</span> with_inner_mut {
     (<span class="macro-nonterminal">$inner</span>:expr, <span class="macro-nonterminal">$</span><span class="kw">enum</span>:<span class="macro-nonterminal">ident</span>, | <span class="macro-nonterminal">$var</span>:ident | <span class="macro-nonterminal">$body</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
@@ -1415,7 +1420,7 @@
 }
 
 <span class="doccomment">/// Like `with_inner!`, but wraps the result in another enum.
-</span><span class="macro">macro_rules! </span>map_inner {
+</span><span class="macro">macro_rules!</span> map_inner {
     (<span class="macro-nonterminal">$inner</span>:expr, <span class="macro-nonterminal">$from</span>:ident, <span class="macro-nonterminal">$to</span>:ident, | <span class="macro-nonterminal">$var</span>:ident | <span class="macro-nonterminal">$body</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
@@ -1445,7 +1450,7 @@
 }
 
 <span class="doccomment">/// Like `map_inner!`, but the result is a Result or Option.
-</span><span class="macro">macro_rules! </span>map_inner_option {
+</span><span class="macro">macro_rules!</span> map_inner_option {
     (<span class="macro-nonterminal">$inner</span>:expr, <span class="macro-nonterminal">$from</span>:ident, <span class="macro-nonterminal">$to</span>:ident, | <span class="macro-nonterminal">$var</span>:ident | <span class="macro-nonterminal">$body</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
@@ -1474,7 +1479,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>map_inner_option_mut {
+<span class="macro">macro_rules!</span> map_inner_option_mut {
     (<span class="macro-nonterminal">$inner</span>:expr, <span class="macro-nonterminal">$from</span>:ident, <span class="macro-nonterminal">$to</span>:ident, | <span class="macro-nonterminal">$var</span>:ident | <span class="macro-nonterminal">$body</span>:expr) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
@@ -1504,7 +1509,7 @@
 }
 
 <span class="doccomment">/// Call `next` for a file format iterator.
-</span><span class="macro">macro_rules! </span>next_inner {
+</span><span class="macro">macro_rules!</span> next_inner {
     (<span class="macro-nonterminal">$inner</span>:expr, <span class="macro-nonterminal">$from</span>:ident, <span class="macro-nonterminal">$to</span>:ident) =&gt; {
         <span class="kw">match </span><span class="macro-nonterminal">$inner </span>{
             <span class="attr">#[cfg(feature = <span class="string">"coff"</span>)]
@@ -1597,14 +1602,14 @@
 
     <span class="doccomment">/// Parse a Mach-O image from the dyld shared cache.
     </span><span class="attr">#[cfg(feature = <span class="string">"macho"</span>)]
-    </span><span class="kw">pub fn </span>parse_dyld_cache_image&lt;<span class="lifetime">'cache</span>, E: Endian&gt;(
+    </span><span class="kw">pub fn </span>parse_dyld_cache_image&lt;<span class="lifetime">'cache</span>, E: <span class="kw">crate</span>::Endian&gt;(
         image: <span class="kw-2">&amp;</span>macho::DyldCacheImage&lt;<span class="lifetime">'data</span>, <span class="lifetime">'cache</span>, E, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span>image.cache.architecture().address_size() {
-            <span class="prelude-val">Some</span>(AddressSize::U64) =&gt; {
+            <span class="prelude-val">Some</span>(read::AddressSize::U64) =&gt; {
                 File::MachO64(macho::MachOFile64::parse_dyld_cache_image(image)<span class="question-mark">?</span>)
             }
-            <span class="prelude-val">Some</span>(AddressSize::U32) =&gt; {
+            <span class="prelude-val">Some</span>(read::AddressSize::U32) =&gt; {
                 File::MachO32(macho::MachOFile32::parse_dyld_cache_image(image)<span class="question-mark">?</span>)
             }
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Unsupported file format"</span>)),
@@ -1632,21 +1637,20 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt; read::private::Sealed <span class="kw">for </span>File&lt;<span class="lifetime">'data</span>, R&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt; <span class="kw">for </span>File&lt;<span class="lifetime">'data</span>, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, R&gt; Object&lt;<span class="lifetime">'data</span>&gt; <span class="kw">for </span>File&lt;<span class="lifetime">'data</span>, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">'data</span>: <span class="lifetime">'file</span>,
-    R: <span class="lifetime">'file </span>+ ReadRef&lt;<span class="lifetime">'data</span>&gt;,
+    </span>R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Segment = Segment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>SegmentIterator = SegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>Section = Section&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>SectionIterator = SectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>Comdat = Comdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>ComdatIterator = ComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>Symbol = Symbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>SymbolIterator = SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>SymbolTable = SymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>DynamicRelocationIterator = DynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
+    <span class="kw">type </span>Segment&lt;<span class="lifetime">'file</span>&gt; = Segment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SegmentIterator&lt;<span class="lifetime">'file</span>&gt; = SegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Section&lt;<span class="lifetime">'file</span>&gt; = Section&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SectionIterator&lt;<span class="lifetime">'file</span>&gt; = SectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Comdat&lt;<span class="lifetime">'file</span>&gt; = Comdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>ComdatIterator&lt;<span class="lifetime">'file</span>&gt; = ComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Symbol&lt;<span class="lifetime">'file</span>&gt; = Symbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SymbolIterator&lt;<span class="lifetime">'file</span>&gt; = SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SymbolTable&lt;<span class="lifetime">'file</span>&gt; = SymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>DynamicRelocationIterator&lt;<span class="lifetime">'file</span>&gt; = DynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture {
         <span class="macro">with_inner!</span>(<span class="self">self</span>, File, |x| x.architecture())
@@ -1668,43 +1672,46 @@
         <span class="macro">with_inner!</span>(<span class="self">self</span>, File, |x| x.kind())
     }
 
-    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; SegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
+    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
         SegmentIterator {
             inner: <span class="macro">map_inner!</span>(<span class="self">self</span>, File, SegmentIteratorInternal, |x| x.segments()),
         }
     }
 
-    <span class="kw">fn </span>section_by_name_bytes(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, section_name: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;Section&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>section_by_name_bytes&lt;<span class="lifetime">'file</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
+        section_name: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Section&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
         <span class="macro">map_inner_option!</span>(<span class="self">self</span>, File, SectionInternal, |x| x
             .section_by_name_bytes(section_name))
         .map(|inner| Section { inner })
     }
 
-    <span class="kw">fn </span>section_by_index(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, index: SectionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;Section&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>section_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SectionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;Section&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="macro">map_inner_option!</span>(<span class="self">self</span>, File, SectionInternal, |x| x.section_by_index(index))
             .map(|inner| Section { inner })
     }
 
-    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; SectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
+    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
         SectionIterator {
             inner: <span class="macro">map_inner!</span>(<span class="self">self</span>, File, SectionIteratorInternal, |x| x.sections()),
         }
     }
 
-    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
+    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
         ComdatIterator {
             inner: <span class="macro">map_inner!</span>(<span class="self">self</span>, File, ComdatIteratorInternal, |x| x.comdats()),
         }
     }
 
-    <span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;Symbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;Symbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="macro">map_inner_option!</span>(<span class="self">self</span>, File, SymbolInternal, |x| x
             .symbol_by_index(index)
             .map(|x| (x, PhantomData)))
         .map(|inner| Symbol { inner })
     }
 
-    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
+    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
         SymbolIterator {
             inner: <span class="macro">map_inner!</span>(<span class="self">self</span>, File, SymbolIteratorInternal, |x| (
                 x.symbols(),
@@ -1713,14 +1720,14 @@
         }
     }
 
-    <span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="macro">map_inner_option!</span>(<span class="self">self</span>, File, SymbolTableInternal, |x| x
             .symbol_table()
             .map(|x| (x, PhantomData)))
         .map(|inner| SymbolTable { inner })
     }
 
-    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
+    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
         SymbolIterator {
             inner: <span class="macro">map_inner!</span>(<span class="self">self</span>, File, SymbolIteratorInternal, |x| (
                 x.dynamic_symbols(),
@@ -1729,7 +1736,7 @@
         }
     }
 
-    <span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="macro">map_inner_option!</span>(<span class="self">self</span>, File, SymbolTableInternal, |x| x
             .dynamic_symbol_table()
             .map(|x| (x, PhantomData)))
@@ -1737,7 +1744,7 @@
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"elf"</span>)]
-    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="kw">let </span>inner = <span class="kw">match </span><span class="self">self </span>{
             File::Elf32(<span class="kw-2">ref </span>elf) =&gt; {
                 DynamicRelocationIteratorInternal::Elf32(elf.dynamic_relocations()<span class="question-mark">?</span>)
@@ -1752,7 +1759,7 @@
     }
 
     <span class="attr">#[cfg(not(feature = <span class="string">"elf"</span>))]
-    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;DynamicRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
@@ -2085,11 +2092,11 @@
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, SectionInternal, |x| x.compressed_data())
     }
 
-    <span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    <span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, SectionInternal, |x| x.name_bytes())
     }
 
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt; {
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, SectionInternal, |x| x.name())
     }
 
@@ -2114,6 +2121,10 @@
                 |x| x.relocations()
             ),
         }
+    }
+
+    <span class="kw">fn </span>relocation_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RelocationMap&gt; {
+        <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, SectionInternal, |x| x.relocation_map())
     }
 
     <span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionFlags {
@@ -2217,11 +2228,11 @@
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, ComdatInternal, |x| x.symbol())
     }
 
-    <span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    <span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, ComdatInternal, |x| x.name_bytes())
     }
 
-    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt; {
         <span class="macro">with_inner!</span>(<span class="self">self</span>.inner, ComdatInternal, |x| x.name())
     }
 

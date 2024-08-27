@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/traits.rs`."><title>traits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/traits.rs`."><title>traits.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -550,57 +549,125 @@
 <a href="#549" id="549">549</a>
 <a href="#550" id="550">550</a>
 <a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::borrow::Cow;
 <span class="kw">use </span>alloc::vec::Vec;
 
+<span class="kw">use </span><span class="kw">crate</span>::endian::Endianness;
 <span class="kw">use </span><span class="kw">crate</span>::read::{
     <span class="self">self</span>, Architecture, CodeView, ComdatKind, CompressedData, CompressedFileRange, Export,
-    FileFlags, Import, ObjectKind, ObjectMap, Relocation, <span class="prelude-ty">Result</span>, SectionFlags, SectionIndex,
-    SectionKind, SegmentFlags, SubArchitecture, SymbolFlags, SymbolIndex, SymbolKind, SymbolMap,
-    SymbolMapName, SymbolScope, SymbolSection,
+    FileFlags, Import, ObjectKind, ObjectMap, Relocation, RelocationMap, <span class="prelude-ty">Result</span>, SectionFlags,
+    SectionIndex, SectionKind, SegmentFlags, SubArchitecture, SymbolFlags, SymbolIndex, SymbolKind,
+    SymbolMap, SymbolMapName, SymbolScope, SymbolSection,
 };
-<span class="kw">use </span><span class="kw">crate</span>::Endianness;
 
 <span class="doccomment">/// An object file.
 ///
 /// This is the primary trait for the unified read API.
-</span><span class="kw">pub trait </span>Object&lt;<span class="lifetime">'data</span>: <span class="lifetime">'file</span>, <span class="lifetime">'file</span>&gt;: read::private::Sealed {
+</span><span class="kw">pub trait </span>Object&lt;<span class="lifetime">'data</span>&gt;: read::private::Sealed {
     <span class="doccomment">/// A loadable segment in the object file.
-    </span><span class="kw">type </span>Segment: ObjectSegment&lt;<span class="lifetime">'data</span>&gt;;
+    </span><span class="kw">type </span>Segment&lt;<span class="lifetime">'file</span>&gt;: ObjectSegment&lt;<span class="lifetime">'data</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// An iterator for the loadable segments in the object file.
-    </span><span class="kw">type </span>SegmentIterator: Iterator&lt;Item = <span class="self">Self</span>::Segment&gt;;
+    </span><span class="kw">type </span>SegmentIterator&lt;<span class="lifetime">'file</span>&gt;: Iterator&lt;Item = <span class="self">Self</span>::Segment&lt;<span class="lifetime">'file</span>&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// A section in the object file.
-    </span><span class="kw">type </span>Section: ObjectSection&lt;<span class="lifetime">'data</span>&gt;;
+    </span><span class="kw">type </span>Section&lt;<span class="lifetime">'file</span>&gt;: ObjectSection&lt;<span class="lifetime">'data</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// An iterator for the sections in the object file.
-    </span><span class="kw">type </span>SectionIterator: Iterator&lt;Item = <span class="self">Self</span>::Section&gt;;
+    </span><span class="kw">type </span>SectionIterator&lt;<span class="lifetime">'file</span>&gt;: Iterator&lt;Item = <span class="self">Self</span>::Section&lt;<span class="lifetime">'file</span>&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// A COMDAT section group in the object file.
-    </span><span class="kw">type </span>Comdat: ObjectComdat&lt;<span class="lifetime">'data</span>&gt;;
+    </span><span class="kw">type </span>Comdat&lt;<span class="lifetime">'file</span>&gt;: ObjectComdat&lt;<span class="lifetime">'data</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// An iterator for the COMDAT section groups in the object file.
-    </span><span class="kw">type </span>ComdatIterator: Iterator&lt;Item = <span class="self">Self</span>::Comdat&gt;;
+    </span><span class="kw">type </span>ComdatIterator&lt;<span class="lifetime">'file</span>&gt;: Iterator&lt;Item = <span class="self">Self</span>::Comdat&lt;<span class="lifetime">'file</span>&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// A symbol in the object file.
-    </span><span class="kw">type </span>Symbol: ObjectSymbol&lt;<span class="lifetime">'data</span>&gt;;
+    </span><span class="kw">type </span>Symbol&lt;<span class="lifetime">'file</span>&gt;: ObjectSymbol&lt;<span class="lifetime">'data</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// An iterator for symbols in the object file.
-    </span><span class="kw">type </span>SymbolIterator: Iterator&lt;Item = <span class="self">Self</span>::Symbol&gt;;
+    </span><span class="kw">type </span>SymbolIterator&lt;<span class="lifetime">'file</span>&gt;: Iterator&lt;Item = <span class="self">Self</span>::Symbol&lt;<span class="lifetime">'file</span>&gt;&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// A symbol table in the object file.
-    </span><span class="kw">type </span>SymbolTable: ObjectSymbolTable&lt;
+    </span><span class="kw">type </span>SymbolTable&lt;<span class="lifetime">'file</span>&gt;: ObjectSymbolTable&lt;
         <span class="lifetime">'data</span>,
-        Symbol = <span class="self">Self</span>::Symbol,
-        SymbolIterator = <span class="self">Self</span>::SymbolIterator,
-    &gt;;
+        Symbol = <span class="self">Self</span>::Symbol&lt;<span class="lifetime">'file</span>&gt;,
+        SymbolIterator = <span class="self">Self</span>::SymbolIterator&lt;<span class="lifetime">'file</span>&gt;,
+    &gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// An iterator for the dynamic relocations in the file.
     ///
     /// The first field in the item tuple is the address
     /// that the relocation applies to.
-    </span><span class="kw">type </span>DynamicRelocationIterator: Iterator&lt;Item = (u64, Relocation)&gt;;
+    </span><span class="kw">type </span>DynamicRelocationIterator&lt;<span class="lifetime">'file</span>&gt;: Iterator&lt;Item = (u64, Relocation)&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: <span class="lifetime">'file</span>,
+        <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="doccomment">/// Get the architecture type of the file.
     </span><span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture;
@@ -639,28 +706,33 @@
     /// For Mach-O, this is load commands with type [`LC_SEGMENT`](crate::macho::LC_SEGMENT)
     /// or [`LC_SEGMENT_64`](crate::macho::LC_SEGMENT_64).
     /// For PE, this is all sections.
-    </span><span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SegmentIterator;
+    </span><span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SegmentIterator&lt;<span class="lifetime">'_</span>&gt;;
 
     <span class="doccomment">/// Get the section named `section_name`, if such a section exists.
     ///
-    /// If `section_name` starts with a '.' then it is treated as a system section name,
-    /// and is compared using the conventions specific to the object file format. This
-    /// includes:
-    /// - if ".debug_str_offsets" is requested for a Mach-O object file, then the actual
-    /// section name that is searched for is "__debug_str_offs".
+    /// If `section_name` starts with a '.' then it is treated as a system
+    /// section name, and is compared using the conventions specific to the
+    /// object file format. This includes:
+    /// - if ".debug_str_offsets" is requested for a Mach-O object file, then
+    ///   the actual section name that is searched for is "__debug_str_offs".
     /// - if ".debug_info" is requested for an ELF object file, then
-    /// ".zdebug_info" may be returned (and similarly for other debug sections).
+    ///   ".zdebug_info" may be returned (and similarly for other debug
+    ///   sections). Similarly, if ".debug_info" is requested for a Mach-O
+    ///   object file, then "__zdebug_info" may be returned.
     ///
-    /// For some object files, multiple segments may contain sections with the same
-    /// name. In this case, the first matching section will be used.
+    /// For some object files, multiple segments may contain sections with the
+    /// same name. In this case, the first matching section will be used.
     ///
     /// This method skips over sections with invalid names.
-    </span><span class="kw">fn </span>section_by_name(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, section_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Section&gt; {
+    </span><span class="kw">fn </span>section_by_name(<span class="kw-2">&amp;</span><span class="self">self</span>, section_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Section&lt;<span class="lifetime">'_</span>&gt;&gt; {
         <span class="self">self</span>.section_by_name_bytes(section_name.as_bytes())
     }
 
     <span class="doccomment">/// Like [`Self::section_by_name`], but allows names that are not UTF-8.
-    </span><span class="kw">fn </span>section_by_name_bytes(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, section_name: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Section&gt;;
+    </span><span class="kw">fn </span>section_by_name_bytes&lt;<span class="lifetime">'file</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
+        section_name: <span class="kw-2">&amp;</span>[u8],
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Section&lt;<span class="lifetime">'file</span>&gt;&gt;;
 
     <span class="doccomment">/// Get the section at the given index.
     ///
@@ -669,38 +741,38 @@
     /// For some object files, this requires iterating through all sections.
     ///
     /// Returns an error if the index is invalid.
-    </span><span class="kw">fn </span>section_by_index(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, index: SectionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Section&gt;;
+    </span><span class="kw">fn </span>section_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SectionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Section&lt;<span class="lifetime">'_</span>&gt;&gt;;
 
     <span class="doccomment">/// Get an iterator for the sections in the file.
-    </span><span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SectionIterator;
+    </span><span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SectionIterator&lt;<span class="lifetime">'_</span>&gt;;
 
     <span class="doccomment">/// Get an iterator for the COMDAT section groups in the file.
-    </span><span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::ComdatIterator;
+    </span><span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::ComdatIterator&lt;<span class="lifetime">'_</span>&gt;;
 
     <span class="doccomment">/// Get the debugging symbol table, if any.
-    </span><span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::SymbolTable&gt;;
+    </span><span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::SymbolTable&lt;<span class="lifetime">'_</span>&gt;&gt;;
 
     <span class="doccomment">/// Get the debugging symbol at the given index.
     ///
     /// The meaning of the index depends on the object file.
     ///
     /// Returns an error if the index is invalid.
-    </span><span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Symbol&gt;;
+    </span><span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Symbol&lt;<span class="lifetime">'_</span>&gt;&gt;;
 
     <span class="doccomment">/// Get an iterator for the debugging symbols in the file.
     ///
     /// This may skip over symbols that are malformed or unsupported.
     ///
     /// For Mach-O files, this does not include STAB entries.
-    </span><span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SymbolIterator;
+    </span><span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SymbolIterator&lt;<span class="lifetime">'_</span>&gt;;
 
     <span class="doccomment">/// Get the symbol named `symbol_name`, if the symbol exists.
-    </span><span class="kw">fn </span>symbol_by_name(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, symbol_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Symbol&gt; {
+    </span><span class="kw">fn </span>symbol_by_name&lt;<span class="lifetime">'file</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, symbol_name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Symbol&lt;<span class="lifetime">'file</span>&gt;&gt; {
         <span class="self">self</span>.symbol_by_name_bytes(symbol_name.as_bytes())
     }
 
     <span class="doccomment">/// Like [`Self::symbol_by_name`], but allows names that are not UTF-8.
-    </span><span class="kw">fn </span>symbol_by_name_bytes(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, symbol_name: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Symbol&gt; {
+    </span><span class="kw">fn </span>symbol_by_name_bytes&lt;<span class="lifetime">'file</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, symbol_name: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Symbol&lt;<span class="lifetime">'file</span>&gt;&gt; {
         <span class="self">self</span>.symbols()
             .find(|sym| sym.name_bytes() == <span class="prelude-val">Ok</span>(symbol_name))
     }
@@ -709,7 +781,7 @@
     ///
     /// Only ELF has a separate dynamic linking symbol table.
     /// Consider using [`Self::exports`] or [`Self::imports`] instead.
-    </span><span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::SymbolTable&gt;;
+    </span><span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::SymbolTable&lt;<span class="lifetime">'_</span>&gt;&gt;;
 
     <span class="doccomment">/// Get an iterator for the dynamic linking symbols in the file.
     ///
@@ -718,20 +790,20 @@
     /// Only ELF has dynamic linking symbols.
     /// Other file formats will return an empty iterator.
     /// Consider using [`Self::exports`] or [`Self::imports`] instead.
-    </span><span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SymbolIterator;
+    </span><span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SymbolIterator&lt;<span class="lifetime">'_</span>&gt;;
 
     <span class="doccomment">/// Get the dynamic relocations for this file.
     ///
     /// Symbol indices in these relocations refer to the dynamic symbol table.
     ///
     /// Only ELF has dynamic relocations.
-    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::DynamicRelocationIterator&gt;;
+    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::DynamicRelocationIterator&lt;<span class="lifetime">'_</span>&gt;&gt;;
 
     <span class="doccomment">/// Construct a map from addresses to symbol names.
     ///
     /// The map will only contain defined text and data symbols.
     /// The dynamic symbol table will only be used if there are no debugging symbols.
-    </span><span class="kw">fn </span>symbol_map(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; SymbolMap&lt;SymbolMapName&lt;<span class="lifetime">'data</span>&gt;&gt; {
+    </span><span class="kw">fn </span>symbol_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolMap&lt;SymbolMapName&lt;<span class="lifetime">'data</span>&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>symbols = Vec::new();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(table) = <span class="self">self</span>.symbol_table().or_else(|| <span class="self">self</span>.dynamic_symbol_table()) {
             <span class="comment">// Sometimes symbols share addresses. Collect them all then choose the "best".
@@ -793,7 +865,7 @@
     <span class="doccomment">/// Construct a map from addresses to symbol names and object file names.
     ///
     /// This is derived from Mach-O STAB entries.
-    </span><span class="kw">fn </span>object_map(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ObjectMap&lt;<span class="lifetime">'data</span>&gt; {
+    </span><span class="kw">fn </span>object_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ObjectMap&lt;<span class="lifetime">'data</span>&gt; {
         ObjectMap::default()
     }
 
@@ -842,10 +914,10 @@
     <span class="doccomment">/// Get the base address used for relative virtual addresses.
     ///
     /// Currently this is only non-zero for PE.
-    </span><span class="kw">fn </span>relative_address_base(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; u64;
+    </span><span class="kw">fn </span>relative_address_base(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
 
     <span class="doccomment">/// Get the virtual address of the entry point of the binary.
-    </span><span class="kw">fn </span>entry(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; u64;
+    </span><span class="kw">fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64;
 
     <span class="doccomment">/// File flags that are specific to each file format.
     </span><span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FileFlags;
@@ -950,12 +1022,12 @@
     }
 
     <span class="doccomment">/// Returns the name of the section.
-    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;;
+    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;;
 
     <span class="doccomment">/// Returns the name of the section.
     ///
     /// Returns an error if the name is not UTF-8.
-    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt;;
+    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt;;
 
     <span class="doccomment">/// Returns the name of the segment for this section.
     </span><span class="kw">fn </span>segment_name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;&gt;;
@@ -970,6 +1042,9 @@
 
     <span class="doccomment">/// Get the relocations for this section.
     </span><span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::RelocationIterator;
+
+    <span class="doccomment">/// Construct a relocation map for this section.
+    </span><span class="kw">fn </span>relocation_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RelocationMap&gt;;
 
     <span class="doccomment">/// Section flags that are specific to each file format.
     </span><span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionFlags;
@@ -989,12 +1064,12 @@
     </span><span class="kw">fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolIndex;
 
     <span class="doccomment">/// Returns the name of the COMDAT section group.
-    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt;;
+    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt;;
 
     <span class="doccomment">/// Returns the name of the COMDAT section group.
     ///
     /// Returns an error if the name is not UTF-8.
-    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt;;
+    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt;;
 
     <span class="doccomment">/// Get the sections in this section group.
     </span><span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SectionIterator;

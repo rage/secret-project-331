@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.64/src/x509/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.66/src/x509/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2656,7 +2655,7 @@
     <span class="kw">type </span>Output: ForeignType;
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_STORE_CTX;
     <span class="kw">fn </span>drop = ffi::X509_STORE_CTX_free;
 
@@ -2969,7 +2968,7 @@
     </span>}
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509;
     <span class="kw">fn </span>drop = ffi::X509_free;
 
@@ -3263,7 +3262,7 @@
         }
     }
 
-    <span class="macro">to_pem! </span>{
+    <span class="macro">to_pem!</span> {
         <span class="doccomment">/// Serializes the certificate into a PEM-encoded X509 structure.
         ///
         /// The output will have a header of `-----BEGIN CERTIFICATE-----`.
@@ -3272,14 +3271,14 @@
         ffi::PEM_write_bio_X509
     }
 
-    <span class="macro">to_der! </span>{
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the certificate into a DER-encoded X509 structure.
         </span><span class="attr">#[corresponds(i2d_X509)]
         </span>to_der,
         ffi::i2d_X509
     }
 
-    <span class="macro">to_pem! </span>{
+    <span class="macro">to_pem!</span> {
         <span class="doccomment">/// Converts the certificate to human readable text.
         </span><span class="attr">#[corresponds(X509_print)]
         </span>to_text,
@@ -3339,7 +3338,7 @@
         X509Builder::new()
     }
 
-    <span class="macro">from_pem! </span>{
+    <span class="macro">from_pem!</span> {
         <span class="doccomment">/// Deserializes a PEM-encoded X509 structure.
         ///
         /// The input should have a header of `-----BEGIN CERTIFICATE-----`.
@@ -3349,7 +3348,7 @@
         ffi::PEM_read_bio_X509
     }
 
-    <span class="macro">from_der! </span>{
+    <span class="macro">from_der!</span> {
         <span class="doccomment">/// Deserializes a DER-encoded X509 structure.
         </span><span class="attr">#[corresponds(d2i_X509)]
         </span>from_der,
@@ -3476,7 +3475,7 @@
     </span>}
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_EXTENSION;
     <span class="kw">fn </span>drop = ffi::X509_EXTENSION_free;
 
@@ -3646,7 +3645,7 @@
 }
 
 <span class="kw">impl </span>X509ExtensionRef {
-    <span class="macro">to_der! </span>{
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the Extension to its standard DER encoding.
         </span><span class="attr">#[corresponds(i2d_X509_EXTENSION)]
         </span>to_der,
@@ -3689,7 +3688,7 @@
     </span><span class="kw">pub fn </span>append_entry_by_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>field = CString::new(field).unwrap();
-            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::max_value() <span class="kw">as </span>usize);
+            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::MAX <span class="kw">as </span>usize);
             cvt(ffi::X509_NAME_add_entry_by_txt(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 field.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>,
@@ -3716,7 +3715,7 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>field = CString::new(field).unwrap();
-            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::max_value() <span class="kw">as </span>usize);
+            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::MAX <span class="kw">as </span>usize);
             cvt(ffi::X509_NAME_add_entry_by_txt(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 field.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>,
@@ -3737,7 +3736,7 @@
     /// [`X509_NAME_add_entry_by_NID`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_add_entry_by_NID.html
     </span><span class="kw">pub fn </span>append_entry_by_nid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: Nid, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
-            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::max_value() <span class="kw">as </span>usize);
+            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::MAX <span class="kw">as </span>usize);
             cvt(ffi::X509_NAME_add_entry_by_NID(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 field.as_raw(),
@@ -3763,7 +3762,7 @@
         ty: Asn1Type,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
-            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::max_value() <span class="kw">as </span>usize);
+            <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::MAX <span class="kw">as </span>usize);
             cvt(ffi::X509_NAME_add_entry_by_NID(
                 <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
                 field.as_raw(),
@@ -3786,7 +3785,7 @@
     }
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_NAME;
     <span class="kw">fn </span>drop = ffi::X509_NAME_free;
 
@@ -3810,7 +3809,7 @@
         <span class="kw">unsafe </span>{ cvt_p(ffi::SSL_load_client_CA_file(file.as_ptr())).map(|p| Stack::from_ptr(p)) }
     }
 
-    <span class="macro">from_der! </span>{
+    <span class="macro">from_der!</span> {
         <span class="doccomment">/// Deserializes a DER-encoded X509 name structure.
         ///
         /// This corresponds to [`d2i_X509_NAME`].
@@ -3867,7 +3866,7 @@
         <span class="kw">unsafe </span>{ cvt_p(ffi::X509_NAME_dup(<span class="self">self</span>.as_ptr())).map(|n| X509Name::from_ptr(n)) }
     }
 
-    <span class="macro">to_der! </span>{
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the certificate into a DER-encoded X509 name structure.
         ///
         /// This corresponds to [`i2d_X509_NAME`].
@@ -3921,7 +3920,7 @@
     }
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_NAME_ENTRY;
     <span class="kw">fn </span>drop = ffi::X509_NAME_ENTRY_free;
 
@@ -4086,7 +4085,7 @@
     </span>}
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_REQ;
     <span class="kw">fn </span>drop = ffi::X509_REQ_free;
 
@@ -4102,7 +4101,7 @@
         X509ReqBuilder::new()
     }
 
-    <span class="macro">from_pem! </span>{
+    <span class="macro">from_pem!</span> {
         <span class="doccomment">/// Deserializes a PEM-encoded PKCS#10 certificate request structure.
         ///
         /// The input should have a header of `-----BEGIN CERTIFICATE REQUEST-----`.
@@ -4115,7 +4114,7 @@
         ffi::PEM_read_bio_X509_REQ
     }
 
-    <span class="macro">from_der! </span>{
+    <span class="macro">from_der!</span> {
         <span class="doccomment">/// Deserializes a DER-encoded PKCS#10 certificate request structure.
         ///
         /// This corresponds to [`d2i_X509_REQ`].
@@ -4128,7 +4127,7 @@
 }
 
 <span class="kw">impl </span>X509ReqRef {
-    <span class="macro">to_pem! </span>{
+    <span class="macro">to_pem!</span> {
         <span class="doccomment">/// Serializes the certificate request to a PEM-encoded PKCS#10 structure.
         ///
         /// The output will have a header of `-----BEGIN CERTIFICATE REQUEST-----`.
@@ -4140,7 +4139,7 @@
         ffi::PEM_write_bio_X509_REQ
     }
 
-    <span class="macro">to_der! </span>{
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the certificate request to a DER-encoded PKCS#10 structure.
         ///
         /// This corresponds to [`i2d_X509_REQ`].
@@ -4150,7 +4149,7 @@
         ffi::i2d_X509_REQ
     }
 
-    <span class="macro">to_pem! </span>{
+    <span class="macro">to_pem!</span> {
         <span class="doccomment">/// Converts the request to human readable text.
         </span><span class="attr">#[corresponds(X509_Req_print)]
         </span>to_text,
@@ -4244,7 +4243,7 @@
     </span>}
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_REVOKED;
     <span class="kw">fn </span>drop = ffi::X509_REVOKED_free;
 
@@ -4259,7 +4258,7 @@
 }
 
 <span class="kw">impl </span>X509Revoked {
-    <span class="macro">from_der! </span>{
+    <span class="macro">from_der!</span> {
         <span class="doccomment">/// Deserializes a DER-encoded certificate revocation status
         </span><span class="attr">#[corresponds(d2i_X509_REVOKED)]
         </span>from_der,
@@ -4269,7 +4268,7 @@
 }
 
 <span class="kw">impl </span>X509RevokedRef {
-    <span class="macro">to_der! </span>{
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the certificate request to a DER-encoded certificate revocation status
         </span><span class="attr">#[corresponds(d2i_X509_REVOKED)]
         </span>to_der,
@@ -4369,7 +4368,7 @@
     <span class="kw">type </span>Output = Stack&lt;AccessDescription&gt;;
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_CRL;
     <span class="kw">fn </span>drop = ffi::X509_CRL_free;
 
@@ -4424,7 +4423,7 @@
 }
 
 <span class="kw">impl </span>X509Crl {
-    <span class="macro">from_pem! </span>{
+    <span class="macro">from_pem!</span> {
         <span class="doccomment">/// Deserializes a PEM-encoded Certificate Revocation List
         ///
         /// The input should have a header of `-----BEGIN X509 CRL-----`.
@@ -4434,7 +4433,7 @@
         ffi::PEM_read_bio_X509_CRL
     }
 
-    <span class="macro">from_der! </span>{
+    <span class="macro">from_der!</span> {
         <span class="doccomment">/// Deserializes a DER-encoded Certificate Revocation List
         </span><span class="attr">#[corresponds(d2i_X509_CRL)]
         </span>from_der,
@@ -4444,7 +4443,7 @@
 }
 
 <span class="kw">impl </span>X509CrlRef {
-    <span class="macro">to_pem! </span>{
+    <span class="macro">to_pem!</span> {
         <span class="doccomment">/// Serializes the certificate request to a PEM-encoded Certificate Revocation List.
         ///
         /// The output will have a header of `-----BEGIN X509 CRL-----`.
@@ -4453,7 +4452,7 @@
         ffi::PEM_write_bio_X509_CRL
     }
 
-    <span class="macro">to_der! </span>{
+    <span class="macro">to_der!</span> {
         <span class="doccomment">/// Serializes the certificate request to a DER-encoded Certificate Revocation List.
         </span><span class="attr">#[corresponds(i2d_X509_CRL)]
         </span>to_der,
@@ -4630,7 +4629,7 @@
         X509VerifyResult(ffi::X509_V_ERR_APPLICATION_VERIFICATION);
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::GENERAL_NAME;
     <span class="kw">fn </span>drop = ffi::GENERAL_NAME_free;
 
@@ -4838,7 +4837,7 @@
     <span class="kw">type </span>StackType = ffi::stack_st_GENERAL_NAME;
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::DIST_POINT;
     <span class="kw">fn </span>drop = ffi::DIST_POINT_free;
 
@@ -4855,7 +4854,7 @@
     }
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::DIST_POINT_NAME;
     <span class="kw">fn </span>drop = ffi::DIST_POINT_NAME_free;
 
@@ -4881,7 +4880,7 @@
     <span class="kw">type </span>StackType = ffi::stack_st_DIST_POINT;
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::ACCESS_DESCRIPTION;
     <span class="kw">fn </span>drop = ffi::ACCESS_DESCRIPTION_free;
 
@@ -4907,7 +4906,7 @@
     <span class="kw">type </span>StackType = ffi::stack_st_ACCESS_DESCRIPTION;
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_ALGOR;
     <span class="kw">fn </span>drop = ffi::X509_ALGOR_free;
 
@@ -4928,7 +4927,7 @@
     }
 }
 
-<span class="macro">foreign_type_and_impl_send_sync! </span>{
+<span class="macro">foreign_type_and_impl_send_sync!</span> {
     <span class="kw">type </span>CType = ffi::X509_OBJECT;
     <span class="kw">fn </span>drop = X509_OBJECT_free;
 
@@ -4951,7 +4950,7 @@
     <span class="kw">type </span>StackType = ffi::stack_st_X509_OBJECT;
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(boringssl, ossl110, libressl273))] </span>{
         <span class="kw">use </span>ffi::{X509_getm_notAfter, X509_getm_notBefore, X509_up_ref, X509_get0_signature};
     } <span class="kw">else </span>{
@@ -4992,7 +4991,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(boringssl, ossl110, libressl350))] </span>{
         <span class="kw">use </span>ffi::{
             X509_ALGOR_get0, ASN1_STRING_get0_data, X509_STORE_CTX_get0_chain, X509_set1_notAfter,
@@ -5032,7 +5031,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, boringssl, libressl270))] </span>{
         <span class="kw">use </span>ffi::X509_OBJECT_get0_X509;
     } <span class="kw">else </span>{
@@ -5047,7 +5046,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350, boringssl))] </span>{
         <span class="kw">use </span>ffi::X509_OBJECT_free;
     } <span class="kw">else </span>{
@@ -5059,7 +5058,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350, boringssl))] </span>{
         <span class="kw">use </span>ffi::{
             X509_CRL_get_issuer, X509_CRL_get0_nextUpdate, X509_CRL_get0_lastUpdate,
@@ -5146,7 +5145,7 @@
     </span><span class="kw">pub fn </span>get_by_sname(sname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;c_int, ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>sname = CString::new(sname).unwrap();
-            <span class="macro">cfg_if! </span>{
+            <span class="macro">cfg_if!</span> {
                 <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl280, boringssl))] </span>{
                     <span class="kw">let </span>purpose = cvt_n(ffi::X509_PURPOSE_get_by_sname(sname.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>))<span class="question-mark">?</span>;
                 } <span class="kw">else </span>{
@@ -5178,7 +5177,7 @@
     /// - `X509_PURPOSE_TIMESTAMP_SIGN`
     </span><span class="kw">pub fn </span>purpose(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; X509PurposeId {
         <span class="kw">unsafe </span>{
-            <span class="macro">cfg_if! </span>{
+            <span class="macro">cfg_if!</span> {
                 <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl280, boringssl))] </span>{
                     <span class="kw">let </span>x509_purpose = <span class="self">self</span>.as_ptr() <span class="kw">as </span><span class="kw-2">*const </span>ffi::X509_PURPOSE;
                 } <span class="kw">else </span>{

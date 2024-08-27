@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerofrom-derive-0.1.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerofrom_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerofrom-derive-0.1.4/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerofrom_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -293,13 +292,27 @@
 <a href="#292" id="292">292</a>
 <a href="#293" id="293">293</a>
 <a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
 </span><span class="doccomment">//! Custom derives for `ZeroFrom` from the `zerofrom` crate.
 
-</span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
+</span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/documents/process/boilerplate.md#library-annotations
 </span><span class="attr">#![cfg_attr(
     not(test),
     deny(
@@ -322,8 +335,8 @@
 <span class="kw">use </span>syn::punctuated::Punctuated;
 <span class="kw">use </span>syn::spanned::Spanned;
 <span class="kw">use </span>syn::{
-    parse_macro_input, parse_quote, DeriveInput, Ident, Lifetime, MetaList, Token, Type, TypePath,
-    WherePredicate,
+    parse_macro_input, parse_quote, DeriveInput, Ident, Lifetime, MetaList, Token,
+    TraitBoundModifier, Type, TypeParamBound, TypePath, WherePredicate,
 };
 <span class="kw">use </span>synstructure::Structure;
 <span class="kw">mod </span>visitor;
@@ -416,12 +429,26 @@
     // a newly introduced mirror type parameter that we are borrowing from, similar to C in the original trait.
     // For convenience, we are calling these "C types"
     </span><span class="kw">let </span>generics_env: HashMap&lt;Ident, <span class="prelude-ty">Option</span>&lt;Ident&gt;&gt; = tybounds
-        .iter()
+        .iter_mut()
         .map(|param| {
             <span class="comment">// First one doesn't work yet https://github.com/rust-lang/rust/issues/114393
             </span><span class="kw">let </span>maybe_new_param = <span class="kw">if </span>has_attr(<span class="kw-2">&amp;</span>param.attrs, <span class="string">"may_borrow"</span>)
                 || may_borrow_attrs.contains(<span class="kw-2">&amp;</span>param.ident)
             {
+                <span class="comment">// Remove `?Sized`` bound because we need a param to be Sized in order to take a ZeroFrom of it.
+                // This only applies to fields marked as `may_borrow`.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>bounds = core::mem::take(<span class="kw-2">&amp;mut </span>param.bounds);
+                <span class="kw">while let </span><span class="prelude-val">Some</span>(bound_pair) = bounds.pop() {
+                    <span class="kw">let </span>bound = bound_pair.into_value();
+                    <span class="kw">if let </span>TypeParamBound::Trait(<span class="kw-2">ref </span>trait_bound) = bound {
+                        <span class="kw">if </span>trait_bound.path.get_ident().map(|ident| ident == <span class="string">"Sized"</span>) == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>)
+                            &amp;&amp; <span class="macro">matches!</span>(trait_bound.modifier, TraitBoundModifier::Maybe(<span class="kw">_</span>))
+                        {
+                            <span class="kw">continue</span>;
+                        }
+                    }
+                    param.bounds.push(bound);
+                }
                 <span class="prelude-val">Some</span>(Ident::new(
                     <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}ZFParamC"</span>, param.ident),
                     param.ident.span(),
@@ -451,7 +478,7 @@
             .iter()
             .map(|ty| <span class="macro">parse_quote!</span>(#ty: #clone_trait + <span class="lifetime">'static</span>))
             .collect();
-        <span class="macro">quote! </span>{
+        <span class="macro">quote!</span> {
             <span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, #(#tybounds),<span class="kw-2">*</span>&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #name&lt;#(#typarams),<span class="kw-2">*</span>&gt;&gt; <span class="kw">for </span>#name&lt;#(#typarams),<span class="kw-2">*</span>&gt; <span class="kw">where </span>#(#bounds),* {
                 <span class="kw">fn </span>zero_from(this: <span class="kw-2">&amp;</span><span class="lifetime">'zf </span><span class="self">Self</span>) -&gt; <span class="self">Self </span>{
                     #clone
@@ -474,7 +501,7 @@
                 <span class="kw">let </span>field = Ident::new(<span class="kw-2">&amp;</span>binding, Span::call_site());
 
                 <span class="kw">if </span>has_attr(<span class="kw-2">&amp;</span>f.attrs, <span class="string">"clone"</span>) {
-                    <span class="macro">quote! </span>{
+                    <span class="macro">quote!</span> {
                         #field.clone()
                     }
                 } <span class="kw">else </span>{
@@ -500,12 +527,12 @@
                     <span class="kw">if </span>has_ty || has_lt {
                         <span class="comment">// By doing this we essentially require ZF to be implemented
                         // on all fields
-                        </span><span class="macro">quote! </span>{
+                        </span><span class="macro">quote!</span> {
                             &lt;#fty <span class="kw">as </span>zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #lifetime_ty&gt;&gt;::zero_from(#field)
                         }
                     } <span class="kw">else </span>{
                         <span class="comment">// No lifetimes, so we can just copy
-                        </span><span class="macro">quote! </span>{ <span class="kw-2">*</span>#field }
+                        </span><span class="macro">quote!</span> { <span class="kw-2">*</span>#field }
                     }
                 }
             })
@@ -533,7 +560,7 @@
             }
         }
 
-        <span class="macro">quote! </span>{
+        <span class="macro">quote!</span> {
             <span class="kw">impl</span>&lt;<span class="lifetime">'zf</span>, <span class="lifetime">'zf_inner</span>, #(#tybounds),<span class="kw-2">*</span>&gt; zerofrom::ZeroFrom&lt;<span class="lifetime">'zf</span>, #name&lt;#maybe_zf_inner_lifetime #(#typarams_c),<span class="kw-2">*</span>&gt;&gt; <span class="kw">for </span>#name&lt;#maybe_zf_lifetime #(#typarams),<span class="kw-2">*</span>&gt;
                 <span class="kw">where
                 </span>#(#zf_bounds,)* {

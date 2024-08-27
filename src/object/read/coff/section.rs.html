@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/section.rs`."><title>section.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/coff/section.rs`."><title>section.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -584,6 +583,40 @@
 <a href="#583" id="583">583</a>
 <a href="#584" id="584">584</a>
 <a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>core::{iter, result, slice, str};
 
@@ -592,7 +625,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::read::util::StringTable;
 <span class="kw">use </span><span class="kw">crate</span>::read::{
     <span class="self">self</span>, CompressedData, CompressedFileRange, Error, ObjectSection, ObjectSegment, ReadError,
-    ReadRef, <span class="prelude-ty">Result</span>, SectionFlags, SectionIndex, SectionKind, SegmentFlags,
+    ReadRef, RelocationMap, <span class="prelude-ty">Result</span>, SectionFlags, SectionIndex, SectionKind, SegmentFlags,
 };
 
 <span class="kw">use super</span>::{CoffFile, CoffHeader, CoffRelocationIterator};
@@ -624,10 +657,18 @@
 
     <span class="doccomment">/// Iterate over the section headers.
     ///
-    /// Warning: sections indices start at 1.
+    /// Warning: section indices start at 1.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; slice::Iter&lt;<span class="lifetime">'data</span>, pe::ImageSectionHeader&gt; {
         <span class="self">self</span>.sections.iter()
+    }
+
+    <span class="doccomment">/// Iterate over the section headers and their indices.
+    </span><span class="kw">pub fn </span>enumerate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (SectionIndex, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader)&gt; {
+        <span class="self">self</span>.sections
+            .iter()
+            .enumerate()
+            .map(|(i, section)| (SectionIndex(i + <span class="number">1</span>), section))
     }
 
     <span class="doccomment">/// Return true if the section table is empty.
@@ -645,9 +686,9 @@
     <span class="doccomment">/// Return the section header at the given index.
     ///
     /// The index is 1-based.
-    </span><span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader&gt; {
+    </span><span class="kw">pub fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SectionIndex) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader&gt; {
         <span class="self">self</span>.sections
-            .get(index.wrapping_sub(<span class="number">1</span>))
+            .get(index.<span class="number">0</span>.wrapping_sub(<span class="number">1</span>))
             .read_error(<span class="string">"Invalid COFF/PE section index"</span>)
     }
 
@@ -660,12 +701,9 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         strings: StringTable&lt;<span class="lifetime">'data</span>, R&gt;,
         name: <span class="kw-2">&amp;</span>[u8],
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader)&gt; {
-        <span class="self">self</span>.sections
-            .iter()
-            .enumerate()
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(SectionIndex, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader)&gt; {
+        <span class="self">self</span>.enumerate()
             .find(|(<span class="kw">_</span>, section)| section.name(strings) == <span class="prelude-val">Ok</span>(name))
-            .map(|(index, section)| (index + <span class="number">1</span>, section))
     }
 
     <span class="doccomment">/// Compute the maximum file offset used by sections.
@@ -743,6 +781,16 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; CoffSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
+    <span class="doccomment">/// Get the COFF file containing this segment.
+    </span><span class="kw">pub fn </span>coff_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt; {
+        <span class="self">self</span>.file
+    }
+
+    <span class="doccomment">/// Get the raw COFF section header.
+    </span><span class="kw">pub fn </span>coff_section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader {
+        <span class="self">self</span>.section
+    }
+
     <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section
             .coff_data(<span class="self">self</span>.file.data)
@@ -867,6 +915,21 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; CoffSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
+    <span class="doccomment">/// Get the COFF file containing this section.
+    </span><span class="kw">pub fn </span>coff_file(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffFile&lt;<span class="lifetime">'data</span>, R, Coff&gt; {
+        <span class="self">self</span>.file
+    }
+
+    <span class="doccomment">/// Get the raw COFF section header.
+    </span><span class="kw">pub fn </span>coff_section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageSectionHeader {
+        <span class="self">self</span>.section
+    }
+
+    <span class="doccomment">/// Get the raw COFF relocations for this section.
+    </span><span class="kw">pub fn </span>coff_relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[pe::ImageRelocation]&gt; {
+        <span class="self">self</span>.section.coff_relocations(<span class="self">self</span>.file.data)
+    }
+
     <span class="kw">fn </span>bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section
             .coff_data(<span class="self">self</span>.file.data)
@@ -935,12 +998,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="self">self</span>.section.name(<span class="self">self</span>.file.common.symbols.strings())
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt; {
         <span class="kw">let </span>name = <span class="self">self</span>.name_bytes()<span class="question-mark">?</span>;
         str::from_utf8(name)
             .ok()
@@ -963,11 +1026,15 @@
     }
 
     <span class="kw">fn </span>relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CoffRelocationIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
-        <span class="kw">let </span>relocations = <span class="self">self</span>.section.coff_relocations(<span class="self">self</span>.file.data).unwrap_or(<span class="kw-2">&amp;</span>[]);
+        <span class="kw">let </span>relocations = <span class="self">self</span>.coff_relocations().unwrap_or(<span class="kw-2">&amp;</span>[]);
         CoffRelocationIterator {
             file: <span class="self">self</span>.file,
             iter: relocations.iter(),
         }
+    }
+
+    <span class="kw">fn </span>relocation_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; read::Result&lt;RelocationMap&gt; {
+        RelocationMap::new(<span class="self">self</span>.file, <span class="self">self</span>)
     }
 
     <span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SectionFlags {
@@ -1125,7 +1192,7 @@
     ) -&gt; read::Result&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[pe::ImageRelocation]&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>pointer = <span class="self">self</span>.pointer_to_relocations.get(LE).into();
         <span class="kw">let </span><span class="kw-2">mut </span>number: usize = <span class="self">self</span>.number_of_relocations.get(LE).into();
-        <span class="kw">if </span>number == core::u16::MAX.into()
+        <span class="kw">if </span>number == u16::MAX.into()
             &amp;&amp; <span class="self">self</span>.characteristics.get(LE) &amp; pe::IMAGE_SCN_LNK_NRELOC_OVFL != <span class="number">0
         </span>{
             <span class="comment">// Extended relocations. Read first relocation (which contains extended count) &amp; adjust

@@ -1,0 +1,1 @@
+searchState.loadedDescShard("headless_lms_certificates", 0, "For rendering certificates.\nProvides a font database singleton and functions for …\nReturns the argument unchanged.\nGenerates a certificate as a png.\nCalls <code>U::from(self)</code>.\nHow to align the text related to x_pos and y_pos. See: …\nCreates an empty fontdb::Database and loads all the fonts …")

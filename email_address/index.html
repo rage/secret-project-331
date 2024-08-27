@@ -1,16 +1,20 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Rust crate providing an implementation of an RFC-compliant `EmailAddress` newtype."><title>email_address - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="email_address" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../email_address/index.html">email_address</a><span class="version">0.2.4</span></h2></div><div class="sidebar-elems"><ul class="block">
-            <li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></section></div></nav><div class="sidebar-resizer"></div>
-    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../email_address/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">email_address</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/email_address/lib.rs.html#1-1166">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Rust crate providing an implementation of an RFC-compliant <code>EmailAddress</code> newtype.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A Rust crate providing an implementation of an RFC-compliant `EmailAddress` newtype."><title>email_address - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="email_address" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../email_address/index.html">email_address</a><span class="version">0.2.9</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></section></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">email_address</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/email_address/lib.rs.html#1-1955">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A Rust crate providing an implementation of an RFC-compliant <code>EmailAddress</code> newtype.</p>
 <p>Primarily for validation, the <code>EmailAddress</code> type is constructed with <code>FromStr::from_str</code> which will raise any
 parsing errors. Prior to constructions the functions <code>is_valid</code>, <code>is_valid_local_part</code>, and <code>is_valid_domain</code> may
 also be used to test for validity without constructing an instance. This supports all of the RFC ASCII and UTF-8
 character set rules, quoted and unquoted local parts but does not yet support all of the productions required for SMTP
 headers; folding whitespace, comments, etc.</p>
-<h2 id="example"><a href="#example">Example</a></h2>
+<div class="example-wrap"><pre class="language-text"><code>&quot;Simon Johnston &lt;johnstonsk@gmail.com&gt;&quot;
+                 ^------------------^ email()
+                            ^-------^ domain()
+                 ^--------^ local_part()
+ ^------------^ display_part()
+</code></pre></div><h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
 <p>The following shoes the basic <code>is_valid</code> and <code>from_str</code> functions.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>email_address::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::str::FromStr;
+
 <span class="macro">assert!</span>(EmailAddress::is_valid(<span class="string">"user.name+tag+sorting@example.com"</span>));
 
 <span class="macro">assert_eq!</span>(
@@ -48,7 +52,7 @@ headers; folding whitespace, comments, etc.</p>
     email.to_display(<span class="string">"Simon Johnston"</span>),
     <span class="string">"Simon Johnston &lt;johnstonsk@gmail.com&gt;"</span>.to_string()
 );</code></pre></div>
-<h2 id="specifications"><a href="#specifications">Specifications</a></h2>
+<h2 id="specifications"><a class="doc-anchor" href="#specifications">§</a>Specifications</h2>
 <ol>
 <li>RFC 1123: <a href="https://tools.ietf.org/html/rfc1123"><em>Requirements for Internet Hosts – Application and Support</em></a>,
 IETF,Oct 1989.</li>
@@ -143,7 +147,7 @@ dtext           =   %d33-90 /          ; Printable US-ASCII
 </code></pre></div>
 <p>RFC 3696, §3. <a href="https://tools.ietf.org/html/rfc3696#section-3">Restrictions on email addresses</a>
 describes in detail the quoting of characters in an address.</p>
-<h3 id="unicode"><a href="#unicode">Unicode</a></h3>
+<h3 id="unicode"><a class="doc-anchor" href="#unicode">§</a>Unicode</h3>
 <p>RFC 6531, §3.3. <a href="https://tools.ietf.org/html/rfc6531#section-3.3">Extended Mailbox Address Syntax</a>
 extends the rules above for non-ASCII character sets.</p>
 <div class="example-wrap"><pre class="language-ebnf"><code>sub-domain   =/  U-label
@@ -160,6 +164,14 @@ qtextSMTP  =/ UTF8-non-ascii
 esmtp-value  =/ UTF8-non-ascii
     ; extend the definition of esmtp-value in RFC 5321, Section 4.1.2
 </code></pre></div>
+<p>A “U-label” is an IDNA-valid string of Unicode characters, in Normalization Form C (NFC) and
+including at least one non-ASCII character, expressed in a standard Unicode Encoding Form (such as
+UTF-8). It is also subject to the constraints about permitted characters that are specified in
+Section 4.2 of the Protocol document and the rules in the Sections 2 and 3 of the Tables document,
+the Bidi constraints in that document if it contains any character from scripts that are written
+right to left, and the symmetry constraint described immediately below. Conversions between U-labels
+and A-labels are performed according to the “Punycode” specification RFC3492, adding or removing
+the ACE prefix as needed.</p>
 <p>RFC 6532: §3.1 <a href="https://tools.ietf.org/html/rfc6532#section-3.1">UTF-8 Syntax and Normalization</a>,
 and §3.2 <a href="https://tools.ietf.org/html/rfc6532#section-3.2">Syntax Extensions to RFC 5322</a> extend
 the syntax above with:</p>
@@ -200,7 +212,7 @@ and is expressed in the ABNF of [RFC2234].</p>
 <p>Comments in addresses are discussed in RFC 5322 Appendix A.5. <a href="https://tools.ietf.org/html/rfc5322#appendix-A.5">White Space, Comments, and Other
 Oddities</a>.</p>
 <p>An informal description can be found on <a href="https://en.wikipedia.org/wiki/Email_address">Wikipedia</a>.</p>
-</div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.EmailAddress.html" title="struct email_address::EmailAddress">EmailAddress</a></div><div class="desc docblock-short">Type representing a single email address. This is basically a wrapper around a String, the
+</div></details><h2 id="structs" class="section-header">Structs<a href="#structs" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="struct" href="struct.EmailAddress.html" title="struct email_address::EmailAddress">EmailAddress</a></div><div class="desc docblock-short">Type representing a single email address. This is basically a wrapper around a String, the
 email address is parsed for correctness with <code>FromStr::from_str</code>, which is the only want to
 create an instance. The various components of the email <em>are not</em> parsed out to be accessible
-independently.</div></li></ul><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.Error.html" title="enum email_address::Error">Error</a></div><div class="desc docblock-short">Error type used when parsing an address.</div></li></ul></section></div></main></body></html>
+independently.</div></li><li><div class="item-name"><a class="struct" href="struct.Options.html" title="struct email_address::Options">Options</a></div><div class="desc docblock-short">Struct of options that can be configured when parsing with <code>parse_with_options</code>.</div></li></ul><h2 id="enums" class="section-header">Enums<a href="#enums" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="enum" href="enum.Error.html" title="enum email_address::Error">Error</a></div><div class="desc docblock-short">Error type used when parsing an address.</div></li></ul></section></div></main></body></html>

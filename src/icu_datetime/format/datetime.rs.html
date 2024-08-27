@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/format/datetime.rs`."><title>datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.5.1/src/format/datetime.rs`."><title>datetime.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -661,31 +660,338 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-</span><span class="kw">use </span><span class="kw">crate</span>::error::DateTimeError <span class="kw">as </span>Error;
-<span class="kw">use </span><span class="kw">crate</span>::fields::{<span class="self">self</span>, Field, FieldLength, FieldSymbol, Second, Week, Year};
+</span><span class="kw">use </span><span class="kw">crate</span>::fields::{<span class="self">self</span>, Field, FieldLength, FieldSymbol, Second, Week, Year};
 <span class="kw">use </span><span class="kw">crate</span>::input::{
-    DateTimeInput, DateTimeInputWithWeekConfig, ExtractedDateTimeInput, LocalizedDateTimeInput,
+    DateInput, ExtractedDateTimeInput, ExtractedDateTimeInputWeekCalculatorError, IsoTimeInput,
 };
+<span class="kw">use </span><span class="kw">crate</span>::pattern::runtime::{PatternBorrowed, PatternMetadata};
 <span class="kw">use </span><span class="kw">crate</span>::pattern::{
     runtime::{Pattern, PatternPlurals},
     PatternItem,
 };
 <span class="kw">use </span><span class="kw">crate</span>::provider;
 <span class="kw">use </span><span class="kw">crate</span>::provider::calendar::patterns::PatternPluralsFromPatternsV1Marker;
-<span class="kw">use </span><span class="kw">crate</span>::provider::date_time::{DateSymbols, TimeSymbols};
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::provider::date_time::GetSymbolForDayPeriodError;
+<span class="kw">use </span><span class="kw">crate</span>::provider::date_time::{
+    DateSymbols, GetSymbolForEraError, GetSymbolForMonthError, GetSymbolForWeekdayError,
+    MonthPlaceholderValue, TimeSymbols,
+};
 
-<span class="kw">use </span>core::fmt;
+<span class="kw">use </span>core::fmt::{<span class="self">self</span>, Write};
+<span class="kw">use </span>core::iter::Peekable;
 <span class="kw">use </span>fixed_decimal::FixedDecimal;
+<span class="kw">use </span>icu_calendar::types::{
+    Era, {DayOfWeekInMonth, IsoWeekday, MonthCode},
+};
 <span class="kw">use </span>icu_calendar::week::WeekCalculator;
 <span class="kw">use </span>icu_calendar::AnyCalendarKind;
 <span class="kw">use </span>icu_decimal::FixedDecimalFormatter;
 <span class="kw">use </span>icu_plurals::PluralRules;
 <span class="kw">use </span>icu_provider::DataPayload;
-<span class="kw">use </span>writeable::Writeable;
+<span class="kw">use </span>writeable::{Part, Writeable};
 
 <span class="doccomment">/// [`FormattedDateTime`] is a intermediate structure which can be retrieved as
 /// an output from [`TypedDateTimeFormatter`](crate::TypedDateTimeFormatter).
@@ -713,30 +1019,87 @@
 ///
 /// let _ = format!("Date: {}", formatted_date);
 /// ```
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Copy, Clone)]
 </span><span class="kw">pub struct </span>FormattedDateTime&lt;<span class="lifetime">'l</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) datetime: ExtractedDateTimeInput,
     <span class="kw">pub</span>(<span class="kw">crate</span>) patterns: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>DataPayload&lt;PatternPluralsFromPatternsV1Marker&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>provider::calendar::DateSymbolsV1&lt;<span class="lifetime">'l</span>&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>provider::calendar::TimeSymbolsV1&lt;<span class="lifetime">'l</span>&gt;&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) datetime: ExtractedDateTimeInput,
     <span class="kw">pub</span>(<span class="kw">crate</span>) week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>WeekCalculator&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) ordinal_rules: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'l </span>PluralRules&gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) fixed_decimal_format: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>FixedDecimalFormatter,
 }
 
+<span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; FormattedDateTime&lt;<span class="lifetime">'l</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>select_pattern_lossy&lt;<span class="lifetime">'a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
+    ) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">'l </span>Pattern&lt;<span class="lifetime">'l</span>&gt;, <span class="prelude-ty">Result</span>&lt;(), DateTimeWriteError&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="prelude-val">Ok</span>(());
+        <span class="kw">let </span>pattern = <span class="kw">match </span><span class="self">self</span>.patterns.get().<span class="number">0 </span>{
+            PatternPlurals::SinglePattern(<span class="kw-2">ref </span>pattern) =&gt; pattern,
+            PatternPlurals::MultipleVariants(<span class="kw-2">ref </span>plural_pattern) =&gt; {
+                <span class="kw">let </span>week_number = <span class="kw">match </span>plural_pattern.pivot_field() {
+                    Week::WeekOfMonth =&gt; <span class="self">self
+                        </span>.week_data
+                        .ok_or(DateTimeWriteError::MissingWeekCalculator)
+                        .and_then(|w| {
+                            <span class="self">self</span>.datetime.week_of_month(w).map_err(|e| <span class="kw">match </span>e {
+                                ExtractedDateTimeInputWeekCalculatorError::Missing(s) =&gt; {
+                                    DateTimeWriteError::MissingInputField(s)
+                                }
+                            })
+                        })
+                        .map(|w| w.<span class="number">0</span>)
+                        .unwrap_or_else(|e| {
+                            r = r.and(<span class="prelude-val">Err</span>(e));
+                            <span class="number">0
+                        </span>}),
+                    Week::WeekOfYear =&gt; <span class="self">self
+                        </span>.week_data
+                        .ok_or(DateTimeWriteError::MissingWeekCalculator)
+                        .and_then(|w| {
+                            <span class="self">self</span>.datetime.week_of_year(w).map_err(|e| <span class="kw">match </span>e {
+                                ExtractedDateTimeInputWeekCalculatorError::Missing(s) =&gt; {
+                                    DateTimeWriteError::MissingInputField(s)
+                                }
+                            })
+                        })
+                        .map(|w| w.<span class="number">1 </span>.<span class="number">0</span>)
+                        .unwrap_or_else(|e| {
+                            r = r.and(<span class="prelude-val">Err</span>(e));
+                            <span class="number">0
+                        </span>}),
+                };
+                <span class="kw">let </span>category = <span class="self">self
+                    </span>.ordinal_rules
+                    .map(|p| p.category_for(week_number))
+                    .unwrap_or_else(|| {
+                        r = r.and(<span class="prelude-val">Err</span>(DateTimeWriteError::MissingOrdinalRules));
+                        icu_plurals::PluralCategory::One
+                    });
+                plural_pattern.variant(category)
+            }
+        };
+        (pattern, r)
+    }
+}
+
 <span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; Writeable <span class="kw">for </span>FormattedDateTime&lt;<span class="lifetime">'l</span>&gt; {
     <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
-        write_pattern_plurals(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.patterns.get().<span class="number">0</span>,
+        <span class="kw">let </span>(pattern, <span class="kw-2">mut </span>r) = <span class="self">self</span>.select_pattern_lossy();
+
+        r = r.and(try_write_pattern(
+            pattern.as_borrowed(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.datetime,
             <span class="self">self</span>.date_symbols,
             <span class="self">self</span>.time_symbols,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.datetime,
             <span class="self">self</span>.week_data,
-            <span class="self">self</span>.ordinal_rules,
-            <span class="self">self</span>.fixed_decimal_format,
-            sink,
-        )
-        .map_err(|<span class="kw">_</span>| core::fmt::Error)
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.fixed_decimal_format),
+            <span class="kw-2">&amp;mut </span>writeable::adapters::CoreWriteAsPartsWrite(sink),
+        )<span class="question-mark">?</span>);
+
+        <span class="macro">debug_assert!</span>(r.is_ok(), <span class="string">"{r:?}"</span>);
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="comment">// TODO(#489): Implement writeable_length_hint
@@ -749,393 +1112,614 @@
 }
 
 <span class="comment">// Apply length to input number and write to result using fixed_decimal_format.
-</span><span class="kw">fn </span>format_number&lt;W&gt;(
+</span><span class="kw">fn </span>try_write_number&lt;W&gt;(
     result: <span class="kw-2">&amp;mut </span>W,
-    fixed_decimal_format: <span class="kw-2">&amp;</span>FixedDecimalFormatter,
+    fixed_decimal_format: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FixedDecimalFormatter&gt;,
     <span class="kw-2">mut </span>num: FixedDecimal,
     length: FieldLength,
-) -&gt; fmt::Result
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;(), DateTimeWriteError&gt;, fmt::Error&gt;
 <span class="kw">where
-    </span>W: fmt::Write + <span class="question-mark">?</span>Sized,
+    </span>W: writeable::PartsWrite + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">match </span>length {
-        FieldLength::One | FieldLength::NumericOverride(<span class="kw">_</span>) =&gt; {}
-        FieldLength::TwoDigit =&gt; {
-            num.pad_start(<span class="number">2</span>);
-            num.set_max_position(<span class="number">2</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(fdf) = fixed_decimal_format {
+        <span class="kw">match </span>length {
+            FieldLength::One | FieldLength::NumericOverride(<span class="kw">_</span>) =&gt; {}
+            FieldLength::TwoDigit =&gt; {
+                num.pad_start(<span class="number">2</span>);
+                num.set_max_position(<span class="number">2</span>);
+            }
+            FieldLength::Abbreviated =&gt; {
+                num.pad_start(<span class="number">3</span>);
+            }
+            FieldLength::Wide =&gt; {
+                num.pad_start(<span class="number">4</span>);
+            }
+            FieldLength::Narrow =&gt; {
+                num.pad_start(<span class="number">5</span>);
+            }
+            FieldLength::Six =&gt; {
+                num.pad_start(<span class="number">6</span>);
+            }
+            FieldLength::Fixed(p) =&gt; {
+                num.pad_start(p <span class="kw">as </span>i16);
+                num.set_max_position(p <span class="kw">as </span>i16);
+            }
         }
-        FieldLength::Abbreviated =&gt; {
-            num.pad_start(<span class="number">3</span>);
-        }
-        FieldLength::Wide =&gt; {
-            num.pad_start(<span class="number">4</span>);
-        }
-        FieldLength::Narrow =&gt; {
-            num.pad_start(<span class="number">5</span>);
-        }
-        FieldLength::Six =&gt; {
-            num.pad_start(<span class="number">6</span>);
-        }
-        FieldLength::Fixed(p) =&gt; {
-            num.pad_start(p <span class="kw">as </span>i16);
-            num.set_max_position(p <span class="kw">as </span>i16);
-        }
-    }
 
-    <span class="kw">let </span>formatted = fixed_decimal_format.format(<span class="kw-2">&amp;</span>num);
-    formatted.write_to(result)
-}
-
-<span class="kw">fn </span>write_pattern&lt;T, W&gt;(
-    pattern: <span class="kw-2">&amp;</span><span class="kw">crate</span>::pattern::runtime::Pattern,
-    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>provider::calendar::DateSymbolsV1&gt;,
-    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>provider::calendar::TimeSymbolsV1&gt;,
-    loc_datetime: <span class="kw-2">&amp;</span><span class="kw">impl </span>LocalizedDateTimeInput&lt;T&gt;,
-    fixed_decimal_format: <span class="kw-2">&amp;</span>FixedDecimalFormatter,
-    w: <span class="kw-2">&amp;mut </span>W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
-<span class="kw">where
-    </span>T: DateTimeInput,
-    W: fmt::Write + <span class="question-mark">?</span>Sized,
-{
-    <span class="kw">let </span><span class="kw-2">mut </span>iter = pattern.items.iter().peekable();
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>iter.next() {
-            <span class="prelude-val">Some</span>(PatternItem::Field(field)) =&gt; write_field(
-                pattern,
-                field,
-                iter.peek(),
-                date_symbols,
-                time_symbols,
-                loc_datetime,
-                fixed_decimal_format,
-                w,
-            )<span class="question-mark">?</span>,
-            <span class="prelude-val">Some</span>(PatternItem::Literal(ch)) =&gt; w.write_char(ch)<span class="question-mark">?</span>,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
-        }
+        fdf.format(<span class="kw-2">&amp;</span>num).write_to(result)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(()))
+    } <span class="kw">else </span>{
+        result.with_part(writeable::Part::ERROR, |r| num.write_to(r))<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(DateTimeWriteError::MissingFixedDecimalFormatter))
     }
-    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="attr">#[allow(clippy::too_many_arguments)]
-</span><span class="kw">pub fn </span>write_pattern_plurals&lt;T, W&gt;(
-    patterns: <span class="kw-2">&amp;</span>PatternPlurals,
-    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>provider::calendar::DateSymbolsV1&gt;,
-    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>provider::calendar::TimeSymbolsV1&gt;,
-    datetime: <span class="kw-2">&amp;</span>T,
-    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>WeekCalculator&gt;,
-    ordinal_rules: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PluralRules&gt;,
-    fixed_decimal_format: <span class="kw-2">&amp;</span>FixedDecimalFormatter,
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_write_pattern&lt;<span class="lifetime">'data</span>, W, DS, TS&gt;(
+    pattern: PatternBorrowed&lt;<span class="lifetime">'data</span>&gt;,
+    datetime: <span class="kw-2">&amp;</span>ExtractedDateTimeInput,
+    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DS&gt;,
+    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TS&gt;,
+    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>WeekCalculator&gt;,
+    fixed_decimal_format: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FixedDecimalFormatter&gt;,
     w: <span class="kw-2">&amp;mut </span>W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;(), DateTimeWriteError&gt;, fmt::Error&gt;
 <span class="kw">where
-    </span>T: DateTimeInput,
-    W: fmt::Write + <span class="question-mark">?</span>Sized,
+    </span>W: writeable::PartsWrite + <span class="question-mark">?</span>Sized,
+    DS: DateSymbols&lt;<span class="lifetime">'data</span>&gt;,
+    TS: TimeSymbols,
 {
-    <span class="kw">let </span>loc_datetime = DateTimeInputWithWeekConfig::new(datetime, week_data);
-    <span class="kw">let </span>pattern = patterns.select(<span class="kw-2">&amp;</span>loc_datetime, ordinal_rules)<span class="question-mark">?</span>;
-    write_pattern(
-        pattern,
+    try_write_pattern_items(
+        pattern.metadata,
+        pattern.items.iter(),
+        datetime,
         date_symbols,
         time_symbols,
-        <span class="kw-2">&amp;</span>loc_datetime,
+        week_data,
         fixed_decimal_format,
         w,
     )
 }
 
-<span class="kw">const </span>CHINESE_CYCLIC_YEARS: [<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = [
-    <span class="string">"甲子"</span>, <span class="string">"乙丑"</span>, <span class="string">"丙寅"</span>, <span class="string">"丁卯"</span>, <span class="string">"戊辰"</span>, <span class="string">"己巳"</span>, <span class="string">"庚午"</span>, <span class="string">"辛未"</span>, <span class="string">"壬申"</span>, <span class="string">"癸酉"</span>, <span class="string">"甲戌"</span>, <span class="string">"乙亥"</span>,
-    <span class="string">"丙子"</span>, <span class="string">"丁丑"</span>, <span class="string">"戊寅"</span>, <span class="string">"己卯"</span>, <span class="string">"庚辰"</span>, <span class="string">"辛巳"</span>, <span class="string">"壬午"</span>, <span class="string">"癸未"</span>, <span class="string">"甲申"</span>, <span class="string">"乙酉"</span>, <span class="string">"丙戌"</span>, <span class="string">"丁亥"</span>,
-    <span class="string">"戊子"</span>, <span class="string">"己丑"</span>, <span class="string">"庚寅"</span>, <span class="string">"辛卯"</span>, <span class="string">"壬辰"</span>, <span class="string">"癸巳"</span>, <span class="string">"甲午"</span>, <span class="string">"乙未"</span>, <span class="string">"丙申"</span>, <span class="string">"丁酉"</span>, <span class="string">"戊戌"</span>, <span class="string">"己亥"</span>,
-    <span class="string">"庚子"</span>, <span class="string">"辛丑"</span>, <span class="string">"壬寅"</span>, <span class="string">"癸卯"</span>, <span class="string">"甲辰"</span>, <span class="string">"乙巳"</span>, <span class="string">"丙午"</span>, <span class="string">"丁未"</span>, <span class="string">"戊申"</span>, <span class="string">"己酉"</span>, <span class="string">"庚戌"</span>, <span class="string">"辛亥"</span>,
-    <span class="string">"壬子"</span>, <span class="string">"癸丑"</span>, <span class="string">"甲寅"</span>, <span class="string">"乙卯"</span>, <span class="string">"丙辰"</span>, <span class="string">"丁巳"</span>, <span class="string">"戊午"</span>, <span class="string">"己未"</span>, <span class="string">"庚申"</span>, <span class="string">"辛酉"</span>, <span class="string">"壬戌"</span>, <span class="string">"癸亥"</span>,
-];
-<span class="kw">const </span>DANGI_CYCLIC_YEARS: [<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = [
-    <span class="string">"갑자"</span>, <span class="string">"을축"</span>, <span class="string">"병인"</span>, <span class="string">"정묘"</span>, <span class="string">"무진"</span>, <span class="string">"기사"</span>, <span class="string">"경오"</span>, <span class="string">"신미"</span>, <span class="string">"임신"</span>, <span class="string">"계유"</span>, <span class="string">"갑술"</span>, <span class="string">"을해"</span>,
-    <span class="string">"병자"</span>, <span class="string">"정축"</span>, <span class="string">"무인"</span>, <span class="string">"기묘"</span>, <span class="string">"경진"</span>, <span class="string">"신사"</span>, <span class="string">"임오"</span>, <span class="string">"계미"</span>, <span class="string">"갑신"</span>, <span class="string">"을유"</span>, <span class="string">"병술"</span>, <span class="string">"정해"</span>,
-    <span class="string">"무자"</span>, <span class="string">"기축"</span>, <span class="string">"경인"</span>, <span class="string">"신묘"</span>, <span class="string">"임진"</span>, <span class="string">"계사"</span>, <span class="string">"갑오"</span>, <span class="string">"을미"</span>, <span class="string">"병신"</span>, <span class="string">"정유"</span>, <span class="string">"무술"</span>, <span class="string">"기해"</span>,
-    <span class="string">"경자"</span>, <span class="string">"신축"</span>, <span class="string">"임인"</span>, <span class="string">"계묘"</span>, <span class="string">"갑진"</span>, <span class="string">"을사"</span>, <span class="string">"병오"</span>, <span class="string">"정미"</span>, <span class="string">"무신"</span>, <span class="string">"기유"</span>, <span class="string">"경술"</span>, <span class="string">"신해"</span>,
-    <span class="string">"임자"</span>, <span class="string">"계축"</span>, <span class="string">"갑인"</span>, <span class="string">"을묘"</span>, <span class="string">"병진"</span>, <span class="string">"정사"</span>, <span class="string">"무오"</span>, <span class="string">"기미"</span>, <span class="string">"경신"</span>, <span class="string">"신유"</span>, <span class="string">"임술"</span>, <span class="string">"계해"</span>,
-];
+<span class="attr">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_write_pattern_items&lt;<span class="lifetime">'data</span>, W, DS, TS&gt;(
+    pattern_metadata: PatternMetadata,
+    pattern_items: <span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt;,
+    datetime: <span class="kw-2">&amp;</span>ExtractedDateTimeInput,
+    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DS&gt;,
+    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TS&gt;,
+    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>WeekCalculator&gt;,
+    fixed_decimal_format: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FixedDecimalFormatter&gt;,
+    w: <span class="kw-2">&amp;mut </span>W,
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;(), DateTimeWriteError&gt;, fmt::Error&gt;
+<span class="kw">where
+    </span>W: writeable::PartsWrite + <span class="question-mark">?</span>Sized,
+    DS: DateSymbols&lt;<span class="lifetime">'data</span>&gt;,
+    TS: TimeSymbols,
+{
+    <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="prelude-val">Ok</span>(());
+    <span class="kw">let </span><span class="kw-2">mut </span>iter = pattern_items.peekable();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(item) = iter.next() {
+        <span class="kw">match </span>item {
+            PatternItem::Literal(ch) =&gt; w.write_char(ch)<span class="question-mark">?</span>,
+            PatternItem::Field(field) =&gt; {
+                r = r.and(try_write_field(
+                    field,
+                    <span class="kw-2">&amp;mut </span>iter,
+                    pattern_metadata,
+                    datetime,
+                    date_symbols,
+                    time_symbols,
+                    week_data,
+                    fixed_decimal_format,
+                    w,
+                )<span class="question-mark">?</span>)
+            }
+        }
+    }
+    <span class="prelude-val">Ok</span>(r)
+}
 
-<span class="kw">const </span>CHINESE_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"閏"</span>;
-<span class="kw">const </span>DANGI_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"윤"</span>;
-<span class="kw">const </span>PLACEHOLDER_LEAP_PREFIX: <span class="kw-2">&amp;</span>str = <span class="string">"(leap)"</span>;
+<span class="attr">#[non_exhaustive]
+#[derive(Debug, PartialEq, Copy, Clone, displaydoc::Display)]
+</span><span class="doccomment">/// Error for `TryWriteable` implementations
+</span><span class="kw">pub enum </span>DateTimeWriteError {
+    <span class="comment">// Data not loaded
+    </span><span class="doccomment">/// Missing FixedDecimalFormatter
+    </span><span class="attr">#[displaydoc(<span class="string">"FixedDecimalFormatter not loaded"</span>)]
+    </span>MissingFixedDecimalFormatter,
+    <span class="doccomment">/// Missing DateSymbols
+    </span><span class="attr">#[displaydoc(<span class="string">"DateSymbols not loaded"</span>)]
+    </span>MissingDateSymbols,
+    <span class="doccomment">/// Missing TimeSymbols
+    </span><span class="attr">#[displaydoc(<span class="string">"TimeSymbols not loaded"</span>)]
+    </span>MissingTimeSymbols,
+    <span class="doccomment">/// Missing OrdinalRules
+    </span><span class="attr">#[displaydoc(<span class="string">"OrdinalRules not loaded"</span>)]
+    </span>MissingOrdinalRules,
+    <span class="doccomment">/// Missing WeekCalculator
+    </span><span class="attr">#[displaydoc(<span class="string">"WeekCalculator not loaded"</span>)]
+    </span>MissingWeekCalculator,
+    <span class="doccomment">/// TODO
+    </span><span class="attr">#[displaydoc(<span class="string">"Names for {0:?} not loaded"</span>)]
+    #[cfg(feature = <span class="string">"experimental"</span>)]
+    </span>MissingNames(Field),
+
+    <span class="comment">// Something not found in data
+    // TODO: Are these actionable? Can clients even invent their own months and days?
+    </span><span class="doccomment">/// Missing month symbol
+    </span><span class="attr">#[displaydoc(<span class="string">"Cannot find symbol for month {0:?}"</span>)]
+    </span>MissingMonthSymbol(MonthCode),
+    <span class="doccomment">/// Missing era symbol
+    </span><span class="attr">#[displaydoc(<span class="string">"Cannot find symbol for era {0:?}"</span>)]
+    </span>MissingEraSymbol(Era),
+    <span class="doccomment">/// Missing weekday symbol
+    </span><span class="attr">#[displaydoc(<span class="string">"Cannot find symbol for weekday {0:?}"</span>)]
+    </span>MissingWeekdaySymbol(IsoWeekday),
+
+    <span class="comment">// Invalid input
+    </span><span class="doccomment">/// Incomplete input
+    </span><span class="attr">#[displaydoc(<span class="string">"Incomplete input, missing value for {0:?}"</span>)]
+    </span>MissingInputField(<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
+    <span class="doccomment">/// Cyclic year overflow
+    </span><span class="attr">#[displaydoc(<span class="string">"Cyclic year overflow, found {value}, maximum {max}"</span>)]
+    </span>CyclicYearOverflow {
+        <span class="doccomment">/// Value
+        </span>value: usize,
+        <span class="doccomment">/// Max
+        </span>max: usize,
+    },
+    <span class="doccomment">/// Unsupported field
+    </span><span class="attr">#[displaydoc(<span class="string">"Unsupported field {0:?}"</span>)]
+    </span>UnsupportedField(Field),
+}
+
 <span class="comment">// This function assumes that the correct decision has been
 // made regarding availability of symbols in the caller.
 //
 // When modifying the list of fields using symbols,
 // update the matching query in `analyze_pattern` function.
 </span><span class="attr">#[allow(clippy::too_many_arguments)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>write_field&lt;T, W&gt;(
-    pattern: <span class="kw-2">&amp;</span><span class="kw">crate</span>::pattern::runtime::Pattern,
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_write_field&lt;<span class="lifetime">'data</span>, W, DS, TS&gt;(
     field: fields::Field,
-    next_item: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PatternItem&gt;,
-    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::calendar::DateSymbolsV1&gt;,
-    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="kw">crate</span>::provider::calendar::TimeSymbolsV1&gt;,
-    datetime: <span class="kw-2">&amp;</span><span class="kw">impl </span>LocalizedDateTimeInput&lt;T&gt;,
-    fixed_decimal_format: <span class="kw-2">&amp;</span>FixedDecimalFormatter,
+    iter: <span class="kw-2">&amp;mut </span>Peekable&lt;<span class="kw">impl </span>Iterator&lt;Item = PatternItem&gt;&gt;,
+    pattern_metadata: PatternMetadata,
+    datetime: <span class="kw-2">&amp;</span>ExtractedDateTimeInput,
+    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DS&gt;,
+    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TS&gt;,
+    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>WeekCalculator&gt;,
+    fdf: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FixedDecimalFormatter&gt;,
     w: <span class="kw-2">&amp;mut </span>W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;(), DateTimeWriteError&gt;, fmt::Error&gt;
 <span class="kw">where
-    </span>T: DateTimeInput,
-    W: fmt::Write + <span class="question-mark">?</span>Sized,
+    </span>W: writeable::PartsWrite + <span class="question-mark">?</span>Sized,
+    DS: DateSymbols&lt;<span class="lifetime">'data</span>&gt;,
+    TS: TimeSymbols,
 {
-    <span class="kw">match </span>field.symbol {
-        FieldSymbol::Era =&gt; {
-            <span class="kw">let </span>era = datetime
-                .datetime()
-                .year()
-                .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
-                </span>.era;
-            <span class="kw">let </span>symbol = date_symbols
-                .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
-                </span>.get_symbol_for_era(field.length, <span class="kw-2">&amp;</span>era);
-            w.write_str(symbol)<span class="question-mark">?
-        </span>}
-        FieldSymbol::Year(year) =&gt; <span class="kw">match </span>year {
-            Year::Calendar =&gt; format_number(
-                w,
-                fixed_decimal_format,
-                FixedDecimal::from(
-                    datetime
-                        .datetime()
-                        .year()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
-                        </span>.number,
-                ),
-                field.length,
-            )<span class="question-mark">?</span>,
-            Year::WeekOf =&gt; format_number(
-                w,
-                fixed_decimal_format,
-                FixedDecimal::from(datetime.week_of_year()<span class="question-mark">?</span>.<span class="number">0</span>.number),
-                field.length,
-            )<span class="question-mark">?</span>,
-            Year::Cyclic =&gt; {
-                <span class="kw">let </span>datetime = datetime.datetime();
-                <span class="kw">let </span>cyclic = datetime
-                    .year()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
-                    </span>.cyclic
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"cyclic"</span>)))<span class="question-mark">?</span>;
-                <span class="comment">// TODO(#3761): This is a hack, we should use actual data for cyclic years
-                </span><span class="kw">let </span>cyclics = <span class="kw">match </span>datetime.any_calendar_kind() {
-                    <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; <span class="kw-2">&amp;</span>DANGI_CYCLIC_YEARS,
-                    <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>CHINESE_CYCLIC_YEARS, <span class="comment">/* for now assume all other calendars use the stem-branch model */
-                </span>};
-                <span class="kw">let </span>cyclic_str = cyclics.get(usize::from(cyclic.get()) - <span class="number">1</span>).ok_or(
-                    icu_calendar::CalendarError::Overflow {
-                        field: <span class="string">"cyclic"</span>,
-                        max: <span class="number">60</span>,
-                    },
-                )<span class="question-mark">?</span>;
-                w.write_str(cyclic_str)<span class="question-mark">?</span>;
+    <span class="comment">// Writes an error string for the given symbol
+    </span><span class="kw">fn </span>write_value_missing(
+        w: <span class="kw-2">&amp;mut </span>(<span class="kw">impl </span>writeable::PartsWrite + <span class="question-mark">?</span>Sized),
+        field: fields::Field,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), fmt::Error&gt; {
+        w.with_part(Part::ERROR, |w| {
+            <span class="string">"{"</span>.write_to(w)<span class="question-mark">?</span>;
+            char::from(field.symbol).write_to(w)<span class="question-mark">?</span>;
+            <span class="string">"}"</span>.write_to(w)
+        })
+    }
+
+    <span class="prelude-val">Ok</span>(<span class="kw">match </span>(field.symbol, field.length) {
+        (FieldSymbol::Era, l) =&gt; <span class="kw">match </span>datetime.year() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"year"</span>))
             }
-            Year::RelatedIso =&gt; {
-                format_number(
-                    w,
-                    fixed_decimal_format,
-                    FixedDecimal::from(
-                        datetime
-                            .datetime()
-                            .year()
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"year"</span>)))<span class="question-mark">?
-                            </span>.related_iso
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"related_iso"</span>)))<span class="question-mark">?</span>,
-                    ),
-                    field.length,
-                )<span class="question-mark">?</span>;
+            <span class="prelude-val">Some</span>(year) =&gt; <span class="kw">match </span>date_symbols
+                .ok_or(DateTimeWriteError::MissingDateSymbols)
+                .and_then(|ds| {
+                    ds.get_symbol_for_era(l, <span class="kw-2">&amp;</span>year.era).map_err(|e| <span class="kw">match </span>e {
+                        GetSymbolForEraError::Missing =&gt; {
+                            DateTimeWriteError::MissingEraSymbol(year.era)
+                        }
+                        <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+                        </span>GetSymbolForEraError::MissingNames(f) =&gt; {
+                            DateTimeWriteError::MissingNames(f)
+                        }
+                    })
+                }) {
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    w.with_part(Part::ERROR, |w| w.write_str(<span class="kw-2">&amp;</span>year.era.<span class="number">0</span>))<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(e)
+                }
+                <span class="prelude-val">Ok</span>(era) =&gt; <span class="prelude-val">Ok</span>(w.write_str(era)<span class="question-mark">?</span>),
+            },
+        },
+        (FieldSymbol::Year(Year::Calendar), l) =&gt; <span class="kw">match </span>datetime.year() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"year"</span>))
+            }
+            <span class="prelude-val">Some</span>(year) =&gt; try_write_number(w, fdf, year.number.into(), l)<span class="question-mark">?</span>,
+        },
+        (FieldSymbol::Year(Year::WeekOf), l) =&gt; <span class="kw">match </span>week_data
+            .ok_or(DateTimeWriteError::MissingWeekCalculator)
+            .and_then(|w| {
+                datetime.week_of_year(w).map_err(|e| <span class="kw">match </span>e {
+                    ExtractedDateTimeInputWeekCalculatorError::Missing(s) =&gt; {
+                        DateTimeWriteError::MissingInputField(s)
+                    }
+                })
+            }) {
+            <span class="prelude-val">Err</span>(e) =&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(e)
+            }
+            <span class="prelude-val">Ok</span>((year, <span class="kw">_</span>)) =&gt; try_write_number(w, fdf, year.number.into(), l)<span class="question-mark">?</span>,
+        },
+        (FieldSymbol::Year(Year::Cyclic), l) =&gt; <span class="kw">match </span>datetime.year() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"year"</span>))
+            }
+            <span class="prelude-val">Some</span>(year) =&gt; {
+                <span class="kw">let </span>r = year
+                    .cyclic
+                    .ok_or(DateTimeWriteError::MissingInputField(<span class="string">"cyclic"</span>))
+                    .and_then(|cyclic| {
+                        <span class="comment">// TODO(#3761): This is a hack, we should use actual data for cyclic years
+                        </span><span class="kw">let </span>cyclics: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str; <span class="number">60</span>] = <span class="kw">match </span>datetime.any_calendar_kind() {
+                            <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; <span class="kw-2">&amp;</span>[
+                                <span class="string">"갑자"</span>, <span class="string">"을축"</span>, <span class="string">"병인"</span>, <span class="string">"정묘"</span>, <span class="string">"무진"</span>, <span class="string">"기사"</span>, <span class="string">"경오"</span>, <span class="string">"신미"</span>,
+                                <span class="string">"임신"</span>, <span class="string">"계유"</span>, <span class="string">"갑술"</span>, <span class="string">"을해"</span>, <span class="string">"병자"</span>, <span class="string">"정축"</span>, <span class="string">"무인"</span>, <span class="string">"기묘"</span>,
+                                <span class="string">"경진"</span>, <span class="string">"신사"</span>, <span class="string">"임오"</span>, <span class="string">"계미"</span>, <span class="string">"갑신"</span>, <span class="string">"을유"</span>, <span class="string">"병술"</span>, <span class="string">"정해"</span>,
+                                <span class="string">"무자"</span>, <span class="string">"기축"</span>, <span class="string">"경인"</span>, <span class="string">"신묘"</span>, <span class="string">"임진"</span>, <span class="string">"계사"</span>, <span class="string">"갑오"</span>, <span class="string">"을미"</span>,
+                                <span class="string">"병신"</span>, <span class="string">"정유"</span>, <span class="string">"무술"</span>, <span class="string">"기해"</span>, <span class="string">"경자"</span>, <span class="string">"신축"</span>, <span class="string">"임인"</span>, <span class="string">"계묘"</span>,
+                                <span class="string">"갑진"</span>, <span class="string">"을사"</span>, <span class="string">"병오"</span>, <span class="string">"정미"</span>, <span class="string">"무신"</span>, <span class="string">"기유"</span>, <span class="string">"경술"</span>, <span class="string">"신해"</span>,
+                                <span class="string">"임자"</span>, <span class="string">"계축"</span>, <span class="string">"갑인"</span>, <span class="string">"을묘"</span>, <span class="string">"병진"</span>, <span class="string">"정사"</span>, <span class="string">"무오"</span>, <span class="string">"기미"</span>,
+                                <span class="string">"경신"</span>, <span class="string">"신유"</span>, <span class="string">"임술"</span>, <span class="string">"계해"</span>,
+                            ],
+                            <span class="comment">// for now assume all other calendars use the stem-branch model
+                            </span><span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>[
+                                <span class="string">"甲子"</span>, <span class="string">"乙丑"</span>, <span class="string">"丙寅"</span>, <span class="string">"丁卯"</span>, <span class="string">"戊辰"</span>, <span class="string">"己巳"</span>, <span class="string">"庚午"</span>, <span class="string">"辛未"</span>,
+                                <span class="string">"壬申"</span>, <span class="string">"癸酉"</span>, <span class="string">"甲戌"</span>, <span class="string">"乙亥"</span>, <span class="string">"丙子"</span>, <span class="string">"丁丑"</span>, <span class="string">"戊寅"</span>, <span class="string">"己卯"</span>,
+                                <span class="string">"庚辰"</span>, <span class="string">"辛巳"</span>, <span class="string">"壬午"</span>, <span class="string">"癸未"</span>, <span class="string">"甲申"</span>, <span class="string">"乙酉"</span>, <span class="string">"丙戌"</span>, <span class="string">"丁亥"</span>,
+                                <span class="string">"戊子"</span>, <span class="string">"己丑"</span>, <span class="string">"庚寅"</span>, <span class="string">"辛卯"</span>, <span class="string">"壬辰"</span>, <span class="string">"癸巳"</span>, <span class="string">"甲午"</span>, <span class="string">"乙未"</span>,
+                                <span class="string">"丙申"</span>, <span class="string">"丁酉"</span>, <span class="string">"戊戌"</span>, <span class="string">"己亥"</span>, <span class="string">"庚子"</span>, <span class="string">"辛丑"</span>, <span class="string">"壬寅"</span>, <span class="string">"癸卯"</span>,
+                                <span class="string">"甲辰"</span>, <span class="string">"乙巳"</span>, <span class="string">"丙午"</span>, <span class="string">"丁未"</span>, <span class="string">"戊申"</span>, <span class="string">"己酉"</span>, <span class="string">"庚戌"</span>, <span class="string">"辛亥"</span>,
+                                <span class="string">"壬子"</span>, <span class="string">"癸丑"</span>, <span class="string">"甲寅"</span>, <span class="string">"乙卯"</span>, <span class="string">"丙辰"</span>, <span class="string">"丁巳"</span>, <span class="string">"戊午"</span>, <span class="string">"己未"</span>,
+                                <span class="string">"庚申"</span>, <span class="string">"辛酉"</span>, <span class="string">"壬戌"</span>, <span class="string">"癸亥"</span>,
+                            ],
+                        };
+                        <span class="kw">let </span>value: usize = cyclic.get() <span class="kw">as </span>usize;
+                        cyclics
+                            .get(value - <span class="number">1</span>)
+                            .ok_or(DateTimeWriteError::CyclicYearOverflow {
+                                value,
+                                max: cyclics.len() + <span class="number">1</span>,
+                            })
+                    });
+                <span class="kw">match </span>r {
+                    <span class="prelude-val">Err</span>(e) =&gt; {
+                        w.with_part(Part::ERROR, |w| {
+                            try_write_number(w, fdf, year.number.into(), l).map(|<span class="kw">_</span>| ())
+                        })<span class="question-mark">?</span>;
+                        <span class="prelude-val">Err</span>(e)
+                    }
+                    <span class="prelude-val">Ok</span>(cyclic_str) =&gt; <span class="prelude-val">Ok</span>(w.write_str(cyclic_str)<span class="question-mark">?</span>),
+                }
             }
         },
-        FieldSymbol::Month(month) =&gt; <span class="kw">match </span>field.length {
-            FieldLength::One | FieldLength::TwoDigit =&gt; format_number(
-                w,
-                fixed_decimal_format,
-                FixedDecimal::from(
-                    datetime
-                        .datetime()
-                        .month()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"month"</span>)))<span class="question-mark">?
-                        </span>.ordinal,
-                ),
-                field.length,
-            )<span class="question-mark">?</span>,
-            length =&gt; {
-                <span class="kw">let </span>datetime = datetime.datetime();
-                <span class="kw">let </span>code = datetime
-                    .month()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"month"</span>)))<span class="question-mark">?
-                    </span>.code;
-
-                <span class="kw">let </span>(symbol, is_leap) = date_symbols
-                    .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
-                    </span>.get_symbol_for_month(month, length, code)<span class="question-mark">?</span>;
-
-                <span class="comment">// FIXME (#3766) this should be using actual data for leap months
-                </span><span class="kw">if </span>is_leap {
-                    <span class="kw">let </span>leap_str = <span class="kw">match </span>datetime.any_calendar_kind() {
-                        <span class="prelude-val">Some</span>(AnyCalendarKind::Chinese) =&gt; CHINESE_LEAP_PREFIX,
-                        <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; DANGI_LEAP_PREFIX,
-                        <span class="kw">_ </span>=&gt; PLACEHOLDER_LEAP_PREFIX,
+        (FieldSymbol::Year(Year::RelatedIso), l) =&gt; {
+            <span class="kw">match </span>datetime
+                .year()
+                .ok_or(DateTimeWriteError::MissingInputField(<span class="string">"year"</span>))
+                .and_then(|year| {
+                    year.related_iso
+                        .ok_or(DateTimeWriteError::MissingInputField(<span class="string">"related_iso"</span>))
+                }) {
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    write_value_missing(w, field)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(e)
+                }
+                <span class="prelude-val">Ok</span>(iso) =&gt; try_write_number(w, fdf, iso.into(), l)<span class="question-mark">?</span>,
+            }
+        }
+        (FieldSymbol::Month(<span class="kw">_</span>), l @ (FieldLength::One | FieldLength::TwoDigit)) =&gt; {
+            <span class="kw">match </span>datetime.month() {
+                <span class="prelude-val">None </span>=&gt; {
+                    write_value_missing(w, field)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"month"</span>))
+                }
+                <span class="prelude-val">Some</span>(month) =&gt; try_write_number(w, fdf, month.ordinal.into(), l)<span class="question-mark">?</span>,
+            }
+        }
+        (FieldSymbol::Month(month), l) =&gt; <span class="kw">match </span>datetime.month() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"month"</span>))
+            }
+            <span class="prelude-val">Some</span>(formattable_month) =&gt; <span class="kw">match </span>date_symbols
+                .ok_or(DateTimeWriteError::MissingDateSymbols)
+                .and_then(|ds| {
+                    ds.get_symbol_for_month(month, l, formattable_month.code)
+                        .map_err(|e| <span class="kw">match </span>e {
+                            GetSymbolForMonthError::Missing =&gt; {
+                                DateTimeWriteError::MissingMonthSymbol(formattable_month.code)
+                            }
+                            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+                            </span>GetSymbolForMonthError::MissingNames(f) =&gt; {
+                                DateTimeWriteError::MissingNames(f)
+                            }
+                        })
+                }) {
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    w.with_part(Part::ERROR, |w| w.write_str(<span class="kw-2">&amp;</span>formattable_month.code.<span class="number">0</span>))<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(e)
+                }
+                <span class="prelude-val">Ok</span>(MonthPlaceholderValue::PlainString(symbol)) =&gt; {
+                    w.write_str(symbol)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Ok</span>(())
+                }
+                <span class="prelude-val">Ok</span>(MonthPlaceholderValue::StringNeedingLeapPrefix(symbol)) =&gt; {
+                    <span class="comment">// FIXME (#3766) this should be using actual data for leap months
+                    </span><span class="kw">let </span>leap_str = <span class="kw">match </span>datetime.any_calendar_kind() {
+                        <span class="prelude-val">Some</span>(AnyCalendarKind::Chinese) =&gt; <span class="string">"閏"</span>,
+                        <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi) =&gt; <span class="string">"윤"</span>,
+                        <span class="kw">_ </span>=&gt; <span class="string">"(leap)"</span>,
                     };
                     w.write_str(leap_str)<span class="question-mark">?</span>;
+                    w.write_str(symbol)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Ok</span>(())
                 }
-                w.write_str(symbol)<span class="question-mark">?</span>;
-            }
-        },
-        FieldSymbol::Week(week) =&gt; <span class="kw">match </span>week {
-            Week::WeekOfYear =&gt; format_number(
-                w,
-                fixed_decimal_format,
-                FixedDecimal::from(datetime.week_of_year()<span class="question-mark">?</span>.<span class="number">1 </span>.<span class="number">0</span>),
-                field.length,
-            )<span class="question-mark">?</span>,
-            Week::WeekOfMonth =&gt; format_number(
-                w,
-                fixed_decimal_format,
-                FixedDecimal::from(datetime.week_of_month()<span class="question-mark">?</span>.<span class="number">0</span>),
-                field.length,
-            )<span class="question-mark">?</span>,
-        },
-        FieldSymbol::Weekday(weekday) =&gt; {
-            <span class="kw">let </span>dow = datetime
-                .datetime()
-                .iso_weekday()
-                .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"iso_weekday"</span>)))<span class="question-mark">?</span>;
-            <span class="kw">let </span>symbol = date_symbols
-                .ok_or(Error::MissingDateSymbols)<span class="question-mark">?
-                </span>.get_symbol_for_weekday(weekday, field.length, dow)<span class="question-mark">?</span>;
-            w.write_str(symbol)<span class="question-mark">?
-        </span>}
-        symbol @ FieldSymbol::Day(day) =&gt; format_number(
-            w,
-            fixed_decimal_format,
-            FixedDecimal::from(<span class="kw">match </span>day {
-                fields::Day::DayOfMonth =&gt; {
-                    datetime
-                        .datetime()
-                        .day_of_month()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"day_of_month"</span>)))<span class="question-mark">?
-                        </span>.<span class="number">0
+                <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+                </span><span class="prelude-val">Ok</span>(MonthPlaceholderValue::Numeric) =&gt; {
+                    try_write_number(w, fdf, formattable_month.ordinal.into(), l)<span class="question-mark">?
                 </span>}
-                fields::Day::DayOfWeekInMonth =&gt; datetime.day_of_week_in_month()<span class="question-mark">?</span>.<span class="number">0</span>,
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedField(symbol)),
-            }),
-            field.length,
-        )<span class="question-mark">?</span>,
-        FieldSymbol::Hour(hour) =&gt; {
-            <span class="kw">let </span>h = usize::from(
-                datetime
-                    .datetime()
-                    .hour()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"hour"</span>)))<span class="question-mark">?</span>,
-            ) <span class="kw">as </span>isize;
-            <span class="kw">let </span>value = <span class="kw">match </span>hour {
-                fields::Hour::H11 =&gt; h % <span class="number">12</span>,
-                fields::Hour::H12 =&gt; {
-                    <span class="kw">let </span>v = h % <span class="number">12</span>;
-                    <span class="kw">if </span>v == <span class="number">0 </span>{
-                        <span class="number">12
-                    </span>} <span class="kw">else </span>{
-                        v
-                    }
+                <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+                </span><span class="prelude-val">Ok</span>(MonthPlaceholderValue::NumericPattern(substitution_pattern)) =&gt; {
+                    w.write_str(substitution_pattern.get_prefix())<span class="question-mark">?</span>;
+                    <span class="kw">let </span>r = try_write_number(w, fdf, formattable_month.ordinal.into(), l)<span class="question-mark">?</span>;
+                    w.write_str(substitution_pattern.get_suffix())<span class="question-mark">?</span>;
+                    r
                 }
-                fields::Hour::H23 =&gt; h,
-                fields::Hour::H24 =&gt; {
-                    <span class="kw">if </span>h == <span class="number">0 </span>{
-                        <span class="number">24
-                    </span>} <span class="kw">else </span>{
-                        h
-                    }
-                }
-            };
-            format_number(
-                w,
-                fixed_decimal_format,
-                FixedDecimal::from(value),
-                field.length,
-            )<span class="question-mark">?
-        </span>}
-        FieldSymbol::Minute =&gt; format_number(
-            w,
-            fixed_decimal_format,
-            FixedDecimal::from(usize::from(
-                datetime
-                    .datetime()
-                    .minute()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"minute"</span>)))<span class="question-mark">?</span>,
-            )),
-            field.length,
-        )<span class="question-mark">?</span>,
-        FieldSymbol::Second(Second::Second) =&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>seconds = FixedDecimal::from(usize::from(
-                datetime
-                    .datetime()
-                    .second()
-                    .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"second"</span>)))<span class="question-mark">?</span>,
-            ));
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(PatternItem::Field(next_field)) = next_item {
-                <span class="kw">if let </span>FieldSymbol::Second(Second::FractionalSecond) = next_field.symbol {
-                    <span class="kw">let </span><span class="kw-2">mut </span>fraction = FixedDecimal::from(usize::from(
-                        datetime
-                            .datetime()
-                            .nanosecond()
-                            .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"nanosecond"</span>)))<span class="question-mark">?</span>,
-                    ));
-
-                    <span class="comment">// We only support fixed field length for fractional seconds.
-                    </span><span class="kw">let </span>precision = <span class="kw">match </span>next_field.length {
-                        FieldLength::Fixed(p) =&gt; p,
-                        <span class="kw">_ </span>=&gt; {
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::Pattern(
-                                <span class="kw">crate</span>::pattern::PatternError::FieldLengthInvalid(
-                                    FieldSymbol::Second(Second::FractionalSecond),
-                                ),
-                            ));
+            },
+        },
+        (FieldSymbol::Week(week), l) =&gt; <span class="kw">match </span>week {
+            Week::WeekOfYear =&gt; <span class="kw">match </span>week_data
+                .ok_or(DateTimeWriteError::MissingWeekCalculator)
+                .and_then(|w| {
+                    datetime.week_of_year(w).map_err(|e| <span class="kw">match </span>e {
+                        ExtractedDateTimeInputWeekCalculatorError::Missing(s) =&gt; {
+                            DateTimeWriteError::MissingInputField(s)
                         }
-                    };
-
-                    <span class="comment">// We store fractional seconds as nanoseconds, convert to seconds.
-                    </span>fraction.multiply_pow10(-<span class="number">9</span>);
-
-                    seconds
-                        .concatenate_end(fraction)
-                        .map_err(|<span class="kw">_</span>| Error::FixedDecimal)<span class="question-mark">?</span>;
-                    seconds.pad_end(-(precision <span class="kw">as </span>i16));
+                    })
+                }) {
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    write_value_missing(w, field)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(e)
+                }
+                <span class="prelude-val">Ok</span>((<span class="kw">_</span>, week_of_year)) =&gt; try_write_number(w, fdf, week_of_year.<span class="number">0</span>.into(), l)<span class="question-mark">?</span>,
+            },
+            Week::WeekOfMonth =&gt; <span class="kw">match </span>week_data
+                .ok_or(DateTimeWriteError::MissingWeekCalculator)
+                .and_then(|w| {
+                    datetime.week_of_month(w).map_err(|e| <span class="kw">match </span>e {
+                        ExtractedDateTimeInputWeekCalculatorError::Missing(s) =&gt; {
+                            DateTimeWriteError::MissingInputField(s)
+                        }
+                    })
+                }) {
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    write_value_missing(w, field)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(e)
+                }
+                <span class="prelude-val">Ok</span>(week_of_month) =&gt; try_write_number(w, fdf, week_of_month.<span class="number">0</span>.into(), l)<span class="question-mark">?</span>,
+            },
+        },
+        (FieldSymbol::Weekday(weekday), l) =&gt; <span class="kw">match </span>datetime.iso_weekday() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"iso_weekday"</span>))
+            }
+            <span class="prelude-val">Some</span>(wd) =&gt; <span class="kw">match </span>date_symbols
+                .ok_or(DateTimeWriteError::MissingDateSymbols)
+                .and_then(|ds| {
+                    ds.get_symbol_for_weekday(weekday, l, wd)
+                        .map_err(|e| <span class="kw">match </span>e {
+                            GetSymbolForWeekdayError::Missing =&gt; {
+                                DateTimeWriteError::MissingWeekdaySymbol(wd)
+                            }
+                            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+                            </span>GetSymbolForWeekdayError::MissingNames(f) =&gt; {
+                                DateTimeWriteError::MissingNames(f)
+                            }
+                        })
+                }) {
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    w.with_part(Part::ERROR, |w| {
+                        w.write_str(<span class="kw">match </span>wd {
+                            IsoWeekday::Monday =&gt; <span class="string">"mon"</span>,
+                            IsoWeekday::Tuesday =&gt; <span class="string">"tue"</span>,
+                            IsoWeekday::Wednesday =&gt; <span class="string">"wed"</span>,
+                            IsoWeekday::Thursday =&gt; <span class="string">"thu"</span>,
+                            IsoWeekday::Friday =&gt; <span class="string">"fri"</span>,
+                            IsoWeekday::Saturday =&gt; <span class="string">"sat"</span>,
+                            IsoWeekday::Sunday =&gt; <span class="string">"sun"</span>,
+                        })
+                    })<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(e)
+                }
+                <span class="prelude-val">Ok</span>(s) =&gt; <span class="prelude-val">Ok</span>(w.write_str(s)<span class="question-mark">?</span>),
+            },
+        },
+        (FieldSymbol::Day(fields::Day::DayOfMonth), l) =&gt; <span class="kw">match </span>datetime.day_of_month() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"day_of_month"</span>))
+            }
+            <span class="prelude-val">Some</span>(d) =&gt; try_write_number(w, fdf, d.<span class="number">0</span>.into(), l)<span class="question-mark">?</span>,
+        },
+        (FieldSymbol::Day(fields::Day::DayOfWeekInMonth), l) =&gt; {
+            <span class="kw">match </span>datetime.day_of_month().map(DayOfWeekInMonth::from) {
+                <span class="prelude-val">None </span>=&gt; {
+                    write_value_missing(w, field)<span class="question-mark">?</span>;
+                    <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"day_of_month"</span>))
+                }
+                <span class="prelude-val">Some</span>(d) =&gt; try_write_number(w, fdf, d.<span class="number">0</span>.into(), l)<span class="question-mark">?</span>,
+            }
+        }
+        (FieldSymbol::Hour(hour), l) =&gt; <span class="kw">match </span>datetime.hour() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"hour"</span>))
+            }
+            <span class="prelude-val">Some</span>(h) =&gt; {
+                <span class="kw">let </span>h = usize::from(h) <span class="kw">as </span>isize;
+                <span class="kw">let </span>h = <span class="kw">match </span>hour {
+                    fields::Hour::H11 =&gt; h % <span class="number">12</span>,
+                    fields::Hour::H12 =&gt; {
+                        <span class="kw">let </span>v = h % <span class="number">12</span>;
+                        <span class="kw">if </span>v == <span class="number">0 </span>{
+                            <span class="number">12
+                        </span>} <span class="kw">else </span>{
+                            v
+                        }
+                    }
+                    fields::Hour::H23 =&gt; h,
+                    fields::Hour::H24 =&gt; {
+                        <span class="kw">if </span>h == <span class="number">0 </span>{
+                            <span class="number">24
+                        </span>} <span class="kw">else </span>{
+                            h
+                        }
+                    }
+                };
+                try_write_number(w, fdf, h.into(), l)<span class="question-mark">?
+            </span>}
+        },
+        (FieldSymbol::Minute, l) =&gt; <span class="kw">match </span>datetime.minute() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"minute"</span>))
+            }
+            <span class="prelude-val">Some</span>(iso_minute) =&gt; try_write_number(w, fdf, usize::from(iso_minute).into(), l)<span class="question-mark">?</span>,
+        },
+        (FieldSymbol::Second(Second::Second), l) =&gt; <span class="kw">match </span>(datetime.second(), iter.peek()) {
+            (
+                <span class="prelude-val">None</span>,
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PatternItem::Field(
+                    next_field @ Field {
+                        symbol: FieldSymbol::Second(Second::FractionalSecond),
+                        ..
+                    },
+                )),
+            ) =&gt; {
+                iter.next(); <span class="comment">// Advance over nanosecond symbol
+                </span>write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="comment">// Write error value for nanos even if we have them
+                </span>write_value_missing(w, next_field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"second"</span>))
+            }
+            (<span class="prelude-val">None</span>, <span class="kw">_</span>) =&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"second"</span>))
+            }
+            (
+                <span class="prelude-val">Some</span>(second),
+                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>PatternItem::Field(
+                    next_field @ Field {
+                        symbol: FieldSymbol::Second(Second::FractionalSecond),
+                        length,
+                    },
+                )),
+            ) =&gt; {
+                iter.next(); <span class="comment">// Advance over nanosecond symbol
+                </span><span class="kw">let </span>r = datetime
+                    .nanosecond()
+                    .ok_or(DateTimeWriteError::MissingInputField(<span class="string">"nanosecond"</span>))
+                    .and_then(|ns| {
+                        <span class="comment">// We only support fixed field length for fractional seconds.
+                        </span><span class="kw">let </span>FieldLength::Fixed(p) = length <span class="kw">else </span>{
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(DateTimeWriteError::UnsupportedField(next_field));
+                        };
+                        <span class="prelude-val">Ok</span>((ns, p))
+                    });
+                <span class="kw">match </span>r {
+                    <span class="prelude-val">Err</span>(e) =&gt; {
+                        <span class="kw">let </span>seconds_result =
+                            try_write_number(w, fdf, usize::from(second).into(), l)<span class="question-mark">?</span>;
+                        write_value_missing(w, next_field)<span class="question-mark">?</span>;
+                        <span class="comment">// Return the earlier error
+                        </span>seconds_result.and(<span class="prelude-val">Err</span>(e))
+                    }
+                    <span class="prelude-val">Ok</span>((ns, p)) =&gt; {
+                        <span class="kw">let </span><span class="kw-2">mut </span>s = FixedDecimal::from(usize::from(second));
+                        <span class="kw">let </span>_infallible = s.concatenate_end(
+                            FixedDecimal::from(usize::from(ns)).multiplied_pow10(-<span class="number">9</span>),
+                        );
+                        <span class="macro">debug_assert!</span>(_infallible.is_ok());
+                        s.pad_end(-(p <span class="kw">as </span>i16));
+                        try_write_number(w, fdf, s, l)<span class="question-mark">?
+                    </span>}
                 }
             }
-            format_number(w, fixed_decimal_format, seconds, field.length)<span class="question-mark">?
-        </span>}
-        FieldSymbol::Second(Second::FractionalSecond) =&gt; {
-            <span class="comment">// Formatting of fractional seconds is handled when formatting seconds.
-        </span>}
-        field @ FieldSymbol::Second(Second::Millisecond) =&gt; {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedField(field))
+            (<span class="prelude-val">Some</span>(second), <span class="kw">_</span>) =&gt; try_write_number(w, fdf, usize::from(second).into(), l)<span class="question-mark">?</span>,
+        },
+        (FieldSymbol::Second(Second::FractionalSecond), <span class="kw">_</span>) =&gt; {
+            <span class="comment">// Fractional second not following second
+            </span>write_value_missing(w, field)<span class="question-mark">?</span>;
+            <span class="prelude-val">Err</span>(DateTimeWriteError::UnsupportedField(field))
         }
-        FieldSymbol::DayPeriod(period) =&gt; {
-            <span class="kw">let </span>symbol = time_symbols
-                .ok_or(Error::MissingTimeSymbols)<span class="question-mark">?
-                </span>.get_symbol_for_day_period(
-                    period,
-                    field.length,
-                    datetime
-                        .datetime()
-                        .hour()
-                        .ok_or(Error::MissingInputField(<span class="prelude-val">Some</span>(<span class="string">"hour"</span>)))<span class="question-mark">?</span>,
-                    pattern.time_granularity.is_top_of_hour(
-                        datetime.datetime().minute().map(u8::from).unwrap_or(<span class="number">0</span>),
-                        datetime.datetime().second().map(u8::from).unwrap_or(<span class="number">0</span>),
-                        datetime.datetime().nanosecond().map(u32::from).unwrap_or(<span class="number">0</span>),
-                    ),
-                )<span class="question-mark">?</span>;
-            w.write_str(symbol)<span class="question-mark">?
-        </span>}
-        field @ FieldSymbol::TimeZone(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedField(field)),
-    };
-    <span class="prelude-val">Ok</span>(())
+        (FieldSymbol::DayPeriod(period), l) =&gt; <span class="kw">match </span>datetime.hour() {
+            <span class="prelude-val">None </span>=&gt; {
+                write_value_missing(w, field)<span class="question-mark">?</span>;
+                <span class="prelude-val">Err</span>(DateTimeWriteError::MissingInputField(<span class="string">"hour"</span>))
+            }
+            <span class="prelude-val">Some</span>(hour) =&gt; {
+                <span class="kw">match </span>time_symbols
+                    .ok_or(DateTimeWriteError::MissingTimeSymbols)
+                    .and_then(|ts| {
+                        ts.get_symbol_for_day_period(
+                            period,
+                            l,
+                            hour,
+                            pattern_metadata.time_granularity().is_top_of_hour(
+                                datetime.minute().map(u8::from).unwrap_or(<span class="number">0</span>),
+                                datetime.second().map(u8::from).unwrap_or(<span class="number">0</span>),
+                                datetime.nanosecond().map(u32::from).unwrap_or(<span class="number">0</span>),
+                            ),
+                        )
+                        .map_err(|e| <span class="kw">match </span>e {
+                            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+                            </span>GetSymbolForDayPeriodError::MissingNames(f) =&gt; {
+                                DateTimeWriteError::MissingNames(f)
+                            }
+                        })
+                    }) {
+                    <span class="prelude-val">Err</span>(e) =&gt; {
+                        w.with_part(Part::ERROR, |w| {
+                            w.write_str(<span class="kw">if </span>usize::from(hour) &lt; <span class="number">12 </span>{ <span class="string">"AM" </span>} <span class="kw">else </span>{ <span class="string">"PM" </span>})
+                        })<span class="question-mark">?</span>;
+                        <span class="prelude-val">Err</span>(e)
+                    }
+                    <span class="prelude-val">Ok</span>(s) =&gt; <span class="prelude-val">Ok</span>(w.write_str(s)<span class="question-mark">?</span>),
+                }
+            }
+        },
+        (
+            FieldSymbol::TimeZone(<span class="kw">_</span>)
+            | FieldSymbol::Day(<span class="kw">_</span>)
+            | FieldSymbol::Second(Second::Millisecond),
+            <span class="kw">_</span>,
+        ) =&gt; {
+            w.with_part(Part::ERROR, |w| {
+                w.write_str(<span class="string">"{unsupported:"</span>)<span class="question-mark">?</span>;
+                w.write_char(char::from(field.symbol))<span class="question-mark">?</span>;
+                w.write_str(<span class="string">"}"</span>)
+            })<span class="question-mark">?</span>;
+            <span class="prelude-val">Err</span>(DateTimeWriteError::UnsupportedField(field))
+        }
+    })
 }
 
 <span class="doccomment">/// What data is required to format a given pattern.
@@ -1221,20 +1805,22 @@
 
 <span class="attr">#[cfg(test)]
 #[allow(unused_imports)]
+#[cfg(feature = <span class="string">"compiled_data"</span>)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::pattern::runtime;
     <span class="kw">use </span>icu_decimal::options::{FixedDecimalFormatterOptions, GroupingStrategy};
-    <span class="kw">use </span>icu_locid::Locale;
+    <span class="kw">use </span>tinystr::tinystr;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_mixed_calendar_eras() {
-        <span class="kw">use </span>icu::calendar::japanese::JapaneseExtended;
-        <span class="kw">use </span>icu::calendar::Date;
-        <span class="kw">use </span>icu::datetime::options::length;
-        <span class="kw">use </span>icu::datetime::DateFormatter;
+        <span class="kw">use </span><span class="kw">crate</span>::neo::NeoDateFormatter;
+        <span class="kw">use </span><span class="kw">crate</span>::options::length;
+        <span class="kw">use </span>icu_calendar::japanese::JapaneseExtended;
+        <span class="kw">use </span>icu_calendar::Date;
 
-        <span class="kw">let </span>locale: Locale = <span class="string">"en-u-ca-japanese"</span>.parse().unwrap();
-        <span class="kw">let </span>dtf = DateFormatter::try_new_with_length(<span class="kw-2">&amp;</span>locale.into(), length::Date::Medium)
+        <span class="kw">let </span>locale = <span class="string">"en-u-ca-japanese"</span>.parse().unwrap();
+        <span class="kw">let </span>dtf = NeoDateFormatter::try_new_with_length(<span class="kw-2">&amp;</span>locale, length::Date::Medium)
             .expect(<span class="string">"DateTimeFormat construction succeeds"</span>);
 
         <span class="kw">let </span>date = Date::try_new_gregorian_date(<span class="number">1800</span>, <span class="number">9</span>, <span class="number">1</span>).expect(<span class="string">"Failed to construct Date."</span>);
@@ -1243,7 +1829,14 @@
             .into_japanese_date()
             .to_any();
 
-        <span class="macro">writeable::assert_writeable_eq!</span>(dtf.format(<span class="kw-2">&amp;</span>date).unwrap(), <span class="string">"Sep 1, 12 kansei-1789"</span>)
+        <span class="macro">writeable::assert_try_writeable_eq!</span>(
+            dtf.format(<span class="kw-2">&amp;</span>date).unwrap(),
+            <span class="string">"Sep 1, 12 kansei-1789"</span>,
+            <span class="prelude-val">Err</span>(DateTimeWriteError::MissingEraSymbol(Era(<span class="macro">tinystr!</span>(
+                <span class="number">16</span>,
+                <span class="string">"kansei-1789"
+            </span>))))
+        );
     }
 
     <span class="attr">#[test]
@@ -1253,7 +1846,7 @@
         <span class="kw">use </span>icu_calendar::DateTime;
         <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 
-        <span class="kw">let </span>locale = <span class="string">"en-u-ca-gregory"</span>.parse::&lt;Locale&gt;().unwrap().into();
+        <span class="kw">let </span>locale = <span class="string">"en-u-ca-gregory"</span>.parse().unwrap();
         <span class="kw">let </span>req = DataRequest {
             locale: <span class="kw-2">&amp;</span>locale,
             metadata: Default::default(),
@@ -1268,21 +1861,22 @@
             .unwrap()
             .take_payload()
             .unwrap();
-        <span class="kw">let </span>pattern = <span class="string">"MMM"</span>.parse().unwrap();
+        <span class="kw">let </span>pattern: runtime::Pattern = <span class="string">"MMM"</span>.parse().unwrap();
         <span class="kw">let </span>datetime = DateTime::try_new_gregorian_datetime(<span class="number">2020</span>, <span class="number">8</span>, <span class="number">1</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">28</span>).unwrap();
         <span class="kw">let </span>fixed_decimal_format =
             FixedDecimalFormatter::try_new(<span class="kw-2">&amp;</span>locale, Default::default()).unwrap();
 
         <span class="kw">let </span><span class="kw-2">mut </span>sink = String::new();
-        <span class="kw">let </span>loc_datetime = DateTimeInputWithWeekConfig::new(<span class="kw-2">&amp;</span>datetime, <span class="prelude-val">None</span>);
-        write_pattern(
-            <span class="kw-2">&amp;</span>pattern,
+        try_write_pattern(
+            pattern.as_borrowed(),
+            <span class="kw-2">&amp;</span>ExtractedDateTimeInput::extract_from(<span class="kw-2">&amp;</span>datetime),
             <span class="prelude-val">Some</span>(date_data.get()),
             <span class="prelude-val">Some</span>(time_data.get()),
-            <span class="kw-2">&amp;</span>loc_datetime,
-            <span class="kw-2">&amp;</span>fixed_decimal_format,
-            <span class="kw-2">&amp;mut </span>sink,
+            <span class="prelude-val">None</span>,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fixed_decimal_format),
+            <span class="kw-2">&amp;mut </span>writeable::adapters::CoreWriteAsPartsWrite(<span class="kw-2">&amp;mut </span>sink),
         )
+        .unwrap()
         .unwrap();
         <span class="macro">println!</span>(<span class="string">"{sink}"</span>);
     }
@@ -1311,12 +1905,13 @@
         <span class="kw">for </span>(length, expected) <span class="kw">in </span>samples {
             <span class="kw">for </span>(value, expected) <span class="kw">in </span>values.iter().zip(expected) {
                 <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
-                format_number(
-                    <span class="kw-2">&amp;mut </span>s,
-                    <span class="kw-2">&amp;</span>fixed_decimal_format,
+                try_write_number(
+                    <span class="kw-2">&amp;mut </span>writeable::adapters::CoreWriteAsPartsWrite(<span class="kw-2">&amp;mut </span>s),
+                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>fixed_decimal_format),
                     FixedDecimal::from(<span class="kw-2">*</span>value),
                     <span class="kw-2">*</span>length,
                 )
+                .unwrap()
                 .unwrap();
                 <span class="macro">assert_eq!</span>(s, <span class="kw-2">*</span>expected);
             }

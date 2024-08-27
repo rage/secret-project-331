@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Statically checked SQL query with `println!()` style syntax."><title>query in sqlx - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../sqlx/index.html">sqlx</a><span class="version">0.7.3</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div>
-    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../sqlx/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="#">query</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/sqlx/macros/mod.rs.html#318-334">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><span class="macro">macro_rules! </span>query {
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Statically checked SQL query with `println!()` style syntax."><title>query in sqlx - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../sqlx/index.html">sqlx</a><span class="version">0.8.1</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Macro <a href="index.html">sqlx</a>::<wbr><a class="macro" href="#">query</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/sqlx/macros/mod.rs.html#314-330">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><span class="macro">macro_rules!</span> query {
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; { ... };
     (<span class="macro-nonterminal">$query</span>:expr, $(<span class="macro-nonterminal">$args</span>:tt)<span class="kw-2">*</span>) =&gt; { ... };
 }</pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Statically checked SQL query with <code>println!()</code> style syntax.</p>
@@ -39,12 +38,12 @@ See the link above for details.</li>
 </div>
 <p>* All methods accept one of <code>&amp;mut {connection type}</code>, <code>&amp;mut Transaction</code> or <code>&amp;Pool</code>.<br />
 † Only callable if the query returns no columns; otherwise it’s assumed the query <em>may</em> return at least one row.</p>
-<h3 id="requirements"><a href="#requirements">Requirements</a></h3>
+<h3 id="requirements"><a class="doc-anchor" href="#requirements">§</a>Requirements</h3>
 <ul>
 <li>
 <p>The <code>DATABASE_URL</code> environment variable must be set at build-time to point to a database
-server with the schema that the query string will be checked against. All variants of <code>query!()</code>
-use <a href="https://crates.io/crates/dotenv">dotenv</a><sup>1</sup> so this can be in a <code>.env</code> file instead.</p>
+server with the schema that the query string will be checked against.
+All variants of <code>query!()</code> use <a href="https://crates.io/crates/dotenv">dotenv</a><sup>1</sup> so this can be in a <code>.env</code> file instead.</p>
 <ul>
 <li>Or, <code>.sqlx</code> must exist at the workspace root. See <a href="#offline-mode-requires-the-offline-feature">Offline Mode</a>
 below.</li>
@@ -67,7 +66,7 @@ determine the database type.</li>
 </ul>
 <p><sup>1</sup> The <code>dotenv</code> crate itself appears abandoned as of <a href="https://github.com/dotenv-rs/dotenv/issues/74">December 2021</a>
 so we now use the <a href="https://crates.io/crates/dotenvy">dotenvy</a> crate instead. The file format is the same.</p>
-<h3 id="query-arguments"><a href="#query-arguments">Query Arguments</a></h3>
+<h3 id="query-arguments"><a class="doc-anchor" href="#query-arguments">§</a>Query Arguments</h3>
 <p>Like <code>println!()</code> and the other formatting macros, you can add bind parameters to your SQL
 and this macro will typecheck passed arguments and error on missing ones:</p>
 
@@ -87,7 +86,7 @@ and this macro will typecheck passed arguments and error on missing ones:</p>
 <li>Postgres: <code>$N</code> where <code>N</code> is the 1-based positional argument index</li>
 <li>MySQL/SQLite: <code>?</code> which matches arguments in order that it appears in the query</li>
 </ul>
-<h3 id="nullability-bind-parameters"><a href="#nullability-bind-parameters">Nullability: Bind Parameters</a></h3>
+<h3 id="nullability-bind-parameters"><a class="doc-anchor" href="#nullability-bind-parameters">§</a>Nullability: Bind Parameters</h3>
 <p>For a given expected type <code>T</code>, both <code>T</code> and <code>Option&lt;T&gt;</code> are allowed (as well as either
 behind references). <code>Option::None</code> will be bound as <code>NULL</code>, so if binding a type behind <code>Option</code>
 be sure your query can support it.</p>
@@ -97,7 +96,7 @@ null or is null, respectively.</p>
 <p>In Postgres and MySQL you may also use <code>IS [NOT] DISTINCT FROM</code> to compare with a possibly
 <code>NULL</code> value. In MySQL <code>IS NOT DISTINCT FROM</code> can be shortened to <code>&lt;=&gt;</code>.
 In SQLite you can use <code>IS</code> or <code>IS NOT</code>. Note that operator precedence may be different.</p>
-<h3 id="nullability-output-columns"><a href="#nullability-output-columns">Nullability: Output Columns</a></h3>
+<h3 id="nullability-output-columns"><a class="doc-anchor" href="#nullability-output-columns">§</a>Nullability: Output Columns</h3>
 <p>In most cases, the database engine can tell us whether or not a column may be <code>NULL</code>, and
 the <code>query!()</code> macro adjusts the field types of the returned struct accordingly.</p>
 <p>For Postgres, this only works for columns which come directly from actual tables,
@@ -115,7 +114,7 @@ manual for the functions you are using to find the cases in which they return <c
 on columns that come from tables. However, for SQLite we also can step through the output
 of <code>EXPLAIN</code> to identify columns that may or may not be <code>NULL</code>.</p>
 <p>To override the nullability of an output column, <a href="#type-overrides-output-columns">see below</a>.</p>
-<h3 id="type-overrides-bind-parameters-postgres-only"><a href="#type-overrides-bind-parameters-postgres-only">Type Overrides: Bind Parameters (Postgres only)</a></h3>
+<h3 id="type-overrides-bind-parameters-postgres-only"><a class="doc-anchor" href="#type-overrides-bind-parameters-postgres-only">§</a>Type Overrides: Bind Parameters (Postgres only)</h3>
 <p>For typechecking of bind parameters, casts using <code>as</code> are treated as overrides for the inferred
 types of bind parameters and no typechecking is emitted:</p>
 
@@ -128,13 +127,10 @@ types of bind parameters and no typechecking is emitted:</p>
 <span class="macro">sqlx::query!</span>(<span class="string">"select $1::int4 as id"</span>, my_int <span class="kw">as </span>MyInt4)</code></pre></div>
 <p>Using <code>expr as _</code> simply signals to the macro to not type-check that bind expression,
 and then that syntax is stripped from the expression so as to not trigger type errors.</p>
-<p><strong>NOTE:</strong> type ascription syntax (<code>expr: _</code>) is deprecated and will be removed in a
-future release. This is due to Rust’s <a href="https://github.com/rust-lang/rfcs/pull/3307">RFC 3307</a>
-officially dropping support for the syntax.</p>
-<h3 id="type-overrides-output-columns"><a href="#type-overrides-output-columns">Type Overrides: Output Columns</a></h3>
+<h3 id="type-overrides-output-columns"><a class="doc-anchor" href="#type-overrides-output-columns">§</a>Type Overrides: Output Columns</h3>
 <p>Type overrides are also available for output columns, utilizing the SQL standard’s support
 for arbitrary text in column names:</p>
-<h6 id="force-not-null"><a href="#force-not-null">Force Not-Null</a></h6>
+<h6 id="force-not-null"><a class="doc-anchor" href="#force-not-null">§</a>Force Not-Null</h6>
 <p>Selecting a column <code>foo as &quot;foo!&quot;</code> (Postgres / SQLite) or <code>foo as `foo!`</code> (MySQL) overrides
 inferred nullability and forces the column to be treated as <code>NOT NULL</code>; this is useful e.g. for
 selecting expressions in Postgres where we cannot infer nullability:</p>
@@ -148,7 +144,7 @@ selecting expressions in Postgres where we cannot infer nullability:</p>
 <span class="comment">// For Postgres this would have been inferred to be Option&lt;i32&gt; instead
 </span><span class="macro">assert_eq!</span>(record.id, <span class="number">1i32</span>);
 </code></pre></div>
-<h6 id="force-nullable"><a href="#force-nullable">Force Nullable</a></h6>
+<h6 id="force-nullable"><a class="doc-anchor" href="#force-nullable">§</a>Force Nullable</h6>
 <p>Selecting a column <code>foo as &quot;foo?&quot;</code> (Postgres / SQLite) or <code>foo as `foo?`</code> (MySQL) overrides
 inferred nullability and forces the column to be treated as nullable; this is provided mainly
 for symmetry with <code>!</code>.</p>
@@ -190,7 +186,7 @@ to reproduce the problem. For Postgres users, especially helpful would be the ou
 <code>EXPLAIN (VERBOSE, FORMAT JSON) &lt;your query&gt;</code> with bind parameters substituted in the query
 (as the exact value of bind parameters can change the query plan)
 and the definitions of any relevant tables (or sufficiently anonymized equivalents).</p>
-<h6 id="force-a-differentcustom-type"><a href="#force-a-differentcustom-type">Force a Different/Custom Type</a></h6>
+<h6 id="force-a-differentcustom-type"><a class="doc-anchor" href="#force-a-differentcustom-type">§</a>Force a Different/Custom Type</h6>
 <p>Selecting a column <code>foo as &quot;foo: T&quot;</code> (Postgres / SQLite) or <code>foo as `foo: T`</code> (MySQL)
 overrides the inferred type which is useful when selecting user-defined custom types
 (dynamic type checking is still done so if the types are incompatible this will be an error
@@ -212,14 +208,14 @@ but it is compatible with the forced not-null and forced nullable annotations:</
 // Note that while using `id: MyInt4` (without the `!`) would work the same for MySQL/SQLite,
 // Postgres would expect `Some(MyInt4(1))` and the code wouldn't compile
 </span><span class="macro">assert_eq!</span>(record.id, MyInt4(<span class="number">1</span>));</code></pre></div>
-<h6 id="overrides-cheatsheet"><a href="#overrides-cheatsheet">Overrides cheatsheet</a></h6><div><table><thead><tr><th>Syntax</th><th>Nullability</th><th>Type</th></tr></thead><tbody>
+<h6 id="overrides-cheatsheet"><a class="doc-anchor" href="#overrides-cheatsheet">§</a>Overrides cheatsheet</h6><div><table><thead><tr><th>Syntax</th><th>Nullability</th><th>Type</th></tr></thead><tbody>
 <tr><td><code>foo!</code></td><td>Forced not-null</td><td>Inferred</td></tr>
 <tr><td><code>foo?</code></td><td>Forced nullable</td><td>Inferred</td></tr>
 <tr><td><code>foo: T</code></td><td>Inferred</td><td>Overridden</td></tr>
 <tr><td><code>foo!: T</code></td><td>Forced not-null</td><td>Overridden</td></tr>
 <tr><td><code>foo?: T</code></td><td>Forced nullable</td><td>Overridden</td></tr>
 </tbody></table>
-</div><h3 id="offline-mode"><a href="#offline-mode">Offline Mode</a></h3>
+</div><h3 id="offline-mode"><a class="doc-anchor" href="#offline-mode">§</a>Offline Mode</h3>
 <p>The macros can be configured to not require a live database connection for compilation,
 but it requires a couple extra steps:</p>
 <ul>
@@ -236,10 +232,10 @@ again.</p>
 project and your database schema itself, run
 <code>cargo install sqlx-cli &amp;&amp; cargo sqlx prepare --check</code> in your Continuous Integration script.</p>
 <p>See <a href="https://crates.io/crates/sqlx-cli">the README for <code>sqlx-cli</code></a> for more information.</p>
-<h3 id="see-also"><a href="#see-also">See Also</a></h3>
+<h3 id="see-also"><a class="doc-anchor" href="#see-also">§</a>See Also</h3>
 <ul>
-<li>[query_as!] if you want to use a struct you can name,</li>
-<li>[query_file!] if you want to define the SQL query out-of-line,</li>
-<li>[query_file_as!] if you want both of the above.</li>
+<li><a href="macro.query_as.html" title="macro sqlx::query_as"><code>query_as!</code></a> if you want to use a struct you can name,</li>
+<li><a href="macro.query_file.html" title="macro sqlx::query_file"><code>query_file!</code></a> if you want to define the SQL query out-of-line,</li>
+<li><a href="macro.query_file_as.html" title="macro sqlx::query_file_as"><code>query_file_as!</code></a> if you want both of the above.</li>
 </ul>
 </div></details></section></div></main></body></html>

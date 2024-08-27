@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Store","StoreConstEmpty","StoreFromIterable","StoreFromIterator","StoreIterable","StoreIterableMut","StoreMut","StoreSlice"]};
+window.SIDEBAR_ITEMS = {"trait":["Store","StoreConstEmpty","StoreFromIterable","StoreFromIterator","StoreIntoIterator","StoreIterable","StoreIterableMut","StoreMut","StoreSlice"]};

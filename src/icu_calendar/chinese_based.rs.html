@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/chinese_based.rs`."><title>chinese_based.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/chinese_based.rs`."><title>chinese_based.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -562,6 +561,79 @@
 <a href="#561" id="561">561</a>
 <a href="#562" id="562">562</a>
 <a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -573,8 +645,7 @@
 //! use icu::calendar::{chinese::Chinese, Date, Iso};
 //!
 //! let iso_date = Date::try_new_iso_date(2023, 6, 23).unwrap();
-//! let chinese_date =
-//!     Date::new_from_iso(iso_date, Chinese::new_always_calculating());
+//! let chinese_date = Date::new_from_iso(iso_date, Chinese::new());
 //!
 //! assert_eq!(chinese_date.year().number, 4660);
 //! assert_eq!(chinese_date.year().related_iso, Some(2023));
@@ -584,180 +655,197 @@
 //! ```
 
 </span><span class="kw">use crate</span>::{
-    calendar_arithmetic::{ArithmeticDate, CalendarArithmetic},
-    types::MonthCode,
-    CalendarError, Iso,
+    calendar_arithmetic::{ArithmeticDate, CalendarArithmetic, PrecomputedDataSource},
+    provider::chinese_based::{ChineseBasedCacheV1, PackedChineseBasedYearInfo},
+    types::{FormattableMonth, MonthCode},
+    Calendar, CalendarError, Iso,
 };
 
 <span class="kw">use </span>calendrical_calculations::chinese_based::{<span class="self">self</span>, ChineseBased, YearBounds};
 <span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
+<span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>core::num::NonZeroU8;
+<span class="kw">use </span>tinystr::tinystr;
 
 <span class="doccomment">/// The trait ChineseBased is used by Chinese-based calendars to perform computations shared by such calendar.
 ///
 /// For an example of how to use this trait, see `impl ChineseBasedWithDataLoading for Chinese` in [`Chinese`].
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>ChineseBasedWithDataLoading: CalendarArithmetic {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>ChineseBasedWithDataLoading: Calendar {
     <span class="kw">type </span>CB: ChineseBased;
     <span class="doccomment">/// Get the compiled const data for a ChineseBased calendar; can return `None` if the given year
     /// does not correspond to any compiled data.
-    </span><span class="kw">fn </span>get_compiled_data_for_year(extended_year: i32) -&gt; <span class="prelude-ty">Option</span>&lt;ChineseBasedCompiledData&gt;;
+    </span><span class="kw">fn </span>get_precomputed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ChineseBasedPrecomputedData&lt;<span class="lifetime">'_</span>, <span class="self">Self</span>::CB&gt;;
 }
 
 <span class="doccomment">/// Chinese-based calendars define DateInner as a calendar-specific struct wrapping ChineseBasedDateInner.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChineseBasedDateInner&lt;C&gt;(
-    <span class="kw">pub</span>(<span class="kw">crate</span>) ArithmeticDate&lt;C&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) ChineseBasedYearInfo,
-);
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChineseBasedDateInner&lt;C: CalendarArithmetic&gt;(<span class="kw">pub</span>(<span class="kw">crate</span>) ArithmeticDate&lt;C&gt;);
 
 <span class="comment">// we want these impls without the `C: Copy/Clone` bounds
-</span><span class="kw">impl</span>&lt;C&gt; Copy <span class="kw">for </span>ChineseBasedDateInner&lt;C&gt; {}
-<span class="kw">impl</span>&lt;C&gt; Clone <span class="kw">for </span>ChineseBasedDateInner&lt;C&gt; {
+</span><span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Copy <span class="kw">for </span>ChineseBasedDateInner&lt;C&gt; {}
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Clone <span class="kw">for </span>ChineseBasedDateInner&lt;C&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw-2">*</span><span class="self">self
     </span>}
 }
 
-<span class="doccomment">/// A `ChineseBasedDateInner` has additional information about the year corresponding to the Inner;
-/// if there is available data for that year, the ChineseBasedYearInfo will be in the form of `Data`,
-/// with a `ChineseBasedCompiledData` struct which contains more information; otherwise, a `Cache`
-/// with a `ChineseBasedCache`, which contains less information, but is faster to compute.
-</span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ChineseBasedYearInfo {
-    Cache(ChineseBasedCache),
-    Data(ChineseBasedCompiledData),
+<span class="doccomment">/// Contains any loaded precomputed data. If constructed with Default, will
+/// *not* contain any extra data and will always compute stuff from scratch
+</span><span class="attr">#[derive(Default)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChineseBasedPrecomputedData&lt;<span class="lifetime">'a</span>, CB: ChineseBased&gt; {
+    data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>ChineseBasedCacheV1&lt;<span class="lifetime">'a</span>&gt;&gt;,
+    _cb: PhantomData&lt;CB&gt;,
 }
 
-<span class="kw">impl </span>ChineseBasedYearInfo {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_new_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RataDie {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Cache(cache) =&gt; cache.new_year,
-            <span class="self">Self</span>::Data(data) =&gt; data.new_year,
+<span class="doccomment">/// Compute ChineseBasedYearInfo for a given extended year
+</span><span class="kw">fn </span>compute_cache&lt;CB: ChineseBased&gt;(extended_year: i32) -&gt; ChineseBasedYearInfo {
+    <span class="kw">let </span>mid_year = chinese_based::fixed_mid_year_from_year::&lt;CB&gt;(extended_year);
+    <span class="kw">let </span>year_bounds = YearBounds::compute::&lt;CB&gt;(mid_year);
+    compute_cache_with_yb::&lt;CB&gt;(extended_year, year_bounds)
+}
+
+<span class="doccomment">/// Compute ChineseBasedYearInfo for a given extended year, for which you have already computed the YearBounds
+</span><span class="kw">fn </span>compute_cache_with_yb&lt;CB: ChineseBased&gt;(
+    extended_year: i32,
+    year_bounds: YearBounds,
+) -&gt; ChineseBasedYearInfo {
+    <span class="kw">let </span>YearBounds { new_year, .. } = year_bounds;
+
+    <span class="kw">let </span>days_in_prev_year = chinese_based::days_in_prev_year::&lt;CB&gt;(new_year);
+
+    <span class="kw">let </span>packed_data = compute_packed_with_yb::&lt;CB&gt;(extended_year, year_bounds);
+
+    ChineseBasedYearInfo {
+        days_in_prev_year,
+        packed_data,
+    }
+}
+
+<span class="kw">fn </span>compute_packed_with_yb&lt;CB: ChineseBased&gt;(
+    extended_year: i32,
+    year_bounds: YearBounds,
+) -&gt; PackedChineseBasedYearInfo {
+    <span class="kw">let </span>YearBounds {
+        new_year,
+        next_new_year,
+        ..
+    } = year_bounds;
+    <span class="kw">let </span>(month_lengths, leap_month) =
+        chinese_based::month_structure_for_year::&lt;CB&gt;(new_year, next_new_year);
+
+    <span class="kw">let </span>related_iso = CB::iso_from_extended(extended_year);
+    <span class="kw">let </span>iso_ny = calendrical_calculations::iso::fixed_from_iso(related_iso, <span class="number">1</span>, <span class="number">1</span>);
+
+    <span class="comment">// +1 because `new_year - iso_ny` is zero-indexed, but `FIRST_NY` is 1-indexed
+    </span><span class="kw">let </span>ny_offset = new_year - iso_ny - i64::from(PackedChineseBasedYearInfo::FIRST_NY) + <span class="number">1</span>;
+    <span class="kw">let </span>ny_offset = <span class="kw">if let </span><span class="prelude-val">Ok</span>(ny_offset) = u8::try_from(ny_offset) {
+        ny_offset
+    } <span class="kw">else </span>{
+        <span class="macro">debug_assert!</span>(
+            <span class="bool-val">false</span>,
+            <span class="string">"Expected small new years offset, got {ny_offset} in ISO year {related_iso}"
+        </span>);
+        <span class="number">0
+    </span>};
+    PackedChineseBasedYearInfo::new(month_lengths, leap_month, ny_offset)
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>compute_many_packed&lt;CB: ChineseBased&gt;(
+    extended_years: core::ops::Range&lt;i32&gt;,
+) -&gt; alloc::vec::Vec&lt;PackedChineseBasedYearInfo&gt; {
+    extended_years
+        .map(|extended_year| {
+            <span class="kw">let </span>mid_year = chinese_based::fixed_mid_year_from_year::&lt;CB&gt;(extended_year);
+            <span class="kw">let </span>year_bounds = YearBounds::compute::&lt;CB&gt;(mid_year);
+
+            compute_packed_with_yb::&lt;CB&gt;(extended_year, year_bounds)
+        })
+        .collect()
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, CB: ChineseBased&gt; PrecomputedDataSource&lt;ChineseBasedYearInfo&gt;
+    <span class="kw">for </span>ChineseBasedPrecomputedData&lt;<span class="lifetime">'b</span>, CB&gt;
+{
+    <span class="kw">fn </span>load_or_compute_info(<span class="kw-2">&amp;</span><span class="self">self</span>, extended_year: i32) -&gt; ChineseBasedYearInfo {
+        <span class="self">self</span>.data
+            .and_then(|d| d.get_for_extended_year(extended_year))
+            .unwrap_or_else(|| compute_cache::&lt;CB&gt;(extended_year))
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'b</span>, CB: ChineseBased&gt; ChineseBasedPrecomputedData&lt;<span class="lifetime">'b</span>, CB&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>ChineseBasedCacheV1&lt;<span class="lifetime">'b</span>&gt;&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            data,
+            _cb: PhantomData,
         }
     }
+    <span class="doccomment">/// Given an ISO date (in both ArithmeticDate and R.D. format), returns the ChineseBasedYearInfo and extended year for that date, loading
+    /// from cache or computing.
+    </span><span class="kw">fn </span>load_or_compute_info_for_iso(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        fixed: RataDie,
+        iso: ArithmeticDate&lt;Iso&gt;,
+    ) -&gt; (ChineseBasedYearInfo, i32) {
+        <span class="kw">let </span>cached = <span class="self">self</span>.data.and_then(|d| d.get_for_iso::&lt;CB&gt;(iso));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(cached) = cached {
+            <span class="kw">return </span>cached;
+        };
+        <span class="comment">// compute
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_next_new_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RataDie {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Cache(cache) =&gt; cache.next_new_year,
-            <span class="self">Self</span>::Data(data) =&gt; data.next_new_year(),
-        }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_leap_month(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt; {
-        <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Cache(cache) =&gt; cache.leap_month,
-            <span class="self">Self</span>::Data(data) =&gt; data.leap_month,
-        }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_year_info&lt;C: ChineseBasedWithDataLoading&gt;(year: i32) -&gt; ChineseBasedYearInfo {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = C::get_compiled_data_for_year(year) {
-            <span class="self">Self</span>::Data(data)
+        </span><span class="kw">let </span>extended_year = CB::extended_from_iso(iso.year);
+        <span class="kw">let </span>mid_year = chinese_based::fixed_mid_year_from_year::&lt;CB&gt;(extended_year);
+        <span class="kw">let </span>year_bounds = YearBounds::compute::&lt;CB&gt;(mid_year);
+        <span class="kw">let </span>YearBounds { new_year, .. } = year_bounds;
+        <span class="kw">if </span>fixed &gt;= new_year {
+            (
+                compute_cache_with_yb::&lt;CB&gt;(extended_year, year_bounds),
+                extended_year,
+            )
         } <span class="kw">else </span>{
-            <span class="self">Self</span>::Cache(ChineseBasedDateInner::&lt;C&gt;::compute_cache(year))
-        }
-    }
-}
-
-<span class="doccomment">/// A caching struct used to store information for ChineseBasedDates
-</span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChineseBasedCache {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) new_year: RataDie,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) next_new_year: RataDie,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) leap_month: <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt;,
-}
-
-<span class="doccomment">/// The struct containing compiled ChineseData
-///
-/// Bit structure:
-///
-/// ```text
-/// Bit:             7   6   5   4   3   2   1   0
-/// Byte 0:          [new year offset] | [  month lengths ..
-/// Byte 1:          ....... month lengths .......
-/// Byte 2:          ... ] | [ leap month index  ]
-/// ```
-///
-/// Where the New Year Offset is the offset from ISO Jan 21 of that year for Chinese New Year,
-/// the month lengths are stored as 1 = 30, 0 = 29 for each month including the leap month.
-</span><span class="attr">#[derive(Debug, Copy, Clone)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PackedChineseBasedCompiledData(<span class="kw">pub</span>(<span class="kw">crate</span>) u8, <span class="kw">pub</span>(<span class="kw">crate</span>) u8, <span class="kw">pub</span>(<span class="kw">crate</span>) u8);
-
-<span class="kw">impl </span>PackedChineseBasedCompiledData {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unpack(<span class="self">self</span>, related_iso: i32) -&gt; ChineseBasedCompiledData {
-        <span class="kw">fn </span>month_length(is_long: bool) -&gt; u16 {
-            <span class="kw">if </span>is_long {
-                <span class="number">30
-            </span>} <span class="kw">else </span>{
-                <span class="number">29
-            </span>}
-        }
-
-        <span class="kw">let </span>new_year_offset = ((<span class="self">self</span>.<span class="number">0 </span>&amp; <span class="number">0b11111000</span>) &gt;&gt; <span class="number">3</span>) <span class="kw">as </span>u16;
-        <span class="kw">let </span>new_year =
-            Iso::fixed_from_iso(Iso::iso_from_year_day(related_iso, <span class="number">21 </span>+ new_year_offset).inner);
-
-        <span class="kw">let </span><span class="kw-2">mut </span>last_day_of_month: [u16; <span class="number">13</span>] = [<span class="number">0</span>; <span class="number">13</span>];
-        <span class="kw">let </span><span class="kw-2">mut </span>months_total = <span class="number">0</span>;
-
-        months_total += month_length(<span class="self">self</span>.<span class="number">0 </span>&amp; <span class="number">0b100 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">0</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">0 </span>&amp; <span class="number">0b010 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">1</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">0 </span>&amp; <span class="number">0b001 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">2</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b10000000 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">3</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b01000000 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">4</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b00100000 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">5</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b00010000 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">6</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b00001000 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">7</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b00000100 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">8</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b00000010 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">9</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">1 </span>&amp; <span class="number">0b00000001 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">10</span>] = months_total;
-        months_total += month_length(<span class="self">self</span>.<span class="number">2 </span>&amp; <span class="number">0b10000000 </span>!= <span class="number">0</span>);
-        last_day_of_month[<span class="number">11</span>] = months_total;
-
-        <span class="kw">let </span>leap_month_bits = <span class="self">self</span>.<span class="number">2 </span>&amp; <span class="number">0b00111111</span>;
-        <span class="comment">// Leap month is if the sentinel bit is set
-        </span><span class="kw">if </span>leap_month_bits != <span class="number">0 </span>{
-            months_total += month_length(<span class="self">self</span>.<span class="number">2 </span>&amp; <span class="number">0b01000000 </span>!= <span class="number">0</span>);
-        }
-        <span class="comment">// In non-leap months, `last_day_of_month` will have identical entries at 12 and 11
-        </span>last_day_of_month[<span class="number">12</span>] = months_total;
-
-        <span class="comment">// Will automatically set to None when the leap month bits are zero
-        </span><span class="kw">let </span>leap_month = NonZeroU8::new(leap_month_bits);
-
-        ChineseBasedCompiledData {
-            new_year,
-            last_day_of_month,
-            leap_month,
+            <span class="kw">let </span>extended_year = extended_year - <span class="number">1</span>;
+            (compute_cache::&lt;CB&gt;(extended_year), extended_year)
         }
     }
 }
 <span class="doccomment">/// A data struct used to load and use information for a set of ChineseBasedDates
 </span><span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChineseBasedCompiledData {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) new_year: RataDie,
-    <span class="doccomment">/// last_day_of_month[12] = last_day_of_month[11] in non-leap years
-    /// These days are 1-indexed: so the last day of month for a 30-day 一月 is 30
-    /// The array itself is zero-indexed, be careful passing it self.0.month!
-    </span>last_day_of_month: [u16; <span class="number">13</span>],
-    <span class="doccomment">///
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) leap_month: <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt;,
+</span><span class="comment">// TODO(#3933): potentially make this smaller
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ChineseBasedYearInfo {
+    days_in_prev_year: u16,
+    <span class="doccomment">/// Contains:
+    /// - length of each month in the year
+    /// - whether or not there is a leap month, and which month it is
+    /// - the date of Chinese New Year in the related ISO year
+    </span>packed_data: PackedChineseBasedYearInfo,
 }
 
-<span class="kw">impl </span>ChineseBasedCompiledData {
-    <span class="kw">fn </span>next_new_year(<span class="self">self</span>) -&gt; RataDie {
-        <span class="self">self</span>.new_year + i64::from(<span class="self">self</span>.last_day_of_month[<span class="number">12</span>])
+<span class="kw">impl </span>ChineseBasedYearInfo {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(days_in_prev_year: u16, packed_data: PackedChineseBasedYearInfo) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            days_in_prev_year,
+            packed_data,
+        }
+    }
+
+    <span class="doccomment">/// Get the new year R.D. given the extended year that this yearinfo is for    
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_year&lt;CB: ChineseBased&gt;(<span class="self">self</span>, extended_year: i32) -&gt; RataDie {
+        <span class="self">self</span>.packed_data.ny_rd(CB::iso_from_extended(extended_year))
+    }
+
+    <span class="doccomment">/// Get the next new year R.D. given the extended year that this yearinfo is for
+    /// (i.e, this year, not next year)
+    </span><span class="kw">fn </span>next_new_year&lt;CB: ChineseBased&gt;(<span class="self">self</span>, extended_year: i32) -&gt; RataDie {
+        <span class="self">self</span>.new_year::&lt;CB&gt;(extended_year) + i64::from(<span class="self">self</span>.packed_data.days_in_year())
+    }
+
+    <span class="doccomment">/// Get which month is the leap month. This produces the month *number*
+    /// that is the leap month (not the ordinal month). In other words, for
+    /// a year with an M05L, this will return Some(5). Note that the regular month precedes
+    /// the leap month.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>leap_month(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt; {
+        <span class="self">self</span>.packed_data.leap_month_idx()
     }
 
     <span class="doccomment">/// The last day of year in the previous month.
@@ -769,15 +857,20 @@
     </span><span class="kw">fn </span>last_day_of_previous_month(<span class="self">self</span>, month: u8) -&gt; u16 {
         <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">"Month out of bounds!"</span>);
         <span class="comment">// Get the last day of the previous month.
-        // Since `month` is 1-indexed, this needs to subtract *two* to get to the right index of the array
-        </span><span class="kw">if </span>month &lt; <span class="number">2 </span>{
+        // Since `month` is 1-indexed, this needs to check if the month is 1 for the zero case
+        </span><span class="kw">if </span>month == <span class="number">1 </span>{
             <span class="number">0
         </span>} <span class="kw">else </span>{
-            <span class="self">self</span>.last_day_of_month
-                .get(usize::from(month - <span class="number">2</span>))
-                .copied()
-                .unwrap_or(<span class="number">0</span>)
+            <span class="self">self</span>.packed_data.last_day_of_month(month - <span class="number">1</span>)
         }
+    }
+
+    <span class="kw">fn </span>days_in_year(<span class="self">self</span>) -&gt; u16 {
+        <span class="self">self</span>.packed_data.days_in_year()
+    }
+
+    <span class="kw">fn </span>days_in_prev_year(<span class="self">self</span>) -&gt; u16 {
+        <span class="self">self</span>.days_in_prev_year
     }
 
     <span class="doccomment">/// The last day of year in the current month.
@@ -788,12 +881,7 @@
     /// is not in this year
     </span><span class="kw">fn </span>last_day_of_month(<span class="self">self</span>, month: u8) -&gt; u16 {
         <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">"Month out of bounds!"</span>);
-        <span class="comment">// Get the last day of the previous month.
-        // Since `month` is 1-indexed, this needs to subtract one
-        </span><span class="self">self</span>.last_day_of_month
-            .get(usize::from(month - <span class="number">1</span>))
-            .copied()
-            .unwrap_or(<span class="number">0</span>)
+        <span class="self">self</span>.packed_data.last_day_of_month(month)
     }
 
     <span class="kw">fn </span>days_in_month(<span class="self">self</span>, month: u8) -&gt; u8 {
@@ -804,50 +892,28 @@
     }
 }
 
-<span class="kw">impl</span>&lt;C: ChineseBasedWithDataLoading&gt; ChineseBasedDateInner&lt;C&gt; {
-    <span class="doccomment">/// Given a 1-indexed chinese extended year, fetch its data from the cache.
-    ///
-    /// If the actual year data that was fetched is for a different year, update the getter year
-    </span><span class="kw">fn </span>get_compiled_data_for_year_helper(
-        date: RataDie,
-        getter_year: <span class="kw-2">&amp;mut </span>i32,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;ChineseBasedCompiledData&gt; {
-        <span class="kw">let </span>data_option = C::get_compiled_data_for_year(<span class="kw-2">*</span>getter_year);
-        <span class="comment">// todo we should be able to do this without unpacking
-        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(data) = data_option {
-            <span class="kw">if </span>date &lt; data.new_year {
-                <span class="kw-2">*</span>getter_year -= <span class="number">1</span>;
-                C::get_compiled_data_for_year(<span class="kw-2">*</span>getter_year)
-            } <span class="kw">else if </span>date &gt;= data.next_new_year() {
-                <span class="kw-2">*</span>getter_year += <span class="number">1</span>;
-                C::get_compiled_data_for_year(<span class="kw-2">*</span>getter_year)
-            } <span class="kw">else </span>{
-                data_option
-            }
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
-    }
-
+<span class="kw">impl</span>&lt;C: ChineseBasedWithDataLoading + CalendarArithmetic&lt;YearInfo = ChineseBasedYearInfo&gt;&gt;
+    ChineseBasedDateInner&lt;C&gt;
+{
     <span class="doccomment">/// Get a ChineseBasedDateInner from a fixed date and the cache/extended year associated with it
-    </span><span class="kw">fn </span>chinese_based_date_from_cached(
+    </span><span class="kw">fn </span>chinese_based_date_from_info(
         date: RataDie,
-        data: ChineseBasedCompiledData,
+        year_info: ChineseBasedYearInfo,
         extended_year: i32,
     ) -&gt; ChineseBasedDateInner&lt;C&gt; {
         <span class="macro">debug_assert!</span>(
-            date &lt; data.next_new_year(),
+            date &lt; year_info.next_new_year::&lt;C::CB&gt;(extended_year),
             <span class="string">"Stored date {date:?} out of bounds!"
         </span>);
         <span class="comment">// 1-indexed day of year
-        </span><span class="kw">let </span>day_of_year = u16::try_from(date - data.new_year + <span class="number">1</span>);
+        </span><span class="kw">let </span>day_of_year = u16::try_from(date - year_info.new_year::&lt;C::CB&gt;(extended_year) + <span class="number">1</span>);
         <span class="macro">debug_assert!</span>(day_of_year.is_ok(), <span class="string">"Somehow got a very large year in data"</span>);
         <span class="kw">let </span>day_of_year = day_of_year.unwrap_or(<span class="number">1</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>month = <span class="number">1</span>;
-        <span class="comment">// todo perhaps use a binary search
+        <span class="comment">// TODO(#3933) perhaps use a binary search
         </span><span class="kw">for </span>iter_month <span class="kw">in </span><span class="number">1</span>..=<span class="number">13 </span>{
             month = iter_month;
-            <span class="kw">if </span>data.last_day_of_month(iter_month) &gt;= day_of_year {
+            <span class="kw">if </span>year_info.last_day_of_month(iter_month) &gt;= day_of_year {
                 <span class="kw">break</span>;
             }
         }
@@ -855,10 +921,10 @@
         <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>month), <span class="string">"Month out of bounds!"</span>);
 
         <span class="macro">debug_assert!</span>(
-            month &lt; <span class="number">13 </span>|| data.leap_month.is_some(),
+            month &lt; <span class="number">13 </span>|| year_info.leap_month().is_some(),
             <span class="string">"Cannot have 13 months in a non-leap year!"
         </span>);
-        <span class="kw">let </span>day_before_month_start = data.last_day_of_previous_month(month);
+        <span class="kw">let </span>day_before_month_start = year_info.last_day_of_previous_month(month);
         <span class="kw">let </span>day_of_month = day_of_year - day_before_month_start;
         <span class="kw">let </span>day_of_month = u8::try_from(day_of_month);
         <span class="macro">debug_assert!</span>(day_of_month.is_ok(), <span class="string">"Month too big!"</span>);
@@ -868,44 +934,30 @@
         // generate the year, month, and day; therefore, there should never be a situation where
         // creating this ArithmeticDate would fail, since the same algorithms used to generate the ymd
         // are also used to check for valid ymd.
-        </span>ChineseBasedDateInner(
-            ArithmeticDate::new_unchecked(extended_year, month, day_of_month),
-            ChineseBasedYearInfo::Data(data),
-        )
+        </span>ChineseBasedDateInner(ArithmeticDate::new_unchecked_with_info(
+            extended_year,
+            month,
+            day_of_month,
+            year_info,
+        ))
     }
 
-    <span class="doccomment">/// Get a ChineseBasedDateInner from a fixed date, with the related ISO year
+    <span class="doccomment">/// Get a ChineseBasedDateInner from a fixed date, with the related ISO date
+    /// (passed in to avoid recomputing)
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>chinese_based_date_from_fixed(
-        date: RataDie,
-        iso_year: i32,
+        cal: <span class="kw-2">&amp;</span>C,
+        fixed: RataDie,
+        iso: ArithmeticDate&lt;Iso&gt;,
     ) -&gt; ChineseBasedDateInner&lt;C&gt; {
-        <span class="comment">// Get the 1-indexed Chinese extended year, used for fetching data from the cache
-        </span><span class="kw">let </span>epoch_as_iso = Iso::iso_from_fixed(C::CB::EPOCH);
-        <span class="kw">let </span><span class="kw-2">mut </span>getter_year = iso_year - epoch_as_iso.year().number + <span class="number">1</span>;
+        <span class="kw">let </span>data = cal.get_precomputed_data();
 
-        <span class="kw">let </span>data_option = <span class="self">Self</span>::get_compiled_data_for_year_helper(date, <span class="kw-2">&amp;mut </span>getter_year);
+        <span class="kw">let </span>(year_info, extended_year) = data.load_or_compute_info_for_iso(fixed, iso);
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = data_option {
-            <span class="comment">// cache fetch successful, getter year is just the regular extended year
-            </span><span class="self">Self</span>::chinese_based_date_from_cached(date, data, getter_year)
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>date = chinese_based::chinese_based_date_from_fixed::&lt;C::CB&gt;(date);
+        <span class="self">Self</span>::chinese_based_date_from_info(fixed, year_info, extended_year)
+    }
 
-            <span class="kw">let </span>cache = ChineseBasedCache {
-                new_year: date.year_bounds.new_year,
-                next_new_year: date.year_bounds.next_new_year,
-                leap_month: date.leap_month,
-            };
-
-            <span class="comment">// This can use `new_unchecked` because this function is only ever called from functions which
-            // generate the year, month, and day; therefore, there should never be a situation where
-            // creating this ArithmeticDate would fail, since the same algorithms used to generate the ymd
-            // are also used to check for valid ymd.
-            </span>ChineseBasedDateInner(
-                ArithmeticDate::new_unchecked(date.year, date.month, date.day),
-                ChineseBasedYearInfo::Cache(cache),
-            )
-        }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_year(<span class="self">self</span>) -&gt; RataDie {
+        <span class="self">self</span>.<span class="number">0</span>.year_info.new_year::&lt;C::CB&gt;(<span class="self">self</span>.<span class="number">0</span>.year)
     }
 
     <span class="doccomment">/// Get a RataDie from a ChineseBasedDateInner
@@ -913,7 +965,7 @@
     /// This finds the RataDie of the new year of the year given, then finds the RataDie of the new moon
     /// (beginning of the month) of the month given, then adds the necessary number of days.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fixed_from_chinese_based_date_inner(date: ChineseBasedDateInner&lt;C&gt;) -&gt; RataDie {
-        <span class="kw">let </span>first_day_of_year = date.<span class="number">1</span>.get_new_year();
+        <span class="kw">let </span>first_day_of_year = date.new_year();
         <span class="kw">let </span>day_of_year = date.day_of_year(); <span class="comment">// 1 indexed
         </span>first_day_of_year + i64::from(day_of_year) - <span class="number">1
     </span>}
@@ -925,7 +977,7 @@
         year: i32,
         month: u8,
         day: u8,
-        year_info: <span class="kw-2">&amp;</span>ChineseBasedYearInfo,
+        year_info: ChineseBasedYearInfo,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;ArithmeticDate&lt;C&gt;, CalendarError&gt; {
         <span class="kw">let </span>max_month = <span class="self">Self</span>::months_in_year_with_info(year_info);
         <span class="kw">if </span>!(<span class="number">1</span>..=max_month).contains(<span class="kw-2">&amp;</span>month) {
@@ -935,11 +987,7 @@
             });
         }
 
-        <span class="kw">let </span>max_day = <span class="kw">if let </span>ChineseBasedYearInfo::Data(data) = year_info {
-            data.days_in_month(month)
-        } <span class="kw">else </span>{
-            chinese_based::days_in_month::&lt;C::CB&gt;(month, year_info.get_new_year(), <span class="prelude-val">None</span>).<span class="number">0
-        </span>};
+        <span class="kw">let </span>max_day = year_info.days_in_month(month);
         <span class="kw">if </span>day &gt; max_day {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::Overflow {
                 field: <span class="string">"day"</span>,
@@ -948,19 +996,20 @@
         }
 
         <span class="comment">// Unchecked can be used because month and day are already checked in this fn
-
-        </span><span class="prelude-val">Ok</span>(ArithmeticDate::&lt;C&gt;::new_unchecked(year, month, day))
+        </span><span class="prelude-val">Ok</span>(ArithmeticDate::&lt;C&gt;::new_unchecked_with_info(
+            year, month, day, year_info,
+        ))
     }
 
     <span class="doccomment">/// Call `months_in_year_with_info` on a `ChineseBasedDateInner`
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>months_in_year_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="self">Self</span>::months_in_year_with_info(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">1</span>)
+        <span class="self">Self</span>::months_in_year_with_info(<span class="self">self</span>.<span class="number">0</span>.year_info)
     }
 
     <span class="doccomment">/// Return the number of months in a given year, which is 13 in a leap year, and 12 in a common year.
-    /// Also takes a `ChineseBasedCache` argument.
-    </span><span class="kw">fn </span>months_in_year_with_info(year_info: <span class="kw-2">&amp;</span>ChineseBasedYearInfo) -&gt; u8 {
-        <span class="kw">if </span>year_info.get_leap_month().is_some() {
+    /// Also takes a `ChineseBasedYearInfo` argument.
+    </span><span class="kw">fn </span>months_in_year_with_info(year_info: ChineseBasedYearInfo) -&gt; u8 {
+        <span class="kw">if </span>year_info.leap_month().is_some() {
             <span class="number">13
         </span>} <span class="kw">else </span>{
             <span class="number">12
@@ -969,11 +1018,7 @@
 
     <span class="doccomment">/// Calls `days_in_month` on an instance of ChineseBasedDateInner
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>days_in_month_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="kw">if let </span>ChineseBasedYearInfo::Data(data) = <span class="self">self</span>.<span class="number">1 </span>{
-            data.days_in_month(<span class="self">self</span>.<span class="number">0</span>.month)
-        } <span class="kw">else </span>{
-            chinese_based::days_in_month::&lt;C::CB&gt;(<span class="self">self</span>.<span class="number">0</span>.month, <span class="self">self</span>.<span class="number">1</span>.get_new_year(), <span class="prelude-val">None</span>).<span class="number">0
-        </span>}
+        <span class="self">self</span>.<span class="number">0</span>.year_info.days_in_month(<span class="self">self</span>.<span class="number">0</span>.month)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>fixed_mid_year_from_year(year: i32) -&gt; RataDie {
@@ -982,62 +1027,100 @@
 
     <span class="doccomment">/// Calls days_in_year on an instance of ChineseBasedDateInner
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>days_in_year_inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
-        <span class="kw">let </span>next_new_year = <span class="self">self</span>.<span class="number">1</span>.get_next_new_year();
-        <span class="kw">let </span>new_year = <span class="self">self</span>.<span class="number">1</span>.get_new_year();
-        YearBounds {
-            new_year,
-            next_new_year,
-        }
-        .count_days()
+        <span class="self">self</span>.<span class="number">0</span>.year_info.days_in_year()
+    }
+    <span class="doccomment">/// Gets the days in the previous year
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>days_in_prev_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
+        <span class="self">self</span>.<span class="number">0</span>.year_info.days_in_prev_year()
     }
 
     <span class="doccomment">/// Calculate the number of days in the year so far for a ChineseBasedDate;
     /// similar to `CalendarArithmetic::day_of_year`
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>day_of_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
-        <span class="kw">let </span>days_until_month = <span class="kw">if let </span>ChineseBasedYearInfo::Data(data) = <span class="self">self</span>.<span class="number">1 </span>{
-            data.last_day_of_previous_month(<span class="self">self</span>.<span class="number">0</span>.month)
-        } <span class="kw">else </span>{
-            <span class="kw">let </span>new_year = <span class="self">self</span>.<span class="number">1</span>.get_new_year();
-            chinese_based::days_until_month::&lt;C::CB&gt;(new_year, <span class="self">self</span>.<span class="number">0</span>.month)
-        };
-        days_until_month + u16::from(<span class="self">self</span>.<span class="number">0</span>.day)
+        <span class="self">self</span>.<span class="number">0</span>.year_info.last_day_of_previous_month(<span class="self">self</span>.<span class="number">0</span>.month) + u16::from(<span class="self">self</span>.<span class="number">0</span>.day)
     }
 
-    <span class="doccomment">/// Compute a `ChineseBasedCache` from a ChineseBased year
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>compute_cache(year: i32) -&gt; ChineseBasedCache {
-        <span class="kw">let </span>mid_year = <span class="self">Self</span>::fixed_mid_year_from_year(year);
-        <span class="kw">let </span>year_bounds = YearBounds::compute::&lt;C::CB&gt;(mid_year);
-        <span class="kw">let </span>YearBounds {
-            new_year,
-            next_new_year,
-            ..
-        } = year_bounds;
-        <span class="kw">let </span>is_leap_year = year_bounds.is_leap();
-        <span class="kw">let </span>leap_month = <span class="kw">if </span>is_leap_year {
-            <span class="comment">// This doesn't need to be checked for None because `get_leap_month_from_new_year`
-            // will always return a value between 1..=13
-            </span>NonZeroU8::new(chinese_based::get_leap_month_from_new_year::&lt;C::CB&gt;(
-                new_year,
-            ))
+    <span class="doccomment">/// The calendar-specific month code represented by `date`;
+    /// since the Chinese calendar has leap months, an "L" is appended to the month code for
+    /// leap months. For example, in a year where an intercalary month is added after the second
+    /// month, the month codes for ordinal months 1, 2, 3, 4, 5 would be "M01", "M02", "M02L", "M03", "M04".
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; FormattableMonth {
+        <span class="kw">let </span>ordinal = <span class="self">self</span>.<span class="number">0</span>.month;
+        <span class="kw">let </span>leap_month_option = <span class="self">self</span>.<span class="number">0</span>.year_info.leap_month();
+
+        <span class="comment">// 1 indexed leap month name. This is also the ordinal for the leap month
+        // in the year (e.g. in `M01, M01L, M02, ..`, the leap month is for month 1, and it is also
+        // ordinally `month 2`, zero-indexed)
+        </span><span class="kw">let </span>leap_month = <span class="kw">if let </span><span class="prelude-val">Some</span>(leap) = leap_month_option {
+            leap.get()
         } <span class="kw">else </span>{
-            <span class="prelude-val">None
+            <span class="comment">// sentinel value
+            </span><span class="number">14
         </span>};
-        ChineseBasedCache {
-            new_year,
-            next_new_year,
-            leap_month,
+        <span class="kw">let </span>code_inner = <span class="kw">if </span>leap_month == ordinal {
+            <span class="comment">// Month cannot be 1 because a year cannot have a leap month before the first actual month,
+            // and the maximum num of months ina leap year is 13.
+            </span><span class="macro">debug_assert!</span>((<span class="number">2</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>ordinal));
+            <span class="kw">match </span>ordinal {
+                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01L"</span>),
+                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02L"</span>),
+                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03L"</span>),
+                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04L"</span>),
+                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05L"</span>),
+                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06L"</span>),
+                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07L"</span>),
+                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08L"</span>),
+                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09L"</span>),
+                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10L"</span>),
+                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11L"</span>),
+                <span class="number">13 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12L"</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
+            }
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>adjusted_ordinal = ordinal;
+            <span class="kw">if </span>ordinal &gt; leap_month {
+                <span class="comment">// Before adjusting for leap month, if ordinal &gt; leap_month,
+                // the month cannot be 1 because this implies the leap month is &lt; 1, which is impossible;
+                // cannot be 2 because that implies the leap month is = 1, which is impossible,
+                // and cannot be more than 13 because max number of months in a year is 13.
+                </span><span class="macro">debug_assert!</span>((<span class="number">2</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>ordinal));
+                adjusted_ordinal -= <span class="number">1</span>;
+            }
+            <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">12</span>).contains(<span class="kw-2">&amp;</span>adjusted_ordinal));
+            <span class="kw">match </span>adjusted_ordinal {
+                <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01"</span>),
+                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02"</span>),
+                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03"</span>),
+                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04"</span>),
+                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05"</span>),
+                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06"</span>),
+                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07"</span>),
+                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08"</span>),
+                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09"</span>),
+                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10"</span>),
+                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11"</span>),
+                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12"</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
+            }
+        };
+        <span class="kw">let </span>code = MonthCode(code_inner);
+        FormattableMonth {
+            ordinal: ordinal <span class="kw">as </span>u32,
+            code,
         }
     }
 }
 
 <span class="kw">impl</span>&lt;C: ChineseBasedWithDataLoading&gt; CalendarArithmetic <span class="kw">for </span>C {
-    <span class="kw">fn </span>month_days(year: i32, month: u8) -&gt; u8 {
-        chinese_based::month_days::&lt;C::CB&gt;(year, month)
+    <span class="kw">type </span>YearInfo = ChineseBasedYearInfo;
+
+    <span class="kw">fn </span>month_days(_year: i32, month: u8, year_info: ChineseBasedYearInfo) -&gt; u8 {
+        year_info.days_in_month(month)
     }
 
     <span class="doccomment">/// Returns the number of months in a given year, which is 13 in a leap year, and 12 in a common year.
-    </span><span class="kw">fn </span>months_for_every_year(year: i32) -&gt; u8 {
-        <span class="kw">if </span><span class="self">Self</span>::is_leap_year(year) {
+    </span><span class="kw">fn </span>months_for_every_year(_year: i32, year_info: ChineseBasedYearInfo) -&gt; u8 {
+        <span class="kw">if </span>year_info.leap_month().is_some() {
             <span class="number">13
         </span>} <span class="kw">else </span>{
             <span class="number">12
@@ -1045,36 +1128,24 @@
     }
 
     <span class="doccomment">/// Returns true if the given year is a leap year, and false if not.
-    </span><span class="kw">fn </span>is_leap_year(year: i32) -&gt; bool {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = C::get_compiled_data_for_year(year) {
-            data.leap_month.is_some()
-        } <span class="kw">else </span>{
-            chinese_based::is_leap_year::&lt;C::CB&gt;(year)
-        }
+    </span><span class="kw">fn </span>is_leap_year(_year: i32, year_info: ChineseBasedYearInfo) -&gt; bool {
+        year_info.leap_month().is_some()
     }
 
     <span class="doccomment">/// Returns the (month, day) of the last day in a Chinese year (the day before Chinese New Year).
     /// The last month in a year will always be 12 in a common year or 13 in a leap year. The day is
     /// determined by finding the day immediately before the next new year and calculating the number
     /// of days since the last new moon (beginning of the last month in the year).
-    </span><span class="kw">fn </span>last_month_day_in_year(year: i32) -&gt; (u8, u8) {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = C::get_compiled_data_for_year(year) {
-            <span class="kw">if </span>data.leap_month.is_some() {
-                (<span class="number">13</span>, data.days_in_month(<span class="number">13</span>))
-            } <span class="kw">else </span>{
-                (<span class="number">12</span>, data.days_in_month(<span class="number">12</span>))
-            }
+    </span><span class="kw">fn </span>last_month_day_in_year(_year: i32, year_info: ChineseBasedYearInfo) -&gt; (u8, u8) {
+        <span class="kw">if </span>year_info.leap_month().is_some() {
+            (<span class="number">13</span>, year_info.days_in_month(<span class="number">13</span>))
         } <span class="kw">else </span>{
-            chinese_based::last_month_day_in_year::&lt;C::CB&gt;(year)
+            (<span class="number">12</span>, year_info.days_in_month(<span class="number">12</span>))
         }
     }
 
-    <span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u16 {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = C::get_compiled_data_for_year(year) {
-            data.last_day_of_month(<span class="number">13</span>)
-        } <span class="kw">else </span>{
-            chinese_based::days_in_provided_year::&lt;C::CB&gt;(year)
-        }
+    <span class="kw">fn </span>days_in_provided_year(_year: i32, year_info: ChineseBasedYearInfo) -&gt; u16 {
+        year_info.last_day_of_month(<span class="number">13</span>)
     }
 }
 
@@ -1083,7 +1154,7 @@
     code: MonthCode,
     year_info: ChineseBasedYearInfo,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;u8&gt; {
-    <span class="kw">let </span>leap_month = <span class="kw">if let </span><span class="prelude-val">Some</span>(leap) = year_info.get_leap_month() {
+    <span class="kw">let </span>leap_month = <span class="kw">if let </span><span class="prelude-val">Some</span>(leap) = year_info.leap_month() {
         leap.get()
     } <span class="kw">else </span>{
         <span class="comment">// 14 is a sentinel value, greater than all other months, for the purpose of computation only;
@@ -1101,7 +1172,8 @@
     <span class="kw">if </span>code.<span class="number">0</span>.len() == <span class="number">4 </span>&amp;&amp; bytes[<span class="number">3</span>] != <span class="string">b'L' </span>{
         <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">let </span><span class="kw-2">mut </span>unadjusted = <span class="number">0</span>;
+    <span class="comment">// Unadjusted is zero-indexed month index, must add one to it to use
+    </span><span class="kw">let </span><span class="kw-2">mut </span>unadjusted = <span class="number">0</span>;
     <span class="kw">if </span>bytes[<span class="number">1</span>] == <span class="string">b'0' </span>{
         <span class="kw">if </span>bytes[<span class="number">2</span>] &gt;= <span class="string">b'1' </span>&amp;&amp; bytes[<span class="number">2</span>] &lt;= <span class="string">b'9' </span>{
             unadjusted = bytes[<span class="number">2</span>] - <span class="string">b'0'</span>;
@@ -1110,14 +1182,18 @@
         unadjusted = <span class="number">10 </span>+ bytes[<span class="number">2</span>] - <span class="string">b'0'</span>;
     }
     <span class="kw">if </span>bytes[<span class="number">3</span>] == <span class="string">b'L' </span>{
-        <span class="kw">if </span>unadjusted + <span class="number">1 </span>!= leap_month {
+        <span class="comment">// Asked for a leap month that doesn't exist
+        </span><span class="kw">if </span>unadjusted + <span class="number">1 </span>!= leap_month {
             <span class="kw">return </span><span class="prelude-val">None</span>;
         } <span class="kw">else </span>{
-            <span class="kw">return </span><span class="prelude-val">Some</span>(unadjusted + <span class="number">1</span>);
+            <span class="comment">// The leap month occurs after the regular month of the same name
+            </span><span class="kw">return </span><span class="prelude-val">Some</span>(unadjusted + <span class="number">1</span>);
         }
     }
     <span class="kw">if </span>unadjusted != <span class="number">0 </span>{
-        <span class="kw">if </span>unadjusted + <span class="number">1 </span>&gt; leap_month {
+        <span class="comment">// If the month has an index greater than that of the leap month,
+        // bump it up by one
+        </span><span class="kw">if </span>unadjusted + <span class="number">1 </span>&gt; leap_month {
             <span class="kw">return </span><span class="prelude-val">Some</span>(unadjusted + <span class="number">1</span>);
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Some</span>(unadjusted);
@@ -1125,4 +1201,73 @@
     }
     <span class="prelude-val">None
 </span>}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">fn </span>packed_roundtrip_single(
+        <span class="kw-2">mut </span>month_lengths: [bool; <span class="number">13</span>],
+        leap_month_idx: <span class="prelude-ty">Option</span>&lt;NonZeroU8&gt;,
+        ny_offset: u8,
+    ) {
+        <span class="kw">if </span>leap_month_idx.is_none() {
+            <span class="comment">// Avoid bad invariants
+            </span>month_lengths[<span class="number">12</span>] = <span class="bool-val">false</span>;
+        }
+        <span class="kw">let </span>packed = PackedChineseBasedYearInfo::new(month_lengths, leap_month_idx, ny_offset);
+
+        <span class="macro">assert_eq!</span>(
+            ny_offset,
+            packed.ny_offset(),
+            <span class="string">"Roundtrip with {month_lengths:?}, {leap_month_idx:?}, {ny_offset}"
+        </span>);
+        <span class="macro">assert_eq!</span>(
+            leap_month_idx,
+            packed.leap_month_idx(),
+            <span class="string">"Roundtrip with {month_lengths:?}, {leap_month_idx:?}, {ny_offset}"
+        </span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>month_lengths_roundtrip = [<span class="bool-val">false</span>; <span class="number">13</span>];
+        <span class="kw">for </span>(i, len) <span class="kw">in </span>month_lengths_roundtrip.iter_mut().enumerate() {
+            <span class="kw-2">*</span>len = packed.month_has_30_days(i <span class="kw">as </span>u8 + <span class="number">1</span>);
+        }
+        <span class="macro">assert_eq!</span>(
+            month_lengths, month_lengths_roundtrip,
+            <span class="string">"Roundtrip with {month_lengths:?}, {leap_month_idx:?}, {ny_offset}"
+        </span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_roundtrip_packed() {
+        <span class="kw">const </span>SHORT: [bool; <span class="number">13</span>] = [<span class="bool-val">false</span>; <span class="number">13</span>];
+        <span class="kw">const </span>LONG: [bool; <span class="number">13</span>] = [<span class="bool-val">true</span>; <span class="number">13</span>];
+        <span class="kw">const </span>ALTERNATING1: [bool; <span class="number">13</span>] = [
+            <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>,
+        ];
+        <span class="kw">const </span>ALTERNATING2: [bool; <span class="number">13</span>] = [
+            <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>,
+        ];
+        <span class="kw">const </span>RANDOM1: [bool; <span class="number">13</span>] = [
+            <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>,
+        ];
+        <span class="kw">const </span>RANDOM2: [bool; <span class="number">13</span>] = [
+            <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>,
+        ];
+        packed_roundtrip_single(SHORT, <span class="prelude-val">None</span>, <span class="number">5</span>);
+        packed_roundtrip_single(SHORT, <span class="prelude-val">None</span>, <span class="number">10</span>);
+        packed_roundtrip_single(SHORT, NonZeroU8::new(<span class="number">11</span>), <span class="number">15</span>);
+        packed_roundtrip_single(LONG, NonZeroU8::new(<span class="number">12</span>), <span class="number">15</span>);
+        packed_roundtrip_single(ALTERNATING1, <span class="prelude-val">None</span>, <span class="number">2</span>);
+        packed_roundtrip_single(ALTERNATING1, NonZeroU8::new(<span class="number">3</span>), <span class="number">5</span>);
+        packed_roundtrip_single(ALTERNATING2, <span class="prelude-val">None</span>, <span class="number">9</span>);
+        packed_roundtrip_single(ALTERNATING2, NonZeroU8::new(<span class="number">7</span>), <span class="number">26</span>);
+        packed_roundtrip_single(RANDOM1, <span class="prelude-val">None</span>, <span class="number">29</span>);
+        packed_roundtrip_single(RANDOM1, NonZeroU8::new(<span class="number">12</span>), <span class="number">29</span>);
+        packed_roundtrip_single(RANDOM1, NonZeroU8::new(<span class="number">2</span>), <span class="number">21</span>);
+        packed_roundtrip_single(RANDOM2, <span class="prelude-val">None</span>, <span class="number">25</span>);
+        packed_roundtrip_single(RANDOM2, NonZeroU8::new(<span class="number">2</span>), <span class="number">19</span>);
+        packed_roundtrip_single(RANDOM2, NonZeroU8::new(<span class="number">5</span>), <span class="number">2</span>);
+        packed_roundtrip_single(RANDOM2, NonZeroU8::new(<span class="number">12</span>), <span class="number">5</span>);
+    }
+}
 </code></pre></div></section></main></body></html>

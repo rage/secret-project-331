@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Baked","EraStartDate","EraStartDateULE","JapaneseErasV1","JapaneseErasV1Marker","JapaneseExtendedErasV1Marker","WeekDataV1","WeekDataV1Marker"]};
+window.SIDEBAR_ITEMS = {"mod":["chinese_based","islamic"],"struct":["Baked","ChineseCacheV1Marker","DangiCacheV1Marker","EraStartDate","EraStartDateULE","IslamicObservationalCacheV1Marker","IslamicUmmAlQuraCacheV1Marker","JapaneseErasV1","JapaneseErasV1Marker","JapaneseExtendedErasV1Marker","WeekDataV1","WeekDataV1Marker","WeekDataV2","WeekDataV2Marker","WeekdaySet"]};

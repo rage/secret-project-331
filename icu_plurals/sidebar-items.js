@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["PluralCategory","PluralRuleType","PluralsError"],"mod":["provider","rules"],"struct":["PluralOperands","PluralRules"]};
+window.SIDEBAR_ITEMS = {"enum":["PluralCategory","PluralRuleType","PluralsError"],"mod":["provider","rules"],"struct":["PluralCategoryULE","PluralOperands","PluralRules"]};

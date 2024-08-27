@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.4.0/src/codepointinvlist/cpinvlist.rs`."><title>cpinvlist.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.5.0/src/codepointinvlist/cpinvlist.rs`."><title>cpinvlist.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1067,11 +1066,6 @@
 <a href="#1066" id="1066">1066</a>
 <a href="#1067" id="1067">1067</a>
 <a href="#1068" id="1068">1068</a>
-<a href="#1069" id="1069">1069</a>
-<a href="#1070" id="1070">1070</a>
-<a href="#1071" id="1071">1071</a>
-<a href="#1072" id="1072">1072</a>
-<a href="#1073" id="1073">1073</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1184,7 +1178,7 @@
         <span class="kw">let </span>inv_list = <span class="self">self</span>.inv_list.bake(env);
         <span class="kw">let </span>size = <span class="self">self</span>.size.bake(env);
         <span class="comment">// Safe because our parts are safe.
-        </span><span class="macro">databake::quote! </span>{ <span class="kw">unsafe </span>{
+        </span><span class="macro">databake::quote!</span> { <span class="kw">unsafe </span>{
             <span class="attr">#[allow(unused_unsafe)]
             </span>icu_collections::codepointinvlist::CodePointInversionList::from_parts_unchecked(#inv_list, #size)
         }}
@@ -1266,8 +1260,8 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
-    /// use icu_collections::codepointinvlist::CodePointInversionListError;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionListError;
     /// use zerovec::ZeroVec;
     /// let valid = [0x0, 0x10000];
     /// let inv_list: ZeroVec&lt;u32&gt; = ZeroVec::from_slice_or_alloc(&amp;valid);
@@ -1320,9 +1314,8 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
-    /// use icu_collections::codepointinvlist::CodePointInversionListError;
-    /// use zerovec::ZeroVec;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionListError;
     /// let valid = [0x0, 0x10000];
     /// let result = CodePointInversionList::try_from_inversion_list_slice(&amp;valid);
     /// assert!(matches!(result, CodePointInversionList));
@@ -1354,9 +1347,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
-    /// use std::vec::Vec;
-    /// use zerovec::ZeroVec;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     ///
     /// let bmp_list = &amp;[0x0, 0x10000];
     /// let smp_list = &amp;[0x10000, 0x20000];
@@ -1405,8 +1396,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
-    /// use zerovec::ZeroVec;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     ///
     /// let expected = [0x0, (char::MAX as u32) + 1];
     /// assert_eq!(
@@ -1432,8 +1422,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
-    /// use zerovec::ZeroVec;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     ///
     /// const BMP_MAX: u32 = 0xFFFF;
     ///
@@ -1466,7 +1455,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x44, 0x45, 0x46];
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1497,7 +1486,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x44, 0x45, 0x46];
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1526,7 +1515,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x44, 0x45, 0x46];
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1626,7 +1615,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x43, 0x44, 0x45];
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1651,7 +1640,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x43, 0x44, 0x45];
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1672,7 +1661,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x43, 0x44, 0x45];
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1693,7 +1682,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// use std::char;
     /// let check =
     ///     char::from_u32(0xD7FE).unwrap()..char::from_u32(0xE001).unwrap();
@@ -1729,7 +1718,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x46, 0x55, 0x5B]; // A - E, U - Z
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1777,7 +1766,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x44]; // {A, B, C}
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)
@@ -1800,7 +1789,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionList;
+    /// use icu::collections::codepointinvlist::CodePointInversionList;
     /// let example_list = [0x41, 0x44]; // {A, B, C}
     /// let example =
     ///     CodePointInversionList::try_from_inversion_list_slice(&amp;example_list)

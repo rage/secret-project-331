@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.6/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/combine-4.6.7/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="combine" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1005,12 +1004,6 @@
 <a href="#1004" id="1004">1004</a>
 <a href="#1005" id="1005">1005</a>
 <a href="#1006" id="1006">1006</a>
-<a href="#1007" id="1007">1007</a>
-<a href="#1008" id="1008">1008</a>
-<a href="#1009" id="1009">1009</a>
-<a href="#1010" id="1010">1010</a>
-<a href="#1011" id="1011">1011</a>
-<a href="#1012" id="1012">1012</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! This crate contains parser combinators, roughly based on the Haskell libraries
 //! [parsec](http://hackage.haskell.org/package/parsec) and
 //! [attoparsec](https://hackage.haskell.org/package/attoparsec).
@@ -1097,10 +1090,10 @@
 //! If we need a parser that is mutually recursive or if we want to export a reusable parser the
 //! [`parser!`] macro can be used. In effect it makes it possible to return a parser without naming
 //! the type of the parser (which can be very large due to combine's trait based approach). While
-//! it is possible to do avoid naming the type without the macro those solutions require either allocation
-//! (`Box&lt;dyn Parser&lt; Input, Output = O, PartialState = P&gt;&gt;`) or nightly rust via `impl Trait`. The
-//! macro thus threads the needle and makes it possible to have non-allocating, anonymous parsers
-//! on stable rust.
+//! it is possible to do avoid naming the type without the macro those solutions require either
+//! allocation (`Box&lt;dyn Parser&lt; Input, Output = O, PartialState = P&gt;&gt;`) or via `impl Trait` in the
+//! return position. The macro thus threads the needle and makes it possible to have
+//! non-allocating, anonymous parsers on stable rust.
 //!
 //! ```
 //! #[macro_use]
@@ -1121,8 +1114,6 @@
 //! // `impl Parser` can be used to create reusable parsers with zero overhead
 //! fn expr_&lt;Input&gt;() -&gt; impl Parser&lt; Input, Output = Expr&gt;
 //!     where Input: Stream&lt;Token = char&gt;,
-//!           // Necessary due to rust-lang/rust#24159
-//!           Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
 //! {
 //!     let word = many1(letter());
 //!
@@ -1254,8 +1245,8 @@
 /// The expression which creates the parser should have no side effects as it may be called
 /// multiple times even during a single parse attempt.
 ///
-/// NOTE: If you are using rust nightly you can use `impl Trait` instead. See the [json parser][] for
-/// an example.
+/// NOTE: You can use `impl Trait` in the return position instead. See the [json parser][] for an
+/// example.
 ///
 /// [json parser]:https://github.com/Marwes/combine/blob/master/benches/json.rs
 ///
@@ -1272,7 +1263,6 @@
 ///     fn integer[Input]()(Input) -&gt; i32
 ///     where [
 ///         Input: Stream&lt;Token = char&gt;,
-///         Input::Error: ParseError&lt;char, Input::Range, Input::Position&gt;,
 ///         &lt;Input::Error as ParseError&lt;Input::Token, Input::Range, Input::Position&gt;&gt;::StreamError:
 ///             From&lt;::std::num::ParseIntError&gt;,
 ///     ]
@@ -1296,7 +1286,6 @@
 ///     pub fn integer_or_string[Input]()(Input) -&gt; IntOrString
 ///     where [
 ///         Input: Stream&lt;Token = char&gt;,
-///         Input::Error: ParseError&lt;char, Input::Range, Input::Position&gt;,
 ///         &lt;Input::Error as ParseError&lt;Input::Token, Input::Range, Input::Position&gt;&gt;::StreamError:
 ///             From&lt;::std::num::ParseIntError&gt;,
 ///     ]
@@ -1336,7 +1325,7 @@
 /// }
 /// ```
 </span><span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>parser {
+</span><span class="macro">macro_rules!</span> parser {
     (
         <span class="kw">type </span>PartialState = <span class="macro-nonterminal">$partial_state</span>: ty;
         $(<span class="attr">#[<span class="macro-nonterminal">$attr</span>:meta]</span>)*
@@ -1417,7 +1406,7 @@
 
 <span class="attr">#[doc(hidden)]
 #[macro_export]
-</span><span class="macro">macro_rules! </span>combine_parse_partial {
+</span><span class="macro">macro_rules!</span> combine_parse_partial {
     ((()) <span class="macro-nonterminal">$mode</span>:ident <span class="macro-nonterminal">$input</span>:ident <span class="macro-nonterminal">$state</span>:ident <span class="macro-nonterminal">$parser</span>:block) =&gt; {{
         <span class="kw">let _ </span>= <span class="macro-nonterminal">$state</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>state = Default::default();
@@ -1431,7 +1420,7 @@
 
 <span class="attr">#[doc(hidden)]
 #[macro_export]
-</span><span class="macro">macro_rules! </span>combine_parser_impl {
+</span><span class="macro">macro_rules!</span> combine_parser_impl {
     (
         $(<span class="attr">#[<span class="macro-nonterminal">$derive</span>:meta]</span>)*
         <span class="macro-nonterminal">$struct_vis</span>: vis <span class="kw">struct </span><span class="macro-nonterminal">$type_name</span>: ident;
@@ -1541,7 +1530,7 @@
 }
 
 <span class="doccomment">/// Internal API. May break without a semver bump
-</span><span class="macro">macro_rules! </span>forward_parser {
+</span><span class="macro">macro_rules!</span> forward_parser {
     (<span class="macro-nonterminal">$input</span>: ty, <span class="macro-nonterminal">$method</span>: ident $( <span class="macro-nonterminal">$methods</span>: ident)<span class="kw-2">*</span>, $(<span class="macro-nonterminal">$field</span>: tt)<span class="kw-2">*</span>) =&gt; {
         <span class="macro">forward_parser!</span>(<span class="macro-nonterminal">$input</span>, <span class="macro-nonterminal">$method </span>$(<span class="macro-nonterminal">$field</span>)+);
         <span class="macro">forward_parser!</span>(<span class="macro-nonterminal">$input</span>, $(<span class="macro-nonterminal">$methods</span>)<span class="kw-2">*</span>, $(<span class="macro-nonterminal">$field</span>)+);
@@ -1722,7 +1711,6 @@
     <span class="kw">fn </span>integer&lt;Input&gt;(input: <span class="kw-2">&amp;mut </span>Input) -&gt; StdParseResult&lt;i64, Input&gt;
     <span class="kw">where
         </span>Input: Stream&lt;Token = char&gt;,
-        Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
     {
         <span class="kw">let </span>(s, input) = many1::&lt;String, <span class="kw">_</span>, <span class="kw">_</span>&gt;(digit())
             .expected(<span class="string">"integer"</span>)
@@ -1793,7 +1781,7 @@
         Times(Box&lt;Expr&gt;, Box&lt;Expr&gt;),
     }
 
-    <span class="macro">parser! </span>{
+    <span class="macro">parser!</span> {
         <span class="kw">fn </span>expr[Input]()(Input) -&gt; Expr
         <span class="kw">where
             </span>[Input: Stream&lt;Token = char&gt;,]
@@ -1847,7 +1835,6 @@
     <span class="kw">fn </span>term&lt;Input&gt;(input: <span class="kw-2">&amp;mut </span>Input) -&gt; StdParseResult&lt;Expr, Input&gt;
     <span class="kw">where
         </span>Input: Stream&lt;Token = char&gt;,
-        Input::Error: ParseError&lt;Input::Token, Input::Range, Input::Position&gt;,
     {
         <span class="kw">fn </span>times(l: Expr, r: Expr) -&gt; Expr {
             Expr::Times(Box::new(l), Box::new(r))

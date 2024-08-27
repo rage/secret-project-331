@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.4.1/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_normalizer-1.5.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_normalizer" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2744,11 +2743,45 @@
 <a href="#2743" id="2743">2743</a>
 <a href="#2744" id="2744">2744</a>
 <a href="#2745" id="2745">2745</a>
+<a href="#2746" id="2746">2746</a>
+<a href="#2747" id="2747">2747</a>
+<a href="#2748" id="2748">2748</a>
+<a href="#2749" id="2749">2749</a>
+<a href="#2750" id="2750">2750</a>
+<a href="#2751" id="2751">2751</a>
+<a href="#2752" id="2752">2752</a>
+<a href="#2753" id="2753">2753</a>
+<a href="#2754" id="2754">2754</a>
+<a href="#2755" id="2755">2755</a>
+<a href="#2756" id="2756">2756</a>
+<a href="#2757" id="2757">2757</a>
+<a href="#2758" id="2758">2758</a>
+<a href="#2759" id="2759">2759</a>
+<a href="#2760" id="2760">2760</a>
+<a href="#2761" id="2761">2761</a>
+<a href="#2762" id="2762">2762</a>
+<a href="#2763" id="2763">2763</a>
+<a href="#2764" id="2764">2764</a>
+<a href="#2765" id="2765">2765</a>
+<a href="#2766" id="2766">2766</a>
+<a href="#2767" id="2767">2767</a>
+<a href="#2768" id="2768">2768</a>
+<a href="#2769" id="2769">2769</a>
+<a href="#2770" id="2770">2770</a>
+<a href="#2771" id="2771">2771</a>
+<a href="#2772" id="2772">2772</a>
+<a href="#2773" id="2773">2773</a>
+<a href="#2774" id="2774">2774</a>
+<a href="#2775" id="2775">2775</a>
+<a href="#2776" id="2776">2776</a>
+<a href="#2777" id="2777">2777</a>
+<a href="#2778" id="2778">2778</a>
+<a href="#2779" id="2779">2779</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
-// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
+// https://github.com/unicode-org/icu4x/blob/main/documents/process/boilerplate.md#library-annotations
 </span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
@@ -2816,6 +2849,7 @@
 <span class="kw">mod </span>error;
 <span class="kw">pub mod </span>properties;
 <span class="kw">pub mod </span>provider;
+<span class="kw">pub mod </span>uts46;
 
 <span class="kw">pub use </span><span class="kw">crate</span>::error::NormalizerError;
 
@@ -2825,8 +2859,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::provider::CanonicalDecompositionDataV1Marker;
 <span class="kw">use </span><span class="kw">crate</span>::provider::CompatibilityDecompositionSupplementV1Marker;
 <span class="kw">use </span><span class="kw">crate</span>::provider::DecompositionDataV1;
-<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::provider::Uts46DecompositionSupplementV1Marker;
+<span class="kw">use </span><span class="kw">crate</span>::provider::Uts46DecompositionSupplementV1Marker;
 <span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::char::REPLACEMENT_CHARACTER;
@@ -2852,18 +2885,28 @@
 <span class="attr">#[derive(Debug)]
 </span><span class="kw">enum </span>SupplementPayloadHolder {
     Compatibility(DataPayload&lt;CompatibilityDecompositionSupplementV1Marker&gt;),
-    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-    </span>Uts46(DataPayload&lt;Uts46DecompositionSupplementV1Marker&gt;),
+    Uts46(DataPayload&lt;Uts46DecompositionSupplementV1Marker&gt;),
 }
 
 <span class="kw">impl </span>SupplementPayloadHolder {
     <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DecompositionSupplementV1 {
         <span class="kw">match </span><span class="self">self </span>{
             SupplementPayloadHolder::Compatibility(d) =&gt; d.get(),
-            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-            </span>SupplementPayloadHolder::Uts46(d) =&gt; d.get(),
+            SupplementPayloadHolder::Uts46(d) =&gt; d.get(),
         }
     }
+}
+
+<span class="doccomment">/// Treatment of the ignorable marker (0xFFFFFFFF) in data.
+</span><span class="attr">#[derive(Debug, PartialEq, Eq)]
+</span><span class="kw">enum </span>IgnorableBehavior {
+    <span class="doccomment">/// 0xFFFFFFFF in data is not supported.
+    </span>Unsupported,
+    <span class="doccomment">/// Ignorables are ignored.
+    </span>Ignored,
+    <span class="doccomment">/// Ignorables are treated as singleton decompositions
+    /// to the REPLACEMENT CHARACTER.
+    </span>ReplacementCharacter,
 }
 
 <span class="doccomment">/// Number of iterations allowed on the fast path before flushing.
@@ -2877,6 +2920,9 @@
 /// similar flushing, though the tested monomorphization never
 /// passes an error through from `Write`.
 </span><span class="kw">const </span>UTF16_FAST_PATH_FLUSH_THRESHOLD: usize = <span class="number">4096</span>;
+
+<span class="doccomment">/// Marker for UTS 46 ignorables.
+</span><span class="kw">const </span>IGNORABLE_MARKER: u32 = <span class="number">0xFFFFFFFF</span>;
 
 <span class="doccomment">/// Marker for starters that decompose to themselves but may
 /// combine backwards under canonical composition.
@@ -3274,6 +3320,7 @@
     /// 1. Decomposes to self.
     /// 2. Decomposition starts with a non-starter
     </span>decomposition_passthrough_bound: u32, <span class="comment">// never above 0xC0
+    </span>ignorable_behavior: IgnorableBehavior, <span class="comment">// Arguably should be a type parameter
 </span>}
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, I&gt; Decomposition&lt;<span class="lifetime">'data</span>, I&gt;
@@ -3295,7 +3342,15 @@
         decompositions: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionDataV1,
         tables: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1,
     ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new_with_supplements(delegate, decompositions, <span class="prelude-val">None</span>, tables, <span class="prelude-val">None</span>, <span class="number">0xC0</span>)
+        <span class="self">Self</span>::new_with_supplements(
+            delegate,
+            decompositions,
+            <span class="prelude-val">None</span>,
+            tables,
+            <span class="prelude-val">None</span>,
+            <span class="number">0xC0</span>,
+            IgnorableBehavior::Unsupported,
+        )
     }
 
     <span class="doccomment">/// Constructs a decomposing iterator adapter from a delegate
@@ -3311,6 +3366,7 @@
         tables: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1,
         supplementary_tables: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>DecompositionTablesV1&gt;,
         decomposition_passthrough_bound: u8,
+        ignorable_behavior: IgnorableBehavior,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>half_width_voicing_marks_become_non_starters =
             <span class="kw">if let </span><span class="prelude-val">Some</span>(supplementary) = supplementary_decompositions {
@@ -3341,6 +3397,7 @@
             },
             half_width_voicing_marks_become_non_starters,
             decomposition_passthrough_bound: u32::from(decomposition_passthrough_bound),
+            ignorable_behavior,
         };
         <span class="kw">let _ </span>= ret.next(); <span class="comment">// Remove the U+FFFF placeholder
         </span>ret
@@ -3467,16 +3524,42 @@
 
     <span class="kw">fn </span>delegate_next_no_pending(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CharacterAndTrieValue&gt; {
         <span class="macro">debug_assert!</span>(<span class="self">self</span>.pending.is_none());
-        <span class="kw">let </span>c = <span class="self">self</span>.delegate.next()<span class="question-mark">?</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>c = <span class="self">self</span>.delegate.next()<span class="question-mark">?</span>;
 
-        <span class="comment">// TODO(#2384): Measure if this check is actually an optimization even in the
-        // non-supplementary case of if this should go inside the supplementary
-        // `if` below.
-        </span><span class="kw">if </span>u32::from(c) &lt; <span class="self">self</span>.decomposition_passthrough_bound {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(CharacterAndTrieValue::new(c, <span class="number">0</span>));
+            <span class="comment">// TODO(#2384): Measure if this check is actually an optimization even in the
+            // non-supplementary case of if this should go inside the supplementary
+            // `if` below.
+            </span><span class="kw">if </span>u32::from(c) &lt; <span class="self">self</span>.decomposition_passthrough_bound {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(CharacterAndTrieValue::new(c, <span class="number">0</span>));
+            }
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(supplementary) = <span class="self">self</span>.supplementary_trie {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.attach_supplementary_trie_value(c, supplementary) {
+                    <span class="kw">if </span>value.trie_val == IGNORABLE_MARKER {
+                        <span class="kw">match </span><span class="self">self</span>.ignorable_behavior {
+                            IgnorableBehavior::Unsupported =&gt; {
+                                <span class="macro">debug_assert!</span>(<span class="bool-val">false</span>);
+                            }
+                            IgnorableBehavior::ReplacementCharacter =&gt; {
+                                <span class="kw">return </span><span class="prelude-val">Some</span>(CharacterAndTrieValue::new(
+                                    c,
+                                    u32::from(REPLACEMENT_CHARACTER),
+                                ));
+                            }
+                            IgnorableBehavior::Ignored =&gt; {
+                                <span class="comment">// Else ignore this character by reading the next one from the delegate.
+                                </span><span class="kw">continue</span>;
+                            }
+                        }
+                    }
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(value);
+                }
+            }
+            <span class="kw">let </span>trie_val = <span class="self">self</span>.trie.get(c);
+            <span class="macro">debug_assert_ne!</span>(trie_val, IGNORABLE_MARKER);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(CharacterAndTrieValue::new(c, trie_val));
         }
-
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.attach_trie_value(c))
     }
 
     <span class="kw">fn </span>delegate_next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CharacterAndTrieValue&gt; {
@@ -3950,7 +4033,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>composing_normalize_to {
+<span class="macro">macro_rules!</span> composing_normalize_to {
     ($(<span class="attr">#[<span class="macro-nonterminal">$meta</span>:meta]</span>)<span class="kw-2">*</span>,
      <span class="macro-nonterminal">$normalize_to</span>:ident,
      <span class="macro-nonterminal">$write</span>:path,
@@ -3975,6 +4058,7 @@
         ) -&gt; core::fmt::Result {
             <span class="macro-nonterminal">$prolog
             </span><span class="kw">let </span><span class="kw-2">mut </span><span class="macro-nonterminal">$composition </span>= <span class="self">self</span>.normalize_iter(<span class="macro-nonterminal">$text</span>.chars());
+            <span class="macro">debug_assert_eq!</span>(<span class="macro-nonterminal">$composition</span>.decomposition.ignorable_behavior, IgnorableBehavior::Unsupported);
             <span class="kw">for </span>cc <span class="kw">in </span><span class="macro-nonterminal">$composition</span>.decomposition.buffer.drain(..) {
                 <span class="macro-nonterminal">$sink</span>.write_char(cc.character())<span class="question-mark">?</span>;
             }
@@ -4137,7 +4221,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>decomposing_normalize_to {
+<span class="macro">macro_rules!</span> decomposing_normalize_to {
     ($(<span class="attr">#[<span class="macro-nonterminal">$meta</span>:meta]</span>)<span class="kw-2">*</span>,
      <span class="macro-nonterminal">$normalize_to</span>:ident,
      <span class="macro-nonterminal">$write</span>:path,
@@ -4162,6 +4246,7 @@
             <span class="macro-nonterminal">$prolog
 
             </span><span class="kw">let </span><span class="kw-2">mut </span><span class="macro-nonterminal">$decomposition </span>= <span class="self">self</span>.normalize_iter(<span class="macro-nonterminal">$text</span>.chars());
+            <span class="macro">debug_assert_eq!</span>(<span class="macro-nonterminal">$decomposition</span>.ignorable_behavior, IgnorableBehavior::Unsupported);
 
             <span class="comment">// Try to get the compiler to hoist the bound to a register.
             </span><span class="kw">let </span><span class="macro-nonterminal">$decomposition_passthrough_bound </span>= <span class="macro-nonterminal">$decomposition</span>.decomposition_passthrough_bound;
@@ -4193,7 +4278,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>normalizer_methods {
+<span class="macro">macro_rules!</span> normalizer_methods {
     () =&gt; {
         <span class="doccomment">/// Normalize a string slice into a `String`.
         </span><span class="kw">pub fn </span>normalize(<span class="kw-2">&amp;</span><span class="self">self</span>, text: <span class="kw-2">&amp;</span>str) -&gt; String {
@@ -4476,8 +4561,8 @@
     }
 
     <span class="attr">#[doc(hidden)]
-    #[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"compiled_data"</span>))]
-    </span><span class="kw">pub const fn </span>new_uts46_decomposed_without_ignored_and_disallowed() -&gt; <span class="self">Self </span>{
+    #[cfg(feature = <span class="string">"compiled_data"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>new_uts46_decomposed() -&gt; <span class="self">Self </span>{
         <span class="kw">const _</span>: () = <span class="macro">assert!</span>(
             <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_NFDEX_V1
                 .scalars16
@@ -4553,8 +4638,7 @@
     ///
     /// Public for testing only.
     </span><span class="attr">#[doc(hidden)]
-    #[cfg(feature = <span class="string">"experimental"</span>)]
-    </span><span class="kw">pub fn </span>try_new_uts46_decomposed_without_ignored_and_disallowed_unstable&lt;D&gt;(
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_new_uts46_decomposed_unstable&lt;D&gt;(
         provider: <span class="kw-2">&amp;</span>D,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
@@ -4618,6 +4702,7 @@
             <span class="self">self</span>.tables.get(),
             <span class="self">self</span>.supplementary_tables.as_ref().map(|s| s.get()),
             <span class="self">self</span>.decomposition_passthrough_bound,
+            IgnorableBehavior::Unsupported,
         )
     }
 
@@ -4987,31 +5072,8 @@
         })
     }
 
-    <span class="doccomment">/// See [`Self::try_new_uts46_without_ignored_and_disallowed_unstable`].
-    </span><span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"compiled_data"</span>))]
-    </span><span class="kw">pub const fn </span>new_uts46_without_ignored_and_disallowed() -&gt; <span class="self">Self </span>{
-        ComposingNormalizer {
-            decomposing_normalizer:
-                DecomposingNormalizer::new_uts46_decomposed_without_ignored_and_disallowed(),
-            canonical_compositions: DataPayload::from_static_ref(
-                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_COMP_V1,
-            ),
-        }
-    }
-
-    <span class="doccomment">/// 🚧 \[Experimental\] UTS 46 constructor
-    ///
-    /// This is a special building block normalization for IDNA that implements parts of the Map
-    /// step and the following Normalize step. The caller is responsible for performing the
-    /// "disallowed", "ignored", and "deviation" parts of the Map step before passing data to
-    /// this normalizer such that disallowed and ignored characters aren't passed to this
-    /// normalizer.
-    ///
-    /// This is ICU4C's UTS 46 normalization with two exceptions: characters that UTS 46 disallows
-    /// and ICU4C maps to U+FFFD and characters that UTS 46 maps to the empty string normalize as
-    /// in NFC in this normalization. Making the disallowed characters behave like this is beneficial
-    /// to data size, and this normalizer implementation cannot deal with a character normalizing
-    /// to the empty string, which doesn't happen in NFC or NFKC as of Unicode 14.
+    <span class="doccomment">/// This is a special building block normalization for IDNA that implements parts of the Map
+    /// step and the following Normalize step.
     ///
     /// Warning: In this normalization, U+0345 COMBINING GREEK YPOGEGRAMMENI exhibits a behavior
     /// that no character in Unicode exhibits in NFD, NFKD, NFC, or NFKC: Case folding turns
@@ -5019,20 +5081,18 @@
     /// Therefore, the output of this normalization may differ for different inputs that are
     /// canonically equivalents with each other if they differ by how U+0345 is ordered relative
     /// to other reorderable characters.
-    ///
-    /// NOTE: This method remains experimental until suitability of this feature as part of
-    /// IDNA processing has been demonstrated.
-    ///
-    /// &lt;div class="stab unstable"&gt;
-    /// 🚧 This code is experimental; it may change at any time, in breaking or non-breaking ways,
-    /// including in SemVer minor releases. It can be enabled with the "experimental" Cargo feature
-    /// of the icu meta-crate. Use with caution.
-    /// &lt;a href="https://github.com/unicode-org/icu4x/issues/2614"&gt;#2614&lt;/a&gt;
-    /// &lt;/div&gt;
-    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-    </span><span class="kw">pub fn </span>try_new_uts46_without_ignored_and_disallowed_unstable&lt;D&gt;(
-        provider: <span class="kw-2">&amp;</span>D,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const fn </span>new_uts46() -&gt; <span class="self">Self </span>{
+        ComposingNormalizer {
+            decomposing_normalizer: DecomposingNormalizer::new_uts46_decomposed(),
+            canonical_compositions: DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_NORMALIZER_COMP_V1,
+            ),
+        }
+    }
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new_uts46)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_new_uts46_unstable&lt;D&gt;(provider: <span class="kw-2">&amp;</span>D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, NormalizerError&gt;
     <span class="kw">where
         </span>D: DataProvider&lt;CanonicalDecompositionDataV1Marker&gt;
             + DataProvider&lt;Uts46DecompositionSupplementV1Marker&gt;
@@ -5043,9 +5103,7 @@
             + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">let </span>decomposing_normalizer =
-            DecomposingNormalizer::try_new_uts46_decomposed_without_ignored_and_disallowed_unstable(
-                provider,
-            )<span class="question-mark">?</span>;
+            DecomposingNormalizer::try_new_uts46_decomposed_unstable(provider)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>canonical_compositions: DataPayload&lt;CanonicalCompositionsV1Marker&gt; =
             provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>;
@@ -5059,6 +5117,14 @@
     <span class="doccomment">/// Wraps a delegate iterator into a composing iterator
     /// adapter by using the data already held by this normalizer.
     </span><span class="kw">pub fn </span>normalize_iter&lt;I: Iterator&lt;Item = char&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, iter: I) -&gt; Composition&lt;I&gt; {
+        <span class="self">self</span>.normalize_iter_private(iter, IgnorableBehavior::Unsupported)
+    }
+
+    <span class="kw">fn </span>normalize_iter_private&lt;I: Iterator&lt;Item = char&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        iter: I,
+        ignorable_behavior: IgnorableBehavior,
+    ) -&gt; Composition&lt;I&gt; {
         Composition::new(
             Decomposition::new_with_supplements(
                 iter,
@@ -5073,6 +5139,7 @@
                     .as_ref()
                     .map(|s| s.get()),
                 <span class="self">self</span>.decomposing_normalizer.decomposition_passthrough_bound,
+                ignorable_behavior,
             ),
             ZeroFrom::zero_from(<span class="kw-2">&amp;</span><span class="self">self</span>.canonical_compositions.get().canonical_compositions),
             <span class="self">self</span>.decomposing_normalizer.composition_passthrough_bound,

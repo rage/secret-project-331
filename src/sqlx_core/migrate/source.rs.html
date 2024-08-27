@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/migrate/source.rs`."><title>source.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/migrate/source.rs`."><title>source.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -80,13 +79,78 @@
 <a href="#79" id="79">79</a>
 <a href="#80" id="80">80</a>
 <a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::BoxDynError;
-<span class="kw">use </span><span class="kw">crate</span>::fs;
 <span class="kw">use </span><span class="kw">crate</span>::migrate::{Migration, MigrationType};
 <span class="kw">use </span>futures_core::future::BoxFuture;
 
 <span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::fs;
+<span class="kw">use </span>std::io;
 <span class="kw">use </span>std::path::{Path, PathBuf};
 
 <span class="doccomment">/// In the default implementation, a MigrationSource is a directory which
@@ -110,48 +174,11 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'s</span>&gt; MigrationSource&lt;<span class="lifetime">'s</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'s </span>Path {
     <span class="kw">fn </span>resolve(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'s</span>, <span class="prelude-ty">Result</span>&lt;Vec&lt;Migration&gt;, BoxDynError&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>s = fs::read_dir(<span class="self">self</span>.canonicalize()<span class="question-mark">?</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>migrations = Vec::new();
+            <span class="kw">let </span>canonical = <span class="self">self</span>.canonicalize()<span class="question-mark">?</span>;
+            <span class="kw">let </span>migrations_with_paths =
+                <span class="kw">crate</span>::rt::spawn_blocking(<span class="kw">move </span>|| resolve_blocking(<span class="kw-2">&amp;</span>canonical)).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="kw">while let </span><span class="prelude-val">Some</span>(entry) = s.next().<span class="kw">await</span><span class="question-mark">? </span>{
-                <span class="comment">// std::fs::metadata traverses symlinks
-                </span><span class="kw">if </span>!std::fs::metadata(<span class="kw-2">&amp;</span>entry.path)<span class="question-mark">?</span>.is_file() {
-                    <span class="comment">// not a file; ignore
-                    </span><span class="kw">continue</span>;
-                }
-
-                <span class="kw">let </span>file_name = entry.file_name.to_string_lossy();
-
-                <span class="kw">let </span>parts = file_name.splitn(<span class="number">2</span>, <span class="string">'_'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
-
-                <span class="kw">if </span>parts.len() != <span class="number">2 </span>|| !parts[<span class="number">1</span>].ends_with(<span class="string">".sql"</span>) {
-                    <span class="comment">// not of the format: &lt;VERSION&gt;_&lt;DESCRIPTION&gt;.sql; ignore
-                    </span><span class="kw">continue</span>;
-                }
-
-                <span class="kw">let </span>version: i64 = parts[<span class="number">0</span>].parse()<span class="question-mark">?</span>;
-
-                <span class="kw">let </span>migration_type = MigrationType::from_filename(parts[<span class="number">1</span>]);
-                <span class="comment">// remove the `.sql` and replace `_` with ` `
-                </span><span class="kw">let </span>description = parts[<span class="number">1</span>]
-                    .trim_end_matches(migration_type.suffix())
-                    .replace(<span class="string">'_'</span>, <span class="string">" "</span>)
-                    .to_owned();
-
-                <span class="kw">let </span>sql = fs::read_to_string(<span class="kw-2">&amp;</span>entry.path).<span class="kw">await</span><span class="question-mark">?</span>;
-
-                migrations.push(Migration::new(
-                    version,
-                    Cow::Owned(description),
-                    migration_type,
-                    Cow::Owned(sql),
-                ));
-            }
-
-            <span class="comment">// ensure that we are sorted by `VERSION ASC`
-            </span>migrations.sort_by_key(|m| m.version);
-
-            <span class="prelude-val">Ok</span>(migrations)
+            <span class="prelude-val">Ok</span>(migrations_with_paths.into_iter().map(|(m, _p)| m).collect())
         })
     }
 }
@@ -160,5 +187,105 @@
     <span class="kw">fn </span>resolve(<span class="self">self</span>) -&gt; BoxFuture&lt;<span class="lifetime">'static</span>, <span class="prelude-ty">Result</span>&lt;Vec&lt;Migration&gt;, BoxDynError&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{ <span class="self">self</span>.as_path().resolve().<span class="kw">await </span>})
     }
+}
+
+<span class="attr">#[derive(thiserror::Error, Debug)]
+#[error(<span class="string">"{message}"</span>)]
+</span><span class="kw">pub struct </span>ResolveError {
+    message: String,
+    <span class="attr">#[source]
+    </span>source: <span class="prelude-ty">Option</span>&lt;io::Error&gt;,
+}
+
+<span class="comment">// FIXME: paths should just be part of `Migration` but we can't add a field backwards compatibly
+// since it's `#[non_exhaustive]`.
+</span><span class="kw">pub fn </span>resolve_blocking(path: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(Migration, PathBuf)&gt;, ResolveError&gt; {
+    <span class="kw">let </span>s = fs::read_dir(path).map_err(|e| ResolveError {
+        message: <span class="macro">format!</span>(<span class="string">"error reading migration directory {}: {e}"</span>, path.display()),
+        source: <span class="prelude-val">Some</span>(e),
+    })<span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>migrations = Vec::new();
+
+    <span class="kw">for </span>res <span class="kw">in </span>s {
+        <span class="kw">let </span>entry = res.map_err(|e| ResolveError {
+            message: <span class="macro">format!</span>(
+                <span class="string">"error reading contents of migration directory {}: {e}"</span>,
+                path.display()
+            ),
+            source: <span class="prelude-val">Some</span>(e),
+        })<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>entry_path = entry.path();
+
+        <span class="kw">let </span>metadata = fs::metadata(<span class="kw-2">&amp;</span>entry_path).map_err(|e| ResolveError {
+            message: <span class="macro">format!</span>(
+                <span class="string">"error getting metadata of migration path {}"</span>,
+                entry_path.display()
+            ),
+            source: <span class="prelude-val">Some</span>(e),
+        })<span class="question-mark">?</span>;
+
+        <span class="kw">if </span>!metadata.is_file() {
+            <span class="comment">// not a file; ignore
+            </span><span class="kw">continue</span>;
+        }
+
+        <span class="kw">let </span>file_name = entry.file_name();
+        <span class="comment">// This is arguably the wrong choice,
+        // but it really only matters for parsing the version and description.
+        //
+        // Using `.to_str()` and returning an error if the filename is not UTF-8
+        // would be a breaking change.
+        </span><span class="kw">let </span>file_name = file_name.to_string_lossy();
+
+        <span class="kw">let </span>parts = file_name.splitn(<span class="number">2</span>, <span class="string">'_'</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+
+        <span class="kw">if </span>parts.len() != <span class="number">2 </span>|| !parts[<span class="number">1</span>].ends_with(<span class="string">".sql"</span>) {
+            <span class="comment">// not of the format: &lt;VERSION&gt;_&lt;DESCRIPTION&gt;.&lt;REVERSIBLE_DIRECTION&gt;.sql; ignore
+            </span><span class="kw">continue</span>;
+        }
+
+        <span class="kw">let </span>version: i64 = parts[<span class="number">0</span>].parse()
+            .map_err(|_e| ResolveError {
+                message: <span class="macro">format!</span>(<span class="string">"error parsing migration filename {file_name:?}; expected integer version prefix (e.g. `01_foo.sql`)"</span>),
+                source: <span class="prelude-val">None</span>,
+            })<span class="question-mark">?</span>;
+
+        <span class="kw">let </span>migration_type = MigrationType::from_filename(parts[<span class="number">1</span>]);
+
+        <span class="comment">// remove the `.sql` and replace `_` with ` `
+        </span><span class="kw">let </span>description = parts[<span class="number">1</span>]
+            .trim_end_matches(migration_type.suffix())
+            .replace(<span class="string">'_'</span>, <span class="string">" "</span>)
+            .to_owned();
+
+        <span class="kw">let </span>sql = fs::read_to_string(<span class="kw-2">&amp;</span>entry_path).map_err(|e| ResolveError {
+            message: <span class="macro">format!</span>(
+                <span class="string">"error reading contents of migration {}: {e}"</span>,
+                entry_path.display()
+            ),
+            source: <span class="prelude-val">Some</span>(e),
+        })<span class="question-mark">?</span>;
+
+        <span class="comment">// opt-out of migration transaction
+        </span><span class="kw">let </span>no_tx = sql.starts_with(<span class="string">"-- no-transaction"</span>);
+
+        migrations.push((
+            Migration::new(
+                version,
+                Cow::Owned(description),
+                migration_type,
+                Cow::Owned(sql),
+                no_tx,
+            ),
+            entry_path,
+        ));
+    }
+
+    <span class="comment">// Ensure that we are sorted by version in ascending order.
+    </span>migrations.sort_by_key(|(m, <span class="kw">_</span>)| m.version);
+
+    <span class="prelude-val">Ok</span>(migrations)
 }
 </code></pre></div></section></main></body></html>

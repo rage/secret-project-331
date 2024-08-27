@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/provider.rs`."><title>provider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/provider.rs`."><title>provider.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -152,6 +151,193 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+<a href="#258" id="258">258</a>
+<a href="#259" id="259">259</a>
+<a href="#260" id="260">260</a>
+<a href="#261" id="261">261</a>
+<a href="#262" id="262">262</a>
+<a href="#263" id="263">263</a>
+<a href="#264" id="264">264</a>
+<a href="#265" id="265">265</a>
+<a href="#266" id="266">266</a>
+<a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -169,7 +355,12 @@
 </span><span class="comment">// Provider structs must be stable
 </span><span class="attr">#![allow(clippy::exhaustive_structs, clippy::exhaustive_enums)]
 
-</span><span class="kw">use </span><span class="kw">crate</span>::types::IsoWeekday;
+</span><span class="kw">pub mod </span>chinese_based;
+<span class="kw">pub mod </span>islamic;
+<span class="kw">pub use </span>chinese_based::{ChineseCacheV1Marker, DangiCacheV1Marker};
+<span class="kw">pub use </span>islamic::{IslamicObservationalCacheV1Marker, IslamicUmmAlQuraCacheV1Marker};
+
+<span class="kw">use </span><span class="kw">crate</span>::types::IsoWeekday;
 <span class="kw">use </span>core::str::FromStr;
 <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>tinystr::TinyStr16;
@@ -190,20 +381,33 @@
 </span><span class="kw">const _</span>: () = {
     <span class="kw">pub mod </span>icu {
         <span class="kw">pub use crate as </span>calendar;
-        <span class="kw">pub use </span>icu_locid_transform <span class="kw">as </span>locid_transform;
+        <span class="attr">#[allow(unused_imports)] </span><span class="comment">// baked data may or may not need this
+        </span><span class="kw">pub use </span>icu_locid_transform <span class="kw">as </span>locid_transform;
     }
     <span class="macro">icu_calendar_data::make_provider!</span>(Baked);
+    <span class="macro">icu_calendar_data::impl_calendar_chinesecache_v1!</span>(Baked);
+    <span class="macro">icu_calendar_data::impl_calendar_dangicache_v1!</span>(Baked);
+    <span class="macro">icu_calendar_data::impl_calendar_islamicobservationalcache_v1!</span>(Baked);
+    <span class="macro">icu_calendar_data::impl_calendar_islamicummalquracache_v1!</span>(Baked);
     <span class="macro">icu_calendar_data::impl_calendar_japanese_v1!</span>(Baked);
     <span class="macro">icu_calendar_data::impl_calendar_japanext_v1!</span>(Baked);
     <span class="macro">icu_calendar_data::impl_datetime_week_data_v1!</span>(Baked);
+    <span class="macro">icu_calendar_data::impl_datetime_week_data_v2!</span>(Baked);
 };
 
 <span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
 </span><span class="doccomment">/// The latest minimum set of keys required by this component.
 </span><span class="kw">pub const </span>KEYS: <span class="kw-2">&amp;</span>[DataKey] = <span class="kw-2">&amp;</span>[
+    ChineseCacheV1Marker::KEY,
+    DangiCacheV1Marker::KEY,
+    IslamicObservationalCacheV1Marker::KEY,
+    IslamicUmmAlQuraCacheV1Marker::KEY,
     JapaneseErasV1Marker::KEY,
     JapaneseExtendedErasV1Marker::KEY,
-    WeekDataV1Marker::KEY,
+    WeekDataV2Marker::KEY,
+    <span class="comment">// We include the duplicate data for now, as icu_datetime loads it directly
+    // https://github.com/unicode-org/icu4x/pull/4364#discussion_r1419877997
+    </span>WeekDataV1Marker::KEY,
 ];
 
 <span class="doccomment">/// The date at which an era started
@@ -261,7 +465,7 @@
 
 <span class="kw">impl </span>FromStr <span class="kw">for </span>EraStartDate {
     <span class="kw">type </span><span class="prelude-val">Err </span>= ();
-    <span class="kw">fn </span>from_str(<span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, ()&gt; {
+    <span class="kw">fn </span>from_str(<span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Err&gt; {
         <span class="kw">let </span>sign = <span class="kw">if let </span><span class="prelude-val">Some</span>(suffix) = s.strip_prefix(<span class="string">'-'</span>) {
             s = suffix;
             -<span class="number">1
@@ -304,5 +508,174 @@
     </span><span class="kw">pub </span>first_weekday: IsoWeekday,
     <span class="doccomment">/// For a given week, the minimum number of that week's days present in a given month or year for the week to be considered part of that month or year.
     </span><span class="kw">pub </span>min_week_days: u8,
+}
+
+<span class="doccomment">/// An ICU4X mapping to a subset of CLDR weekData.
+/// See CLDR-JSON's weekData.json for more context.
+///
+/// &lt;div class="stab unstable"&gt;
+/// 🚧 This code is considered unstable; it may change at any time, in breaking or non-breaking ways,
+/// including in SemVer minor releases. While the serde representation of data structs is guaranteed
+/// to be stable, their Rust representation might not be. Use with caution.
+/// &lt;/div&gt;
+</span><span class="attr">#[icu_provider::data_struct(marker(
+    WeekDataV2Marker,
+    <span class="string">"datetime/week_data@2"</span>,
+    fallback_by = <span class="string">"region"
+</span>))]
+#[derive(Clone, Copy, Debug, PartialEq)]
+#[cfg_attr(feature = <span class="string">"datagen"</span>, derive(serde::Serialize, databake::Bake), databake(path = icu_calendar::provider))]
+#[cfg_attr(feature = <span class="string">"serde"</span>, derive(serde::Deserialize))]
+#[allow(clippy::exhaustive_structs)] </span><span class="comment">// used in data provider
+</span><span class="kw">pub struct </span>WeekDataV2 {
+    <span class="doccomment">/// The first day of a week.
+    </span><span class="kw">pub </span>first_weekday: IsoWeekday,
+    <span class="doccomment">/// For a given week, the minimum number of that week's days present in a given month or year for the week to be considered part of that month or year.
+    </span><span class="kw">pub </span>min_week_days: u8,
+    <span class="doccomment">/// Bitset representing weekdays that are part of the 'weekend', for calendar purposes.
+    /// The number of days can be different between locales, and may not be contiguous.
+    </span><span class="kw">pub </span>weekend: WeekdaySet,
+}
+
+<span class="doccomment">/// Bitset representing weekdays.
+</span><span class="comment">//
+// This Bitset uses an [u8] to represent the weekend, thus leaving one bit free.
+// Each bit represents a day in the following order:
+//
+//   ┌▷Mon
+//   │┌▷Tue
+//   ││┌▷Wed
+//   │││┌▷Thu
+//   ││││ ┌▷Fri
+//   ││││ │┌▷Sat
+//   ││││ ││┌▷Sun
+//   ││││ │││
+// 0b0000_1010
+//
+// Please note that this is not a range, this are the discrete days representing a weekend. Other examples:
+// 0b0101_1000 -&gt; Tue, Thu, Fri
+// 0b0000_0110 -&gt; Sat, Sun
+</span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>WeekdaySet(u8);
+
+<span class="kw">impl </span>WeekdaySet {
+    <span class="doccomment">/// Returns whether the set contains the day.
+    </span><span class="kw">pub const fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, day: IsoWeekday) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0 </span>&amp; day.bit_value() != <span class="number">0
+    </span>}
+}
+
+<span class="kw">impl </span>WeekdaySet {
+    <span class="doccomment">/// Creates a new [WeekdaySet] using the provided days.
+    </span><span class="kw">pub const fn </span>new(days: <span class="kw-2">&amp;</span>[IsoWeekday]) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>w = <span class="number">0</span>;
+        <span class="attr">#[allow(clippy::indexing_slicing)]
+        </span><span class="kw">while </span>i &lt; days.len() {
+            w |= days[i].bit_value();
+            i += <span class="number">1</span>;
+        }
+        <span class="self">Self</span>(w)
+    }
+}
+
+<span class="kw">impl </span>IsoWeekday {
+    <span class="doccomment">/// Defines the bit order used for encoding and reading weekend days.
+    </span><span class="kw">const fn </span>bit_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
+        <span class="kw">match </span><span class="self">self </span>{
+            IsoWeekday::Monday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">6</span>,
+            IsoWeekday::Tuesday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">5</span>,
+            IsoWeekday::Wednesday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">4</span>,
+            IsoWeekday::Thursday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">3</span>,
+            IsoWeekday::Friday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">2</span>,
+            IsoWeekday::Saturday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
+            IsoWeekday::Sunday =&gt; <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
+        }
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+</span><span class="kw">impl </span>databake::Bake <span class="kw">for </span>WeekdaySet {
+    <span class="kw">fn </span>bake(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>databake::CrateEnv) -&gt; databake::TokenStream {
+        ctx.insert(<span class="string">"icu_calendar"</span>);
+        <span class="kw">let </span>days =
+            <span class="kw">crate</span>::week_of::WeekdaySetIterator::new(IsoWeekday::Monday, <span class="kw-2">*</span><span class="self">self</span>).map(|d| d.bake(ctx));
+        <span class="macro">databake::quote!</span> {
+            icu_calendar::provider::WeekdaySet::new(<span class="kw-2">&amp;</span>[#(#days),<span class="kw-2">*</span>])
+        }
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"datagen"</span>)]
+</span><span class="kw">impl </span>serde::Serialize <span class="kw">for </span>WeekdaySet {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, serializer: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: serde::Serializer,
+    {
+        <span class="kw">if </span>serializer.is_human_readable() {
+            <span class="kw">crate</span>::week_of::WeekdaySetIterator::new(IsoWeekday::Monday, <span class="kw-2">*</span><span class="self">self</span>)
+                .collect::&lt;alloc::vec::Vec&lt;<span class="kw">_</span>&gt;&gt;()
+                .serialize(serializer)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.<span class="number">0</span>.serialize(serializer)
+        }
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'de</span>&gt; serde::Deserialize&lt;<span class="lifetime">'de</span>&gt; <span class="kw">for </span>WeekdaySet {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(deserializer: D) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, D::Error&gt;
+    <span class="kw">where
+        </span>D: serde::Deserializer&lt;<span class="lifetime">'de</span>&gt;,
+    {
+        <span class="kw">if </span>deserializer.is_human_readable() {
+            alloc::vec::Vec::&lt;IsoWeekday&gt;::deserialize(deserializer).map(|s| <span class="self">Self</span>::new(<span class="kw-2">&amp;</span>s))
+        } <span class="kw">else </span>{
+            u8::deserialize(deserializer).map(<span class="self">Self</span>)
+        }
+    }
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_weekdayset_bake() {
+    <span class="macro">databake::test_bake!</span>(
+        WeekdaySet,
+        <span class="kw">const</span>: <span class="kw">crate</span>::provider::WeekdaySet::new(
+            <span class="kw-2">&amp;</span>[<span class="kw">crate</span>::types::IsoWeekday::Monday, <span class="kw">crate</span>::types::IsoWeekday::Wednesday, <span class="kw">crate</span>::types::IsoWeekday::Friday]),
+        icu_calendar
+    );
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_weekdayset_new() {
+    <span class="kw">use </span>IsoWeekday::<span class="kw-2">*</span>;
+
+    <span class="kw">let </span>sat_sun_bitmap = Saturday.bit_value() | Sunday.bit_value();
+    <span class="kw">let </span>sat_sun_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Saturday, Sunday]);
+    <span class="macro">assert_eq!</span>(sat_sun_bitmap, sat_sun_weekend.<span class="number">0</span>);
+
+    <span class="kw">let </span>fri_sat_bitmap = Friday.bit_value() | Saturday.bit_value();
+    <span class="kw">let </span>fri_sat_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Friday, Saturday]);
+    <span class="macro">assert_eq!</span>(fri_sat_bitmap, fri_sat_weekend.<span class="number">0</span>);
+
+    <span class="kw">let </span>fri_sun_bitmap = Friday.bit_value() | Sunday.bit_value();
+    <span class="kw">let </span>fri_sun_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Friday, Sunday]);
+    <span class="macro">assert_eq!</span>(fri_sun_bitmap, fri_sun_weekend.<span class="number">0</span>);
+
+    <span class="kw">let </span>fri_bitmap = Friday.bit_value();
+    <span class="kw">let </span>fri_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Friday, Friday]);
+    <span class="macro">assert_eq!</span>(fri_bitmap, fri_weekend.<span class="number">0</span>);
+
+    <span class="kw">let </span>sun_mon_bitmap = Sunday.bit_value() | Monday.bit_value();
+    <span class="kw">let </span>sun_mon_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Sunday, Monday]);
+    <span class="macro">assert_eq!</span>(sun_mon_bitmap, sun_mon_weekend.<span class="number">0</span>);
+
+    <span class="kw">let </span>mon_sun_bitmap = Monday.bit_value() | Sunday.bit_value();
+    <span class="kw">let </span>mon_sun_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Monday, Sunday]);
+    <span class="macro">assert_eq!</span>(mon_sun_bitmap, mon_sun_weekend.<span class="number">0</span>);
+
+    <span class="kw">let </span>mon_bitmap = Monday.bit_value();
+    <span class="kw">let </span>mon_weekend = WeekdaySet::new(<span class="kw-2">&amp;</span>[Monday]);
+    <span class="macro">assert_eq!</span>(mon_bitmap, mon_weekend.<span class="number">0</span>);
 }
 </code></pre></div></section></main></body></html>

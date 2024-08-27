@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/migrate.rs`."><title>migrate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/migrate.rs`."><title>migrate.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -297,6 +296,22 @@
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
 <a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::str::FromStr;
 <span class="kw">use </span>std::time::Duration;
 <span class="kw">use </span>std::time::Instant;
@@ -507,38 +522,29 @@ CREATE TABLE IF NOT EXISTS _sqlx_migrations (
         migration: <span class="kw-2">&amp;</span><span class="lifetime">'m </span>Migration,
     ) -&gt; BoxFuture&lt;<span class="lifetime">'m</span>, <span class="prelude-ty">Result</span>&lt;Duration, MigrateError&gt;&gt; {
         Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self</span>.begin().<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let </span>start = Instant::now();
 
-            <span class="comment">// Use a single transaction for the actual migration script and the essential bookeeping so we never
-            // execute migrations twice. See https://github.com/launchbadge/sqlx/issues/1966.
-            // The `execution_time` however can only be measured for the whole transaction. This value _only_ exists for
-            // data lineage and debugging reasons, so it is not super important if it is lost. So we initialize it to -1
-            // and update it once the actual transaction completed.
-            </span><span class="kw">let _ </span>= tx.execute(<span class="kw-2">&amp;*</span>migration.sql).<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="comment">// language=SQL
-            </span><span class="kw">let _ </span>= query(
-                <span class="string">r#"
-    INSERT INTO _sqlx_migrations ( version, description, success, checksum, execution_time )
-    VALUES ( $1, $2, TRUE, $3, -1 )
-                "#</span>,
-            )
-            .bind(migration.version)
-            .bind(<span class="kw-2">&amp;*</span>migration.description)
-            .bind(<span class="kw-2">&amp;*</span>migration.checksum)
-            .execute(<span class="kw-2">&amp;mut *</span>tx)
-            .<span class="kw">await</span><span class="question-mark">?</span>;
-
-            tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="comment">// execute migration queries
+            </span><span class="kw">if </span>migration.no_tx {
+                execute_migration(<span class="self">self</span>, migration).<span class="kw">await</span><span class="question-mark">?</span>;
+            } <span class="kw">else </span>{
+                <span class="comment">// Use a single transaction for the actual migration script and the essential bookeeping so we never
+                // execute migrations twice. See https://github.com/launchbadge/sqlx/issues/1966.
+                // The `execution_time` however can only be measured for the whole transaction. This value _only_ exists for
+                // data lineage and debugging reasons, so it is not super important if it is lost. So we initialize it to -1
+                // and update it once the actual transaction completed.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>tx = <span class="self">self</span>.begin().<span class="kw">await</span><span class="question-mark">?</span>;
+                execute_migration(<span class="kw-2">&amp;mut </span>tx, migration).<span class="kw">await</span><span class="question-mark">?</span>;
+                tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
+            }
 
             <span class="comment">// Update `elapsed_time`.
             // NOTE: The process may disconnect/die at this point, so the elapsed time value might be lost. We accept
             //       this small risk since this value is not super important.
-
             </span><span class="kw">let </span>elapsed = start.elapsed();
 
             <span class="comment">// language=SQL
+            </span><span class="attr">#[allow(clippy::cast_possible_truncation)]
             </span><span class="kw">let _ </span>= query(
                 <span class="string">r#"
     UPDATE _sqlx_migrations
@@ -580,6 +586,31 @@ CREATE TABLE IF NOT EXISTS _sqlx_migrations (
             <span class="prelude-val">Ok</span>(elapsed)
         })
     }
+}
+
+<span class="kw">async fn </span>execute_migration(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    migration: <span class="kw-2">&amp;</span>Migration,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(), MigrateError&gt; {
+    <span class="kw">let _ </span>= conn
+        .execute(<span class="kw-2">&amp;*</span>migration.sql)
+        .<span class="kw">await
+        </span>.map_err(|e| MigrateError::ExecuteMigration(e, migration.version))<span class="question-mark">?</span>;
+
+    <span class="comment">// language=SQL
+    </span><span class="kw">let _ </span>= query(
+        <span class="string">r#"
+    INSERT INTO _sqlx_migrations ( version, description, success, checksum, execution_time )
+    VALUES ( $1, $2, TRUE, $3, -1 )
+                "#</span>,
+    )
+    .bind(migration.version)
+    .bind(<span class="kw-2">&amp;*</span>migration.description)
+    .bind(<span class="kw-2">&amp;*</span>migration.checksum)
+    .execute(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">async fn </span>current_database(conn: <span class="kw-2">&amp;mut </span>PgConnection) -&gt; <span class="prelude-ty">Result</span>&lt;String, MigrateError&gt; {

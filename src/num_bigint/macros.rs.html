@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num-bigint-0.2.6/src/macros.rs`."><title>macros.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="num_bigint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/num-bigint-0.2.6/src/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="num_bigint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -447,7 +446,7 @@
 </pre></div><pre class="rust"><code><span class="attr">#![allow(unknown_lints)] </span><span class="comment">// older rustc doesn't know `unused_macros`
 </span><span class="attr">#![allow(unused_macros)]
 
-</span><span class="macro">macro_rules! </span>forward_val_val_binop {
+</span><span class="macro">macro_rules!</span> forward_val_val_binop {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -461,7 +460,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_val_val_binop_commutative {
+<span class="macro">macro_rules!</span> forward_val_val_binop_commutative {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -479,7 +478,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_ref_val_binop {
+<span class="macro">macro_rules!</span> forward_ref_val_binop {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -493,7 +492,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_ref_val_binop_commutative {
+<span class="macro">macro_rules!</span> forward_ref_val_binop_commutative {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -507,7 +506,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_val_ref_binop {
+<span class="macro">macro_rules!</span> forward_val_ref_binop {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -521,7 +520,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_ref_ref_binop {
+<span class="macro">macro_rules!</span> forward_ref_ref_binop {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -535,7 +534,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_ref_ref_binop_commutative {
+<span class="macro">macro_rules!</span> forward_ref_ref_binop_commutative {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -553,7 +552,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_val_assign {
+<span class="macro">macro_rules!</span> forward_val_assign {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="attr">#[inline]
@@ -564,7 +563,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_val_assign_scalar {
+<span class="macro">macro_rules!</span> forward_val_assign_scalar {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$scalar</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$scalar </span>{
             <span class="attr">#[inline]
@@ -576,7 +575,7 @@
 }
 
 <span class="doccomment">/// use this if val_val_binop is already implemented and the reversed order is required
-</span><span class="macro">macro_rules! </span>forward_scalar_val_val_binop_commutative {
+</span><span class="macro">macro_rules!</span> forward_scalar_val_val_binop_commutative {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident &lt; <span class="macro-nonterminal">$scalar</span>:ty &gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$res</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$scalar </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -590,7 +589,7 @@
 }
 
 <span class="comment">// Forward scalar to ref-val, when reusing storage is not helpful
-</span><span class="macro">macro_rules! </span>forward_scalar_val_val_binop_to_ref_val {
+</span><span class="macro">macro_rules!</span> forward_scalar_val_val_binop_to_ref_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -612,7 +611,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_scalar_ref_ref_binop_to_ref_val {
+<span class="macro">macro_rules!</span> forward_scalar_ref_ref_binop_to_ref_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -634,7 +633,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_scalar_val_ref_binop_to_ref_val {
+<span class="macro">macro_rules!</span> forward_scalar_val_ref_binop_to_ref_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -656,7 +655,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_scalar_val_ref_binop_to_val_val {
+<span class="macro">macro_rules!</span> forward_scalar_val_ref_binop_to_val_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -678,7 +677,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_scalar_ref_val_binop_to_val_val {
+<span class="macro">macro_rules!</span> forward_scalar_ref_val_binop_to_val_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident &lt; <span class="macro-nonterminal">$scalar</span>:ty &gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -700,7 +699,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_scalar_ref_ref_binop_to_val_val {
+<span class="macro">macro_rules!</span> forward_scalar_ref_ref_binop_to_val_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; <span class="macro-nonterminal">$imp</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span><span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="macro-nonterminal">$res </span>{
             <span class="kw">type </span>Output = <span class="macro-nonterminal">$res</span>;
@@ -722,7 +721,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>promote_scalars {
+<span class="macro">macro_rules!</span> promote_scalars {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$promo</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident, $( <span class="macro-nonterminal">$scalar</span>:ty ),<span class="kw-2">*</span>) =&gt; {
         $(
             <span class="macro">forward_all_scalar_binop_to_val_val!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
@@ -751,7 +750,7 @@
         )*
     }
 }
-<span class="macro">macro_rules! </span>promote_scalars_assign {
+<span class="macro">macro_rules!</span> promote_scalars_assign {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$promo</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident, $( <span class="macro-nonterminal">$scalar</span>:ty ),<span class="kw-2">*</span>) =&gt; {
         $(
             <span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res </span>{
@@ -766,28 +765,28 @@
     }
 }
 
-<span class="macro">macro_rules! </span>promote_unsigned_scalars {
+<span class="macro">macro_rules!</span> promote_unsigned_scalars {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">promote_scalars!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;u32&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, u8, u16);
         <span class="macro">promote_scalars!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;UsizePromotion&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, usize);
     }
 }
 
-<span class="macro">macro_rules! </span>promote_unsigned_scalars_assign {
+<span class="macro">macro_rules!</span> promote_unsigned_scalars_assign {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">promote_scalars_assign!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;u32&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, u8, u16);
         <span class="macro">promote_scalars_assign!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;UsizePromotion&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, usize);
     }
 }
 
-<span class="macro">macro_rules! </span>promote_signed_scalars {
+<span class="macro">macro_rules!</span> promote_signed_scalars {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">promote_scalars!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;i32&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, i8, i16);
         <span class="macro">promote_scalars!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;IsizePromotion&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, isize);
     }
 }
 
-<span class="macro">macro_rules! </span>promote_signed_scalars_assign {
+<span class="macro">macro_rules!</span> promote_signed_scalars_assign {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">promote_scalars_assign!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;i32&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, i8, i16);
         <span class="macro">promote_scalars_assign!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;IsizePromotion&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>, isize);
@@ -795,7 +794,7 @@
 }
 
 <span class="comment">// Forward everything to ref-ref, when reusing storage is not helpful
-</span><span class="macro">macro_rules! </span>forward_all_binop_to_ref_ref {
+</span><span class="macro">macro_rules!</span> forward_all_binop_to_ref_ref {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">forward_val_val_binop!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">forward_val_ref_binop!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
@@ -804,7 +803,7 @@
 }
 
 <span class="comment">// Forward everything to val-ref, so LHS storage can be reused
-</span><span class="macro">macro_rules! </span>forward_all_binop_to_val_ref {
+</span><span class="macro">macro_rules!</span> forward_all_binop_to_val_ref {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">forward_val_val_binop!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">forward_ref_val_binop!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
@@ -813,7 +812,7 @@
 }
 
 <span class="comment">// Forward everything to val-ref, commutatively, so either LHS or RHS storage can be reused
-</span><span class="macro">macro_rules! </span>forward_all_binop_to_val_ref_commutative {
+</span><span class="macro">macro_rules!</span> forward_all_binop_to_val_ref_commutative {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">forward_val_val_binop_commutative!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">forward_ref_val_binop_commutative!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
@@ -821,7 +820,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>forward_all_scalar_binop_to_ref_val {
+<span class="macro">macro_rules!</span> forward_all_scalar_binop_to_ref_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">forward_scalar_val_val_binop_to_ref_val!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">forward_scalar_val_ref_binop_to_ref_val!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
@@ -829,7 +828,7 @@
     }
 }
 
-<span class="macro">macro_rules! </span>forward_all_scalar_binop_to_val_val {
+<span class="macro">macro_rules!</span> forward_all_scalar_binop_to_val_val {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">forward_scalar_val_ref_binop_to_val_val!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">forward_scalar_ref_val_binop_to_val_val!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
@@ -837,28 +836,28 @@
     }
 }
 
-<span class="macro">macro_rules! </span>forward_all_scalar_binop_to_val_val_commutative {
+<span class="macro">macro_rules!</span> forward_all_scalar_binop_to_val_val_commutative {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident&lt;<span class="macro-nonterminal">$scalar</span>:ty&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">forward_scalar_val_val_binop_commutative!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">forward_all_scalar_binop_to_val_val!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>&lt;<span class="macro-nonterminal">$scalar</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
     }
 }
 
-<span class="macro">macro_rules! </span>promote_all_scalars {
+<span class="macro">macro_rules!</span> promote_all_scalars {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">promote_unsigned_scalars!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">promote_signed_scalars!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
     }
 }
 
-<span class="macro">macro_rules! </span>promote_all_scalars_assign {
+<span class="macro">macro_rules!</span> promote_all_scalars_assign {
     (<span class="kw">impl </span><span class="macro-nonterminal">$imp</span>:ident <span class="kw">for </span><span class="macro-nonterminal">$res</span>:ty, <span class="macro-nonterminal">$method</span>:ident) =&gt; {
         <span class="macro">promote_unsigned_scalars_assign!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
         <span class="macro">promote_signed_scalars_assign!</span>(<span class="kw">impl </span><span class="macro-nonterminal">$imp </span><span class="kw">for </span><span class="macro-nonterminal">$res</span>, <span class="macro-nonterminal">$method</span>);
     }
 }
 
-<span class="macro">macro_rules! </span>impl_sum_iter_type {
+<span class="macro">macro_rules!</span> impl_sum_iter_type {
     (<span class="macro-nonterminal">$res</span>:ty) =&gt; {
         <span class="kw">impl</span>&lt;T&gt; Sum&lt;T&gt; <span class="kw">for </span><span class="macro-nonterminal">$res
         </span><span class="kw">where
@@ -874,7 +873,7 @@
     };
 }
 
-<span class="macro">macro_rules! </span>impl_product_iter_type {
+<span class="macro">macro_rules!</span> impl_product_iter_type {
     (<span class="macro-nonterminal">$res</span>:ty) =&gt; {
         <span class="kw">impl</span>&lt;T&gt; Product&lt;T&gt; <span class="kw">for </span><span class="macro-nonterminal">$res
         </span><span class="kw">where

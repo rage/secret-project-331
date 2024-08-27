@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.4.0/src/codepointinvlist/builder.rs`."><title>builder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_collections-1.5.0/src/codepointinvlist/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_collections" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -954,6 +953,47 @@
 <a href="#953" id="953">953</a>
 <a href="#954" id="954">954</a>
 <a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1047,7 +1087,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_char('a');
     /// let check = builder.build();
@@ -1068,17 +1108,23 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_u32(0x41);
+    /// builder.add32(0x41);
     /// let check = builder.build();
     /// assert!(check.contains32(0x41));
     /// ```
-    </span><span class="kw">pub fn </span>add_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u32) {
+    </span><span class="kw">pub fn </span>add32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u32) {
         <span class="kw">if </span>c &lt;= char::MAX <span class="kw">as </span>u32 {
             <span class="comment">// we already know 0 &lt;= c  because c: u32
             </span><span class="self">self</span>.add(c, c + <span class="number">1</span>);
         }
+    }
+
+    <span class="doccomment">/// Same as [`Self::add32`].
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.5.0"</span>, note = <span class="string">"Use `add32`"</span>)]
+    </span><span class="kw">pub fn </span>add_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u32) {
+        <span class="self">self</span>.add32(c)
     }
 
     <span class="doccomment">/// Add the range of characters to the [`CodePointInversionListBuilder`]
@@ -1086,7 +1132,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='Z'));
     /// let check = builder.build();
@@ -1102,13 +1148,13 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
-    /// builder.add_range_u32(&amp;(0xd800..=0xdfff));
+    /// builder.add_range32(&amp;(0xd800..=0xdfff));
     /// let check = builder.build();
     /// assert!(check.contains32(0xd900));
     /// ```
-    </span><span class="kw">pub fn </span>add_range_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;u32&gt;) {
+    </span><span class="kw">pub fn </span>add_range32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;u32&gt;) {
         <span class="kw">let </span>(start, end) = deconstruct_range(range);
         <span class="comment">// Sets that include char::MAX need to allow an end value of MAX + 1
         </span><span class="kw">if </span>start &lt;= end &amp;&amp; end &lt;= char::MAX <span class="kw">as </span>u32 + <span class="number">1 </span>{
@@ -1116,12 +1162,18 @@
         }
     }
 
+    <span class="doccomment">/// Same as [`Self::add_range32`].
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.5.0"</span>, note = <span class="string">"Use `add_range32`"</span>)]
+    </span><span class="kw">pub fn </span>add_range_u32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;u32&gt;) {
+        <span class="self">self</span>.add_range32(range)
+    }
+
     <span class="doccomment">/// Add the [`CodePointInversionList`] reference to the [`CodePointInversionListBuilder`]
     ///
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::{
+    /// use icu::collections::codepointinvlist::{
     ///     CodePointInversionList, CodePointInversionListBuilder,
     /// };
     /// let mut builder = CodePointInversionListBuilder::new();
@@ -1170,15 +1222,19 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='Z'));
     /// builder.remove_char('A');
     /// let check = builder.build();
     /// assert_eq!(check.iter_chars().next(), Some('B'));
     </span><span class="kw">pub fn </span>remove_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
-        <span class="kw">let </span>to_remove = c <span class="kw">as </span>u32;
-        <span class="self">self</span>.remove(to_remove, to_remove + <span class="number">1</span>);
+        <span class="self">self</span>.remove32(c <span class="kw">as </span>u32)
+    }
+
+    <span class="doccomment">/// See [`Self::remove_char`]
+    </span><span class="kw">pub fn </span>remove32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u32) {
+        <span class="self">self</span>.remove(c, c + <span class="number">1</span>);
     }
 
     <span class="doccomment">/// Remove the range of characters from the [`CodePointInversionListBuilder`]
@@ -1186,7 +1242,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='Z'));
     /// builder.remove_range(&amp;('A'..='C'));
@@ -1197,12 +1253,18 @@
         <span class="self">self</span>.remove(start, end);
     }
 
+    <span class="doccomment">/// See [`Self::remove_range`]
+    </span><span class="kw">pub fn </span>remove_range32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;u32&gt;) {
+        <span class="kw">let </span>(start, end) = deconstruct_range(range);
+        <span class="self">self</span>.remove(start, end);
+    }
+
     <span class="doccomment">/// Remove the [`CodePointInversionList`] from the [`CodePointInversionListBuilder`]
     ///
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::{CodePointInversionList, CodePointInversionListBuilder};
+    /// use icu::collections::codepointinvlist::{CodePointInversionList, CodePointInversionListBuilder};
     /// let mut builder = CodePointInversionListBuilder::new();
     /// let set = CodePointInversionList::try_from_inversion_list_slice(&amp;[0x41, 0x46]).unwrap();
     /// builder.add_range(&amp;('A'..='Z'));
@@ -1227,7 +1289,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='Z'));
     /// builder.retain_char('A');
@@ -1237,9 +1299,13 @@
     /// assert_eq!(check.next(), None);
     /// ```
     </span><span class="kw">pub fn </span>retain_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
-        <span class="kw">let </span>code_point = c <span class="kw">as </span>u32;
-        <span class="self">self</span>.remove(<span class="number">0</span>, code_point);
-        <span class="self">self</span>.remove(code_point + <span class="number">1</span>, (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>);
+        <span class="self">self</span>.retain32(c <span class="kw">as </span>u32)
+    }
+
+    <span class="doccomment">/// See [`Self::retain_char`]
+    </span><span class="kw">pub fn </span>retain32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u32) {
+        <span class="self">self</span>.remove(<span class="number">0</span>, c);
+        <span class="self">self</span>.remove(c + <span class="number">1</span>, (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>);
     }
 
     <span class="doccomment">/// Retain the range of characters located within the [`CodePointInversionListBuilder`]
@@ -1247,7 +1313,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='Z'));
     /// builder.retain_range(&amp;('A'..='B'));
@@ -1263,12 +1329,19 @@
         <span class="self">self</span>.remove(end, (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>);
     }
 
+    <span class="doccomment">/// See [`Self::retain_range`]
+    </span><span class="kw">pub fn </span>retain_range32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;u32&gt;) {
+        <span class="kw">let </span>(start, end) = deconstruct_range(range);
+        <span class="self">self</span>.remove(<span class="number">0</span>, start);
+        <span class="self">self</span>.remove(end, (char::MAX <span class="kw">as </span>u32) + <span class="number">1</span>);
+    }
+
     <span class="doccomment">/// Retain the elements in the specified set within the [`CodePointInversionListBuilder`]
     ///
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::{
+    /// use icu::collections::codepointinvlist::{
     ///     CodePointInversionList, CodePointInversionListBuilder,
     /// };
     /// let mut builder = CodePointInversionListBuilder::new();
@@ -1336,7 +1409,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::{
+    /// use icu::collections::codepointinvlist::{
     ///     CodePointInversionList, CodePointInversionListBuilder,
     /// };
     /// let mut builder = CodePointInversionListBuilder::new();
@@ -1376,7 +1449,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='D'));
     /// builder.complement_char('A');
@@ -1386,9 +1459,12 @@
     /// assert!(!check.contains('A'));
     /// ```
     </span><span class="kw">pub fn </span>complement_char(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: char) {
-        <span class="kw">let </span>code_point = c <span class="kw">as </span>u32;
-        <span class="kw">let </span>to_complement = [code_point, code_point + <span class="number">1</span>];
-        <span class="self">self</span>.complement_list(to_complement.iter().copied());
+        <span class="self">self</span>.complement32(c <span class="kw">as </span>u32);
+    }
+
+    <span class="doccomment">/// See [`Self::complement_char`]
+    </span><span class="kw">pub fn </span>complement32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, c: u32) {
+        <span class="self">self</span>.complement_list([c, c + <span class="number">1</span>].into_iter());
     }
 
     <span class="doccomment">/// Complements the range in the builder, adding any elements in the range if not in the builder, and
@@ -1397,7 +1473,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::CodePointInversionListBuilder;
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// builder.add_range(&amp;('A'..='D'));
     /// builder.complement_range(&amp;('C'..='F'));
@@ -1411,13 +1487,20 @@
         <span class="self">self</span>.complement_list(to_complement.iter().copied());
     }
 
+    <span class="doccomment">/// See [`Self::complement_range`]
+    </span><span class="kw">pub fn </span>complement_range32(<span class="kw-2">&amp;mut </span><span class="self">self</span>, range: <span class="kw-2">&amp;</span><span class="kw">impl </span>RangeBounds&lt;u32&gt;) {
+        <span class="kw">let </span>(start, end) = deconstruct_range(range);
+        <span class="kw">let </span>to_complement = [start, end];
+        <span class="self">self</span>.complement_list(to_complement.iter().copied());
+    }
+
     <span class="doccomment">/// Complements the set in the builder, adding any elements in the set if not in the builder, and
     /// removing them otherwise.
     ///
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::{
+    /// use icu::collections::codepointinvlist::{
     ///     CodePointInversionList, CodePointInversionListBuilder,
     /// };
     /// let mut builder = CodePointInversionListBuilder::new();
@@ -1441,9 +1524,7 @@
     /// # Examples
     ///
     /// ```
-    /// use icu_collections::codepointinvlist::{
-    ///     CodePointInversionList, CodePointInversionListBuilder,
-    /// };
+    /// use icu::collections::codepointinvlist::CodePointInversionListBuilder;
     /// let mut builder = CodePointInversionListBuilder::new();
     /// let check = builder.build();
     /// assert!(check.is_empty());
@@ -1669,9 +1750,9 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_add_range_u32() {
+    </span><span class="kw">fn </span>test_add_range32() {
         <span class="kw">let </span><span class="kw-2">mut </span>builder = CodePointInversionListBuilder::new();
-        builder.add_range_u32(<span class="kw-2">&amp;</span>(<span class="number">0xd800</span>..=<span class="number">0xdfff</span>));
+        builder.add_range32(<span class="kw-2">&amp;</span>(<span class="number">0xd800</span>..=<span class="number">0xdfff</span>));
         <span class="kw">let </span>expected = [<span class="number">0xd800</span>, <span class="number">0xe000</span>];
         <span class="macro">assert_eq!</span>(builder.intervals, expected);
     }

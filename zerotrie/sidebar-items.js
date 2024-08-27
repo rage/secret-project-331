@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ZeroTrieError"],"struct":["ZeroTrie","ZeroTrieExtendedCapacity","ZeroTriePerfectHash","ZeroTrieSimpleAscii"]};
+window.SIDEBAR_ITEMS = {"enum":["ZeroTrieError"],"mod":["cursor"],"struct":["ZeroAsciiIgnoreCaseTrie","ZeroTrie","ZeroTrieExtendedCapacity","ZeroTriePerfectHash","ZeroTrieSimpleAscii"]};

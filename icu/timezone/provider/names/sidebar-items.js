@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["Bcp47ToIanaMapV1","Bcp47ToIanaMapV1Marker","IanaToBcp47MapV1","IanaToBcp47MapV1Marker"]};
+window.SIDEBAR_ITEMS = {"struct":["Bcp47ToIanaMapV1","Bcp47ToIanaMapV1Marker","IanaToBcp47MapV1","IanaToBcp47MapV1Marker","IanaToBcp47MapV2","IanaToBcp47MapV2Marker"]};

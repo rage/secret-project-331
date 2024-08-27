@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/message/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/message/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -127,10 +126,112 @@
 <a href="#126" id="126">126</a>
 <a href="#127" id="127">127</a>
 <a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>sqlx_core::bytes::Bytes;
+<span class="kw">use </span>std::num::Saturating;
 
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::io::Decode;
+<span class="kw">use </span><span class="kw">crate</span>::io::PgBufMutExt;
 
 <span class="kw">mod </span>authentication;
 <span class="kw">mod </span>backend_key_data;
@@ -146,6 +247,7 @@
 <span class="kw">mod </span>parameter_description;
 <span class="kw">mod </span>parameter_status;
 <span class="kw">mod </span>parse;
+<span class="kw">mod </span>parse_complete;
 <span class="kw">mod </span>password;
 <span class="kw">mod </span>query;
 <span class="kw">mod </span>ready_for_query;
@@ -162,29 +264,61 @@
 <span class="kw">pub use </span>bind::Bind;
 <span class="kw">pub use </span>close::Close;
 <span class="kw">pub use </span>command_complete::CommandComplete;
-<span class="kw">pub use </span>copy::{CopyData, CopyDone, CopyFail, CopyResponse};
+<span class="kw">pub use </span>copy::{CopyData, CopyDone, CopyFail, CopyInResponse, CopyOutResponse, CopyResponseData};
 <span class="kw">pub use </span>data_row::DataRow;
 <span class="kw">pub use </span>describe::Describe;
 <span class="kw">pub use </span>execute::Execute;
-<span class="kw">pub use </span>flush::Flush;
+<span class="attr">#[allow(unused_imports)]
+</span><span class="kw">pub use </span>flush::Flush;
 <span class="kw">pub use </span>notification::Notification;
 <span class="kw">pub use </span>parameter_description::ParameterDescription;
 <span class="kw">pub use </span>parameter_status::ParameterStatus;
 <span class="kw">pub use </span>parse::Parse;
+<span class="kw">pub use </span>parse_complete::ParseComplete;
 <span class="kw">pub use </span>password::Password;
 <span class="kw">pub use </span>query::Query;
 <span class="kw">pub use </span>ready_for_query::{ReadyForQuery, TransactionStatus};
 <span class="kw">pub use </span>response::{Notice, PgSeverity};
 <span class="kw">pub use </span>row_description::RowDescription;
 <span class="kw">pub use </span>sasl::{SaslInitialResponse, SaslResponse};
+<span class="kw">use </span>sqlx_core::io::ProtocolEncode;
 <span class="kw">pub use </span>ssl_request::SslRequest;
 <span class="kw">pub use </span>startup::Startup;
 <span class="kw">pub use </span>sync::Sync;
 <span class="kw">pub use </span>terminate::Terminate;
 
+<span class="comment">// Note: we can't use the same enum for both frontend and backend message formats
+// because there are duplicated format codes between them.
+//
+// For example, `Close` (frontend) and `CommandComplete` (backend) both use format code `C`.
+// &lt;https://www.postgresql.org/docs/current/protocol-message-formats.html&gt;
+</span><span class="attr">#[derive(Debug, PartialOrd, PartialEq)]
+#[repr(u8)]
+</span><span class="kw">pub enum </span>FrontendMessageFormat {
+    Bind = <span class="string">b'B'</span>,
+    Close = <span class="string">b'C'</span>,
+    CopyData = <span class="string">b'd'</span>,
+    CopyDone = <span class="string">b'c'</span>,
+    CopyFail = <span class="string">b'f'</span>,
+    Describe = <span class="string">b'D'</span>,
+    Execute = <span class="string">b'E'</span>,
+    Flush = <span class="string">b'H'</span>,
+    Parse = <span class="string">b'P'</span>,
+    <span class="doccomment">/// This message format is polymorphic. It's used for:
+    ///
+    /// * Plain password responses
+    /// * MD5 password responses
+    /// * SASL responses
+    /// * GSSAPI/SSPI responses
+    </span>PasswordPolymorphic = <span class="string">b'p'</span>,
+    Query = <span class="string">b'Q'</span>,
+    Sync = <span class="string">b'S'</span>,
+    Terminate = <span class="string">b'X'</span>,
+}
+
 <span class="attr">#[derive(Debug, PartialOrd, PartialEq)]
 #[repr(u8)]
-</span><span class="kw">pub enum </span>MessageFormat {
+</span><span class="kw">pub enum </span>BackendMessageFormat {
     Authentication,
     BackendKeyData,
     BindComplete,
@@ -209,50 +343,117 @@
 }
 
 <span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>Message {
-    <span class="kw">pub </span>format: MessageFormat,
+</span><span class="kw">pub struct </span>ReceivedMessage {
+    <span class="kw">pub </span>format: BackendMessageFormat,
     <span class="kw">pub </span>contents: Bytes,
 }
 
-<span class="kw">impl </span>Message {
+<span class="kw">impl </span>ReceivedMessage {
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>decode&lt;<span class="lifetime">'de</span>, T&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
+    </span><span class="kw">pub fn </span>decode&lt;T&gt;(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;T, Error&gt;
     <span class="kw">where
-        </span>T: Decode&lt;<span class="lifetime">'de</span>&gt;,
+        </span>T: BackendMessage,
     {
-        T::decode(<span class="self">self</span>.contents)
+        <span class="kw">if </span>T::FORMAT != <span class="self">self</span>.format {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(
+                <span class="string">"Postgres protocol error: expected {:?}, got {:?}"</span>,
+                T::FORMAT,
+                <span class="self">self</span>.format
+            ));
+        }
+
+        T::decode_body(<span class="self">self</span>.contents).map_err(|e| <span class="kw">match </span>e {
+            Error::Protocol(s) =&gt; {
+                <span class="macro">err_protocol!</span>(<span class="string">"Postgres protocol error (reading {:?}): {s}"</span>, <span class="self">self</span>.format)
+            }
+            other =&gt; other,
+        })
     }
 }
 
-<span class="kw">impl </span>MessageFormat {
+<span class="kw">impl </span>BackendMessageFormat {
     <span class="kw">pub fn </span>try_from_u8(v: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="comment">// https://www.postgresql.org/docs/current/protocol-message-formats.html
 
         </span><span class="prelude-val">Ok</span>(<span class="kw">match </span>v {
-            <span class="string">b'1' </span>=&gt; MessageFormat::ParseComplete,
-            <span class="string">b'2' </span>=&gt; MessageFormat::BindComplete,
-            <span class="string">b'3' </span>=&gt; MessageFormat::CloseComplete,
-            <span class="string">b'C' </span>=&gt; MessageFormat::CommandComplete,
-            <span class="string">b'd' </span>=&gt; MessageFormat::CopyData,
-            <span class="string">b'c' </span>=&gt; MessageFormat::CopyDone,
-            <span class="string">b'G' </span>=&gt; MessageFormat::CopyInResponse,
-            <span class="string">b'H' </span>=&gt; MessageFormat::CopyOutResponse,
-            <span class="string">b'D' </span>=&gt; MessageFormat::DataRow,
-            <span class="string">b'E' </span>=&gt; MessageFormat::ErrorResponse,
-            <span class="string">b'I' </span>=&gt; MessageFormat::EmptyQueryResponse,
-            <span class="string">b'A' </span>=&gt; MessageFormat::NotificationResponse,
-            <span class="string">b'K' </span>=&gt; MessageFormat::BackendKeyData,
-            <span class="string">b'N' </span>=&gt; MessageFormat::NoticeResponse,
-            <span class="string">b'R' </span>=&gt; MessageFormat::Authentication,
-            <span class="string">b'S' </span>=&gt; MessageFormat::ParameterStatus,
-            <span class="string">b'T' </span>=&gt; MessageFormat::RowDescription,
-            <span class="string">b'Z' </span>=&gt; MessageFormat::ReadyForQuery,
-            <span class="string">b'n' </span>=&gt; MessageFormat::NoData,
-            <span class="string">b's' </span>=&gt; MessageFormat::PortalSuspended,
-            <span class="string">b't' </span>=&gt; MessageFormat::ParameterDescription,
+            <span class="string">b'1' </span>=&gt; BackendMessageFormat::ParseComplete,
+            <span class="string">b'2' </span>=&gt; BackendMessageFormat::BindComplete,
+            <span class="string">b'3' </span>=&gt; BackendMessageFormat::CloseComplete,
+            <span class="string">b'C' </span>=&gt; BackendMessageFormat::CommandComplete,
+            <span class="string">b'd' </span>=&gt; BackendMessageFormat::CopyData,
+            <span class="string">b'c' </span>=&gt; BackendMessageFormat::CopyDone,
+            <span class="string">b'G' </span>=&gt; BackendMessageFormat::CopyInResponse,
+            <span class="string">b'H' </span>=&gt; BackendMessageFormat::CopyOutResponse,
+            <span class="string">b'D' </span>=&gt; BackendMessageFormat::DataRow,
+            <span class="string">b'E' </span>=&gt; BackendMessageFormat::ErrorResponse,
+            <span class="string">b'I' </span>=&gt; BackendMessageFormat::EmptyQueryResponse,
+            <span class="string">b'A' </span>=&gt; BackendMessageFormat::NotificationResponse,
+            <span class="string">b'K' </span>=&gt; BackendMessageFormat::BackendKeyData,
+            <span class="string">b'N' </span>=&gt; BackendMessageFormat::NoticeResponse,
+            <span class="string">b'R' </span>=&gt; BackendMessageFormat::Authentication,
+            <span class="string">b'S' </span>=&gt; BackendMessageFormat::ParameterStatus,
+            <span class="string">b'T' </span>=&gt; BackendMessageFormat::RowDescription,
+            <span class="string">b'Z' </span>=&gt; BackendMessageFormat::ReadyForQuery,
+            <span class="string">b'n' </span>=&gt; BackendMessageFormat::NoData,
+            <span class="string">b's' </span>=&gt; BackendMessageFormat::PortalSuspended,
+            <span class="string">b't' </span>=&gt; BackendMessageFormat::ParameterDescription,
 
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">err_protocol!</span>(<span class="string">"unknown message type: {:?}"</span>, v <span class="kw">as </span>char)),
         })
+    }
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>FrontendMessage: Sized {
+    <span class="doccomment">/// The format prefix of this message.
+    </span><span class="kw">const </span>FORMAT: FrontendMessageFormat;
+
+    <span class="doccomment">/// Return the amount of space, in bytes, to reserve in the buffer passed to [`Self::encode_body()`].
+    </span><span class="kw">fn </span>body_size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Saturating&lt;usize&gt;;
+
+    <span class="doccomment">/// Encode this type as a Frontend message in the Postgres protocol.
+    ///
+    /// The implementation should *not* include `Self::FORMAT` or the length prefix.
+    </span><span class="kw">fn </span>encode_body(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;;
+
+    <span class="attr">#[inline(always)]
+    #[cfg_attr(not(test), allow(dead_code))]
+    </span><span class="kw">fn </span>encode_msg(<span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        EncodeMessage(<span class="self">self</span>).encode(buf)
+    }
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>BackendMessage: Sized {
+    <span class="doccomment">/// The expected message format.
+    ///
+    /// &lt;https://www.postgresql.org/docs/current/protocol-message-formats.html&gt;
+    </span><span class="kw">const </span>FORMAT: BackendMessageFormat;
+
+    <span class="doccomment">/// Decode this type from a Backend message in the Postgres protocol.
+    ///
+    /// The format code and length prefix have already been read and are not at the start of `bytes`.
+    </span><span class="kw">fn </span>decode_body(buf: Bytes) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt;;
+}
+
+<span class="kw">pub struct </span>EncodeMessage&lt;F&gt;(<span class="kw">pub </span>F);
+
+<span class="kw">impl</span>&lt;F: FrontendMessage&gt; ProtocolEncode&lt;<span class="lifetime">'_</span>, ()&gt; <span class="kw">for </span>EncodeMessage&lt;F&gt; {
+    <span class="kw">fn </span>encode_with(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>Vec&lt;u8&gt;, _context: ()) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>size_hint = <span class="self">self</span>.<span class="number">0</span>.body_size_hint();
+        <span class="comment">// plus format code and length prefix
+        </span>size_hint += <span class="number">5</span>;
+
+        <span class="comment">// don't panic if `size_hint` is ridiculous
+        </span>buf.try_reserve(size_hint.<span class="number">0</span>).map_err(|e| {
+            <span class="macro">err_protocol!</span>(
+                <span class="string">"Postgres protocol: error allocating {} bytes for encoding message {:?}: {e}"</span>,
+                size_hint.<span class="number">0</span>,
+                F::FORMAT,
+            )
+        })<span class="question-mark">?</span>;
+
+        buf.push(F::FORMAT <span class="kw">as </span>u8);
+
+        buf.put_length_prefixed(|buf| <span class="self">self</span>.<span class="number">0</span>.encode_body(buf))
     }
 }
 </code></pre></div></section></main></body></html>

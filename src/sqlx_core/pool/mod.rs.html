@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/pool/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -631,35 +630,6 @@
 <a href="#630" id="630">630</a>
 <a href="#631" id="631">631</a>
 <a href="#632" id="632">632</a>
-<a href="#633" id="633">633</a>
-<a href="#634" id="634">634</a>
-<a href="#635" id="635">635</a>
-<a href="#636" id="636">636</a>
-<a href="#637" id="637">637</a>
-<a href="#638" id="638">638</a>
-<a href="#639" id="639">639</a>
-<a href="#640" id="640">640</a>
-<a href="#641" id="641">641</a>
-<a href="#642" id="642">642</a>
-<a href="#643" id="643">643</a>
-<a href="#644" id="644">644</a>
-<a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a>
-<a href="#647" id="647">647</a>
-<a href="#648" id="648">648</a>
-<a href="#649" id="649">649</a>
-<a href="#650" id="650">650</a>
-<a href="#651" id="651">651</a>
-<a href="#652" id="652">652</a>
-<a href="#653" id="653">653</a>
-<a href="#654" id="654">654</a>
-<a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a>
-<a href="#657" id="657">657</a>
-<a href="#658" id="658">658</a>
-<a href="#659" id="659">659</a>
-<a href="#660" id="660">660</a>
-<a href="#661" id="661">661</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Provides the connection pool for asynchronous SQLx connections.
 //!
 //! Opening a database connection for each and every operation to the database can quickly
@@ -673,7 +643,7 @@
 //! SQLx provides a canonical connection pool implementation intended to satisfy the majority
 //! of use cases.
 //!
-//! See [Pool][crate::pool::Pool] for details.
+//! See [Pool] for details.
 //!
 //! Type aliases are provided for each database to make it easier to sprinkle `Pool` through
 //! your codebase:
@@ -716,30 +686,27 @@
 //! [`Pool::acquire`] or
 //! [`Pool::begin`].
 
-</span><span class="kw">use </span><span class="self">self</span>::inner::PoolInner;
-<span class="attr">#[cfg(all(
-    any(
-        feature = <span class="string">"postgres"</span>,
-        feature = <span class="string">"mysql"</span>,
-        feature = <span class="string">"mssql"</span>,
-        feature = <span class="string">"sqlite"
-    </span>),
-    feature = <span class="string">"any"
-</span>))]
-</span><span class="kw">use </span><span class="kw">crate</span>::any::{Any, AnyKind};
-<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
-<span class="kw">use </span><span class="kw">crate</span>::database::Database;
-<span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
-<span class="kw">use </span>event_listener::EventListener;
-<span class="kw">use </span>futures_core::FusedFuture;
-<span class="kw">use </span>futures_util::FutureExt;
-<span class="kw">use </span>std::fmt;
+</span><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::task::{Context, Poll};
 <span class="kw">use </span>std::time::{Duration, Instant};
+
+<span class="kw">use </span>event_listener::EventListener;
+<span class="kw">use </span>futures_core::FusedFuture;
+<span class="kw">use </span>futures_util::FutureExt;
+
+<span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
+<span class="kw">use </span><span class="kw">crate</span>::database::Database;
+<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::transaction::Transaction;
+
+<span class="kw">pub use </span><span class="self">self</span>::connection::PoolConnection;
+<span class="kw">use </span><span class="self">self</span>::inner::PoolInner;
+<span class="attr">#[doc(hidden)]
+</span><span class="kw">pub use </span><span class="self">self</span>::maybe::MaybePoolConnection;
+<span class="kw">pub use </span><span class="self">self</span>::options::{PoolConnectionMetadata, PoolOptions};
 
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>executor;
@@ -750,12 +717,6 @@
 <span class="kw">mod </span>connection;
 <span class="kw">mod </span>inner;
 <span class="kw">mod </span>options;
-
-<span class="kw">pub use </span><span class="self">self</span>::connection::PoolConnection;
-<span class="kw">pub use </span><span class="self">self</span>::options::{PoolConnectionMetadata, PoolOptions};
-
-<span class="attr">#[doc(hidden)]
-</span><span class="kw">pub use </span><span class="self">self</span>::maybe::MaybePoolConnection;
 
 <span class="doccomment">/// An asynchronous pool of SQLx database connections.
 ///
@@ -772,7 +733,7 @@
 /// when at this limit and all connections are checked out, the task will be made to wait until
 /// a connection becomes available.
 ///
-/// You can configure the connection limit, and other parameters, using [PoolOptions][crate::pool::PoolOptions].
+/// You can configure the connection limit, and other parameters, using [PoolOptions].
 ///
 /// Calls to `acquire()` are fair, i.e. fulfilled on a first-come, first-serve basis.
 ///
@@ -892,7 +853,7 @@
 /// scheme. However, in a web context, telling a client "go away, maybe try again later" results in
 /// a sub-optimal user experience.
 ///
-/// Instead with a connection pool, clients are made to wait in a fair queue for a connection to
+/// Instead, with a connection pool, clients are made to wait in a fair queue for a connection to
 /// become available; by using a single connection pool for your whole application, you can ensure
 /// that you don't exceed the connection limit of your database server while allowing response
 /// time to degrade gracefully at high load.
@@ -972,7 +933,7 @@
     ///
     /// The pool will establish connections only as needed.
     ///
-    /// Refer to the relevant [`ConnectOptions`] impl for your database for the expected URL format:
+    /// Refer to the relevant [`ConnectOptions`][crate::connection::ConnectOptions] impl for your database for the expected URL format:
     ///
     /// * Postgres: [`PgConnectOptions`][crate::postgres::PgConnectOptions]
     /// * MySQL: [`MySqlConnectOptions`][crate::mysql::MySqlConnectOptions]
@@ -1038,8 +999,8 @@
 
     <span class="doccomment">/// Retrieves a connection and immediately begins a new transaction.
     </span><span class="kw">pub async fn </span>begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Transaction&lt;<span class="lifetime">'static</span>, DB&gt;, Error&gt; {
-        <span class="prelude-val">Ok</span>(Transaction::begin(MaybePoolConnection::PoolConnection(<span class="self">self</span>.acquire().<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await</span><span class="question-mark">?</span>)
-    }
+        Transaction::begin(MaybePoolConnection::PoolConnection(<span class="self">self</span>.acquire().<span class="kw">await</span><span class="question-mark">?</span>)).<span class="kw">await
+    </span>}
 
     <span class="doccomment">/// Attempts to retrieve a connection and immediately begins a new transaction if successful.
     </span><span class="kw">pub async fn </span>try_begin(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Transaction&lt;<span class="lifetime">'static</span>, DB&gt;&gt;, Error&gt; {
@@ -1096,8 +1057,7 @@
     ///
     /// Do something when the pool is closed:
     /// ```rust,no_run
-    /// # #[cfg(feature = "postgres")]
-    /// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {
+    /// # async fn bleh() -&gt; sqlx::Result&lt;()&gt; {
     /// use sqlx::PgPool;
     ///
     /// let pool = PgPool::connect("postgresql://...").await?;
@@ -1125,8 +1085,7 @@
     ///
     /// Cancel a long-running operation:
     /// ```rust,no_run
-    /// # #[cfg(feature = "postgres")]
-    /// # async fn bleh() -&gt; sqlx_core::error::Result&lt;()&gt; {
+    /// # async fn bleh() -&gt; sqlx::Result&lt;()&gt; {
     /// use sqlx::{Executor, PgPool};
     ///
     /// let pool = PgPool::connect("postgresql://...").await?;
@@ -1134,16 +1093,26 @@
     /// let pool2 = pool.clone();
     ///
     /// tokio::spawn(async move {
-    ///     pool2.close_event().do_until(async {
+    ///     // `do_until` yields the inner future's output wrapped in `sqlx::Result`,
+    ///     // in this case giving a double-wrapped result.
+    ///     let res: sqlx::Result&lt;sqlx::Result&lt;()&gt;&gt; = pool2.close_event().do_until(async {
     ///         // This statement normally won't return for 30 days!
     ///         // (Assuming the connection doesn't time out first, of course.)
-    ///         pool2.execute("SELECT pg_sleep('30 days')").await;
+    ///         pool2.execute("SELECT pg_sleep('30 days')").await?;
     ///
     ///         // If the pool is closed before the statement completes, this won't be printed.
     ///         // This is because `.do_until()` cancels the future it's given if the
     ///         // pool is closed first.
     ///         println!("Waited!");
+    ///
+    ///         Ok(())
     ///     }).await;
+    ///
+    ///     match res {
+    ///         Ok(Ok(())) =&gt; println!("Wait succeeded"),
+    ///         Ok(Err(e)) =&gt; println!("Error from inside do_until: {e:?}"),
+    ///         Err(e) =&gt; println!("Error from do_until: {e:?}"),
+    ///     }
     /// });
     ///
     /// // This normally wouldn't return until the above statement completed and the connection
@@ -1164,12 +1133,6 @@
     }
 
     <span class="doccomment">/// Returns the number of connections active and idle (not in use).
-    ///
-    /// As of 0.6.0, this has been fixed to use a separate atomic counter and so should be fine to
-    /// call even at high load.
-    ///
-    /// This previously called [`crossbeam::queue::ArrayQueue::len()`] which waits for the head and
-    /// tail pointers to be in a consistent state, which may never happen at high levels of churn.
     </span><span class="kw">pub fn </span>num_idle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
         <span class="self">self</span>.<span class="number">0</span>.num_idle()
     }
@@ -1199,28 +1162,6 @@
     <span class="doccomment">/// Get the options for this pool
     </span><span class="kw">pub fn </span>options(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt; {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.options
-    }
-}
-
-<span class="attr">#[cfg(all(
-    any(
-        feature = <span class="string">"postgres"</span>,
-        feature = <span class="string">"mysql"</span>,
-        feature = <span class="string">"mssql"</span>,
-        feature = <span class="string">"sqlite"
-    </span>),
-    feature = <span class="string">"any"
-</span>))]
-</span><span class="kw">impl </span>Pool&lt;Any&gt; {
-    <span class="doccomment">/// Returns the database driver currently in-use by this `Pool`.
-    ///
-    /// Determined by the connection URL.
-    </span><span class="kw">pub fn </span>any_kind(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyKind {
-        <span class="self">self</span>.<span class="number">0
-            </span>.connect_options
-            .read()
-            .expect(<span class="string">"write-lock holder panicked"</span>)
-            .kind()
     }
 }
 
@@ -1304,7 +1245,7 @@
 <span class="doccomment">/// get the time between the deadline and now and use that as our timeout
 ///
 /// returns `Error::PoolTimedOut` if the deadline is in the past
-</span><span class="kw">fn </span>deadline_as_timeout&lt;DB: Database&gt;(deadline: Instant) -&gt; <span class="prelude-ty">Result</span>&lt;Duration, Error&gt; {
+</span><span class="kw">fn </span>deadline_as_timeout(deadline: Instant) -&gt; <span class="prelude-ty">Result</span>&lt;Duration, Error&gt; {
     deadline
         .checked_duration_since(Instant::now())
         .ok_or(Error::PoolTimedOut)

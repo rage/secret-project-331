@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["arithmetic_persian_from_fixed","fixed_from_arithmetic_persian"]};
+window.SIDEBAR_ITEMS = {"fn":["arithmetic_persian_from_fixed","fast_persian_from_fixed","fixed_from_arithmetic_persian","fixed_from_fast_persian","is_leap_year"]};

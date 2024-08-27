@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/fat.rs`."><title>fat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/macho/fat.rs`."><title>fat.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -121,44 +120,77 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::read::{Architecture, Error, ReadError, ReadRef, <span class="prelude-ty">Result</span>};
-<span class="kw">use crate</span>::{macho, BigEndian, Pod};
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::endian::BigEndian;
+<span class="kw">use </span><span class="kw">crate</span>::macho;
+<span class="kw">use </span><span class="kw">crate</span>::pod::Pod;
+<span class="kw">use </span><span class="kw">crate</span>::read::{Architecture, Error, ReadError, ReadRef, <span class="prelude-ty">Result</span>};
 
 <span class="kw">pub use </span>macho::{FatArch32, FatArch64, FatHeader};
 
-<span class="kw">impl </span>FatHeader {
-    <span class="doccomment">/// Attempt to parse a fat header.
-    ///
-    /// Does not validate the magic value.
-    </span><span class="kw">pub fn </span>parse&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(file: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>FatHeader&gt; {
-        file.read_at::&lt;FatHeader&gt;(<span class="number">0</span>)
-            .read_error(<span class="string">"Invalid fat header size or alignment"</span>)
-    }
+<span class="doccomment">/// A 32-bit Mach-O universal binary.
+///
+/// This is a file that starts with [`macho::FatHeader`], and corresponds
+/// to [`crate::FileKind::MachOFat32`].
+</span><span class="kw">pub type </span>MachOFatFile32&lt;<span class="lifetime">'data</span>&gt; = MachOFatFile&lt;<span class="lifetime">'data</span>, macho::FatArch32&gt;;
 
-    <span class="doccomment">/// Attempt to parse a fat header and 32-bit fat arches.
-    </span><span class="kw">pub fn </span>parse_arch32&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(file: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[FatArch32]&gt; {
+<span class="doccomment">/// A 64-bit Mach-O universal binary.
+///
+/// This is a file that starts with [`macho::FatHeader`], and corresponds
+/// to [`crate::FileKind::MachOFat64`].
+</span><span class="kw">pub type </span>MachOFatFile64&lt;<span class="lifetime">'data</span>&gt; = MachOFatFile&lt;<span class="lifetime">'data</span>, macho::FatArch64&gt;;
+
+<span class="doccomment">/// A Mach-O universal binary.
+///
+/// This is a file that starts with [`macho::FatHeader`], and corresponds
+/// to [`crate::FileKind::MachOFat32`] or [`crate::FileKind::MachOFat64`].
+</span><span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>MachOFatFile&lt;<span class="lifetime">'data</span>, Fat: FatArch&gt; {
+    header: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>macho::FatHeader,
+    arches: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[Fat],
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Fat: FatArch&gt; MachOFatFile&lt;<span class="lifetime">'data</span>, Fat&gt; {
+    <span class="doccomment">/// Attempt to parse the fat header and fat arches.
+    </span><span class="kw">pub fn </span>parse&lt;R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(data: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
-        <span class="kw">let </span>header = file
+        <span class="kw">let </span>header = data
             .read::&lt;FatHeader&gt;(<span class="kw-2">&amp;mut </span>offset)
             .read_error(<span class="string">"Invalid fat header size or alignment"</span>)<span class="question-mark">?</span>;
-        <span class="kw">if </span>header.magic.get(BigEndian) != macho::FAT_MAGIC {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid 32-bit fat magic"</span>));
+        <span class="kw">if </span>header.magic.get(BigEndian) != Fat::MAGIC {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid fat magic"</span>));
         }
-        file.read_slice::&lt;FatArch32&gt;(<span class="kw-2">&amp;mut </span>offset, header.nfat_arch.get(BigEndian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">"Invalid nfat_arch"</span>)
+        <span class="kw">let </span>arches = data
+            .read_slice::&lt;Fat&gt;(<span class="kw-2">&amp;mut </span>offset, header.nfat_arch.get(BigEndian) <span class="kw">as </span>usize)
+            .read_error(<span class="string">"Invalid nfat_arch"</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(MachOFatFile { header, arches })
     }
 
-    <span class="doccomment">/// Attempt to parse a fat header and 64-bit fat arches.
-    </span><span class="kw">pub fn </span>parse_arch64&lt;<span class="lifetime">'data</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;&gt;(file: R) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[FatArch64]&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
-        <span class="kw">let </span>header = file
-            .read::&lt;FatHeader&gt;(<span class="kw-2">&amp;mut </span>offset)
-            .read_error(<span class="string">"Invalid fat header size or alignment"</span>)<span class="question-mark">?</span>;
-        <span class="kw">if </span>header.magic.get(BigEndian) != macho::FAT_MAGIC_64 {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid 64-bit fat magic"</span>));
-        }
-        file.read_slice::&lt;FatArch64&gt;(<span class="kw-2">&amp;mut </span>offset, header.nfat_arch.get(BigEndian) <span class="kw">as </span>usize)
-            .read_error(<span class="string">"Invalid nfat_arch"</span>)
+    <span class="doccomment">/// Return the fat header
+    </span><span class="kw">pub fn </span>header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>macho::FatHeader {
+        <span class="self">self</span>.header
+    }
+
+    <span class="doccomment">/// Return the array of fat arches.
+    </span><span class="kw">pub fn </span>arches(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>[Fat] {
+        <span class="self">self</span>.arches
     }
 }
 
@@ -166,6 +198,7 @@
 </span><span class="attr">#[allow(missing_docs)]
 </span><span class="kw">pub trait </span>FatArch: Pod {
     <span class="kw">type </span>Word: Into&lt;u64&gt;;
+    <span class="kw">const </span>MAGIC: u32;
 
     <span class="kw">fn </span>cputype(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32;
     <span class="kw">fn </span>cpusubtype(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32;
@@ -198,6 +231,7 @@
 
 <span class="kw">impl </span>FatArch <span class="kw">for </span>FatArch32 {
     <span class="kw">type </span>Word = u32;
+    <span class="kw">const </span>MAGIC: u32 = macho::FAT_MAGIC;
 
     <span class="kw">fn </span>cputype(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.cputype.get(BigEndian)
@@ -222,6 +256,7 @@
 
 <span class="kw">impl </span>FatArch <span class="kw">for </span>FatArch64 {
     <span class="kw">type </span>Word = u64;
+    <span class="kw">const </span>MAGIC: u32 = macho::FAT_MAGIC_64;
 
     <span class="kw">fn </span>cputype(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.cputype.get(BigEndian)

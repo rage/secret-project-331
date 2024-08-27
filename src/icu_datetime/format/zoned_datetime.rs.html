@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/format/zoned_datetime.rs`."><title>zoned_datetime.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.5.1/src/format/zoned_datetime.rs`."><title>zoned_datetime.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -103,85 +102,52 @@
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
 </span><span class="doccomment">//! A collection of code for formatting DateTimes with time zones.
 
-</span><span class="kw">use </span><span class="kw">crate</span>::error::DateTimeError <span class="kw">as </span>Error;
-<span class="kw">use </span><span class="kw">crate</span>::fields::{<span class="self">self</span>, FieldSymbol};
-<span class="kw">use </span><span class="kw">crate</span>::input::{
-    DateTimeInput, DateTimeInputWithWeekConfig, ExtractedDateTimeInput, ExtractedTimeZoneInput,
-    LocalizedDateTimeInput, TimeZoneInput,
-};
-<span class="kw">use </span><span class="kw">crate</span>::pattern::{runtime, PatternItem};
-<span class="kw">use crate</span>::{raw, FormattedTimeZone};
+</span><span class="kw">use </span><span class="kw">crate</span>::fields::{Field, FieldSymbol};
+<span class="kw">use </span><span class="kw">crate</span>::format::datetime::{<span class="self">self</span>, DateTimeWriteError};
+<span class="kw">use </span><span class="kw">crate</span>::input::{ExtractedDateTimeInput, ExtractedTimeZoneInput};
+<span class="kw">use </span><span class="kw">crate</span>::pattern::runtime::PatternBorrowed;
+<span class="kw">use </span><span class="kw">crate</span>::pattern::PatternItem;
+<span class="kw">use </span><span class="kw">crate</span>::provider::date_time::{DateSymbols, TimeSymbols};
+<span class="kw">use </span><span class="kw">crate</span>::time_zone::TimeZoneFormatter;
+<span class="kw">use crate</span>::{FormattedDateTime, FormattedTimeZone};
 <span class="kw">use </span>core::fmt;
+<span class="kw">use </span>icu_calendar::week::WeekCalculator;
+<span class="kw">use </span>icu_decimal::FixedDecimalFormatter;
 <span class="kw">use </span>writeable::Writeable;
 
-<span class="kw">use </span><span class="kw">super</span>::datetime;
-
-<span class="attr">#[cfg(doc)]
-</span><span class="kw">use </span><span class="kw">crate</span>::ZonedDateTimeFormatter;
-
 <span class="doccomment">/// [`FormattedTimeZone`] is a intermediate structure which can be retrieved
-/// as an output from [`ZonedDateTimeFormatter`].
-</span><span class="attr">#[derive(Debug)]
+/// as an output from [`ZonedDateTimeFormatter`](super::super::ZonedDateTimeFormatter).
+</span><span class="attr">#[derive(Debug, Copy, Clone)]
 </span><span class="kw">pub struct </span>FormattedZonedDateTime&lt;<span class="lifetime">'l</span>&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) zoned_datetime_format: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>raw::ZonedDateTimeFormatter,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) datetime: ExtractedDateTimeInput,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) formatted_datetime: FormattedDateTime&lt;<span class="lifetime">'l</span>&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) time_zone_format: <span class="kw-2">&amp;</span><span class="lifetime">'l </span>TimeZoneFormatter,
     <span class="kw">pub</span>(<span class="kw">crate</span>) time_zone: ExtractedTimeZoneInput,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; Writeable <span class="kw">for </span>FormattedZonedDateTime&lt;<span class="lifetime">'l</span>&gt; {
     <span class="kw">fn </span>write_to&lt;W: fmt::Write + <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, sink: <span class="kw-2">&amp;mut </span>W) -&gt; fmt::Result {
-        write_pattern(
-            <span class="self">self</span>.zoned_datetime_format,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.datetime,
+        <span class="kw">let </span>(pattern, <span class="kw-2">mut </span>r) = <span class="self">self</span>.formatted_datetime.select_pattern_lossy();
+
+        r = r.and(try_write_pattern(
+            pattern.as_borrowed(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.formatted_datetime.datetime,
+            <span class="self">self</span>.formatted_datetime.date_symbols,
+            <span class="self">self</span>.formatted_datetime.time_symbols,
+            <span class="self">self</span>.formatted_datetime.week_data,
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.formatted_datetime.fixed_decimal_format),
             <span class="kw-2">&amp;</span><span class="self">self</span>.time_zone,
-            sink,
-        )
-        .map_err(|<span class="kw">_</span>| core::fmt::Error)
+            <span class="self">self</span>.time_zone_format,
+            <span class="kw-2">&amp;mut </span>writeable::adapters::CoreWriteAsPartsWrite(sink),
+        )<span class="question-mark">?</span>);
+
+        <span class="macro">debug_assert!</span>(r.is_ok(), <span class="string">"{r:?}"</span>);
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="comment">// TODO(#489): Implement writeable_length_hint
@@ -189,100 +155,55 @@
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'l</span>&gt; fmt::Display <span class="kw">for </span>FormattedZonedDateTime&lt;<span class="lifetime">'l</span>&gt; {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        write_pattern(
-            <span class="self">self</span>.zoned_datetime_format,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.datetime,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.time_zone,
-            f,
-        )
-        .map_err(|<span class="kw">_</span>| core::fmt::Error)
+        <span class="self">self</span>.write_to(f)
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>write_pattern&lt;D, Z, W&gt;(
-    zoned_datetime_format: <span class="kw-2">&amp;</span>raw::ZonedDateTimeFormatter,
-    datetime: <span class="kw-2">&amp;</span>D,
-    time_zone: <span class="kw-2">&amp;</span>Z,
+<span class="attr">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">fn </span>try_write_pattern&lt;<span class="lifetime">'data</span>, W, DS, TS&gt;(
+    pattern: PatternBorrowed&lt;<span class="lifetime">'data</span>&gt;,
+    datetime: <span class="kw-2">&amp;</span>ExtractedDateTimeInput,
+    date_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DS&gt;,
+    time_symbols: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TS&gt;,
+    week_data: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>WeekCalculator&gt;,
+    fixed_decimal_format: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>FixedDecimalFormatter&gt;,
+    time_zone: <span class="kw-2">&amp;</span>ExtractedTimeZoneInput,
+    time_zone_format: <span class="kw-2">&amp;</span>TimeZoneFormatter,
     w: <span class="kw-2">&amp;mut </span>W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Result</span>&lt;(), DateTimeWriteError&gt;, fmt::Error&gt;
 <span class="kw">where
-    </span>D: DateTimeInput,
-    Z: TimeZoneInput,
-    W: fmt::Write + <span class="question-mark">?</span>Sized,
+    </span>W: writeable::PartsWrite + <span class="question-mark">?</span>Sized,
+    DS: DateSymbols&lt;<span class="lifetime">'data</span>&gt;,
+    TS: TimeSymbols,
 {
-    <span class="kw">let </span>patterns = <span class="kw-2">&amp;</span>zoned_datetime_format.datetime_format.patterns;
-    <span class="kw">let </span>loc_datetime = DateTimeInputWithWeekConfig::new(
-        datetime,
-        zoned_datetime_format.datetime_format.week_data.as_ref(),
-    );
-
-    <span class="kw">let </span>pattern = patterns.get().<span class="number">0</span>.select(
-        <span class="kw-2">&amp;</span>loc_datetime,
-        zoned_datetime_format.datetime_format.ordinal_rules.as_ref(),
-    )<span class="question-mark">?</span>;
-
+    <span class="kw">let </span><span class="kw-2">mut </span>r = <span class="prelude-val">Ok</span>(());
     <span class="kw">let </span><span class="kw-2">mut </span>iter = pattern.items.iter().peekable();
-    <span class="kw">loop </span>{
-        <span class="kw">match </span>iter.next() {
-            <span class="prelude-val">Some</span>(PatternItem::Field(field)) =&gt; write_field(
-                pattern,
-                field,
-                iter.peek(),
-                zoned_datetime_format,
-                <span class="kw-2">&amp;</span>loc_datetime,
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(item) = iter.next() {
+        <span class="kw">match </span>item {
+            PatternItem::Literal(ch) =&gt; w.write_char(ch)<span class="question-mark">?</span>,
+            PatternItem::Field(Field {
+                symbol: FieldSymbol::TimeZone(..),
+                ..
+            }) =&gt; FormattedTimeZone {
+                time_zone_format,
                 time_zone,
-                w,
-            )<span class="question-mark">?</span>,
-            <span class="prelude-val">Some</span>(PatternItem::Literal(ch)) =&gt; w.write_char(ch)<span class="question-mark">?</span>,
-            <span class="prelude-val">None </span>=&gt; <span class="kw">break</span>,
+            }
+            .write_to(w)<span class="question-mark">?</span>,
+            PatternItem::Field(field) =&gt; {
+                r = r.and(datetime::try_write_field(
+                    field,
+                    <span class="kw-2">&amp;mut </span>iter,
+                    pattern.metadata,
+                    datetime,
+                    date_symbols,
+                    time_symbols,
+                    week_data,
+                    fixed_decimal_format,
+                    w,
+                )<span class="question-mark">?</span>);
+            }
         }
     }
-    <span class="prelude-val">Ok</span>(())
-}
-
-<span class="kw">fn </span>write_field&lt;D, Z, W&gt;(
-    pattern: <span class="kw-2">&amp;</span>runtime::Pattern,
-    field: fields::Field,
-    next_item: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PatternItem&gt;,
-    zoned_datetime_format: <span class="kw-2">&amp;</span>raw::ZonedDateTimeFormatter,
-    loc_datetime: <span class="kw-2">&amp;</span><span class="kw">impl </span>LocalizedDateTimeInput&lt;D&gt;,
-    time_zone: <span class="kw-2">&amp;</span>Z,
-    w: <span class="kw-2">&amp;mut </span>W,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt;
-<span class="kw">where
-    </span>D: DateTimeInput,
-    Z: TimeZoneInput,
-    W: fmt::Write + <span class="question-mark">?</span>Sized,
-{
-    <span class="kw">let </span>date_symbols = zoned_datetime_format
-        .datetime_format
-        .date_symbols
-        .as_ref()
-        .map(|s| s.get());
-
-    <span class="kw">let </span>time_symbols = zoned_datetime_format
-        .datetime_format
-        .time_symbols
-        .as_ref()
-        .map(|s| s.get());
-
-    <span class="kw">match </span>field.symbol {
-        FieldSymbol::TimeZone(_time_zone) =&gt; FormattedTimeZone {
-            time_zone_format: <span class="kw-2">&amp;</span>zoned_datetime_format.time_zone_format,
-            time_zone,
-        }
-        .write_to(w)<span class="question-mark">?</span>,
-        <span class="kw">_ </span>=&gt; datetime::write_field(
-            pattern,
-            field,
-            next_item,
-            date_symbols,
-            time_symbols,
-            loc_datetime,
-            <span class="kw-2">&amp;</span>zoned_datetime_format.datetime_format.fixed_decimal_format,
-            w,
-        )<span class="question-mark">?</span>,
-    }
-    <span class="prelude-val">Ok</span>(())
+    <span class="prelude-val">Ok</span>(r)
 }
 </code></pre></div></section></main></body></html>

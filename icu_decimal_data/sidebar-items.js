@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_decimal_symbols_v1","make_provider"]};
+window.SIDEBAR_ITEMS = {"macro":["impl_decimal_symbols_v1","impliterable_decimal_symbols_v1","make_provider"]};

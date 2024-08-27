@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/inner.rs`."><title>inner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/pool/inner.rs`."><title>inner.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -609,6 +608,21 @@
 <a href="#608" id="608">608</a>
 <a href="#609" id="609">609</a>
 <a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::connection::{Floating, Idle, Live};
 <span class="kw">use </span><span class="kw">crate</span>::connection::ConnectOptions;
 <span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
@@ -625,10 +639,13 @@
 <span class="kw">use </span>std::sync::{Arc, RwLock};
 <span class="kw">use </span>std::task::Poll;
 
+<span class="kw">use </span><span class="kw">crate</span>::logger::private_level_filter_to_trace_level;
 <span class="kw">use </span><span class="kw">crate</span>::pool::options::PoolConnectionMetadata;
+<span class="kw">use </span><span class="kw">crate</span>::private_tracing_dynamic_event;
 <span class="kw">use </span>futures_util::future::{<span class="self">self</span>};
 <span class="kw">use </span>futures_util::FutureExt;
 <span class="kw">use </span>std::time::{Duration, Instant};
+<span class="kw">use </span>tracing::Level;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>PoolInner&lt;DB: Database&gt; {
     <span class="kw">pub</span>(<span class="kw">super</span>) connect_options: RwLock&lt;Arc&lt;&lt;DB::Connection <span class="kw">as </span>Connection&gt;::Options&gt;&gt;,
@@ -639,6 +656,8 @@
     is_closed: AtomicBool,
     <span class="kw">pub</span>(<span class="kw">super</span>) on_closed: event_listener::Event,
     <span class="kw">pub</span>(<span class="kw">super</span>) options: PoolOptions&lt;DB&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) acquire_time_level: <span class="prelude-ty">Option</span>&lt;Level&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) acquire_slow_level: <span class="prelude-ty">Option</span>&lt;Level&gt;,
 }
 
 <span class="kw">impl</span>&lt;DB: Database&gt; PoolInner&lt;DB&gt; {
@@ -665,6 +684,8 @@
             num_idle: AtomicUsize::new(<span class="number">0</span>),
             is_closed: AtomicBool::new(<span class="bool-val">false</span>),
             on_closed: event_listener::Event::new(),
+            acquire_time_level: private_level_filter_to_trace_level(options.acquire_time_level),
+            acquire_slow_level: private_level_filter_to_trace_level(options.acquire_slow_level),
             options,
         };
 
@@ -757,7 +778,7 @@
 
                 <span class="kw">if </span>parent_close_event.as_mut().poll(cx).is_ready() {
                     <span class="comment">// Propagate the parent's close event to the child.
-                    </span><span class="kw">let _ </span>= <span class="self">self</span>.close();
+                    </span><span class="self">self</span>.mark_closed();
                     <span class="kw">return </span>Poll::Ready(<span class="prelude-val">Err</span>(Error::PoolClosed));
                 }
 
@@ -808,11 +829,11 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>release(<span class="kw-2">&amp;</span><span class="self">self</span>, floating: Floating&lt;DB, Live&lt;DB&gt;&gt;) {
-        <span class="comment">// `options.after_release` is invoked by `PoolConnection::release_to_pool()`.
+        <span class="comment">// `options.after_release` and other checks are in `PoolConnection::return_to_pool()`.
 
         </span><span class="kw">let </span>Floating { inner: idle, guard } = floating.into_idle();
 
-        <span class="kw">if </span>!<span class="self">self</span>.idle_conns.push(idle).is_ok() {
+        <span class="kw">if </span><span class="self">self</span>.idle_conns.push(idle).is_err() {
             <span class="macro">panic!</span>(<span class="string">"BUG: connection queue overflow in release()"</span>);
         }
 
@@ -830,7 +851,7 @@
         <span class="self">self</span>: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Arc&lt;<span class="self">Self</span>&gt;,
         permit: AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;DecrementSizeGuard&lt;DB&gt;, AsyncSemaphoreReleaser&lt;<span class="lifetime">'a</span>&gt;&gt; {
-        <span class="kw">match </span><span class="self">self
+        <span class="kw">let </span>result = <span class="self">self
             </span>.size
             .fetch_update(Ordering::AcqRel, Ordering::Acquire, |size| {
                 <span class="kw">if </span><span class="self">self</span>.is_closed() {
@@ -839,7 +860,9 @@
 
                 size.checked_add(<span class="number">1</span>)
                     .filter(|size| size &lt;= <span class="kw-2">&amp;</span><span class="self">self</span>.options.max_connections)
-            }) {
+            });
+
+        <span class="kw">match </span>result {
             <span class="comment">// we successfully incremented the size
             </span><span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Ok</span>(DecrementSizeGuard::from_permit((<span class="kw-2">*</span><span class="self">self</span>).clone(), permit)),
             <span class="comment">// the pool is at max capacity or is closed
@@ -852,9 +875,10 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(Error::PoolClosed);
         }
 
-        <span class="kw">let </span>deadline = Instant::now() + <span class="self">self</span>.options.acquire_timeout;
+        <span class="kw">let </span>acquire_started_at = Instant::now();
+        <span class="kw">let </span>deadline = acquire_started_at + <span class="self">self</span>.options.acquire_timeout;
 
-        <span class="kw">crate</span>::rt::timeout(
+        <span class="kw">let </span>acquired = <span class="kw">crate</span>::rt::timeout(
             <span class="self">self</span>.options.acquire_timeout,
             <span class="kw">async </span>{
                 <span class="kw">loop </span>{
@@ -883,8 +907,8 @@
                             // or if the pool was closed between `acquire_permit()` and
                             // `try_increment_size()`.
                             </span><span class="macro">tracing::debug!</span>(<span class="string">"woke but was unable to acquire idle connection or open new one; retrying"</span>);
-                            <span class="comment">// If so, we're likely in the current-thread runtime if it's Tokio
-                            // and so we should yield to let any spawned release_to_pool() tasks
+                            <span class="comment">// If so, we're likely in the current-thread runtime if it's Tokio,
+                            // and so we should yield to let any spawned return_to_pool() tasks
                             // execute.
                             </span><span class="kw">crate</span>::rt::yield_now().<span class="kw">await</span>;
                             <span class="kw">continue</span>;
@@ -897,8 +921,33 @@
             }
         )
             .<span class="kw">await
-            </span>.map_err(|<span class="kw">_</span>| Error::PoolTimedOut)<span class="question-mark">?
-    </span>}
+            </span>.map_err(|<span class="kw">_</span>| Error::PoolTimedOut)<span class="question-mark">??</span>;
+
+        <span class="kw">let </span>acquired_after = acquire_started_at.elapsed();
+
+        <span class="kw">let </span>acquire_slow_level = <span class="self">self
+            </span>.acquire_slow_level
+            .filter(|<span class="kw">_</span>| acquired_after &gt; <span class="self">self</span>.options.acquire_slow_threshold);
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(level) = acquire_slow_level {
+            <span class="macro">private_tracing_dynamic_event!</span>(
+                target: <span class="string">"sqlx::pool::acquire"</span>,
+                level,
+                aquired_after_secs = acquired_after.as_secs_f64(),
+                slow_acquire_threshold_secs = <span class="self">self</span>.options.acquire_slow_threshold.as_secs_f64(),
+                <span class="string">"acquired connection, but time to acquire exceeded slow threshold"
+            </span>);
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(level) = <span class="self">self</span>.acquire_time_level {
+            <span class="macro">private_tracing_dynamic_event!</span>(
+                target: <span class="string">"sqlx::pool::acquire"</span>,
+                level,
+                aquired_after_secs = acquired_after.as_secs_f64(),
+                <span class="string">"acquired connection"
+            </span>);
+        }
+
+        <span class="prelude-val">Ok</span>(acquired)
+    }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">async fn </span>connect(
         <span class="self">self</span>: <span class="kw-2">&amp;</span>Arc&lt;<span class="self">Self</span>&gt;,
@@ -910,10 +959,10 @@
         }
 
         <span class="kw">let </span><span class="kw-2">mut </span>backoff = Duration::from_millis(<span class="number">10</span>);
-        <span class="kw">let </span>max_backoff = deadline_as_timeout::&lt;DB&gt;(deadline)<span class="question-mark">? </span>/ <span class="number">5</span>;
+        <span class="kw">let </span>max_backoff = deadline_as_timeout(deadline)<span class="question-mark">? </span>/ <span class="number">5</span>;
 
         <span class="kw">loop </span>{
-            <span class="kw">let </span>timeout = deadline_as_timeout::&lt;DB&gt;(deadline)<span class="question-mark">?</span>;
+            <span class="kw">let </span>timeout = deadline_as_timeout(deadline)<span class="question-mark">?</span>;
 
             <span class="comment">// clone the connect options arc so it can be used without holding the RwLockReadGuard
             // across an async await point
@@ -1028,7 +1077,10 @@
 }
 
 <span class="doccomment">/// Returns `true` if the connection has exceeded `options.max_lifetime` if set, `false` otherwise.
-</span><span class="kw">fn </span>is_beyond_max_lifetime&lt;DB: Database&gt;(live: <span class="kw-2">&amp;</span>Live&lt;DB&gt;, options: <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt;) -&gt; bool {
+</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>is_beyond_max_lifetime&lt;DB: Database&gt;(
+    live: <span class="kw-2">&amp;</span>Live&lt;DB&gt;,
+    options: <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt;,
+) -&gt; bool {
     options
         .max_lifetime
         .map_or(<span class="bool-val">false</span>, |max| live.created_at.elapsed() &gt; max)
@@ -1045,12 +1097,6 @@
     <span class="kw-2">mut </span>conn: Floating&lt;DB, Idle&lt;DB&gt;&gt;,
     options: <span class="kw-2">&amp;</span>PoolOptions&lt;DB&gt;,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Floating&lt;DB, Live&lt;DB&gt;&gt;, DecrementSizeGuard&lt;DB&gt;&gt; {
-    <span class="comment">// If the connection we pulled has expired, close the connection and
-    // immediately create a new connection
-    </span><span class="kw">if </span>is_beyond_max_lifetime(<span class="kw-2">&amp;</span>conn, options) {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(conn.close().<span class="kw">await</span>);
-    }
-
     <span class="kw">if </span>options.test_before_acquire {
         <span class="comment">// Check that the connection is still live
         </span><span class="kw">if let </span><span class="prelude-val">Err</span>(error) = conn.ping().<span class="kw">await </span>{
@@ -1086,9 +1132,9 @@
 }
 
 <span class="kw">fn </span>spawn_maintenance_tasks&lt;DB: Database&gt;(pool: <span class="kw-2">&amp;</span>Arc&lt;PoolInner&lt;DB&gt;&gt;) {
-    <span class="comment">// NOTE: use `pool_weak` for the maintenance tasks so
-    // they don't keep `PoolInner` from being dropped.
-    </span><span class="kw">let </span>pool_weak = Arc::downgrade(<span class="kw-2">&amp;</span>pool);
+    <span class="comment">// NOTE: use `pool_weak` for the maintenance tasks
+    // so they don't keep `PoolInner` from being dropped.
+    </span><span class="kw">let </span>pool_weak = Arc::downgrade(pool);
 
     <span class="kw">let </span>period = <span class="kw">match </span>(pool.options.max_lifetime, pool.options.idle_timeout) {
         (<span class="prelude-val">Some</span>(it), <span class="prelude-val">None</span>) | (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(it)) =&gt; it,
@@ -1114,22 +1160,30 @@
     <span class="kw">crate</span>::rt::spawn(<span class="kw">async move </span>{
         <span class="kw">let _ </span>= close_event
             .do_until(<span class="kw">async </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>slept = <span class="bool-val">true</span>;
-
                 <span class="comment">// If the last handle to the pool was dropped while we were sleeping
                 </span><span class="kw">while let </span><span class="prelude-val">Some</span>(pool) = pool_weak.upgrade() {
                     <span class="kw">if </span>pool.is_closed() {
                         <span class="kw">return</span>;
                     }
 
-                    <span class="comment">// Don't run the reaper right away.
-                    </span><span class="kw">if </span>slept &amp;&amp; !pool.idle_conns.is_empty() {
-                        do_reap(<span class="kw-2">&amp;</span>pool).<span class="kw">await</span>;
-                    }
-
                     <span class="kw">let </span>next_run = Instant::now() + period;
 
-                    pool.min_connections_maintenance(<span class="prelude-val">Some</span>(next_run)).<span class="kw">await</span>;
+                    <span class="comment">// Go over all idle connections, check for idleness and lifetime,
+                    // and if we have fewer than min_connections after reaping a connection,
+                    // open a new one immediately. Note that other connections may be popped from
+                    // the queue in the meantime - that's fine, there is no harm in checking more
+                    </span><span class="kw">for _ in </span><span class="number">0</span>..pool.num_idle() {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(conn) = pool.try_acquire() {
+                            <span class="kw">if </span>is_beyond_idle_timeout(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>pool.options)
+                                || is_beyond_max_lifetime(<span class="kw-2">&amp;</span>conn, <span class="kw-2">&amp;</span>pool.options)
+                            {
+                                <span class="kw">let _ </span>= conn.close().<span class="kw">await</span>;
+                                pool.min_connections_maintenance(<span class="prelude-val">Some</span>(next_run)).<span class="kw">await</span>;
+                            } <span class="kw">else </span>{
+                                pool.release(conn.into_live());
+                            }
+                        }
+                    }
 
                     <span class="comment">// Don't hold a reference to the pool while sleeping.
                     </span>drop(pool);
@@ -1141,35 +1195,10 @@
                         <span class="comment">// `next_run` is in the past, just yield.
                         </span><span class="kw">crate</span>::rt::yield_now().<span class="kw">await</span>;
                     }
-
-                    slept = <span class="bool-val">true</span>;
                 }
             })
             .<span class="kw">await</span>;
     });
-}
-
-<span class="kw">async fn </span>do_reap&lt;DB: Database&gt;(pool: <span class="kw-2">&amp;</span>Arc&lt;PoolInner&lt;DB&gt;&gt;) {
-    <span class="comment">// reap at most the current size minus the minimum idle
-    </span><span class="kw">let </span>max_reaped = pool.size().saturating_sub(pool.options.min_connections);
-
-    <span class="comment">// collect connections to reap
-    </span><span class="kw">let </span>(reap, keep) = (<span class="number">0</span>..max_reaped)
-        <span class="comment">// only connections waiting in the queue
-        </span>.filter_map(|<span class="kw">_</span>| pool.try_acquire())
-        .partition::&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="kw">_</span>&gt;(|conn| {
-            is_beyond_idle_timeout(conn, <span class="kw-2">&amp;</span>pool.options)
-                || is_beyond_max_lifetime(conn, <span class="kw-2">&amp;</span>pool.options)
-        });
-
-    <span class="kw">for </span>conn <span class="kw">in </span>keep {
-        <span class="comment">// return valid connections to the pool first
-        </span>pool.release(conn.into_live());
-    }
-
-    <span class="kw">for </span>conn <span class="kw">in </span>reap {
-        <span class="kw">let _ </span>= conn.close().<span class="kw">await</span>;
-    }
 }
 
 <span class="doccomment">/// RAII guard returned by `Pool::try_increment_size()` and others.

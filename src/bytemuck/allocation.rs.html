@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytemuck-1.14.3/src/allocation.rs`."><title>allocation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytemuck" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytemuck-1.17.0/src/allocation.rs`."><title>allocation.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytemuck" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -802,7 +801,146 @@
 <a href="#801" id="801">801</a>
 <a href="#802" id="802">802</a>
 <a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg(feature = <span class="string">"extern_crate_alloc"</span>)]
+#![allow(clippy::duplicated_attributes)]
 
 </span><span class="doccomment">//! Stuff to boost things in the `alloc` crate.
 //!
@@ -823,15 +961,18 @@
   vec,
   vec::Vec,
 };
-<span class="kw">use </span>core::ops::{Deref, DerefMut};
+<span class="kw">use </span>core::{
+  mem::{size_of_val, ManuallyDrop},
+  ops::{Deref, DerefMut},
+};
 
-<span class="doccomment">/// As [`try_cast_box`](try_cast_box), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_box`], but unwraps for you.
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>cast_box&lt;A: NoUninit, B: AnyBitPattern&gt;(input: Box&lt;A&gt;) -&gt; Box&lt;B&gt; {
   try_cast_box(input).map_err(|(e, _v)| e).unwrap()
 }
 
-<span class="doccomment">/// Attempts to cast the content type of a [`Box`](alloc::boxed::Box).
+<span class="doccomment">/// Attempts to cast the content type of a [`Box`].
 ///
 /// On failure you get back an error along with the starting `Box`.
 ///
@@ -868,9 +1009,10 @@
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>try_zeroed_box&lt;T: Zeroable&gt;() -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;T&gt;, ()&gt; {
   <span class="kw">if </span>size_of::&lt;T&gt;() == <span class="number">0 </span>{
-    <span class="comment">// This will not allocate but simply create a dangling pointer.
-    </span><span class="kw">let </span>dangling = core::ptr::NonNull::dangling().as_ptr();
-    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(dangling) });
+    <span class="comment">// This will not allocate but simply create an arbitrary non-null
+    // aligned pointer, valid for Box for a zero-sized pointee.
+    </span><span class="kw">let </span>ptr = core::ptr::NonNull::dangling().as_ptr();
+    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(ptr) });
   }
   <span class="kw">let </span>layout = Layout::new::&lt;T&gt;();
   <span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ alloc_zeroed(layout) };
@@ -925,10 +1067,11 @@
   length: usize,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;[T]&gt;, ()&gt; {
   <span class="kw">if </span>size_of::&lt;T&gt;() == <span class="number">0 </span>|| length == <span class="number">0 </span>{
-    <span class="comment">// This will not allocate but simply create a dangling slice pointer.
-    </span><span class="kw">let </span>dangling = core::ptr::NonNull::dangling().as_ptr();
-    <span class="kw">let </span>dangling_slice = core::ptr::slice_from_raw_parts_mut(dangling, length);
-    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(dangling_slice) });
+    <span class="comment">// This will not allocate but simply create an arbitrary non-null aligned
+    // slice pointer, valid for Box for a zero-sized pointee.
+    </span><span class="kw">let </span>ptr = core::ptr::NonNull::dangling().as_ptr();
+    <span class="kw">let </span>slice_ptr = core::ptr::slice_from_raw_parts_mut(ptr, length);
+    <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(slice_ptr) });
   }
   <span class="kw">let </span>layout = core::alloc::Layout::array::&lt;T&gt;(length).map_err(|<span class="kw">_</span>| ())<span class="question-mark">?</span>;
   <span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ alloc_zeroed(layout) };
@@ -942,12 +1085,12 @@
   }
 }
 
-<span class="doccomment">/// As [`try_zeroed_slice_box`](try_zeroed_slice_box), but unwraps for you.
+<span class="doccomment">/// As [`try_zeroed_slice_box`], but unwraps for you.
 </span><span class="kw">pub fn </span>zeroed_slice_box&lt;T: Zeroable&gt;(length: usize) -&gt; Box&lt;[T]&gt; {
   try_zeroed_slice_box(length).unwrap()
 }
 
-<span class="doccomment">/// As [`try_cast_slice_box`](try_cast_slice_box), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_slice_box`], but unwraps for you.
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>cast_slice_box&lt;A: NoUninit, B: AnyBitPattern&gt;(
   input: Box&lt;[A]&gt;,
@@ -972,10 +1115,13 @@
   <span class="kw">if </span>align_of::&lt;A&gt;() != align_of::&lt;B&gt;() {
     <span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, input))
   } <span class="kw">else if </span>size_of::&lt;A&gt;() != size_of::&lt;B&gt;() {
-    <span class="kw">if </span>size_of::&lt;A&gt;() * input.len() % size_of::&lt;B&gt;() != <span class="number">0 </span>{
+    <span class="kw">let </span>input_bytes = size_of_val::&lt;[A]&gt;(<span class="kw-2">&amp;*</span>input);
+    <span class="kw">if </span>(size_of::&lt;B&gt;() == <span class="number">0 </span>&amp;&amp; input_bytes != <span class="number">0</span>)
+      || (size_of::&lt;B&gt;() != <span class="number">0 </span>&amp;&amp; input_bytes % size_of::&lt;B&gt;() != <span class="number">0</span>)
+    {
       <span class="comment">// If the size in bytes of the underlying buffer does not match an exact
       // multiple of the size of B, we cannot cast between them.
-      </span><span class="prelude-val">Err</span>((PodCastError::SizeMismatch, input))
+      </span><span class="prelude-val">Err</span>((PodCastError::OutputSliceWouldHaveSlop, input))
     } <span class="kw">else </span>{
       <span class="comment">// Because the size is an exact multiple, we can now change the length
       // of the slice and recreate the Box
@@ -985,7 +1131,8 @@
       // Luckily, Layout only stores two things, the alignment, and the size in
       // bytes. So as long as both of those stay the same, the Layout will
       // remain a valid input to dealloc.
-      </span><span class="kw">let </span>length = size_of::&lt;A&gt;() * input.len() / size_of::&lt;B&gt;();
+      </span><span class="kw">let </span>length =
+        <span class="kw">if </span>size_of::&lt;B&gt;() != <span class="number">0 </span>{ input_bytes / size_of::&lt;B&gt;() } <span class="kw">else </span>{ <span class="number">0 </span>};
       <span class="kw">let </span>box_ptr: <span class="kw-2">*mut </span>A = Box::into_raw(input) <span class="kw">as </span><span class="kw-2">*mut </span>A;
       <span class="kw">let </span>ptr: <span class="kw-2">*mut </span>[B] =
         <span class="kw">unsafe </span>{ core::slice::from_raw_parts_mut(box_ptr <span class="kw">as </span><span class="kw-2">*mut </span>B, length) };
@@ -998,13 +1145,13 @@
   }
 }
 
-<span class="doccomment">/// As [`try_cast_vec`](try_cast_vec), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_vec`], but unwraps for you.
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>cast_vec&lt;A: NoUninit, B: AnyBitPattern&gt;(input: Vec&lt;A&gt;) -&gt; Vec&lt;B&gt; {
   try_cast_vec(input).map_err(|(e, _v)| e).unwrap()
 }
 
-<span class="doccomment">/// Attempts to cast the content type of a [`Vec`](alloc::vec::Vec).
+<span class="doccomment">/// Attempts to cast the content type of a [`Vec`].
 ///
 /// On failure you get back an error along with the starting `Vec`.
 ///
@@ -1022,16 +1169,20 @@
   <span class="kw">if </span>align_of::&lt;A&gt;() != align_of::&lt;B&gt;() {
     <span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, input))
   } <span class="kw">else if </span>size_of::&lt;A&gt;() != size_of::&lt;B&gt;() {
-    <span class="kw">if </span>size_of::&lt;A&gt;() * input.len() % size_of::&lt;B&gt;() != <span class="number">0
-      </span>|| size_of::&lt;A&gt;() * input.capacity() % size_of::&lt;B&gt;() != <span class="number">0
-    </span>{
+    <span class="kw">let </span>input_size = size_of_val::&lt;[A]&gt;(<span class="kw-2">&amp;*</span>input);
+    <span class="kw">let </span>input_capacity = input.capacity() * size_of::&lt;A&gt;();
+    <span class="kw">if </span>(size_of::&lt;B&gt;() == <span class="number">0 </span>&amp;&amp; input_capacity != <span class="number">0</span>)
+      || (size_of::&lt;B&gt;() != <span class="number">0
+        </span>&amp;&amp; (input_size % size_of::&lt;B&gt;() != <span class="number">0
+          </span>|| input_capacity % size_of::&lt;B&gt;() != <span class="number">0</span>))
+    {
       <span class="comment">// If the size in bytes of the underlying buffer does not match an exact
       // multiple of the size of B, we cannot cast between them.
       // Note that we have to pay special attention to make sure that both
       // length and capacity are valid under B, as we do not want to
       // change which bytes are considered part of the initialized slice
       // of the Vec
-      </span><span class="prelude-val">Err</span>((PodCastError::SizeMismatch, input))
+      </span><span class="prelude-val">Err</span>((PodCastError::OutputSliceWouldHaveSlop, input))
     } <span class="kw">else </span>{
       <span class="comment">// Because the size is an exact multiple, we can now change the length and
       // capacity and recreate the Vec
@@ -1044,8 +1195,10 @@
 
       // Note(Lokathor): First we record the length and capacity, which don't
       // have any secret provenance metadata.
-      </span><span class="kw">let </span>length: usize = size_of::&lt;A&gt;() * input.len() / size_of::&lt;B&gt;();
-      <span class="kw">let </span>capacity: usize = size_of::&lt;A&gt;() * input.capacity() / size_of::&lt;B&gt;();
+      </span><span class="kw">let </span>length: usize =
+        <span class="kw">if </span>size_of::&lt;B&gt;() != <span class="number">0 </span>{ input_size / size_of::&lt;B&gt;() } <span class="kw">else </span>{ <span class="number">0 </span>};
+      <span class="kw">let </span>capacity: usize =
+        <span class="kw">if </span>size_of::&lt;B&gt;() != <span class="number">0 </span>{ input_capacity / size_of::&lt;B&gt;() } <span class="kw">else </span>{ <span class="number">0 </span>};
       <span class="comment">// Note(Lokathor): Next we "pre-forget" the old Vec by wrapping with
       // ManuallyDrop, because if we used `core::mem::forget` after taking the
       // pointer then that would invalidate our pointer. In nightly there's a
@@ -1090,7 +1243,7 @@
 </span><span class="kw">pub fn </span>pod_collect_to_vec&lt;A: NoUninit, B: NoUninit + AnyBitPattern&gt;(
   src: <span class="kw-2">&amp;</span>[A],
 ) -&gt; Vec&lt;B&gt; {
-  <span class="kw">let </span>src_size = size_of_val(src);
+  <span class="kw">let </span>src_size = core::mem::size_of_val(src);
   <span class="comment">// Note(Lokathor): dst_count is rounded up so that the dest will always be at
   // least as many bytes as the src.
   </span><span class="kw">let </span>dst_count = src_size / size_of::&lt;B&gt;()
@@ -1103,7 +1256,7 @@
   dst
 }
 
-<span class="doccomment">/// As [`try_cast_rc`](try_cast_rc), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_rc`], but unwraps for you.
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>cast_rc&lt;A: NoUninit + AnyBitPattern, B: NoUninit + AnyBitPattern&gt;(
   input: Rc&lt;A&gt;,
@@ -1111,7 +1264,7 @@
   try_cast_rc(input).map_err(|(e, _v)| e).unwrap()
 }
 
-<span class="doccomment">/// Attempts to cast the content type of a [`Rc`](alloc::rc::Rc).
+<span class="doccomment">/// Attempts to cast the content type of a [`Rc`].
 ///
 /// On failure you get back an error along with the starting `Rc`.
 ///
@@ -1139,7 +1292,7 @@
   }
 }
 
-<span class="doccomment">/// As [`try_cast_arc`](try_cast_arc), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_arc`], but unwraps for you.
 </span><span class="attr">#[inline]
 #[cfg(target_has_atomic = <span class="string">"ptr"</span>)]
 </span><span class="kw">pub fn </span>cast_arc&lt;A: NoUninit + AnyBitPattern, B: NoUninit + AnyBitPattern&gt;(
@@ -1148,7 +1301,7 @@
   try_cast_arc(input).map_err(|(e, _v)| e).unwrap()
 }
 
-<span class="doccomment">/// Attempts to cast the content type of a [`Arc`](alloc::sync::Arc).
+<span class="doccomment">/// Attempts to cast the content type of a [`Arc`].
 ///
 /// On failure you get back an error along with the starting `Arc`.
 ///
@@ -1180,7 +1333,7 @@
   }
 }
 
-<span class="doccomment">/// As [`try_cast_slice_rc`](try_cast_slice_rc), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_slice_rc`], but unwraps for you.
 </span><span class="attr">#[inline]
 </span><span class="kw">pub fn </span>cast_slice_rc&lt;
   A: NoUninit + AnyBitPattern,
@@ -1215,10 +1368,13 @@
   <span class="kw">if </span>align_of::&lt;A&gt;() != align_of::&lt;B&gt;() {
     <span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, input))
   } <span class="kw">else if </span>size_of::&lt;A&gt;() != size_of::&lt;B&gt;() {
-    <span class="kw">if </span>size_of::&lt;A&gt;() * input.len() % size_of::&lt;B&gt;() != <span class="number">0 </span>{
+    <span class="kw">let </span>input_bytes = size_of_val::&lt;[A]&gt;(<span class="kw-2">&amp;*</span>input);
+    <span class="kw">if </span>(size_of::&lt;B&gt;() == <span class="number">0 </span>&amp;&amp; input_bytes != <span class="number">0</span>)
+      || (size_of::&lt;B&gt;() != <span class="number">0 </span>&amp;&amp; input_bytes % size_of::&lt;B&gt;() != <span class="number">0</span>)
+    {
       <span class="comment">// If the size in bytes of the underlying buffer does not match an exact
       // multiple of the size of B, we cannot cast between them.
-      </span><span class="prelude-val">Err</span>((PodCastError::SizeMismatch, input))
+      </span><span class="prelude-val">Err</span>((PodCastError::OutputSliceWouldHaveSlop, input))
     } <span class="kw">else </span>{
       <span class="comment">// Because the size is an exact multiple, we can now change the length
       // of the slice and recreate the Rc
@@ -1227,7 +1383,8 @@
       // acquired from Rc::into_raw() must have the same size alignment and
       // size of the type T in the new Rc&lt;T&gt;. So as long as both the size
       // and alignment stay the same, the Rc will remain a valid Rc.
-      </span><span class="kw">let </span>length = size_of::&lt;A&gt;() * input.len() / size_of::&lt;B&gt;();
+      </span><span class="kw">let </span>length =
+        <span class="kw">if </span>size_of::&lt;B&gt;() != <span class="number">0 </span>{ input_bytes / size_of::&lt;B&gt;() } <span class="kw">else </span>{ <span class="number">0 </span>};
       <span class="kw">let </span>rc_ptr: <span class="kw-2">*const </span>A = Rc::into_raw(input) <span class="kw">as </span><span class="kw-2">*const </span>A;
       <span class="comment">// Must use ptr::slice_from_raw_parts, because we cannot make an
       // intermediate const reference, because it has mutable provenance,
@@ -1242,7 +1399,7 @@
   }
 }
 
-<span class="doccomment">/// As [`try_cast_slice_arc`](try_cast_slice_arc), but unwraps for you.
+<span class="doccomment">/// As [`try_cast_slice_arc`], but unwraps for you.
 </span><span class="attr">#[inline]
 #[cfg(target_has_atomic = <span class="string">"ptr"</span>)]
 </span><span class="kw">pub fn </span>cast_slice_arc&lt;
@@ -1279,10 +1436,13 @@
   <span class="kw">if </span>align_of::&lt;A&gt;() != align_of::&lt;B&gt;() {
     <span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, input))
   } <span class="kw">else if </span>size_of::&lt;A&gt;() != size_of::&lt;B&gt;() {
-    <span class="kw">if </span>size_of::&lt;A&gt;() * input.len() % size_of::&lt;B&gt;() != <span class="number">0 </span>{
+    <span class="kw">let </span>input_bytes = size_of_val::&lt;[A]&gt;(<span class="kw-2">&amp;*</span>input);
+    <span class="kw">if </span>(size_of::&lt;B&gt;() == <span class="number">0 </span>&amp;&amp; input_bytes != <span class="number">0</span>)
+      || (size_of::&lt;B&gt;() != <span class="number">0 </span>&amp;&amp; input_bytes % size_of::&lt;B&gt;() != <span class="number">0</span>)
+    {
       <span class="comment">// If the size in bytes of the underlying buffer does not match an exact
       // multiple of the size of B, we cannot cast between them.
-      </span><span class="prelude-val">Err</span>((PodCastError::SizeMismatch, input))
+      </span><span class="prelude-val">Err</span>((PodCastError::OutputSliceWouldHaveSlop, input))
     } <span class="kw">else </span>{
       <span class="comment">// Because the size is an exact multiple, we can now change the length
       // of the slice and recreate the Arc
@@ -1291,7 +1451,8 @@
       // acquired from Arc::into_raw() must have the same size alignment and
       // size of the type T in the new Arc&lt;T&gt;. So as long as both the size
       // and alignment stay the same, the Arc will remain a valid Arc.
-      </span><span class="kw">let </span>length = size_of::&lt;A&gt;() * input.len() / size_of::&lt;B&gt;();
+      </span><span class="kw">let </span>length =
+        <span class="kw">if </span>size_of::&lt;B&gt;() != <span class="number">0 </span>{ input_bytes / size_of::&lt;B&gt;() } <span class="kw">else </span>{ <span class="number">0 </span>};
       <span class="kw">let </span>arc_ptr: <span class="kw-2">*const </span>A = Arc::into_raw(input) <span class="kw">as </span><span class="kw-2">*const </span>A;
       <span class="comment">// Must use ptr::slice_from_raw_parts, because we cannot make an
       // intermediate const reference, because it has mutable provenance,
@@ -1316,7 +1477,7 @@
     </span><span class="self">Self</span>: Sized,
     Inner: Sized,
   {
-    <span class="kw">let </span><span class="kw-2">mut </span>s = core::mem::ManuallyDrop::new(s);
+    <span class="kw">let </span><span class="kw-2">mut </span>s = ManuallyDrop::new(s);
 
     <span class="kw">let </span>length = s.len();
     <span class="kw">let </span>capacity = s.capacity();
@@ -1335,7 +1496,12 @@
   /// type.
   </span><span class="attr">#[inline]
   </span><span class="kw">fn </span>wrap_box(s: Box&lt;Inner&gt;) -&gt; Box&lt;<span class="self">Self</span>&gt; {
-    <span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
+    <span class="comment">// The unsafe contract requires that these two have
+    // identical representations, and thus identical pointer metadata.
+    // Assert that Self and Inner have the same pointer size,
+    // which is the best we can do to assert their metadata is the same type
+    // on stable.
+    </span><span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
 
     <span class="kw">unsafe </span>{
       <span class="comment">// A pointer cast doesn't work here because rustc can't tell that
@@ -1355,11 +1521,15 @@
     }
   }
 
-  <span class="doccomment">/// Convert an [`Rc`](alloc::rc::Rc) to the inner type into an `Rc` to the
-  /// wrapper type.
+  <span class="doccomment">/// Convert an [`Rc`] to the inner type into an `Rc` to the wrapper type.
   </span><span class="attr">#[inline]
   </span><span class="kw">fn </span>wrap_rc(s: Rc&lt;Inner&gt;) -&gt; Rc&lt;<span class="self">Self</span>&gt; {
-    <span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
+    <span class="comment">// The unsafe contract requires that these two have
+    // identical representations, and thus identical pointer metadata.
+    // Assert that Self and Inner have the same pointer size,
+    // which is the best we can do to assert their metadata is the same type
+    // on stable.
+    </span><span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
 
     <span class="kw">unsafe </span>{
       <span class="comment">// A pointer cast doesn't work here because rustc can't tell that
@@ -1377,12 +1547,16 @@
     }
   }
 
-  <span class="doccomment">/// Convert an [`Arc`](alloc::sync::Arc) to the inner type into an `Arc` to
-  /// the wrapper type.
+  <span class="doccomment">/// Convert an [`Arc`] to the inner type into an `Arc` to the wrapper type.
   </span><span class="attr">#[inline]
   #[cfg(target_has_atomic = <span class="string">"ptr"</span>)]
   </span><span class="kw">fn </span>wrap_arc(s: Arc&lt;Inner&gt;) -&gt; Arc&lt;<span class="self">Self</span>&gt; {
-    <span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
+    <span class="comment">// The unsafe contract requires that these two have
+    // identical representations, and thus identical pointer metadata.
+    // Assert that Self and Inner have the same pointer size,
+    // which is the best we can do to assert their metadata is the same type
+    // on stable.
+    </span><span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
 
     <span class="kw">unsafe </span>{
       <span class="comment">// A pointer cast doesn't work here because rustc can't tell that
@@ -1406,7 +1580,7 @@
     </span><span class="self">Self</span>: Sized,
     Inner: Sized,
   {
-    <span class="kw">let </span><span class="kw-2">mut </span>s = core::mem::ManuallyDrop::new(s);
+    <span class="kw">let </span><span class="kw-2">mut </span>s = ManuallyDrop::new(s);
 
     <span class="kw">let </span>length = s.len();
     <span class="kw">let </span>capacity = s.capacity();
@@ -1425,7 +1599,12 @@
   /// type.
   </span><span class="attr">#[inline]
   </span><span class="kw">fn </span>peel_box(s: Box&lt;<span class="self">Self</span>&gt;) -&gt; Box&lt;Inner&gt; {
-    <span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
+    <span class="comment">// The unsafe contract requires that these two have
+    // identical representations, and thus identical pointer metadata.
+    // Assert that Self and Inner have the same pointer size,
+    // which is the best we can do to assert their metadata is the same type
+    // on stable.
+    </span><span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
 
     <span class="kw">unsafe </span>{
       <span class="comment">// A pointer cast doesn't work here because rustc can't tell that
@@ -1445,11 +1624,15 @@
     }
   }
 
-  <span class="doccomment">/// Convert an [`Rc`](alloc::rc::Rc) to the wrapper type into an `Rc` to the
-  /// inner type.
+  <span class="doccomment">/// Convert an [`Rc`] to the wrapper type into an `Rc` to the inner type.
   </span><span class="attr">#[inline]
   </span><span class="kw">fn </span>peel_rc(s: Rc&lt;<span class="self">Self</span>&gt;) -&gt; Rc&lt;Inner&gt; {
-    <span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
+    <span class="comment">// The unsafe contract requires that these two have
+    // identical representations, and thus identical pointer metadata.
+    // Assert that Self and Inner have the same pointer size,
+    // which is the best we can do to assert their metadata is the same type
+    // on stable.
+    </span><span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
 
     <span class="kw">unsafe </span>{
       <span class="comment">// A pointer cast doesn't work here because rustc can't tell that
@@ -1467,12 +1650,16 @@
     }
   }
 
-  <span class="doccomment">/// Convert an [`Arc`](alloc::sync::Arc) to the wrapper type into an `Arc` to
-  /// the inner type.
+  <span class="doccomment">/// Convert an [`Arc`] to the wrapper type into an `Arc` to the inner type.
   </span><span class="attr">#[inline]
   #[cfg(target_has_atomic = <span class="string">"ptr"</span>)]
   </span><span class="kw">fn </span>peel_arc(s: Arc&lt;<span class="self">Self</span>&gt;) -&gt; Arc&lt;Inner&gt; {
-    <span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
+    <span class="comment">// The unsafe contract requires that these two have
+    // identical representations, and thus identical pointer metadata.
+    // Assert that Self and Inner have the same pointer size,
+    // which is the best we can do to assert their metadata is the same type
+    // on stable.
+    </span><span class="macro">assert!</span>(size_of::&lt;<span class="kw-2">*mut </span>Inner&gt;() == size_of::&lt;<span class="kw-2">*mut </span><span class="self">Self</span>&gt;());
 
     <span class="kw">unsafe </span>{
       <span class="comment">// A pointer cast doesn't work here because rustc can't tell that
@@ -1498,8 +1685,9 @@
 
 <span class="doccomment">/// As `Box&lt;[u8]&gt;`, but remembers the original alignment.
 </span><span class="kw">pub struct </span>BoxBytes {
-  <span class="comment">// SAFETY: `ptr` is owned, was allocated with `layout`, and points to
-  // `layout.size()` initialized bytes.
+  <span class="comment">// SAFETY: `ptr` is aligned to `layout.align()`, points to
+  // `layout.size()` initialized bytes, and, if `layout.size() &gt; 0`,
+  // is owned and was allocated with the global allocator with `layout`.
   </span>ptr: NonNull&lt;u8&gt;,
   layout: Layout,
 }
@@ -1526,58 +1714,145 @@
 
 <span class="kw">impl </span>Drop <span class="kw">for </span>BoxBytes {
   <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-    <span class="comment">// SAFETY: See type invariant.
-    </span><span class="kw">unsafe </span>{ alloc::alloc::dealloc(<span class="self">self</span>.ptr.as_ptr(), <span class="self">self</span>.layout) };
+    <span class="kw">if </span><span class="self">self</span>.layout.size() != <span class="number">0 </span>{
+      <span class="comment">// SAFETY: See type invariant: if `self.layout.size() != 0`, then
+      // `self.ptr` is owned and was allocated with `self.layout`.
+      </span><span class="kw">unsafe </span>{ alloc::alloc::dealloc(<span class="self">self</span>.ptr.as_ptr(), <span class="self">self</span>.layout) };
+    }
   }
 }
 
-<span class="kw">impl</span>&lt;T: NoUninit&gt; From&lt;Box&lt;T&gt;&gt; <span class="kw">for </span>BoxBytes {
+<span class="kw">impl</span>&lt;T: <span class="question-mark">?</span>Sized + sealed::BoxBytesOf&gt; From&lt;Box&lt;T&gt;&gt; <span class="kw">for </span>BoxBytes {
   <span class="kw">fn </span>from(value: Box&lt;T&gt;) -&gt; <span class="self">Self </span>{
+    value.box_bytes_of()
+  }
+}
+
+<span class="kw">mod </span>sealed {
+  <span class="kw">use crate</span>::{BoxBytes, PodCastError};
+  <span class="kw">use </span>alloc::boxed::Box;
+
+  <span class="kw">pub trait </span>BoxBytesOf {
+    <span class="kw">fn </span>box_bytes_of(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; BoxBytes;
+  }
+
+  <span class="kw">pub trait </span>FromBoxBytes {
+    <span class="kw">fn </span>try_from_box_bytes(
+      bytes: BoxBytes,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="self">Self</span>&gt;, (PodCastError, BoxBytes)&gt;;
+  }
+}
+
+<span class="kw">impl</span>&lt;T: NoUninit&gt; sealed::BoxBytesOf <span class="kw">for </span>T {
+  <span class="kw">fn </span>box_bytes_of(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; BoxBytes {
     <span class="kw">let </span>layout = Layout::new::&lt;T&gt;();
-    <span class="kw">let </span>ptr = Box::into_raw(value) <span class="kw">as </span><span class="kw-2">*mut </span>u8;
+    <span class="kw">let </span>ptr = Box::into_raw(<span class="self">self</span>) <span class="kw">as </span><span class="kw-2">*mut </span>u8;
     <span class="comment">// SAFETY: Box::into_raw() returns a non-null pointer.
     </span><span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ NonNull::new_unchecked(ptr) };
     BoxBytes { ptr, layout }
   }
 }
 
+<span class="kw">impl</span>&lt;T: NoUninit&gt; sealed::BoxBytesOf <span class="kw">for </span>[T] {
+  <span class="kw">fn </span>box_bytes_of(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; BoxBytes {
+    <span class="kw">let </span>layout = Layout::for_value::&lt;[T]&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>);
+    <span class="kw">let </span>ptr = Box::into_raw(<span class="self">self</span>) <span class="kw">as </span><span class="kw-2">*mut </span>u8;
+    <span class="comment">// SAFETY: Box::into_raw() returns a non-null pointer.
+    </span><span class="kw">let </span>ptr = <span class="kw">unsafe </span>{ NonNull::new_unchecked(ptr) };
+    BoxBytes { ptr, layout }
+  }
+}
+
+<span class="kw">impl </span>sealed::BoxBytesOf <span class="kw">for </span>str {
+  <span class="kw">fn </span>box_bytes_of(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;) -&gt; BoxBytes {
+    <span class="self">self</span>.into_boxed_bytes().box_bytes_of()
+  }
+}
+
+<span class="kw">impl</span>&lt;T: AnyBitPattern&gt; sealed::FromBoxBytes <span class="kw">for </span>T {
+  <span class="kw">fn </span>try_from_box_bytes(
+    bytes: BoxBytes,
+  ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="self">Self</span>&gt;, (PodCastError, BoxBytes)&gt; {
+    <span class="kw">let </span>layout = Layout::new::&lt;T&gt;();
+    <span class="kw">if </span>bytes.layout.align() != layout.align() {
+      <span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, bytes))
+    } <span class="kw">else if </span>bytes.layout.size() != layout.size() {
+      <span class="prelude-val">Err</span>((PodCastError::SizeMismatch, bytes))
+    } <span class="kw">else </span>{
+      <span class="kw">let </span>(ptr, <span class="kw">_</span>) = bytes.into_raw_parts();
+      <span class="comment">// SAFETY: See BoxBytes type invariant.
+      </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(ptr.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T) })
+    }
+  }
+}
+
+<span class="kw">impl</span>&lt;T: AnyBitPattern&gt; sealed::FromBoxBytes <span class="kw">for </span>[T] {
+  <span class="kw">fn </span>try_from_box_bytes(
+    bytes: BoxBytes,
+  ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;<span class="self">Self</span>&gt;, (PodCastError, BoxBytes)&gt; {
+    <span class="kw">let </span>single_layout = Layout::new::&lt;T&gt;();
+    <span class="kw">if </span>bytes.layout.align() != single_layout.align() {
+      <span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, bytes))
+    } <span class="kw">else if </span>(single_layout.size() == <span class="number">0 </span>&amp;&amp; bytes.layout.size() != <span class="number">0</span>)
+      || (single_layout.size() != <span class="number">0
+        </span>&amp;&amp; bytes.layout.size() % single_layout.size() != <span class="number">0</span>)
+    {
+      <span class="prelude-val">Err</span>((PodCastError::OutputSliceWouldHaveSlop, bytes))
+    } <span class="kw">else </span>{
+      <span class="kw">let </span>(ptr, layout) = bytes.into_raw_parts();
+      <span class="kw">let </span>length = <span class="kw">if </span>single_layout.size() != <span class="number">0 </span>{
+        layout.size() / single_layout.size()
+      } <span class="kw">else </span>{
+        <span class="number">0
+      </span>};
+      <span class="kw">let </span>ptr =
+        core::ptr::slice_from_raw_parts_mut(ptr.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T, length);
+      <span class="comment">// SAFETY: See BoxBytes type invariant.
+      </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(ptr) })
+    }
+  }
+}
+
 <span class="doccomment">/// Re-interprets `Box&lt;T&gt;` as `BoxBytes`.
+///
+/// `T` must be either [`Sized`] and [`NoUninit`],
+/// [`[U]`](slice) where `U: NoUninit`, or [`str`].
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>box_bytes_of&lt;T: NoUninit&gt;(input: Box&lt;T&gt;) -&gt; BoxBytes {
-  input.into()
+</span><span class="kw">pub fn </span>box_bytes_of&lt;T: sealed::BoxBytesOf + <span class="question-mark">?</span>Sized&gt;(input: Box&lt;T&gt;) -&gt; BoxBytes {
+  input.box_bytes_of()
 }
 
 <span class="doccomment">/// Re-interprets `BoxBytes` as `Box&lt;T&gt;`.
+///
+/// `T` must be either [`Sized`] + [`AnyBitPattern`], or
+/// [`[U]`](slice) where `U: AnyBitPattern`.
 ///
 /// ## Panics
 ///
 /// This is [`try_from_box_bytes`] but will panic on error and the input will be
 /// dropped.
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>from_box_bytes&lt;T: AnyBitPattern&gt;(input: BoxBytes) -&gt; Box&lt;T&gt; {
+</span><span class="kw">pub fn </span>from_box_bytes&lt;T: sealed::FromBoxBytes + <span class="question-mark">?</span>Sized&gt;(
+  input: BoxBytes,
+) -&gt; Box&lt;T&gt; {
   try_from_box_bytes(input).map_err(|(error, <span class="kw">_</span>)| error).unwrap()
 }
 
 <span class="doccomment">/// Re-interprets `BoxBytes` as `Box&lt;T&gt;`.
 ///
-/// ## Panics
+/// `T` must be either [`Sized`] + [`AnyBitPattern`], or
+/// [`[U]`](slice) where `U: AnyBitPattern`.
 ///
-/// * If the input isn't aligned for the new type
-/// * If the input's length isn’t exactly the size of the new type
+/// Returns `Err`:
+/// * If the input isn't aligned for `T`.
+/// * If `T: Sized` and the input's length isn't exactly the size of `T`.
+/// * If `T = [U]` and the input's length isn't exactly a multiple of the size
+///   of `U`.
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>try_from_box_bytes&lt;T: AnyBitPattern&gt;(
+</span><span class="kw">pub fn </span>try_from_box_bytes&lt;T: sealed::FromBoxBytes + <span class="question-mark">?</span>Sized&gt;(
   input: BoxBytes,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Box&lt;T&gt;, (PodCastError, BoxBytes)&gt; {
-  <span class="kw">let </span>layout = Layout::new::&lt;T&gt;();
-  <span class="kw">if </span>input.layout.align() != layout.align() {
-    <span class="kw">return </span><span class="prelude-val">Err</span>((PodCastError::AlignmentMismatch, input));
-  } <span class="kw">else if </span>input.layout.size() != layout.size() {
-    <span class="kw">return </span><span class="prelude-val">Err</span>((PodCastError::SizeMismatch, input));
-  } <span class="kw">else </span>{
-    <span class="kw">let </span>(ptr, <span class="kw">_</span>) = input.into_raw_parts();
-    <span class="comment">// SAFETY: See type invariant.
-    </span><span class="prelude-val">Ok</span>(<span class="kw">unsafe </span>{ Box::from_raw(ptr.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>T) })
-  }
+  T::try_from_box_bytes(input)
 }
 
 <span class="kw">impl </span>BoxBytes {

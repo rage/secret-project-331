@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.34/src/datetime/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.38/src/datetime/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1840,12 +1839,115 @@
 <a href="#1839" id="1839">1839</a>
 <a href="#1840" id="1840">1840</a>
 <a href="#1841" id="1841">1841</a>
+<a href="#1842" id="1842">1842</a>
+<a href="#1843" id="1843">1843</a>
+<a href="#1844" id="1844">1844</a>
+<a href="#1845" id="1845">1845</a>
+<a href="#1846" id="1846">1846</a>
+<a href="#1847" id="1847">1847</a>
+<a href="#1848" id="1848">1848</a>
+<a href="#1849" id="1849">1849</a>
+<a href="#1850" id="1850">1850</a>
+<a href="#1851" id="1851">1851</a>
+<a href="#1852" id="1852">1852</a>
+<a href="#1853" id="1853">1853</a>
+<a href="#1854" id="1854">1854</a>
+<a href="#1855" id="1855">1855</a>
+<a href="#1856" id="1856">1856</a>
+<a href="#1857" id="1857">1857</a>
+<a href="#1858" id="1858">1858</a>
+<a href="#1859" id="1859">1859</a>
+<a href="#1860" id="1860">1860</a>
+<a href="#1861" id="1861">1861</a>
+<a href="#1862" id="1862">1862</a>
+<a href="#1863" id="1863">1863</a>
+<a href="#1864" id="1864">1864</a>
+<a href="#1865" id="1865">1865</a>
+<a href="#1866" id="1866">1866</a>
+<a href="#1867" id="1867">1867</a>
+<a href="#1868" id="1868">1868</a>
+<a href="#1869" id="1869">1869</a>
+<a href="#1870" id="1870">1870</a>
+<a href="#1871" id="1871">1871</a>
+<a href="#1872" id="1872">1872</a>
+<a href="#1873" id="1873">1873</a>
+<a href="#1874" id="1874">1874</a>
+<a href="#1875" id="1875">1875</a>
+<a href="#1876" id="1876">1876</a>
+<a href="#1877" id="1877">1877</a>
+<a href="#1878" id="1878">1878</a>
+<a href="#1879" id="1879">1879</a>
+<a href="#1880" id="1880">1880</a>
+<a href="#1881" id="1881">1881</a>
+<a href="#1882" id="1882">1882</a>
+<a href="#1883" id="1883">1883</a>
+<a href="#1884" id="1884">1884</a>
+<a href="#1885" id="1885">1885</a>
+<a href="#1886" id="1886">1886</a>
+<a href="#1887" id="1887">1887</a>
+<a href="#1888" id="1888">1888</a>
+<a href="#1889" id="1889">1889</a>
+<a href="#1890" id="1890">1890</a>
+<a href="#1891" id="1891">1891</a>
+<a href="#1892" id="1892">1892</a>
+<a href="#1893" id="1893">1893</a>
+<a href="#1894" id="1894">1894</a>
+<a href="#1895" id="1895">1895</a>
+<a href="#1896" id="1896">1896</a>
+<a href="#1897" id="1897">1897</a>
+<a href="#1898" id="1898">1898</a>
+<a href="#1899" id="1899">1899</a>
+<a href="#1900" id="1900">1900</a>
+<a href="#1901" id="1901">1901</a>
+<a href="#1902" id="1902">1902</a>
+<a href="#1903" id="1903">1903</a>
+<a href="#1904" id="1904">1904</a>
+<a href="#1905" id="1905">1905</a>
+<a href="#1906" id="1906">1906</a>
+<a href="#1907" id="1907">1907</a>
+<a href="#1908" id="1908">1908</a>
+<a href="#1909" id="1909">1909</a>
+<a href="#1910" id="1910">1910</a>
+<a href="#1911" id="1911">1911</a>
+<a href="#1912" id="1912">1912</a>
+<a href="#1913" id="1913">1913</a>
+<a href="#1914" id="1914">1914</a>
+<a href="#1915" id="1915">1915</a>
+<a href="#1916" id="1916">1916</a>
+<a href="#1917" id="1917">1917</a>
+<a href="#1918" id="1918">1918</a>
+<a href="#1919" id="1919">1919</a>
+<a href="#1920" id="1920">1920</a>
+<a href="#1921" id="1921">1921</a>
+<a href="#1922" id="1922">1922</a>
+<a href="#1923" id="1923">1923</a>
+<a href="#1924" id="1924">1924</a>
+<a href="#1925" id="1925">1925</a>
+<a href="#1926" id="1926">1926</a>
+<a href="#1927" id="1927">1927</a>
+<a href="#1928" id="1928">1928</a>
+<a href="#1929" id="1929">1929</a>
+<a href="#1930" id="1930">1930</a>
+<a href="#1931" id="1931">1931</a>
+<a href="#1932" id="1932">1932</a>
+<a href="#1933" id="1933">1933</a>
+<a href="#1934" id="1934">1934</a>
+<a href="#1935" id="1935">1935</a>
+<a href="#1936" id="1936">1936</a>
+<a href="#1937" id="1937">1937</a>
+<a href="#1938" id="1938">1938</a>
+<a href="#1939" id="1939">1939</a>
+<a href="#1940" id="1940">1940</a>
+<a href="#1941" id="1941">1941</a>
+<a href="#1942" id="1942">1942</a>
+<a href="#1943" id="1943">1943</a>
+<a href="#1944" id="1944">1944</a>
 </pre></div><pre class="rust"><code><span class="comment">// This is a part of Chrono.
 // See README.md and LICENSE.txt for details.
 
 </span><span class="doccomment">//! ISO 8601 date and time with time zone.
 
-</span><span class="attr">#[cfg(all(not(feature = <span class="string">"std"</span>), feature = <span class="string">"alloc"</span>))]
+</span><span class="attr">#[cfg(all(feature = <span class="string">"alloc"</span>, not(feature = <span class="string">"std"</span>), not(test)))]
 </span><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>core::borrow::Borrow;
 <span class="kw">use </span>core::cmp::Ordering;
@@ -1867,17 +1969,14 @@
 <span class="kw">use </span><span class="kw">crate</span>::naive::{Days, IsoWeek, NaiveDate, NaiveDateTime, NaiveTime};
 <span class="attr">#[cfg(feature = <span class="string">"clock"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::offset::Local;
-<span class="kw">use </span><span class="kw">crate</span>::offset::{FixedOffset, Offset, TimeZone, Utc};
-<span class="kw">use </span><span class="kw">crate</span>::try_opt;
+<span class="kw">use </span><span class="kw">crate</span>::offset::{FixedOffset, LocalResult, Offset, TimeZone, Utc};
 <span class="attr">#[allow(deprecated)]
 </span><span class="kw">use </span><span class="kw">crate</span>::Date;
+<span class="kw">use crate</span>::{expect, try_opt};
 <span class="kw">use crate</span>::{Datelike, Months, TimeDelta, Timelike, Weekday};
 
 <span class="attr">#[cfg(any(feature = <span class="string">"rkyv"</span>, feature = <span class="string">"rkyv-16"</span>, feature = <span class="string">"rkyv-32"</span>, feature = <span class="string">"rkyv-64"</span>))]
 </span><span class="kw">use </span>rkyv::{Archive, Deserialize, Serialize};
-
-<span class="attr">#[cfg(feature = <span class="string">"rustc-serialize"</span>)]
-</span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">mod </span>rustc_serialize;
 
 <span class="doccomment">/// documented at re-export site
 </span><span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
@@ -1921,9 +2020,9 @@
     ///
     /// # Example
     ///
-    </span><span class="attr">#[cfg_attr(not(feature = <span class="string">"clock"</span>), doc = <span class="string">"```ignore"</span>)]
-    #[cfg_attr(feature = <span class="string">"clock"</span>, doc = <span class="string">"```rust"</span>)]
-    </span><span class="doccomment">/// use chrono::{Local, DateTime};
+    /// ```
+    /// # #[cfg(feature = "clock")] {
+    /// use chrono::{DateTime, Local};
     ///
     /// let dt = Local::now();
     /// // Get components
@@ -1932,6 +2031,7 @@
     /// // Serialize, pass through FFI... and recreate the `DateTime`:
     /// let dt_new = DateTime::&lt;Local&gt;::from_naive_utc_and_offset(naive_utc, offset);
     /// assert_eq!(dt, dt_new);
+    /// # }
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
@@ -2008,14 +2108,14 @@
     /// use chrono::prelude::*;
     ///
     /// let date: DateTime&lt;Utc&gt; = Utc.with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap();
-    /// let other: DateTime&lt;FixedOffset&gt; = FixedOffset::east_opt(23).unwrap().with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap();
+    /// let other: DateTime&lt;FixedOffset&gt; =
+    ///     FixedOffset::east_opt(23).unwrap().with_ymd_and_hms(2020, 1, 1, 0, 0, 0).unwrap();
     /// assert_eq!(date.date_naive(), other.date_naive());
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>date_naive(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NaiveDate {
-        <span class="kw">let </span>local = <span class="self">self</span>.naive_local();
-        NaiveDate::from_ymd_opt(local.year(), local.month(), local.day()).unwrap()
+        <span class="self">self</span>.naive_local().date()
     }
 
     <span class="doccomment">/// Retrieves the time component.
@@ -2042,7 +2142,9 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
-        <span class="self">self</span>.datetime.timestamp()
+        <span class="kw">let </span>gregorian_day = <span class="self">self</span>.datetime.date().num_days_from_ce() <span class="kw">as </span>i64;
+        <span class="kw">let </span>seconds_from_midnight = <span class="self">self</span>.datetime.time().num_seconds_from_midnight() <span class="kw">as </span>i64;
+        (gregorian_day - UNIX_EPOCH_DAY) * <span class="number">86_400 </span>+ seconds_from_midnight
     }
 
     <span class="doccomment">/// Returns the number of non-leap-milliseconds since January 1, 1970 UTC.
@@ -2050,18 +2152,29 @@
     /// # Example
     ///
     /// ```
-    /// use chrono::{Utc, NaiveDate};
+    /// use chrono::{NaiveDate, Utc};
     ///
-    /// let dt = NaiveDate::from_ymd_opt(1970, 1, 1).unwrap().and_hms_milli_opt(0, 0, 1, 444).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(1970, 1, 1)
+    ///     .unwrap()
+    ///     .and_hms_milli_opt(0, 0, 1, 444)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_millis(), 1_444);
     ///
-    /// let dt = NaiveDate::from_ymd_opt(2001, 9, 9).unwrap().and_hms_milli_opt(1, 46, 40, 555).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(2001, 9, 9)
+    ///     .unwrap()
+    ///     .and_hms_milli_opt(1, 46, 40, 555)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_millis(), 1_000_000_000_555);
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp_millis(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
-        <span class="self">self</span>.datetime.timestamp_millis()
+        <span class="kw">let </span>as_ms = <span class="self">self</span>.timestamp() * <span class="number">1000</span>;
+        as_ms + <span class="self">self</span>.timestamp_subsec_millis() <span class="kw">as </span>i64
     }
 
     <span class="doccomment">/// Returns the number of non-leap-microseconds since January 1, 1970 UTC.
@@ -2069,18 +2182,29 @@
     /// # Example
     ///
     /// ```
-    /// use chrono::{Utc, NaiveDate};
+    /// use chrono::{NaiveDate, Utc};
     ///
-    /// let dt = NaiveDate::from_ymd_opt(1970, 1, 1).unwrap().and_hms_micro_opt(0, 0, 1, 444).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(1970, 1, 1)
+    ///     .unwrap()
+    ///     .and_hms_micro_opt(0, 0, 1, 444)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_micros(), 1_000_444);
     ///
-    /// let dt = NaiveDate::from_ymd_opt(2001, 9, 9).unwrap().and_hms_micro_opt(1, 46, 40, 555).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(2001, 9, 9)
+    ///     .unwrap()
+    ///     .and_hms_micro_opt(1, 46, 40, 555)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_micros(), 1_000_000_000_000_555);
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp_micros(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
-        <span class="self">self</span>.datetime.timestamp_micros()
+        <span class="kw">let </span>as_us = <span class="self">self</span>.timestamp() * <span class="number">1_000_000</span>;
+        as_us + <span class="self">self</span>.timestamp_subsec_micros() <span class="kw">as </span>i64
     }
 
     <span class="doccomment">/// Returns the number of non-leap-nanoseconds since January 1, 1970 UTC.
@@ -2095,9 +2219,11 @@
     </span><span class="attr">#[deprecated(since = <span class="string">"0.4.31"</span>, note = <span class="string">"use `timestamp_nanos_opt()` instead"</span>)]
     #[inline]
     #[must_use]
-    #[allow(deprecated)]
     </span><span class="kw">pub const fn </span>timestamp_nanos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i64 {
-        <span class="self">self</span>.datetime.timestamp_nanos()
+        expect(
+            <span class="self">self</span>.timestamp_nanos_opt(),
+            <span class="string">"value can not be represented in a timestamp with nanosecond precision."</span>,
+        )
     }
 
     <span class="doccomment">/// Returns the number of non-leap-nanoseconds since January 1, 1970 UTC.
@@ -2113,30 +2239,72 @@
     /// # Example
     ///
     /// ```
-    /// use chrono::{Utc, NaiveDate};
+    /// use chrono::{NaiveDate, Utc};
     ///
-    /// let dt = NaiveDate::from_ymd_opt(1970, 1, 1).unwrap().and_hms_nano_opt(0, 0, 1, 444).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(1970, 1, 1)
+    ///     .unwrap()
+    ///     .and_hms_nano_opt(0, 0, 1, 444)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_nanos_opt(), Some(1_000_000_444));
     ///
-    /// let dt = NaiveDate::from_ymd_opt(2001, 9, 9).unwrap().and_hms_nano_opt(1, 46, 40, 555).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(2001, 9, 9)
+    ///     .unwrap()
+    ///     .and_hms_nano_opt(1, 46, 40, 555)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_nanos_opt(), Some(1_000_000_000_000_000_555));
     ///
-    /// let dt = NaiveDate::from_ymd_opt(1677, 9, 21).unwrap().and_hms_nano_opt(0, 12, 43, 145_224_192).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(1677, 9, 21)
+    ///     .unwrap()
+    ///     .and_hms_nano_opt(0, 12, 43, 145_224_192)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_nanos_opt(), Some(-9_223_372_036_854_775_808));
     ///
-    /// let dt = NaiveDate::from_ymd_opt(2262, 4, 11).unwrap().and_hms_nano_opt(23, 47, 16, 854_775_807).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(2262, 4, 11)
+    ///     .unwrap()
+    ///     .and_hms_nano_opt(23, 47, 16, 854_775_807)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_nanos_opt(), Some(9_223_372_036_854_775_807));
     ///
-    /// let dt = NaiveDate::from_ymd_opt(1677, 9, 21).unwrap().and_hms_nano_opt(0, 12, 43, 145_224_191).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(1677, 9, 21)
+    ///     .unwrap()
+    ///     .and_hms_nano_opt(0, 12, 43, 145_224_191)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_nanos_opt(), None);
     ///
-    /// let dt = NaiveDate::from_ymd_opt(2262, 4, 11).unwrap().and_hms_nano_opt(23, 47, 16, 854_775_808).unwrap().and_local_timezone(Utc).unwrap();
+    /// let dt = NaiveDate::from_ymd_opt(2262, 4, 11)
+    ///     .unwrap()
+    ///     .and_hms_nano_opt(23, 47, 16, 854_775_808)
+    ///     .unwrap()
+    ///     .and_local_timezone(Utc)
+    ///     .unwrap();
     /// assert_eq!(dt.timestamp_nanos_opt(), None);
     /// ```
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp_nanos_opt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;i64&gt; {
-        <span class="self">self</span>.datetime.timestamp_nanos_opt()
+        <span class="kw">let </span><span class="kw-2">mut </span>timestamp = <span class="self">self</span>.timestamp();
+        <span class="kw">let </span><span class="kw-2">mut </span>subsec_nanos = <span class="self">self</span>.timestamp_subsec_nanos() <span class="kw">as </span>i64;
+        <span class="comment">// `(timestamp * 1_000_000_000) + subsec_nanos` may create a temporary that underflows while
+        // the final value can be represented as an `i64`.
+        // As workaround we converting the negative case to:
+        // `((timestamp + 1) * 1_000_000_000) + (ns - 1_000_000_000)``
+        //
+        // Also see &lt;https://github.com/chronotope/chrono/issues/1289&gt;.
+        </span><span class="kw">if </span>timestamp &lt; <span class="number">0 </span>{
+            subsec_nanos -= <span class="number">1_000_000_000</span>;
+            timestamp += <span class="number">1</span>;
+        }
+        <span class="macro">try_opt!</span>(timestamp.checked_mul(<span class="number">1_000_000_000</span>)).checked_add(subsec_nanos)
     }
 
     <span class="doccomment">/// Returns the number of milliseconds since the last second boundary.
@@ -2145,8 +2313,8 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp_subsec_millis(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.datetime.timestamp_subsec_millis()
-    }
+        <span class="self">self</span>.timestamp_subsec_nanos() / <span class="number">1_000_000
+    </span>}
 
     <span class="doccomment">/// Returns the number of microseconds since the last second boundary.
     ///
@@ -2154,8 +2322,8 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp_subsec_micros(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.datetime.timestamp_subsec_micros()
-    }
+        <span class="self">self</span>.timestamp_subsec_nanos() / <span class="number">1_000
+    </span>}
 
     <span class="doccomment">/// Returns the number of nanoseconds since the last second boundary
     ///
@@ -2163,7 +2331,7 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>timestamp_subsec_nanos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
-        <span class="self">self</span>.datetime.timestamp_subsec_nanos()
+        <span class="self">self</span>.datetime.time().nanosecond()
     }
 
     <span class="doccomment">/// Retrieves an associated offset from UTC.
@@ -2227,13 +2395,17 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date would be out of range.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
+    /// - The resulting UTC datetime would be out of range.
+    /// - The resulting local datetime would be out of range (unless `months` is zero).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>checked_add_months(<span class="self">self</span>, rhs: Months) -&gt; <span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt; {
-        <span class="self">self</span>.naive_local()
-            .checked_add_months(rhs)<span class="question-mark">?
+    </span><span class="kw">pub fn </span>checked_add_months(<span class="self">self</span>, months: Months) -&gt; <span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt; {
+        <span class="comment">// `NaiveDate::checked_add_months` has a fast path for `Months(0)` that does not validate
+        // the resulting date, with which we can return `Some` even for an out of range local
+        // datetime.
+        </span><span class="self">self</span>.overflowing_naive_local()
+            .checked_add_months(months)<span class="question-mark">?
             </span>.and_local_timezone(Tz::from_offset(<span class="kw-2">&amp;</span><span class="self">self</span>.offset))
             .single()
     }
@@ -2260,13 +2432,17 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date would be out of range.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
+    /// - The resulting UTC datetime would be out of range.
+    /// - The resulting local datetime would be out of range (unless `months` is zero).
     </span><span class="attr">#[must_use]
-    </span><span class="kw">pub fn </span>checked_sub_months(<span class="self">self</span>, rhs: Months) -&gt; <span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt; {
-        <span class="self">self</span>.naive_local()
-            .checked_sub_months(rhs)<span class="question-mark">?
+    </span><span class="kw">pub fn </span>checked_sub_months(<span class="self">self</span>, months: Months) -&gt; <span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt; {
+        <span class="comment">// `NaiveDate::checked_sub_months` has a fast path for `Months(0)` that does not validate
+        // the resulting date, with which we can return `Some` even for an out of range local
+        // datetime.
+        </span><span class="self">self</span>.overflowing_naive_local()
+            .checked_sub_months(months)<span class="question-mark">?
             </span>.and_local_timezone(Tz::from_offset(<span class="kw-2">&amp;</span><span class="self">self</span>.offset))
             .single()
     }
@@ -2276,15 +2452,22 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date would be out of range.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
+    /// - The resulting UTC datetime would be out of range.
+    /// - The resulting local datetime would be out of range (unless `days` is zero).
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>checked_add_days(<span class="self">self</span>, days: Days) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">self</span>.naive_local()
-            .checked_add_days(days)<span class="question-mark">?
-            </span>.and_local_timezone(TimeZone::from_offset(<span class="kw-2">&amp;</span><span class="self">self</span>.offset))
-            .single()
+        <span class="kw">if </span>days == Days::new(<span class="number">0</span>) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="self">self</span>);
+        }
+        <span class="comment">// `NaiveDate::add_days` has a fast path if the result remains within the same year, that
+        // does not validate the resulting date. This allows us to return `Some` even for an out of
+        // range local datetime when adding `Days(0)`.
+        </span><span class="self">self</span>.overflowing_naive_local()
+            .checked_add_days(days)
+            .and_then(|dt| <span class="self">self</span>.timezone().from_local_datetime(<span class="kw-2">&amp;</span>dt).single())
+            .filter(|dt| dt &lt;= <span class="kw-2">&amp;</span>DateTime::&lt;Utc&gt;::MAX_UTC)
     }
 
     <span class="doccomment">/// Subtract a duration in [`Days`] from the date part of the `DateTime`.
@@ -2292,15 +2475,19 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date would be out of range.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
+    /// - The resulting UTC datetime would be out of range.
+    /// - The resulting local datetime would be out of range (unless `days` is zero).
     </span><span class="attr">#[must_use]
     </span><span class="kw">pub fn </span>checked_sub_days(<span class="self">self</span>, days: Days) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="self">self</span>.naive_local()
-            .checked_sub_days(days)<span class="question-mark">?
-            </span>.and_local_timezone(TimeZone::from_offset(<span class="kw-2">&amp;</span><span class="self">self</span>.offset))
-            .single()
+        <span class="comment">// `NaiveDate::add_days` has a fast path if the result remains within the same year, that
+        // does not validate the resulting date. This allows us to return `Some` even for an out of
+        // range local datetime when adding `Days(0)`.
+        </span><span class="self">self</span>.overflowing_naive_local()
+            .checked_sub_days(days)
+            .and_then(|dt| <span class="self">self</span>.timezone().from_local_datetime(<span class="kw-2">&amp;</span>dt).single())
+            .filter(|dt| dt &gt;= <span class="kw-2">&amp;</span>DateTime::&lt;Utc&gt;::MIN_UTC)
     }
 
     <span class="doccomment">/// Subtracts another `DateTime` from the current date and time.
@@ -2407,19 +2594,26 @@
     /// # Examples
     ///
     /// ```rust
-    /// # use chrono::{FixedOffset, SecondsFormat, TimeZone, Utc, NaiveDate};
-    /// let dt = NaiveDate::from_ymd_opt(2018, 1, 26).unwrap().and_hms_micro_opt(18, 30, 9, 453_829).unwrap().and_local_timezone(Utc).unwrap();
-    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Millis, false),
-    ///            "2018-01-26T18:30:09.453+00:00");
-    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Millis, true),
-    ///            "2018-01-26T18:30:09.453Z");
-    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Secs, true),
-    ///            "2018-01-26T18:30:09Z");
+    /// # use chrono::{FixedOffset, SecondsFormat, TimeZone, NaiveDate};
+    /// let dt = NaiveDate::from_ymd_opt(2018, 1, 26)
+    ///     .unwrap()
+    ///     .and_hms_micro_opt(18, 30, 9, 453_829)
+    ///     .unwrap()
+    ///     .and_utc();
+    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Millis, false), "2018-01-26T18:30:09.453+00:00");
+    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Millis, true), "2018-01-26T18:30:09.453Z");
+    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Secs, true), "2018-01-26T18:30:09Z");
     ///
     /// let pst = FixedOffset::east_opt(8 * 60 * 60).unwrap();
-    /// let dt = pst.from_local_datetime(&amp;NaiveDate::from_ymd_opt(2018, 1, 26).unwrap().and_hms_micro_opt(10, 30, 9, 453_829).unwrap()).unwrap();
-    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Secs, true),
-    ///            "2018-01-26T10:30:09+08:00");
+    /// let dt = pst
+    ///     .from_local_datetime(
+    ///         &amp;NaiveDate::from_ymd_opt(2018, 1, 26)
+    ///             .unwrap()
+    ///             .and_hms_micro_opt(10, 30, 9, 453_829)
+    ///             .unwrap(),
+    ///     )
+    ///     .unwrap();
+    /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Secs, true), "2018-01-26T10:30:09+08:00");
     /// ```
     </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
     #[must_use]
@@ -2430,6 +2624,32 @@
         result
     }
 
+    <span class="doccomment">/// Set the time to a new fixed time on the existing date.
+    ///
+    /// # Errors
+    ///
+    /// Returns `LocalResult::None` if the datetime is at the edge of the representable range for a
+    /// `DateTime`, and `with_time` would push the value in UTC out of range.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # #[cfg(feature = "clock")] {
+    /// use chrono::{Local, NaiveTime};
+    ///
+    /// let noon = NaiveTime::from_hms_opt(12, 0, 0).unwrap();
+    /// let today_noon = Local::now().with_time(noon);
+    /// let today_midnight = Local::now().with_time(NaiveTime::MIN);
+    ///
+    /// assert_eq!(today_noon.single().unwrap().time(), noon);
+    /// assert_eq!(today_midnight.single().unwrap().time(), NaiveTime::MIN);
+    /// # }
+    /// ```
+    </span><span class="attr">#[must_use]
+    </span><span class="kw">pub fn </span>with_time(<span class="kw-2">&amp;</span><span class="self">self</span>, time: NaiveTime) -&gt; LocalResult&lt;<span class="self">Self</span>&gt; {
+        <span class="self">self</span>.timezone().from_local_datetime(<span class="kw-2">&amp;</span><span class="self">self</span>.overflowing_naive_local().date().and_time(time))
+    }
+
     <span class="doccomment">/// The minimum possible `DateTime&lt;Utc&gt;`.
     </span><span class="kw">pub const </span>MIN_UTC: DateTime&lt;Utc&gt; = DateTime { datetime: NaiveDateTime::MIN, offset: Utc };
     <span class="doccomment">/// The maximum possible `DateTime&lt;Utc&gt;`.
@@ -2437,7 +2657,7 @@
 }
 
 <span class="kw">impl </span>DateTime&lt;Utc&gt; {
-    <span class="doccomment">/// Makes a new [`DateTime&lt;Utc&gt;`] from the number of non-leap seconds
+    <span class="doccomment">/// Makes a new `DateTime&lt;Utc&gt;` from the number of non-leap seconds
     /// since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")
     /// and the number of nanoseconds since the last whole non-leap second.
     ///
@@ -2459,9 +2679,9 @@
     /// # Example
     ///
     /// ```
-    /// use chrono::{DateTime, Utc};
+    /// use chrono::DateTime;
     ///
-    /// let dt: DateTime&lt;Utc&gt; = DateTime::&lt;Utc&gt;::from_timestamp(1431648000, 0).expect("invalid timestamp");
+    /// let dt = DateTime::from_timestamp(1431648000, 0).expect("invalid timestamp");
     ///
     /// assert_eq!(dt.to_string(), "2015-05-15 00:00:00 UTC");
     /// assert_eq!(DateTime::from_timestamp(dt.timestamp(), dt.timestamp_subsec_nanos()).unwrap(), dt);
@@ -2469,16 +2689,20 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>from_timestamp(secs: i64, nsecs: u32) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Some</span>(DateTime {
-            datetime: <span class="macro">try_opt!</span>(NaiveDateTime::from_timestamp_opt(secs, nsecs)),
-            offset: Utc,
-        })
+        <span class="kw">let </span>days = secs.div_euclid(<span class="number">86_400</span>) + UNIX_EPOCH_DAY;
+        <span class="kw">let </span>secs = secs.rem_euclid(<span class="number">86_400</span>);
+        <span class="kw">if </span>days &lt; i32::MIN <span class="kw">as </span>i64 || days &gt; i32::MAX <span class="kw">as </span>i64 {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        <span class="kw">let </span>date = <span class="macro">try_opt!</span>(NaiveDate::from_num_days_from_ce_opt(days <span class="kw">as </span>i32));
+        <span class="kw">let </span>time = <span class="macro">try_opt!</span>(NaiveTime::from_num_seconds_from_midnight_opt(secs <span class="kw">as </span>u32, nsecs));
+        <span class="prelude-val">Some</span>(date.and_time(time).and_utc())
     }
 
-    <span class="doccomment">/// Makes a new [`DateTime&lt;Utc&gt;`] from the number of non-leap milliseconds
+    <span class="doccomment">/// Makes a new `DateTime&lt;Utc&gt;` from the number of non-leap milliseconds
     /// since January 1, 1970 0:00:00.000 UTC (aka "UNIX timestamp").
     ///
-    /// This is guaranteed to round-trip with regard to [`timestamp_millis`](DateTime::timestamp_millis).
+    /// This is guaranteed to round-trip with [`timestamp_millis`](DateTime::timestamp_millis).
     ///
     /// If you need to create a `DateTime` with a [`TimeZone`] different from [`Utc`], use
     /// [`TimeZone::timestamp_millis_opt`] or [`DateTime::with_timezone`].
@@ -2490,9 +2714,9 @@
     /// # Example
     ///
     /// ```
-    /// use chrono::{DateTime, Utc};
+    /// use chrono::DateTime;
     ///
-    /// let dt: DateTime&lt;Utc&gt; = DateTime::&lt;Utc&gt;::from_timestamp_millis(947638923004).expect("invalid timestamp");
+    /// let dt = DateTime::from_timestamp_millis(947638923004).expect("invalid timestamp");
     ///
     /// assert_eq!(dt.to_string(), "2000-01-12 01:02:03.004 UTC");
     /// assert_eq!(DateTime::from_timestamp_millis(dt.timestamp_millis()).unwrap(), dt);
@@ -2500,7 +2724,81 @@
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub const fn </span>from_timestamp_millis(millis: i64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="prelude-val">Some</span>(<span class="macro">try_opt!</span>(NaiveDateTime::from_timestamp_millis(millis)).and_utc())
+        <span class="kw">let </span>secs = millis.div_euclid(<span class="number">1000</span>);
+        <span class="kw">let </span>nsecs = millis.rem_euclid(<span class="number">1000</span>) <span class="kw">as </span>u32 * <span class="number">1_000_000</span>;
+        <span class="self">Self</span>::from_timestamp(secs, nsecs)
+    }
+
+    <span class="doccomment">/// Creates a new `DateTime&lt;Utc&gt;` from the number of non-leap microseconds
+    /// since January 1, 1970 0:00:00.000 UTC (aka "UNIX timestamp").
+    ///
+    /// This is guaranteed to round-trip with [`timestamp_micros`](DateTime::timestamp_micros).
+    ///
+    /// If you need to create a `DateTime` with a [`TimeZone`] different from [`Utc`], use
+    /// [`TimeZone::timestamp_micros`] or [`DateTime::with_timezone`].
+    ///
+    /// # Errors
+    ///
+    /// Returns `None` if the number of microseconds would be out of range for a `NaiveDateTime`
+    /// (more than ca. 262,000 years away from common era)
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use chrono::DateTime;
+    ///
+    /// let timestamp_micros: i64 = 1662921288000000; // Sun, 11 Sep 2022 18:34:48 UTC
+    /// let dt = DateTime::from_timestamp_micros(timestamp_micros);
+    /// assert!(dt.is_some());
+    /// assert_eq!(timestamp_micros, dt.expect("invalid timestamp").timestamp_micros());
+    ///
+    /// // Negative timestamps (before the UNIX epoch) are supported as well.
+    /// let timestamp_micros: i64 = -2208936075000000; // Mon, 1 Jan 1900 14:38:45 UTC
+    /// let dt = DateTime::from_timestamp_micros(timestamp_micros);
+    /// assert!(dt.is_some());
+    /// assert_eq!(timestamp_micros, dt.expect("invalid timestamp").timestamp_micros());
+    /// ```
+    </span><span class="attr">#[inline]
+    #[must_use]
+    </span><span class="kw">pub const fn </span>from_timestamp_micros(micros: i64) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>secs = micros.div_euclid(<span class="number">1_000_000</span>);
+        <span class="kw">let </span>nsecs = micros.rem_euclid(<span class="number">1_000_000</span>) <span class="kw">as </span>u32 * <span class="number">1000</span>;
+        <span class="self">Self</span>::from_timestamp(secs, nsecs)
+    }
+
+    <span class="doccomment">/// Creates a new [`DateTime&lt;Utc&gt;`] from the number of non-leap microseconds
+    /// since January 1, 1970 0:00:00.000 UTC (aka "UNIX timestamp").
+    ///
+    /// This is guaranteed to round-trip with [`timestamp_nanos`](DateTime::timestamp_nanos).
+    ///
+    /// If you need to create a `DateTime` with a [`TimeZone`] different from [`Utc`], use
+    /// [`TimeZone::timestamp_nanos`] or [`DateTime::with_timezone`].
+    ///
+    /// The UNIX epoch starts on midnight, January 1, 1970, UTC.
+    ///
+    /// An `i64` with nanosecond precision can span a range of ~584 years. Because all values can
+    /// be represented as a `DateTime` this method never fails.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use chrono::DateTime;
+    ///
+    /// let timestamp_nanos: i64 = 1662921288_000_000_000; // Sun, 11 Sep 2022 18:34:48 UTC
+    /// let dt = DateTime::from_timestamp_nanos(timestamp_nanos);
+    /// assert_eq!(timestamp_nanos, dt.timestamp_nanos_opt().unwrap());
+    ///
+    /// // Negative timestamps (before the UNIX epoch) are supported as well.
+    /// let timestamp_nanos: i64 = -2208936075_000_000_000; // Mon, 1 Jan 1900 14:38:45 UTC
+    /// let dt = DateTime::from_timestamp_nanos(timestamp_nanos);
+    /// assert_eq!(timestamp_nanos, dt.timestamp_nanos_opt().unwrap());
+    /// ```
+    </span><span class="attr">#[inline]
+    #[must_use]
+    </span><span class="kw">pub const fn </span>from_timestamp_nanos(nanos: i64) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>secs = nanos.div_euclid(<span class="number">1_000_000_000</span>);
+        <span class="kw">let </span>nsecs = nanos.rem_euclid(<span class="number">1_000_000_000</span>) <span class="kw">as </span>u32;
+        expect(<span class="self">Self</span>::from_timestamp(secs, nsecs), <span class="string">"timestamp in nanos is always in range"</span>)
     }
 
     <span class="doccomment">/// The Unix Epoch, 1970-01-01 00:00:00 UTC.
@@ -2679,11 +2977,21 @@
     /// # Example
     ///
     /// ```rust
-    /// use chrono::{DateTime, FixedOffset, TimeZone, NaiveDate};
+    /// use chrono::{DateTime, FixedOffset, NaiveDate, TimeZone};
     ///
-    /// let dt = DateTime::parse_from_str(
-    ///     "1983 Apr 13 12:09:14.274 +0000", "%Y %b %d %H:%M:%S%.3f %z");
-    /// assert_eq!(dt, Ok(FixedOffset::east_opt(0).unwrap().from_local_datetime(&amp;NaiveDate::from_ymd_opt(1983, 4, 13).unwrap().and_hms_milli_opt(12, 9, 14, 274).unwrap()).unwrap()));
+    /// let dt = DateTime::parse_from_str("1983 Apr 13 12:09:14.274 +0000", "%Y %b %d %H:%M:%S%.3f %z");
+    /// assert_eq!(
+    ///     dt,
+    ///     Ok(FixedOffset::east_opt(0)
+    ///         .unwrap()
+    ///         .from_local_datetime(
+    ///             &amp;NaiveDate::from_ymd_opt(1983, 4, 13)
+    ///                 .unwrap()
+    ///                 .and_hms_milli_opt(12, 9, 14, 274)
+    ///                 .unwrap()
+    ///         )
+    ///         .unwrap())
+    /// );
     /// ```
     </span><span class="kw">pub fn </span>parse_from_str(s: <span class="kw-2">&amp;</span>str, fmt: <span class="kw-2">&amp;</span>str) -&gt; ParseResult&lt;DateTime&lt;FixedOffset&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>parsed = Parsed::new();
@@ -2709,10 +3017,13 @@
     /// ```rust
     /// # use chrono::{DateTime, FixedOffset, TimeZone};
     /// let (datetime, remainder) = DateTime::parse_and_remainder(
-    ///     "2015-02-18 23:16:09 +0200 trailing text", "%Y-%m-%d %H:%M:%S %z").unwrap();
+    ///     "2015-02-18 23:16:09 +0200 trailing text",
+    ///     "%Y-%m-%d %H:%M:%S %z",
+    /// )
+    /// .unwrap();
     /// assert_eq!(
     ///     datetime,
-    ///     FixedOffset::east_opt(2*3600).unwrap().with_ymd_and_hms(2015, 2, 18, 23, 16, 9).unwrap()
+    ///     FixedOffset::east_opt(2 * 3600).unwrap().with_ymd_and_hms(2015, 2, 18, 23, 16, 9).unwrap()
     /// );
     /// assert_eq!(remainder, " trailing text");
     /// ```
@@ -2848,22 +3159,28 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
-    /// - When the `NaiveDateTime` would be out of range.
+    /// - The resulting date does not exist (February 29 in a non-leap year).
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
+    /// - The resulting UTC datetime would be out of range.
+    /// - The resulting local datetime would be out of range (unless the year remains the same).
     </span><span class="kw">fn </span>with_year(<span class="kw-2">&amp;</span><span class="self">self</span>, year: i32) -&gt; <span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt; {
-        map_local(<span class="self">self</span>, |datetime| datetime.with_year(year))
+        map_local(<span class="self">self</span>, |dt| <span class="kw">match </span>dt.year() == year {
+            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(dt),
+            <span class="bool-val">false </span>=&gt; dt.with_year(year),
+        })
     }
 
     <span class="doccomment">/// Makes a new `DateTime` with the month number (starting from 1) changed.
+    ///
+    /// Don't combine multiple `Datelike::with_*` methods. The intermediate value may not exist.
     ///
     /// See also the [`NaiveDate::with_month`] method.
     ///
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
+    /// - The resulting date does not exist (for example `month(4)` when day of the month is 31).
     /// - The value for `month` is invalid.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
@@ -2879,7 +3196,7 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
+    /// - The resulting date does not exist (for example `month0(3)` when day of the month is 31).
     /// - The value for `month0` is invalid.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
@@ -2895,7 +3212,7 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
+    /// - The resulting date does not exist (for example `day(31)` in April).
     /// - The value for `day` is invalid.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
@@ -2911,7 +3228,7 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
+    /// - The resulting date does not exist (for example `day(30)` in April).
     /// - The value for `day0` is invalid.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
@@ -2927,7 +3244,7 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
+    /// - The resulting date does not exist (`with_ordinal(366)` in a non-leap year).
     /// - The value for `ordinal` is invalid.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
@@ -2943,7 +3260,7 @@
     /// # Errors
     ///
     /// Returns `None` if:
-    /// - The resulting date does not exist.
+    /// - The resulting date does not exist (`with_ordinal0(365)` in a non-leap year).
     /// - The value for `ordinal0` is invalid.
     /// - The local time at the resulting date does not exist or is ambiguous, for example during a
     ///   daylight saving time transition.
@@ -3035,9 +3352,14 @@
     }
 }
 
-<span class="comment">// we need them as automatic impls cannot handle associated types
-</span><span class="kw">impl</span>&lt;Tz: TimeZone&gt; Copy <span class="kw">for </span>DateTime&lt;Tz&gt; <span class="kw">where </span>&lt;Tz <span class="kw">as </span>TimeZone&gt;::Offset: Copy {}
-<span class="kw">unsafe impl</span>&lt;Tz: TimeZone&gt; Send <span class="kw">for </span>DateTime&lt;Tz&gt; <span class="kw">where </span>&lt;Tz <span class="kw">as </span>TimeZone&gt;::Offset: Send {}
+<span class="comment">// We don't store a field with the `Tz` type, so it doesn't need to influence whether `DateTime` can
+// be `Copy`. Implement it manually if the two types we do have are `Copy`.
+</span><span class="kw">impl</span>&lt;Tz: TimeZone&gt; Copy <span class="kw">for </span>DateTime&lt;Tz&gt;
+<span class="kw">where
+    </span>&lt;Tz <span class="kw">as </span>TimeZone&gt;::Offset: Copy,
+    NaiveDateTime: Copy,
+{
+}
 
 <span class="kw">impl</span>&lt;Tz: TimeZone, Tz2: TimeZone&gt; PartialEq&lt;DateTime&lt;Tz2&gt;&gt; <span class="kw">for </span>DateTime&lt;Tz&gt; {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>DateTime&lt;Tz2&gt;) -&gt; bool {
@@ -3055,8 +3377,14 @@
     /// ```
     /// use chrono::prelude::*;
     ///
-    /// let earlier = Utc.with_ymd_and_hms(2015, 5, 15, 2, 0, 0).unwrap().with_timezone(&amp;FixedOffset::west_opt(1 * 3600).unwrap());
-    /// let later   = Utc.with_ymd_and_hms(2015, 5, 15, 3, 0, 0).unwrap().with_timezone(&amp;FixedOffset::west_opt(5 * 3600).unwrap());
+    /// let earlier = Utc
+    ///     .with_ymd_and_hms(2015, 5, 15, 2, 0, 0)
+    ///     .unwrap()
+    ///     .with_timezone(&amp;FixedOffset::west_opt(1 * 3600).unwrap());
+    /// let later = Utc
+    ///     .with_ymd_and_hms(2015, 5, 15, 3, 0, 0)
+    ///     .unwrap()
+    ///     .with_timezone(&amp;FixedOffset::west_opt(5 * 3600).unwrap());
     ///
     /// assert_eq!(earlier.to_string(), "2015-05-15 01:00:00 -01:00");
     /// assert_eq!(later.to_string(), "2015-05-14 22:00:00 -05:00");
@@ -3549,136 +3877,13 @@
     }
 }
 
-<span class="attr">#[cfg(all(test, any(feature = <span class="string">"rustc-serialize"</span>, feature = <span class="string">"serde"</span>)))]
-</span><span class="kw">fn </span>test_encodable_json&lt;FUtc, FFixed, E&gt;(to_string_utc: FUtc, to_string_fixed: FFixed)
-<span class="kw">where
-    </span>FUtc: Fn(<span class="kw-2">&amp;</span>DateTime&lt;Utc&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String, E&gt;,
-    FFixed: Fn(<span class="kw-2">&amp;</span>DateTime&lt;FixedOffset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;String, E&gt;,
-    E: ::core::fmt::Debug,
-{
-    <span class="macro">assert_eq!</span>(
-        to_string_utc(<span class="kw-2">&amp;</span>Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()).ok(),
-        <span class="prelude-val">Some</span>(<span class="string">r#""2014-07-24T12:34:06Z""#</span>.into())
-    );
-
-    <span class="macro">assert_eq!</span>(
-        to_string_fixed(
-            <span class="kw-2">&amp;</span>FixedOffset::east_opt(<span class="number">3660</span>).unwrap().with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()
-        )
-        .ok(),
-        <span class="prelude-val">Some</span>(<span class="string">r#""2014-07-24T12:34:06+01:01""#</span>.into())
-    );
-    <span class="macro">assert_eq!</span>(
-        to_string_fixed(
-            <span class="kw-2">&amp;</span>FixedOffset::east_opt(<span class="number">3650</span>).unwrap().with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()
-        )
-        .ok(),
-        <span class="comment">// An offset with seconds is not allowed by RFC 3339, so we round it to the nearest minute.
-        // In this case `+01:00:50` becomes `+01:01`
-        </span><span class="prelude-val">Some</span>(<span class="string">r#""2014-07-24T12:34:06+01:01""#</span>.into())
-    );
-}
-
-<span class="attr">#[cfg(all(test, feature = <span class="string">"clock"</span>, any(feature = <span class="string">"rustc-serialize"</span>, feature = <span class="string">"serde"</span>)))]
-</span><span class="kw">fn </span>test_decodable_json&lt;FUtc, FFixed, FLocal, E&gt;(
-    utc_from_str: FUtc,
-    fixed_from_str: FFixed,
-    local_from_str: FLocal,
-) <span class="kw">where
-    </span>FUtc: Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;Utc&gt;, E&gt;,
-    FFixed: Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;FixedOffset&gt;, E&gt;,
-    FLocal: Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;Local&gt;, E&gt;,
-    E: ::core::fmt::Debug,
-{
-    <span class="comment">// should check against the offset as well (the normal DateTime comparison will ignore them)
-    </span><span class="kw">fn </span>norm&lt;Tz: TimeZone&gt;(dt: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>DateTime&lt;Tz&gt;, <span class="kw-2">&amp;</span>Tz::Offset)&gt; {
-        dt.as_ref().map(|dt| (dt, dt.offset()))
-    }
-
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>utc_from_str(<span class="string">r#""2014-07-24T12:34:06Z""#</span>).ok()),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()))
-    );
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>utc_from_str(<span class="string">r#""2014-07-24T13:57:06+01:23""#</span>).ok()),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()))
-    );
-
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>fixed_from_str(<span class="string">r#""2014-07-24T12:34:06Z""#</span>).ok()),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(
-            FixedOffset::east_opt(<span class="number">0</span>).unwrap().with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()
-        ))
-    );
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>fixed_from_str(<span class="string">r#""2014-07-24T13:57:06+01:23""#</span>).ok()),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(
-            FixedOffset::east_opt(<span class="number">60 </span>* <span class="number">60 </span>+ <span class="number">23 </span>* <span class="number">60</span>)
-                .unwrap()
-                .with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">13</span>, <span class="number">57</span>, <span class="number">6</span>)
-                .unwrap()
-        ))
-    );
-
-    <span class="comment">// we don't know the exact local offset but we can check that
-    // the conversion didn't change the instant itself
-    </span><span class="macro">assert_eq!</span>(
-        local_from_str(<span class="string">r#""2014-07-24T12:34:06Z""#</span>).expect(<span class="string">"local should parse"</span>),
-        Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()
-    );
-    <span class="macro">assert_eq!</span>(
-        local_from_str(<span class="string">r#""2014-07-24T13:57:06+01:23""#</span>).expect(<span class="string">"local should parse with offset"</span>),
-        Utc.with_ymd_and_hms(<span class="number">2014</span>, <span class="number">7</span>, <span class="number">24</span>, <span class="number">12</span>, <span class="number">34</span>, <span class="number">6</span>).unwrap()
-    );
-
-    <span class="macro">assert!</span>(utc_from_str(<span class="string">r#""2014-07-32T12:34:06Z""#</span>).is_err());
-    <span class="macro">assert!</span>(fixed_from_str(<span class="string">r#""2014-07-32T12:34:06Z""#</span>).is_err());
-}
-
-<span class="attr">#[cfg(all(test, feature = <span class="string">"clock"</span>, feature = <span class="string">"rustc-serialize"</span>))]
-</span><span class="kw">fn </span>test_decodable_json_timestamps&lt;FUtc, FFixed, FLocal, E&gt;(
-    utc_from_str: FUtc,
-    fixed_from_str: FFixed,
-    local_from_str: FLocal,
-) <span class="kw">where
-    </span>FUtc: Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;rustc_serialize::TsSeconds&lt;Utc&gt;, E&gt;,
-    FFixed: Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;rustc_serialize::TsSeconds&lt;FixedOffset&gt;, E&gt;,
-    FLocal: Fn(<span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;rustc_serialize::TsSeconds&lt;Local&gt;, E&gt;,
-    E: ::core::fmt::Debug,
-{
-    <span class="kw">fn </span>norm&lt;Tz: TimeZone&gt;(dt: <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;DateTime&lt;Tz&gt;&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>DateTime&lt;Tz&gt;, <span class="kw-2">&amp;</span>Tz::Offset)&gt; {
-        dt.as_ref().map(|dt| (dt, dt.offset()))
-    }
-
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>utc_from_str(<span class="string">"0"</span>).ok().map(DateTime::from)),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap()))
-    );
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>utc_from_str(<span class="string">"-1"</span>).ok().map(DateTime::from)),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(Utc.with_ymd_and_hms(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">31</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()))
-    );
-
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>fixed_from_str(<span class="string">"0"</span>).ok().map(DateTime::from)),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(
-            FixedOffset::east_opt(<span class="number">0</span>).unwrap().with_ymd_and_hms(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap()
-        ))
-    );
-    <span class="macro">assert_eq!</span>(
-        norm(<span class="kw-2">&amp;</span>fixed_from_str(<span class="string">"-1"</span>).ok().map(DateTime::from)),
-        norm(<span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(
-            FixedOffset::east_opt(<span class="number">0</span>).unwrap().with_ymd_and_hms(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">31</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()
-        ))
-    );
-
-    <span class="macro">assert_eq!</span>(
-        <span class="kw-2">*</span>fixed_from_str(<span class="string">"0"</span>).expect(<span class="string">"0 timestamp should parse"</span>),
-        Utc.with_ymd_and_hms(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>).unwrap()
-    );
-    <span class="macro">assert_eq!</span>(
-        <span class="kw-2">*</span>local_from_str(<span class="string">"-1"</span>).expect(<span class="string">"-1 timestamp should parse"</span>),
-        Utc.with_ymd_and_hms(<span class="number">1969</span>, <span class="number">12</span>, <span class="number">31</span>, <span class="number">23</span>, <span class="number">59</span>, <span class="number">59</span>).unwrap()
-    );
-}
+<span class="doccomment">/// Number of days between Januari 1, 1970 and December 31, 1 BCE which we define to be day 0.
+/// 4 full leap year cycles until December 31, 1600     4 * 146097 = 584388
+/// 1 day until January 1, 1601                                           1
+/// 369 years until Januari 1, 1970                      369 * 365 = 134685
+/// of which floor(369 / 4) are leap years          floor(369 / 4) =     92
+/// except for 1700, 1800 and 1900                                       -3 +
+///                                                                  --------
+///                                                                  719163
+</span><span class="kw">const </span>UNIX_EPOCH_DAY: i64 = <span class="number">719_163</span>;
 </code></pre></div></section></main></body></html>

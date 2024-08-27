@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/coff/symbol.rs`."><title>symbol.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/coff/symbol.rs`."><title>symbol.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -634,6 +633,40 @@
 <a href="#633" id="633">633</a>
 <a href="#634" id="634">634</a>
 <a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::fmt;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::convert::TryInto;
@@ -728,13 +761,13 @@
     </span><span class="kw">pub fn </span>iter&lt;<span class="lifetime">'table</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'table </span><span class="self">self</span>) -&gt; SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'table</span>, R, Coff&gt; {
         SymbolIterator {
             symbols: <span class="self">self</span>,
-            index: <span class="number">0</span>,
+            index: SymbolIndex(<span class="number">0</span>),
         }
     }
 
     <span class="doccomment">/// Return the symbol table entry at the given index.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff::ImageSymbol&gt; {
+    </span><span class="kw">pub fn </span>symbol(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff::ImageSymbol&gt; {
         <span class="self">self</span>.get::&lt;Coff::ImageSymbol&gt;(index, <span class="number">0</span>)
     }
 
@@ -742,7 +775,7 @@
     ///
     /// Note that the index is of the symbol, not the first auxiliary record.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>aux_function(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageAuxSymbolFunction&gt; {
+    </span><span class="kw">pub fn </span>aux_function(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageAuxSymbolFunction&gt; {
         <span class="self">self</span>.get::&lt;pe::ImageAuxSymbolFunction&gt;(index, <span class="number">1</span>)
     }
 
@@ -750,16 +783,17 @@
     ///
     /// Note that the index is of the symbol, not the first auxiliary record.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>aux_section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageAuxSymbolSection&gt; {
+    </span><span class="kw">pub fn </span>aux_section(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>pe::ImageAuxSymbolSection&gt; {
         <span class="self">self</span>.get::&lt;pe::ImageAuxSymbolSection&gt;(index, <span class="number">1</span>)
     }
 
     <span class="doccomment">/// Return the auxiliary file name for the symbol table entry at the given index.
     ///
     /// Note that the index is of the symbol, not the first auxiliary record.
-    </span><span class="kw">pub fn </span>aux_file_name(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize, aux_count: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
+    </span><span class="kw">pub fn </span>aux_file_name(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex, aux_count: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="kw">let </span>entries = index
-            .checked_add(<span class="number">1</span>)
+            .<span class="number">0
+            </span>.checked_add(<span class="number">1</span>)
             .and_then(|x| <span class="prelude-val">Some</span>(x..x.checked_add(aux_count.into())<span class="question-mark">?</span>))
             .and_then(|x| <span class="self">self</span>.symbols.get(x))
             .read_error(<span class="string">"Invalid COFF symbol index"</span>)<span class="question-mark">?</span>;
@@ -772,9 +806,10 @@
     }
 
     <span class="doccomment">/// Return the symbol table entry or auxiliary record at the given index and offset.
-    </span><span class="kw">pub fn </span>get&lt;T: Pod&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize, offset: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>T&gt; {
+    </span><span class="kw">pub fn </span>get&lt;T: Pod&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex, offset: usize) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>T&gt; {
         <span class="kw">let </span>bytes = index
-            .checked_add(offset)
+            .<span class="number">0
+            </span>.checked_add(offset)
             .and_then(|x| <span class="self">self</span>.symbols.get(x))
             .read_error(<span class="string">"Invalid COFF symbol index"</span>)<span class="question-mark">?</span>;
         Bytes(bytes_of(bytes))
@@ -810,18 +845,18 @@
     Coff: CoffHeader,
 {
     symbols: <span class="kw-2">&amp;</span><span class="lifetime">'table </span>SymbolTable&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
-    index: usize,
+    index: SymbolIndex,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'table</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; Iterator
     <span class="kw">for </span>SymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'table</span>, R, Coff&gt;
 {
-    <span class="kw">type </span>Item = (usize, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff::ImageSymbol);
+    <span class="kw">type </span>Item = (SymbolIndex, <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff::ImageSymbol);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>index = <span class="self">self</span>.index;
         <span class="kw">let </span>symbol = <span class="self">self</span>.symbols.symbol(index).ok()<span class="question-mark">?</span>;
-        <span class="self">self</span>.index += <span class="number">1 </span>+ symbol.number_of_aux_symbols() <span class="kw">as </span>usize;
+        <span class="self">self</span>.index.<span class="number">0 </span>+= <span class="number">1 </span>+ symbol.number_of_aux_symbols() <span class="kw">as </span>usize;
         <span class="prelude-val">Some</span>((index, symbol))
     }
 }
@@ -853,14 +888,11 @@
     <span class="kw">type </span>SymbolIterator = CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;;
 
     <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span>::SymbolIterator {
-        CoffSymbolIterator {
-            file: <span class="self">self</span>.file,
-            index: <span class="number">0</span>,
-        }
+        CoffSymbolIterator::new(<span class="self">self</span>.file)
     }
 
     <span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::Symbol&gt; {
-        <span class="kw">let </span>symbol = <span class="self">self</span>.file.symbols.symbol(index.<span class="number">0</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>symbol = <span class="self">self</span>.file.symbols.symbol(index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(CoffSymbol {
             file: <span class="self">self</span>.file,
             index,
@@ -880,8 +912,28 @@
     </span>R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
     Coff: CoffHeader,
 {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffCommon&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) index: usize,
+    file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffCommon&lt;<span class="lifetime">'data</span>, R, Coff&gt;,
+    index: SymbolIndex,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt;
+<span class="kw">where
+    </span>R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
+    Coff: CoffHeader,
+{
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffCommon&lt;<span class="lifetime">'data</span>, R, Coff&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            file,
+            index: SymbolIndex(<span class="number">0</span>),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>empty(file: <span class="kw-2">&amp;</span><span class="lifetime">'file </span>CoffCommon&lt;<span class="lifetime">'data</span>, R, Coff&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            file,
+            index: SymbolIndex(file.symbols.len()),
+        }
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; fmt::Debug
@@ -900,10 +952,10 @@
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
         <span class="kw">let </span>index = <span class="self">self</span>.index;
         <span class="kw">let </span>symbol = <span class="self">self</span>.file.symbols.symbol(index).ok()<span class="question-mark">?</span>;
-        <span class="self">self</span>.index += <span class="number">1 </span>+ symbol.number_of_aux_symbols() <span class="kw">as </span>usize;
+        <span class="self">self</span>.index.<span class="number">0 </span>+= <span class="number">1 </span>+ symbol.number_of_aux_symbols() <span class="kw">as </span>usize;
         <span class="prelude-val">Some</span>(CoffSymbol {
             file: <span class="self">self</span>.file,
-            index: SymbolIndex(index),
+            index,
             symbol,
         })
     }
@@ -932,7 +984,13 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R: ReadRef&lt;<span class="lifetime">'data</span>&gt;, Coff: CoffHeader&gt; CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R, Coff&gt; {
     <span class="attr">#[inline]
     </span><span class="doccomment">/// Get the raw `ImageSymbol` struct.
+    </span><span class="attr">#[deprecated(note = <span class="string">"Use `coff_symbol` instead"</span>)]
     </span><span class="kw">pub fn </span>raw_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff::ImageSymbol {
+        <span class="self">self</span>.symbol
+    }
+
+    <span class="doccomment">/// Get the raw `ImageSymbol` struct.
+    </span><span class="kw">pub fn </span>coff_symbol(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Coff::ImageSymbol {
         <span class="self">self</span>.symbol
     }
 }
@@ -954,7 +1012,7 @@
         <span class="kw">if </span><span class="self">self</span>.symbol.has_aux_file_name() {
             <span class="self">self</span>.file
                 .symbols
-                .aux_file_name(<span class="self">self</span>.index.<span class="number">0</span>, <span class="self">self</span>.symbol.number_of_aux_symbols())
+                .aux_file_name(<span class="self">self</span>.index, <span class="self">self</span>.symbol.number_of_aux_symbols())
         } <span class="kw">else </span>{
             <span class="self">self</span>.symbol.name(<span class="self">self</span>.file.symbols.strings())
         }
@@ -968,21 +1026,9 @@
     }
 
     <span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        <span class="comment">// Only return an address for storage classes that we know use an address.
-        </span><span class="kw">match </span><span class="self">self</span>.symbol.storage_class() {
-            pe::IMAGE_SYM_CLASS_STATIC
-            | pe::IMAGE_SYM_CLASS_WEAK_EXTERNAL
-            | pe::IMAGE_SYM_CLASS_LABEL =&gt; {}
-            pe::IMAGE_SYM_CLASS_EXTERNAL =&gt; {
-                <span class="kw">if </span><span class="self">self</span>.symbol.section_number() == pe::IMAGE_SYM_UNDEFINED {
-                    <span class="comment">// Undefined or common data, neither of which have an address.
-                    </span><span class="kw">return </span><span class="number">0</span>;
-                }
-            }
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="number">0</span>,
-        }
         <span class="self">self</span>.symbol
             .address(<span class="self">self</span>.file.image_base, <span class="kw-2">&amp;</span><span class="self">self</span>.file.sections)
+            .unwrap_or(<span class="prelude-val">None</span>)
             .unwrap_or(<span class="number">0</span>)
     }
 
@@ -991,7 +1037,7 @@
             pe::IMAGE_SYM_CLASS_STATIC =&gt; {
                 <span class="comment">// Section symbols may duplicate the size from the section table.
                 </span><span class="kw">if </span><span class="self">self</span>.symbol.has_aux_section() {
-                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(aux) = <span class="self">self</span>.file.symbols.aux_section(<span class="self">self</span>.index.<span class="number">0</span>) {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(aux) = <span class="self">self</span>.file.symbols.aux_section(<span class="self">self</span>.index) {
                         u64::from(aux.length.get(LE))
                     } <span class="kw">else </span>{
                         <span class="number">0
@@ -1007,7 +1053,7 @@
                     </span>u64::from(<span class="self">self</span>.symbol.value())
                 } <span class="kw">else if </span><span class="self">self</span>.symbol.has_aux_function() {
                     <span class="comment">// Function symbols may have a size.
-                    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(aux) = <span class="self">self</span>.file.symbols.aux_function(<span class="self">self</span>.index.<span class="number">0</span>) {
+                    </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(aux) = <span class="self">self</span>.file.symbols.aux_function(<span class="self">self</span>.index) {
                         u64::from(aux.total_size.get(LE))
                     } <span class="kw">else </span>{
                         <span class="number">0
@@ -1121,7 +1167,7 @@
 
     <span class="kw">fn </span>flags(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; SymbolFlags&lt;SectionIndex, SymbolIndex&gt; {
         <span class="kw">if </span><span class="self">self</span>.symbol.has_aux_section() {
-            <span class="kw">if let </span><span class="prelude-val">Ok</span>(aux) = <span class="self">self</span>.file.symbols.aux_section(<span class="self">self</span>.index.<span class="number">0</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(aux) = <span class="self">self</span>.file.symbols.aux_section(<span class="self">self</span>.index) {
                 <span class="kw">let </span>number = <span class="kw">if </span>Coff::is_type_bigobj() {
                     u32::from(aux.number.get(LE)) | (u32::from(aux.high_number.get(LE)) &lt;&lt; <span class="number">16</span>)
                 } <span class="kw">else </span>{
@@ -1176,13 +1222,34 @@
 
     <span class="doccomment">/// Return the symbol address.
     ///
-    /// This takes into account the image base and the section address.
-    </span><span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>, image_base: u64, sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
-        <span class="kw">let </span>section_number = <span class="self">self</span>.section_number() <span class="kw">as </span>usize;
-        <span class="kw">let </span>section = sections.section(section_number)<span class="question-mark">?</span>;
+    /// This takes into account the image base and the section address,
+    /// and only returns an address for symbols that have an address.
+    </span><span class="kw">fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>, image_base: u64, sections: <span class="kw-2">&amp;</span>SectionTable&lt;<span class="lifetime">'_</span>&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;u64&gt;&gt; {
+        <span class="comment">// Only return an address for storage classes that we know use an address.
+        </span><span class="kw">match </span><span class="self">self</span>.storage_class() {
+            pe::IMAGE_SYM_CLASS_STATIC
+            | pe::IMAGE_SYM_CLASS_WEAK_EXTERNAL
+            | pe::IMAGE_SYM_CLASS_LABEL
+            | pe::IMAGE_SYM_CLASS_EXTERNAL =&gt; {}
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+        }
+        <span class="kw">let </span><span class="prelude-val">Some</span>(section_index) = <span class="self">self</span>.section() <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        };
+        <span class="kw">let </span>section = sections.section(section_index)<span class="question-mark">?</span>;
         <span class="kw">let </span>virtual_address = u64::from(section.virtual_address.get(LE));
         <span class="kw">let </span>value = u64::from(<span class="self">self</span>.value());
-        <span class="prelude-val">Ok</span>(image_base + virtual_address + value)
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(image_base + virtual_address + value))
+    }
+
+    <span class="doccomment">/// Return the section index for the symbol.
+    </span><span class="kw">fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;SectionIndex&gt; {
+        <span class="kw">let </span>section_number = <span class="self">self</span>.section_number();
+        <span class="kw">if </span>section_number &gt; <span class="number">0 </span>{
+            <span class="prelude-val">Some</span>(SectionIndex(section_number <span class="kw">as </span>usize))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
     <span class="doccomment">/// Return true if the symbol is a definition of a function or data object.

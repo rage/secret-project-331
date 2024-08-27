@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.69/src/backtrace/libunwind.rs`."><title>libunwind.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.73/src/backtrace/libunwind.rs`."><title>libunwind.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -267,6 +266,31 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Backtrace support using libunwind/gcc_s/etc APIs.
 //!
 //! This module contains the ability to unwind the stack using libunwind-style
@@ -284,8 +308,8 @@
 //!
 //! This is the default unwinding API for all non-Windows platforms currently.
 
-</span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::Bomb;
-<span class="kw">use </span>core::ffi::c_void;
+</span><span class="kw">use </span>core::ffi::c_void;
+<span class="kw">use </span>core::ptr::addr_of_mut;
 
 <span class="kw">pub enum </span>Frame {
     Raw(<span class="kw-2">*mut </span>uw::_Unwind_Context),
@@ -309,7 +333,18 @@
             Frame::Raw(ctx) =&gt; ctx,
             Frame::Cloned { ip, .. } =&gt; <span class="kw">return </span>ip,
         };
-        <span class="kw">unsafe </span>{ uw::_Unwind_GetIP(ctx) <span class="kw">as </span><span class="kw-2">*mut </span>c_void }
+        <span class="attr">#[allow(unused_mut)]
+        </span><span class="kw">let </span><span class="kw-2">mut </span>ip = <span class="kw">unsafe </span>{ uw::_Unwind_GetIP(ctx) <span class="kw">as </span><span class="kw-2">*mut </span>c_void };
+
+        <span class="comment">// To reduce TCB size in SGX enclaves, we do not want to implement
+        // symbol resolution functionality. Rather, we can print the offset of
+        // the address here, which could be later mapped to correct function.
+        </span><span class="attr">#[cfg(all(target_env = <span class="string">"sgx"</span>, target_vendor = <span class="string">"fortanix"</span>))]
+        </span>{
+            <span class="kw">let </span>image_base = <span class="kw">super</span>::sgx_image_base::get_image_base();
+            ip = usize::wrapping_sub(ip <span class="kw">as </span>usize, image_base <span class="kw">as _</span>) <span class="kw">as _</span>;
+        }
+        ip
     }
 
     <span class="kw">pub fn </span>sp(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>c_void {
@@ -357,15 +392,27 @@
     }
 }
 
+<span class="kw">struct </span>Bomb {
+    enabled: bool,
+}
+
+<span class="kw">impl </span>Drop <span class="kw">for </span>Bomb {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">if </span><span class="self">self</span>.enabled {
+            <span class="macro">panic!</span>(<span class="string">"cannot panic during the backtrace function"</span>);
+        }
+    }
+}
+
 <span class="attr">#[inline(always)]
 </span><span class="kw">pub unsafe fn </span>trace(<span class="kw-2">mut </span>cb: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span><span class="kw">super</span>::Frame) -&gt; bool) {
-    uw::_Unwind_Backtrace(trace_fn, <span class="kw-2">&amp;mut </span>cb <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
+    uw::_Unwind_Backtrace(trace_fn, <span class="macro">addr_of_mut!</span>(cb).cast());
 
     <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn </span>trace_fn(
         ctx: <span class="kw-2">*mut </span>uw::_Unwind_Context,
         arg: <span class="kw-2">*mut </span>c_void,
     ) -&gt; uw::_Unwind_Reason_Code {
-        <span class="kw">let </span>cb = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>(arg <span class="kw">as </span><span class="kw-2">*mut &amp;mut </span><span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span><span class="kw">super</span>::Frame) -&gt; bool) };
+        <span class="kw">let </span>cb = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>arg.cast::&lt;<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut(<span class="kw-2">&amp;</span><span class="kw">super</span>::Frame) -&gt; bool&gt;() };
         <span class="kw">let </span>cx = <span class="kw">super</span>::Frame {
             inner: Frame::Raw(ctx),
         };
@@ -421,7 +468,7 @@
         ) -&gt; _Unwind_Reason_Code;
     }
 
-    <span class="macro">cfg_if::cfg_if! </span>{
+    <span class="macro">cfg_if::cfg_if!</span> {
         <span class="comment">// available since GCC 4.2.0, should be fine for our purpose
         </span><span class="kw">if </span><span class="attr">#[cfg(all(
             not(all(target_os = <span class="string">"android"</span>, target_arch = <span class="string">"arm"</span>)),
@@ -456,6 +503,8 @@
                 _Unwind_GetGR(ctx, <span class="number">15</span>)
             }
         } <span class="kw">else </span>{
+            <span class="kw">use </span>core::ptr::addr_of_mut;
+
             <span class="comment">// On android and arm, the function `_Unwind_GetIP` and a bunch of
             // others are macros, so we define functions containing the
             // expansion of the macros.
@@ -500,13 +549,13 @@
 
             <span class="kw">pub unsafe fn </span>_Unwind_GetIP(ctx: <span class="kw-2">*mut </span>_Unwind_Context) -&gt; libc::uintptr_t {
                 <span class="kw">let </span><span class="kw-2">mut </span>val: _Unwind_Word = <span class="number">0</span>;
-                <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut </span>val <span class="kw">as </span><span class="kw-2">*mut </span>_Unwind_Word;
+                <span class="kw">let </span>ptr = <span class="macro">addr_of_mut!</span>(val);
                 <span class="kw">let _ </span>= _Unwind_VRS_Get(
                     ctx,
                     _Unwind_VRS_RegClass::_UVRSC_CORE,
                     <span class="number">15</span>,
                     _Unwind_VRS_DataRepresentation::_UVRSD_UINT32,
-                    ptr <span class="kw">as </span><span class="kw-2">*mut </span>c_void,
+                    ptr.cast::&lt;c_void&gt;(),
                 );
                 (val &amp; !<span class="number">1</span>) <span class="kw">as </span>libc::uintptr_t
             }
@@ -516,13 +565,13 @@
 
             <span class="kw">pub unsafe fn </span>get_sp(ctx: <span class="kw-2">*mut </span>_Unwind_Context) -&gt; libc::uintptr_t {
                 <span class="kw">let </span><span class="kw-2">mut </span>val: _Unwind_Word = <span class="number">0</span>;
-                <span class="kw">let </span>ptr = <span class="kw-2">&amp;mut </span>val <span class="kw">as </span><span class="kw-2">*mut </span>_Unwind_Word;
+                <span class="kw">let </span>ptr = <span class="macro">addr_of_mut!</span>(val);
                 <span class="kw">let _ </span>= _Unwind_VRS_Get(
                     ctx,
                     _Unwind_VRS_RegClass::_UVRSC_CORE,
                     SP,
                     _Unwind_VRS_DataRepresentation::_UVRSD_UINT32,
-                    ptr <span class="kw">as </span><span class="kw-2">*mut </span>c_void,
+                    ptr.cast::&lt;c_void&gt;(),
                 );
                 val <span class="kw">as </span>libc::uintptr_t
             }

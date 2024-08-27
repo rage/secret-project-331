@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-properties-0.1.1/src/tables.rs`."><title>tables.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unicode_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/unicode-properties-0.1.2/src/tables.rs`."><title>tables.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="unicode_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3184,9 +3183,6 @@
 <a href="#3183" id="3183">3183</a>
 <a href="#3184" id="3184">3184</a>
 <a href="#3185" id="3185">3185</a>
-<a href="#3186" id="3186">3186</a>
-<a href="#3187" id="3187">3187</a>
-<a href="#3188" id="3188">3188</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2012-2015 The Rust Project Developers. See the COPYRIGHT
 // file at the top-level directory of this distribution and at
 // http://rust-lang.org/COPYRIGHT.
@@ -3203,7 +3199,7 @@
 
 </span><span class="doccomment">/// The version of [Unicode](http://www.unicode.org/)
 /// that this version of unicode-security is based on.
-</span><span class="kw">pub const </span>UNICODE_VERSION: (u64, u64, u64) = (<span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>);
+</span><span class="kw">pub const </span>UNICODE_VERSION: (u64, u64, u64) = (<span class="number">15</span>, <span class="number">1</span>, <span class="number">0</span>);
 
 
 <span class="attr">#[allow(dead_code)]
@@ -3316,9 +3312,7 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>general_category_of_char(c: char) -&gt; GeneralCategory {
-        <span class="kw">match </span>c <span class="kw">as </span>usize {
-            <span class="kw">_ </span>=&gt; <span class="kw">super</span>::util::bsearch_range_value_table(c, GENERAL_CATEGORY).unwrap_or(GeneralCategory::Unassigned)
-        }
+        <span class="kw">super</span>::util::bsearch_range_value_table(c, GENERAL_CATEGORY).unwrap_or(GeneralCategory::Unassigned)
     }
 
     <span class="attr">#[inline]
@@ -3362,7 +3356,7 @@
         }
     }
     <span class="comment">// General category table:
-    </span><span class="kw">const </span>GENERAL_CATEGORY: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(char, char, GeneralCategory)] = <span class="kw-2">&amp;</span>[
+    </span><span class="kw">const </span>GENERAL_CATEGORY: <span class="kw-2">&amp;</span>[(char, char, GeneralCategory)] = <span class="kw-2">&amp;</span>[
         (<span class="string">'\u{0}'</span>, <span class="string">'\u{1f}'</span>, GeneralCategory::Control), (<span class="string">'\u{20}'</span>, <span class="string">'\u{20}'</span>,
         GeneralCategory::SpaceSeparator), (<span class="string">'\u{21}'</span>, <span class="string">'\u{23}'</span>, GeneralCategory::OtherPunctuation),
         (<span class="string">'\u{24}'</span>, <span class="string">'\u{24}'</span>, GeneralCategory::CurrencySymbol), (<span class="string">'\u{25}'</span>, <span class="string">'\u{27}'</span>,
@@ -4861,7 +4855,7 @@
         GeneralCategory::ClosePunctuation), (<span class="string">'\u{2e5d}'</span>, <span class="string">'\u{2e5d}'</span>,
         GeneralCategory::DashPunctuation), (<span class="string">'\u{2e80}'</span>, <span class="string">'\u{2e99}'</span>, GeneralCategory::OtherSymbol),
         (<span class="string">'\u{2e9b}'</span>, <span class="string">'\u{2ef3}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{2f00}'</span>, <span class="string">'\u{2fd5}'</span>,
-        GeneralCategory::OtherSymbol), (<span class="string">'\u{2ff0}'</span>, <span class="string">'\u{2ffb}'</span>, GeneralCategory::OtherSymbol),
+        GeneralCategory::OtherSymbol), (<span class="string">'\u{2ff0}'</span>, <span class="string">'\u{2fff}'</span>, GeneralCategory::OtherSymbol),
         (<span class="string">'\u{3000}'</span>, <span class="string">'\u{3000}'</span>, GeneralCategory::SpaceSeparator), (<span class="string">'\u{3001}'</span>, <span class="string">'\u{3003}'</span>,
         GeneralCategory::OtherPunctuation), (<span class="string">'\u{3004}'</span>, <span class="string">'\u{3004}'</span>, GeneralCategory::OtherSymbol),
         (<span class="string">'\u{3005}'</span>, <span class="string">'\u{3005}'</span>, GeneralCategory::ModifierLetter), (<span class="string">'\u{3006}'</span>, <span class="string">'\u{3006}'</span>,
@@ -4905,27 +4899,27 @@
         GeneralCategory::OtherLetter), (<span class="string">'\u{3190}'</span>, <span class="string">'\u{3191}'</span>, GeneralCategory::OtherSymbol),
         (<span class="string">'\u{3192}'</span>, <span class="string">'\u{3195}'</span>, GeneralCategory::OtherNumber), (<span class="string">'\u{3196}'</span>, <span class="string">'\u{319f}'</span>,
         GeneralCategory::OtherSymbol), (<span class="string">'\u{31a0}'</span>, <span class="string">'\u{31bf}'</span>, GeneralCategory::OtherLetter),
-        (<span class="string">'\u{31c0}'</span>, <span class="string">'\u{31e3}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{31f0}'</span>, <span class="string">'\u{31ff}'</span>,
-        GeneralCategory::OtherLetter), (<span class="string">'\u{3200}'</span>, <span class="string">'\u{321e}'</span>, GeneralCategory::OtherSymbol),
-        (<span class="string">'\u{3220}'</span>, <span class="string">'\u{3229}'</span>, GeneralCategory::OtherNumber), (<span class="string">'\u{322a}'</span>, <span class="string">'\u{3247}'</span>,
-        GeneralCategory::OtherSymbol), (<span class="string">'\u{3248}'</span>, <span class="string">'\u{324f}'</span>, GeneralCategory::OtherNumber),
-        (<span class="string">'\u{3250}'</span>, <span class="string">'\u{3250}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{3251}'</span>, <span class="string">'\u{325f}'</span>,
-        GeneralCategory::OtherNumber), (<span class="string">'\u{3260}'</span>, <span class="string">'\u{327f}'</span>, GeneralCategory::OtherSymbol),
-        (<span class="string">'\u{3280}'</span>, <span class="string">'\u{3289}'</span>, GeneralCategory::OtherNumber), (<span class="string">'\u{328a}'</span>, <span class="string">'\u{32b0}'</span>,
-        GeneralCategory::OtherSymbol), (<span class="string">'\u{32b1}'</span>, <span class="string">'\u{32bf}'</span>, GeneralCategory::OtherNumber),
-        (<span class="string">'\u{32c0}'</span>, <span class="string">'\u{33ff}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{3400}'</span>, <span class="string">'\u{4dbf}'</span>,
-        GeneralCategory::OtherLetter), (<span class="string">'\u{4dc0}'</span>, <span class="string">'\u{4dff}'</span>, GeneralCategory::OtherSymbol),
-        (<span class="string">'\u{4e00}'</span>, <span class="string">'\u{a014}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{a015}'</span>, <span class="string">'\u{a015}'</span>,
-        GeneralCategory::ModifierLetter), (<span class="string">'\u{a016}'</span>, <span class="string">'\u{a48c}'</span>, GeneralCategory::OtherLetter),
-        (<span class="string">'\u{a490}'</span>, <span class="string">'\u{a4c6}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{a4d0}'</span>, <span class="string">'\u{a4f7}'</span>,
-        GeneralCategory::OtherLetter), (<span class="string">'\u{a4f8}'</span>, <span class="string">'\u{a4fd}'</span>, GeneralCategory::ModifierLetter),
-        (<span class="string">'\u{a4fe}'</span>, <span class="string">'\u{a4ff}'</span>, GeneralCategory::OtherPunctuation), (<span class="string">'\u{a500}'</span>, <span class="string">'\u{a60b}'</span>,
-        GeneralCategory::OtherLetter), (<span class="string">'\u{a60c}'</span>, <span class="string">'\u{a60c}'</span>, GeneralCategory::ModifierLetter),
-        (<span class="string">'\u{a60d}'</span>, <span class="string">'\u{a60f}'</span>, GeneralCategory::OtherPunctuation), (<span class="string">'\u{a610}'</span>, <span class="string">'\u{a61f}'</span>,
-        GeneralCategory::OtherLetter), (<span class="string">'\u{a620}'</span>, <span class="string">'\u{a629}'</span>, GeneralCategory::DecimalNumber),
-        (<span class="string">'\u{a62a}'</span>, <span class="string">'\u{a62b}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{a640}'</span>, <span class="string">'\u{a640}'</span>,
-        GeneralCategory::UppercaseLetter), (<span class="string">'\u{a641}'</span>, <span class="string">'\u{a641}'</span>,
-        GeneralCategory::LowercaseLetter), (<span class="string">'\u{a642}'</span>, <span class="string">'\u{a642}'</span>,
+        (<span class="string">'\u{31c0}'</span>, <span class="string">'\u{31e3}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{31ef}'</span>, <span class="string">'\u{31ef}'</span>,
+        GeneralCategory::OtherSymbol), (<span class="string">'\u{31f0}'</span>, <span class="string">'\u{31ff}'</span>, GeneralCategory::OtherLetter),
+        (<span class="string">'\u{3200}'</span>, <span class="string">'\u{321e}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{3220}'</span>, <span class="string">'\u{3229}'</span>,
+        GeneralCategory::OtherNumber), (<span class="string">'\u{322a}'</span>, <span class="string">'\u{3247}'</span>, GeneralCategory::OtherSymbol),
+        (<span class="string">'\u{3248}'</span>, <span class="string">'\u{324f}'</span>, GeneralCategory::OtherNumber), (<span class="string">'\u{3250}'</span>, <span class="string">'\u{3250}'</span>,
+        GeneralCategory::OtherSymbol), (<span class="string">'\u{3251}'</span>, <span class="string">'\u{325f}'</span>, GeneralCategory::OtherNumber),
+        (<span class="string">'\u{3260}'</span>, <span class="string">'\u{327f}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{3280}'</span>, <span class="string">'\u{3289}'</span>,
+        GeneralCategory::OtherNumber), (<span class="string">'\u{328a}'</span>, <span class="string">'\u{32b0}'</span>, GeneralCategory::OtherSymbol),
+        (<span class="string">'\u{32b1}'</span>, <span class="string">'\u{32bf}'</span>, GeneralCategory::OtherNumber), (<span class="string">'\u{32c0}'</span>, <span class="string">'\u{33ff}'</span>,
+        GeneralCategory::OtherSymbol), (<span class="string">'\u{3400}'</span>, <span class="string">'\u{4dbf}'</span>, GeneralCategory::OtherLetter),
+        (<span class="string">'\u{4dc0}'</span>, <span class="string">'\u{4dff}'</span>, GeneralCategory::OtherSymbol), (<span class="string">'\u{4e00}'</span>, <span class="string">'\u{a014}'</span>,
+        GeneralCategory::OtherLetter), (<span class="string">'\u{a015}'</span>, <span class="string">'\u{a015}'</span>, GeneralCategory::ModifierLetter),
+        (<span class="string">'\u{a016}'</span>, <span class="string">'\u{a48c}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{a490}'</span>, <span class="string">'\u{a4c6}'</span>,
+        GeneralCategory::OtherSymbol), (<span class="string">'\u{a4d0}'</span>, <span class="string">'\u{a4f7}'</span>, GeneralCategory::OtherLetter),
+        (<span class="string">'\u{a4f8}'</span>, <span class="string">'\u{a4fd}'</span>, GeneralCategory::ModifierLetter), (<span class="string">'\u{a4fe}'</span>, <span class="string">'\u{a4ff}'</span>,
+        GeneralCategory::OtherPunctuation), (<span class="string">'\u{a500}'</span>, <span class="string">'\u{a60b}'</span>, GeneralCategory::OtherLetter),
+        (<span class="string">'\u{a60c}'</span>, <span class="string">'\u{a60c}'</span>, GeneralCategory::ModifierLetter), (<span class="string">'\u{a60d}'</span>, <span class="string">'\u{a60f}'</span>,
+        GeneralCategory::OtherPunctuation), (<span class="string">'\u{a610}'</span>, <span class="string">'\u{a61f}'</span>, GeneralCategory::OtherLetter),
+        (<span class="string">'\u{a620}'</span>, <span class="string">'\u{a629}'</span>, GeneralCategory::DecimalNumber), (<span class="string">'\u{a62a}'</span>, <span class="string">'\u{a62b}'</span>,
+        GeneralCategory::OtherLetter), (<span class="string">'\u{a640}'</span>, <span class="string">'\u{a640}'</span>, GeneralCategory::UppercaseLetter),
+        (<span class="string">'\u{a641}'</span>, <span class="string">'\u{a641}'</span>, GeneralCategory::LowercaseLetter), (<span class="string">'\u{a642}'</span>, <span class="string">'\u{a642}'</span>,
         GeneralCategory::UppercaseLetter), (<span class="string">'\u{a643}'</span>, <span class="string">'\u{a643}'</span>,
         GeneralCategory::LowercaseLetter), (<span class="string">'\u{a644}'</span>, <span class="string">'\u{a644}'</span>,
         GeneralCategory::UppercaseLetter), (<span class="string">'\u{a645}'</span>, <span class="string">'\u{a645}'</span>,
@@ -5892,12 +5886,13 @@
         GeneralCategory::DecimalNumber), (<span class="string">'\u{20000}'</span>, <span class="string">'\u{2a6df}'</span>, GeneralCategory::OtherLetter),
         (<span class="string">'\u{2a700}'</span>, <span class="string">'\u{2b739}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{2b740}'</span>, <span class="string">'\u{2b81d}'</span>,
         GeneralCategory::OtherLetter), (<span class="string">'\u{2b820}'</span>, <span class="string">'\u{2cea1}'</span>, GeneralCategory::OtherLetter),
-        (<span class="string">'\u{2ceb0}'</span>, <span class="string">'\u{2ebe0}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{2f800}'</span>, <span class="string">'\u{2fa1d}'</span>,
-        GeneralCategory::OtherLetter), (<span class="string">'\u{30000}'</span>, <span class="string">'\u{3134a}'</span>, GeneralCategory::OtherLetter),
-        (<span class="string">'\u{31350}'</span>, <span class="string">'\u{323af}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{e0001}'</span>, <span class="string">'\u{e0001}'</span>,
-        GeneralCategory::Format), (<span class="string">'\u{e0020}'</span>, <span class="string">'\u{e007f}'</span>, GeneralCategory::Format), (<span class="string">'\u{e0100}'</span>,
-        <span class="string">'\u{e01ef}'</span>, GeneralCategory::NonspacingMark), (<span class="string">'\u{f0000}'</span>, <span class="string">'\u{ffffd}'</span>,
-        GeneralCategory::PrivateUse), (<span class="string">'\u{100000}'</span>, <span class="string">'\u{10fffd}'</span>, GeneralCategory::PrivateUse)
+        (<span class="string">'\u{2ceb0}'</span>, <span class="string">'\u{2ebe0}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{2ebf0}'</span>, <span class="string">'\u{2ee5d}'</span>,
+        GeneralCategory::OtherLetter), (<span class="string">'\u{2f800}'</span>, <span class="string">'\u{2fa1d}'</span>, GeneralCategory::OtherLetter),
+        (<span class="string">'\u{30000}'</span>, <span class="string">'\u{3134a}'</span>, GeneralCategory::OtherLetter), (<span class="string">'\u{31350}'</span>, <span class="string">'\u{323af}'</span>,
+        GeneralCategory::OtherLetter), (<span class="string">'\u{e0001}'</span>, <span class="string">'\u{e0001}'</span>, GeneralCategory::Format),
+        (<span class="string">'\u{e0020}'</span>, <span class="string">'\u{e007f}'</span>, GeneralCategory::Format), (<span class="string">'\u{e0100}'</span>, <span class="string">'\u{e01ef}'</span>,
+        GeneralCategory::NonspacingMark), (<span class="string">'\u{f0000}'</span>, <span class="string">'\u{ffffd}'</span>, GeneralCategory::PrivateUse),
+        (<span class="string">'\u{100000}'</span>, <span class="string">'\u{10fffd}'</span>, GeneralCategory::PrivateUse)
     ];
 
 }
@@ -5931,9 +5926,7 @@
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>emoji_status(c: char) -&gt; EmojiStatus {
         <span class="comment">// FIXME: do we want to special case ASCII here?
-        </span><span class="kw">match </span>c <span class="kw">as </span>usize {
-            <span class="kw">_ </span>=&gt; <span class="kw">super</span>::util::bsearch_range_value_table(c, EMOJI_STATUS).unwrap()
-        }
+        </span><span class="kw">super</span>::util::bsearch_range_value_table(c, EMOJI_STATUS).unwrap()
     }
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_emoji_status_for_emoji_char_or_emoji_component(s: EmojiStatus) -&gt; bool {
@@ -5950,7 +5943,7 @@
             EmojiStatus::EmojiOtherAndEmojiComponent)
     }
     <span class="comment">// Emoji status table:
-    </span><span class="kw">const </span>EMOJI_STATUS: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[(char, char, EmojiStatus)] = <span class="kw-2">&amp;</span>[
+    </span><span class="kw">const </span>EMOJI_STATUS: <span class="kw-2">&amp;</span>[(char, char, EmojiStatus)] = <span class="kw-2">&amp;</span>[
         (<span class="string">'\u{0}'</span>, <span class="string">'\u{22}'</span>, EmojiStatus::NonEmoji), (<span class="string">'\u{23}'</span>, <span class="string">'\u{23}'</span>,
         EmojiStatus::EmojiOtherAndEmojiComponent), (<span class="string">'\u{24}'</span>, <span class="string">'\u{29}'</span>, EmojiStatus::NonEmoji),
         (<span class="string">'\u{2a}'</span>, <span class="string">'\u{2a}'</span>, EmojiStatus::EmojiOtherAndEmojiComponent), (<span class="string">'\u{2b}'</span>, <span class="string">'\u{2f}'</span>,

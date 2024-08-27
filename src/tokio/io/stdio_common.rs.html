@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.36.0/src/io/stdio_common.rs`."><title>stdio_common.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tokio-1.39.3/src/io/stdio_common.rs`."><title>stdio_common.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="tokio" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -220,13 +219,14 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Contains utilities for stdout and stderr.
 </span><span class="kw">use </span><span class="kw">crate</span>::io::AsyncWrite;
 <span class="kw">use </span>std::pin::Pin;
 <span class="kw">use </span>std::task::{Context, Poll};
 <span class="doccomment">/// # Windows
 /// [`AsyncWrite`] adapter that finds last char boundary in given buffer and does not write the rest,
-/// if buffer contents seems to be `utf8`. Otherwise it only trims buffer down to `MAX_BUF`.
+/// if buffer contents seems to be `utf8`. Otherwise it only trims buffer down to `DEFAULT_MAX_BUF_SIZE`.
 /// That's why, wrapped writer will always receive well-formed utf-8 bytes.
 /// # Other platforms
 /// Passes data to `inner` as is.
@@ -267,12 +267,13 @@
         // 2. If buffer is small, it will not be shrunk.
         // That's why, it's "textness" will not change, so we don't have
         // to fixup it.
-        </span><span class="kw">if </span><span class="macro">cfg!</span>(not(any(target_os = <span class="string">"windows"</span>, test))) || buf.len() &lt;= <span class="kw">crate</span>::io::blocking::MAX_BUF
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(not(any(target_os = <span class="string">"windows"</span>, test)))
+            || buf.len() &lt;= <span class="kw">crate</span>::io::blocking::DEFAULT_MAX_BUF_SIZE
         {
             <span class="kw">return </span>call_inner(buf);
         }
 
-        buf = <span class="kw-2">&amp;</span>buf[..<span class="kw">crate</span>::io::blocking::MAX_BUF];
+        buf = <span class="kw-2">&amp;</span>buf[..<span class="kw">crate</span>::io::blocking::DEFAULT_MAX_BUF_SIZE];
 
         <span class="comment">// Now there are two possibilities.
         // If caller gave is binary buffer, we **should not** shrink it
@@ -330,7 +331,7 @@
 <span class="attr">#[cfg(test)]
 #[cfg(not(loom))]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use </span><span class="kw">crate</span>::io::blocking::MAX_BUF;
+    <span class="kw">use </span><span class="kw">crate</span>::io::blocking::DEFAULT_MAX_BUF_SIZE;
     <span class="kw">use </span><span class="kw">crate</span>::io::AsyncWriteExt;
     <span class="kw">use </span>std::io;
     <span class="kw">use </span>std::pin::Pin;
@@ -345,7 +346,7 @@
             _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
             buf: <span class="kw-2">&amp;</span>[u8],
         ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
-            <span class="macro">assert!</span>(buf.len() &lt;= MAX_BUF);
+            <span class="macro">assert!</span>(buf.len() &lt;= DEFAULT_MAX_BUF_SIZE);
             <span class="macro">assert!</span>(std::str::from_utf8(buf).is_ok());
             Poll::Ready(<span class="prelude-val">Ok</span>(buf.len()))
         }
@@ -380,7 +381,7 @@
             _cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'_</span>&gt;,
             buf: <span class="kw-2">&amp;</span>[u8],
         ) -&gt; Poll&lt;<span class="prelude-ty">Result</span>&lt;usize, io::Error&gt;&gt; {
-            <span class="macro">assert!</span>(buf.len() &lt;= MAX_BUF);
+            <span class="macro">assert!</span>(buf.len() &lt;= DEFAULT_MAX_BUF_SIZE);
             <span class="self">self</span>.write_history.push(buf.len());
             Poll::Ready(<span class="prelude-val">Ok</span>(buf.len()))
         }
@@ -400,7 +401,7 @@
     <span class="attr">#[test]
     #[cfg_attr(miri, ignore)]
     </span><span class="kw">fn </span>test_splitter() {
-        <span class="kw">let </span>data = str::repeat(<span class="string">"█"</span>, MAX_BUF);
+        <span class="kw">let </span>data = str::repeat(<span class="string">"█"</span>, DEFAULT_MAX_BUF_SIZE);
         <span class="kw">let </span><span class="kw-2">mut </span>wr = <span class="kw">super</span>::SplitByUtf8BoundaryIfWindows::new(TextMockWriter);
         <span class="kw">let </span>fut = <span class="kw">async move </span>{
             wr.write_all(data.as_bytes()).<span class="kw">await</span>.unwrap();
@@ -419,7 +420,7 @@
         // was not shrunk too much.
         </span><span class="kw">let </span>checked_count = <span class="kw">super</span>::MAGIC_CONST * <span class="kw">super</span>::MAX_BYTES_PER_CHAR;
         <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;u8&gt; = str::repeat(<span class="string">"a"</span>, checked_count).into();
-        data.extend(std::iter::repeat(<span class="number">0b1010_1010</span>).take(MAX_BUF - checked_count + <span class="number">1</span>));
+        data.extend(std::iter::repeat(<span class="number">0b1010_1010</span>).take(DEFAULT_MAX_BUF_SIZE - checked_count + <span class="number">1</span>));
         <span class="kw">let </span><span class="kw-2">mut </span>writer = LoggingMockWriter::new();
         <span class="kw">let </span><span class="kw-2">mut </span>splitter = <span class="kw">super</span>::SplitByUtf8BoundaryIfWindows::new(<span class="kw-2">&amp;mut </span>writer);
         <span class="kw">crate</span>::runtime::Builder::new_current_thread()
@@ -436,7 +437,7 @@
             data.len()
         );
         <span class="comment">// Check that at most MAX_BYTES_PER_CHAR + 1 (i.e. 5) bytes were shrunk
-        // from the buffer: one because it was outside of MAX_BUF boundary, and
+        // from the buffer: one because it was outside of DEFAULT_MAX_BUF_SIZE boundary, and
         // up to one "utf8 code point".
         </span><span class="macro">assert!</span>(data.len() - writer.write_history[<span class="number">0</span>] &lt;= <span class="kw">super</span>::MAX_BYTES_PER_CHAR + <span class="number">1</span>);
     }

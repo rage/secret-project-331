@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/litemap-0.7.2/src/map.rs`."><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="litemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/litemap-0.7.3/src/map.rs`."><title>map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="litemap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1247,6 +1246,32 @@
 <a href="#1246" id="1246">1246</a>
 <a href="#1247" id="1247">1247</a>
 <a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a>
+<a href="#1254" id="1254">1254</a>
+<a href="#1255" id="1255">1255</a>
+<a href="#1256" id="1256">1256</a>
+<a href="#1257" id="1257">1257</a>
+<a href="#1258" id="1258">1258</a>
+<a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
+<a href="#1272" id="1272">1272</a>
+<a href="#1273" id="1273">1273</a>
+<a href="#1274" id="1274">1274</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1505,10 +1530,10 @@
     /// assert_eq!(map.get(&amp;1), Some(&amp;"one"));
     /// assert_eq!(map.get(&amp;3), None);
     /// ```
-    </span><span class="kw">pub fn </span>get&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt;
+    </span><span class="kw">pub fn </span>get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Ord,
+        Q: Ord + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">match </span><span class="self">self</span>.find_index(key) {
             <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// find_index returns a valid index
@@ -1534,10 +1559,10 @@
     /// assert!(map.contains_key(&amp;1));
     /// assert!(!map.contains_key(&amp;3));
     /// ```
-    </span><span class="kw">pub fn </span>contains_key&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; bool
+    </span><span class="kw">pub fn </span>contains_key&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; bool
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Ord,
+        Q: Ord + <span class="question-mark">?</span>Sized,
     {
         <span class="self">self</span>.find_index(key).is_ok()
     }
@@ -1550,10 +1575,10 @@
     /// The indices returned can be used with [`Self::get_indexed()`]. Prefer using
     /// [`Self::get()`] directly where possible.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>find_index&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt;
+    </span><span class="kw">pub fn </span>find_index&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Result</span>&lt;usize, usize&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Ord,
+        Q: Ord + <span class="question-mark">?</span>Sized,
     {
         <span class="self">self</span>.values.lm_binary_search_by(|k| k.borrow().cmp(key))
     }
@@ -1797,10 +1822,10 @@
     /// }
     /// assert_eq!(map.get(&amp;1), Some(&amp;"uno"));
     /// ```
-    </span><span class="kw">pub fn </span>get_mut&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>V&gt;
+    </span><span class="kw">pub fn </span>get_mut&lt;Q&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>V&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Ord,
+        Q: Ord + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">match </span><span class="self">self</span>.find_index(key) {
             <span class="attr">#[allow(clippy::unwrap_used)] </span><span class="comment">// find_index returns a valid index
@@ -1981,10 +2006,10 @@
     /// assert_eq!(map.remove(&amp;1), Some("one"));
     /// assert_eq!(map.get(&amp;1), None);
     /// ```
-    </span><span class="kw">pub fn </span>remove&lt;Q: <span class="question-mark">?</span>Sized&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
+    </span><span class="kw">pub fn </span>remove&lt;Q&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
-        Q: Ord,
+        Q: Ord + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">match </span><span class="self">self</span>.values.lm_binary_search_by(|k| k.borrow().cmp(key)) {
             <span class="prelude-val">Ok</span>(found) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.values.lm_remove(found).<span class="number">1</span>),
@@ -1996,7 +2021,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: <span class="lifetime">'a</span>, V: <span class="lifetime">'a</span>, S&gt; LiteMap&lt;K, V, S&gt;
 <span class="kw">where
     </span>K: Ord,
-    S: StoreIterableMut&lt;<span class="lifetime">'a</span>, K, V&gt; + StoreFromIterator&lt;K, V&gt;,
+    S: StoreIntoIterator&lt;K, V&gt; + StoreFromIterator&lt;K, V&gt;,
 {
     <span class="doccomment">/// Insert all elements from `other` into this `LiteMap`.
     ///
@@ -2144,6 +2169,18 @@
     <span class="doccomment">/// Produce an ordered mutable iterator over key-value pairs
     </span><span class="kw">pub fn </span>iter_mut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>DoubleEndedIterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>V)&gt; {
         <span class="self">self</span>.values.lm_iter_mut()
+    }
+}
+
+<span class="kw">impl</span>&lt;K, V, S&gt; IntoIterator <span class="kw">for </span>LiteMap&lt;K, V, S&gt;
+<span class="kw">where
+    </span>S: StoreIntoIterator&lt;K, V&gt;,
+{
+    <span class="kw">type </span>Item = (K, V);
+    <span class="kw">type </span>IntoIter = S::KeyValueIntoIter;
+
+    <span class="kw">fn </span>into_iter(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoIter {
+        <span class="self">self</span>.values.lm_into_iter()
     }
 }
 
@@ -2356,7 +2393,7 @@
     </span>}
 }
 
-<span class="macro">macro_rules! </span>impl_const_get_with_index_for_integer {
+<span class="macro">macro_rules!</span> impl_const_get_with_index_for_integer {
     (<span class="macro-nonterminal">$integer</span>:ty) =&gt; {
         <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, V&gt; LiteMap&lt;<span class="macro-nonterminal">$integer</span>, V, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>[(<span class="macro-nonterminal">$integer</span>, V)]&gt; {
             <span class="doccomment">/// Const function to get the value associated with an integer key, if it exists.
@@ -2493,6 +2530,20 @@
                 <span class="macro">assert_eq!</span>(a.cmp(b), const_cmp_bytes(a, b));
             }
         }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>into_iterator() {
+        <span class="kw">let </span><span class="kw-2">mut </span>map = LiteMap::&lt;<span class="kw">_</span>, <span class="kw">_</span>, Vec&lt;(<span class="kw">_</span>, <span class="kw">_</span>)&gt;&gt;::new();
+        map.insert(<span class="number">4</span>, <span class="string">"four"</span>);
+        map.insert(<span class="number">6</span>, <span class="string">"six"</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>reference = <span class="macro">vec!</span>[(<span class="number">6</span>, <span class="string">"six"</span>), (<span class="number">4</span>, <span class="string">"four"</span>)];
+
+        <span class="kw">for </span>i <span class="kw">in </span>map {
+            <span class="kw">let </span>r = reference.pop().unwrap();
+            <span class="macro">assert_eq!</span>(r, i);
+        }
+        <span class="macro">assert!</span>(reference.is_empty());
     }
 }
 </code></pre></div></section></main></body></html>

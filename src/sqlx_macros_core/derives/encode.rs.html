@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.7.3/src/derives/encode.rs`."><title>encode.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-macros-core-0.8.1/src/derives/encode.rs`."><title>encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_macros_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -267,9 +266,6 @@
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
 <a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::attributes::{
     check_strong_enum_attributes, check_struct_attributes, check_transparent_attributes,
     check_weak_enum_attributes, parse_child_attributes, parse_container_attributes,
@@ -281,7 +277,7 @@
 <span class="kw">use </span>syn::token::Comma;
 <span class="kw">use </span>syn::{
     parse_quote, Data, DataEnum, DataStruct, DeriveInput, Expr, Field, Fields, FieldsNamed,
-    FieldsUnnamed, Lifetime, LifetimeDef, Stmt, Variant,
+    FieldsUnnamed, Lifetime, LifetimeParam, Stmt, TypeParamBound, Variant,
 };
 
 <span class="kw">pub fn </span>expand_derive_encode(input: <span class="kw-2">&amp;</span>DeriveInput) -&gt; syn::Result&lt;TokenStream&gt; {
@@ -292,7 +288,7 @@
             fields: Fields::Unnamed(FieldsUnnamed { unnamed, .. }),
             ..
         }) <span class="kw">if </span>unnamed.len() == <span class="number">1 </span>=&gt; {
-            expand_derive_encode_transparent(<span class="kw-2">&amp;</span>input, unnamed.first().unwrap())
+            expand_derive_encode_transparent(input, unnamed.first().unwrap())
         }
         Data::Enum(DataEnum { variants, .. }) =&gt; <span class="kw">match </span>args.repr {
             <span class="prelude-val">Some</span>(<span class="kw">_</span>) =&gt; expand_derive_encode_weak_enum(input, variants),
@@ -338,7 +334,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>generics = generics.clone();
     generics
         .params
-        .insert(<span class="number">0</span>, LifetimeDef::new(lifetime.clone()).into());
+        .insert(<span class="number">0</span>, LifetimeParam::new(lifetime.clone()).into());
 
     generics
         .params
@@ -356,8 +352,8 @@
         {
             <span class="kw">fn </span>encode_by_ref(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>::sqlx::database::HasArguments&lt;#lifetime&gt;&gt;::ArgumentBuffer,
-            ) -&gt; ::sqlx::encode::IsNull {
+                buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>::sqlx::database::Database&gt;::ArgumentBuffer&lt;#lifetime&gt;,
+            ) -&gt; ::std::result::Result&lt;::sqlx::encode::IsNull, ::sqlx::error::BoxDynError&gt; {
                 &lt;#ty <span class="kw">as </span>::sqlx::encode::Encode&lt;#lifetime, DB&gt;&gt;::encode_by_ref(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>, buf)
             }
 
@@ -376,7 +372,7 @@
     input: <span class="kw-2">&amp;</span>DeriveInput,
     variants: <span class="kw-2">&amp;</span>Punctuated&lt;Variant, Comma&gt;,
 ) -&gt; syn::Result&lt;TokenStream&gt; {
-    <span class="kw">let </span>attr = check_weak_enum_attributes(input, <span class="kw-2">&amp;</span>variants)<span class="question-mark">?</span>;
+    <span class="kw">let </span>attr = check_weak_enum_attributes(input, variants)<span class="question-mark">?</span>;
     <span class="kw">let </span>repr = attr.repr.unwrap();
     <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
 
@@ -395,8 +391,8 @@
         {
             <span class="kw">fn </span>encode_by_ref(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>::sqlx::database::HasArguments&lt;<span class="lifetime">'q</span>&gt;&gt;::ArgumentBuffer,
-            ) -&gt; ::sqlx::encode::IsNull {
+                buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>::sqlx::database::Database&gt;::ArgumentBuffer&lt;<span class="lifetime">'q</span>&gt;,
+            ) -&gt; ::std::result::Result&lt;::sqlx::encode::IsNull, ::sqlx::error::BoxDynError&gt; {
                 <span class="kw">let </span>value = <span class="kw">match </span><span class="self">self </span>{
                     #(#values)*
                 };
@@ -415,7 +411,7 @@
     input: <span class="kw-2">&amp;</span>DeriveInput,
     variants: <span class="kw-2">&amp;</span>Punctuated&lt;Variant, Comma&gt;,
 ) -&gt; syn::Result&lt;TokenStream&gt; {
-    <span class="kw">let </span>cattr = check_strong_enum_attributes(input, <span class="kw-2">&amp;</span>variants)<span class="question-mark">?</span>;
+    <span class="kw">let </span>cattr = check_strong_enum_attributes(input, variants)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
 
@@ -428,7 +424,7 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(rename) = attributes.rename {
             value_arms.push(<span class="macro">quote!</span>(#ident :: #id =&gt; #rename,));
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(pattern) = cattr.rename_all {
-            <span class="kw">let </span>name = rename_all(<span class="kw-2">&amp;*</span>id.to_string(), pattern);
+            <span class="kw">let </span>name = rename_all(<span class="kw-2">&amp;</span>id.to_string(), pattern);
 
             value_arms.push(<span class="macro">quote!</span>(#ident :: #id =&gt; #name,));
         } <span class="kw">else </span>{
@@ -445,8 +441,8 @@
         {
             <span class="kw">fn </span>encode_by_ref(
                 <span class="kw-2">&amp;</span><span class="self">self</span>,
-                buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>::sqlx::database::HasArguments&lt;<span class="lifetime">'q</span>&gt;&gt;::ArgumentBuffer,
-            ) -&gt; ::sqlx::encode::IsNull {
+                buf: <span class="kw-2">&amp;mut </span>&lt;DB <span class="kw">as </span>::sqlx::database::Database&gt;::ArgumentBuffer&lt;<span class="lifetime">'q</span>&gt;,
+            ) -&gt; ::std::result::Result&lt;::sqlx::encode::IsNull, ::sqlx::error::BoxDynError&gt; {
                 <span class="kw">let </span>val = <span class="kw">match </span><span class="self">self </span>{
                     #(#value_arms)*
                 };
@@ -469,7 +465,7 @@
     input: <span class="kw-2">&amp;</span>DeriveInput,
     fields: <span class="kw-2">&amp;</span>Punctuated&lt;Field, Comma&gt;,
 ) -&gt; syn::Result&lt;TokenStream&gt; {
-    check_struct_attributes(input, <span class="kw-2">&amp;</span>fields)<span class="question-mark">?</span>;
+    check_struct_attributes(input, fields)<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>tts = TokenStream::new();
 
@@ -477,30 +473,27 @@
         <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
         <span class="kw">let </span>column_count = fields.len();
 
-        <span class="comment">// extract type generics
-        </span><span class="kw">let </span>generics = <span class="kw-2">&amp;</span>input.generics;
-        <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, <span class="kw">_</span>) = generics.split_for_impl();
+        <span class="kw">let </span>(<span class="kw">_</span>, ty_generics, where_clause) = input.generics.split_for_impl();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>generics = input.generics.clone();
 
         <span class="comment">// add db type for impl generics &amp; where clause
-        </span><span class="kw">let </span><span class="kw-2">mut </span>generics = generics.clone();
-
-        <span class="kw">let </span>predicates = <span class="kw-2">&amp;mut </span>generics.make_where_clause().predicates;
-
-        <span class="kw">for </span>field <span class="kw">in </span>fields {
-            <span class="kw">let </span>ty = <span class="kw-2">&amp;</span>field.ty;
-
-            predicates
-                .push(<span class="macro">parse_quote!</span>(#ty: <span class="kw">for</span>&lt;<span class="lifetime">'q</span>&gt; ::sqlx::encode::Encode&lt;<span class="lifetime">'q</span>, ::sqlx::Postgres&gt;));
-            predicates.push(<span class="macro">parse_quote!</span>(#ty: ::sqlx::types::Type&lt;::sqlx::Postgres&gt;));
+        </span><span class="kw">for </span>type_param <span class="kw">in </span><span class="kw-2">&amp;mut </span>generics.type_params_mut() {
+            type_param.bounds.extend::&lt;[TypeParamBound; <span class="number">2</span>]&gt;([
+                <span class="macro">parse_quote!</span>(<span class="kw">for</span>&lt;<span class="lifetime">'encode</span>&gt; ::sqlx::encode::Encode&lt;<span class="lifetime">'encode</span>, ::sqlx::Postgres&gt;),
+                <span class="macro">parse_quote!</span>(::sqlx::types::Type&lt;::sqlx::Postgres&gt;),
+            ]);
         }
 
-        <span class="kw">let </span>(impl_generics, <span class="kw">_</span>, where_clause) = generics.split_for_impl();
+        generics.params.push(<span class="macro">parse_quote!</span>(<span class="lifetime">'q</span>));
+
+        <span class="kw">let </span>(impl_generics, <span class="kw">_</span>, <span class="kw">_</span>) = generics.split_for_impl();
 
         <span class="kw">let </span>writes = fields.iter().map(|field| -&gt; Stmt {
             <span class="kw">let </span>id = <span class="kw-2">&amp;</span>field.ident;
 
             <span class="macro">parse_quote!</span>(
-                encoder.encode(<span class="kw-2">&amp;</span><span class="self">self</span>. #id);
+                encoder.encode(<span class="kw-2">&amp;</span><span class="self">self</span>. #id)<span class="question-mark">?</span>;
             )
         });
 
@@ -521,14 +514,14 @@
                 <span class="kw">fn </span>encode_by_ref(
                     <span class="kw-2">&amp;</span><span class="self">self</span>,
                     buf: <span class="kw-2">&amp;mut </span>::sqlx::postgres::PgArgumentBuffer,
-                ) -&gt; ::sqlx::encode::IsNull {
+                ) -&gt; ::std::result::Result&lt;::sqlx::encode::IsNull, ::sqlx::error::BoxDynError&gt; {
                     <span class="kw">let </span><span class="kw-2">mut </span>encoder = ::sqlx::postgres::types::PgRecordEncoder::new(buf);
 
                     #(#writes)*
 
                     encoder.finish();
 
-                    ::sqlx::encode::IsNull::No
+                    ::std::result::Result::Ok(::sqlx::encode::IsNull::No)
                 }
 
                 <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ::std::primitive::usize {

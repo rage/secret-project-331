@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/types/ltree.rs`."><title>ltree.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/types/ltree.rs`."><title>ltree.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -206,6 +205,27 @@
 <a href="#205" id="205">205</a>
 <a href="#206" id="206">206</a>
 <a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::decode::Decode;
 <span class="kw">use </span><span class="kw">crate</span>::encode::{Encode, IsNull};
 <span class="kw">use </span><span class="kw">crate</span>::error::BoxDynError;
@@ -235,9 +255,9 @@
 <span class="kw">impl </span>PgLTreeLabel {
     <span class="kw">pub fn </span>new&lt;S&gt;(label: S) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PgLTreeParseError&gt;
     <span class="kw">where
-        </span>String: From&lt;S&gt;,
+        </span>S: Into&lt;String&gt;,
     {
-        <span class="kw">let </span>label = String::from(label);
+        <span class="kw">let </span>label = label.into();
         <span class="kw">if </span>label.len() &lt;= <span class="number">256
             </span>&amp;&amp; label
                 .bytes()
@@ -274,13 +294,13 @@
 
 <span class="doccomment">/// Container for a Label Tree (`ltree`) in Postgres.
 ///
-/// See https://www.postgresql.org/docs/current/ltree.html
+/// See &lt;https://www.postgresql.org/docs/current/ltree.html&gt;
 ///
 /// ### Note: Requires Postgres 13+
 ///
 /// This integration requires that the `ltree` type support the binary format in the Postgres
 /// wire protocol, which only became available in Postgres 13.
-/// ([Postgres 13.0 Release Notes, Additional Modules][https://www.postgresql.org/docs/13/release-13.html#id-1.11.6.11.5.14])
+/// ([Postgres 13.0 Release Notes, Additional Modules](https://www.postgresql.org/docs/13/release-13.html#id-1.11.6.11.5.14))
 ///
 /// Ideally, SQLx's Postgres driver should support falling back to text format for types
 /// which don't have `typsend` and `typrecv` entries in `pg_type`, but that work still needs
@@ -303,12 +323,15 @@
         <span class="self">Self</span>::default()
     }
 
-    <span class="doccomment">/// creates ltree from a [Vec&lt;PgLTreeLabel&gt;]
+    <span class="doccomment">/// creates ltree from a [`Vec&lt;PgLTreeLabel&gt;`]
     </span><span class="kw">pub fn </span>from(labels: Vec&lt;PgLTreeLabel&gt;) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{ labels }
     }
 
     <span class="doccomment">/// creates ltree from an iterator with checking labels
+    </span><span class="comment">// TODO: this should just be removed but I didn't want to bury it in a massive diff
+    </span><span class="attr">#[deprecated = <span class="string">"renamed to `try_from_iter()`"</span>]
+    #[allow(clippy::should_implement_trait)]
     </span><span class="kw">pub fn </span>from_iter&lt;I, S&gt;(labels: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PgLTreeParseError&gt;
     <span class="kw">where
         </span>String: From&lt;S&gt;,
@@ -321,6 +344,17 @@
         <span class="prelude-val">Ok</span>(ltree)
     }
 
+    <span class="doccomment">/// Create an `LTREE` from an iterator of label strings.
+    ///
+    /// Returns an error if any label fails to parse according to [`PgLTreeLabel::new()`].
+    </span><span class="kw">pub fn </span>try_from_iter&lt;I, S&gt;(labels: I) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, PgLTreeParseError&gt;
+    <span class="kw">where
+        </span>S: Into&lt;String&gt;,
+        I: IntoIterator&lt;Item = S&gt;,
+    {
+        labels.into_iter().map(PgLTreeLabel::new).collect()
+    }
+
     <span class="doccomment">/// push a label to ltree
     </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, label: PgLTreeLabel) {
         <span class="self">self</span>.labels.push(label);
@@ -329,6 +363,14 @@
     <span class="doccomment">/// pop a label from ltree
     </span><span class="kw">pub fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PgLTreeLabel&gt; {
         <span class="self">self</span>.labels.pop()
+    }
+}
+
+<span class="kw">impl </span>FromIterator&lt;PgLTreeLabel&gt; <span class="kw">for </span>PgLTree {
+    <span class="kw">fn </span>from_iter&lt;T: IntoIterator&lt;Item = PgLTreeLabel&gt;&gt;(iter: T) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            labels: iter.into_iter().collect(),
+        }
     }
 }
 
@@ -348,7 +390,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             labels: s
                 .split(<span class="string">'.'</span>)
-                .map(|s| PgLTreeLabel::new(s))
+                .map(PgLTreeLabel::new)
                 .collect::&lt;<span class="prelude-ty">Result</span>&lt;Vec&lt;<span class="kw">_</span>&gt;, <span class="self">Self</span>::Err&gt;&gt;()<span class="question-mark">?</span>,
         })
     }
@@ -389,12 +431,11 @@
 }
 
 <span class="kw">impl </span>Encode&lt;<span class="lifetime">'_</span>, Postgres&gt; <span class="kw">for </span>PgLTree {
-    <span class="kw">fn </span>encode_by_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>PgArgumentBuffer) -&gt; IsNull {
+    <span class="kw">fn </span>encode_by_ref(<span class="kw-2">&amp;</span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>PgArgumentBuffer) -&gt; <span class="prelude-ty">Result</span>&lt;IsNull, BoxDynError&gt; {
         buf.extend(<span class="number">1i8</span>.to_le_bytes());
-        <span class="macro">write!</span>(buf, <span class="string">"{self}"</span>)
-            .expect(<span class="string">"Display implementation panicked while writing to PgArgumentBuffer"</span>);
+        <span class="macro">write!</span>(buf, <span class="string">"{self}"</span>)<span class="question-mark">?</span>;
 
-        IsNull::No
+        <span class="prelude-val">Ok</span>(IsNull::No)
     }
 }
 

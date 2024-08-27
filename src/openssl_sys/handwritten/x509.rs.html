@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.101/src/./handwritten/x509.rs`."><title>x509.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-sys-0.9.103/src/./handwritten/x509.rs`."><title>x509.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -774,13 +773,25 @@
 <a href="#773" id="773">773</a>
 <a href="#774" id="774">774</a>
 <a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::<span class="kw-2">*</span>;
 <span class="kw">use </span>libc::<span class="kw-2">*</span>;
 
-<span class="attr">#[repr(C)]
-</span><span class="kw">pub struct </span>X509_VAL {
-    <span class="kw">pub </span>notBefore: <span class="kw-2">*mut </span>ASN1_TIME,
-    <span class="kw">pub </span>notAfter: <span class="kw-2">*mut </span>ASN1_TIME,
+<span class="macro">cfg_if!</span> {
+    <span class="kw">if </span><span class="attr">#[cfg(libressl400)] </span>{
+        <span class="kw">pub enum </span>X509_VAL {}
+    } <span class="kw">else </span>{
+        <span class="attr">#[repr(C)]
+        </span><span class="kw">pub struct </span>X509_VAL {
+            <span class="kw">pub </span>notBefore: <span class="kw-2">*mut </span>ASN1_TIME,
+            <span class="kw">pub </span>notAfter: <span class="kw-2">*mut </span>ASN1_TIME,
+        }
+    }
 }
 
 <span class="kw">pub enum </span>X509_NAME_ENTRY {}
@@ -797,7 +808,7 @@
 
 <span class="macro">stack!</span>(stack_st_X509_ATTRIBUTE);
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">pub enum </span>X509_REQ_INFO {}
     } <span class="kw">else </span>{
@@ -812,7 +823,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">pub enum </span>X509_CRL {}
     } <span class="kw">else </span>{
@@ -839,7 +850,7 @@
 
 <span class="macro">stack!</span>(stack_st_X509_CRL);
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">pub enum </span>X509_CRL_INFO {}
     } <span class="kw">else </span>{
@@ -857,7 +868,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">pub enum </span>X509_REVOKED {}
     } <span class="kw">else </span>{
@@ -875,7 +886,7 @@
 
 <span class="macro">stack!</span>(stack_st_X509_REVOKED);
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">pub enum </span>X509_REQ {}
     } <span class="kw">else </span>{
@@ -889,7 +900,7 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">pub enum </span>X509_CINF {}
     } <span class="kw">else </span>{
@@ -931,7 +942,7 @@
     <span class="kw">pub fn </span>X509_REQ_sign(x: <span class="kw-2">*mut </span>X509_REQ, pkey: <span class="kw-2">*mut </span>EVP_PKEY, md: <span class="kw-2">*const </span>EVP_MD) -&gt; c_int;
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>i2d_X509_bio(b: <span class="kw-2">*mut </span>BIO, x: <span class="attr">#[const_ptr_if(ossl300)] </span>X509) -&gt; c_int;
         <span class="kw">pub fn </span>i2d_X509_REQ_bio(b: <span class="kw-2">*mut </span>BIO, x: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_REQ) -&gt; c_int;
@@ -963,7 +974,7 @@
     ) -&gt; <span class="kw-2">*mut </span>EC_KEY;
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="attr">#[cfg(any(ossl102, libressl350))]
         </span><span class="kw">pub fn </span>X509_ALGOR_get0(
@@ -985,7 +996,7 @@
     <span class="kw">pub fn </span>X509_REVOKED_new() -&gt; <span class="kw-2">*mut </span>X509_REVOKED;
     <span class="kw">pub fn </span>X509_REVOKED_free(x: <span class="kw-2">*mut </span>X509_REVOKED);
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="attr">#[cfg(any(ossl110, libressl270))]
         </span><span class="kw">pub fn </span>X509_REVOKED_dup(rev: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_REVOKED) -&gt; <span class="kw-2">*mut </span>X509_REVOKED;
@@ -999,7 +1010,7 @@
         length: c_long,
     ) -&gt; <span class="kw-2">*mut </span>X509_REVOKED;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>i2d_X509_REVOKED(x: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_REVOKED, buf: <span class="kw-2">*mut *mut </span>u8) -&gt; c_int;
     }
@@ -1013,7 +1024,7 @@
         length: c_long,
     ) -&gt; <span class="kw-2">*mut </span>X509_CRL;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>i2d_X509_CRL(x: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_CRL, buf: <span class="kw-2">*mut *mut </span>u8) -&gt; c_int;
         <span class="attr">#[cfg(any(ossl110, libressl270))]
@@ -1030,7 +1041,7 @@
         length: c_long,
     ) -&gt; <span class="kw-2">*mut </span>X509_REQ;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>i2d_X509_REQ(x: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_REQ, buf: <span class="kw-2">*mut *mut </span>u8) -&gt; c_int;
 
@@ -1060,7 +1071,7 @@
     <span class="kw">pub fn </span>X509_new() -&gt; <span class="kw-2">*mut </span>X509;
     <span class="kw">pub fn </span>X509_free(x: <span class="kw-2">*mut </span>X509);
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>i2d_X509(x: <span class="attr">#[const_ptr_if(ossl300)] </span>X509, buf: <span class="kw-2">*mut *mut </span>u8) -&gt; c_int;
         <span class="attr">#[cfg(any(ossl110, libressl270))]
@@ -1089,7 +1100,7 @@
     <span class="kw">pub fn </span>X509_get_serialNumber(x: <span class="kw-2">*mut </span>X509) -&gt; <span class="kw-2">*mut </span>ASN1_INTEGER;
     <span class="kw">pub fn </span>X509_alias_get0(x: <span class="kw-2">*mut </span>X509, len: <span class="kw-2">*mut </span>c_int) -&gt; <span class="kw-2">*mut </span>c_uchar;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_set_issuer_name(x: <span class="kw-2">*mut </span>X509, name: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_NAME) -&gt; c_int;
     }
@@ -1098,14 +1109,14 @@
     <span class="kw">pub fn </span>X509_issuer_name_hash(x: <span class="kw-2">*mut </span>X509) -&gt; c_ulong;
     <span class="kw">pub fn </span>X509_subject_name_hash(x: <span class="kw-2">*mut </span>X509) -&gt; c_ulong;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_get_issuer_name(x: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>X509) -&gt; <span class="kw-2">*mut </span>X509_NAME;
         <span class="kw">pub fn </span>X509_set_subject_name(x: <span class="kw-2">*mut </span>X509, name: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_NAME) -&gt; c_int;
         <span class="kw">pub fn </span>X509_get_subject_name(x: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>X509) -&gt; <span class="kw-2">*mut </span>X509_NAME;
     }
 }
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>X509_set1_notBefore(x: <span class="kw-2">*mut </span>X509, tm: <span class="kw-2">*const </span>ASN1_TIME) -&gt; c_int;
@@ -1125,7 +1136,7 @@
     <span class="attr">#[cfg(any(ossl110, libressl350))]
     </span><span class="kw">pub fn </span>X509_REQ_get_subject_name(req: <span class="kw-2">*const </span>X509_REQ) -&gt; <span class="kw-2">*mut </span>X509_NAME;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_REQ_set_subject_name(req: <span class="kw-2">*mut </span>X509_REQ, name: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_NAME) -&gt; c_int;
     }
@@ -1135,7 +1146,7 @@
     <span class="kw">pub fn </span>X509_REQ_get_pubkey(req: <span class="kw-2">*mut </span>X509_REQ) -&gt; <span class="kw-2">*mut </span>EVP_PKEY;
     <span class="kw">pub fn </span>X509_REQ_get_extensions(req: <span class="kw-2">*mut </span>X509_REQ) -&gt; <span class="kw-2">*mut </span>stack_st_X509_EXTENSION;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_REQ_add_extensions(req: <span class="kw-2">*mut </span>X509_REQ, exts: <span class="attr">#[const_ptr_if(ossl300)] </span>stack_st_X509_EXTENSION)
             -&gt; c_int;
@@ -1202,7 +1213,7 @@
         cert: <span class="kw-2">*mut </span>X509,
     ) -&gt; c_int;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_CRL_get0_by_serial(
             x: <span class="kw-2">*mut </span>X509_CRL,
@@ -1227,7 +1238,7 @@
 
     <span class="kw">pub fn </span>X509_CRL_set_version(crl: <span class="kw-2">*mut </span>X509_CRL, version: c_long) -&gt; c_int;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_CRL_set_issuer_name(crl: <span class="kw-2">*mut </span>X509_CRL, name: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_NAME) -&gt; c_int;
     }
@@ -1239,7 +1250,7 @@
     </span><span class="kw">pub fn </span>X509_CRL_up_ref(crl: <span class="kw-2">*mut </span>X509_CRL) -&gt; c_int;
     <span class="kw">pub fn </span>X509_CRL_add0_revoked(crl: <span class="kw-2">*mut </span>X509_CRL, rev: <span class="kw-2">*mut </span>X509_REVOKED) -&gt; c_int;
 }
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl270))] </span>{
         <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>X509_CRL_set1_lastUpdate(crl: <span class="kw-2">*mut </span>X509_CRL, tm: <span class="kw-2">*const </span>ASN1_TIME) -&gt; c_int;
@@ -1254,7 +1265,7 @@
     }
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_NAME_entry_count(n: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>X509_NAME) -&gt; c_int;
         <span class="kw">pub fn </span>X509_NAME_get_index_by_NID(n: <span class="attr">#[const_ptr_if(any(ossl300, libressl280))] </span>X509_NAME, nid: c_int, last_pos: c_int) -&gt; c_int;
@@ -1360,13 +1371,13 @@
     <span class="kw">pub fn </span>X509_EXTENSION_get_data(ext: <span class="kw-2">*mut </span>X509_EXTENSION) -&gt; <span class="kw-2">*mut </span>ASN1_OCTET_STRING;
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>i2d_X509_EXTENSION(ext: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_EXTENSION, pp: <span class="kw-2">*mut *mut </span>c_uchar) -&gt; c_int;
     }
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="comment">// in X509
         </span><span class="kw">pub fn </span>X509_get_ext_count(x: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>X509) -&gt; c_int;
@@ -1417,7 +1428,7 @@
     <span class="kw">pub fn </span>X509_verify_cert(ctx: <span class="kw-2">*mut </span>X509_STORE_CTX) -&gt; c_int;
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="attr">#[cfg(any(ossl110, libressl270))]
         </span><span class="kw">pub fn </span>X509_STORE_get0_objects(ctx: <span class="attr">#[const_ptr_if(ossl300)] </span>X509_STORE) -&gt; <span class="kw-2">*mut </span>stack_st_X509_OBJECT;
@@ -1431,7 +1442,7 @@
     <span class="kw">pub fn </span>X509_OBJECT_get0_X509(x: <span class="kw-2">*const </span>X509_OBJECT) -&gt; <span class="kw-2">*mut </span>X509;
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(any(ossl110, libressl350))] </span>{
         <span class="kw">extern </span><span class="string">"C" </span>{
             <span class="kw">pub fn </span>X509_OBJECT_free(a: <span class="kw-2">*mut </span>X509_OBJECT);
@@ -1464,7 +1475,7 @@
     <span class="kw">pub fn </span>X509_REQ_print(bio: <span class="kw-2">*mut </span>BIO, req: <span class="kw-2">*mut </span>X509_REQ) -&gt; c_int;
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(libressl390)] </span>{
         <span class="kw">pub enum </span>X509_PURPOSE {}
     } <span class="kw">else </span>{
@@ -1482,7 +1493,7 @@
     }
 }
 
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_PURPOSE_get_by_sname(sname: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>c_char) -&gt; c_int;
         <span class="kw">pub fn </span>X509_PURPOSE_get_id(purpose: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>X509_PURPOSE) -&gt; c_int;
@@ -1540,7 +1551,7 @@
         length: c_long,
     ) -&gt; <span class="kw-2">*mut </span>X509_ATTRIBUTE;
 }
-<span class="macro">const_ptr_api! </span>{
+<span class="macro">const_ptr_api!</span> {
     <span class="kw">extern </span><span class="string">"C" </span>{
         <span class="kw">pub fn </span>X509_ATTRIBUTE_count(
             attr: <span class="attr">#[const_ptr_if(any(ossl110, libressl280))] </span>X509_ATTRIBUTE <span class="comment">// const since OpenSSL v1.1.0

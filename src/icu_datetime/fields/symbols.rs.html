@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/fields/symbols.rs`."><title>symbols.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.5.1/src/fields/symbols.rs`."><title>symbols.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -661,10 +660,48 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
+</span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))]
 </span><span class="kw">use </span><span class="kw">crate</span>::fields::FieldLength;
 <span class="kw">use </span>core::{cmp::Ordering, convert::TryFrom};
 <span class="kw">use </span>displaydoc::Display;
@@ -824,6 +861,22 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>discriminant_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
         <span class="self">self</span>.discriminant_idx().cmp(<span class="kw-2">&amp;</span>other.discriminant_idx())
     }
+
+    <span class="doccomment">/// UTS 35 defines several 1 and 2 symbols to be the same as 3 symbols (abbreviated).
+    /// For example, 'a' represents an abbreviated day period, the same as 'aaa'.
+    ///
+    /// This function maps field lengths 1 and 2 to field length 3.
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_at_least_abbreviated(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(
+            <span class="self">self</span>,
+            FieldSymbol::Era
+                | FieldSymbol::Year(Year::Cyclic)
+                | FieldSymbol::Weekday(Weekday::Format)
+                | FieldSymbol::DayPeriod(<span class="kw">_</span>)
+                | FieldSymbol::TimeZone(TimeZone::LowerZ | TimeZone::UpperZ)
+        )
+    }
 }
 
 <span class="doccomment">/// [`ULE`](zerovec::ule::ULE) type for [`FieldSymbol`]
@@ -871,6 +924,7 @@
 
 <span class="attr">#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[allow(clippy::exhaustive_enums)] </span><span class="comment">// used in data struct
+</span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>TextOrNumeric {
     Text,
     Numeric,
@@ -878,6 +932,7 @@
 
 <span class="doccomment">/// [`FieldSymbols`](FieldSymbol) can be either text or numeric. This categorization is important
 /// when matching skeletons with a components [`Bag`](crate::options::components::Bag).
+</span><span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>LengthType {
     <span class="kw">fn </span>get_length_type(<span class="kw-2">&amp;</span><span class="self">self</span>, length: FieldLength) -&gt; TextOrNumeric;
 }
@@ -991,11 +1046,12 @@
     }
 }
 
-<span class="macro">macro_rules! </span>field_type {
+<span class="macro">macro_rules!</span> field_type {
     ($(<span class="attr">#[<span class="macro-nonterminal">$enum_attr</span>:meta]</span>)* <span class="macro-nonterminal">$i</span>:ident; { $( $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>:meta]</span>)* <span class="macro-nonterminal">$key</span>:literal =&gt; <span class="macro-nonterminal">$val</span>:ident = <span class="macro-nonterminal">$idx</span>:expr,)* }; <span class="macro-nonterminal">$length_type</span>:ident; <span class="macro-nonterminal">$ule_name</span>:ident) =&gt; (
         <span class="macro">field_type!</span>($(<span class="attr">#[<span class="macro-nonterminal">$enum_attr</span>]</span>)* <span class="macro-nonterminal">$i</span>; {$( $(<span class="attr">#[<span class="macro-nonterminal">$variant_attr</span>]</span>)* <span class="macro-nonterminal">$key </span>=&gt; <span class="macro-nonterminal">$val </span>= <span class="macro-nonterminal">$idx</span>,)<span class="kw-2">*</span>}; <span class="macro-nonterminal">$ule_name</span>);
 
-        <span class="kw">impl </span>LengthType <span class="kw">for </span><span class="macro-nonterminal">$i </span>{
+        <span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
+        </span><span class="kw">impl </span>LengthType <span class="kw">for </span><span class="macro-nonterminal">$i </span>{
             <span class="kw">fn </span>get_length_type(<span class="kw-2">&amp;</span><span class="self">self</span>, _length: FieldLength) -&gt; TextOrNumeric {
                 TextOrNumeric::<span class="macro-nonterminal">$length_type
             </span>}
@@ -1100,7 +1156,7 @@
     );
 }
 
-<span class="macro">field_type! </span>(
+<span class="macro">field_type!</span> (
     <span class="doccomment">/// An enum for the possible symbols of a year field in a date pattern.
     </span>Year; {
         <span class="doccomment">/// Field symbol for calendar year (numeric).
@@ -1119,7 +1175,8 @@
     YearULE
 );
 
-<span class="kw">impl </span>LengthType <span class="kw">for </span>Year {
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
+</span><span class="kw">impl </span>LengthType <span class="kw">for </span>Year {
     <span class="kw">fn </span>get_length_type(<span class="kw-2">&amp;</span><span class="self">self</span>, _length: FieldLength) -&gt; TextOrNumeric {
         <span class="comment">// https://unicode.org/reports/tr35/tr35-dates.html#dfst-year
         </span><span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
@@ -1140,7 +1197,8 @@
         </span><span class="string">'L' </span>=&gt; StandAlone = <span class="number">1</span>,
 }; MonthULE);
 
-<span class="kw">impl </span>LengthType <span class="kw">for </span>Month {
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
+</span><span class="kw">impl </span>LengthType <span class="kw">for </span>Month {
     <span class="kw">fn </span>get_length_type(<span class="kw-2">&amp;</span><span class="self">self</span>, length: FieldLength) -&gt; TextOrNumeric {
         <span class="kw">match </span>length {
             FieldLength::One =&gt; TextOrNumeric::Numeric,
@@ -1243,14 +1301,28 @@
     WeekdayULE
 );
 
-<span class="kw">impl </span>LengthType <span class="kw">for </span>Weekday {
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
+</span><span class="kw">impl </span>LengthType <span class="kw">for </span>Weekday {
     <span class="kw">fn </span>get_length_type(<span class="kw-2">&amp;</span><span class="self">self</span>, length: FieldLength) -&gt; TextOrNumeric {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Format =&gt; TextOrNumeric::Text,
             <span class="self">Self</span>::Local | <span class="self">Self</span>::StandAlone =&gt; <span class="kw">match </span>length {
-                FieldLength::One | FieldLength::TwoDigit =&gt; TextOrNumeric::Text,
-                <span class="kw">_ </span>=&gt; TextOrNumeric::Numeric,
+                FieldLength::One | FieldLength::TwoDigit =&gt; TextOrNumeric::Numeric,
+                <span class="kw">_ </span>=&gt; TextOrNumeric::Text,
             },
+        }
+    }
+}
+
+<span class="kw">impl </span>Weekday {
+    <span class="doccomment">/// UTS 35 says that "e" (local weekday) and "E" (format weekday) have the same non-numeric names.
+    ///
+    /// This function normalizes "e" to "E".
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_format_symbol(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self </span>{
+            Weekday::Local =&gt; Weekday::Format,
+            other =&gt; other,
         }
     }
 }
@@ -1296,7 +1368,8 @@
     TimeZoneULE
 );
 
-<span class="kw">impl </span>LengthType <span class="kw">for </span>TimeZone {
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))] </span><span class="comment">// only referenced in experimental code
+</span><span class="kw">impl </span>LengthType <span class="kw">for </span>TimeZone {
     <span class="kw">fn </span>get_length_type(<span class="kw-2">&amp;</span><span class="self">self</span>, length: FieldLength) -&gt; TextOrNumeric {
         <span class="kw">use </span>TextOrNumeric::<span class="kw-2">*</span>;
         <span class="kw">match </span><span class="self">self </span>{

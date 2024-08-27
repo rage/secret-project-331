@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["IslamicCacheV1","IslamicObservationalCacheV1Marker","IslamicUmmAlQuraCacheV1Marker","PackedIslamicYearInfo"]};

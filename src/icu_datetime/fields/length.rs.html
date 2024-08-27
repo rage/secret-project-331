@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/fields/length.rs`."><title>length.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.5.1/src/fields/length.rs`."><title>length.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -210,6 +209,25 @@
 <a href="#209" id="209">209</a>
 <a href="#210" id="210">210</a>
 <a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -218,9 +236,6 @@
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>displaydoc::Display;
 <span class="kw">use </span>zerovec::ule::{AsULE, ZeroVecError, ULE};
-
-<span class="attr">#[cfg(doc)]
-</span><span class="kw">use </span><span class="kw">crate</span>::fields::{Hour, Weekday};
 
 <span class="doccomment">/// An error relating to the length of a field within a date pattern.
 </span><span class="attr">#[derive(Display, Debug, PartialEq, Copy, Clone)]
@@ -259,8 +274,8 @@
     </span>Wide,
     <span class="doccomment">/// Narrow / Long / Full  (spellout) format.
     </span>Narrow,
-    <span class="doccomment">/// Meaning is field-dependent, for patterns that are 6 characters long. Ex: a [`Weekday`] pattern like
-    /// `EEEEEE` means "Short", but `jjjjjj` or `CCCCCC` for [`Hour`] may mean
+    <span class="doccomment">/// Meaning is field-dependent, for patterns that are 6 characters long. Ex: a [`Weekday`](super::Weekday) pattern like
+    /// `EEEEEE` means "Short", but `jjjjjj` or `CCCCCC` for [`Hour`](super::Hour) may mean
     /// "Numeric hour (2 digits, zero pad if needed), narrow dayPeriod if used". See the
     /// [LDML documentation in UTS 35](https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns)
     /// for more details.
@@ -270,6 +285,14 @@
     <span class="doccomment">/// FieldLength::One (numeric), but overridden with a different numbering system
     </span>NumericOverride(FieldNumericOverrides),
 }
+
+<span class="doccomment">/// First index used for numeric overrides in compact FieldLength representation
+///
+/// Currently 17 due to decision in &lt;https://unicode-org.atlassian.net/browse/CLDR-17217&gt;,
+/// may become 16 if the `&gt; 16` is updated to a ` &gt;= 16`
+</span><span class="kw">const </span>FIRST_NUMERIC_OVERRIDE: u8 = <span class="number">17</span>;
+<span class="doccomment">/// First index used for fixed size formats in compact FieldLength representation
+</span><span class="kw">const </span>FIRST_FIXED: u8 = <span class="number">128</span>;
 
 <span class="kw">impl </span>FieldLength {
     <span class="attr">#[inline]
@@ -281,8 +304,10 @@
             FieldLength::Wide =&gt; <span class="number">4</span>,
             FieldLength::Narrow =&gt; <span class="number">5</span>,
             FieldLength::Six =&gt; <span class="number">6</span>,
-            FieldLength::NumericOverride(o) =&gt; <span class="number">64 </span>+ (<span class="kw-2">*</span>o <span class="kw">as </span>u8).min(<span class="number">63</span>),
-            FieldLength::Fixed(p) =&gt; <span class="number">128 </span>+ p.min(<span class="kw-2">&amp;</span><span class="number">127</span>), <span class="comment">/* truncate to at most 127 digits to avoid overflow */
+            FieldLength::NumericOverride(o) =&gt; FIRST_NUMERIC_OVERRIDE
+                .saturating_add(<span class="kw-2">*</span>o <span class="kw">as </span>u8)
+                .min(FIRST_FIXED - <span class="number">1</span>),
+            FieldLength::Fixed(p) =&gt; FIRST_FIXED.saturating_add(<span class="kw-2">*</span>p), <span class="comment">/* truncate to at most 127 digits to avoid overflow */
         </span>}
     }
 
@@ -296,13 +321,13 @@
             <span class="number">5 </span>=&gt; <span class="self">Self</span>::Narrow,
             <span class="number">6 </span>=&gt; <span class="self">Self</span>::Six,
             idx =&gt; {
-                <span class="kw">if </span>idx &lt; <span class="number">64 </span>{
+                <span class="kw">if </span>idx &lt; FIRST_NUMERIC_OVERRIDE {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(LengthError::InvalidLength);
                 }
-                <span class="kw">if </span>idx &lt; <span class="number">128 </span>{
-                    <span class="self">Self</span>::NumericOverride((idx - <span class="number">64</span>).try_into()<span class="question-mark">?</span>)
+                <span class="kw">if </span>idx &lt; FIRST_FIXED {
+                    <span class="self">Self</span>::NumericOverride((idx - FIRST_NUMERIC_OVERRIDE).try_into()<span class="question-mark">?</span>)
                 } <span class="kw">else </span>{
-                    <span class="self">Self</span>::Fixed(idx - <span class="number">128</span>)
+                    <span class="self">Self</span>::Fixed(idx - FIRST_FIXED)
                 }
             }
         })
@@ -318,8 +343,20 @@
             FieldLength::Wide =&gt; <span class="number">4</span>,
             FieldLength::Narrow =&gt; <span class="number">5</span>,
             FieldLength::Six =&gt; <span class="number">6</span>,
-            FieldLength::NumericOverride(o) =&gt; <span class="number">64 </span>+ o <span class="kw">as </span>usize,
+            FieldLength::NumericOverride(o) =&gt; FIRST_NUMERIC_OVERRIDE <span class="kw">as </span>usize + o <span class="kw">as </span>usize,
             FieldLength::Fixed(p) =&gt; p <span class="kw">as </span>usize,
+        }
+    }
+
+    <span class="doccomment">/// UTS 35 defines several 1 and 2 symbols to be the same as 3 symbols (abbreviated).
+    /// For example, 'a' represents an abbreviated day period, the same as 'aaa'.
+    ///
+    /// This function maps field lengths 1 and 2 to field length 3.
+    </span><span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>numeric_to_abbr(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self </span>{
+            FieldLength::One | FieldLength::TwoDigit =&gt; FieldLength::Abbreviated,
+            other =&gt; other,
         }
     }
 }
@@ -404,7 +441,7 @@
 }
 
 <span class="kw">impl </span>FieldNumericOverrides {
-    <span class="doccomment">/// Conver this to the corresponding string code
+    <span class="doccomment">/// Convert this to the corresponding string code
     </span><span class="kw">pub fn </span>as_str(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::Hanidec =&gt; <span class="string">"hanidec"</span>,

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FixedDecimalError","Sign","SignDisplay"],"struct":["CompactDecimal","FixedDecimal","FixedInteger","ScientificDecimal"]};
+window.SIDEBAR_ITEMS = {"enum":["FixedDecimalError","RoundingIncrement","Sign","SignDisplay"],"struct":["CompactDecimal","FixedDecimal","FixedInteger","ScientificDecimal"]};

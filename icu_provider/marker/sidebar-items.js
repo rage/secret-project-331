@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["DataMarker","KeyedDataMarker"]};
+window.SIDEBAR_ITEMS = {"struct":["NeverMarker"],"trait":["DataMarker","KeyedDataMarker"]};

@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/macho.rs`."><title>macho.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/macho.rs`."><title>macho.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3302,10 +3301,6 @@
 <a href="#3301" id="3301">3301</a>
 <a href="#3302" id="3302">3302</a>
 <a href="#3303" id="3303">3303</a>
-<a href="#3304" id="3304">3304</a>
-<a href="#3305" id="3305">3305</a>
-<a href="#3306" id="3306">3306</a>
-<a href="#3307" id="3307">3307</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Mach-O definitions.
 //!
 //! These definitions are independent of read/write support, although we do implement
@@ -3613,7 +3608,6 @@
     </span><span class="kw">pub </span>images_count: U32&lt;E&gt;, <span class="comment">// offset: 0x1c
     </span><span class="doccomment">/// base address of dyld when cache was built
     </span><span class="kw">pub </span>dyld_base_address: U64&lt;E&gt;, <span class="comment">// offset: 0x20
-    </span><span class="doccomment">///
     </span>reserved1: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x28
     </span><span class="doccomment">/// file offset of where local symbols are stored
     </span><span class="kw">pub </span>local_symbols_offset: U64&lt;E&gt;, <span class="comment">// offset: 0x48
@@ -3621,23 +3615,14 @@
     </span><span class="kw">pub </span>local_symbols_size: U64&lt;E&gt;, <span class="comment">// offset: 0x50
     </span><span class="doccomment">/// unique value for each shared cache file
     </span><span class="kw">pub </span>uuid: [u8; <span class="number">16</span>], <span class="comment">// offset: 0x58
-    </span><span class="doccomment">///
     </span>reserved2: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x68
-    </span><span class="doccomment">///
     </span>reserved3: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x88
-    </span><span class="doccomment">///
     </span>reserved4: [u8; <span class="number">32</span>], <span class="comment">// offset: 0xa8
-    </span><span class="doccomment">///
     </span>reserved5: [u8; <span class="number">32</span>], <span class="comment">// offset: 0xc8
-    </span><span class="doccomment">///
     </span>reserved6: [u8; <span class="number">32</span>], <span class="comment">// offset: 0xe8
-    </span><span class="doccomment">///
     </span>reserved7: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x108
-    </span><span class="doccomment">///
     </span>reserved8: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x128
-    </span><span class="doccomment">///
     </span>reserved9: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x148
-    </span><span class="doccomment">///
     </span>reserved10: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x168
     </span><span class="doccomment">/// file offset to first dyld_subcache_info
     </span><span class="kw">pub </span>subcaches_offset: U32&lt;E&gt;, <span class="comment">// offset: 0x188
@@ -3645,7 +3630,6 @@
     </span><span class="kw">pub </span>subcaches_count: U32&lt;E&gt;, <span class="comment">// offset: 0x18c
     </span><span class="doccomment">/// the UUID of the .symbols subcache
     </span><span class="kw">pub </span>symbols_subcache_uuid: [u8; <span class="number">16</span>], <span class="comment">// offset: 0x190
-    </span><span class="doccomment">///
     </span>reserved11: [u8; <span class="number">32</span>], <span class="comment">// offset: 0x1a0
     </span><span class="doccomment">/// file offset to first dyld_cache_image_info
     /// Use this  instead of images_offset if mapping_offset is at least 0x1c4.
@@ -3659,43 +3643,47 @@
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>DyldCacheMappingInfo&lt;E: Endian&gt; {
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>address: U64&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>size: U64&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>file_offset: U64&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>max_prot: U32&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>init_prot: U32&lt;E&gt;,
+    <span class="kw">pub </span>address: U64&lt;E&gt;,
+    <span class="kw">pub </span>size: U64&lt;E&gt;,
+    <span class="kw">pub </span>file_offset: U64&lt;E&gt;,
+    <span class="kw">pub </span>max_prot: U32&lt;E&gt;,
+    <span class="kw">pub </span>init_prot: U32&lt;E&gt;,
 }
 
 <span class="doccomment">/// Corresponds to struct dyld_cache_image_info from dyld_cache_format.h.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>DyldCacheImageInfo&lt;E: Endian&gt; {
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>address: U64&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>mod_time: U64&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>inode: U64&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>path_file_offset: U32&lt;E&gt;,
-    <span class="doccomment">///
-    </span><span class="kw">pub </span>pad: U32&lt;E&gt;,
+    <span class="kw">pub </span>address: U64&lt;E&gt;,
+    <span class="kw">pub </span>mod_time: U64&lt;E&gt;,
+    <span class="kw">pub </span>inode: U64&lt;E&gt;,
+    <span class="kw">pub </span>path_file_offset: U32&lt;E&gt;,
+    <span class="kw">pub </span>pad: U32&lt;E&gt;,
 }
 
-<span class="doccomment">/// Corresponds to a struct whose source code has not been published as of Nov 2021.
-/// Added in the dyld cache version which shipped with macOS 12 / iOS 15.
+<span class="doccomment">/// Added in dyld-940, which shipped with macOS 12 / iOS 15.
+/// Originally called `dyld_subcache_entry`, renamed to `dyld_subcache_entry_v1`
+/// in dyld-1042.1.
 </span><span class="attr">#[derive(Debug, Clone, Copy)]
 #[repr(C)]
-</span><span class="kw">pub struct </span>DyldSubCacheInfo&lt;E: Endian&gt; {
+</span><span class="kw">pub struct </span>DyldSubCacheEntryV1&lt;E: Endian&gt; {
     <span class="doccomment">/// The UUID of this subcache.
     </span><span class="kw">pub </span>uuid: [u8; <span class="number">16</span>],
-    <span class="doccomment">/// The size of this subcache plus all previous subcaches.
-    </span><span class="kw">pub </span>cumulative_size: U64&lt;E&gt;,
+    <span class="doccomment">/// The offset of this subcache from the main cache base address.
+    </span><span class="kw">pub </span>cache_vm_offset: U64&lt;E&gt;,
+}
+
+<span class="doccomment">/// Added in dyld-1042.1, which shipped with macOS 13 / iOS 16.
+/// Called `dyld_subcache_entry` as of dyld-1042.1.
+</span><span class="attr">#[derive(Debug, Clone, Copy)]
+#[repr(C)]
+</span><span class="kw">pub struct </span>DyldSubCacheEntryV2&lt;E: Endian&gt; {
+    <span class="doccomment">/// The UUID of this subcache.
+    </span><span class="kw">pub </span>uuid: [u8; <span class="number">16</span>],
+    <span class="doccomment">/// The offset of this subcache from the main cache base address.
+    </span><span class="kw">pub </span>cache_vm_offset: U64&lt;E&gt;,
+    <span class="doccomment">/// The file name suffix of the subCache file, e.g. ".25.data" or ".03.development".
+    </span><span class="kw">pub </span>file_suffix: [u8; <span class="number">32</span>],
 }
 
 <span class="comment">// Definitions from "/usr/include/mach-o/loader.h".
@@ -5286,6 +5274,8 @@
 <span class="kw">pub const </span>PLATFORM_TVOSSIMULATOR: u32 = <span class="number">8</span>;
 <span class="kw">pub const </span>PLATFORM_WATCHOSSIMULATOR: u32 = <span class="number">9</span>;
 <span class="kw">pub const </span>PLATFORM_DRIVERKIT: u32 = <span class="number">10</span>;
+<span class="kw">pub const </span>PLATFORM_XROS: u32 = <span class="number">11</span>;
+<span class="kw">pub const </span>PLATFORM_XROSSIMULATOR: u32 = <span class="number">12</span>;
 
 <span class="comment">/* Known values for the tool field above. */
 </span><span class="kw">pub const </span>TOOL_CLANG: u32 = <span class="number">1</span>;
@@ -6559,7 +6549,8 @@ pub struct TlvDescriptor&lt;E: Endian&gt;
     DyldCacheHeader,
     DyldCacheMappingInfo,
     DyldCacheImageInfo,
-    DyldSubCacheInfo,
+    DyldSubCacheEntryV1,
+    DyldSubCacheEntryV2,
     MachHeader32,
     MachHeader64,
     LoadCommand,

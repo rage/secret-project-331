@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.28.1/src/read/unit.rs`."><title>unit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/unit.rs`."><title>unit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -6118,26 +6117,6 @@
 <a href="#6117" id="6117">6117</a>
 <a href="#6118" id="6118">6118</a>
 <a href="#6119" id="6119">6119</a>
-<a href="#6120" id="6120">6120</a>
-<a href="#6121" id="6121">6121</a>
-<a href="#6122" id="6122">6122</a>
-<a href="#6123" id="6123">6123</a>
-<a href="#6124" id="6124">6124</a>
-<a href="#6125" id="6125">6125</a>
-<a href="#6126" id="6126">6126</a>
-<a href="#6127" id="6127">6127</a>
-<a href="#6128" id="6128">6128</a>
-<a href="#6129" id="6129">6129</a>
-<a href="#6130" id="6130">6130</a>
-<a href="#6131" id="6131">6131</a>
-<a href="#6132" id="6132">6132</a>
-<a href="#6133" id="6133">6133</a>
-<a href="#6134" id="6134">6134</a>
-<a href="#6135" id="6135">6135</a>
-<a href="#6136" id="6136">6136</a>
-<a href="#6137" id="6137">6137</a>
-<a href="#6138" id="6138">6138</a>
-<a href="#6139" id="6139">6139</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Functions for parsing DWARF `.debug_info` and `.debug_types` sections.
 
 </span><span class="kw">use </span>core::cell::Cell;
@@ -6287,17 +6266,7 @@
     ///
     /// This is useful when `R` implements `Reader` but `T` does not.
     ///
-    /// ## Example Usage
-    ///
-    /// ```rust,no_run
-    /// # let load_section = || unimplemented!();
-    /// // Read the DWARF section into a `Vec` with whatever object loader you're using.
-    /// let owned_section: gimli::DebugInfo&lt;Vec&lt;u8&gt;&gt; = load_section();
-    /// // Create a reference to the DWARF section.
-    /// let section = owned_section.borrow(|section| {
-    ///     gimli::EndianSlice::new(&amp;section, gimli::LittleEndian)
-    /// });
-    /// ```
+    /// Used by `DwarfSections::borrow`.
     </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">'a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugInfo&lt;R&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; R,
@@ -7304,11 +7273,11 @@
         // DW_FORM_addrx2
         // DW_FORM_addrx3
         // DW_FORM_addrx4
-        </span><span class="macro">macro_rules! </span>address {
+        </span><span class="macro">macro_rules!</span> address {
             () =&gt; {};
         }
         <span class="comment">// DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>addrptr {
+        </span><span class="macro">macro_rules!</span> addrptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugAddrBase(DebugAddrBase(offset));
@@ -7319,7 +7288,7 @@
         // DW_FORM_block1
         // DW_FORM_block2
         // DW_FORM_block4
-        </span><span class="macro">macro_rules! </span>block {
+        </span><span class="macro">macro_rules!</span> block {
             () =&gt; {};
         }
         <span class="comment">// DW_FORM_sdata
@@ -7330,7 +7299,7 @@
         // DW_FORM_data8
         // DW_FORM_data16
         // DW_FORM_implicit_const
-        </span><span class="macro">macro_rules! </span>constant {
+        </span><span class="macro">macro_rules!</span> constant {
             (<span class="macro-nonterminal">$value</span>:ident, <span class="macro-nonterminal">$variant</span>:ident) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.<span class="macro-nonterminal">$value</span>() {
                     <span class="kw">return </span>AttributeValue::<span class="macro-nonterminal">$variant</span>(value);
@@ -7343,7 +7312,7 @@
             };
         }
         <span class="comment">// DW_FORM_exprloc
-        </span><span class="macro">macro_rules! </span>exprloc {
+        </span><span class="macro">macro_rules!</span> exprloc {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.exprloc_value() {
                     <span class="kw">return </span>AttributeValue::Exprloc(value);
@@ -7352,11 +7321,11 @@
         }
         <span class="comment">// DW_FORM_flag
         // DW_FORM_flag_present
-        </span><span class="macro">macro_rules! </span>flag {
+        </span><span class="macro">macro_rules!</span> flag {
             () =&gt; {};
         }
         <span class="comment">// DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>lineptr {
+        </span><span class="macro">macro_rules!</span> lineptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugLineRef(DebugLineOffset(offset));
@@ -7366,7 +7335,7 @@
         <span class="comment">// This also covers `loclist` in DWARF version 5.
         // DW_FORM_sec_offset
         // DW_FORM_loclistx
-        </span><span class="macro">macro_rules! </span>loclistptr {
+        </span><span class="macro">macro_rules!</span> loclistptr {
             () =&gt; {
                 <span class="comment">// DebugLocListsIndex is also an allowed form in DWARF version 5.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
@@ -7375,7 +7344,7 @@
             };
         }
         <span class="comment">// DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>loclistsptr {
+        </span><span class="macro">macro_rules!</span> loclistsptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugLocListsBase(DebugLocListsBase(offset));
@@ -7384,7 +7353,7 @@
         }
         <span class="comment">// DWARF version &lt;= 4.
         // DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>macinfoptr {
+        </span><span class="macro">macro_rules!</span> macinfoptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugMacinfoRef(DebugMacinfoOffset(offset));
@@ -7393,7 +7362,7 @@
         }
         <span class="comment">// DWARF version &gt;= 5.
         // DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>macroptr {
+        </span><span class="macro">macro_rules!</span> macroptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugMacroRef(DebugMacroOffset(offset));
@@ -7409,13 +7378,13 @@
         // DW_FORM_ref_sig8
         // DW_FORM_ref_sup4
         // DW_FORM_ref_sup8
-        </span><span class="macro">macro_rules! </span>reference {
+        </span><span class="macro">macro_rules!</span> reference {
             () =&gt; {};
         }
         <span class="comment">// This also covers `rnglist` in DWARF version 5.
         // DW_FORM_sec_offset
         // DW_FORM_rnglistx
-        </span><span class="macro">macro_rules! </span>rangelistptr {
+        </span><span class="macro">macro_rules!</span> rangelistptr {
             () =&gt; {
                 <span class="comment">// DebugRngListsIndex is also an allowed form in DWARF version 5.
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
@@ -7424,7 +7393,7 @@
             };
         }
         <span class="comment">// DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>rnglistsptr {
+        </span><span class="macro">macro_rules!</span> rnglistsptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugRngListsBase(DebugRngListsBase(offset));
@@ -7440,11 +7409,11 @@
         // DW_FORM_strx4
         // DW_FORM_strp_sup
         // DW_FORM_line_strp
-        </span><span class="macro">macro_rules! </span>string {
+        </span><span class="macro">macro_rules!</span> string {
             () =&gt; {};
         }
         <span class="comment">// DW_FORM_sec_offset
-        </span><span class="macro">macro_rules! </span>stroffsetsptr {
+        </span><span class="macro">macro_rules!</span> stroffsetsptr {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(offset) = <span class="self">self</span>.offset_value() {
                     <span class="kw">return </span>AttributeValue::DebugStrOffsetsBase(DebugStrOffsetsBase(offset));
@@ -7452,7 +7421,7 @@
             };
         }
         <span class="comment">// This isn't a separate form but it's useful to distinguish it from a generic udata.
-        </span><span class="macro">macro_rules! </span>dwoid {
+        </span><span class="macro">macro_rules!</span> dwoid {
             () =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = <span class="self">self</span>.udata_value() {
                     <span class="kw">return </span>AttributeValue::DwoId(DwoId(value));
@@ -9239,17 +9208,7 @@
     ///
     /// This is useful when `R` implements `Reader` but `T` does not.
     ///
-    /// ## Example Usage
-    ///
-    /// ```rust,no_run
-    /// # let load_section = || unimplemented!();
-    /// // Read the DWARF section into a `Vec` with whatever object loader you're using.
-    /// let owned_section: gimli::DebugTypes&lt;Vec&lt;u8&gt;&gt; = load_section();
-    /// // Create a reference to the DWARF section.
-    /// let section = owned_section.borrow(|section| {
-    ///     gimli::EndianSlice::new(&amp;section, gimli::LittleEndian)
-    /// });
-    /// ```
+    /// Used by `DwarfSections::borrow`.
     </span><span class="kw">pub fn </span>borrow&lt;<span class="lifetime">'a</span>, F, R&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, <span class="kw-2">mut </span>borrow: F) -&gt; DebugTypes&lt;R&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>T) -&gt; R,
@@ -9365,7 +9324,7 @@
     <span class="comment">// Mixin methods for `Section` to help define binary test data.
 
     </span><span class="kw">trait </span>UnitSectionMethods {
-        <span class="kw">fn </span>unit&lt;<span class="lifetime">'input</span>, E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'input</span>, E&gt;&gt;) -&gt; <span class="self">Self
+        <span class="kw">fn </span>unit&lt;E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'_</span>, E&gt;&gt;) -&gt; <span class="self">Self
         </span><span class="kw">where
             </span>E: Endianity;
         <span class="kw">fn </span>die&lt;F&gt;(<span class="self">self</span>, code: u64, attr: F) -&gt; <span class="self">Self
@@ -9378,7 +9337,7 @@
     }
 
     <span class="kw">impl </span>UnitSectionMethods <span class="kw">for </span>Section {
-        <span class="kw">fn </span>unit&lt;<span class="lifetime">'input</span>, E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'input</span>, E&gt;&gt;) -&gt; <span class="self">Self
+        <span class="kw">fn </span>unit&lt;E&gt;(<span class="self">self</span>, unit: <span class="kw-2">&amp;mut </span>UnitHeader&lt;EndianSlice&lt;<span class="lifetime">'_</span>, E&gt;&gt;) -&gt; <span class="self">Self
         </span><span class="kw">where
             </span>E: Endianity,
         {
@@ -9393,7 +9352,7 @@
             };
 
             <span class="kw">let </span>section = <span class="kw">match </span>unit.version() {
-                <span class="number">2 </span>| <span class="number">3 </span>| <span class="number">4 </span>=&gt; section
+                <span class="number">2</span>..=<span class="number">4 </span>=&gt; section
                     .mark(<span class="kw-2">&amp;</span>start)
                     .L16(unit.version())
                     .offset(unit.debug_abbrev_offset.<span class="number">0</span>, unit.format())
@@ -9500,7 +9459,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_debug_abbrev_offset(buf, Format::Dwarf32) {
-            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -9524,7 +9483,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_debug_abbrev_offset(buf, Format::Dwarf64) {
-            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -9547,7 +9506,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_debug_info_offset(buf, Format::Dwarf32) {
-            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -9571,7 +9530,7 @@
         <span class="kw">let </span>buf = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_debug_info_offset(buf, Format::Dwarf64) {
-            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -9623,7 +9582,7 @@
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_unit_header(rest, DebugInfoOffset(<span class="number">0</span>).into()) {
-            <span class="prelude-val">Err</span>(Error::UnknownVersion(<span class="number">0xcdab</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnknownVersion(<span class="number">0xcdab</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
 
@@ -9631,7 +9590,7 @@
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_unit_header(rest, DebugInfoOffset(<span class="number">0</span>).into()) {
-            <span class="prelude-val">Err</span>(Error::UnknownVersion(<span class="number">1</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnknownVersion(<span class="number">1</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -9642,7 +9601,7 @@
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_unit_header(rest, DebugInfoOffset(<span class="number">0</span>).into()) {
-            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -9978,7 +9937,7 @@
         <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
 
         <span class="kw">match </span>parse_type_offset(rest, Format::Dwarf32) {
-            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; <span class="macro">assert!</span>(<span class="bool-val">true</span>),
+            <span class="prelude-val">Err</span>(Error::UnexpectedEof(<span class="kw">_</span>)) =&gt; {}
             otherwise =&gt; <span class="macro">panic!</span>(<span class="string">"Unexpected result: {:?}"</span>, otherwise),
         };
     }
@@ -10347,7 +10306,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_attribute_udata_sdata_value() {
-        <span class="kw">let </span>tests: <span class="kw-2">&amp;</span>[(
+        <span class="attr">#[allow(clippy::type_complexity)]
+        </span><span class="kw">let </span>tests: <span class="kw-2">&amp;</span>[(
             AttributeValue&lt;EndianSlice&lt;LittleEndian&gt;&gt;,
             <span class="prelude-ty">Option</span>&lt;u64&gt;,
             <span class="prelude-ty">Option</span>&lt;i64&gt;,
@@ -10445,7 +10405,7 @@
                 }
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         };
     }
@@ -11069,7 +11029,7 @@
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11086,7 +11046,7 @@
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11103,7 +11063,7 @@
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11177,7 +11137,7 @@
                 );
             }
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
 
@@ -11661,7 +11621,7 @@
 
         <span class="comment">// Now iterate all children of the root via `next_sibling`.
 
-        </span>assert_valid_sibling_ptr(<span class="kw-2">&amp;</span>cursor);
+        </span>assert_valid_sibling_ptr(cursor);
         assert_next_sibling(cursor, <span class="string">"004"</span>);
         assert_next_sibling(cursor, <span class="string">"006"</span>);
         assert_next_sibling(cursor, <span class="string">"010"</span>);
@@ -11784,7 +11744,7 @@
         <span class="kw">match </span>cursor {
             <span class="prelude-val">Err</span>(Error::OffsetOutOfBounds) =&gt; {}
             otherwise =&gt; {
-                <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
             }
         }
     }
@@ -11863,7 +11823,7 @@
             <span class="kw">match </span>node {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
                 otherwise =&gt; {
-                    <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                    <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
                 }
             }
         }
@@ -11967,8 +11927,8 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_entries_raw() {
-        <span class="kw">fn </span>assert_abbrev&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, Endian&gt;(
-            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
+        <span class="kw">fn </span>assert_abbrev&lt;<span class="lifetime">'abbrev</span>, Endian&gt;(
+            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
             tag: DwTag,
         ) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'abbrev </span>Abbreviation
         <span class="kw">where
@@ -11982,21 +11942,20 @@
             abbrev
         }
 
-        <span class="kw">fn </span>assert_null&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, Endian&gt;(
-            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
-        ) <span class="kw">where
+        <span class="kw">fn </span>assert_null&lt;Endian&gt;(entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;)
+        <span class="kw">where
             </span>Endian: Endianity,
         {
             <span class="kw">match </span>entries.read_abbreviation() {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
                 otherwise =&gt; {
-                    <span class="macro">assert!</span>(<span class="bool-val">false</span>, <span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
+                    <span class="macro">panic!</span>(<span class="string">"Unexpected parse result = {:#?}"</span>, otherwise);
                 }
             }
         }
 
-        <span class="kw">fn </span>assert_attr&lt;<span class="lifetime">'input</span>, <span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, Endian&gt;(
-            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'abbrev</span>, <span class="lifetime">'unit</span>, EndianSlice&lt;<span class="lifetime">'input</span>, Endian&gt;&gt;,
+        <span class="kw">fn </span>assert_attr&lt;Endian&gt;(
+            entries: <span class="kw-2">&amp;mut </span>EntriesRaw&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
             spec: <span class="prelude-ty">Option</span>&lt;AttributeSpecification&gt;,
             name: DwAt,
             value: <span class="kw-2">&amp;</span>str,

@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.34/src/format/parse.rs`."><title>parse.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/chrono-0.4.38/src/format/parse.rs`."><title>parse.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="chrono" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1885,7 +1884,7 @@
 }
 
 <span class="kw">fn </span>parse_rfc2822&lt;<span class="lifetime">'a</span>&gt;(parsed: <span class="kw-2">&amp;mut </span>Parsed, <span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; ParseResult&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, ())&gt; {
-    <span class="macro">macro_rules! </span>try_consume {
+    <span class="macro">macro_rules!</span> try_consume {
         (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
             <span class="kw">let </span>(s_, v) = <span class="macro-nonterminal">$e</span><span class="question-mark">?</span>;
             s = s_;
@@ -1997,7 +1996,7 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_rfc3339&lt;<span class="lifetime">'a</span>&gt;(parsed: <span class="kw-2">&amp;mut </span>Parsed, <span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str) -&gt; ParseResult&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>str, ())&gt; {
-    <span class="macro">macro_rules! </span>try_consume {
+    <span class="macro">macro_rules!</span> try_consume {
         (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
             <span class="kw">let </span>(s_, v) = <span class="macro-nonterminal">$e</span><span class="question-mark">?</span>;
             s = s_;
@@ -2094,7 +2093,7 @@
     <span class="kw">match </span>parse_internal(parsed, s, items) {
         <span class="prelude-val">Ok</span>(<span class="string">""</span>) =&gt; <span class="prelude-val">Ok</span>(()),
         <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(TOO_LONG), <span class="comment">// if there are trailing chars it is an error
-        </span><span class="prelude-val">Err</span>((<span class="kw">_</span>, e)) =&gt; <span class="prelude-val">Err</span>(e),
+        </span><span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
     }
 }
 
@@ -2121,26 +2120,26 @@
     </span>I: Iterator&lt;Item = B&gt;,
     B: Borrow&lt;Item&lt;<span class="lifetime">'a</span>&gt;&gt;,
 {
-    parse_internal(parsed, s, items).map_err(|(_s, e)| e)
+    parse_internal(parsed, s, items)
 }
 
 <span class="kw">fn </span>parse_internal&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>, I, B&gt;(
     parsed: <span class="kw-2">&amp;mut </span>Parsed,
     <span class="kw-2">mut </span>s: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>str,
     items: I,
-) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>str, (<span class="kw-2">&amp;</span><span class="lifetime">'b </span>str, ParseError)&gt;
+) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'b </span>str, ParseError&gt;
 <span class="kw">where
     </span>I: Iterator&lt;Item = B&gt;,
     B: Borrow&lt;Item&lt;<span class="lifetime">'a</span>&gt;&gt;,
 {
-    <span class="macro">macro_rules! </span>try_consume {
+    <span class="macro">macro_rules!</span> try_consume {
         (<span class="macro-nonterminal">$e</span>:expr) =&gt; {{
             <span class="kw">match </span><span class="macro-nonterminal">$e </span>{
                 <span class="prelude-val">Ok</span>((s_, v)) =&gt; {
                     s = s_;
                     v
                 }
-                <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((s, e)),
+                <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
             }
         }};
     }
@@ -2149,10 +2148,10 @@
         <span class="kw">match </span><span class="kw-2">*</span>item.borrow() {
             Item::Literal(prefix) =&gt; {
                 <span class="kw">if </span>s.len() &lt; prefix.len() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>((s, TOO_SHORT));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT);
                 }
                 <span class="kw">if </span>!s.starts_with(prefix) {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>((s, INVALID));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(INVALID);
                 }
                 s = <span class="kw-2">&amp;</span>s[prefix.len()..];
             }
@@ -2160,10 +2159,10 @@
             <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
             </span>Item::OwnedLiteral(<span class="kw-2">ref </span>prefix) =&gt; {
                 <span class="kw">if </span>s.len() &lt; prefix.len() {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>((s, TOO_SHORT));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT);
                 }
                 <span class="kw">if </span>!s.starts_with(<span class="kw-2">&amp;</span>prefix[..]) {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>((s, INVALID));
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(INVALID);
                 }
                 s = <span class="kw-2">&amp;</span>s[prefix.len()..];
             }
@@ -2211,7 +2210,7 @@
                 <span class="kw">let </span>v = <span class="kw">if </span>signed {
                     <span class="kw">if </span>s.starts_with(<span class="string">'-'</span>) {
                         <span class="kw">let </span>v = <span class="macro">try_consume!</span>(scan::number(<span class="kw-2">&amp;</span>s[<span class="number">1</span>..], <span class="number">1</span>, usize::MAX));
-                        <span class="number">0i64</span>.checked_sub(v).ok_or((s, OUT_OF_RANGE))<span class="question-mark">?
+                        <span class="number">0i64</span>.checked_sub(v).ok_or(OUT_OF_RANGE)<span class="question-mark">?
                     </span>} <span class="kw">else if </span>s.starts_with(<span class="string">'+'</span>) {
                         <span class="macro">try_consume!</span>(scan::number(<span class="kw-2">&amp;</span>s[<span class="number">1</span>..], <span class="number">1</span>, usize::MAX))
                     } <span class="kw">else </span>{
@@ -2221,7 +2220,7 @@
                 } <span class="kw">else </span>{
                     <span class="macro">try_consume!</span>(scan::number(s, <span class="number">1</span>, width))
                 };
-                set(parsed, v).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                set(parsed, v)<span class="question-mark">?</span>;
             }
 
             Item::Fixed(<span class="kw-2">ref </span>spec) =&gt; {
@@ -2230,66 +2229,66 @@
                 <span class="kw">match </span>spec {
                     <span class="kw-2">&amp;</span>ShortMonthName =&gt; {
                         <span class="kw">let </span>month0 = <span class="macro">try_consume!</span>(scan::short_month0(s));
-                        parsed.set_month(i64::from(month0) + <span class="number">1</span>).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_month(i64::from(month0) + <span class="number">1</span>)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>LongMonthName =&gt; {
                         <span class="kw">let </span>month0 = <span class="macro">try_consume!</span>(scan::short_or_long_month0(s));
-                        parsed.set_month(i64::from(month0) + <span class="number">1</span>).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_month(i64::from(month0) + <span class="number">1</span>)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>ShortWeekdayName =&gt; {
                         <span class="kw">let </span>weekday = <span class="macro">try_consume!</span>(scan::short_weekday(s));
-                        parsed.set_weekday(weekday).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_weekday(weekday)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>LongWeekdayName =&gt; {
                         <span class="kw">let </span>weekday = <span class="macro">try_consume!</span>(scan::short_or_long_weekday(s));
-                        parsed.set_weekday(weekday).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_weekday(weekday)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>LowerAmPm | <span class="kw-2">&amp;</span>UpperAmPm =&gt; {
                         <span class="kw">if </span>s.len() &lt; <span class="number">2 </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>((s, TOO_SHORT));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT);
                         }
                         <span class="kw">let </span>ampm = <span class="kw">match </span>(s.as_bytes()[<span class="number">0</span>] | <span class="number">32</span>, s.as_bytes()[<span class="number">1</span>] | <span class="number">32</span>) {
                             (<span class="string">b'a'</span>, <span class="string">b'm'</span>) =&gt; <span class="bool-val">false</span>,
                             (<span class="string">b'p'</span>, <span class="string">b'm'</span>) =&gt; <span class="bool-val">true</span>,
-                            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>((s, INVALID)),
+                            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(INVALID),
                         };
-                        parsed.set_ampm(ampm).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_ampm(ampm)<span class="question-mark">?</span>;
                         s = <span class="kw-2">&amp;</span>s[<span class="number">2</span>..];
                     }
 
                     <span class="kw-2">&amp;</span>Nanosecond | <span class="kw-2">&amp;</span>Nanosecond3 | <span class="kw-2">&amp;</span>Nanosecond6 | <span class="kw-2">&amp;</span>Nanosecond9 =&gt; {
                         <span class="kw">if </span>s.starts_with(<span class="string">'.'</span>) {
                             <span class="kw">let </span>nano = <span class="macro">try_consume!</span>(scan::nanosecond(<span class="kw-2">&amp;</span>s[<span class="number">1</span>..]));
-                            parsed.set_nanosecond(nano).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                            parsed.set_nanosecond(nano)<span class="question-mark">?</span>;
                         }
                     }
 
                     <span class="kw-2">&amp;</span>Internal(InternalFixed { val: InternalInternal::Nanosecond3NoDot }) =&gt; {
                         <span class="kw">if </span>s.len() &lt; <span class="number">3 </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>((s, TOO_SHORT));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT);
                         }
                         <span class="kw">let </span>nano = <span class="macro">try_consume!</span>(scan::nanosecond_fixed(s, <span class="number">3</span>));
-                        parsed.set_nanosecond(nano).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_nanosecond(nano)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>Internal(InternalFixed { val: InternalInternal::Nanosecond6NoDot }) =&gt; {
                         <span class="kw">if </span>s.len() &lt; <span class="number">6 </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>((s, TOO_SHORT));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT);
                         }
                         <span class="kw">let </span>nano = <span class="macro">try_consume!</span>(scan::nanosecond_fixed(s, <span class="number">6</span>));
-                        parsed.set_nanosecond(nano).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_nanosecond(nano)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>Internal(InternalFixed { val: InternalInternal::Nanosecond9NoDot }) =&gt; {
                         <span class="kw">if </span>s.len() &lt; <span class="number">9 </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>((s, TOO_SHORT));
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT);
                         }
                         <span class="kw">let </span>nano = <span class="macro">try_consume!</span>(scan::nanosecond_fixed(s, <span class="number">9</span>));
-                        parsed.set_nanosecond(nano).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_nanosecond(nano)<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>TimezoneName =&gt; {
@@ -2307,7 +2306,7 @@
                             <span class="bool-val">false</span>,
                             <span class="bool-val">true</span>,
                         ));
-                        parsed.set_offset(i64::from(offset)).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_offset(i64::from(offset))<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>TimezoneOffsetColonZ | <span class="kw-2">&amp;</span>TimezoneOffsetZ =&gt; {
@@ -2318,7 +2317,7 @@
                             <span class="bool-val">false</span>,
                             <span class="bool-val">true</span>,
                         ));
-                        parsed.set_offset(i64::from(offset)).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_offset(i64::from(offset))<span class="question-mark">?</span>;
                     }
                     <span class="kw-2">&amp;</span>Internal(InternalFixed {
                         val: InternalInternal::TimezoneOffsetPermissive,
@@ -2330,7 +2329,7 @@
                             <span class="bool-val">true</span>,
                             <span class="bool-val">true</span>,
                         ));
-                        parsed.set_offset(i64::from(offset)).map_err(|e| (s, e))<span class="question-mark">?</span>;
+                        parsed.set_offset(i64::from(offset))<span class="question-mark">?</span>;
                     }
 
                     <span class="kw-2">&amp;</span>RFC2822 =&gt; <span class="macro">try_consume!</span>(parse_rfc2822(parsed, s)),
@@ -2345,7 +2344,7 @@
             }
 
             Item::Error =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>((s, BAD_FORMAT));
+                <span class="kw">return </span><span class="prelude-val">Err</span>(BAD_FORMAT);
             }
         }
     }
@@ -2408,7 +2407,7 @@
         Item::Space(<span class="string">""</span>),
     ];
 
-    s = parse_internal(parsed, s, DATE_ITEMS.iter()).map_err(|(_s, e)| e)<span class="question-mark">?</span>;
+    s = parse_internal(parsed, s, DATE_ITEMS.iter())<span class="question-mark">?</span>;
 
     s = <span class="kw">match </span>s.as_bytes().first() {
         <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b't' </span>| <span class="kw-2">&amp;</span><span class="string">b'T' </span>| <span class="kw-2">&amp;</span><span class="string">b' '</span>) =&gt; <span class="kw-2">&amp;</span>s[<span class="number">1</span>..],
@@ -2416,7 +2415,7 @@
         <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(TOO_SHORT),
     };
 
-    s = parse_internal(parsed, s, TIME_ITEMS.iter()).map_err(|(_s, e)| e)<span class="question-mark">?</span>;
+    s = parse_internal(parsed, s, TIME_ITEMS.iter())<span class="question-mark">?</span>;
     s = s.trim_start();
     <span class="kw">let </span>(s, offset) = <span class="kw">if </span>s.len() &gt;= <span class="number">3 </span>&amp;&amp; <span class="string">"UTC"</span>.as_bytes().eq_ignore_ascii_case(<span class="kw-2">&amp;</span>s.as_bytes()[..<span class="number">3</span>]) {
         (<span class="kw-2">&amp;</span>s[<span class="number">3</span>..], <span class="number">0</span>)
@@ -2432,7 +2431,7 @@
     <span class="kw">use </span><span class="kw">crate</span>::format::<span class="kw-2">*</span>;
     <span class="kw">use crate</span>::{DateTime, FixedOffset, NaiveDateTime, TimeZone, Timelike, Utc};
 
-    <span class="macro">macro_rules! </span>parsed {
+    <span class="macro">macro_rules!</span> parsed {
         ($(<span class="macro-nonterminal">$k</span>:ident: <span class="macro-nonterminal">$v</span>:expr),<span class="kw-2">*</span>) =&gt; (<span class="attr">#[allow(unused_mut)] </span>{
             <span class="kw">let </span><span class="kw-2">mut </span>expected = Parsed::new();
             $(expected.<span class="macro-nonterminal">$k </span>= <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$v</span>);)*

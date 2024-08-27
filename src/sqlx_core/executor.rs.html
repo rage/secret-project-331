@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/executor.rs`."><title>executor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/executor.rs`."><title>executor.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -254,9 +253,11 @@
 <a href="#253" id="253">253</a>
 <a href="#254" id="254">254</a>
 <a href="#255" id="255">255</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::{Database, HasArguments, HasStatement};
+<a href="#256" id="256">256</a>
+<a href="#257" id="257">257</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::database::Database;
 <span class="kw">use </span><span class="kw">crate</span>::describe::Describe;
-<span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::error::{BoxDynError, Error};
 
 <span class="kw">use </span>either::Either;
 <span class="kw">use </span>futures_core::future::BoxFuture;
@@ -278,10 +279,10 @@
 ///  * [`&amp;Pool`](super::pool::Pool)
 ///  * [`&amp;mut Connection`](super::connection::Connection)
 ///
-/// The [`Executor`](crate::Executor) impls for [`Transaction`](crate::Transaction)
+/// The [`Executor`] impls for [`Transaction`](crate::transaction::Transaction)
 /// and [`PoolConnection`](crate::pool::PoolConnection) have been deleted because they
 /// cannot exist in the new crate architecture without rewriting the Executor trait entirely.
-/// To fix this breakage, simply add a dereference where an impl [`Executor`](crate::Executor) is expected, as
+/// To fix this breakage, simply add a dereference where an impl [`Executor`] is expected, as
 /// they both dereference to the inner connection type which will still implement it:
 /// * `&amp;mut transaction` -&gt; `&amp;mut *transaction`
 /// * `&amp;mut connection` -&gt; `&amp;mut *connection`
@@ -290,25 +291,25 @@
     <span class="kw">type </span>Database: Database;
 
     <span class="doccomment">/// Execute the query and return the total number of rows affected.
-    </span><span class="kw">fn </span>execute&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>execute&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::QueryResult, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
     {
         <span class="self">self</span>.execute_many(query).try_collect().boxed()
     }
 
     <span class="doccomment">/// Execute multiple queries and return the rows affected from each query, in a stream.
-    </span><span class="kw">fn </span>execute_many&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>execute_many&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxStream&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::QueryResult, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
     {
         <span class="self">self</span>.fetch_many(query)
             .try_filter_map(|step| <span class="kw">async move </span>{
@@ -321,13 +322,13 @@
     }
 
     <span class="doccomment">/// Execute the query and return the generated results as a stream.
-    </span><span class="kw">fn </span>fetch&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>fetch&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxStream&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
     {
         <span class="self">self</span>.fetch_many(query)
             .try_filter_map(|step| <span class="kw">async move </span>{
@@ -341,7 +342,7 @@
 
     <span class="doccomment">/// Execute multiple queries and return the generated results as a stream
     /// from each query, in a stream.
-    </span><span class="kw">fn </span>fetch_many&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>fetch_many&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxStream&lt;
@@ -353,28 +354,28 @@
     &gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;;
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;;
 
     <span class="doccomment">/// Execute the query and return all the generated results, collected into a [`Vec`].
-    </span><span class="kw">fn </span>fetch_all&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>fetch_all&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;Vec&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
     {
         <span class="self">self</span>.fetch(query).try_collect().boxed()
     }
 
     <span class="doccomment">/// Execute the query and returns exactly one row.
-    </span><span class="kw">fn </span>fetch_one&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>fetch_one&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;,
     {
         <span class="self">self</span>.fetch_optional(query)
             .and_then(|row| <span class="kw">match </span>row {
@@ -385,13 +386,13 @@
     }
 
     <span class="doccomment">/// Execute the query and returns at most one row.
-    </span><span class="kw">fn </span>fetch_optional&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E: <span class="lifetime">'q</span>&gt;(
+    </span><span class="kw">fn </span>fetch_optional&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>, E&gt;(
         <span class="self">self</span>,
         query: E,
     ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Row&gt;, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
-        E: Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;;
+        E: <span class="lifetime">'q </span>+ Execute&lt;<span class="lifetime">'q</span>, <span class="self">Self</span>::Database&gt;;
 
     <span class="doccomment">/// Prepare the SQL query to inspect the type information of its parameters
     /// and results.
@@ -405,7 +406,7 @@
     </span><span class="kw">fn </span>prepare&lt;<span class="lifetime">'e</span>, <span class="lifetime">'q</span>: <span class="lifetime">'e</span>&gt;(
         <span class="self">self</span>,
         query: <span class="kw-2">&amp;</span><span class="lifetime">'q </span>str,
-    ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasStatement&lt;<span class="lifetime">'q</span>&gt;&gt;::Statement, Error&gt;&gt;
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Statement&lt;<span class="lifetime">'q</span>&gt;, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>,
     {
@@ -421,7 +422,7 @@
         <span class="self">self</span>,
         sql: <span class="kw-2">&amp;</span><span class="lifetime">'q </span>str,
         parameters: <span class="kw-2">&amp;</span><span class="lifetime">'e </span>[&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::TypeInfo],
-    ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>HasStatement&lt;<span class="lifetime">'q</span>&gt;&gt;::Statement, Error&gt;&gt;
+    ) -&gt; BoxFuture&lt;<span class="lifetime">'e</span>, <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self</span>::Database <span class="kw">as </span>Database&gt;::Statement&lt;<span class="lifetime">'q</span>&gt;, Error&gt;&gt;
     <span class="kw">where
         </span><span class="lifetime">'c</span>: <span class="lifetime">'e</span>;
 
@@ -451,14 +452,16 @@
     </span><span class="kw">fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'q </span>str;
 
     <span class="doccomment">/// Gets the previously cached statement, if available.
-    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>&lt;DB <span class="kw">as </span>HasStatement&lt;<span class="lifetime">'q</span>&gt;&gt;::Statement&gt;;
+    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DB::Statement&lt;<span class="lifetime">'q</span>&gt;&gt;;
 
     <span class="doccomment">/// Returns the arguments to be bound against the query string.
     ///
-    /// Returning `None` for `Arguments` indicates to use a "simple" query protocol and to not
-    /// prepare the query. Returning `Some(Default::default())` is an empty arguments object that
+    /// Returning `Ok(None)` for `Arguments` indicates to use a "simple" query protocol and to not
+    /// prepare the query. Returning `Ok(Some(Default::default()))` is an empty arguments object that
     /// will be prepared (and cached) before execution.
-    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">'q</span>&gt;&gt;::Arguments&gt;;
+    ///
+    /// Returns `Err` if encoding any of the arguments failed.
+    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>Database&gt;::Arguments&lt;<span class="lifetime">'q</span>&gt;&gt;, BoxDynError&gt;;
 
     <span class="doccomment">/// Returns `true` if the statement should be cached.
     </span><span class="kw">fn </span>persistent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
@@ -473,14 +476,14 @@
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>&lt;DB <span class="kw">as </span>HasStatement&lt;<span class="lifetime">'q</span>&gt;&gt;::Statement&gt; {
+    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DB::Statement&lt;<span class="lifetime">'q</span>&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">'q</span>&gt;&gt;::Arguments&gt; {
-        <span class="prelude-val">None
-    </span>}
+    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>Database&gt;::Arguments&lt;<span class="lifetime">'q</span>&gt;&gt;, BoxDynError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+    }
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>persistent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -488,20 +491,20 @@
     </span>}
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'q</span>, DB: Database&gt; Execute&lt;<span class="lifetime">'q</span>, DB&gt; <span class="kw">for </span>(<span class="kw-2">&amp;</span><span class="lifetime">'q </span>str, <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">'q</span>&gt;&gt;::Arguments&gt;) {
+<span class="kw">impl</span>&lt;<span class="lifetime">'q</span>, DB: Database&gt; Execute&lt;<span class="lifetime">'q</span>, DB&gt; <span class="kw">for </span>(<span class="kw-2">&amp;</span><span class="lifetime">'q </span>str, <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>Database&gt;::Arguments&lt;<span class="lifetime">'q</span>&gt;&gt;) {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>sql(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'q </span>str {
         <span class="self">self</span>.<span class="number">0
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>&lt;DB <span class="kw">as </span>HasStatement&lt;<span class="lifetime">'q</span>&gt;&gt;::Statement&gt; {
+    </span><span class="kw">fn </span>statement(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>DB::Statement&lt;<span class="lifetime">'q</span>&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>HasArguments&lt;<span class="lifetime">'q</span>&gt;&gt;::Arguments&gt; {
-        <span class="self">self</span>.<span class="number">1</span>.take()
+    </span><span class="kw">fn </span>take_arguments(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;&lt;DB <span class="kw">as </span>Database&gt;::Arguments&lt;<span class="lifetime">'q</span>&gt;&gt;, BoxDynError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.<span class="number">1</span>.take())
     }
 
     <span class="attr">#[inline]

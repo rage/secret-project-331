@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["AsyncRead","AsyncReadExt","BufExt","BufMutExt","Decode","Encode","ReadBuf"]};
+window.SIDEBAR_ITEMS = {"trait":["AsyncRead","AsyncReadExt","BufExt","BufMutExt","ProtocolDecode","ProtocolEncode","ReadBuf"]};

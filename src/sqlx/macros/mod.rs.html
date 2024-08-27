@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.7.3/src/macros/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-0.8.1/src/macros/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -814,6 +813,10 @@
 <a href="#813" id="813">813</a>
 <a href="#814" id="814">814</a>
 <a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/// Statically checked SQL query with `println!()` style syntax.
 ///
 /// This expands to an instance of [`query::Map`][crate::query::Map] that outputs an ad-hoc anonymous
@@ -868,19 +871,19 @@
 /// † Only callable if the query returns no columns; otherwise it's assumed the query *may* return at least one row.
 /// ## Requirements
 /// * The `DATABASE_URL` environment variable must be set at build-time to point to a database
-/// server with the schema that the query string will be checked against. All variants of `query!()`
-/// use [dotenv]&lt;sup&gt;1&lt;/sup&gt; so this can be in a `.env` file instead.
+///   server with the schema that the query string will be checked against.
+///   All variants of `query!()` use [dotenv]&lt;sup&gt;1&lt;/sup&gt; so this can be in a `.env` file instead.
 ///
 ///     * Or, `.sqlx` must exist at the workspace root. See [Offline Mode](#offline-mode-requires-the-offline-feature)
 ///       below.
 ///
 /// * The query must be a string literal, or concatenation of string literals using `+` (useful
-/// for queries generated by macro), or else it cannot be introspected (and thus cannot be dynamic
-/// or the result of another macro).
+///   for queries generated by macro), or else it cannot be introspected (and thus cannot be dynamic
+///   or the result of another macro).
 ///
 /// * The `QueryAs` instance will be bound to the same database type as `query!()` was compiled
-/// against (e.g. you cannot build against a Postgres database and then run the query against
-/// a MySQL database).
+///   against (e.g. you cannot build against a Postgres database and then run the query against
+///   a MySQL database).
 ///
 ///     * The schema of the database URL (e.g. `postgres://` or `mysql://`) will be used to
 ///       determine the database type.
@@ -979,10 +982,6 @@
 ///
 /// Using `expr as _` simply signals to the macro to not type-check that bind expression,
 /// and then that syntax is stripped from the expression so as to not trigger type errors.
-///
-/// **NOTE:** type ascription syntax (`expr: _`) is deprecated and will be removed in a
-/// future release. This is due to Rust's [RFC 3307](https://github.com/rust-lang/rfcs/pull/3307)
-/// officially dropping support for the syntax.
 ///
 /// ## Type Overrides: Output Columns
 /// Type overrides are also available for output columns, utilizing the SQL standard's support
@@ -1126,12 +1125,12 @@
 /// See [the README for `sqlx-cli`](https://crates.io/crates/sqlx-cli) for more information.
 ///
 /// ## See Also
-/// * [query_as!] if you want to use a struct you can name,
-/// * [query_file!] if you want to define the SQL query out-of-line,
-/// * [query_file_as!] if you want both of the above.
+/// * [`query_as!`][`crate::query_as!`] if you want to use a struct you can name,
+/// * [`query_file!`][`crate::query_file!`] if you want to define the SQL query out-of-line,
+/// * [`query_file_as!`][`crate::query_file_as!`] if you want both of the above.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query (
+</span><span class="macro">macro_rules!</span> query (
     <span class="comment">// in Rust 1.45 we can now invoke proc macros in expression position
     </span>(<span class="macro-nonterminal">$query</span>:expr) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source </span>= <span class="macro-nonterminal">$query</span>)
@@ -1149,11 +1148,11 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query!] which does not check the input or output types. This still does parse
+<span class="doccomment">/// A variant of [`query!`][`crate::query!`] which does not check the input or output types. This still does parse
 /// the query to ensure it's syntactically and semantically valid for the current database.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_unchecked (
+</span><span class="macro">macro_rules!</span> query_unchecked (
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source </span>= <span class="macro-nonterminal">$query</span>, checked = <span class="bool-val">false</span>)
     });
@@ -1162,12 +1161,12 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query!] where the SQL query is stored in a separate file.
+<span class="doccomment">/// A variant of [`query!`][`crate::query!`] where the SQL query is stored in a separate file.
 ///
 /// Useful for large queries and potentially cleaner than multiline strings.
 ///
-/// The syntax and requirements (see [query!]) are the same except the SQL string is replaced by a
-/// file path.
+/// The syntax and requirements (see [`query!`][`crate::query!`]) are the same except the SQL
+/// string is replaced by a file path.
 ///
 /// The file must be relative to the project root (the directory containing `Cargo.toml`),
 /// unlike `include_str!()` which uses compiler internals to get the path of the file where it
@@ -1206,7 +1205,7 @@
 /// ```
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_file (
+</span><span class="macro">macro_rules!</span> query_file (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file </span>= <span class="macro-nonterminal">$path</span>)
     });
@@ -1215,11 +1214,12 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query_file!] which does not check the input or output types. This still does parse
-/// the query to ensure it's syntactically and semantically valid for the current database.
+<span class="doccomment">/// A variant of [`query_file!`][`crate::query_file!`] which does not check the input or output
+/// types. This still does parse the query to ensure it's syntactically and semantically valid
+/// for the current database.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_file_unchecked (
+</span><span class="macro">macro_rules!</span> query_file_unchecked (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; ({
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">source_file </span>= <span class="macro-nonterminal">$path</span>, checked = <span class="bool-val">false</span>)
     });
@@ -1228,7 +1228,8 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query!] which takes a path to an explicitly defined struct as the output type.
+<span class="doccomment">/// A variant of [`query!`][`crate::query!`] which takes a path to an explicitly defined struct
+/// as the output type.
 ///
 /// This lets you return the struct from a function or add your own trait implementations.
 ///
@@ -1244,7 +1245,7 @@
 /// * The query must output at least one column.
 /// * The column names of the query must match the field names of the struct.
 /// * The field types must be the Rust equivalent of their SQL counterparts; see the corresponding
-/// module for your database for mappings:
+///   module for your database for mappings:
 ///     * Postgres: [crate::postgres::types]
 ///     * MySQL: [crate::mysql::types]
 ///         * Note: due to wire protocol limitations, the query macros do not know when
@@ -1303,7 +1304,8 @@
 /// (`.execute()` is omitted as this macro requires at least one column to be returned.)
 ///
 /// ### Column Type Override: Infer from Struct Field
-/// In addition to the column type overrides supported by [query!], `query_as!()` supports an
+/// In addition to the column type overrides supported by [`query!`][`crate::query!`],
+/// [`query_as!()`][`crate::query_as!`] supports an
 /// additional override option:
 ///
 /// If you select a column `foo as "foo: _"` (Postgres/SQLite) or `` foo as `foo: _` `` (MySQL)
@@ -1378,13 +1380,14 @@
 /// `select id as "id!"` to override the inferred nullability because we know in practice
 /// that column will never be `NULL` and it will fix the error.
 ///
-/// Nullability inference and type overrides are discussed in detail in the docs for [query!].
+/// Nullability inference and type overrides are discussed in detail in the docs for
+/// [`query!`][`crate::query!`].
 ///
 /// It unfortunately doesn't appear to be possible right now to make the error specifically mention
 /// the field; this probably requires the `const-panic` feature (still unstable as of Rust 1.45).
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_as (
+</span><span class="macro">macro_rules!</span> query_as (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$query</span>:expr) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source = <span class="macro-nonterminal">$query</span>)
     });
@@ -1393,7 +1396,7 @@
     })
 );
 
-<span class="doccomment">/// Combines the syntaxes of [query_as!] and [query_file!].
+<span class="doccomment">/// Combines the syntaxes of [`query_as!`][`crate::query_as!`] and [`query_file!`][`crate::query_file!`].
 ///
 /// Enforces requirements of both macros; see them for details.
 ///
@@ -1428,7 +1431,7 @@
 /// ```
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_file_as (
+</span><span class="macro">macro_rules!</span> query_file_as (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$path</span>:literal) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source_file = <span class="macro-nonterminal">$path</span>)
     });
@@ -1437,11 +1440,11 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query_as!] which does not check the input or output types. This still does parse
+<span class="doccomment">/// A variant of [`query_as!`][`crate::query_as!`] which does not check the input or output types. This still does parse
 /// the query to ensure it's syntactically and semantically valid for the current database.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_as_unchecked (
+</span><span class="macro">macro_rules!</span> query_as_unchecked (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$query</span>:expr) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source = <span class="macro-nonterminal">$query</span>, checked = <span class="bool-val">false</span>)
     });
@@ -1451,12 +1454,12 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query_file_as!] which does not check the input or output types. This
+<span class="doccomment">/// A variant of [`query_file_as!`][`crate::query_file_as!`] which does not check the input or output types. This
 /// still does parse the query to ensure it's syntactically and semantically valid
 /// for the current database.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_file_as_unchecked (
+</span><span class="macro">macro_rules!</span> query_file_as_unchecked (
     (<span class="macro-nonterminal">$out_struct</span>:path, <span class="macro-nonterminal">$path</span>:literal) =&gt; ( {
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">record </span>= <span class="macro-nonterminal">$out_struct</span>, source_file = <span class="macro-nonterminal">$path</span>, checked = <span class="bool-val">false</span>)
     });
@@ -1466,7 +1469,7 @@
     })
 );
 
-<span class="doccomment">/// A variant of [query!] which expects a single column from the query and evaluates to an
+<span class="doccomment">/// A variant of [`query!`][`crate::query!`] which expects a single column from the query and evaluates to an
 /// instance of [QueryScalar][crate::query::QueryScalar].
 ///
 /// The name of the column is not required to be a valid Rust identifier, however you can still
@@ -1476,13 +1479,13 @@
 /// getting a different type than expected, please check to see if your override syntax is correct
 /// before opening an issue.**
 ///
-/// Wildcard overrides like in [query_as!] are also allowed, in which case the output type
+/// Wildcard overrides like in [`query_as!`][`crate::query_as!`] are also allowed, in which case the output type
 /// is left up to inference.
 ///
-/// See [query!] for more information.
+/// See [`query!`][`crate::query!`] for more information.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_scalar (
+</span><span class="macro">macro_rules!</span> query_scalar (
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source = <span class="macro-nonterminal">$query</span>)
     );
@@ -1491,10 +1494,11 @@
     )
 );
 
-<span class="doccomment">/// A variant of [query_scalar!] which takes a file path like [query_file!].
+<span class="doccomment">/// A variant of [`query_scalar!`][`crate::query_scalar!`] which takes a file path like
+/// [`query_file!`][`crate::query_file!`].
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_file_scalar (
+</span><span class="macro">macro_rules!</span> query_file_scalar (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source_file = <span class="macro-nonterminal">$path</span>)
     );
@@ -1503,15 +1507,16 @@
     )
 );
 
-<span class="doccomment">/// A variant of [query_scalar!] which does not typecheck bind parameters and leaves the output type
-/// to inference. The query itself is still checked that it is syntactically and semantically
+<span class="doccomment">/// A variant of [`query_scalar!`][`crate::query_scalar!`] which does not typecheck bind parameters
+/// and leaves the output type to inference.
+/// The query itself is still checked that it is syntactically and semantically
 /// valid for the database, that it only produces one column and that the number of bind parameters
 /// is correct.
 ///
 /// For this macro variant the name of the column is irrelevant.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_scalar_unchecked (
+</span><span class="macro">macro_rules!</span> query_scalar_unchecked (
     (<span class="macro-nonterminal">$query</span>:expr) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source = <span class="macro-nonterminal">$query</span>, checked = <span class="bool-val">false</span>)
     );
@@ -1520,15 +1525,16 @@
     )
 );
 
-<span class="doccomment">/// A variant of [query_file_scalar!] which does not typecheck bind parameters and leaves the output
-/// type to inference. The query itself is still checked that it is syntactically and
+<span class="doccomment">/// A variant of [`query_file_scalar!`][`crate::query_file_scalar!`] which does not typecheck bind
+/// parameters and leaves the output type to inference.
+/// The query itself is still checked that it is syntactically and
 /// semantically valid for the database, that it only produces one column and that the number of
 /// bind parameters is correct.
 ///
 /// For this macro variant the name of the column is irrelevant.
 </span><span class="attr">#[macro_export]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"macros"</span>)))]
-</span><span class="macro">macro_rules! </span>query_file_scalar_unchecked (
+</span><span class="macro">macro_rules!</span> query_file_scalar_unchecked (
     (<span class="macro-nonterminal">$path</span>:literal) =&gt; (
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::expand_query!</span>(<span class="macro-nonterminal">scalar </span>= <span class="kw">_</span>, source_file = <span class="macro-nonterminal">$path</span>, checked = <span class="bool-val">false</span>)
     );
@@ -1537,7 +1543,8 @@
     )
 );
 
-<span class="doccomment">/// Embeds migrations into the binary by expanding to a static instance of [Migrator][crate::migrate::Migrator].
+<span class="attr">#[allow(clippy::needless_doctest_main)]
+</span><span class="doccomment">/// Embeds migrations into the binary by expanding to a static instance of [Migrator][crate::migrate::Migrator].
 ///
 /// ```rust,ignore
 /// sqlx::migrate!("db/migrations")
@@ -1580,7 +1587,7 @@
 /// and have it print `cargo:rerun-if-changed=migrations`:
 ///
 /// `build.rs`
-/// ```
+/// ```no_run
 /// fn main() {
 ///     println!("cargo:rerun-if-changed=migrations");
 /// }
@@ -1620,7 +1627,7 @@
 /// (see [`proc-macro2` docs / Unstable Features](https://docs.rs/proc-macro2/1.0.27/proc_macro2/#unstable-features)).
 </span><span class="attr">#[cfg(feature = <span class="string">"migrate"</span>)]
 #[macro_export]
-</span><span class="macro">macro_rules! </span>migrate {
+</span><span class="macro">macro_rules!</span> migrate {
     (<span class="macro-nonterminal">$dir</span>:literal) =&gt; {{
         <span class="macro-nonterminal">$</span><span class="macro">crate::sqlx_macros::migrate!</span>(<span class="macro-nonterminal">$dir</span>)
     }};

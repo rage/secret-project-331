@@ -1,0 +1,1 @@
+searchState.loadedDescShard("constant_time_eq", 0, "Compares two equal-sized byte strings in constant time.\nCompares two 128-bit byte strings in constant time.\nCompares two 256-bit byte strings in constant time.\nCompares two 512-bit byte strings in constant time.\nCompares two fixed-size byte strings in constant time.")

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["SyncFuture","SyncWrapper"]};
+window.SIDEBAR_ITEMS = {"struct":["SyncFuture","SyncStream","SyncWrapper"]};

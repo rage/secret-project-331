@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.15/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="stacker" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.16/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="stacker" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -454,10 +453,6 @@
 <a href="#453" id="453">453</a>
 <a href="#454" id="454">454</a>
 <a href="#455" id="455">455</a>
-<a href="#456" id="456">456</a>
-<a href="#457" id="457">457</a>
-<a href="#458" id="458">458</a>
-<a href="#459" id="459">459</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A library to help grow the stack when it runs out of space.
 //!
 //! This is an implementation of manually instrumented segmented stacks where points in a program's
@@ -488,7 +483,7 @@
 </span><span class="kw">extern crate </span>cfg_if;
 <span class="kw">extern crate </span>libc;
 <span class="attr">#[cfg(windows)]
-</span><span class="kw">extern crate </span>winapi;
+</span><span class="kw">extern crate </span>windows_sys;
 <span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>psm;
 
@@ -552,7 +547,7 @@
     get_stack_limit().map(|limit| current_ptr - limit)
 }
 
-<span class="macro">psm_stack_information! </span>(
+<span class="macro">psm_stack_information!</span>(
     yes {
         <span class="kw">fn </span>current_stack_ptr() -&gt; usize {
             psm::stack_pointer() <span class="kw">as </span>usize
@@ -574,7 +569,7 @@
     }
 );
 
-<span class="macro">thread_local! </span>{
+<span class="macro">thread_local!</span> {
     <span class="kw">static </span>STACK_LIMIT: Cell&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt; = Cell::new(<span class="kw">unsafe </span>{
         guess_os_stack_limit()
     })
@@ -591,7 +586,7 @@
     STACK_LIMIT.with(|s| s.set(l))
 }
 
-<span class="macro">psm_stack_manipulation! </span>{
+<span class="macro">psm_stack_manipulation!</span> {
     yes {
         <span class="kw">struct </span>StackRestoreGuard {
             new_stack: <span class="kw-2">*mut </span>std::ffi::c_void,
@@ -734,33 +729,31 @@
     }
 }
 
-<span class="macro">cfg_if! </span>{
+<span class="macro">cfg_if!</span> {
     <span class="kw">if </span><span class="attr">#[cfg(windows)] </span>{
         <span class="kw">use </span>std::ptr;
         <span class="kw">use </span>std::io;
-
-        <span class="kw">use </span>winapi::shared::basetsd::<span class="kw-2">*</span>;
-        <span class="kw">use </span>winapi::shared::minwindef::{LPVOID, BOOL};
-        <span class="kw">use </span>winapi::shared::ntdef::<span class="kw-2">*</span>;
-        <span class="kw">use </span>winapi::um::fibersapi::<span class="kw-2">*</span>;
-        <span class="kw">use </span>winapi::um::memoryapi::<span class="kw-2">*</span>;
-        <span class="kw">use </span>winapi::um::processthreadsapi::<span class="kw-2">*</span>;
-        <span class="kw">use </span>winapi::um::winbase::<span class="kw-2">*</span>;
+        <span class="kw">use </span>libc::c_void;
+        <span class="kw">use </span>windows_sys::Win32::System::Threading::{SwitchToFiber, IsThreadAFiber, ConvertThreadToFiber,
+            CreateFiber, DeleteFiber, ConvertFiberToThread, SetThreadStackGuarantee
+        };
+        <span class="kw">use </span>windows_sys::Win32::Foundation::BOOL;
+        <span class="kw">use </span>windows_sys::Win32::System::Memory::VirtualQuery;
 
         <span class="comment">// Make sure the libstacker.a (implemented in C) is linked.
         // See https://github.com/rust-lang/rust/issues/65610
         </span><span class="attr">#[link(name=<span class="string">"stacker"</span>)]
         </span><span class="kw">extern </span>{
-            <span class="kw">fn </span>__stacker_get_current_fiber() -&gt; PVOID;
+            <span class="kw">fn </span>__stacker_get_current_fiber() -&gt; <span class="kw-2">*mut </span>c_void;
         }
 
         <span class="kw">struct </span>FiberInfo&lt;F&gt; {
             callback: std::mem::MaybeUninit&lt;F&gt;,
             panic: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>std::any::Any + Send + <span class="lifetime">'static</span>&gt;&gt;,
-            parent_fiber: LPVOID,
+            parent_fiber: <span class="kw-2">*mut </span>c_void,
         }
 
-        <span class="kw">unsafe extern </span><span class="string">"system" </span><span class="kw">fn </span>fiber_proc&lt;F: FnOnce()&gt;(data: LPVOID) {
+        <span class="kw">unsafe extern </span><span class="string">"system" </span><span class="kw">fn </span>fiber_proc&lt;F: FnOnce()&gt;(data: <span class="kw-2">*mut </span>c_void) {
             <span class="comment">// This function is the entry point to our inner fiber, and as argument we get an
             // instance of `FiberInfo`. We will set-up the "runtime" for the callback and execute
             // it.
@@ -773,7 +766,6 @@
             <span class="comment">// Restore to the previous Fiber
             </span>set_stack_limit(old_stack_limit);
             SwitchToFiber(data.parent_fiber);
-            <span class="kw">return</span>;
         }
 
         <span class="kw">fn </span>_grow(stack_size: usize, callback: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut()) {
@@ -782,7 +774,7 @@
             // to it so we can use it's stack. After running `callback` within our fiber, we switch
             // back to the current stack and destroy the fiber and its associated stack.
             </span><span class="kw">unsafe </span>{
-                <span class="kw">let </span>was_fiber = IsThreadAFiber() == TRUE <span class="kw">as </span>BOOL;
+                <span class="kw">let </span>was_fiber = IsThreadAFiber() == <span class="number">1 </span><span class="kw">as </span>BOOL;
                 <span class="kw">let </span><span class="kw-2">mut </span>data = FiberInfo {
                     callback: std::mem::MaybeUninit::new(callback),
                     panic: <span class="prelude-val">None</span>,
@@ -806,7 +798,7 @@
                 }
 
                 <span class="kw">let </span>fiber = CreateFiber(
-                    stack_size <span class="kw">as </span>SIZE_T,
+                    stack_size <span class="kw">as </span>usize,
                     <span class="prelude-val">Some</span>(fiber_proc::&lt;<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut()&gt;),
                     <span class="kw-2">&amp;mut </span>data <span class="kw">as </span><span class="kw-2">*mut </span>FiberInfo&lt;<span class="kw-2">&amp;mut </span><span class="kw">dyn </span>FnMut()&gt; <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>,
                 );
@@ -821,12 +813,11 @@
                 DeleteFiber(fiber);
 
                 <span class="comment">// Clean-up.
-                </span><span class="kw">if </span>!was_fiber {
-                    <span class="kw">if </span>ConvertFiberToThread() == <span class="number">0 </span>{
+                </span><span class="kw">if </span>!was_fiber &amp;&amp; ConvertFiberToThread() == <span class="number">0 </span>{
                         <span class="comment">// FIXME: Perhaps should not panic here?
                         </span><span class="macro">panic!</span>(<span class="string">"unable to convert back to thread: {}"</span>, io::Error::last_os_error());
-                    }
                 }
+
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = data.panic {
                     std::panic::resume_unwind(p);
                 }
@@ -860,12 +851,12 @@
             // to discover the size of the stack
             //
             // FIXME: we could read stack base from the TIB, specifically the 3rd element of it.
-            </span><span class="kw">type </span>QueryT = winapi::um::winnt::MEMORY_BASIC_INFORMATION;
+            </span><span class="kw">type </span>QueryT = windows_sys::Win32::System::Memory::MEMORY_BASIC_INFORMATION;
             <span class="kw">let </span><span class="kw-2">mut </span>mi = std::mem::MaybeUninit::&lt;QueryT&gt;::uninit();
             VirtualQuery(
                 psm::stack_pointer() <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>,
                 mi.as_mut_ptr(),
-                std::mem::size_of::&lt;QueryT&gt;() <span class="kw">as </span>SIZE_T,
+                std::mem::size_of::&lt;QueryT&gt;() <span class="kw">as </span>usize,
             );
             <span class="prelude-val">Some</span>(mi.assume_init().AllocationBase <span class="kw">as </span>usize + get_thread_stack_guarantee() + <span class="number">0x1000</span>)
         }
@@ -883,7 +874,7 @@
             <span class="macro">assert_eq!</span>(libc::pthread_attr_destroy(attr.as_mut_ptr()), <span class="number">0</span>);
             <span class="prelude-val">Some</span>(stackaddr <span class="kw">as </span>usize)
         }
-    } <span class="kw">else if </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"dragonfly"</span>))] </span>{
+    } <span class="kw">else if </span><span class="attr">#[cfg(any(target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"dragonfly"</span>, target_os = <span class="string">"illumos"</span>))] </span>{
         <span class="kw">unsafe fn </span>guess_os_stack_limit() -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
             <span class="kw">let </span><span class="kw-2">mut </span>attr = std::mem::MaybeUninit::&lt;libc::pthread_attr_t&gt;::uninit();
             <span class="macro">assert_eq!</span>(libc::pthread_attr_init(attr.as_mut_ptr()), <span class="number">0</span>);

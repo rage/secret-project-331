@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["MajorCategory","MinorCategory"],"trait":["CharacterCategories"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["compact"]};
+window.SIDEBAR_ITEMS = {"mod":["braced","compact","simple","urn"]};

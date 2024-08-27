@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/allocator-api2-0.2.16/src/stable/vec/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="allocator_api2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/allocator-api2-0.2.18/src/stable/vec/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="allocator_api2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3252,6 +3251,41 @@
 <a href="#3251" id="3251">3251</a>
 <a href="#3252" id="3252">3252</a>
 <a href="#3253" id="3253">3253</a>
+<a href="#3254" id="3254">3254</a>
+<a href="#3255" id="3255">3255</a>
+<a href="#3256" id="3256">3256</a>
+<a href="#3257" id="3257">3257</a>
+<a href="#3258" id="3258">3258</a>
+<a href="#3259" id="3259">3259</a>
+<a href="#3260" id="3260">3260</a>
+<a href="#3261" id="3261">3261</a>
+<a href="#3262" id="3262">3262</a>
+<a href="#3263" id="3263">3263</a>
+<a href="#3264" id="3264">3264</a>
+<a href="#3265" id="3265">3265</a>
+<a href="#3266" id="3266">3266</a>
+<a href="#3267" id="3267">3267</a>
+<a href="#3268" id="3268">3268</a>
+<a href="#3269" id="3269">3269</a>
+<a href="#3270" id="3270">3270</a>
+<a href="#3271" id="3271">3271</a>
+<a href="#3272" id="3272">3272</a>
+<a href="#3273" id="3273">3273</a>
+<a href="#3274" id="3274">3274</a>
+<a href="#3275" id="3275">3275</a>
+<a href="#3276" id="3276">3276</a>
+<a href="#3277" id="3277">3277</a>
+<a href="#3278" id="3278">3278</a>
+<a href="#3279" id="3279">3279</a>
+<a href="#3280" id="3280">3280</a>
+<a href="#3281" id="3281">3281</a>
+<a href="#3282" id="3282">3282</a>
+<a href="#3283" id="3283">3283</a>
+<a href="#3284" id="3284">3284</a>
+<a href="#3285" id="3285">3285</a>
+<a href="#3286" id="3286">3286</a>
+<a href="#3287" id="3287">3287</a>
+<a href="#3288" id="3288">3288</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A contiguous growable array type with heap-allocated contents, written
 //! `Vec&lt;T&gt;`.
 //!
@@ -3320,6 +3354,9 @@
 <span class="kw">use </span>core::ops::{<span class="self">self</span>, Bound, Index, IndexMut, Range, RangeBounds};
 <span class="kw">use </span>core::ptr::{<span class="self">self</span>, NonNull};
 <span class="kw">use </span>core::slice::{<span class="self">self</span>, SliceIndex};
+
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>std::io;
 
 <span class="kw">use super</span>::{
     alloc::{Allocator, Global},
@@ -6367,6 +6404,38 @@
     <span class="kw">let </span><span class="kw-2">mut </span>v = Vec::with_capacity(n);
     v.extend_with(n, ExtendElement(elem));
     v
+}
+
+<span class="doccomment">/// Write is implemented for `Vec&lt;u8&gt;` by appending to the vector.
+/// The vector will grow as needed.
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl</span>&lt;A: Allocator&gt; io::Write <span class="kw">for </span>Vec&lt;u8, A&gt; {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="self">self</span>.extend_from_slice(buf);
+        <span class="prelude-val">Ok</span>(buf.len())
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>write_vectored(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bufs: <span class="kw-2">&amp;</span>[io::IoSlice&lt;<span class="lifetime">'_</span>&gt;]) -&gt; io::Result&lt;usize&gt; {
+        <span class="kw">let </span>len = bufs.iter().map(|b| b.len()).sum();
+        <span class="self">self</span>.reserve(len);
+        <span class="kw">for </span>buf <span class="kw">in </span>bufs {
+            <span class="self">self</span>.extend_from_slice(buf);
+        }
+        <span class="prelude-val">Ok</span>(len)
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>write_all(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.extend_from_slice(buf);
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 
 <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]

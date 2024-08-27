@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-safe-7.0.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_safe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-safe-7.2.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zstd_safe" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2237,6 +2236,110 @@
 <a href="#2236" id="2236">2236</a>
 <a href="#2237" id="2237">2237</a>
 <a href="#2238" id="2238">2238</a>
+<a href="#2239" id="2239">2239</a>
+<a href="#2240" id="2240">2240</a>
+<a href="#2241" id="2241">2241</a>
+<a href="#2242" id="2242">2242</a>
+<a href="#2243" id="2243">2243</a>
+<a href="#2244" id="2244">2244</a>
+<a href="#2245" id="2245">2245</a>
+<a href="#2246" id="2246">2246</a>
+<a href="#2247" id="2247">2247</a>
+<a href="#2248" id="2248">2248</a>
+<a href="#2249" id="2249">2249</a>
+<a href="#2250" id="2250">2250</a>
+<a href="#2251" id="2251">2251</a>
+<a href="#2252" id="2252">2252</a>
+<a href="#2253" id="2253">2253</a>
+<a href="#2254" id="2254">2254</a>
+<a href="#2255" id="2255">2255</a>
+<a href="#2256" id="2256">2256</a>
+<a href="#2257" id="2257">2257</a>
+<a href="#2258" id="2258">2258</a>
+<a href="#2259" id="2259">2259</a>
+<a href="#2260" id="2260">2260</a>
+<a href="#2261" id="2261">2261</a>
+<a href="#2262" id="2262">2262</a>
+<a href="#2263" id="2263">2263</a>
+<a href="#2264" id="2264">2264</a>
+<a href="#2265" id="2265">2265</a>
+<a href="#2266" id="2266">2266</a>
+<a href="#2267" id="2267">2267</a>
+<a href="#2268" id="2268">2268</a>
+<a href="#2269" id="2269">2269</a>
+<a href="#2270" id="2270">2270</a>
+<a href="#2271" id="2271">2271</a>
+<a href="#2272" id="2272">2272</a>
+<a href="#2273" id="2273">2273</a>
+<a href="#2274" id="2274">2274</a>
+<a href="#2275" id="2275">2275</a>
+<a href="#2276" id="2276">2276</a>
+<a href="#2277" id="2277">2277</a>
+<a href="#2278" id="2278">2278</a>
+<a href="#2279" id="2279">2279</a>
+<a href="#2280" id="2280">2280</a>
+<a href="#2281" id="2281">2281</a>
+<a href="#2282" id="2282">2282</a>
+<a href="#2283" id="2283">2283</a>
+<a href="#2284" id="2284">2284</a>
+<a href="#2285" id="2285">2285</a>
+<a href="#2286" id="2286">2286</a>
+<a href="#2287" id="2287">2287</a>
+<a href="#2288" id="2288">2288</a>
+<a href="#2289" id="2289">2289</a>
+<a href="#2290" id="2290">2290</a>
+<a href="#2291" id="2291">2291</a>
+<a href="#2292" id="2292">2292</a>
+<a href="#2293" id="2293">2293</a>
+<a href="#2294" id="2294">2294</a>
+<a href="#2295" id="2295">2295</a>
+<a href="#2296" id="2296">2296</a>
+<a href="#2297" id="2297">2297</a>
+<a href="#2298" id="2298">2298</a>
+<a href="#2299" id="2299">2299</a>
+<a href="#2300" id="2300">2300</a>
+<a href="#2301" id="2301">2301</a>
+<a href="#2302" id="2302">2302</a>
+<a href="#2303" id="2303">2303</a>
+<a href="#2304" id="2304">2304</a>
+<a href="#2305" id="2305">2305</a>
+<a href="#2306" id="2306">2306</a>
+<a href="#2307" id="2307">2307</a>
+<a href="#2308" id="2308">2308</a>
+<a href="#2309" id="2309">2309</a>
+<a href="#2310" id="2310">2310</a>
+<a href="#2311" id="2311">2311</a>
+<a href="#2312" id="2312">2312</a>
+<a href="#2313" id="2313">2313</a>
+<a href="#2314" id="2314">2314</a>
+<a href="#2315" id="2315">2315</a>
+<a href="#2316" id="2316">2316</a>
+<a href="#2317" id="2317">2317</a>
+<a href="#2318" id="2318">2318</a>
+<a href="#2319" id="2319">2319</a>
+<a href="#2320" id="2320">2320</a>
+<a href="#2321" id="2321">2321</a>
+<a href="#2322" id="2322">2322</a>
+<a href="#2323" id="2323">2323</a>
+<a href="#2324" id="2324">2324</a>
+<a href="#2325" id="2325">2325</a>
+<a href="#2326" id="2326">2326</a>
+<a href="#2327" id="2327">2327</a>
+<a href="#2328" id="2328">2328</a>
+<a href="#2329" id="2329">2329</a>
+<a href="#2330" id="2330">2330</a>
+<a href="#2331" id="2331">2331</a>
+<a href="#2332" id="2332">2332</a>
+<a href="#2333" id="2333">2333</a>
+<a href="#2334" id="2334">2334</a>
+<a href="#2335" id="2335">2335</a>
+<a href="#2336" id="2336">2336</a>
+<a href="#2337" id="2337">2337</a>
+<a href="#2338" id="2338">2338</a>
+<a href="#2339" id="2339">2339</a>
+<a href="#2340" id="2340">2340</a>
+<a href="#2341" id="2341">2341</a>
+<a href="#2342" id="2342">2342</a>
 </pre></div><pre class="rust"><code><span class="attr">#![no_std]
 </span><span class="doccomment">//! Minimal safe wrapper around zstd-sys.
 //!
@@ -2385,7 +2488,7 @@
 /// This will try to compress `src` entirely and write the result to `dst`, returning the number of
 /// bytes written. If `dst` is too small to hold the compressed content, an error will be returned.
 ///
-/// For streaming operations that don't require to store the entire input/ouput in memory, see
+/// For streaming operations that don't require to store the entire input/output in memory, see
 /// `compress_stream`.
 </span><span class="kw">pub fn </span>compress&lt;C: WriteBuf + <span class="question-mark">?</span>Sized&gt;(
     dst: <span class="kw-2">&amp;mut </span>C,
@@ -2849,7 +2952,6 @@
             ZSTD_c_experimentalParam3 <span class="kw">as </span>ZSTD_c_forceMaxWindow,
             ZSTD_c_experimentalParam4 <span class="kw">as </span>ZSTD_c_forceAttachDict,
             ZSTD_c_experimentalParam5 <span class="kw">as </span>ZSTD_c_literalCompressionMode,
-            ZSTD_c_experimentalParam6 <span class="kw">as </span>ZSTD_c_targetCBlockSize,
             ZSTD_c_experimentalParam7 <span class="kw">as </span>ZSTD_c_srcSizeHint,
             ZSTD_c_experimentalParam8 <span class="kw">as </span>ZSTD_c_enableDedicatedDictSearch,
             ZSTD_c_experimentalParam9 <span class="kw">as </span>ZSTD_c_stableInBuffer,
@@ -2870,10 +2972,6 @@
             <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>LiteralCompressionMode(mode) =&gt; {
                 (ZSTD_c_literalCompressionMode, mode <span class="kw">as </span>c_int)
-            }
-            <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-            </span>TargetCBlockSize(value) =&gt; {
-                (ZSTD_c_targetCBlockSize, value <span class="kw">as </span>c_int)
             }
             <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>SrcSizeHint(value) =&gt; (ZSTD_c_srcSizeHint, value <span class="kw">as </span>c_int),
@@ -2918,6 +3016,9 @@
             <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
             </span>SearchForExternalRepcodes(value) =&gt; {
                 (ZSTD_c_searchForExternalRepcodes, value <span class="kw">as </span>c_int)
+            }
+            TargetCBlockSize(value) =&gt; {
+                (ZSTD_c_targetCBlockSize, value <span class="kw">as </span>c_int)
             }
             CompressionLevel(level) =&gt; (ZSTD_c_compressionLevel, level),
             WindowLog(value) =&gt; (ZSTD_c_windowLog, value <span class="kw">as </span>c_int),
@@ -3045,6 +3146,38 @@
         <span class="comment">// Safety: Just FFI
         </span><span class="kw">unsafe </span>{ zstd_sys::ZSTD_CStreamOutSize() }
     }
+
+    <span class="doccomment">/// Use a shared thread pool for this context.
+    ///
+    /// Thread pool must outlive the context.
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+    #[cfg_attr(
+        feature = <span class="string">"doc-cfg"</span>,
+        doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+    )]
+    </span><span class="kw">pub fn </span>ref_thread_pool&lt;<span class="lifetime">'b</span>&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pool: <span class="kw-2">&amp;</span><span class="lifetime">'b </span>ThreadPool) -&gt; SafeResult
+    <span class="kw">where
+        </span><span class="lifetime">'b</span>: <span class="lifetime">'a</span>,
+    {
+        parse_code(<span class="kw">unsafe </span>{
+            zstd_sys::ZSTD_CCtx_refThreadPool(<span class="self">self</span>.<span class="number">0</span>.as_ptr(), pool.<span class="number">0</span>.as_ptr())
+        })
+    }
+
+    <span class="doccomment">/// Return to using a private thread pool for this context.
+    </span><span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+    #[cfg_attr(
+        feature = <span class="string">"doc-cfg"</span>,
+        doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+    )]
+    </span><span class="kw">pub fn </span>disable_thread_pool(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; SafeResult {
+        parse_code(<span class="kw">unsafe </span>{
+            zstd_sys::ZSTD_CCtx_refThreadPool(
+                <span class="self">self</span>.<span class="number">0</span>.as_ptr(),
+                core::ptr::null_mut(),
+            )
+        })
+    }
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>CCtx&lt;<span class="lifetime">'a</span>&gt; {
@@ -3056,10 +3189,11 @@
     }
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Send <span class="kw">for </span>CCtx&lt;<span class="lifetime">'a</span>&gt; {}
-<span class="comment">// CCtx can't be shared across threads, so it does not implement Sync.
+<span class="kw">unsafe impl </span>Send <span class="kw">for </span>CCtx&lt;<span class="lifetime">'_</span>&gt; {}
+<span class="comment">// Non thread-safe methods already take `&amp;mut self`, so it's fine to implement Sync here.
+</span><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>CCtx&lt;<span class="lifetime">'_</span>&gt; {}
 
-</span><span class="kw">unsafe fn </span>c_char_to_str(text: <span class="kw-2">*const </span>c_char) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+<span class="kw">unsafe fn </span>c_char_to_str(text: <span class="kw-2">*const </span>c_char) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
     core::ffi::CStr::from_ptr(text)
         .to_str()
         .expect(<span class="string">"bad error message from zstd"</span>)
@@ -3456,9 +3590,10 @@
 }
 
 <span class="kw">unsafe impl </span>Send <span class="kw">for </span>DCtx&lt;<span class="lifetime">'_</span>&gt; {}
-<span class="comment">// DCtx can't be shared across threads, so it does not implement Sync.
+<span class="comment">// Non thread-safe methods already take `&amp;mut self`, so it's fine to implement Sync here.
+</span><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>DCtx&lt;<span class="lifetime">'_</span>&gt; {}
 
-</span><span class="doccomment">/// Compression dictionary.
+<span class="doccomment">/// Compression dictionary.
 </span><span class="kw">pub struct </span>CDict&lt;<span class="lifetime">'a</span>&gt;(NonNull&lt;zstd_sys::ZSTD_CDict&gt;, PhantomData&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>()&gt;);
 
 <span class="kw">impl </span>CDict&lt;<span class="lifetime">'static</span>&gt; {
@@ -3640,6 +3775,64 @@
 <span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Send <span class="kw">for </span>DDict&lt;<span class="lifetime">'a</span>&gt; {}
 <span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>&gt; Sync <span class="kw">for </span>DDict&lt;<span class="lifetime">'a</span>&gt; {}
 
+<span class="doccomment">/// A shared thread pool for one or more compression contexts
+</span><span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+#[cfg_attr(
+    feature = <span class="string">"doc-cfg"</span>,
+    doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+)]
+</span><span class="kw">pub struct </span>ThreadPool(NonNull&lt;zstd_sys::ZSTD_threadPool&gt;);
+
+<span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+#[cfg_attr(
+    feature = <span class="string">"doc-cfg"</span>,
+    doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+)]
+</span><span class="kw">impl </span>ThreadPool {
+    <span class="doccomment">/// Create a thread pool with the specified number of threads.
+    ///
+    /// # Panics
+    ///
+    /// If creating the thread pool failed.
+    </span><span class="kw">pub fn </span>new(num_threads: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::try_new(num_threads)
+            .expect(<span class="string">"zstd returned null pointer when creating thread pool"</span>)
+    }
+
+    <span class="doccomment">/// Create a thread pool with the specified number of threads.
+    </span><span class="kw">pub fn </span>try_new(num_threads: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">Self</span>(NonNull::new(<span class="kw">unsafe </span>{
+            zstd_sys::ZSTD_createThreadPool(num_threads)
+        })<span class="question-mark">?</span>))
+    }
+}
+
+<span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+#[cfg_attr(
+    feature = <span class="string">"doc-cfg"</span>,
+    doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+)]
+</span><span class="kw">impl </span>Drop <span class="kw">for </span>ThreadPool {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">unsafe </span>{
+            zstd_sys::ZSTD_freeThreadPool(<span class="self">self</span>.<span class="number">0</span>.as_ptr());
+        }
+    }
+}
+
+<span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+#[cfg_attr(
+    feature = <span class="string">"doc-cfg"</span>,
+    doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+)]
+</span><span class="kw">unsafe impl </span>Send <span class="kw">for </span>ThreadPool {}
+<span class="attr">#[cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>))]
+#[cfg_attr(
+    feature = <span class="string">"doc-cfg"</span>,
+    doc(cfg(all(feature = <span class="string">"experimental"</span>, feature = <span class="string">"zstdmt"</span>)))
+)]
+</span><span class="kw">unsafe impl </span>Sync <span class="kw">for </span>ThreadPool {}
+
 <span class="doccomment">/// Wraps the `ZSTD_decompress_usingDDict()` function.
 </span><span class="kw">pub fn </span>decompress_using_ddict(
     dctx: <span class="kw-2">&amp;mut </span>DCtx&lt;<span class="lifetime">'_</span>&gt;,
@@ -3681,18 +3874,23 @@
     <span class="kw">pub </span>pos: usize,
 }
 
-<span class="doccomment">/// Describe a resizeable bytes container like `Vec&lt;u8&gt;`.
+<span class="doccomment">/// Describe a bytes container, like `Vec&lt;u8&gt;`.
 ///
-/// Represents a contiguous segment of memory, a prefix of which is initialized.
+/// Represents a contiguous segment of allocated memory, a prefix of which is initialized.
 ///
-/// It allows starting from an uninitializes chunk of memory and writing to it.
+/// It allows starting from an uninitializes chunk of memory and writing to it, progressively
+/// initializing it. No re-allocation typically occur after the initial creation.
 ///
 /// The main implementors are:
-/// * `Vec&lt;u8&gt;` and similar structures. These can start empty with a non-zero capacity, and they
-///   will be resized to cover the data written.
-///   Any existing data will be overwritten.
+/// * `Vec&lt;u8&gt;` and similar structures. These hold both a length (initialized data) and a capacity
+///   (allocated memory).
+///
+///   Use `Vec::with_capacity` to create an empty `Vec` with non-zero capacity, and the length
+///   field will be updated to cover the data written to it (as long as it fits in the given
+///   capacity).
 /// * `[u8]` and `[u8; N]`. These must start already-initialized, and will not be resized. It will
-///   be up to the caller to only use the part that was written.
+///   be up to the caller to only use the part that was written (as returned by the various writing
+///   operations).
 /// * `std::io::Cursor&lt;T: WriteBuf&gt;`. This will ignore data before the cursor's position, and
 ///   append data after that.
 </span><span class="kw">pub unsafe trait </span>WriteBuf {
@@ -3764,11 +3962,13 @@
 
         <span class="comment">// Here we assume data _before_ self.position() was already initialized.
         // Egh it's not actually guaranteed by Cursor? So let's guarantee it ourselves.
+        // Since the cursor wraps another `WriteBuf`, we know how much data is initialized there.
         </span><span class="kw">let </span>position = <span class="self">self</span>.position() <span class="kw">as </span>usize;
         <span class="kw">let </span>initialized = <span class="self">self</span>.get_ref().as_slice().len();
         <span class="kw">if let </span><span class="prelude-val">Some</span>(uninitialized) = position.checked_sub(initialized) {
-            <span class="comment">// Cursor's solution is to pad with zeroes
-            // From the end of valid data (as_slice().len()) to the position.
+            <span class="comment">// Here, the cursor is further than the known-initialized part.
+            // Cursor's solution is to pad with zeroes, so let's do the same.
+            // We'll zero bytes from the end of valid data (as_slice().len()) to the cursor position.
 
             // Safety:
             // * We know `n &gt; 0`
@@ -4147,7 +4347,7 @@ unsafe impl&lt;'a&gt; WriteBuf for OutBuffer&lt;'a, [u8]&gt; {
 ///
 /// Returns `None` if the dictionary ID could not be decoded. This may happen if:
 /// * The frame was not encoded with a dictionary.
-/// * The frame intentionally did not include dicionary ID.
+/// * The frame intentionally did not include dictionary ID.
 /// * The dictionary was non-conformant.
 /// * `src` is too small and does not include the frame header.
 /// * `src` is not a valid zstd frame prefix.
@@ -4227,6 +4427,7 @@ unsafe impl&lt;'a&gt; WriteBuf for OutBuffer&lt;'a, [u8]&gt; {
 
 <span class="doccomment">/// A compression parameter.
 </span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 </span><span class="kw">pub enum </span>CParameter {
     <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
@@ -4247,10 +4448,6 @@ unsafe impl&lt;'a&gt; WriteBuf for OutBuffer&lt;'a, [u8]&gt; {
     <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>LiteralCompressionMode(ParamSwitch),
-
-    <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
-    #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
-    </span>TargetCBlockSize(u32),
 
     <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
@@ -4303,6 +4500,14 @@ unsafe impl&lt;'a&gt; WriteBuf for OutBuffer&lt;'a, [u8]&gt; {
     <span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
     #[cfg_attr(feature = <span class="string">"doc-cfg"</span>, doc(cfg(feature = <span class="string">"experimental"</span>)))]
     </span>SearchForExternalRepcodes(ParamSwitch),
+
+    <span class="doccomment">/// Target CBlock size.
+    ///
+    /// Tries to make compressed blocks fit in this size (not a guarantee, just a target).
+    /// Useful to reduce end-to-end latency in low-bandwidth environments.
+    ///
+    /// No target when the value is 0.
+    </span>TargetCBlockSize(u32),
 
     <span class="doccomment">/// Compression level to use.
     ///
@@ -4376,6 +4581,8 @@ unsafe impl&lt;'a&gt; WriteBuf for OutBuffer&lt;'a, [u8]&gt; {
 }
 
 <span class="doccomment">/// A decompression parameter.
+</span><span class="attr">#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 </span><span class="kw">pub enum </span>DParameter {
     WindowLogMax(u32),
 

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ChineseBasedCacheV1","ChineseCacheV1Marker","DangiCacheV1Marker","PackedChineseBasedYearInfo"]};

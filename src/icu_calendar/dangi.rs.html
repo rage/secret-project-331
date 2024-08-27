@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/dangi.rs`."><title>dangi.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/dangi.rs`."><title>dangi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1027,6 +1026,7 @@
 <a href="#1026" id="1026">1026</a>
 <a href="#1027" id="1027">1027</a>
 <a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1037,7 +1037,7 @@
 //! use icu::calendar::dangi::Dangi;
 //! use icu::calendar::{Date, DateTime, Ref};
 //!
-//! let dangi = Dangi::new_always_calculating();
+//! let dangi = Dangi::new();
 //! let dangi = Ref(&amp;dangi); // to avoid cloning
 //!
 //! // `Date` type
@@ -1069,17 +1069,21 @@
 //! ```
 
 </span><span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::CalendarArithmetic;
+<span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::PrecomputedDataSource;
 <span class="kw">use </span><span class="kw">crate</span>::chinese_based::{
-    chinese_based_ordinal_lunar_month_from_code, ChineseBasedCompiledData,
+    chinese_based_ordinal_lunar_month_from_code, ChineseBasedPrecomputedData,
     ChineseBasedWithDataLoading, ChineseBasedYearInfo,
 };
+<span class="kw">use </span><span class="kw">crate</span>::provider::chinese_based::DangiCacheV1Marker;
 <span class="kw">use </span><span class="kw">crate</span>::AsCalendar;
 <span class="kw">use crate</span>::{
     chinese_based::ChineseBasedDateInner,
     types::{<span class="self">self</span>, Era, FormattableYear},
-    AnyCalendarKind, Calendar, CalendarError, Date, DateTime, Iso,
+    AnyCalendarKind, Calendar, CalendarError, Date, DateTime, Iso, Time,
 };
+<span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::num::NonZeroU8;
+<span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>tinystr::tinystr;
 
 <span class="doccomment">/// The Dangi Calendar
@@ -1099,15 +1103,15 @@
 /// use tinystr::tinystr;
 ///
 /// let iso_a = Date::try_new_iso_date(2012, 4, 23).unwrap();
-/// let dangi_a = iso_a.to_calendar(Dangi::new_always_calculating());
-/// let chinese_a = iso_a.to_calendar(Chinese::new_always_calculating());
+/// let dangi_a = iso_a.to_calendar(Dangi::new());
+/// let chinese_a = iso_a.to_calendar(Chinese::new());
 ///
 /// assert_eq!(dangi_a.month().code.0, tinystr!(4, "M03L"));
 /// assert_eq!(chinese_a.month().code.0, tinystr!(4, "M04"));
 ///
 /// let iso_b = Date::try_new_iso_date(2012, 5, 23).unwrap();
-/// let dangi_b = iso_b.to_calendar(Dangi::new_always_calculating());
-/// let chinese_b = iso_b.to_calendar(Chinese::new_always_calculating());
+/// let dangi_b = iso_b.to_calendar(Dangi::new());
+/// let chinese_b = iso_b.to_calendar(Chinese::new());
 ///
 /// assert_eq!(dangi_b.month().code.0, tinystr!(4, "M04"));
 /// assert_eq!(chinese_b.month().code.0, tinystr!(4, "M04L"));
@@ -1121,9 +1125,10 @@
 ///
 /// This calendar is a lunisolar calendar. It supports regular month codes `"M01" - "M12"` as well
 /// as leap month codes `"M01L" - "M12L"`.
-</span><span class="attr">#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
-</span><span class="kw">pub struct </span>Dangi;
+</span><span class="attr">#[derive(Clone, Debug, Default)]
+</span><span class="kw">pub struct </span>Dangi {
+    data: <span class="prelude-ty">Option</span>&lt;DataPayload&lt;DangiCacheV1Marker&gt;&gt;,
+}
 
 <span class="doccomment">/// The inner date type used for representing [`Date`]s of [`Dangi`]. See [`Date`] and [`Dangi`] for more detail.
 </span><span class="attr">#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -1139,14 +1144,67 @@
     </span>}
 }
 
-<span class="kw">impl </span>Dangi {
-    <span class="doccomment">/// Construct a new [`Dangi`] without any precomputed calendrical calculations.
-    ///
-    /// This is the only mode currently possible, but once precomputing is available (#3933)
-    /// there will be additional constructors that load from data providers.
-    </span><span class="kw">pub fn </span>new_always_calculating() -&gt; <span class="self">Self </span>{
-        Dangi
+<span class="comment">// These impls just make custom derives on types containing C
+// work. They're basically no-ops
+</span><span class="kw">impl </span>PartialEq <span class="kw">for </span>Dangi {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
+}
+<span class="kw">impl </span>Eq <span class="kw">for </span>Dangi {}
+<span class="attr">#[allow(clippy::non_canonical_partial_ord_impl)] </span><span class="comment">// this is intentional
+</span><span class="kw">impl </span>PartialOrd <span class="kw">for </span>Dangi {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(Ordering::Equal)
     }
+}
+
+<span class="kw">impl </span>Ord <span class="kw">for </span>Dangi {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+        Ordering::Equal
+    }
+}
+
+<span class="kw">impl </span>Dangi {
+    <span class="doccomment">/// Creates a new [`Dangi`] with some precomputed calendrical calculations.
+    ///
+    /// ✨ *Enabled with the `compiled_data` Cargo feature.*
+    ///
+    /// [📚 Help choosing a constructor](icu_provider::constructors)
+    </span><span class="attr">#[cfg(feature = <span class="string">"compiled_data"</span>)]
+    </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            data: <span class="prelude-val">Some</span>(DataPayload::from_static_ref(
+                <span class="kw">crate</span>::provider::Baked::SINGLETON_CALENDAR_DANGICACHE_V1,
+            )),
+        }
+    }
+
+    <span class="macro">icu_provider::gen_any_buffer_data_constructors!</span>(locale: skip, options: skip, error: CalendarError,
+        <span class="attr">#[cfg(skip)]
+        </span>functions: [
+            new,
+            try_new_with_any_provider,
+            try_new_with_buffer_provider,
+            try_new_unstable,
+            <span class="self">Self</span>,
+    ]);
+
+    <span class="attr">#[doc = <span class="macro">icu_provider::gen_any_buffer_unstable_docs!</span>(UNSTABLE, <span class="self">Self</span>::new)]
+    </span><span class="kw">pub fn </span>try_new_unstable&lt;D: DataProvider&lt;DangiCacheV1Marker&gt; + <span class="question-mark">?</span>Sized&gt;(
+        provider: <span class="kw-2">&amp;</span>D,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt; {
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            data: <span class="prelude-val">Some</span>(provider.load(Default::default())<span class="question-mark">?</span>.take_payload()<span class="question-mark">?</span>),
+        })
+    }
+
+    <span class="doccomment">/// Construct a new [`Dangi`] without any precomputed calendrical calculations.
+    </span><span class="kw">pub fn </span>new_always_calculating() -&gt; <span class="self">Self </span>{
+        Dangi { data: <span class="prelude-val">None </span>}
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEBUG_NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str = <span class="string">"Dangi"</span>;
 }
 
 <span class="kw">impl </span>Calendar <span class="kw">for </span>Dangi {
@@ -1159,7 +1217,7 @@
         month_code: <span class="kw">crate</span>::types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, <span class="kw">crate</span>::Error&gt; {
-        <span class="kw">let </span>year_info = ChineseBasedYearInfo::get_year_info::&lt;Dangi&gt;(year);
+        <span class="kw">let </span>year_info = <span class="self">self</span>.get_precomputed_data().load_or_compute_info(year);
 
         <span class="kw">let </span>month = <span class="kw">if let </span><span class="prelude-val">Some</span>(ordinal) =
             chinese_based_ordinal_lunar_month_from_code(month_code, year_info)
@@ -1176,18 +1234,16 @@
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
         }
 
-        <span class="kw">let </span>arithmetic = Inner::new_from_ordinals(year, month, day, <span class="kw-2">&amp;</span>year_info);
-        <span class="prelude-val">Ok</span>(DangiDateInner(ChineseBasedDateInner(
-            arithmetic<span class="question-mark">?</span>,
-            year_info,
-        )))
+        <span class="kw">let </span>arithmetic = Inner::new_from_ordinals(year, month, day, year_info);
+        <span class="prelude-val">Ok</span>(DangiDateInner(ChineseBasedDateInner(arithmetic<span class="question-mark">?</span>)))
     }
 
     <span class="kw">fn </span>date_from_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, iso: Date&lt;<span class="kw">crate</span>::Iso&gt;) -&gt; <span class="self">Self</span>::DateInner {
         <span class="kw">let </span>fixed = Iso::fixed_from_iso(iso.inner);
         DangiDateInner(Inner::chinese_based_date_from_fixed(
+            <span class="self">self</span>,
             fixed,
-            iso.year().number,
+            iso.inner.<span class="number">0</span>,
         ))
     }
 
@@ -1209,11 +1265,7 @@
     }
 
     <span class="kw">fn </span>offset_date(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::DateInner, offset: <span class="kw">crate</span>::DateDuration&lt;<span class="self">Self</span>&gt;) {
-        <span class="kw">let </span>year = date.<span class="number">0 </span>.<span class="number">0</span>.year;
-        date.<span class="number">0 </span>.<span class="number">0</span>.offset_date(offset);
-        <span class="kw">if </span>date.<span class="number">0 </span>.<span class="number">0</span>.year != year {
-            date.<span class="number">0 </span>.<span class="number">1 </span>= ChineseBasedYearInfo::get_year_info::&lt;Dangi&gt;(year);
-        }
+        date.<span class="number">0 </span>.<span class="number">0</span>.offset_date(offset, <span class="kw-2">&amp;</span><span class="self">self</span>.get_precomputed_data());
     }
 
     <span class="kw">fn </span>until(
@@ -1228,76 +1280,19 @@
     }
 
     <span class="kw">fn </span>debug_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
-        <span class="string">"Dangi"
-    </span>}
+        <span class="self">Self</span>::DEBUG_NAME
+    }
 
     <span class="kw">fn </span>year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; <span class="kw">crate</span>::types::FormattableYear {
-        <span class="self">Self</span>::format_dangi_year(date.<span class="number">0 </span>.<span class="number">0</span>.year, <span class="prelude-val">Some</span>(date.<span class="number">0 </span>.<span class="number">1</span>))
+        <span class="self">Self</span>::format_dangi_year(date.<span class="number">0 </span>.<span class="number">0</span>.year, <span class="prelude-val">Some</span>(date.<span class="number">0 </span>.<span class="number">0</span>.year_info))
     }
 
     <span class="kw">fn </span>is_in_leap_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; bool {
-        <span class="self">Self</span>::is_leap_year(date.<span class="number">0 </span>.<span class="number">0</span>.year)
+        <span class="self">Self</span>::is_leap_year(date.<span class="number">0 </span>.<span class="number">0</span>.year, date.<span class="number">0 </span>.<span class="number">0</span>.year_info)
     }
 
     <span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; <span class="kw">crate</span>::types::FormattableMonth {
-        <span class="kw">let </span>ordinal = date.<span class="number">0 </span>.<span class="number">0</span>.month;
-        <span class="kw">let </span>leap_month_option = date.<span class="number">0 </span>.<span class="number">1</span>.get_leap_month();
-        <span class="kw">let </span>leap_month = <span class="kw">if let </span><span class="prelude-val">Some</span>(leap) = leap_month_option {
-            leap.get()
-        } <span class="kw">else </span>{
-            <span class="number">14
-        </span>};
-        <span class="kw">let </span>code_inner = <span class="kw">if </span>leap_month == ordinal {
-            <span class="comment">// Month cannot be 1 because a year cannot have a leap month before the first actual month,
-            // and the maximum num of months ina leap year is 13.
-            </span><span class="macro">debug_assert!</span>((<span class="number">2</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>ordinal));
-            <span class="kw">match </span>ordinal {
-                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01L"</span>),
-                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02L"</span>),
-                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03L"</span>),
-                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04L"</span>),
-                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05L"</span>),
-                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06L"</span>),
-                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07L"</span>),
-                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08L"</span>),
-                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09L"</span>),
-                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10L"</span>),
-                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11L"</span>),
-                <span class="number">13 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12L"</span>),
-                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
-            }
-        } <span class="kw">else </span>{
-            <span class="kw">let </span><span class="kw-2">mut </span>adjusted_ordinal = ordinal;
-            <span class="kw">if </span>ordinal &gt; leap_month {
-                <span class="comment">// Before adjusting for leap month, if ordinal &gt; leap_month,
-                // the month cannot be 1 because this implies the leap month is &lt; 1, which is impossible;
-                // cannot be 2 because that implies the leap month is = 1, which is impossible,
-                // and cannot be more than 13 because max number of months in a year is 13.
-                </span><span class="macro">debug_assert!</span>((<span class="number">2</span>..=<span class="number">13</span>).contains(<span class="kw-2">&amp;</span>ordinal));
-                adjusted_ordinal -= <span class="number">1</span>;
-            }
-            <span class="macro">debug_assert!</span>((<span class="number">1</span>..=<span class="number">12</span>).contains(<span class="kw-2">&amp;</span>adjusted_ordinal));
-            <span class="kw">match </span>adjusted_ordinal {
-                <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01"</span>),
-                <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02"</span>),
-                <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03"</span>),
-                <span class="number">4 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M04"</span>),
-                <span class="number">5 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05"</span>),
-                <span class="number">6 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M06"</span>),
-                <span class="number">7 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M07"</span>),
-                <span class="number">8 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M08"</span>),
-                <span class="number">9 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M09"</span>),
-                <span class="number">10 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M10"</span>),
-                <span class="number">11 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M11"</span>),
-                <span class="number">12 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M12"</span>),
-                <span class="kw">_ </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
-            }
-        };
-        <span class="kw">let </span>code = types::MonthCode(code_inner);
-        types::FormattableMonth {
-            ordinal: ordinal <span class="kw">as </span>u32,
-            code,
-        }
+        date.<span class="number">0</span>.month()
     }
 
     <span class="kw">fn </span>day_of_month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; <span class="kw">crate</span>::types::DayOfMonth {
@@ -1311,7 +1306,7 @@
             day_of_year: date.<span class="number">0 </span>.<span class="number">0</span>.day_of_year(),
             days_in_year: date.<span class="number">0</span>.days_in_year_inner(),
             prev_year: <span class="self">Self</span>::format_dangi_year(prev_year, <span class="prelude-val">None</span>),
-            days_in_prev_year: <span class="self">Self</span>::days_in_provided_year(prev_year),
+            days_in_prev_year: date.<span class="number">0</span>.days_in_prev_year(),
             next_year: <span class="self">Self</span>::format_dangi_year(next_year, <span class="prelude-val">None</span>),
         }
     }
@@ -1338,7 +1333,7 @@
     /// use icu::calendar::dangi::Dangi;
     /// use icu::calendar::Date;
     ///
-    /// let dangi = Dangi::new_always_calculating();
+    /// let dangi = Dangi::new();
     ///
     /// let date_dangi = Date::try_new_dangi_date_with_calendar(4356, 6, 18, dangi)
     ///     .expect("Failed to initialize Dangi Date instance.");
@@ -1355,10 +1350,13 @@
         day: u8,
         calendar: A,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;A&gt;, CalendarError&gt; {
-        <span class="kw">let </span>cache = ChineseBasedYearInfo::Cache(Inner::compute_cache(year));
-        <span class="kw">let </span>arithmetic = Inner::new_from_ordinals(year, month, day, <span class="kw-2">&amp;</span>cache);
+        <span class="kw">let </span>year_info = calendar
+            .as_calendar()
+            .get_precomputed_data()
+            .load_or_compute_info(year);
+        <span class="kw">let </span>arithmetic = Inner::new_from_ordinals(year, month, day, year_info);
         <span class="prelude-val">Ok</span>(Date::from_raw(
-            DangiDateInner(ChineseBasedDateInner(arithmetic<span class="question-mark">?</span>, cache)),
+            DangiDateInner(ChineseBasedDateInner(arithmetic<span class="question-mark">?</span>)),
             calendar,
         ))
     }
@@ -1374,7 +1372,7 @@
     /// use icu::calendar::dangi::Dangi;
     /// use icu::calendar::DateTime;
     ///
-    /// let dangi = Dangi::new_always_calculating();
+    /// let dangi = Dangi::new();
     ///
     /// let dangi_datetime = DateTime::try_new_dangi_datetime_with_calendar(
     ///     4356, 6, 6, 13, 1, 0, dangi,
@@ -1401,16 +1399,17 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;A&gt;, CalendarError&gt; {
         <span class="prelude-val">Ok</span>(DateTime {
             date: Date::try_new_dangi_date_with_calendar(year, month, day, calendar)<span class="question-mark">?</span>,
-            time: types::Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
+            time: Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
         })
     }
 }
 
+<span class="kw">type </span>DangiCB = calendrical_calculations::chinese_based::Dangi;
 <span class="kw">impl </span>ChineseBasedWithDataLoading <span class="kw">for </span>Dangi {
-    <span class="kw">type </span>CB = calendrical_calculations::chinese_based::Dangi;
-    <span class="kw">fn </span>get_compiled_data_for_year(_year: i32) -&gt; <span class="prelude-ty">Option</span>&lt;ChineseBasedCompiledData&gt; {
-        <span class="prelude-val">None
-    </span>}
+    <span class="kw">type </span>CB = DangiCB;
+    <span class="kw">fn </span>get_precomputed_data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ChineseBasedPrecomputedData&lt;<span class="self">Self</span>::CB&gt; {
+        ChineseBasedPrecomputedData::new(<span class="self">self</span>.data.as_ref().map(|d| d.get()))
+    }
 }
 
 <span class="kw">impl </span>Dangi {
@@ -1426,7 +1425,7 @@
         </span><span class="kw">let </span>cyclic = (number <span class="kw">as </span>i64 - <span class="number">1 </span>+ <span class="number">364</span>).rem_euclid(<span class="number">60</span>) <span class="kw">as </span>u8;
         <span class="kw">let </span>cyclic = NonZeroU8::new(cyclic + <span class="number">1</span>); <span class="comment">// 1-indexed
         </span><span class="kw">let </span>rata_die_in_year = <span class="kw">if let </span><span class="prelude-val">Some</span>(info) = year_info_option {
-            info.get_new_year()
+            info.new_year::&lt;DangiCB&gt;(year)
         } <span class="kw">else </span>{
             Inner::fixed_mid_year_from_year(number)
         };
@@ -1448,10 +1447,20 @@
     <span class="kw">use </span><span class="kw">crate</span>::chinese::Chinese;
     <span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
 
+    <span class="doccomment">/// Run a test twice, with two calendars
+    </span><span class="kw">fn </span>do_twice(
+        dangi_calculating: <span class="kw-2">&amp;</span>Dangi,
+        dangi_cached: <span class="kw-2">&amp;</span>Dangi,
+        test: <span class="kw">impl </span>Fn(<span class="kw">crate</span>::Ref&lt;Dangi&gt;, <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str),
+    ) {
+        test(<span class="kw">crate</span>::Ref(dangi_calculating), <span class="string">"calculating"</span>);
+        test(<span class="kw">crate</span>::Ref(dangi_cached), <span class="string">"cached"</span>);
+    }
+
     <span class="kw">fn </span>check_cyclic_and_rel_iso(year: i32) {
         <span class="kw">let </span>iso = Date::try_new_iso_date(year, <span class="number">6</span>, <span class="number">6</span>).unwrap();
-        <span class="kw">let </span>chinese = iso.to_calendar(Chinese);
-        <span class="kw">let </span>dangi = iso.to_calendar(Dangi);
+        <span class="kw">let </span>chinese = iso.to_calendar(Chinese::new_always_calculating());
+        <span class="kw">let </span>dangi = iso.to_calendar(Dangi::new_always_calculating());
         <span class="kw">let </span>chinese_year = chinese.year().cyclic;
         <span class="kw">let </span>korean_year = dangi.year().cyclic;
         <span class="macro">assert_eq!</span>(
@@ -1482,38 +1491,25 @@
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_fixed_chinese_roundtrip() {
-        <span class="kw">let </span><span class="kw-2">mut </span>fixed = -<span class="number">1963020</span>;
-        <span class="kw">let </span>max_fixed = <span class="number">1963020</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>iters = <span class="number">0</span>;
-        <span class="kw">let </span>max_iters = <span class="number">560</span>;
-        <span class="kw">while </span>fixed &lt; max_fixed &amp;&amp; iters &lt; max_iters {
-            <span class="kw">let </span>rata_die = RataDie::new(fixed);
-            <span class="kw">let </span>iso = Iso::iso_from_fixed(rata_die);
-            <span class="kw">let </span>chinese = Inner::chinese_based_date_from_fixed(rata_die, iso.year().number);
-            <span class="kw">let </span>result = Inner::fixed_from_chinese_based_date_inner(chinese);
-            <span class="kw">let </span>result_debug = result.to_i64_date();
-            <span class="macro">assert_eq!</span>(result, rata_die, <span class="string">"Failed roundtrip fixed -&gt; Chinese -&gt; fixed for fixed: {fixed}, with calculated: {result_debug} from Chinese date:\n{chinese:?}"</span>);
-            fixed += <span class="number">7043</span>;
-            iters += <span class="number">1</span>;
-        }
-    }
-
-    <span class="attr">#[test]
     </span><span class="kw">fn </span>test_iso_to_dangi_roundtrip() {
         <span class="kw">let </span><span class="kw-2">mut </span>fixed = -<span class="number">1963020</span>;
         <span class="kw">let </span>max_fixed = <span class="number">1963020</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>iters = <span class="number">0</span>;
         <span class="kw">let </span>max_iters = <span class="number">560</span>;
+        <span class="kw">let </span>dangi_calculating = Dangi::new_always_calculating();
+        <span class="kw">let </span>dangi_cached = Dangi::new();
         <span class="kw">while </span>fixed &lt; max_fixed &amp;&amp; iters &lt; max_iters {
             <span class="kw">let </span>rata_die = RataDie::new(fixed);
             <span class="kw">let </span>iso = Iso::iso_from_fixed(rata_die);
-            <span class="kw">let </span>korean = iso.to_calendar(Dangi);
-            <span class="kw">let </span>result = korean.to_calendar(Iso);
-            <span class="macro">assert_eq!</span>(
-                iso, result,
-                <span class="string">"Failed roundtrip ISO -&gt; Dangi -&gt; ISO for fixed: {fixed}"
-            </span>);
+            do_twice(<span class="kw-2">&amp;</span>dangi_calculating, <span class="kw-2">&amp;</span>dangi_cached, |dangi, calendar_type| {
+                <span class="kw">let </span>korean = iso.to_calendar(dangi);
+                <span class="kw">let </span>result = korean.to_calendar(Iso);
+                <span class="macro">assert_eq!</span>(
+                    iso, result,
+                    <span class="string">"[{calendar_type}] Failed roundtrip ISO -&gt; Dangi -&gt; ISO for fixed: {fixed}"
+                </span>);
+            });
+
             fixed += <span class="number">7043</span>;
             iters += <span class="number">1</span>;
         }
@@ -2026,32 +2022,37 @@
             },
         ];
 
+        <span class="kw">let </span>dangi_calculating = Dangi::new_always_calculating();
+        <span class="kw">let </span>dangi_cached = Dangi::new();
+
         <span class="kw">for </span>case <span class="kw">in </span>cases {
             <span class="kw">let </span>iso = Date::try_new_iso_date(case.iso_year, case.iso_month, case.iso_day).unwrap();
-            <span class="kw">let </span>dangi = iso.to_calendar(Dangi);
-            <span class="kw">let </span>dangi_rel_iso = dangi.year().related_iso;
-            <span class="kw">let </span>dangi_cyclic = dangi.year().cyclic;
-            <span class="kw">let </span>dangi_month = dangi.month().ordinal;
-            <span class="kw">let </span>dangi_day = dangi.day_of_month().<span class="number">0</span>;
+            do_twice(<span class="kw-2">&amp;</span>dangi_calculating, <span class="kw-2">&amp;</span>dangi_cached, |dangi, calendar_type| {
+                <span class="kw">let </span>dangi = iso.to_calendar(dangi);
+                <span class="kw">let </span>dangi_rel_iso = dangi.year().related_iso;
+                <span class="kw">let </span>dangi_cyclic = dangi.year().cyclic;
+                <span class="kw">let </span>dangi_month = dangi.month().ordinal;
+                <span class="kw">let </span>dangi_day = dangi.day_of_month().<span class="number">0</span>;
 
-            <span class="macro">assert_eq!</span>(
-                dangi_rel_iso,
-                <span class="prelude-val">Some</span>(case.expected_rel_iso),
-                <span class="string">"Related ISO failed for test case: {case:?}"
-            </span>);
-            <span class="macro">assert_eq!</span>(
-                dangi_cyclic.unwrap().get(),
-                case.expected_cyclic,
-                <span class="string">"Cyclic year failed for test case: {case:?}"
-            </span>);
-            <span class="macro">assert_eq!</span>(
-                dangi_month, case.expected_month,
-                <span class="string">"Month failed for test case: {case:?}"
-            </span>);
-            <span class="macro">assert_eq!</span>(
-                dangi_day, case.expected_day,
-                <span class="string">"Day failed for test case: {case:?}"
-            </span>);
+                <span class="macro">assert_eq!</span>(
+                    dangi_rel_iso,
+                    <span class="prelude-val">Some</span>(case.expected_rel_iso),
+                    <span class="string">"[{calendar_type}] Related ISO failed for test case: {case:?}"
+                </span>);
+                <span class="macro">assert_eq!</span>(
+                    dangi_cyclic.unwrap().get(),
+                    case.expected_cyclic,
+                    <span class="string">"[{calendar_type}] Cyclic year failed for test case: {case:?}"
+                </span>);
+                <span class="macro">assert_eq!</span>(
+                    dangi_month, case.expected_month,
+                    <span class="string">"[{calendar_type}] Month failed for test case: {case:?}"
+                </span>);
+                <span class="macro">assert_eq!</span>(
+                    dangi_day, case.expected_day,
+                    <span class="string">"[{calendar_type}] Day failed for test case: {case:?}"
+                </span>);
+            });
         }
     }
 }

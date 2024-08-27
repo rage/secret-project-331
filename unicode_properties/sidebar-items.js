@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["UNICODE_VERSION"],"enum":["GeneralCategory","GeneralCategoryGroup"],"mod":["general_category"],"trait":["UnicodeGeneralCategory"]};
+window.SIDEBAR_ITEMS = {"constant":["UNICODE_VERSION"],"enum":["EmojiStatus","GeneralCategory","GeneralCategoryGroup"],"mod":["emoji","general_category"],"trait":["UnicodeEmoji","UnicodeGeneralCategory"]};

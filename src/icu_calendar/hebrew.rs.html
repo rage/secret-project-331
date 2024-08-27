@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/hebrew.rs`."><title>hebrew.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/hebrew.rs`."><title>hebrew.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -597,27 +596,6 @@
 <a href="#596" id="596">596</a>
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
-<a href="#599" id="599">599</a>
-<a href="#600" id="600">600</a>
-<a href="#601" id="601">601</a>
-<a href="#602" id="602">602</a>
-<a href="#603" id="603">603</a>
-<a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
-<a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -625,21 +603,16 @@
 </span><span class="doccomment">//! This module contains types and implementations for the Hebrew calendar.
 //!
 //! ```rust
-//! use icu::calendar::{hebrew::Hebrew, Date, DateTime, Ref};
-//!
-//! let hebrew = Hebrew::new_always_calculating();
-//! let hebrew = Ref(&amp;hebrew); // to avoid cloning
+//! use icu::calendar::{Date, DateTime};
 //!
 //! // `Date` type
-//! let hebrew_date =
-//!     Date::try_new_hebrew_date_with_calendar(3425, 10, 11, hebrew)
-//!         .expect("Failed to initialize hebrew Date instance.");
+//! let hebrew_date = Date::try_new_hebrew_date(3425, 10, 11)
+//!     .expect("Failed to initialize hebrew Date instance.");
 //!
 //! // `DateTime` type
-//! let hebrew_datetime = DateTime::try_new_hebrew_datetime_with_calendar(
-//!     3425, 10, 11, 13, 1, 0, hebrew,
-//! )
-//! .expect("Failed to initialize hebrew DateTime instance.");
+//! let hebrew_datetime =
+//!     DateTime::try_new_hebrew_datetime(3425, 10, 11, 13, 1, 0)
+//!         .expect("Failed to initialize hebrew DateTime instance.");
 //!
 //! // `Date` checks
 //! assert_eq!(hebrew_date.year().number, 3425);
@@ -655,15 +628,15 @@
 //! assert_eq!(hebrew_datetime.time.second.number(), 0);
 //! ```
 
-</span><span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::{ArithmeticDate, CalendarArithmetic};
+</span><span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::PrecomputedDataSource;
+<span class="kw">use </span><span class="kw">crate</span>::calendar_arithmetic::{ArithmeticDate, CalendarArithmetic};
 <span class="kw">use </span><span class="kw">crate</span>::types::FormattableMonth;
 <span class="kw">use </span><span class="kw">crate</span>::AnyCalendarKind;
 <span class="kw">use </span><span class="kw">crate</span>::AsCalendar;
 <span class="kw">use </span><span class="kw">crate</span>::Iso;
-<span class="kw">use crate</span>::{types, Calendar, CalendarError, Date, DateDuration, DateDurationUnit, DateTime};
+<span class="kw">use crate</span>::{types, Calendar, CalendarError, Date, DateDuration, DateDurationUnit, DateTime, Time};
 <span class="kw">use </span>::tinystr::tinystr;
-<span class="kw">use </span>calendrical_calculations::hebrew::BookHebrew;
-<span class="kw">use </span>calendrical_calculations::rata_die::RataDie;
+<span class="kw">use </span>calendrical_calculations::hebrew_keviyah::{Keviyah, YearInfo};
 
 <span class="doccomment">/// The Civil Hebrew Calendar
 ///
@@ -686,52 +659,88 @@
 /// objects it creates.
 ///
 /// [Hebrew calendar]: https://en.wikipedia.org/wiki/Hebrew_calendar
-</span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive] </span><span class="comment">// we'll be adding precompiled data to this
+</span><span class="attr">#[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord, Default)]
+#[allow(clippy::exhaustive_structs)] </span><span class="comment">// unit struct
 </span><span class="kw">pub struct </span>Hebrew;
 
-<span class="doccomment">/// The inner date type used for representing [`Date`]s of [`BookHebrew`]. See [`Date`] and [`BookHebrew`] for more details.
-</span><span class="attr">#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
-</span><span class="kw">struct </span>BookHebrewDateInner;
 <span class="doccomment">/// The inner date type used for representing [`Date`]s of [`Hebrew`]. See [`Date`] and [`Hebrew`] for more details.
 </span><span class="attr">#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>HebrewDateInner(ArithmeticDate&lt;Hebrew&gt;);
 
 <span class="kw">impl </span>Hebrew {
-    <span class="doccomment">/// Construct a new [`Hebrew`] without any precomputed calendrical calculations.
+    <span class="doccomment">/// Construct a new [`Hebrew`]
+    </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        Hebrew
+    }
+
+    <span class="doccomment">/// Construct a new [`Hebrew`]
     ///
-    /// This is the only mode currently possible, but once precomputing is available (#3933)
-    /// there will be additional constructors that load from data providers.
+    /// This is deprecated since the new implementation does not need precomputed data.
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.5.0"</span>, note = <span class="string">"Use Hebrew::new()"</span>)]
     </span><span class="kw">pub fn </span>new_always_calculating() -&gt; <span class="self">Self </span>{
         Hebrew
     }
 }
 
+<span class="attr">#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>HebrewYearInfo {
+    keviyah: Keviyah,
+    prev_keviyah: Keviyah,
+}
+
+<span class="kw">impl </span>HebrewYearInfo {
+    <span class="doccomment">/// Convenience method to compute for a given year. Don't use this if you actually need
+    /// a YearInfo that you want to call .new_year() on.
+    ///
+    /// This can potentially be optimized with adjacent-year knowledge, but it's complex
+    </span><span class="attr">#[inline]
+    </span><span class="kw">fn </span>compute(h_year: i32) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>keviyah = YearInfo::compute_for(h_year).keviyah;
+        <span class="self">Self</span>::compute_with_keviyah(keviyah, h_year)
+    }
+    <span class="doccomment">/// Compute for a given year when the keviyah is already known
+    </span><span class="attr">#[inline]
+    </span><span class="kw">fn </span>compute_with_keviyah(keviyah: Keviyah, h_year: i32) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>prev_keviyah = YearInfo::compute_for(h_year - <span class="number">1</span>).keviyah;
+        <span class="self">Self </span>{
+            keviyah,
+            prev_keviyah,
+        }
+    }
+}
 <span class="comment">//  HEBREW CALENDAR
 
 </span><span class="kw">impl </span>CalendarArithmetic <span class="kw">for </span>Hebrew {
-    <span class="kw">fn </span>month_days(civil_year: i32, civil_month: u8) -&gt; u8 {
-        <span class="self">Self</span>::last_day_of_civil_hebrew_month(civil_year, civil_month)
+    <span class="kw">type </span>YearInfo = HebrewYearInfo;
+
+    <span class="kw">fn </span>month_days(_h_year: i32, ordinal_month: u8, info: HebrewYearInfo) -&gt; u8 {
+        info.keviyah.month_len(ordinal_month)
     }
 
-    <span class="kw">fn </span>months_for_every_year(civil_year: i32) -&gt; u8 {
-        <span class="self">Self</span>::last_month_of_civil_hebrew_year(civil_year)
+    <span class="kw">fn </span>months_for_every_year(_h_year: i32, info: HebrewYearInfo) -&gt; u8 {
+        <span class="kw">if </span>info.keviyah.is_leap() {
+            <span class="number">13
+        </span>} <span class="kw">else </span>{
+            <span class="number">12
+        </span>}
     }
 
-    <span class="kw">fn </span>days_in_provided_year(civil_year: i32) -&gt; u16 {
-        BookHebrew::days_in_book_hebrew_year(civil_year) <span class="comment">// number of days don't change between BookHebrew and Civil Hebrew
-    </span>}
-
-    <span class="kw">fn </span>is_leap_year(civil_year: i32) -&gt; bool {
-        <span class="comment">// civil and book years are the same
-        </span>BookHebrew::is_hebrew_leap_year(civil_year)
+    <span class="kw">fn </span>days_in_provided_year(_h_year: i32, info: HebrewYearInfo) -&gt; u16 {
+        info.keviyah.year_length()
     }
 
-    <span class="kw">fn </span>last_month_day_in_year(civil_year: i32) -&gt; (u8, u8) {
-        <span class="kw">let </span>civil_month = <span class="self">Self</span>::last_month_of_civil_hebrew_year(civil_year);
-        <span class="kw">let </span>civil_day = <span class="self">Self</span>::last_day_of_civil_hebrew_month(civil_year, civil_month);
+    <span class="kw">fn </span>is_leap_year(_h_year: i32, info: HebrewYearInfo) -&gt; bool {
+        info.keviyah.is_leap()
+    }
 
-        (civil_month, civil_day)
+    <span class="kw">fn </span>last_month_day_in_year(_h_year: i32, info: HebrewYearInfo) -&gt; (u8, u8) {
+        info.keviyah.last_month_day_in_year()
+    }
+}
+
+<span class="kw">impl </span>PrecomputedDataSource&lt;HebrewYearInfo&gt; <span class="kw">for </span>() {
+    <span class="kw">fn </span>load_or_compute_info(<span class="kw-2">&amp;</span><span class="self">self</span>, h_year: i32) -&gt; HebrewYearInfo {
+        HebrewYearInfo::compute(h_year)
     }
 }
 
@@ -745,12 +754,15 @@
         month_code: types::MonthCode,
         day: u8,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>::DateInner, CalendarError&gt; {
-        <span class="kw">let </span>is_leap_year = <span class="self">Self</span>::is_leap_year(year);
         <span class="kw">let </span>year = <span class="kw">if </span>era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"hebrew"</span>) || era.<span class="number">0 </span>== <span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"am"</span>) {
             year
         } <span class="kw">else </span>{
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownEra(era.<span class="number">0</span>, <span class="self">self</span>.debug_name()));
         };
+
+        <span class="kw">let </span>year_info = HebrewYearInfo::compute(year);
+
+        <span class="kw">let </span>is_leap_year = year_info.keviyah.is_leap();
 
         <span class="kw">let </span>month_code_str = month_code.<span class="number">0</span>.as_str();
 
@@ -800,17 +812,32 @@
             }
         };
 
-        ArithmeticDate::new_from_lunar_ordinals(year, month_ordinal, day).map(HebrewDateInner)
+        ArithmeticDate::new_from_ordinals_with_info(year, month_ordinal, day, year_info)
+            .map(HebrewDateInner)
     }
 
     <span class="kw">fn </span>date_from_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, iso: Date&lt;Iso&gt;) -&gt; <span class="self">Self</span>::DateInner {
         <span class="kw">let </span>fixed_iso = Iso::fixed_from_iso(<span class="kw-2">*</span>iso.inner());
-        <span class="self">Self</span>::civil_hebrew_from_fixed(fixed_iso).inner
+        <span class="kw">let </span>(year_info, h_year) = YearInfo::year_containing_rd(fixed_iso);
+        <span class="comment">// Obtaining a 1-indexed day-in-year value
+        </span><span class="kw">let </span>day = fixed_iso - year_info.new_year() + <span class="number">1</span>;
+        <span class="kw">let </span>day = u16::try_from(day).unwrap_or(u16::MAX);
+
+        <span class="kw">let </span>year_info = HebrewYearInfo::compute_with_keviyah(year_info.keviyah, h_year);
+        <span class="kw">let </span>(month, day) = year_info.keviyah.month_day_for(day);
+        HebrewDateInner(ArithmeticDate::new_unchecked_with_info(
+            h_year, month, day, year_info,
+        ))
     }
 
     <span class="kw">fn </span>date_to_iso(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; Date&lt;Iso&gt; {
-        <span class="kw">let </span>fixed_hebrew = <span class="self">Self</span>::fixed_from_civil_hebrew(<span class="kw-2">*</span>date);
-        Iso::iso_from_fixed(fixed_hebrew)
+        <span class="kw">let </span>year_info = date.<span class="number">0</span>.year_info.keviyah.year_info(date.<span class="number">0</span>.year);
+
+        <span class="kw">let </span>ny = year_info.new_year();
+        <span class="kw">let </span>days_preceding = year_info.keviyah.days_preceding(date.<span class="number">0</span>.month);
+
+        <span class="comment">// Need to subtract 1 since the new year is itself in this year
+        </span>Iso::iso_from_fixed(ny + i64::from(days_preceding) + i64::from(date.<span class="number">0</span>.day) - <span class="number">1</span>)
     }
 
     <span class="kw">fn </span>months_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; u8 {
@@ -826,7 +853,7 @@
     }
 
     <span class="kw">fn </span>offset_date(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;mut </span><span class="self">Self</span>::DateInner, offset: DateDuration&lt;<span class="self">Self</span>&gt;) {
-        date.<span class="number">0</span>.offset_date(offset)
+        date.<span class="number">0</span>.offset_date(offset, <span class="kw-2">&amp;</span>())
     }
 
     <span class="kw">fn </span>until(
@@ -849,12 +876,12 @@
     }
 
     <span class="kw">fn </span>is_in_leap_year(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; bool {
-        <span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year)
+        <span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year, date.<span class="number">0</span>.year_info)
     }
 
     <span class="kw">fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>, date: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; FormattableMonth {
         <span class="kw">let </span><span class="kw-2">mut </span>ordinal = date.<span class="number">0</span>.month;
-        <span class="kw">let </span>is_leap_year = <span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year);
+        <span class="kw">let </span>is_leap_year = <span class="self">Self</span>::is_leap_year(date.<span class="number">0</span>.year, date.<span class="number">0</span>.year_info);
 
         <span class="kw">if </span>is_leap_year {
             <span class="kw">if </span>ordinal == <span class="number">6 </span>{
@@ -907,7 +934,7 @@
             day_of_year: date.<span class="number">0</span>.day_of_year(),
             days_in_year: date.<span class="number">0</span>.days_in_year(),
             prev_year: <span class="self">Self</span>::year_as_hebrew(prev_year),
-            days_in_prev_year: <span class="self">Self</span>::days_in_provided_year(prev_year),
+            days_in_prev_year: date.<span class="number">0</span>.year_info.prev_keviyah.year_length(),
             next_year: <span class="self">Self</span>::year_as_hebrew(next_year),
         }
     }
@@ -917,45 +944,6 @@
 }
 
 <span class="kw">impl </span>Hebrew {
-    <span class="comment">// Converts a Biblical Hebrew Date to a Civil Hebrew Date
-    </span><span class="kw">fn </span>biblical_to_civil_date(biblical_date: BookHebrew) -&gt; HebrewDateInner {
-        <span class="kw">let </span>(y, m, d) = biblical_date.to_civil_date();
-
-        <span class="macro">debug_assert!</span>(ArithmeticDate::&lt;Hebrew&gt;::new_from_lunar_ordinals(y, m, d,).is_ok());
-        HebrewDateInner(ArithmeticDate::new_unchecked(y, m, d))
-    }
-
-    <span class="comment">// Converts a Civil Hebrew Date to a Biblical Hebrew Date
-    </span><span class="kw">fn </span>civil_to_biblical_date(civil_date: HebrewDateInner) -&gt; BookHebrew {
-        BookHebrew::from_civil_date(civil_date.<span class="number">0</span>.year, civil_date.<span class="number">0</span>.month, civil_date.<span class="number">0</span>.day)
-    }
-
-    <span class="kw">fn </span>last_month_of_civil_hebrew_year(civil_year: i32) -&gt; u8 {
-        <span class="kw">if </span><span class="self">Self</span>::is_leap_year(civil_year) {
-            <span class="number">13 </span><span class="comment">// there are 13 months in a leap year
-        </span>} <span class="kw">else </span>{
-            <span class="number">12
-        </span>}
-    }
-
-    <span class="kw">fn </span>last_day_of_civil_hebrew_month(civil_year: i32, civil_month: u8) -&gt; u8 {
-        <span class="kw">let </span>book_date = Hebrew::civil_to_biblical_date(HebrewDateInner(
-            ArithmeticDate::new_unchecked(civil_year, civil_month, <span class="number">1</span>),
-        ));
-        BookHebrew::last_day_of_book_hebrew_month(book_date.year, book_date.month)
-    }
-
-    <span class="comment">// "Fixed" is a day count representation of calendars staring from Jan 1st of year 1 of the Georgian Calendar.
-    </span><span class="kw">fn </span>fixed_from_civil_hebrew(date: HebrewDateInner) -&gt; RataDie {
-        <span class="kw">let </span>book_date = Hebrew::civil_to_biblical_date(date);
-        BookHebrew::fixed_from_book_hebrew(book_date)
-    }
-
-    <span class="kw">fn </span>civil_hebrew_from_fixed(date: RataDie) -&gt; Date&lt;Hebrew&gt; {
-        <span class="kw">let </span>book_hebrew = BookHebrew::book_hebrew_from_fixed(date);
-        Date::from_raw(Hebrew::biblical_to_civil_date(book_hebrew), Hebrew)
-    }
-
     <span class="kw">fn </span>year_as_hebrew(civil_year: i32) -&gt; types::FormattableYear {
         types::FormattableYear {
             era: types::Era(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"hebrew"</span>)),
@@ -966,7 +954,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;A: AsCalendar&lt;Calendar = Hebrew&gt;&gt; Date&lt;A&gt; {
+<span class="kw">impl </span>Date&lt;Hebrew&gt; {
     <span class="doccomment">/// Construct new Hebrew Date.
     ///
     /// This datetime will not use any precomputed calendrical calculations,
@@ -974,47 +962,57 @@
     ///
     ///
     /// ```rust
-    /// use icu::calendar::hebrew::Hebrew;
     /// use icu::calendar::Date;
     ///
-    /// let hebrew = Hebrew::new_always_calculating();
-    ///
-    /// let date_hebrew =
-    ///     Date::try_new_hebrew_date_with_calendar(3425, 4, 25, hebrew)
-    ///         .expect("Failed to initialize Hebrew Date instance.");
+    /// let date_hebrew = Date::try_new_hebrew_date(3425, 4, 25)
+    ///     .expect("Failed to initialize Hebrew Date instance.");
     ///
     /// assert_eq!(date_hebrew.year().number, 3425);
     /// assert_eq!(date_hebrew.month().ordinal, 4);
     /// assert_eq!(date_hebrew.day_of_month().0, 25);
     /// ```
+    </span><span class="kw">pub fn </span>try_new_hebrew_date(
+        year: i32,
+        month: u8,
+        day: u8,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;Hebrew&gt;, CalendarError&gt; {
+        <span class="kw">let </span>year_info = HebrewYearInfo::compute(year);
+
+        ArithmeticDate::new_from_ordinals_with_info(year, month, day, year_info)
+            .map(HebrewDateInner)
+            .map(|inner| Date::from_raw(inner, Hebrew))
+    }
+}
+
+<span class="kw">impl</span>&lt;A: AsCalendar&lt;Calendar = Hebrew&gt;&gt; Date&lt;A&gt; {
+    <span class="doccomment">/// Construct new Hebrew Date given a calendar.
+    ///
+    /// This is deprecated since `Hebrew` is a zero-sized type,
+    /// but if you find yourself needing this functionality please let us know.
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.5.0"</span>, note = <span class="string">"Use Date::try_new_hebrew_date()"</span>)]
     </span><span class="kw">pub fn </span>try_new_hebrew_date_with_calendar(
         year: i32,
         month: u8,
         day: u8,
         calendar: A,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Date&lt;A&gt;, CalendarError&gt; {
-        ArithmeticDate::new_from_lunar_ordinals(year, month, day)
+        <span class="kw">let </span>year_info = HebrewYearInfo::compute(year);
+
+        ArithmeticDate::new_from_ordinals_with_info(year, month, day, year_info)
             .map(HebrewDateInner)
             .map(|inner| Date::from_raw(inner, calendar))
     }
 }
 
-<span class="kw">impl</span>&lt;A: AsCalendar&lt;Calendar = Hebrew&gt;&gt; DateTime&lt;A&gt; {
+<span class="kw">impl </span>DateTime&lt;Hebrew&gt; {
     <span class="doccomment">/// Construct a new Hebrew datetime from integers.
     ///
-    /// This datetime will not use any precomputed calendrical calculations,
-    /// one that loads such data from a provider will be added in the future (#3933)
-    ///
     /// ```rust
-    /// use icu::calendar::hebrew::Hebrew;
     /// use icu::calendar::DateTime;
     ///
-    /// let hebrew = Hebrew::new_always_calculating();
-    ///
-    /// let datetime_hebrew = DateTime::try_new_hebrew_datetime_with_calendar(
-    ///     4201, 10, 11, 13, 1, 0, hebrew,
-    /// )
-    /// .expect("Failed to initialize Hebrew DateTime instance");
+    /// let datetime_hebrew =
+    ///     DateTime::try_new_hebrew_datetime(4201, 10, 11, 13, 1, 0)
+    ///         .expect("Failed to initialize Hebrew DateTime instance");
     ///
     /// assert_eq!(datetime_hebrew.date.year().number, 4201);
     /// assert_eq!(datetime_hebrew.date.month().ordinal, 10);
@@ -1023,6 +1021,27 @@
     /// assert_eq!(datetime_hebrew.time.minute.number(), 1);
     /// assert_eq!(datetime_hebrew.time.second.number(), 0);
     /// ```
+    </span><span class="kw">pub fn </span>try_new_hebrew_datetime(
+        year: i32,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;Hebrew&gt;, CalendarError&gt; {
+        <span class="prelude-val">Ok</span>(DateTime {
+            date: Date::try_new_hebrew_date(year, month, day)<span class="question-mark">?</span>,
+            time: Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
+        })
+    }
+}
+
+<span class="kw">impl</span>&lt;A: AsCalendar&lt;Calendar = Hebrew&gt;&gt; DateTime&lt;A&gt; {
+    <span class="doccomment">/// Construct new Hebrew DateTime given a calendar.
+    ///
+    /// This is deprecated since `Hebrew` is a zero-sized type,
+    /// but if you find yourself needing this functionality please let us know.
+    </span><span class="attr">#[deprecated(since = <span class="string">"1.5.0"</span>, note = <span class="string">"Use DateTime::try_new_hebrew_datetime()"</span>)]
     </span><span class="kw">pub fn </span>try_new_hebrew_datetime_with_calendar(
         year: i32,
         month: u8,
@@ -1032,9 +1051,10 @@
         second: u8,
         calendar: A,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;DateTime&lt;A&gt;, CalendarError&gt; {
-        <span class="prelude-val">Ok</span>(DateTime {
+        <span class="attr">#[allow(deprecated)]
+        </span><span class="prelude-val">Ok</span>(DateTime {
             date: Date::try_new_hebrew_date_with_calendar(year, month, day, calendar)<span class="question-mark">?</span>,
-            time: types::Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
+            time: Time::try_new(hour, minute, second, <span class="number">0</span>)<span class="question-mark">?</span>,
         })
     }
 }
@@ -1043,198 +1063,135 @@
 </span><span class="kw">mod </span>tests {
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>calendrical_calculations::hebrew::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::types::{Era, MonthCode};
+    <span class="kw">use </span>calendrical_calculations::hebrew_keviyah::<span class="kw-2">*</span>;
+
+    <span class="comment">// Sentinel value for Adar I
+    // We're using normalized month values here so that we can use constants. These do not
+    // distinguish between the different Adars. We add an out-of-range sentinel value of 13 to
+    // specifically talk about Adar I in a leap year
+    </span><span class="kw">const </span>ADARI: u8 = <span class="number">13</span>;
+
+    <span class="doccomment">/// The leap years used in the tests below
+    </span><span class="kw">const </span>LEAP_YEARS_IN_TESTS: [i32; <span class="number">1</span>] = [<span class="number">5782</span>];
+    <span class="doccomment">/// (iso, hebrew) pairs of testcases. If any of the years here
+    /// are leap years please add them to LEAP_YEARS_IN_TESTS (we have this manually
+    /// so we don't end up exercising potentially buggy codepaths to test this)
+    </span><span class="attr">#[allow(clippy::type_complexity)]
+    </span><span class="kw">const </span>ISO_HEBREW_DATE_PAIRS: [((i32, u8, u8), (i32, u8, u8)); <span class="number">48</span>] = [
+        ((<span class="number">2021</span>, <span class="number">1</span>, <span class="number">10</span>), (<span class="number">5781</span>, TEVET, <span class="number">26</span>)),
+        ((<span class="number">2021</span>, <span class="number">1</span>, <span class="number">25</span>), (<span class="number">5781</span>, SHEVAT, <span class="number">12</span>)),
+        ((<span class="number">2021</span>, <span class="number">2</span>, <span class="number">10</span>), (<span class="number">5781</span>, SHEVAT, <span class="number">28</span>)),
+        ((<span class="number">2021</span>, <span class="number">2</span>, <span class="number">25</span>), (<span class="number">5781</span>, ADAR, <span class="number">13</span>)),
+        ((<span class="number">2021</span>, <span class="number">3</span>, <span class="number">10</span>), (<span class="number">5781</span>, ADAR, <span class="number">26</span>)),
+        ((<span class="number">2021</span>, <span class="number">3</span>, <span class="number">25</span>), (<span class="number">5781</span>, NISAN, <span class="number">12</span>)),
+        ((<span class="number">2021</span>, <span class="number">4</span>, <span class="number">10</span>), (<span class="number">5781</span>, NISAN, <span class="number">28</span>)),
+        ((<span class="number">2021</span>, <span class="number">4</span>, <span class="number">25</span>), (<span class="number">5781</span>, IYYAR, <span class="number">13</span>)),
+        ((<span class="number">2021</span>, <span class="number">5</span>, <span class="number">10</span>), (<span class="number">5781</span>, IYYAR, <span class="number">28</span>)),
+        ((<span class="number">2021</span>, <span class="number">5</span>, <span class="number">25</span>), (<span class="number">5781</span>, SIVAN, <span class="number">14</span>)),
+        ((<span class="number">2021</span>, <span class="number">6</span>, <span class="number">10</span>), (<span class="number">5781</span>, SIVAN, <span class="number">30</span>)),
+        ((<span class="number">2021</span>, <span class="number">6</span>, <span class="number">25</span>), (<span class="number">5781</span>, TAMMUZ, <span class="number">15</span>)),
+        ((<span class="number">2021</span>, <span class="number">7</span>, <span class="number">10</span>), (<span class="number">5781</span>, AV, <span class="number">1</span>)),
+        ((<span class="number">2021</span>, <span class="number">7</span>, <span class="number">25</span>), (<span class="number">5781</span>, AV, <span class="number">16</span>)),
+        ((<span class="number">2021</span>, <span class="number">8</span>, <span class="number">10</span>), (<span class="number">5781</span>, ELUL, <span class="number">2</span>)),
+        ((<span class="number">2021</span>, <span class="number">8</span>, <span class="number">25</span>), (<span class="number">5781</span>, ELUL, <span class="number">17</span>)),
+        ((<span class="number">2021</span>, <span class="number">9</span>, <span class="number">10</span>), (<span class="number">5782</span>, TISHREI, <span class="number">4</span>)),
+        ((<span class="number">2021</span>, <span class="number">9</span>, <span class="number">25</span>), (<span class="number">5782</span>, TISHREI, <span class="number">19</span>)),
+        ((<span class="number">2021</span>, <span class="number">10</span>, <span class="number">10</span>), (<span class="number">5782</span>, ḤESHVAN, <span class="number">4</span>)),
+        ((<span class="number">2021</span>, <span class="number">10</span>, <span class="number">25</span>), (<span class="number">5782</span>, ḤESHVAN, <span class="number">19</span>)),
+        ((<span class="number">2021</span>, <span class="number">11</span>, <span class="number">10</span>), (<span class="number">5782</span>, KISLEV, <span class="number">6</span>)),
+        ((<span class="number">2021</span>, <span class="number">11</span>, <span class="number">25</span>), (<span class="number">5782</span>, KISLEV, <span class="number">21</span>)),
+        ((<span class="number">2021</span>, <span class="number">12</span>, <span class="number">10</span>), (<span class="number">5782</span>, TEVET, <span class="number">6</span>)),
+        ((<span class="number">2021</span>, <span class="number">12</span>, <span class="number">25</span>), (<span class="number">5782</span>, TEVET, <span class="number">21</span>)),
+        ((<span class="number">2022</span>, <span class="number">1</span>, <span class="number">10</span>), (<span class="number">5782</span>, SHEVAT, <span class="number">8</span>)),
+        ((<span class="number">2022</span>, <span class="number">1</span>, <span class="number">25</span>), (<span class="number">5782</span>, SHEVAT, <span class="number">23</span>)),
+        ((<span class="number">2022</span>, <span class="number">2</span>, <span class="number">10</span>), (<span class="number">5782</span>, ADARI, <span class="number">9</span>)),
+        ((<span class="number">2022</span>, <span class="number">2</span>, <span class="number">25</span>), (<span class="number">5782</span>, ADARI, <span class="number">24</span>)),
+        ((<span class="number">2022</span>, <span class="number">3</span>, <span class="number">10</span>), (<span class="number">5782</span>, ADAR, <span class="number">7</span>)),
+        ((<span class="number">2022</span>, <span class="number">3</span>, <span class="number">25</span>), (<span class="number">5782</span>, ADAR, <span class="number">22</span>)),
+        ((<span class="number">2022</span>, <span class="number">4</span>, <span class="number">10</span>), (<span class="number">5782</span>, NISAN, <span class="number">9</span>)),
+        ((<span class="number">2022</span>, <span class="number">4</span>, <span class="number">25</span>), (<span class="number">5782</span>, NISAN, <span class="number">24</span>)),
+        ((<span class="number">2022</span>, <span class="number">5</span>, <span class="number">10</span>), (<span class="number">5782</span>, IYYAR, <span class="number">9</span>)),
+        ((<span class="number">2022</span>, <span class="number">5</span>, <span class="number">25</span>), (<span class="number">5782</span>, IYYAR, <span class="number">24</span>)),
+        ((<span class="number">2022</span>, <span class="number">6</span>, <span class="number">10</span>), (<span class="number">5782</span>, SIVAN, <span class="number">11</span>)),
+        ((<span class="number">2022</span>, <span class="number">6</span>, <span class="number">25</span>), (<span class="number">5782</span>, SIVAN, <span class="number">26</span>)),
+        ((<span class="number">2022</span>, <span class="number">7</span>, <span class="number">10</span>), (<span class="number">5782</span>, TAMMUZ, <span class="number">11</span>)),
+        ((<span class="number">2022</span>, <span class="number">7</span>, <span class="number">25</span>), (<span class="number">5782</span>, TAMMUZ, <span class="number">26</span>)),
+        ((<span class="number">2022</span>, <span class="number">8</span>, <span class="number">10</span>), (<span class="number">5782</span>, AV, <span class="number">13</span>)),
+        ((<span class="number">2022</span>, <span class="number">8</span>, <span class="number">25</span>), (<span class="number">5782</span>, AV, <span class="number">28</span>)),
+        ((<span class="number">2022</span>, <span class="number">9</span>, <span class="number">10</span>), (<span class="number">5782</span>, ELUL, <span class="number">14</span>)),
+        ((<span class="number">2022</span>, <span class="number">9</span>, <span class="number">25</span>), (<span class="number">5782</span>, ELUL, <span class="number">29</span>)),
+        ((<span class="number">2022</span>, <span class="number">10</span>, <span class="number">10</span>), (<span class="number">5783</span>, TISHREI, <span class="number">15</span>)),
+        ((<span class="number">2022</span>, <span class="number">10</span>, <span class="number">25</span>), (<span class="number">5783</span>, TISHREI, <span class="number">30</span>)),
+        ((<span class="number">2022</span>, <span class="number">11</span>, <span class="number">10</span>), (<span class="number">5783</span>, ḤESHVAN, <span class="number">16</span>)),
+        ((<span class="number">2022</span>, <span class="number">11</span>, <span class="number">25</span>), (<span class="number">5783</span>, KISLEV, <span class="number">1</span>)),
+        ((<span class="number">2022</span>, <span class="number">12</span>, <span class="number">10</span>), (<span class="number">5783</span>, KISLEV, <span class="number">16</span>)),
+        ((<span class="number">2022</span>, <span class="number">12</span>, <span class="number">25</span>), (<span class="number">5783</span>, TEVET, <span class="number">1</span>)),
+    ];
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_conversions() {
-        <span class="kw">let </span>iso_dates: [Date&lt;Iso&gt;; <span class="number">48</span>] = [
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">1</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">1</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">2</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">2</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">3</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">3</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">4</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">4</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">5</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">5</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">6</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">6</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">7</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">7</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">8</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">8</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">9</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">10</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">10</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">11</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">11</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">12</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2021</span>, <span class="number">12</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">1</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">2</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">2</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">3</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">3</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">4</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">4</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">5</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">5</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">6</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">7</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">7</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">8</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">9</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">10</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">11</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">11</span>, <span class="number">25</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">12</span>, <span class="number">10</span>).unwrap(),
-            Date::try_new_iso_date(<span class="number">2022</span>, <span class="number">12</span>, <span class="number">25</span>).unwrap(),
-        ];
-
-        <span class="kw">let </span>book_hebrew_dates: [(u8, u8, i32); <span class="number">48</span>] = [
-            (<span class="number">26</span>, TEVET, <span class="number">5781</span>),
-            (<span class="number">12</span>, SHEVAT, <span class="number">5781</span>),
-            (<span class="number">28</span>, SHEVAT, <span class="number">5781</span>),
-            (<span class="number">13</span>, ADAR, <span class="number">5781</span>),
-            (<span class="number">26</span>, ADAR, <span class="number">5781</span>),
-            (<span class="number">12</span>, NISAN, <span class="number">5781</span>),
-            (<span class="number">28</span>, NISAN, <span class="number">5781</span>),
-            (<span class="number">13</span>, IYYAR, <span class="number">5781</span>),
-            (<span class="number">28</span>, IYYAR, <span class="number">5781</span>),
-            (<span class="number">14</span>, SIVAN, <span class="number">5781</span>),
-            (<span class="number">30</span>, SIVAN, <span class="number">5781</span>),
-            (<span class="number">15</span>, TAMMUZ, <span class="number">5781</span>),
-            (<span class="number">1</span>, AV, <span class="number">5781</span>),
-            (<span class="number">16</span>, AV, <span class="number">5781</span>),
-            (<span class="number">2</span>, ELUL, <span class="number">5781</span>),
-            (<span class="number">17</span>, ELUL, <span class="number">5781</span>),
-            (<span class="number">4</span>, TISHRI, <span class="number">5782</span>),
-            (<span class="number">19</span>, TISHRI, <span class="number">5782</span>),
-            (<span class="number">4</span>, MARHESHVAN, <span class="number">5782</span>),
-            (<span class="number">19</span>, MARHESHVAN, <span class="number">5782</span>),
-            (<span class="number">6</span>, KISLEV, <span class="number">5782</span>),
-            (<span class="number">21</span>, KISLEV, <span class="number">5782</span>),
-            (<span class="number">6</span>, TEVET, <span class="number">5782</span>),
-            (<span class="number">21</span>, TEVET, <span class="number">5782</span>),
-            (<span class="number">8</span>, SHEVAT, <span class="number">5782</span>),
-            (<span class="number">23</span>, SHEVAT, <span class="number">5782</span>),
-            (<span class="number">9</span>, ADAR, <span class="number">5782</span>),
-            (<span class="number">24</span>, ADAR, <span class="number">5782</span>),
-            (<span class="number">7</span>, ADARII, <span class="number">5782</span>),
-            (<span class="number">22</span>, ADARII, <span class="number">5782</span>),
-            (<span class="number">9</span>, NISAN, <span class="number">5782</span>),
-            (<span class="number">24</span>, NISAN, <span class="number">5782</span>),
-            (<span class="number">9</span>, IYYAR, <span class="number">5782</span>),
-            (<span class="number">24</span>, IYYAR, <span class="number">5782</span>),
-            (<span class="number">11</span>, SIVAN, <span class="number">5782</span>),
-            (<span class="number">26</span>, SIVAN, <span class="number">5782</span>),
-            (<span class="number">11</span>, TAMMUZ, <span class="number">5782</span>),
-            (<span class="number">26</span>, TAMMUZ, <span class="number">5782</span>),
-            (<span class="number">13</span>, AV, <span class="number">5782</span>),
-            (<span class="number">28</span>, AV, <span class="number">5782</span>),
-            (<span class="number">14</span>, ELUL, <span class="number">5782</span>),
-            (<span class="number">29</span>, ELUL, <span class="number">5782</span>),
-            (<span class="number">15</span>, TISHRI, <span class="number">5783</span>),
-            (<span class="number">30</span>, TISHRI, <span class="number">5783</span>),
-            (<span class="number">16</span>, MARHESHVAN, <span class="number">5783</span>),
-            (<span class="number">1</span>, KISLEV, <span class="number">5783</span>),
-            (<span class="number">16</span>, KISLEV, <span class="number">5783</span>),
-            (<span class="number">1</span>, TEVET, <span class="number">5783</span>),
-        ];
-
-        <span class="kw">let </span>civil_hebrew_dates: [(u8, u8, i32); <span class="number">48</span>] = [
-            (<span class="number">26</span>, <span class="number">4</span>, <span class="number">5781</span>),
-            (<span class="number">12</span>, <span class="number">5</span>, <span class="number">5781</span>),
-            (<span class="number">28</span>, <span class="number">5</span>, <span class="number">5781</span>),
-            (<span class="number">13</span>, <span class="number">6</span>, <span class="number">5781</span>),
-            (<span class="number">26</span>, <span class="number">6</span>, <span class="number">5781</span>),
-            (<span class="number">12</span>, <span class="number">7</span>, <span class="number">5781</span>),
-            (<span class="number">28</span>, <span class="number">7</span>, <span class="number">5781</span>),
-            (<span class="number">13</span>, <span class="number">8</span>, <span class="number">5781</span>),
-            (<span class="number">28</span>, <span class="number">8</span>, <span class="number">5781</span>),
-            (<span class="number">14</span>, <span class="number">9</span>, <span class="number">5781</span>),
-            (<span class="number">30</span>, <span class="number">9</span>, <span class="number">5781</span>),
-            (<span class="number">15</span>, <span class="number">10</span>, <span class="number">5781</span>),
-            (<span class="number">1</span>, <span class="number">11</span>, <span class="number">5781</span>),
-            (<span class="number">16</span>, <span class="number">11</span>, <span class="number">5781</span>),
-            (<span class="number">2</span>, <span class="number">12</span>, <span class="number">5781</span>),
-            (<span class="number">17</span>, <span class="number">12</span>, <span class="number">5781</span>),
-            (<span class="number">4</span>, <span class="number">1</span>, <span class="number">5782</span>),
-            (<span class="number">19</span>, <span class="number">1</span>, <span class="number">5782</span>),
-            (<span class="number">4</span>, <span class="number">2</span>, <span class="number">5782</span>),
-            (<span class="number">19</span>, <span class="number">2</span>, <span class="number">5782</span>),
-            (<span class="number">6</span>, <span class="number">3</span>, <span class="number">5782</span>),
-            (<span class="number">21</span>, <span class="number">3</span>, <span class="number">5782</span>),
-            (<span class="number">6</span>, <span class="number">4</span>, <span class="number">5782</span>),
-            (<span class="number">21</span>, <span class="number">4</span>, <span class="number">5782</span>),
-            (<span class="number">8</span>, <span class="number">5</span>, <span class="number">5782</span>),
-            (<span class="number">23</span>, <span class="number">5</span>, <span class="number">5782</span>),
-            (<span class="number">9</span>, <span class="number">6</span>, <span class="number">5782</span>),
-            (<span class="number">24</span>, <span class="number">6</span>, <span class="number">5782</span>),
-            (<span class="number">7</span>, <span class="number">7</span>, <span class="number">5782</span>),
-            (<span class="number">22</span>, <span class="number">7</span>, <span class="number">5782</span>),
-            (<span class="number">9</span>, <span class="number">8</span>, <span class="number">5782</span>),
-            (<span class="number">24</span>, <span class="number">8</span>, <span class="number">5782</span>),
-            (<span class="number">9</span>, <span class="number">9</span>, <span class="number">5782</span>),
-            (<span class="number">24</span>, <span class="number">9</span>, <span class="number">5782</span>),
-            (<span class="number">11</span>, <span class="number">10</span>, <span class="number">5782</span>),
-            (<span class="number">26</span>, <span class="number">10</span>, <span class="number">5782</span>),
-            (<span class="number">11</span>, <span class="number">11</span>, <span class="number">5782</span>),
-            (<span class="number">26</span>, <span class="number">11</span>, <span class="number">5782</span>),
-            (<span class="number">13</span>, <span class="number">12</span>, <span class="number">5782</span>),
-            (<span class="number">28</span>, <span class="number">12</span>, <span class="number">5782</span>),
-            (<span class="number">14</span>, <span class="number">13</span>, <span class="number">5782</span>),
-            (<span class="number">29</span>, <span class="number">13</span>, <span class="number">5782</span>),
-            (<span class="number">15</span>, <span class="number">1</span>, <span class="number">5783</span>),
-            (<span class="number">30</span>, <span class="number">1</span>, <span class="number">5783</span>),
-            (<span class="number">16</span>, <span class="number">2</span>, <span class="number">5783</span>),
-            (<span class="number">1</span>, <span class="number">3</span>, <span class="number">5783</span>),
-            (<span class="number">16</span>, <span class="number">3</span>, <span class="number">5783</span>),
-            (<span class="number">1</span>, <span class="number">4</span>, <span class="number">5783</span>),
-        ];
-
-        <span class="kw">for </span>(iso_date, (book_date_nums, civil_date_nums)) <span class="kw">in </span>iso_dates
-            .iter()
-            .zip(book_hebrew_dates.iter().zip(civil_hebrew_dates.iter()))
-        {
-            <span class="kw">let </span>book_date = BookHebrew {
-                year: book_date_nums.<span class="number">2</span>,
-                month: book_date_nums.<span class="number">1</span>,
-                day: book_date_nums.<span class="number">0</span>,
+        <span class="kw">for </span>((iso_y, iso_m, iso_d), (y, m, d)) <span class="kw">in </span>ISO_HEBREW_DATE_PAIRS.into_iter() {
+            <span class="kw">let </span>iso_date = Date::try_new_iso_date(iso_y, iso_m, iso_d).unwrap();
+            <span class="kw">let </span>month_code = <span class="kw">if </span>m == ADARI {
+                MonthCode(<span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M05L"</span>))
+            } <span class="kw">else </span>{
+                MonthCode::new_normal(m).unwrap()
             };
-            <span class="kw">let </span>civil_date: HebrewDateInner = HebrewDateInner(ArithmeticDate::new_unchecked(
-                civil_date_nums.<span class="number">2</span>,
-                civil_date_nums.<span class="number">1</span>,
-                civil_date_nums.<span class="number">0</span>,
-            ));
+            <span class="kw">let </span>hebrew_date =
+                Date::try_new_from_codes(<span class="macro">tinystr!</span>(<span class="number">16</span>, <span class="string">"am"</span>).into(), y, month_code, d, Hebrew)
+                    .expect(<span class="string">"Date should parse"</span>);
 
-            <span class="kw">let </span>book_to_civil = Hebrew::biblical_to_civil_date(book_date);
-            <span class="kw">let </span>civil_to_book = Hebrew::civil_to_biblical_date(civil_date);
+            <span class="kw">let </span>iso_to_hebrew = iso_date.to_calendar(Hebrew);
 
-            <span class="macro">assert_eq!</span>(civil_date, book_to_civil);
-            <span class="macro">assert_eq!</span>(book_date, civil_to_book);
+            <span class="kw">let </span>hebrew_to_iso = hebrew_date.to_calendar(Iso);
 
-            <span class="kw">let </span>iso_to_fixed = Iso::fixed_from_iso(iso_date.inner);
-            <span class="kw">let </span>fixed_to_hebrew = Hebrew::civil_hebrew_from_fixed(iso_to_fixed);
+            <span class="macro">assert_eq!</span>(
+                hebrew_to_iso, iso_date,
+                <span class="string">"Failed comparing to-ISO value for {hebrew_date:?} =&gt; {iso_date:?}"
+            </span>);
+            <span class="macro">assert_eq!</span>(
+                iso_to_hebrew, hebrew_date,
+                <span class="string">"Failed comparing to-hebrew value for {iso_date:?} =&gt; {hebrew_date:?}"
+            </span>);
 
-            <span class="kw">let </span>hebrew_to_fixed = Hebrew::fixed_from_civil_hebrew(civil_date);
-            <span class="kw">let </span>fixed_to_iso = Iso::iso_from_fixed(hebrew_to_fixed);
+            <span class="kw">let </span>ordinal_month = <span class="kw">if </span>LEAP_YEARS_IN_TESTS.contains(<span class="kw-2">&amp;</span>y) {
+                <span class="kw">if </span>m == ADARI {
+                    ADAR
+                } <span class="kw">else if </span>m &gt;= ADAR {
+                    m + <span class="number">1
+                </span>} <span class="kw">else </span>{
+                    m
+                }
+            } <span class="kw">else </span>{
+                <span class="macro">assert!</span>(m != ADARI);
+                m
+            };
 
-            <span class="macro">assert_eq!</span>(fixed_to_hebrew.inner, civil_date);
-            <span class="macro">assert_eq!</span>(fixed_to_iso.inner, iso_date.inner);
+            <span class="kw">let </span>ordinal_hebrew_date = Date::try_new_hebrew_date(y, ordinal_month, d)
+                .expect(<span class="string">"Construction of date must succeed"</span>);
+
+            <span class="macro">assert_eq!</span>(ordinal_hebrew_date, hebrew_date, <span class="string">"Hebrew date construction from codes and ordinals should work the same for {hebrew_date:?}"</span>);
         }
     }
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_icu_bug_22441() {
-        <span class="macro">assert_eq!</span>(BookHebrew::days_in_book_hebrew_year(<span class="number">88369</span>), <span class="number">383</span>);
+        <span class="kw">let </span>yi = YearInfo::compute_for(<span class="number">88369</span>);
+        <span class="macro">assert_eq!</span>(yi.keviyah.year_length(), <span class="number">383</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_weekdays() {
+        <span class="comment">// https://github.com/unicode-org/icu4x/issues/4893
+        </span><span class="kw">let </span>cal = Hebrew::new();
+        <span class="kw">let </span>era = <span class="string">"am"</span>.parse::&lt;Era&gt;().unwrap();
+        <span class="kw">let </span>month_code = <span class="string">"M01"</span>.parse::&lt;MonthCode&gt;().unwrap();
+        <span class="kw">let </span>dt = cal.date_from_codes(era, <span class="number">3760</span>, month_code, <span class="number">1</span>).unwrap();
+
+        <span class="comment">// Should be Saturday per:
+        // https://www.hebcal.com/converter?hd=1&amp;hm=Tishrei&amp;hy=3760&amp;h2g=1
+        </span><span class="macro">assert_eq!</span>(<span class="number">6</span>, cal.day_of_week(<span class="kw-2">&amp;</span>dt) <span class="kw">as </span>usize);
     }
 }
 </code></pre></div></section></main></body></html>

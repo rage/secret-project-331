@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_datetime-1.5.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_datetime" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -181,65 +180,6 @@
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
 <a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -354,7 +294,7 @@
 //! [`timezone::CustomTimeZone`]: icu::timezone::{CustomTimeZone}
 //! [`TimeZoneFormatter`]: time_zone::TimeZoneFormatter
 
-</span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
+</span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/documents/process/boilerplate.md#library-annotations
 </span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
@@ -372,12 +312,25 @@
 
 </span><span class="kw">extern crate </span>alloc;
 
+<span class="kw">mod </span>any;
 <span class="kw">mod </span>calendar;
 <span class="kw">mod </span>datetime;
 <span class="kw">mod </span>error;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">mod </span>external_loaders;
 <span class="kw">pub mod </span>fields;
 <span class="kw">mod </span>format;
+<span class="attr">#[macro_use]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>helpers;
 <span class="kw">pub mod </span>input;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">pub mod </span>neo;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">pub mod </span>neo_marker;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">pub mod </span>neo_pattern;
+<span class="attr">#[cfg(any(feature = <span class="string">"datagen"</span>, feature = <span class="string">"experimental"</span>))]
+</span><span class="kw">pub mod </span>neo_skeleton;
 <span class="kw">pub mod </span>options;
 <span class="attr">#[doc(hidden)]
 </span><span class="kw">pub mod </span>pattern;
@@ -390,13 +343,18 @@
 <span class="kw">pub mod </span>time_zone;
 <span class="kw">mod </span>zoned_datetime;
 
-<span class="kw">mod </span>any;
-
 <span class="kw">pub use </span>any::{DateFormatter, DateTimeFormatter, ZonedDateTimeFormatter};
 <span class="kw">pub use </span>calendar::CldrCalendar;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">pub use </span>calendar::{InternalCldrCalendar, NeverCalendar};
 <span class="kw">pub use </span>datetime::{TimeFormatter, TypedDateFormatter, TypedDateTimeFormatter};
 <span class="kw">pub use </span>error::DateTimeError;
+<span class="kw">pub use </span>error::MismatchedCalendarError;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">pub use </span>format::datetime::DateTimeWriteError;
 <span class="kw">pub use </span>format::datetime::FormattedDateTime;
+<span class="attr">#[cfg(feature = <span class="string">"experimental"</span>)]
+</span><span class="kw">pub use </span>format::neo::{FormattedDateTimePattern, LoadError, SingleLoadError, TypedDateTimeNames};
 <span class="kw">pub use </span>format::time_zone::FormattedTimeZone;
 <span class="kw">pub use </span>format::zoned_datetime::FormattedZonedDateTime;
 <span class="kw">pub use </span>options::DateTimeFormatterOptions;
@@ -404,81 +362,4 @@
 
 <span class="attr">#[doc(no_inline)]
 </span><span class="kw">pub use </span>DateTimeError <span class="kw">as </span>Error;
-
-<span class="attr">#[cfg(test)]
-</span><span class="kw">mod </span>tests {
-    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use </span>core::mem::size_of;
-    <span class="kw">use </span>icu_calendar::week::WeekCalculator;
-    <span class="kw">use </span>icu_calendar::Gregorian;
-    <span class="kw">use </span>icu_decimal::FixedDecimalFormatter;
-    <span class="kw">use </span>icu_plurals::PluralRules;
-    <span class="kw">use </span>icu_provider::prelude::<span class="kw-2">*</span>;
-    <span class="kw">use </span>icu_timezone::CustomTimeZone;
-    <span class="kw">use </span>provider::calendar::patterns::GenericPatternV1Marker;
-    <span class="kw">use </span>provider::calendar::patterns::PatternPluralsFromPatternsV1Marker;
-    <span class="kw">use </span>provider::calendar::ErasedDateSymbolsV1Marker;
-    <span class="kw">use </span>provider::calendar::TimeSymbolsV1Marker;
-    <span class="kw">use </span>provider::time_zones::ExemplarCitiesV1Marker;
-    <span class="kw">use </span>provider::time_zones::MetazoneGenericNamesLongV1Marker;
-    <span class="kw">use </span>provider::time_zones::MetazoneGenericNamesShortV1Marker;
-    <span class="kw">use </span>provider::time_zones::MetazoneSpecificNamesLongV1Marker;
-    <span class="kw">use </span>provider::time_zones::MetazoneSpecificNamesShortV1Marker;
-    <span class="kw">use </span>provider::time_zones::TimeZoneFormatsV1Marker;
-    <span class="kw">use </span>time_zone::TimeZoneDataPayloads;
-    <span class="kw">use </span>time_zone::TimeZoneFormatter;
-    <span class="kw">use </span>time_zone::TimeZoneFormatterUnit;
-
-    <span class="doccomment">/// Checks that the size of the type is one of the given sizes.
-    /// The size might differ across Rust versions or channels.
-    </span><span class="macro">macro_rules! </span>check_size_of {
-        (<span class="macro-nonterminal">$sizes</span>:pat, <span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">path</span>) =&gt; {
-            <span class="macro">assert!</span>(
-                <span class="macro">matches!</span>(size_of::&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt;(), <span class="macro-nonterminal">$sizes</span>),
-                <span class="macro">concat!</span>(<span class="macro">stringify!</span>(<span class="macro-nonterminal">$</span><span class="kw">type</span>), <span class="string">" is of size {}"</span>),
-                <span class="macro-nonterminal">size_of</span>::&lt;<span class="macro-nonterminal">$</span><span class="kw">type</span>&gt;()
-            );
-        };
-    }
-
-    <span class="attr">#[<span class="macro-nonterminal">test</span>]
-    </span><span class="comment">// TODO(#3413): Delete this test when no longer needed.
-    </span><span class="attr">#[ignore] </span><span class="comment">// Changes too much across nightlies.
-    </span><span class="kw">fn </span>check_sizes() {
-        <span class="macro">check_size_of!</span>(<span class="number">4616</span>, DateFormatter);
-        <span class="macro">check_size_of!</span>(<span class="number">5488</span>, DateTimeFormatter);
-        <span class="macro">check_size_of!</span>(<span class="number">6536</span>, ZonedDateTimeFormatter);
-        <span class="macro">check_size_of!</span>(<span class="number">1344</span>, TimeFormatter);
-        <span class="macro">check_size_of!</span>(<span class="number">1048</span>, TimeZoneFormatter);
-        <span class="macro">check_size_of!</span>(<span class="number">4568</span>, TypedDateFormatter::&lt;Gregorian&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">5440</span>, TypedDateTimeFormatter::&lt;Gregorian&gt;);
-
-        <span class="macro">check_size_of!</span>(<span class="number">88</span>, DateTimeError);
-        <span class="macro">check_size_of!</span>(<span class="number">184</span>, FormattedDateTime);
-        <span class="macro">check_size_of!</span>(<span class="number">16</span>, FormattedTimeZone::&lt;CustomTimeZone&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">168</span>, FormattedZonedDateTime);
-
-        <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">"experimental"</span>) {
-            <span class="macro">check_size_of!</span>(<span class="number">13</span>, DateTimeFormatterOptions);
-        }
-
-        <span class="kw">type </span>DP&lt;M&gt; = DataPayload&lt;M&gt;;
-        <span class="macro">check_size_of!</span>(<span class="number">216</span>, DP::&lt;PatternPluralsFromPatternsV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">1032 </span>| <span class="number">912</span>, DP::&lt;TimeSymbolsV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">40</span>, DP::&lt;GenericPatternV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">216</span>, DP::&lt;PatternPluralsFromPatternsV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">5064 </span>| <span class="number">3912</span>, DP::&lt;ErasedDateSymbolsV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">232 </span>| <span class="number">240</span>, DP::&lt;TimeZoneFormatsV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">64</span>, DP::&lt;ExemplarCitiesV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">120 </span>| <span class="number">112</span>, DP::&lt;MetazoneGenericNamesLongV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">120 </span>| <span class="number">112</span>, DP::&lt;MetazoneGenericNamesShortV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">216 </span>| <span class="number">208</span>, DP::&lt;MetazoneSpecificNamesLongV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">216 </span>| <span class="number">208</span>, DP::&lt;MetazoneSpecificNamesShortV1Marker&gt;);
-        <span class="macro">check_size_of!</span>(<span class="number">2</span>, WeekCalculator);
-        <span class="macro">check_size_of!</span>(<span class="number">176</span>, PluralRules);
-        <span class="macro">check_size_of!</span>(<span class="number">256 </span>| <span class="number">216</span>, FixedDecimalFormatter);
-        <span class="macro">check_size_of!</span>(<span class="number">1024 </span>| <span class="number">936</span>, TimeZoneDataPayloads);
-        <span class="macro">check_size_of!</span>(<span class="number">3</span>, TimeZoneFormatterUnit);
-    }
-}
 </code></pre></div></section></main></body></html>

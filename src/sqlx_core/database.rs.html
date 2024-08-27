@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/database.rs`."><title>database.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/database.rs`."><title>database.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -113,52 +112,6 @@
 <a href="#112" id="112">112</a>
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Traits to represent a database driver.
 //!
 //! # Support
@@ -171,7 +124,7 @@
 //! | Database | Version | Driver |
 //! | - | - | - |
 //! | [MariaDB] | 10.1+ | [`mysql`] |
-//! | [Microsoft SQL Server] | 2019 | [`mssql`] |
+//! | [Microsoft SQL Server] | 2019 | [`mssql`] (Pending a full rewrite) |
 //! | [MySQL] | 5.6, 5.7, 8.0 | [`mysql`] |
 //! | [PostgreSQL] | 9.5+ | [`postgres`] |
 //! | [SQLite] | 3.20.1+ | [`sqlite`] |
@@ -230,15 +183,7 @@
 ///
 /// This trait encapsulates a complete set of traits that implement a driver for a
 /// specific database (e.g., MySQL, PostgreSQL).
-</span><span class="kw">pub trait </span>Database:
-    <span class="lifetime">'static
-    </span>+ Sized
-    + Send
-    + Debug
-    + <span class="kw">for</span>&lt;<span class="lifetime">'r</span>&gt; HasValueRef&lt;<span class="lifetime">'r</span>, Database = <span class="self">Self</span>&gt;
-    + <span class="kw">for</span>&lt;<span class="lifetime">'q</span>&gt; HasArguments&lt;<span class="lifetime">'q</span>, Database = <span class="self">Self</span>&gt;
-    + <span class="kw">for</span>&lt;<span class="lifetime">'q</span>&gt; HasStatement&lt;<span class="lifetime">'q</span>, Database = <span class="self">Self</span>&gt;
-{
+</span><span class="kw">pub trait </span>Database: <span class="lifetime">'static </span>+ Sized + Send + Debug {
     <span class="doccomment">/// The concrete `Connection` implementation for this database.
     </span><span class="kw">type </span>Connection: Connection&lt;Database = <span class="self">Self</span>&gt;;
 
@@ -260,61 +205,23 @@
     <span class="doccomment">/// The concrete type used to hold an owned copy of the not-yet-decoded value that was
     /// received from the database.
     </span><span class="kw">type </span>Value: Value&lt;Database = <span class="self">Self</span>&gt; + <span class="lifetime">'static</span>;
+    <span class="doccomment">/// The concrete type used to hold a reference to the not-yet-decoded value that has just been
+    /// received from the database.
+    </span><span class="kw">type </span>ValueRef&lt;<span class="lifetime">'r</span>&gt;: ValueRef&lt;<span class="lifetime">'r</span>, Database = <span class="self">Self</span>&gt;;
+
+    <span class="doccomment">/// The concrete `Arguments` implementation for this database.
+    </span><span class="kw">type </span>Arguments&lt;<span class="lifetime">'q</span>&gt;: Arguments&lt;<span class="lifetime">'q</span>, Database = <span class="self">Self</span>&gt;;
+    <span class="doccomment">/// The concrete type used as a buffer for arguments while encoding.
+    </span><span class="kw">type </span>ArgumentBuffer&lt;<span class="lifetime">'q</span>&gt;;
+
+    <span class="doccomment">/// The concrete `Statement` implementation for this database.
+    </span><span class="kw">type </span>Statement&lt;<span class="lifetime">'q</span>&gt;: Statement&lt;<span class="lifetime">'q</span>, Database = <span class="self">Self</span>&gt;;
 
     <span class="doccomment">/// The display name for this database driver.
     </span><span class="kw">const </span>NAME: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str;
 
     <span class="doccomment">/// The schemes for database URLs that should match this driver.
     </span><span class="kw">const </span>URL_SCHEMES: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[<span class="kw-2">&amp;</span><span class="lifetime">'static </span>str];
-}
-
-<span class="doccomment">/// Associate [`Database`] with a [`ValueRef`](crate::value::ValueRef) of a generic lifetime.
-///
-/// ---
-///
-/// The upcoming Rust feature, [Generic Associated Types], should obviate
-/// the need for this trait.
-///
-/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265
-</span><span class="kw">pub trait </span>HasValueRef&lt;<span class="lifetime">'r</span>&gt; {
-    <span class="kw">type </span>Database: Database;
-
-    <span class="doccomment">/// The concrete type used to hold a reference to the not-yet-decoded value that has just been
-    /// received from the database.
-    </span><span class="kw">type </span>ValueRef: ValueRef&lt;<span class="lifetime">'r</span>, Database = <span class="self">Self</span>::Database&gt;;
-}
-
-<span class="doccomment">/// Associate [`Database`] with an [`Arguments`](crate::arguments::Arguments) of a generic lifetime.
-///
-/// ---
-///
-/// The upcoming Rust feature, [Generic Associated Types], should obviate
-/// the need for this trait.
-///
-/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265
-</span><span class="kw">pub trait </span>HasArguments&lt;<span class="lifetime">'q</span>&gt; {
-    <span class="kw">type </span>Database: Database;
-
-    <span class="doccomment">/// The concrete `Arguments` implementation for this database.
-    </span><span class="kw">type </span>Arguments: Arguments&lt;<span class="lifetime">'q</span>, Database = <span class="self">Self</span>::Database&gt;;
-
-    <span class="doccomment">/// The concrete type used as a buffer for arguments while encoding.
-    </span><span class="kw">type </span>ArgumentBuffer;
-}
-
-<span class="doccomment">/// Associate [`Database`] with a [`Statement`](crate::statement::Statement) of a generic lifetime.
-///
-/// ---
-///
-/// The upcoming Rust feature, [Generic Associated Types], should obviate
-/// the need for this trait.
-///
-/// [Generic Associated Types]: https://github.com/rust-lang/rust/issues/44265
-</span><span class="kw">pub trait </span>HasStatement&lt;<span class="lifetime">'q</span>&gt; {
-    <span class="kw">type </span>Database: Database;
-
-    <span class="doccomment">/// The concrete `Statement` implementation for this database.
-    </span><span class="kw">type </span>Statement: Statement&lt;<span class="lifetime">'q</span>, Database = <span class="self">Self</span>::Database&gt;;
 }
 
 <span class="doccomment">/// A [`Database`] that maintains a client-side cache of prepared statements.

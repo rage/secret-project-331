@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/calendrical_calculations-0.1.0/src/astronomy.rs`."><title>astronomy.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calendrical_calculations" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/calendrical_calculations-0.1.1/src/astronomy.rs`."><title>astronomy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="calendrical_calculations" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2649,6 +2648,12 @@
 <a href="#2648" id="2648">2648</a>
 <a href="#2649" id="2649">2649</a>
 <a href="#2650" id="2650">2650</a>
+<a href="#2651" id="2651">2651</a>
+<a href="#2652" id="2652">2652</a>
+<a href="#2653" id="2653">2653</a>
+<a href="#2654" id="2654">2654</a>
+<a href="#2655" id="2655">2655</a>
+<a href="#2656" id="2656">2656</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X.
 //
 // The contents of this file implement algorithms from Calendrical Calculations
@@ -2689,11 +2694,15 @@
 /// elevation in meters, and zone as a UTC offset in fractional days (ex. UTC+1 would have zone = 1.0 / 24.0)
 </span><span class="attr">#[allow(clippy::exhaustive_structs)] </span><span class="comment">// This is all that is needed by the book algorithms
 </span><span class="kw">pub struct </span>Location {
-    <span class="kw">pub </span>latitude: f64,  <span class="comment">// latitude from -90 to 90
-    </span><span class="kw">pub </span>longitude: f64, <span class="comment">// longitude from -180 to 180
-    </span><span class="kw">pub </span>elevation: f64, <span class="comment">// elevation in meters
-    </span><span class="kw">pub </span>zone: f64,      <span class="comment">// UTC timezone offset in fractional days (1 hr = 1.0 / 24.0 day)
-</span>}
+    <span class="doccomment">/// latitude from -90 to 90
+    </span><span class="kw">pub </span>latitude: f64,
+    <span class="doccomment">/// longitude from -180 to 180
+    </span><span class="kw">pub </span>longitude: f64,
+    <span class="doccomment">/// elevation in meters
+    </span><span class="kw">pub </span>elevation: f64,
+    <span class="doccomment">/// UTC timezone offset in fractional days (1 hr = 1.0 / 24.0 day)
+    </span><span class="kw">pub </span>zone: f64,
+}
 
 <span class="doccomment">/// The location of Mecca; used for Islamic calendar calculations.
 </span><span class="attr">#[allow(dead_code)]
@@ -2881,7 +2890,8 @@
     </span><span class="kw">pub fn </span>ephemeris_correction(moment: Moment) -&gt; f64 {
         <span class="comment">// TODO: Change this to directly convert from moment to Gregorian year through a separate fn
         </span><span class="kw">let </span>year = moment.inner() / <span class="number">365.2425</span>;
-        <span class="kw">let </span>year_int = (<span class="kw">if </span>year &gt; <span class="number">0.0 </span>{ year + <span class="number">1.0 </span>} <span class="kw">else </span>{ year }) <span class="kw">as </span>i32;
+        <span class="comment">// Note: Converting to int handles negative number Euclidean division skew.
+        </span><span class="kw">let </span>year_int = (<span class="kw">if </span>year &gt; <span class="number">0.0 </span>{ year + <span class="number">1.0 </span>} <span class="kw">else </span>{ year }) <span class="kw">as </span>i32;
         <span class="kw">let </span>fixed_mid_year = <span class="kw">crate</span>::iso::fixed_from_iso(year_int, <span class="number">7</span>, <span class="number">1</span>);
         <span class="kw">let </span>c = ((fixed_mid_year.to_i64_date() <span class="kw">as </span>f64) - <span class="number">693596.0</span>) / <span class="number">36525.0</span>;
         <span class="kw">let </span>y2000 = (year_int - <span class="number">2000</span>) <span class="kw">as </span>f64;
@@ -3837,7 +3847,7 @@
         lunar_phase: <span class="prelude-ty">Option</span>&lt;f64&gt;,
     ) -&gt; RataDie {
         <span class="kw">let </span>lunar_phase =
-            lunar_phase.unwrap_or_else(|| <span class="self">Self</span>::calculate_lunar_phase_at_or_before(date));
+            lunar_phase.unwrap_or_else(|| <span class="self">Self</span>::calculate_new_moon_at_or_before(date));
         <span class="kw">let </span>age = date.to_f64_date() - lunar_phase;
         <span class="kw">let </span>tau = <span class="kw">if </span>age &lt;= <span class="number">4.0 </span>|| <span class="self">Self</span>::visible_crescent((date - <span class="number">1</span>).as_moment(), location) {
             lunar_phase + <span class="number">29.0 </span><span class="comment">// Next new moon
@@ -3858,7 +3868,7 @@
         lunar_phase: <span class="prelude-ty">Option</span>&lt;f64&gt;,
     ) -&gt; RataDie {
         <span class="kw">let </span>lunar_phase =
-            lunar_phase.unwrap_or_else(|| <span class="self">Self</span>::calculate_lunar_phase_at_or_before(date));
+            lunar_phase.unwrap_or_else(|| <span class="self">Self</span>::calculate_new_moon_at_or_before(date));
         <span class="kw">let </span>age = date.to_f64_date() - lunar_phase;
         <span class="kw">let </span>tau = <span class="kw">if </span>age &lt;= <span class="number">3.0 </span>&amp;&amp; !<span class="self">Self</span>::visible_crescent((date).as_moment(), location) {
             lunar_phase - <span class="number">30.0 </span><span class="comment">// Previous new moon
@@ -3868,7 +3878,8 @@
         next_moment(Moment::new(tau), location, <span class="self">Self</span>::visible_crescent)
     }
 
-    <span class="kw">pub fn </span>calculate_lunar_phase_at_or_before(date: RataDie) -&gt; f64 {
+    <span class="doccomment">/// Calculate the day that the new moon occurred on or before the given date.
+    </span><span class="kw">pub fn </span>calculate_new_moon_at_or_before(date: RataDie) -&gt; f64 {
         <span class="self">Self</span>::lunar_phase_at_or_before(<span class="number">0.0</span>, date.as_moment())
             .inner()
             .floor()
@@ -4598,7 +4609,7 @@
     </span><span class="kw">const </span>TEST_LOWER_BOUND_FACTOR: f64 = <span class="number">0.9999999</span>;
     <span class="kw">const </span>TEST_UPPER_BOUND_FACTOR: f64 = <span class="number">1.0000001</span>;
 
-    <span class="macro">macro_rules! </span>assert_eq_f64 {
+    <span class="macro">macro_rules!</span> assert_eq_f64 {
         (<span class="macro-nonterminal">$expected_value</span>:expr, <span class="macro-nonterminal">$value</span>:expr, <span class="macro-nonterminal">$moment</span>:expr) =&gt; {
             <span class="kw">if </span><span class="macro-nonterminal">$expected_value </span>&gt; <span class="number">0.0 </span>{
                 <span class="macro">assert!</span>(<span class="macro-nonterminal">$value </span>&gt; <span class="macro-nonterminal">$expected_value </span>* TEST_LOWER_BOUND_FACTOR,

@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/byte_phf/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.3/src/byte_phf/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -477,6 +476,19 @@
 <a href="#476" id="476">476</a>
 <a href="#477" id="477">477</a>
 <a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+<a href="#485" id="485">485</a>
+<a href="#486" id="486">486</a>
+<a href="#487" id="487">487</a>
+<a href="#488" id="488">488</a>
+<a href="#489" id="489">489</a>
+<a href="#490" id="490">490</a>
+<a href="#491" id="491">491</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -535,19 +547,19 @@
 </span><span class="kw">mod </span>cached_owned;
 
 <span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
-</span><span class="kw">pub use </span>builder::find;
-<span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)]
 </span><span class="kw">pub use </span>cached_owned::PerfectByteHashMapCacheOwned;
 
 <span class="doccomment">/// The cutoff for the fast version of [`f1`].
-</span><span class="kw">const </span>P_FAST_MAX: u8 = <span class="number">11</span>;
+</span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="comment">// used in the builder code
+</span><span class="kw">const </span>P_FAST_MAX: u8 = <span class="number">95</span>;
 
 <span class="doccomment">/// The cutoff for the fast version of [`f2`].
 </span><span class="kw">const </span>Q_FAST_MAX: u8 = <span class="number">95</span>;
 
 <span class="doccomment">/// The maximum allowable value of `p`. This could be raised if found to be necessary.
+/// Values exceeding P_FAST_MAX could use a different `p` algorithm by modifying [`f1`].
 </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="comment">// used in the builder code
-</span><span class="kw">const </span>P_REAL_MAX: u8 = <span class="number">15</span>;
+</span><span class="kw">const </span>P_REAL_MAX: u8 = P_FAST_MAX;
 
 <span class="doccomment">/// The maximum allowable value of `q`. This could be raised if found to be necessary.
 </span><span class="attr">#[cfg(feature = <span class="string">"alloc"</span>)] </span><span class="comment">// used in the builder code
@@ -599,13 +611,10 @@
     <span class="kw">if </span>p == <span class="number">0 </span>{
         byte <span class="kw">as </span>usize % n
     } <span class="kw">else </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>result = byte ^ p ^ byte.wrapping_shr(p <span class="kw">as </span>u32);
-        <span class="comment">// In almost all cases, the PHF works with the above constant-time operation.
-        // However, to crack a few difficult cases, we fall back to the linear-time
-        // operation shown below.
-        </span><span class="kw">for _ in </span>P_FAST_MAX..p {
-            result = result ^ (result &lt;&lt; <span class="number">1</span>) ^ (result &gt;&gt; <span class="number">1</span>);
-        }
+        <span class="comment">// `p` always uses the below constant-time operation. If needed, we
+        // could add some other operation here with `p &gt; P_FAST_MAX` to solve
+        // difficult cases if the need arises.
+        </span><span class="kw">let </span>result = byte ^ p ^ byte.wrapping_shr(p <span class="kw">as </span>u32);
         result <span class="kw">as </span>usize % n
     }
 }
@@ -692,12 +701,12 @@
         <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let </span>(qq, eks) = debug_split_at(buffer, n)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(qq, eks) = buffer.debug_split_at(n);
         <span class="macro">debug_assert_eq!</span>(qq.len(), eks.len());
-        <span class="kw">let </span>q = debug_get(qq, f1(key, <span class="kw-2">*</span>p, n))<span class="question-mark">?</span>;
-        <span class="kw">let </span>l2 = f2(key, q, n);
-        <span class="kw">let </span>ek = debug_get(eks, l2)<span class="question-mark">?</span>;
-        <span class="kw">if </span>ek == key {
+        <span class="kw">let </span>q = <span class="macro">debug_unwrap!</span>(qq.get(f1(key, <span class="kw-2">*</span>p, n)), <span class="kw">return </span><span class="prelude-val">None</span>);
+        <span class="kw">let </span>l2 = f2(key, <span class="kw-2">*</span>q, n);
+        <span class="kw">let </span>ek = <span class="macro">debug_unwrap!</span>(eks.get(l2), <span class="kw">return </span><span class="prelude-val">None</span>);
+        <span class="kw">if </span><span class="kw-2">*</span>ek == key {
             <span class="prelude-val">Some</span>(l2)
         } <span class="kw">else </span>{
             <span class="prelude-val">None
@@ -711,10 +720,8 @@
     <span class="doccomment">/// Get an iterator over the keys in the order in which they are stored in the map.
     </span><span class="kw">pub fn </span>keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8] {
         <span class="kw">let </span>n = <span class="self">self</span>.num_items();
-        debug_split_at(<span class="self">self</span>.<span class="number">0</span>.as_ref(), <span class="number">1 </span>+ n)
-            .map(|s| s.<span class="number">1</span>)
-            .unwrap_or(<span class="kw-2">&amp;</span>[])
-    }
+        <span class="self">self</span>.<span class="number">0</span>.as_ref().debug_split_at(<span class="number">1 </span>+ n).<span class="number">1
+    </span>}
     <span class="doccomment">/// Diagnostic function that returns `p` and the maximum value of `q`
     </span><span class="attr">#[cfg(test)]
     </span><span class="kw">pub fn </span>p_qmax(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(u8, u8)&gt; {
@@ -723,7 +730,7 @@
         <span class="kw">if </span>n == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let </span>(qq, <span class="kw">_</span>) = debug_split_at(buffer, n)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(qq, <span class="kw">_</span>) = buffer.debug_split_at(n);
         <span class="prelude-val">Some</span>((<span class="kw-2">*</span>p, <span class="kw-2">*</span>qq.iter().max().unwrap()))
     }
     <span class="doccomment">/// Returns the map as bytes. The map can be recovered with [`Self::from_store`]
@@ -840,6 +847,24 @@
         <span class="macro">std::println!</span>(<span class="string">"fastq/slowq: {count_fastq}/{count_slowq}"</span>);
         <span class="comment">// Assert that 99% of cases resolve to the fast hash
         </span><span class="macro">assert!</span>(count_fastq &gt;= count_slowq * <span class="number">100</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_hard_cases() {
+        <span class="kw">let </span>keys = [
+            <span class="number">0u8</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>,
+            <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>, <span class="number">27</span>, <span class="number">28</span>, <span class="number">29</span>, <span class="number">30</span>, <span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>, <span class="number">34</span>, <span class="number">35</span>, <span class="number">36</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>, <span class="number">45</span>,
+            <span class="number">46</span>, <span class="number">47</span>, <span class="number">48</span>, <span class="number">49</span>, <span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">56</span>, <span class="number">57</span>, <span class="number">58</span>, <span class="number">59</span>, <span class="number">60</span>, <span class="number">61</span>, <span class="number">62</span>, <span class="number">63</span>, <span class="number">64</span>, <span class="number">65</span>, <span class="number">66</span>, <span class="number">67</span>,
+            <span class="number">68</span>, <span class="number">69</span>, <span class="number">70</span>, <span class="number">71</span>, <span class="number">72</span>, <span class="number">73</span>, <span class="number">74</span>, <span class="number">75</span>, <span class="number">76</span>, <span class="number">77</span>, <span class="number">78</span>, <span class="number">79</span>, <span class="number">80</span>, <span class="number">81</span>, <span class="number">82</span>, <span class="number">83</span>, <span class="number">84</span>, <span class="number">85</span>, <span class="number">86</span>, <span class="number">87</span>, <span class="number">88</span>, <span class="number">89</span>,
+            <span class="number">90</span>, <span class="number">91</span>, <span class="number">92</span>, <span class="number">93</span>, <span class="number">94</span>, <span class="number">95</span>, <span class="number">96</span>, <span class="number">97</span>, <span class="number">98</span>, <span class="number">99</span>, <span class="number">100</span>, <span class="number">101</span>, <span class="number">102</span>, <span class="number">103</span>, <span class="number">104</span>, <span class="number">105</span>, <span class="number">106</span>, <span class="number">107</span>, <span class="number">108</span>,
+            <span class="number">109</span>, <span class="number">110</span>, <span class="number">111</span>, <span class="number">112</span>, <span class="number">113</span>, <span class="number">114</span>, <span class="number">115</span>, <span class="number">116</span>, <span class="number">117</span>, <span class="number">118</span>, <span class="number">119</span>, <span class="number">120</span>, <span class="number">121</span>, <span class="number">122</span>, <span class="number">123</span>, <span class="number">124</span>, <span class="number">125</span>,
+            <span class="number">126</span>, <span class="number">195</span>, <span class="number">196</span>,
+        ];
+
+        <span class="kw">let </span>computed = PerfectByteHashMap::try_new(<span class="kw-2">&amp;</span>keys).unwrap();
+        <span class="kw">let </span>(p, qmax) = computed.p_qmax().unwrap();
+        <span class="macro">assert_eq!</span>(p, <span class="number">69</span>);
+        <span class="macro">assert_eq!</span>(qmax, <span class="number">67</span>);
     }
 
     <span class="attr">#[test]

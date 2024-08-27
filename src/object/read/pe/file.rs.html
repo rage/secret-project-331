@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/pe/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/pe/file.rs`."><title>file.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1032,35 +1031,21 @@
 <a href="#1031" id="1031">1031</a>
 <a href="#1032" id="1032">1032</a>
 <a href="#1033" id="1033">1033</a>
-<a href="#1034" id="1034">1034</a>
-<a href="#1035" id="1035">1035</a>
-<a href="#1036" id="1036">1036</a>
-<a href="#1037" id="1037">1037</a>
-<a href="#1038" id="1038">1038</a>
-<a href="#1039" id="1039">1039</a>
-<a href="#1040" id="1040">1040</a>
-<a href="#1041" id="1041">1041</a>
-<a href="#1042" id="1042">1042</a>
-<a href="#1043" id="1043">1043</a>
-<a href="#1044" id="1044">1044</a>
-<a href="#1045" id="1045">1045</a>
-<a href="#1046" id="1046">1046</a>
-<a href="#1047" id="1047">1047</a>
-<a href="#1048" id="1048">1048</a>
-<a href="#1049" id="1049">1049</a>
-<a href="#1050" id="1050">1050</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>core::{mem, str};
 
 <span class="kw">use </span>core::convert::TryInto;
 
+<span class="kw">use </span><span class="kw">crate</span>::endian::{LittleEndian <span class="kw">as </span>LE, U32};
+<span class="kw">use </span><span class="kw">crate</span>::pe;
+<span class="kw">use </span><span class="kw">crate</span>::pod::{<span class="self">self</span>, Pod};
 <span class="kw">use </span><span class="kw">crate</span>::read::coff::{CoffCommon, CoffSymbol, CoffSymbolIterator, CoffSymbolTable, SymbolTable};
 <span class="kw">use </span><span class="kw">crate</span>::read::{
-    <span class="self">self</span>, Architecture, ComdatKind, Error, Export, FileFlags, Import, NoDynamicRelocationIterator,
-    Object, ObjectComdat, ObjectKind, ReadError, ReadRef, <span class="prelude-ty">Result</span>, SectionIndex, SymbolIndex,
+    <span class="self">self</span>, Architecture, ByteString, Bytes, CodeView, ComdatKind, Error, Export, FileFlags, Import,
+    NoDynamicRelocationIterator, Object, ObjectComdat, ObjectKind, ReadError, ReadRef, <span class="prelude-ty">Result</span>,
+    SectionIndex, SubArchitecture, SymbolIndex,
 };
-<span class="kw">use crate</span>::{pe, ByteString, Bytes, CodeView, LittleEndian <span class="kw">as </span>LE, Pod, SubArchitecture, U32};
 
 <span class="kw">use super</span>::{
     DataDirectories, ExportTable, ImageThunkData, ImportTable, PeSection, PeSectionIterator,
@@ -1186,22 +1171,21 @@
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt; <span class="kw">for </span>PeFile&lt;<span class="lifetime">'data</span>, Pe, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Pe, R&gt; Object&lt;<span class="lifetime">'data</span>&gt; <span class="kw">for </span>PeFile&lt;<span class="lifetime">'data</span>, Pe, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">'data</span>: <span class="lifetime">'file</span>,
-    Pe: ImageNtHeaders,
-    R: <span class="lifetime">'file </span>+ ReadRef&lt;<span class="lifetime">'data</span>&gt;,
+    </span>Pe: ImageNtHeaders,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Segment = PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
-    <span class="kw">type </span>SegmentIterator = PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
-    <span class="kw">type </span>Section = PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
-    <span class="kw">type </span>SectionIterator = PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
-    <span class="kw">type </span>Comdat = PeComdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
-    <span class="kw">type </span>ComdatIterator = PeComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;;
-    <span class="kw">type </span>Symbol = CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>SymbolIterator = CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>SymbolTable = CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;;
-    <span class="kw">type </span>DynamicRelocationIterator = NoDynamicRelocationIterator;
+    <span class="kw">type </span>Segment&lt;<span class="lifetime">'file</span>&gt; = PeSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SegmentIterator&lt;<span class="lifetime">'file</span>&gt; = PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Section&lt;<span class="lifetime">'file</span>&gt; = PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SectionIterator&lt;<span class="lifetime">'file</span>&gt; = PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Comdat&lt;<span class="lifetime">'file</span>&gt; = PeComdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>ComdatIterator&lt;<span class="lifetime">'file</span>&gt; = PeComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Symbol&lt;<span class="lifetime">'file</span>&gt; = CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SymbolIterator&lt;<span class="lifetime">'file</span>&gt; = CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SymbolTable&lt;<span class="lifetime">'file</span>&gt; = CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>DynamicRelocationIterator&lt;<span class="lifetime">'file</span>&gt; = NoDynamicRelocationIterator <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture {
         <span class="kw">match </span><span class="self">self</span>.nt_headers.file_header().machine.get(LE) {
@@ -1242,14 +1226,14 @@
         }
     }
 
-    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; {
+    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PeSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Pe, R&gt; {
         PeSegmentIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.common.sections.iter(),
         }
     }
 
-    <span class="kw">fn </span>section_by_name_bytes(
+    <span class="kw">fn </span>section_by_name_bytes&lt;<span class="lifetime">'file</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         section_name: <span class="kw-2">&amp;</span>[u8],
     ) -&gt; <span class="prelude-ty">Option</span>&lt;PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;&gt; {
@@ -1258,16 +1242,13 @@
             .section_by_name(<span class="self">self</span>.common.symbols.strings(), section_name)
             .map(|(index, section)| PeSection {
                 file: <span class="self">self</span>,
-                index: SectionIndex(index),
+                index,
                 section,
             })
     }
 
-    <span class="kw">fn </span>section_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
-        index: SectionIndex,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt;&gt; {
-        <span class="kw">let </span>section = <span class="self">self</span>.common.sections.section(index.<span class="number">0</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>section_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SectionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;PeSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Pe, R&gt;&gt; {
+        <span class="kw">let </span>section = <span class="self">self</span>.common.sections.section(index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(PeSection {
             file: <span class="self">self</span>,
             index,
@@ -1275,19 +1256,19 @@
         })
     }
 
-    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; {
+    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PeSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Pe, R&gt; {
         PeSectionIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.common.sections.iter().enumerate(),
         }
     }
 
-    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; PeComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Pe, R&gt; {
+    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PeComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Pe, R&gt; {
         PeComdatIterator { file: <span class="self">self </span>}
     }
 
-    <span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
-        <span class="kw">let </span>symbol = <span class="self">self</span>.common.symbols.symbol(index.<span class="number">0</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;CoffSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
+        <span class="kw">let </span>symbol = <span class="self">self</span>.common.symbols.symbol(index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(CoffSymbol {
             file: <span class="kw-2">&amp;</span><span class="self">self</span>.common,
             index,
@@ -1295,30 +1276,23 @@
         })
     }
 
-    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
-        CoffSymbolIterator {
-            file: <span class="kw-2">&amp;</span><span class="self">self</span>.common,
-            index: <span class="number">0</span>,
-        }
+    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
+        CoffSymbolIterator::new(<span class="kw-2">&amp;</span><span class="self">self</span>.common)
     }
 
-    <span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="prelude-val">Some</span>(CoffSymbolTable { file: <span class="kw-2">&amp;</span><span class="self">self</span>.common })
     }
 
-    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt; {
-        CoffSymbolIterator {
-            file: <span class="kw-2">&amp;</span><span class="self">self</span>.common,
-            <span class="comment">// Hack: don't return any.
-            </span>index: <span class="self">self</span>.common.symbols.len(),
-        }
+    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CoffSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt; {
+        CoffSymbolIterator::empty(<span class="kw-2">&amp;</span><span class="self">self</span>.common)
     }
 
-    <span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, R&gt;&gt; {
+    <span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;CoffSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NoDynamicRelocationIterator&gt; {
+    <span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NoDynamicRelocationIterator&gt; {
         <span class="prelude-val">None
     </span>}
 
@@ -1369,17 +1343,8 @@
             <span class="prelude-val">Some</span>(data_dir) =&gt; data_dir,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
         };
-        <span class="kw">let </span>debug_data = data_dir.data(<span class="self">self</span>.data, <span class="kw-2">&amp;</span><span class="self">self</span>.common.sections).map(Bytes)<span class="question-mark">?</span>;
-        <span class="kw">let </span>debug_data_size = data_dir.size.get(LE) <span class="kw">as </span>usize;
-
-        <span class="kw">let </span>count = debug_data_size / mem::size_of::&lt;pe::ImageDebugDirectory&gt;();
-        <span class="kw">let </span>rem = debug_data_size % mem::size_of::&lt;pe::ImageDebugDirectory&gt;();
-        <span class="kw">if </span>rem != <span class="number">0 </span>|| count &lt; <span class="number">1 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error(<span class="string">"Invalid PE debug dir size"</span>));
-        }
-
-        <span class="kw">let </span>debug_dirs = debug_data
-            .read_slice_at::&lt;pe::ImageDebugDirectory&gt;(<span class="number">0</span>, count)
+        <span class="kw">let </span>debug_data = data_dir.data(<span class="self">self</span>.data, <span class="kw-2">&amp;</span><span class="self">self</span>.common.sections)<span class="question-mark">?</span>;
+        <span class="kw">let </span>debug_dirs = pod::slice_from_all_bytes::&lt;pe::ImageDebugDirectory&gt;(debug_data)
             .read_error(<span class="string">"Invalid PE debug dir size"</span>)<span class="question-mark">?</span>;
 
         <span class="kw">for </span>debug_dir <span class="kw">in </span>debug_dirs {
@@ -1524,12 +1489,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="macro">unreachable!</span>();
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt; {
         <span class="macro">unreachable!</span>();
     }
 

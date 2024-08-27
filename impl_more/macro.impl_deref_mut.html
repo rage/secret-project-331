@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Implement `DerefMut` for a struct."><title>impl_deref_mut in impl_more - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="impl_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../impl_more/index.html">impl_more</a><span class="version">0.1.6</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Macro <a href="index.html">impl_more</a>::<wbr><a class="macro" href="#">impl_deref_mut</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/impl_more/deref.rs.html#119-151">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><span class="macro">macro_rules!</span> impl_deref_mut {
+    (&lt;$(<span class="macro-nonterminal">$generic</span>:ident),+&gt; <span class="kw">in </span><span class="macro-nonterminal">$this</span>:ty) =&gt; { ... };
+    (&lt;$(<span class="macro-nonterminal">$generic</span>:ident),+&gt; <span class="kw">in </span><span class="macro-nonterminal">$this</span>:ty =&gt; <span class="macro-nonterminal">$field</span>:ident) =&gt; { ... };
+    (<span class="macro-nonterminal">$this</span>:ty) =&gt; { ... };
+    (<span class="macro-nonterminal">$this</span>:ty =&gt; <span class="macro-nonterminal">$field</span>:ident) =&gt; { ... };
+}</pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Implement <a href="https://doc.rust-lang.org/1.80.1/core/ops/deref/trait.DerefMut.html" title="trait core::ops::deref::DerefMut"><code>DerefMut</code></a> for a struct.</p>
+<p>The first argument is that of the struct to create the impl for and this type must also
+implement <a href="https://doc.rust-lang.org/1.80.1/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref"><code>Deref</code></a>. The second argument is required for non-newtype structs and is the field
+to deref to.</p>
+<p>This macro has the same type parameter support and format as <a href="macro.impl_deref.html" title="macro impl_more::impl_deref"><code>impl_deref</code></a>.</p>
+<p>Also see <a href="macro.impl_deref.html" title="macro impl_more::impl_deref"><code>impl_deref</code></a>, <a href="macro.impl_deref_and_mut.html" title="macro impl_more::impl_deref_and_mut"><code>impl_deref_and_mut</code></a>, and <a href="macro.forward_deref_and_mut.html" title="macro impl_more::forward_deref_and_mut"><code>forward_deref_and_mut</code></a>.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>With a newtype struct:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>impl_more::{impl_deref, impl_deref_mut};
+
+<span class="kw">struct </span>Foo(String);
+
+<span class="macro">impl_deref!</span>(Foo =&gt; String);
+<span class="macro">impl_deref_mut!</span>(Foo);
+
+<span class="kw">let </span><span class="kw-2">mut </span>foo = Foo(<span class="string">"bar"</span>.to_owned());
+foo.push(<span class="string">'!'</span>);
+
+<span class="macro">assert_eq!</span>(<span class="kw-2">*</span>foo, <span class="string">"bar!"</span>);</code></pre></div>
+<p>With a named field struct and type parameter:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">struct </span>Foo&lt;T&gt; { msg: T };
+<span class="macro">impl_more::impl_deref!</span>(&lt;T&gt; <span class="kw">in </span>Foo&lt;T&gt; =&gt; msg: T);
+<span class="macro">impl_more::impl_deref_mut!</span>(&lt;T&gt; <span class="kw">in </span>Foo&lt;T&gt; =&gt; msg);
+
+<span class="kw">let </span><span class="kw-2">mut </span>foo = Foo { msg: <span class="string">"bar"</span>.to_owned() };
+foo.push(<span class="string">'!'</span>);
+
+<span class="macro">assert_eq!</span>(<span class="kw-2">*</span>foo, <span class="string">"bar!"</span>);</code></pre></div>
+</div></details></section></div></main></body></html>

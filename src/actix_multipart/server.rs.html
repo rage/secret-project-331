@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.1/src/server.rs`."><title>server.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_multipart/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_multipart"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.2/src/server.rs`."><title>server.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1338,6 +1337,28 @@
 <a href="#1337" id="1337">1337</a>
 <a href="#1338" id="1338">1338</a>
 <a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Multipart response payload support.
 
 </span><span class="kw">use </span>std::{
@@ -2203,12 +2224,14 @@
         test::TestRequest,
         FromRequest,
     };
-    <span class="kw">use </span>bytes::Bytes;
+    <span class="kw">use </span>bytes::BufMut <span class="kw">as _</span>;
     <span class="kw">use </span>futures_util::{future::lazy, StreamExt <span class="kw">as _</span>};
     <span class="kw">use </span>tokio::sync::mpsc;
     <span class="kw">use </span>tokio_stream::wrappers::UnboundedReceiverStream;
 
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">const </span>BOUNDARY: <span class="kw-2">&amp;</span>str = <span class="string">"abbc761f78ff4d7cb7573b5a23f96ef0"</span>;
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_boundary() {
@@ -2305,6 +2328,26 @@
     }
 
     <span class="kw">fn </span>create_simple_request_with_header() -&gt; (Bytes, HeaderMap) {
+        <span class="kw">let </span>(body, headers) = <span class="kw">crate</span>::test::create_form_data_payload_and_headers_with_boundary(
+            BOUNDARY,
+            <span class="string">"file"</span>,
+            <span class="prelude-val">Some</span>(<span class="string">"fn.txt"</span>.to_owned()),
+            <span class="prelude-val">Some</span>(mime::TEXT_PLAIN_UTF_8),
+            Bytes::from_static(<span class="string">b"data"</span>),
+        );
+
+        <span class="kw">let </span><span class="kw-2">mut </span>buf = BytesMut::with_capacity(body.len() + <span class="number">14</span>);
+
+        <span class="comment">// add junk before form to test pre-boundary data rejection
+        </span>buf.put(<span class="string">"testasdadsad\r\n"</span>.as_bytes());
+
+        buf.put(body);
+
+        (buf.freeze(), headers)
+    }
+
+    <span class="comment">// TODO: use test utility when multi-file support is introduced
+    </span><span class="kw">fn </span>create_double_request_with_header() -&gt; (Bytes, HeaderMap) {
         <span class="kw">let </span>bytes = Bytes::from(
             <span class="string">"testasdadsad\r\n\
              --abbc761f78ff4d7cb7573b5a23f96ef0\r\n\
@@ -2330,7 +2373,7 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_multipart_no_end_crlf() {
         <span class="kw">let </span>(sender, payload) = create_stream();
-        <span class="kw">let </span>(<span class="kw-2">mut </span>bytes, headers) = create_simple_request_with_header();
+        <span class="kw">let </span>(<span class="kw-2">mut </span>bytes, headers) = create_double_request_with_header();
         <span class="kw">let </span>bytes_stripped = bytes.split_to(bytes.len()); <span class="comment">// strip crlf
 
         </span>sender.send(<span class="prelude-val">Ok</span>(bytes_stripped)).unwrap();
@@ -2357,7 +2400,7 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_multipart() {
         <span class="kw">let </span>(sender, payload) = create_stream();
-        <span class="kw">let </span>(bytes, headers) = create_simple_request_with_header();
+        <span class="kw">let </span>(bytes, headers) = create_double_request_with_header();
 
         sender.send(<span class="prelude-val">Ok</span>(bytes)).unwrap();
 
@@ -2420,7 +2463,7 @@
 
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_stream() {
-        <span class="kw">let </span>(bytes, headers) = create_simple_request_with_header();
+        <span class="kw">let </span>(bytes, headers) = create_double_request_with_header();
         <span class="kw">let </span>payload = SlowStream::new(bytes);
 
         <span class="kw">let </span><span class="kw-2">mut </span>multipart = Multipart::new(<span class="kw-2">&amp;</span>headers, payload);
@@ -2659,7 +2702,7 @@
     <span class="attr">#[actix_rt::test]
     </span><span class="kw">async fn </span>test_drop_field_awaken_multipart() {
         <span class="kw">let </span>(sender, payload) = create_stream();
-        <span class="kw">let </span>(bytes, headers) = create_simple_request_with_header();
+        <span class="kw">let </span>(bytes, headers) = create_double_request_with_header();
         sender.send(<span class="prelude-val">Ok</span>(bytes)).unwrap();
         drop(sender); <span class="comment">// eof
 

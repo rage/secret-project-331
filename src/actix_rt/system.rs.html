@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-rt-2.9.0/src/system.rs`."><title>system.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_rt" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><a class="sub-logo-container" href="../../actix_rt/index.html"><img src="https://actix.rs/img/logo.png" alt="actix_rt"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-rt-2.10.0/src/system.rs`."><title>system.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_rt" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -356,7 +355,6 @@
 <a href="#355" id="355">355</a>
 <a href="#356" id="356">356</a>
 <a href="#357" id="357">357</a>
-<a href="#358" id="358">358</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::{
     cell::RefCell,
     collections::HashMap,
@@ -375,7 +373,7 @@
 <span class="kw">static </span>SYSTEM_COUNT: AtomicUsize = AtomicUsize::new(<span class="number">0</span>);
 
 <span class="macro">thread_local!</span>(
-    <span class="kw">static </span>CURRENT: RefCell&lt;<span class="prelude-ty">Option</span>&lt;System&gt;&gt; = RefCell::new(<span class="prelude-val">None</span>);
+    <span class="kw">static </span>CURRENT: RefCell&lt;<span class="prelude-ty">Option</span>&lt;System&gt;&gt; = <span class="kw">const </span>{ RefCell::new(<span class="prelude-val">None</span>) };
 );
 
 <span class="doccomment">/// A manager for a per-thread distributed async runtime.
@@ -407,7 +405,7 @@
     /// [tokio-runtime]: tokio::runtime::Runtime
     </span><span class="kw">pub fn </span>with_tokio_rt&lt;F&gt;(runtime_factory: F) -&gt; SystemRunner
     <span class="kw">where
-        </span>F: Fn() -&gt; tokio::runtime::Runtime,
+        </span>F: FnOnce() -&gt; tokio::runtime::Runtime,
     {
         <span class="kw">let </span>(stop_tx, stop_rx) = oneshot::channel();
         <span class="kw">let </span>(sys_tx, sys_rx) = mpsc::unbounded_channel();
@@ -446,7 +444,7 @@
     </span><span class="attr">#[doc(hidden)]
     </span><span class="kw">pub fn </span>with_tokio_rt&lt;F&gt;(<span class="kw">_</span>: F) -&gt; SystemRunner
     <span class="kw">where
-        </span>F: Fn() -&gt; tokio::runtime::Runtime,
+        </span>F: FnOnce() -&gt; tokio::runtime::Runtime,
     {
         <span class="macro">unimplemented!</span>(<span class="string">"System::with_tokio_rt is not implemented for io-uring feature yet"</span>)
     }
@@ -562,16 +560,20 @@
             .map_err(|err| io::Error::new(io::ErrorKind::Other, err))
     }
 
-    <span class="doccomment">/// Retrieves a reference to the underlying Actix runtime associated with this SystemRunner instance.
+    <span class="doccomment">/// Retrieves a reference to the underlying [Actix runtime](crate::Runtime) associated with this
+    /// `SystemRunner` instance.
     ///
-    /// The Actix runtime is responsible for managing the event loop for an Actix system and executing asynchronous tasks.
-    /// This method provides access to the runtime, allowing direct interaction with its features.
+    /// The Actix runtime is responsible for managing the event loop for an Actix system and
+    /// executing asynchronous tasks. This method provides access to the runtime, allowing direct
+    /// interaction with its features.
     ///
     /// In a typical use case, you might need to share the same runtime between different
-    /// parts of your project. For example, some components might require a [`actix_rt::Runtime`] to spawn tasks on
-    /// the same runtime.
+    /// parts of your project. For example, some components might require a [`Runtime`] to spawn
+    /// tasks on the same runtime.
     ///
-    /// # Example
+    /// Read more in the documentation for [`Runtime`].
+    ///
+    /// # Examples
     ///
     /// ```
     /// let system_runner = actix_rt::System::new();
@@ -580,19 +582,14 @@
     /// // Use the runtime to spawn an async task or perform other operations
     /// ```
     ///
-    /// Read more in the documentation for [`actix_rt::Runtime`]
-    ///
-    /// # Returns
-    ///
-    /// An immutable reference to the [`actix_rt::Runtime`] instance associated with this
-    /// [`actix_rt::SystemRunner`] instance.
-    ///
     /// # Note
     ///
-    /// While this method provides an immutable reference to the Actix runtime, which is safe to share across threads,
-    /// be aware that spawning blocking tasks on the Actix runtime could potentially impact system performance.
-    /// This is because the Actix runtime is responsible for driving the system,
-    /// and blocking tasks could delay other tasks in the run loop.
+    /// While this method provides an immutable reference to the Actix runtime, which is safe to
+    /// share across threads, be aware that spawning blocking tasks on the Actix runtime could
+    /// potentially impact system performance. This is because the Actix runtime is responsible for
+    /// driving the system, and blocking tasks could delay other tasks in the run loop.
+    ///
+    /// [`Runtime`]: crate::Runtime
     </span><span class="kw">pub fn </span>runtime(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="kw">crate</span>::runtime::Runtime {
         <span class="kw-2">&amp;</span><span class="self">self</span>.rt
     }

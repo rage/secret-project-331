@@ -1,0 +1,1 @@
+searchState.loadedDescShard("remove_dir_all", 0, "Reliably remove a directory and all of its children.\nRemoves a directory at this path, after removing all its …")

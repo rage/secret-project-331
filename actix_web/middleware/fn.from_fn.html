@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Wraps an async function to be used as a middleware."><title>from_fn in actix_web::middleware - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_web" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button><a class="logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt=""></a></nav><nav class="sidebar"><div class="sidebar-crate"><a class="logo-container" href="../../actix_web/index.html"><img src="https://actix.rs/img/logo.png" alt="logo"></a><h2><a href="../../actix_web/index.html">actix_web</a><span class="version">4.9.0</span></h2></div><div class="sidebar-elems"><h2><a href="index.html">In actix_web::middleware</a></h2></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Function <a href="../index.html">actix_web</a>::<wbr><a href="index.html">middleware</a>::<wbr><a class="fn" href="#">from_fn</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../../src/actix_web/middleware/from_fn.rs.html#83-88">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub fn from_fn&lt;F, Es&gt;(mw_fn: F) -&gt; MiddlewareFn&lt;F, Es&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Wraps an async function to be used as a middleware.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
+<p>The wrapped function should have the following form:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>actix_web::middleware::{<span class="self">self</span>, Next};
+
+<span class="kw">async fn </span>my_mw(
+    req: ServiceRequest,
+    next: Next&lt;<span class="kw">impl </span>MessageBody&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;<span class="kw">impl </span>MessageBody&gt;, Error&gt; {
+    <span class="comment">// pre-processing
+    </span>next.call(req).<span class="kw">await
+    </span><span class="comment">// post-processing
+</span>}</code></pre></div>
+<p>Then use in an app builder like this:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>actix_web::{
+    App, Error,
+    dev::{ServiceRequest, ServiceResponse, Service <span class="kw">as _</span>},
+};
+<span class="kw">use </span>actix_web::middleware::from_fn;
+
+App::new()
+    .wrap(from_fn(my_mw))</code></pre></div>
+<p>It is also possible to write a middleware that automatically uses extractors, similar to request
+handlers, by declaring them as the first parameters. As usual, <strong>take care with extractors that
+consume the body stream</strong>, since handlers will no longer be able to read it again without
+putting the body “back” into the request object within your middleware.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>actix_web::middleware::Next;
+
+<span class="kw">async fn </span>my_extracting_mw(
+    accept: Header&lt;Accept&gt;,
+    query: Query&lt;HashMap&lt;String, String&gt;&gt;,
+    req: ServiceRequest,
+    next: Next&lt;<span class="kw">impl </span>MessageBody&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ServiceResponse&lt;<span class="kw">impl </span>MessageBody&gt;, Error&gt; {
+    <span class="comment">// pre-processing
+    </span>next.call(req).<span class="kw">await
+    </span><span class="comment">// post-processing
+</span>}</code></pre></div>
+</div></details></section></div></main></body></html>

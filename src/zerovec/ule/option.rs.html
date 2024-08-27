@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.1/src/ule/option.rs`."><title>option.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerovec-0.10.4/src/ule/option.rs`."><title>option.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="zerovec" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -293,7 +292,7 @@
 </span><span class="comment">// Invariants:
 // The MaybeUninit is zeroed when None (bool = false),
 // and is valid when Some (bool = true)
-</span><span class="attr">#[repr(packed)]
+</span><span class="attr">#[repr(C, packed)]
 </span><span class="kw">pub struct </span>OptionULE&lt;U&gt;(bool, MaybeUninit&lt;U&gt;);
 
 <span class="kw">impl</span>&lt;U: Copy&gt; OptionULE&lt;U&gt; {
@@ -327,11 +326,11 @@
 
 <span class="comment">// Safety (based on the safety checklist on the ULE trait):
 //  1. OptionULE does not include any uninitialized or padding bytes.
-//     (achieved by `#[repr(packed)]` on a struct containing only ULE fields,
+//     (achieved by `#[repr(C, packed)]` on a struct containing only ULE fields,
 //     in the context of this impl. The MaybeUninit is valid for all byte sequences, and we only generate
 </span><span class="doccomment">///    zeroed or valid-T byte sequences to fill it)
 </span><span class="comment">//  2. OptionULE is aligned to 1 byte.
-//     (achieved by `#[repr(packed)]` on a struct containing only ULE fields, in the context of this impl)
+//     (achieved by `#[repr(C, packed)]` on a struct containing only ULE fields, in the context of this impl)
 //  3. The impl of validate_byte_slice() returns an error if any byte is not valid.
 //  4. The impl of validate_byte_slice() returns an error if there are extra bytes.
 //  5. The other ULE methods use the default impl.
@@ -406,7 +405,7 @@
 /// ```
 </span><span class="comment">// The slice field is empty when None (bool = false),
 // and is a valid T when Some (bool = true)
-</span><span class="attr">#[repr(packed)]
+</span><span class="attr">#[repr(C, packed)]
 </span><span class="kw">pub struct </span>OptionVarULE&lt;U: VarULE + <span class="question-mark">?</span>Sized&gt;(PhantomData&lt;U&gt;, bool, [u8]);
 
 <span class="kw">impl</span>&lt;U: VarULE + <span class="question-mark">?</span>Sized&gt; OptionVarULE&lt;U&gt; {
@@ -431,8 +430,8 @@
 
 <span class="comment">// Safety (based on the safety checklist on the VarULE trait):
 //  1. OptionVarULE&lt;T&gt; does not include any uninitialized or padding bytes
-//     (achieved by being repr(packed) on ULE types)
-//  2. OptionVarULE&lt;T&gt; is aligned to 1 byte (achieved by being repr(packed) on ULE types)
+//     (achieved by being repr(C, packed) on ULE types)
+//  2. OptionVarULE&lt;T&gt; is aligned to 1 byte (achieved by being repr(C, packed) on ULE types)
 //  3. The impl of `validate_byte_slice()` returns an error if any byte is not valid.
 //  4. The impl of `validate_byte_slice()` returns an error if the slice cannot be used in its entirety
 //  5. The impl of `from_byte_slice_unchecked()` returns a reference to the same data.

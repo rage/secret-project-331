@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/type_info.rs`."><title>type_info.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/type_info.rs`."><title>type_info.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1159,6 +1158,236 @@
 <a href="#1158" id="1158">1158</a>
 <a href="#1159" id="1159">1159</a>
 <a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
+<a href="#1192" id="1192">1192</a>
+<a href="#1193" id="1193">1193</a>
+<a href="#1194" id="1194">1194</a>
+<a href="#1195" id="1195">1195</a>
+<a href="#1196" id="1196">1196</a>
+<a href="#1197" id="1197">1197</a>
+<a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
+<a href="#1201" id="1201">1201</a>
+<a href="#1202" id="1202">1202</a>
+<a href="#1203" id="1203">1203</a>
+<a href="#1204" id="1204">1204</a>
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
+<a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a>
+<a href="#1227" id="1227">1227</a>
+<a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
+<a href="#1231" id="1231">1231</a>
+<a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
+<a href="#1236" id="1236">1236</a>
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a>
+<a href="#1254" id="1254">1254</a>
+<a href="#1255" id="1255">1255</a>
+<a href="#1256" id="1256">1256</a>
+<a href="#1257" id="1257">1257</a>
+<a href="#1258" id="1258">1258</a>
+<a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
+<a href="#1272" id="1272">1272</a>
+<a href="#1273" id="1273">1273</a>
+<a href="#1274" id="1274">1274</a>
+<a href="#1275" id="1275">1275</a>
+<a href="#1276" id="1276">1276</a>
+<a href="#1277" id="1277">1277</a>
+<a href="#1278" id="1278">1278</a>
+<a href="#1279" id="1279">1279</a>
+<a href="#1280" id="1280">1280</a>
+<a href="#1281" id="1281">1281</a>
+<a href="#1282" id="1282">1282</a>
+<a href="#1283" id="1283">1283</a>
+<a href="#1284" id="1284">1284</a>
+<a href="#1285" id="1285">1285</a>
+<a href="#1286" id="1286">1286</a>
+<a href="#1287" id="1287">1287</a>
+<a href="#1288" id="1288">1288</a>
+<a href="#1289" id="1289">1289</a>
+<a href="#1290" id="1290">1290</a>
+<a href="#1291" id="1291">1291</a>
+<a href="#1292" id="1292">1292</a>
+<a href="#1293" id="1293">1293</a>
+<a href="#1294" id="1294">1294</a>
+<a href="#1295" id="1295">1295</a>
+<a href="#1296" id="1296">1296</a>
+<a href="#1297" id="1297">1297</a>
+<a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
+<a href="#1387" id="1387">1387</a>
+<a href="#1388" id="1388">1388</a>
+<a href="#1389" id="1389">1389</a>
+<a href="#1390" id="1390">1390</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
 
 </span><span class="kw">use </span>std::borrow::Cow;
@@ -1172,6 +1401,34 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>sqlx_core::type_info::TypeInfo;
 
 <span class="doccomment">/// Type information for a PostgreSQL type.
+///
+/// ### Note: Implementation of `==` ([`PartialEq::eq()`])
+/// Because `==` on [`TypeInfo`]s has been used throughout the SQLx API as a synonym for type compatibility,
+/// e.g. in the default impl of [`Type::compatible()`][sqlx_core::types::Type::compatible],
+/// some concessions have been made in the implementation.
+///
+/// When comparing two `PgTypeInfo`s using the `==` operator ([`PartialEq::eq()`]),
+/// if one was constructed with [`Self::with_oid()`] and the other with [`Self::with_name()`] or
+/// [`Self::array_of()`], `==` will return `true`:
+///
+/// ```
+/// # use sqlx::postgres::{types::Oid, PgTypeInfo};
+/// // Potentially surprising result, this assert will pass:
+/// assert_eq!(PgTypeInfo::with_oid(Oid(1)), PgTypeInfo::with_name("definitely_not_real"));
+/// ```
+///
+/// Since it is not possible in this case to prove the types are _not_ compatible (because
+/// both `PgTypeInfo`s need to be resolved by an active connection to know for sure)
+/// and type compatibility is mainly done as a sanity check anyway,
+/// it was deemed acceptable to fudge equality in this very specific case.
+///
+/// This also applies when querying with the text protocol (not using prepared statements,
+/// e.g. [`sqlx::raw_sql()`][sqlx_core::raw_sql::raw_sql]), as the connection will be unable
+/// to look up the type info like it normally does when preparing a statement: it won't know
+/// what the OIDs of the output columns will be until it's in the middle of reading the result,
+/// and by that time it's too late.
+///
+/// To compare types for exact equality, use [`Self::type_eq()`] instead.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = <span class="string">"offline"</span>, derive(serde::Serialize, serde::Deserialize))]
 </span><span class="kw">pub struct </span>PgTypeInfo(<span class="kw">pub</span>(<span class="kw">crate</span>) PgType);
@@ -1293,6 +1550,8 @@
     <span class="comment">// NOTE: Do we want to bring back type declaration by ID? It's notoriously fragile but
     //       someone may have a user for it
     </span>DeclareWithOid(Oid),
+
+    DeclareArrayOf(Arc&lt;PgArrayOf&gt;),
 }
 
 <span class="attr">#[derive(Debug, Clone)]
@@ -1314,6 +1573,13 @@
     Array(PgTypeInfo),
     Enum(Arc&lt;[String]&gt;),
     Range(PgTypeInfo),
+}
+
+<span class="attr">#[derive(Debug)]
+#[cfg_attr(feature = <span class="string">"offline"</span>, derive(serde::Serialize, serde::Deserialize))]
+</span><span class="kw">pub struct </span>PgArrayOf {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) elem_name: UStr,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) name: Box&lt;str&gt;,
 }
 
 <span class="kw">impl </span>PgTypeInfo {
@@ -1394,17 +1660,78 @@
     ///
     /// The OID for the type will be fetched from Postgres on use of
     /// a value of this type. The fetched OID will be cached per-connection.
+    ///
+    /// ### Note: Type Names Prefixed with `_`
+    /// In `pg_catalog.pg_type`, Postgres prefixes a type name with `_` to denote an array of that
+    /// type, e.g. `int4[]` actually exists in `pg_type` as `_int4`.
+    ///
+    /// Previously, it was necessary in manual [`PgHasArrayType`][crate::PgHasArrayType] impls
+    /// to return [`PgTypeInfo::with_name()`] with the type name prefixed with `_` to denote
+    /// an array type, but this would not work with schema-qualified names.
+    ///
+    /// As of 0.8, [`PgTypeInfo::array_of()`] is used to declare an array type,
+    /// and the Postgres driver is now able to properly resolve arrays of custom types,
+    /// even in other schemas, which was not previously supported.
+    ///
+    /// It is highly recommended to migrate existing usages to [`PgTypeInfo::array_of()`] where
+    /// applicable.
+    ///
+    /// However, to maintain compatibility, the driver now infers any type name prefixed with `_`
+    /// to be an array of that type. This may introduce some breakages for types which use
+    /// a `_` prefix but which are not arrays.
+    ///
+    /// As a workaround, type names with `_` as a prefix but which are not arrays should be wrapped
+    /// in quotes, e.g.:
+    /// ```
+    /// use sqlx::postgres::PgTypeInfo;
+    /// use sqlx::{Type, TypeInfo};
+    ///
+    /// /// `CREATE TYPE "_foo" AS ENUM ('Bar', 'Baz');`
+    /// #[derive(sqlx::Type)]
+    /// // Will prevent SQLx from inferring `_foo` as an array type.
+    /// #[sqlx(type_name = r#""_foo""#)]
+    /// enum Foo {
+    ///     Bar,
+    ///     Baz
+    /// }
+    ///
+    /// assert_eq!(Foo::type_info().name(), r#""_foo""#);
+    /// ```
     </span><span class="kw">pub const fn </span>with_name(name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(PgType::DeclareWithName(UStr::Static(name)))
+    }
+
+    <span class="doccomment">/// Create a `PgTypeInfo` of an array from the name of its element type.
+    ///
+    /// The array type OID will be fetched from Postgres on use of a value of this type.
+    /// The fetched OID will be cached per-connection.
+    </span><span class="kw">pub fn </span>array_of(elem_name: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str) -&gt; <span class="self">Self </span>{
+        <span class="comment">// to satisfy `name()` and `display_name()`, we need to construct strings to return
+        </span><span class="self">Self</span>(PgType::DeclareArrayOf(Arc::new(PgArrayOf {
+            elem_name: elem_name.into(),
+            name: <span class="macro">format!</span>(<span class="string">"{elem_name}[]"</span>).into(),
+        })))
     }
 
     <span class="doccomment">/// Create a `PgTypeInfo` from an OID.
     ///
     /// Note that the OID for a type is very dependent on the environment. If you only ever use
     /// one database or if this is an unhandled built-in type, you should be fine. Otherwise,
-    /// you will be better served using [`with_name`](Self::with_name).
+    /// you will be better served using [`Self::with_name()`].
+    ///
+    /// ### Note: Interaction with `==`
+    /// This constructor may give surprising results with `==`.
+    ///
+    /// See [the type-level docs][Self] for details.
     </span><span class="kw">pub const fn </span>with_oid(oid: Oid) -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>(PgType::DeclareWithOid(oid))
+    }
+
+    <span class="doccomment">/// Returns `true` if `self` can be compared exactly to `other`.
+    ///
+    /// Unlike `==`, this will return false if
+    </span><span class="kw">pub fn </span>type_eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.eq_impl(other, <span class="bool-val">false</span>)
     }
 }
 
@@ -1625,6 +1952,9 @@
             PgType::DeclareWithName(<span class="kw">_</span>) =&gt; {
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
+            PgType::DeclareArrayOf(<span class="kw">_</span>) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
+            }
         })
     }
 
@@ -1722,9 +2052,10 @@
             PgType::Money =&gt; <span class="string">"MONEY"</span>,
             PgType::MoneyArray =&gt; <span class="string">"MONEY[]"</span>,
             PgType::Void =&gt; <span class="string">"VOID"</span>,
-            PgType::Custom(ty) =&gt; <span class="kw-2">&amp;*</span>ty.name,
+            PgType::Custom(ty) =&gt; <span class="kw-2">&amp;</span>ty.name,
             PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="string">"?"</span>,
             PgType::DeclareWithName(name) =&gt; name,
+            PgType::DeclareArrayOf(array) =&gt; <span class="kw-2">&amp;</span>array.name,
         }
     }
 
@@ -1822,9 +2153,10 @@
             PgType::Money =&gt; <span class="string">"money"</span>,
             PgType::MoneyArray =&gt; <span class="string">"_money"</span>,
             PgType::Void =&gt; <span class="string">"void"</span>,
-            PgType::Custom(ty) =&gt; <span class="kw-2">&amp;*</span>ty.name,
+            PgType::Custom(ty) =&gt; <span class="kw-2">&amp;</span>ty.name,
             PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="string">"?"</span>,
             PgType::DeclareWithName(name) =&gt; name,
+            PgType::DeclareArrayOf(array) =&gt; <span class="kw-2">&amp;</span>array.name,
         }
     }
 
@@ -1932,13 +2264,16 @@
             PgType::DeclareWithName(name) =&gt; {
                 <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [name={name}]"</span>);
             }
+            PgType::DeclareArrayOf(array) =&gt; {
+                <span class="macro">unreachable!</span>(
+                    <span class="string">"(bug) use of unresolved type declaration [array of={}]"</span>,
+                    array.elem_name
+                );
+            }
         }
     }
 
     <span class="doccomment">/// If `self` is an array type, return the type info for its element.
-    ///
-    /// This method should only be called on resolved types: calling it on
-    /// a type that is merely declared (DeclareWithOid/Name) is a bug.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_array_element(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Cow&lt;<span class="lifetime">'_</span>, PgTypeInfo&gt;&gt; {
         <span class="comment">// We explicitly match on all the `None` cases to ensure an exhaustive match.
         </span><span class="kw">match </span><span class="self">self </span>{
@@ -2046,13 +2381,49 @@
                 PgTypeKind::Enum(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
                 PgTypeKind::Range(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             },
-            PgType::DeclareWithOid(oid) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [oid={}]"</span>, oid.<span class="number">0</span>);
-            }
+            PgType::DeclareWithOid(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
             PgType::DeclareWithName(name) =&gt; {
-                <span class="macro">unreachable!</span>(<span class="string">"(bug) use of unresolved type declaration [name={name}]"</span>);
+                <span class="comment">// LEGACY: infer the array element name from a `_` prefix
+                </span>UStr::strip_prefix(name, <span class="string">"_"</span>)
+                    .map(|elem| Cow::Owned(PgTypeInfo(PgType::DeclareWithName(elem))))
             }
+            PgType::DeclareArrayOf(array) =&gt; <span class="prelude-val">Some</span>(Cow::Owned(PgTypeInfo(PgType::DeclareWithName(
+                array.elem_name.clone(),
+            )))),
         }
+    }
+
+    <span class="doccomment">/// Returns `true` if this type cannot be matched by name.
+    </span><span class="kw">fn </span>is_declare_with_oid(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::DeclareWithOid(<span class="kw">_</span>))
+    }
+
+    <span class="doccomment">/// Compare two `PgType`s, first by OID, then by array element, then by name.
+    ///
+    /// If `soft_eq` is true and `self` or `other` is `DeclareWithOid` but not both, return `true`
+    /// before checking names.
+    </span><span class="kw">fn </span>eq_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>, soft_eq: bool) -&gt; bool {
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(a), <span class="prelude-val">Some</span>(b)) = (<span class="self">self</span>.try_oid(), other.try_oid()) {
+            <span class="comment">// If there are OIDs available, use OIDs to perform a direct match
+            </span><span class="kw">return </span>a == b;
+        }
+
+        <span class="kw">if </span>soft_eq &amp;&amp; (<span class="self">self</span>.is_declare_with_oid() || other.is_declare_with_oid()) {
+            <span class="comment">// If we get to this point, one instance is `DeclareWithOid()` and the other is
+            // `DeclareArrayOf()` or `DeclareWithName()`, which means we can't compare the two.
+            //
+            // Since this is only likely to occur when using the text protocol where we can't
+            // resolve type names before executing a query, we can just opt out of typechecking.
+            </span><span class="kw">return </span><span class="bool-val">true</span>;
+        }
+
+        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(elem_a), <span class="prelude-val">Some</span>(elem_b)) = (<span class="self">self</span>.try_array_element(), other.try_array_element())
+        {
+            <span class="kw">return </span>elem_a == elem_b;
+        }
+
+        <span class="comment">// Otherwise, perform a match on the name
+        </span>name_eq(<span class="self">self</span>.name(), other.name())
     }
 }
 
@@ -2067,6 +2438,13 @@
 
     <span class="kw">fn </span>is_void(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(<span class="self">self</span>.<span class="number">0</span>, PgType::Void)
+    }
+
+    <span class="kw">fn </span>type_compatible(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized,
+    {
+        <span class="self">self </span>== other
     }
 }
 
@@ -2301,22 +2679,103 @@
 
 <span class="kw">impl </span>PartialEq&lt;PgType&gt; <span class="kw">for </span>PgType {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>PgType) -&gt; bool {
-        <span class="kw">if let </span>(<span class="prelude-val">Some</span>(a), <span class="prelude-val">Some</span>(b)) = (<span class="self">self</span>.try_oid(), other.try_oid()) {
-            <span class="comment">// If there are OIDs available, use OIDs to perform a direct match
-            </span>a == b
-        } <span class="kw">else if </span><span class="macro">matches!</span>(
-            (<span class="self">self</span>, other),
-            (PgType::DeclareWithName(<span class="kw">_</span>), PgType::DeclareWithOid(<span class="kw">_</span>))
-                | (PgType::DeclareWithOid(<span class="kw">_</span>), PgType::DeclareWithName(<span class="kw">_</span>))
-        ) {
-            <span class="comment">// One is a declare-with-name and the other is a declare-with-id
-            // This only occurs in the TEXT protocol with custom types
-            // Just opt-out of type checking here
-            </span><span class="bool-val">true
-        </span>} <span class="kw">else </span>{
-            <span class="comment">// Otherwise, perform a match on the name
-            </span><span class="self">self</span>.name().eq_ignore_ascii_case(other.name())
+        <span class="self">self</span>.eq_impl(other, <span class="bool-val">true</span>)
+    }
+}
+
+<span class="doccomment">/// Check type names for equality, respecting Postgres' case sensitivity rules for identifiers.
+///
+/// https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+</span><span class="kw">fn </span>name_eq(name1: <span class="kw-2">&amp;</span>str, name2: <span class="kw-2">&amp;</span>str) -&gt; bool {
+    <span class="comment">// Cop-out of processing Unicode escapes by just using string equality.
+    </span><span class="kw">if </span>name1.starts_with(<span class="string">"U&amp;"</span>) {
+        <span class="comment">// If `name2` doesn't start with `U&amp;` this will automatically be `false`.
+        </span><span class="kw">return </span>name1 == name2;
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>chars1 = identifier_chars(name1);
+    <span class="kw">let </span><span class="kw-2">mut </span>chars2 = identifier_chars(name2);
+
+    <span class="kw">while let </span>(<span class="prelude-val">Some</span>(a), <span class="prelude-val">Some</span>(b)) = (chars1.next(), chars2.next()) {
+        <span class="kw">if </span>!a.eq(<span class="kw-2">&amp;</span>b) {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
+    }
+
+    chars1.next().is_none() &amp;&amp; chars2.next().is_none()
+}
+
+<span class="kw">struct </span>IdentifierChar {
+    ch: char,
+    case_sensitive: bool,
+}
+
+<span class="kw">impl </span>IdentifierChar {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.case_sensitive || other.case_sensitive {
+            <span class="self">self</span>.ch == other.ch
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.ch.eq_ignore_ascii_case(<span class="kw-2">&amp;</span>other.ch)
+        }
+    }
+}
+
+<span class="doccomment">/// Return an iterator over all significant characters of an identifier.
+///
+/// Ignores non-escaped quotation marks.
+</span><span class="kw">fn </span>identifier_chars(ident: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw">impl </span>Iterator&lt;Item = IdentifierChar&gt; + <span class="lifetime">'_ </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>case_sensitive = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>last_char_quote = <span class="bool-val">false</span>;
+
+    ident.chars().filter_map(<span class="kw">move </span>|ch| {
+        <span class="kw">if </span>ch == <span class="string">'"' </span>{
+            <span class="kw">if </span>last_char_quote {
+                last_char_quote = <span class="bool-val">false</span>;
+            } <span class="kw">else </span>{
+                last_char_quote = <span class="bool-val">true</span>;
+                <span class="kw">return </span><span class="prelude-val">None</span>;
+            }
+        } <span class="kw">else if </span>last_char_quote {
+            last_char_quote = <span class="bool-val">false</span>;
+            case_sensitive = !case_sensitive;
+        }
+
+        <span class="prelude-val">Some</span>(IdentifierChar { ch, case_sensitive })
+    })
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_name_eq() {
+    <span class="kw">let </span>test_values = [
+        (<span class="string">"foo"</span>, <span class="string">"foo"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo"</span>, <span class="string">"Foo"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo"</span>, <span class="string">"FOO"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo"</span>, <span class="string">r#""foo""#</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo"</span>, <span class="string">r#""Foo""#</span>, <span class="bool-val">false</span>),
+        (<span class="string">"foo"</span>, <span class="string">"foo.foo"</span>, <span class="bool-val">false</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"foo.foo"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"foo.Foo"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"foo.FOO"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"Foo.foo"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"Foo.Foo"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"FOO.FOO"</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">"foo"</span>, <span class="bool-val">false</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">r#"foo."foo""#</span>, <span class="bool-val">true</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">r#"foo."Foo""#</span>, <span class="bool-val">false</span>),
+        (<span class="string">"foo.foo"</span>, <span class="string">r#"foo."FOO""#</span>, <span class="bool-val">false</span>),
+    ];
+
+    <span class="kw">for </span>(left, right, eq) <span class="kw">in </span>test_values {
+        <span class="macro">assert_eq!</span>(
+            name_eq(left, right),
+            eq,
+            <span class="string">"failed check for name_eq({left:?}, {right:?})"
+        </span>);
+        <span class="macro">assert_eq!</span>(
+            name_eq(right, left),
+            eq,
+            <span class="string">"failed check for name_eq({right:?}, {left:?})"
+        </span>);
     }
 }
 </code></pre></div></section></main></body></html>

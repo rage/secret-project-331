@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ContentTypeError","DispatchError","ParseError","PayloadError"],"struct":["Error","HttpError"]};
+window.SIDEBAR_ITEMS = {"enum":["ContentTypeError","DispatchError","ParseError","PayloadError"],"struct":["Error","HttpError","InvalidStatusCode"]};

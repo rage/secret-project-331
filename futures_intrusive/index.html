@@ -1,6 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Synchronization primitives and utilities based on intrusive collections."><title>futures_intrusive - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="futures_intrusive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../futures_intrusive/index.html">futures_intrusive</a><span class="version">0.5.0</span></h2></div><div class="sidebar-elems"><ul class="block">
-            <li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><div class="sidebar-resizer"></div>
-    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../futures_intrusive/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">futures_intrusive</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/futures_intrusive/lib.rs.html#1-235">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Synchronization primitives and utilities based on intrusive collections.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Synchronization primitives and utilities based on intrusive collections."><title>futures_intrusive - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="futures_intrusive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../futures_intrusive/index.html">futures_intrusive</a><span class="version">0.5.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">futures_intrusive</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/futures_intrusive/lib.rs.html#1-235">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Synchronization primitives and utilities based on intrusive collections.</p>
 <p>This crate provides a variety of <code>Futures</code>-based and <code>async/await</code> compatible
 types that are based on the idea of intrusive collections:</p>
 <ul>
@@ -20,7 +18,7 @@ types that are based on the idea of intrusive collections:</p>
 </li>
 <li>A timer</li>
 </ul>
-<h3 id="intrusive-collections"><a href="#intrusive-collections">Intrusive collections?</a></h3>
+<h3 id="intrusive-collections"><a class="doc-anchor" href="#intrusive-collections">§</a>Intrusive collections?</h3>
 <p>In an intrusive collection, the elements that want to get stored inside the
 collection provide the means to store themselves inside the collection.
 E.g. in an intrusive linked list, each element that gets stored inside the
@@ -46,7 +44,7 @@ kernels.  E.g. they can be used for storing elements that represent threads
 that are blocked and waiting on queue.  In that case the stored elements can
 be on the call stack of the caller of each blocked thread, since the
 call stack won’t change as long as the thread is blocked.</p>
-<h4 id="application-in-futures"><a href="#application-in-futures">Application in Futures</a></h4>
+<h4 id="application-in-futures"><a class="doc-anchor" href="#application-in-futures">§</a>Application in Futures</h4>
 <p>This library brings this idea into the world of Rusts <code>Future</code>s. Due to the
 addition of <code>Pin</code>ning, the address of a certain <code>Future</code> is not allowed to
 change between the first call to <code>poll()</code> and when the <code>Future</code> is dropped.
@@ -65,14 +63,14 @@ from any collections that refer to it to avoid invalid memory accesses.</p>
 asychronous code based on this concept.</p>
 <p>The implementation requires the usage of a fair chunk of <code>unsafe</code>
 annotations. However the provided user-level API is intended to be fully safe.</p>
-<h3 id="features-of-this-library"><a href="#features-of-this-library">Features of this library</a></h3>
+<h3 id="features-of-this-library"><a class="doc-anchor" href="#features-of-this-library">§</a>Features of this library</h3>
 <p>The following types are currently implemented:</p>
 <ul>
 <li>Channels (oneshot and multi-producer-multi-consumer)</li>
 <li>Synchronization primitives (async mutexes and events)</li>
 <li>Timers</li>
 </ul>
-<h3 id="design-goals-for-the-library"><a href="#design-goals-for-the-library">Design goals for the library</a></h3>
+<h3 id="design-goals-for-the-library"><a class="doc-anchor" href="#design-goals-for-the-library">§</a>Design goals for the library</h3>
 <ul>
 <li>Provide implementations of common synchronization primitives in a platform
 independent fashion.</li>
@@ -94,7 +92,7 @@ the same object in parallel.</li>
 The library tries to mimic the APIs of existing Rust libraries like the
 standard library and <code>futures-rs</code> as closely as possible.</li>
 </ul>
-<h3 id="non-goals"><a href="#non-goals">Non goals</a></h3>
+<h3 id="non-goals"><a class="doc-anchor" href="#non-goals">§</a>Non goals</h3>
 <ul>
 <li>Provide IO primitives (like sockets), or platform specific implementations.</li>
 <li>Reach the highest possible performance in terms of throughput and latency.
@@ -102,7 +100,7 @@ While code in this library is optimized for performance, portability
 and deterministic memory usage are more important goals.</li>
 <li>Provide future wrappers for platform-specific APIs.</li>
 </ul>
-<h3 id="local-non-local-and-shared-flavors"><a href="#local-non-local-and-shared-flavors">Local, Non-local and shared flavors</a></h3>
+<h3 id="local-non-local-and-shared-flavors"><a class="doc-anchor" href="#local-non-local-and-shared-flavors">§</a>Local, Non-local and shared flavors</h3>
 <p>The library provides types in a variety of flavors:</p>
 <ul>
 <li>A local flavor (e.g. <a href="channel/type.LocalChannel.html" title="type futures_intrusive::channel::LocalChannel"><code>channel::LocalChannel</code></a>)</li>
@@ -116,7 +114,7 @@ flavors of types can be accessed from multiple threads (and thereby also
 futures tasks) concurrently. This means they implement the <code>Sync</code> trait in
 addition to the <code>Send</code> trait.
 The local flavors only implement the <code>Send</code> trait.</p>
-<h4 id="local-flavor"><a href="#local-flavor">Local flavor</a></h4>
+<h4 id="local-flavor"><a class="doc-anchor" href="#local-flavor">§</a>Local flavor</h4>
 <p>The local flavors will require no internal synchronization (e.g. internal
 Mutexes) and can therefore be provided for all platforms (including <code>no-std</code>).
 Due the lack of required synchronization, they are also very fast.</p>
@@ -141,12 +139,12 @@ a single task concurrently).</p>
     };
     <span class="macro">join!</span>(task_a, task_b);
 }</code></pre></div>
-<h4 id="non-local-flavor"><a href="#non-local-flavor">Non-local flavor</a></h4>
+<h4 id="non-local-flavor"><a class="doc-anchor" href="#non-local-flavor">§</a>Non-local flavor</h4>
 <p>The non-local flavors can be used between arbitrary tasks and threads.  They
 use internal synchronization for this in form of an embedded <code>Mutex</code> of
 <a href="../parking_lot/mutex/type.Mutex.html" title="type parking_lot::mutex::Mutex"><code>parking_lot::Mutex</code></a> type.</p>
 <p>The non-local flavors are only available in <code>alloc</code> environments.</p>
-<h4 id="shared-flavor"><a href="#shared-flavor">Shared flavor</a></h4>
+<h4 id="shared-flavor"><a class="doc-anchor" href="#shared-flavor">§</a>Shared flavor</h4>
 <p>For some types a shared flavor is provided. Non-local flavors of types are
 <code>Sync</code>, but they still can only be shared by reference between various tasks.
 Shared flavors are also <code>Sync</code>, but the types additionally implement the
@@ -158,7 +156,7 @@ allows using those types as implementations of traits without the need for
 generic associated types (GATs).</p>
 <p>Due to the requirement of atomic reference counting, these types are
 currently only available for <code>alloc</code> environments.</p>
-<h4 id="generic-flavor"><a href="#generic-flavor">Generic flavor</a></h4>
+<h4 id="generic-flavor"><a class="doc-anchor" href="#generic-flavor">§</a>Generic flavor</h4>
 <p>The generic flavors of provided types are parameterized around a
 <a href="../lock_api/mutex/trait.RawMutex.html" title="trait lock_api::mutex::RawMutex"><code>lock_api::RawMutex</code></a> type. These form the base for the non-local and shared
 flavors which simply parameterize the generic flavor in either a
@@ -173,7 +171,7 @@ implementation, the following platforms can be supported:</p>
 <li>For embedded development, mutexes which just disable interrupts can be
 utilized.</li>
 </ul>
-<h3 id="relation-to-types-in-other-libraries"><a href="#relation-to-types-in-other-libraries">Relation to types in other libraries</a></h3>
+<h3 id="relation-to-types-in-other-libraries"><a class="doc-anchor" href="#relation-to-types-in-other-libraries">§</a>Relation to types in other libraries</h3>
 <p>Other libraries (e.g. <code>futures-rs</code> and <code>tokio</code>) provide many primitives that
 are comparable feature-wise to the types in this library.</p>
 <p>The most important differences are:</p>
@@ -187,4 +185,4 @@ growing vectors for handling a varying number of tasks.</li>
 <li>The <code>Future</code>s produced by this library are all <code>!Unpin</code>, which might make
 them less ergonomic to use.</li>
 </ul>
-</div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="buffer/index.html" title="mod futures_intrusive::buffer">buffer</a></div><div class="desc docblock-short">Buffer types</div></li><li><div class="item-name"><a class="mod" href="channel/index.html" title="mod futures_intrusive::channel">channel</a></div><div class="desc docblock-short">Asynchronous channels.</div></li><li><div class="item-name"><a class="mod" href="sync/index.html" title="mod futures_intrusive::sync">sync</a></div><div class="desc docblock-short">Asynchronous synchronization primitives based on intrusive collections.</div></li><li><div class="item-name"><a class="mod" href="timer/index.html" title="mod futures_intrusive::timer">timer</a></div><div class="desc docblock-short">Asynchronous timers.</div></li></ul></section></div></main></body></html>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="buffer/index.html" title="mod futures_intrusive::buffer">buffer</a></div><div class="desc docblock-short">Buffer types</div></li><li><div class="item-name"><a class="mod" href="channel/index.html" title="mod futures_intrusive::channel">channel</a></div><div class="desc docblock-short">Asynchronous channels.</div></li><li><div class="item-name"><a class="mod" href="sync/index.html" title="mod futures_intrusive::sync">sync</a></div><div class="desc docblock-short">Asynchronous synchronization primitives based on intrusive collections.</div></li><li><div class="item-name"><a class="mod" href="timer/index.html" title="mod futures_intrusive::timer">timer</a></div><div class="desc docblock-short">Asynchronous timers.</div></li></ul></section></div></main></body></html>

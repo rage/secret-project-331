@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/options/mod.rs`."><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/options/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -601,6 +600,92 @@
 <a href="#600" id="600">600</a>
 <a href="#601" id="601">601</a>
 <a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::env::var;
 <span class="kw">use </span>std::fmt::{Display, Write};
@@ -683,9 +768,10 @@
 ///
 /// // Change the log verbosity level for queries.
 /// // Information about SQL queries is logged at `DEBUG` level by default.
-/// opts.log_statements(log::LevelFilter::Trace);
+/// opts = opts.log_statements(log::LevelFilter::Trace);
 ///
-/// let pool = PgPool::connect_with(&amp;opts).await?;
+/// let pool = PgPool::connect_with(opts).await?;
+/// # Ok(())
 /// # }
 /// ```
 </span><span class="attr">#[derive(Debug, Clone)]
@@ -733,7 +819,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new();
     /// ```
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
@@ -799,28 +885,14 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .host("localhost");
     /// ```
     </span><span class="kw">pub fn </span>host(<span class="kw-2">mut </span><span class="self">self</span>, host: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.host = host.to_owned();
+        host.clone_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.host);
         <span class="self">self
     </span>}
-
-    <span class="doccomment">/// Get the current host.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
-    /// let options = PgConnectOptions::new()
-    ///     .host("127.0.0.1");
-    /// assert_eq!(options.get_host(), "127.0.0.1");
-    /// ```
-    </span><span class="kw">pub fn </span>get_host(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
-        <span class="self">self</span>.host.as_str()
-    }
 
     <span class="doccomment">/// Sets the port to connect to at the server host.
     ///
@@ -829,7 +901,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .port(5432);
     /// ```
@@ -855,12 +927,12 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .username("postgres");
     /// ```
     </span><span class="kw">pub fn </span>username(<span class="kw-2">mut </span><span class="self">self</span>, username: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.username = username.to_owned();
+        username.clone_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.username);
         <span class="self">self
     </span>}
 
@@ -869,7 +941,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .username("root")
     ///     .password("safe-and-secure");
@@ -884,7 +956,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .database("postgres");
     /// ```
@@ -892,20 +964,6 @@
         <span class="self">self</span>.database = <span class="prelude-val">Some</span>(database.to_owned());
         <span class="self">self
     </span>}
-
-    <span class="doccomment">/// Get the current database name.
-    ///
-    /// # Example
-    ///
-    /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
-    /// let options = PgConnectOptions::new()
-    ///     .database("postgres");
-    /// assert!(options.get_database().is_some());
-    /// ```
-    </span><span class="kw">pub fn </span>get_database(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
-        <span class="self">self</span>.database.as_deref()
-    }
 
     <span class="doccomment">/// Sets whether or with what priority a secure SSL TCP/IP connection will be negotiated
     /// with the server.
@@ -918,7 +976,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     /// let options = PgConnectOptions::new()
     ///     .ssl_mode(PgSslMode::Require);
     /// ```
@@ -934,7 +992,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
@@ -950,7 +1008,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
@@ -970,7 +1028,7 @@
     /// This is for illustration purposes only.
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     ///
     /// const CERT: &amp;[u8] = b"\
     /// -----BEGIN CERTIFICATE-----
@@ -992,7 +1050,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
@@ -1012,7 +1070,7 @@
     /// This is for illustration purposes only.
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     ///
     /// const KEY: &amp;[u8] = b"\
     /// -----BEGIN PRIVATE KEY-----
@@ -1034,7 +1092,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::{PgSslMode, PgConnectOptions};
+    /// # use sqlx_postgres::{PgSslMode, PgConnectOptions};
     /// let options = PgConnectOptions::new()
     ///     // Providing a CA certificate with less than VerifyCa is pointless
     ///     .ssl_mode(PgSslMode::VerifyCa)
@@ -1061,7 +1119,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .application_name("my-app");
     /// ```
@@ -1108,7 +1166,7 @@
     ///
     /// ### Examples
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     ///
     /// let mut options = PgConnectOptions::new()
     ///     // for Redshift and Postgres 10
@@ -1128,7 +1186,7 @@
     /// # Example
     ///
     /// ```rust
-    /// # use sqlx_core::postgres::PgConnectOptions;
+    /// # use sqlx_postgres::PgConnectOptions;
     /// let options = PgConnectOptions::new()
     ///     .options([("geqo", "off"), ("statement_timeout", "5min")]);
     /// ```
@@ -1164,6 +1222,119 @@
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
+    }
+}
+
+<span class="kw">impl </span>PgConnectOptions {
+    <span class="doccomment">/// Get the current host.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .host("127.0.0.1");
+    /// assert_eq!(options.get_host(), "127.0.0.1");
+    /// ```
+    </span><span class="kw">pub fn </span>get_host(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.host
+    }
+
+    <span class="doccomment">/// Get the server's port.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .port(6543);
+    /// assert_eq!(options.get_port(), 6543);
+    /// ```
+    </span><span class="kw">pub fn </span>get_port(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
+        <span class="self">self</span>.port
+    }
+
+    <span class="doccomment">/// Get the socket path.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .socket("/tmp");
+    /// assert!(options.get_socket().is_some());
+    /// ```
+    </span><span class="kw">pub fn </span>get_socket(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PathBuf&gt; {
+        <span class="self">self</span>.socket.as_ref()
+    }
+
+    <span class="doccomment">/// Get the server's port.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .username("foo");
+    /// assert_eq!(options.get_username(), "foo");
+    /// ```
+    </span><span class="kw">pub fn </span>get_username(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.username
+    }
+
+    <span class="doccomment">/// Get the current database name.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .database("postgres");
+    /// assert!(options.get_database().is_some());
+    /// ```
+    </span><span class="kw">pub fn </span>get_database(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.database.as_deref()
+    }
+
+    <span class="doccomment">/// Get the SSL mode.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::{PgConnectOptions, PgSslMode};
+    /// let options = PgConnectOptions::new();
+    /// assert!(matches!(options.get_ssl_mode(), PgSslMode::Prefer));
+    /// ```
+    </span><span class="kw">pub fn </span>get_ssl_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PgSslMode {
+        <span class="self">self</span>.ssl_mode
+    }
+
+    <span class="doccomment">/// Get the application name.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .application_name("service");
+    /// assert!(options.get_application_name().is_some());
+    /// ```
+    </span><span class="kw">pub fn </span>get_application_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.application_name.as_deref()
+    }
+
+    <span class="doccomment">/// Get the options.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// # use sqlx_postgres::PgConnectOptions;
+    /// let options = PgConnectOptions::new()
+    ///     .options([("foo", "bar")]);
+    /// assert!(options.get_options().is_some());
+    /// ```
+    </span><span class="kw">pub fn </span>get_options(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.options.as_deref()
     }
 }
 

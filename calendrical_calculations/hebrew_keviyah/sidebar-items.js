@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["ADAR","AV","ELUL","HEBREW_MAX_RD","HEBREW_MAX_YEAR","HEBREW_MIN_RD","HEBREW_MIN_YEAR","IYYAR","KISLEV","NISAN","SHEVAT","SIVAN","TAMMUZ","TEVET","TISHREI","ḤESHVAN"],"enum":["Keviyah","StartOfYear","YearType"],"struct":["YearInfo"]};

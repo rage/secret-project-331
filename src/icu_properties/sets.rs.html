@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.4.0/src/sets.rs`."><title>sets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_properties-1.5.1/src/sets.rs`."><title>sets.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_properties" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2380,6 +2379,12 @@
 <a href="#2379" id="2379">2379</a>
 <a href="#2380" id="2380">2380</a>
 <a href="#2381" id="2381">2381</a>
+<a href="#2382" id="2382">2382</a>
+<a href="#2383" id="2383">2383</a>
+<a href="#2384" id="2384">2384</a>
+<a href="#2385" id="2385">2385</a>
+<a href="#2386" id="2386">2386</a>
+<a href="#2387" id="2387">2387</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -2489,7 +2494,10 @@
 }
 
 <span class="kw">impl </span>CodePointSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt; {
-    <span class="doccomment">/// Cheaply converts a `CodePointSetDataBorrowed&lt;'static&gt;` into a `CodePointSetData`.
+    <span class="doccomment">/// Cheaply converts a [`CodePointSetDataBorrowed&lt;'static&gt;`] into a [`CodePointSetData`].
+    ///
+    /// Note: Due to branching and indirection, using [`CodePointSetData`] might inhibit some
+    /// compile-time optimizations that are possible with [`CodePointSetDataBorrowed`].
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; CodePointSetData {
         CodePointSetData {
             data: DataPayload::from_static_ref(<span class="self">self</span>.set),
@@ -2501,7 +2509,7 @@
     <span class="doccomment">/// Check if the set contains a character
     ///
     /// ```rust
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let alphabetic = sets::alphabetic();
     ///
@@ -2518,7 +2526,7 @@
     <span class="doccomment">/// Check if the set contains a character as a UTF32 code unit
     ///
     /// ```rust
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let alphabetic = sets::alphabetic();
     ///
@@ -2540,7 +2548,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let alphabetic = sets::alphabetic();
     /// let mut ranges = alphabetic.iter_ranges();
@@ -2563,7 +2571,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let alphabetic = sets::alphabetic();
     /// let mut ranges = alphabetic.iter_ranges();
@@ -2686,7 +2694,10 @@
 }
 
 <span class="kw">impl </span>UnicodeSetDataBorrowed&lt;<span class="lifetime">'static</span>&gt; {
-    <span class="doccomment">/// Cheaply converts a `UnicodeSetDataBorrowed&lt;'static&gt;` into a `UnicodeSetData`.
+    <span class="doccomment">/// Cheaply converts a [`UnicodeSetDataBorrowed&lt;'static&gt;`] into a [`UnicodeSetData`].
+    ///
+    /// Note: Due to branching and indirection, using [`UnicodeSetData`] might inhibit some
+    /// compile-time optimizations that are possible with [`UnicodeSetDataBorrowed`].
     </span><span class="kw">pub const fn </span>static_to_owned(<span class="self">self</span>) -&gt; UnicodeSetData {
         UnicodeSetData {
             data: DataPayload::from_static_ref(<span class="self">self</span>.set),
@@ -2710,7 +2721,7 @@
 // (data as code point sets)
 //
 
-</span><span class="macro">macro_rules! </span>make_code_point_set_property {
+</span><span class="macro">macro_rules!</span> make_code_point_set_property {
     (
         <span class="comment">// currently unused
         </span>property: <span class="macro-nonterminal">$property</span>:expr;
@@ -2742,7 +2753,7 @@
     }
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"ASCII_Hex_Digit"</span>;
     marker: AsciiHexDigitProperty;
     keyed_data_marker: AsciiHexDigitV1Marker;
@@ -2756,7 +2767,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let ascii_hex_digit = sets::ascii_hex_digit();
     ///
@@ -2769,7 +2780,7 @@
     <span class="kw">pub fn </span>load_ascii_hex_digit();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Alnum"</span>;
     marker: AlnumProperty;
     keyed_data_marker: AlnumV1Marker;
@@ -2781,7 +2792,7 @@
     <span class="kw">pub fn </span>load_alnum();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Alphabetic"</span>;
     marker: AlphabeticProperty;
     keyed_data_marker: AlphabeticV1Marker;
@@ -2795,7 +2806,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let alphabetic = sets::alphabetic();
     ///
@@ -2809,7 +2820,7 @@
     <span class="kw">pub fn </span>load_alphabetic();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Bidi_Control"</span>;
     marker: BidiControlProperty;
     keyed_data_marker: BidiControlV1Marker;
@@ -2824,7 +2835,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let bidi_control = sets::bidi_control();
     ///
@@ -2836,7 +2847,7 @@
     <span class="kw">pub fn </span>load_bidi_control();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Bidi_Mirrored"</span>;
     marker: BidiMirroredProperty;
     keyed_data_marker: BidiMirroredV1Marker;
@@ -2850,7 +2861,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let bidi_mirrored = sets::bidi_mirrored();
     ///
@@ -2864,7 +2875,7 @@
     <span class="kw">pub fn </span>load_bidi_mirrored();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Blank"</span>;
     marker: BlankProperty;
     keyed_data_marker: BlankV1Marker;
@@ -2875,7 +2886,7 @@
     <span class="kw">pub fn </span>load_blank();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Cased"</span>;
     marker: CasedProperty;
     keyed_data_marker: CasedV1Marker;
@@ -2889,7 +2900,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let cased = sets::cased();
     ///
@@ -2901,7 +2912,7 @@
     <span class="kw">pub fn </span>load_cased();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Case_Ignorable"</span>;
     marker: CaseIgnorableProperty;
     keyed_data_marker: CaseIgnorableV1Marker;
@@ -2915,7 +2926,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let case_ignorable = sets::case_ignorable();
     ///
@@ -2927,7 +2938,7 @@
     <span class="kw">pub fn </span>load_case_ignorable();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Full_Composition_Exclusion"</span>;
     marker: FullCompositionExclusionProperty;
     keyed_data_marker: FullCompositionExclusionV1Marker;
@@ -2939,7 +2950,7 @@
     <span class="kw">pub fn </span>load_full_composition_exclusion();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Changes_When_Casefolded"</span>;
     marker: ChangesWhenCasefoldedProperty;
     keyed_data_marker: ChangesWhenCasefoldedV1Marker;
@@ -2953,7 +2964,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let changes_when_casefolded = sets::changes_when_casefolded();
     ///
@@ -2965,7 +2976,7 @@
     <span class="kw">pub fn </span>load_changes_when_casefolded();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Changes_When_Casemapped"</span>;
     marker: ChangesWhenCasemappedProperty;
     keyed_data_marker: ChangesWhenCasemappedV1Marker;
@@ -2976,7 +2987,7 @@
     <span class="kw">pub fn </span>load_changes_when_casemapped();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Changes_When_NFKC_Casefolded"</span>;
     marker: ChangesWhenNfkcCasefoldedProperty;
     keyed_data_marker: ChangesWhenNfkcCasefoldedV1Marker;
@@ -2990,7 +3001,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let changes_when_nfkc_casefolded = sets::changes_when_nfkc_casefolded();
     ///
@@ -3002,7 +3013,7 @@
     <span class="kw">pub fn </span>load_changes_when_nfkc_casefolded();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Changes_When_Lowercased"</span>;
     marker: ChangesWhenLowercasedProperty;
     keyed_data_marker: ChangesWhenLowercasedV1Marker;
@@ -3016,7 +3027,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let changes_when_lowercased = sets::changes_when_lowercased();
     ///
@@ -3028,7 +3039,7 @@
     <span class="kw">pub fn </span>load_changes_when_lowercased();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Changes_When_Titlecased"</span>;
     marker: ChangesWhenTitlecasedProperty;
     keyed_data_marker: ChangesWhenTitlecasedV1Marker;
@@ -3042,7 +3053,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let changes_when_titlecased = sets::changes_when_titlecased();
     ///
@@ -3054,7 +3065,7 @@
     <span class="kw">pub fn </span>load_changes_when_titlecased();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Changes_When_Uppercased"</span>;
     marker: ChangesWhenUppercasedProperty;
     keyed_data_marker: ChangesWhenUppercasedV1Marker;
@@ -3068,7 +3079,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let changes_when_uppercased = sets::changes_when_uppercased();
     ///
@@ -3080,7 +3091,7 @@
     <span class="kw">pub fn </span>load_changes_when_uppercased();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Dash"</span>;
     marker: DashProperty;
     keyed_data_marker: DashV1Marker;
@@ -3095,7 +3106,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let dash = sets::dash();
     ///
@@ -3108,7 +3119,7 @@
     <span class="kw">pub fn </span>load_dash();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Deprecated"</span>;
     marker: DeprecatedProperty;
     keyed_data_marker: DeprecatedV1Marker;
@@ -3123,7 +3134,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let deprecated = sets::deprecated();
     ///
@@ -3135,7 +3146,7 @@
     <span class="kw">pub fn </span>load_deprecated();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Default_Ignorable_Code_Point"</span>;
     marker: DefaultIgnorableCodePointProperty;
     keyed_data_marker: DefaultIgnorableCodePointV1Marker;
@@ -3152,7 +3163,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let default_ignorable_code_point = sets::default_ignorable_code_point();
     ///
@@ -3164,7 +3175,7 @@
     <span class="kw">pub fn </span>load_default_ignorable_code_point();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Diacritic"</span>;
     marker: DiacriticProperty;
     keyed_data_marker: DiacriticV1Marker;
@@ -3178,7 +3189,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let diacritic = sets::diacritic();
     ///
@@ -3190,7 +3201,7 @@
     <span class="kw">pub fn </span>load_diacritic();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Emoji_Modifier_Base"</span>;
     marker: EmojiModifierBaseProperty;
     keyed_data_marker: EmojiModifierBaseV1Marker;
@@ -3204,7 +3215,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let emoji_modifier_base = sets::emoji_modifier_base();
     ///
@@ -3216,7 +3227,7 @@
     <span class="kw">pub fn </span>load_emoji_modifier_base();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Emoji_Component"</span>;
     marker: EmojiComponentProperty;
     keyed_data_marker: EmojiComponentV1Marker;
@@ -3231,7 +3242,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let emoji_component = sets::emoji_component();
     ///
@@ -3245,7 +3256,7 @@
     <span class="kw">pub fn </span>load_emoji_component();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Emoji_Modifier"</span>;
     marker: EmojiModifierProperty;
     keyed_data_marker: EmojiModifierV1Marker;
@@ -3259,7 +3270,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let emoji_modifier = sets::emoji_modifier();
     ///
@@ -3271,7 +3282,7 @@
     <span class="kw">pub fn </span>load_emoji_modifier();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Emoji"</span>;
     marker: EmojiProperty;
     keyed_data_marker: EmojiV1Marker;
@@ -3285,7 +3296,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let emoji = sets::emoji();
     ///
@@ -3297,7 +3308,7 @@
     <span class="kw">pub fn </span>load_emoji();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Emoji_Presentation"</span>;
     marker: EmojiPresentationProperty;
     keyed_data_marker: EmojiPresentationV1Marker;
@@ -3311,7 +3322,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let emoji_presentation = sets::emoji_presentation();
     ///
@@ -3323,7 +3334,7 @@
     <span class="kw">pub fn </span>load_emoji_presentation();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Extender"</span>;
     marker: ExtenderProperty;
     keyed_data_marker: ExtenderV1Marker;
@@ -3338,7 +3349,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let extender = sets::extender();
     ///
@@ -3351,7 +3362,7 @@
     <span class="kw">pub fn </span>load_extender();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Extended_Pictographic"</span>;
     marker: ExtendedPictographicProperty;
     keyed_data_marker: ExtendedPictographicV1Marker;
@@ -3366,7 +3377,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let extended_pictographic = sets::extended_pictographic();
     ///
@@ -3378,7 +3389,7 @@
     <span class="kw">pub fn </span>load_extended_pictographic();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Graph"</span>;
     marker: GraphProperty;
     keyed_data_marker: GraphV1Marker;
@@ -3390,7 +3401,7 @@
     <span class="kw">pub fn </span>load_graph();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Grapheme_Base"</span>;
     marker: GraphemeBaseProperty;
     keyed_data_marker: GraphemeBaseV1Marker;
@@ -3405,7 +3416,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let grapheme_base = sets::grapheme_base();
     ///
@@ -3418,7 +3429,7 @@
     <span class="kw">pub fn </span>load_grapheme_base();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Grapheme_Extend"</span>;
     marker: GraphemeExtendProperty;
     keyed_data_marker: GraphemeExtendV1Marker;
@@ -3433,7 +3444,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let grapheme_extend = sets::grapheme_extend();
     ///
@@ -3446,7 +3457,7 @@
     <span class="kw">pub fn </span>load_grapheme_extend();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Grapheme_Link"</span>;
     marker: GraphemeLinkProperty;
     keyed_data_marker: GraphemeLinkV1Marker;
@@ -3458,7 +3469,7 @@
     <span class="kw">pub fn </span>load_grapheme_link();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Hex_Digit"</span>;
     marker: HexDigitProperty;
     keyed_data_marker: HexDigitV1Marker;
@@ -3473,7 +3484,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let hex_digit = sets::hex_digit();
     ///
@@ -3489,7 +3500,7 @@
     <span class="kw">pub fn </span>load_hex_digit();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Hyphen"</span>;
     marker: HyphenProperty;
     keyed_data_marker: HyphenV1Marker;
@@ -3501,7 +3512,7 @@
     <span class="kw">pub fn </span>load_hyphen();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Id_Continue"</span>;
     marker: IdContinueProperty;
     keyed_data_marker: IdContinueV1Marker;
@@ -3518,7 +3529,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let id_continue = sets::id_continue();
     ///
@@ -3534,7 +3545,7 @@
     <span class="kw">pub fn </span>load_id_continue();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Ideographic"</span>;
     marker: IdeographicProperty;
     keyed_data_marker: IdeographicV1Marker;
@@ -3549,7 +3560,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let ideographic = sets::ideographic();
     ///
@@ -3561,7 +3572,7 @@
     <span class="kw">pub fn </span>load_ideographic();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Id_Start"</span>;
     marker: IdStartProperty;
     keyed_data_marker: IdStartV1Marker;
@@ -3577,7 +3588,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let id_start = sets::id_start();
     ///
@@ -3593,7 +3604,7 @@
     <span class="kw">pub fn </span>load_id_start();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Ids_Binary_Operator"</span>;
     marker: IdsBinaryOperatorProperty;
     keyed_data_marker: IdsBinaryOperatorV1Marker;
@@ -3607,7 +3618,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let ids_binary_operator = sets::ids_binary_operator();
     ///
@@ -3619,7 +3630,7 @@
     <span class="kw">pub fn </span>load_ids_binary_operator();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Ids_Trinary_Operator"</span>;
     marker: IdsTrinaryOperatorProperty;
     keyed_data_marker: IdsTrinaryOperatorV1Marker;
@@ -3633,7 +3644,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let ids_trinary_operator = sets::ids_trinary_operator();
     ///
@@ -3648,7 +3659,7 @@
     <span class="kw">pub fn </span>load_ids_trinary_operator();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Join_Control"</span>;
     marker: JoinControlProperty;
     keyed_data_marker: JoinControlV1Marker;
@@ -3663,7 +3674,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let join_control = sets::join_control();
     ///
@@ -3676,7 +3687,7 @@
     <span class="kw">pub fn </span>load_join_control();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Logical_Order_Exception"</span>;
     marker: LogicalOrderExceptionProperty;
     keyed_data_marker: LogicalOrderExceptionV1Marker;
@@ -3690,7 +3701,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let logical_order_exception = sets::logical_order_exception();
     ///
@@ -3702,7 +3713,7 @@
     <span class="kw">pub fn </span>load_logical_order_exception();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Lowercase"</span>;
     marker: LowercaseProperty;
     keyed_data_marker: LowercaseV1Marker;
@@ -3716,7 +3727,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let lowercase = sets::lowercase();
     ///
@@ -3728,7 +3739,7 @@
     <span class="kw">pub fn </span>load_lowercase();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Math"</span>;
     marker: MathProperty;
     keyed_data_marker: MathV1Marker;
@@ -3742,7 +3753,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let math = sets::math();
     ///
@@ -3758,7 +3769,7 @@
     <span class="kw">pub fn </span>load_math();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Noncharacter_Code_Point"</span>;
     marker: NoncharacterCodePointProperty;
     keyed_data_marker: NoncharacterCodePointV1Marker;
@@ -3772,7 +3783,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let noncharacter_code_point = sets::noncharacter_code_point();
     ///
@@ -3785,7 +3796,7 @@
     <span class="kw">pub fn </span>load_noncharacter_code_point();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"NFC_Inert"</span>;
     marker: NfcInertProperty;
     keyed_data_marker: NfcInertV1Marker;
@@ -3796,7 +3807,7 @@
     <span class="kw">pub fn </span>load_nfc_inert();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"NFD_Inert"</span>;
     marker: NfdInertProperty;
     keyed_data_marker: NfdInertV1Marker;
@@ -3807,7 +3818,7 @@
     <span class="kw">pub fn </span>load_nfd_inert();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"NFKC_Inert"</span>;
     marker: NfkcInertProperty;
     keyed_data_marker: NfkcInertV1Marker;
@@ -3818,7 +3829,7 @@
     <span class="kw">pub fn </span>load_nfkc_inert();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"NFKD_Inert"</span>;
     marker: NfkdInertProperty;
     keyed_data_marker: NfkdInertV1Marker;
@@ -3829,7 +3840,7 @@
     <span class="kw">pub fn </span>load_nfkd_inert();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Pattern_Syntax"</span>;
     marker: PatternSyntaxProperty;
     keyed_data_marker: PatternSyntaxV1Marker;
@@ -3845,7 +3856,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let pattern_syntax = sets::pattern_syntax();
     ///
@@ -3858,7 +3869,7 @@
     <span class="kw">pub fn </span>load_pattern_syntax();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Pattern_White_Space"</span>;
     marker: PatternWhiteSpaceProperty;
     keyed_data_marker: PatternWhiteSpaceV1Marker;
@@ -3874,7 +3885,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let pattern_white_space = sets::pattern_white_space();
     ///
@@ -3888,7 +3899,7 @@
     <span class="kw">pub fn </span>load_pattern_white_space();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Prepended_Concatenation_Mark"</span>;
     marker: PrependedConcatenationMarkProperty;
     keyed_data_marker: PrependedConcatenationMarkV1Marker;
@@ -3900,7 +3911,7 @@
     <span class="kw">pub fn </span>load_prepended_concatenation_mark();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Print"</span>;
     marker: PrintProperty;
     keyed_data_marker: PrintV1Marker;
@@ -3912,7 +3923,7 @@
     <span class="kw">pub fn </span>load_print();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Quotation_Mark"</span>;
     marker: QuotationMarkProperty;
     keyed_data_marker: QuotationMarkV1Marker;
@@ -3926,7 +3937,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let quotation_mark = sets::quotation_mark();
     ///
@@ -3939,7 +3950,7 @@
     <span class="kw">pub fn </span>load_quotation_mark();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Radical"</span>;
     marker: RadicalProperty;
     keyed_data_marker: RadicalV1Marker;
@@ -3953,7 +3964,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let radical = sets::radical();
     ///
@@ -3965,7 +3976,7 @@
     <span class="kw">pub fn </span>load_radical();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Regional_Indicator"</span>;
     marker: RegionalIndicatorProperty;
     keyed_data_marker: RegionalIndicatorV1Marker;
@@ -3979,7 +3990,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let regional_indicator = sets::regional_indicator();
     ///
@@ -3992,7 +4003,7 @@
     <span class="kw">pub fn </span>load_regional_indicator();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Soft_Dotted"</span>;
     marker: SoftDottedProperty;
     keyed_data_marker: SoftDottedV1Marker;
@@ -4007,7 +4018,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let soft_dotted = sets::soft_dotted();
     ///
@@ -4019,7 +4030,7 @@
     <span class="kw">pub fn </span>load_soft_dotted();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Segment_Starter"</span>;
     marker: SegmentStarterProperty;
     keyed_data_marker: SegmentStarterV1Marker;
@@ -4031,7 +4042,7 @@
     <span class="kw">pub fn </span>load_segment_starter();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Case_Sensitive"</span>;
     marker: CaseSensitiveProperty;
     keyed_data_marker: CaseSensitiveV1Marker;
@@ -4043,7 +4054,7 @@
     <span class="kw">pub fn </span>load_case_sensitive();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Sentence_Terminal"</span>;
     marker: SentenceTerminalProperty;
     keyed_data_marker: SentenceTerminalV1Marker;
@@ -4057,7 +4068,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let sentence_terminal = sets::sentence_terminal();
     ///
@@ -4072,7 +4083,7 @@
     <span class="kw">pub fn </span>load_sentence_terminal();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Terminal_Punctuation"</span>;
     marker: TerminalPunctuationProperty;
     keyed_data_marker: TerminalPunctuationV1Marker;
@@ -4086,7 +4097,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let terminal_punctuation = sets::terminal_punctuation();
     ///
@@ -4101,7 +4112,7 @@
     <span class="kw">pub fn </span>load_terminal_punctuation();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Unified_Ideograph"</span>;
     marker: UnifiedIdeographProperty;
     keyed_data_marker: UnifiedIdeographV1Marker;
@@ -4115,7 +4126,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let unified_ideograph = sets::unified_ideograph();
     ///
@@ -4128,7 +4139,7 @@
     <span class="kw">pub fn </span>load_unified_ideograph();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Uppercase"</span>;
     marker: UppercaseProperty;
     keyed_data_marker: UppercaseV1Marker;
@@ -4142,7 +4153,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let uppercase = sets::uppercase();
     ///
@@ -4154,7 +4165,7 @@
     <span class="kw">pub fn </span>load_uppercase();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Variation_Selector"</span>;
     marker: VariationSelectorProperty;
     keyed_data_marker: VariationSelectorV1Marker;
@@ -4168,7 +4179,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let variation_selector = sets::variation_selector();
     ///
@@ -4183,7 +4194,7 @@
     <span class="kw">pub fn </span>load_variation_selector();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"White_Space"</span>;
     marker: WhiteSpaceProperty;
     keyed_data_marker: WhiteSpaceV1Marker;
@@ -4198,7 +4209,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let white_space = sets::white_space();
     ///
@@ -4212,7 +4223,7 @@
     <span class="kw">pub fn </span>load_white_space();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"Xdigit"</span>;
     marker: XdigitProperty;
     keyed_data_marker: XdigitV1Marker;
@@ -4224,7 +4235,7 @@
     <span class="kw">pub fn </span>load_xdigit();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"XID_Continue"</span>;
     marker: XidContinueProperty;
     keyed_data_marker: XidContinueV1Marker;
@@ -4239,7 +4250,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let xid_continue = sets::xid_continue();
     ///
@@ -4255,7 +4266,7 @@
     <span class="kw">pub fn </span>load_xid_continue();
 }
 
-<span class="macro">make_code_point_set_property! </span>{
+<span class="macro">make_code_point_set_property!</span> {
     property: <span class="string">"XID_Start"</span>;
     marker: XidStartProperty;
     keyed_data_marker: XidStartV1Marker;
@@ -4271,7 +4282,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let xid_start = sets::xid_start();
     ///
@@ -4292,7 +4303,7 @@
 // (data as sets of strings + code points)
 //
 
-</span><span class="macro">macro_rules! </span>make_unicode_set_property {
+</span><span class="macro">macro_rules!</span> make_unicode_set_property {
     (
         <span class="comment">// currently unused
         </span>property: <span class="macro-nonterminal">$property</span>:expr;
@@ -4320,7 +4331,7 @@
     }
 }
 
-<span class="macro">make_unicode_set_property! </span>{
+<span class="macro">make_unicode_set_property!</span> {
     property: <span class="string">"Basic_Emoji"</span>;
     marker: BasicEmojiProperty;
     keyed_data_marker: BasicEmojiV1Marker;
@@ -4336,7 +4347,7 @@
     /// # Example
     ///
     /// ```
-    /// use icu_properties::sets;
+    /// use icu::properties::sets;
     ///
     /// let basic_emoji = sets::basic_emoji();
     ///
@@ -4667,7 +4678,7 @@
                 <span class="kw">let </span>gc_set_data = <span class="kw-2">&amp;</span>maps::general_category().get_set_for_value(<span class="kw-2">*</span>subcategory);
                 <span class="kw">let </span>gc_set = gc_set_data.as_borrowed();
                 <span class="kw">for </span>range <span class="kw">in </span>gc_set.iter_ranges() {
-                    builder.add_range_u32(<span class="kw-2">&amp;</span>range);
+                    builder.add_range32(<span class="kw-2">&amp;</span>range);
                 }
             }
             <span class="kw">let </span>combined_set = builder.build();

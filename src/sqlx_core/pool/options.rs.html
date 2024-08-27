@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.7.3/src/pool/options.rs`."><title>options.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/pool/options.rs`."><title>options.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -548,12 +547,60 @@
 <a href="#547" id="547">547</a>
 <a href="#548" id="548">548</a>
 <a href="#549" id="549">549</a>
+<a href="#550" id="550">550</a>
+<a href="#551" id="551">551</a>
+<a href="#552" id="552">552</a>
+<a href="#553" id="553">553</a>
+<a href="#554" id="554">554</a>
+<a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
+<a href="#565" id="565">565</a>
+<a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::connection::Connection;
 <span class="kw">use </span><span class="kw">crate</span>::database::Database;
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
 <span class="kw">use </span><span class="kw">crate</span>::pool::inner::PoolInner;
 <span class="kw">use </span><span class="kw">crate</span>::pool::Pool;
 <span class="kw">use </span>futures_core::future::BoxFuture;
+<span class="kw">use </span>log::LevelFilter;
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Debug, Formatter};
 <span class="kw">use </span>std::sync::Arc;
 <span class="kw">use </span>std::time::{Duration, Instant};
@@ -624,6 +671,9 @@
         &gt;,
     &gt;,
     <span class="kw">pub</span>(<span class="kw">crate</span>) max_connections: u32,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) acquire_time_level: LevelFilter,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) acquire_slow_level: LevelFilter,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) acquire_slow_threshold: Duration,
     <span class="kw">pub</span>(<span class="kw">crate</span>) acquire_timeout: Duration,
     <span class="kw">pub</span>(<span class="kw">crate</span>) min_connections: u32,
     <span class="kw">pub</span>(<span class="kw">crate</span>) max_lifetime: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
@@ -644,12 +694,15 @@
             before_acquire: <span class="self">self</span>.before_acquire.clone(),
             after_release: <span class="self">self</span>.after_release.clone(),
             max_connections: <span class="self">self</span>.max_connections,
+            acquire_time_level: <span class="self">self</span>.acquire_time_level,
+            acquire_slow_threshold: <span class="self">self</span>.acquire_slow_threshold,
+            acquire_slow_level: <span class="self">self</span>.acquire_slow_level,
             acquire_timeout: <span class="self">self</span>.acquire_timeout,
             min_connections: <span class="self">self</span>.min_connections,
             max_lifetime: <span class="self">self</span>.max_lifetime,
             idle_timeout: <span class="self">self</span>.idle_timeout,
             fair: <span class="self">self</span>.fair,
-            parent_pool: <span class="self">self</span>.parent_pool.as_ref().map(Pool::clone),
+            parent_pool: <span class="self">self</span>.parent_pool.clone(),
         }
     }
 }
@@ -693,6 +746,13 @@
             <span class="comment">// A production application will want to set a higher limit than this.
             </span>max_connections: <span class="number">10</span>,
             min_connections: <span class="number">0</span>,
+            <span class="comment">// Logging all acquires is opt-in
+            </span>acquire_time_level: LevelFilter::Off,
+            <span class="comment">// Default to warning, because an acquire timeout will be an error
+            </span>acquire_slow_level: LevelFilter::Warn,
+            <span class="comment">// Fast enough to catch problems (e.g. a full pool); slow enough
+            // to not flag typical time to add a new connection to a pool.
+            </span>acquire_slow_threshold: Duration::from_secs(<span class="number">2</span>),
             acquire_timeout: Duration::from_secs(<span class="number">30</span>),
             idle_timeout: <span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">10 </span>* <span class="number">60</span>)),
             max_lifetime: <span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">30 </span>* <span class="number">60</span>)),
@@ -746,6 +806,39 @@
     <span class="doccomment">/// Get the minimum number of connections to maintain at all times.
     </span><span class="kw">pub fn </span>get_min_connections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u32 {
         <span class="self">self</span>.min_connections
+    }
+
+    <span class="doccomment">/// Enable logging of time taken to acquire a connection from the connection pool via
+    /// [`Pool::acquire()`].
+    ///
+    /// If slow acquire logging is also enabled, this level is used for acquires that are not
+    /// considered slow.
+    </span><span class="kw">pub fn </span>acquire_time_level(<span class="kw-2">mut </span><span class="self">self</span>, level: LevelFilter) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.acquire_time_level = level;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Log excessive time taken to acquire a connection at a different log level than time taken
+    /// for faster connection acquires via [`Pool::acquire()`].
+    </span><span class="kw">pub fn </span>acquire_slow_level(<span class="kw-2">mut </span><span class="self">self</span>, level: LevelFilter) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.acquire_slow_level = level;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set a threshold for reporting excessive time taken to acquire a connection from
+    /// the connection pool via [`Pool::acquire()`]. When the threshold is exceeded, a warning is logged.
+    ///
+    /// Defaults to a value that should not typically be exceeded by the pool enlarging
+    /// itself with an additional new connection.
+    </span><span class="kw">pub fn </span>acquire_slow_threshold(<span class="kw-2">mut </span><span class="self">self</span>, threshold: Duration) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.acquire_slow_threshold = threshold;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Get the threshold for reporting excessive time taken to acquire a connection via
+    /// [`Pool::acquire()`].
+    </span><span class="kw">pub fn </span>get_acquire_slow_threshold(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
+        <span class="self">self</span>.acquire_slow_threshold
     }
 
     <span class="doccomment">/// Set the maximum amount of time to spend waiting for a connection in [`Pool::acquire()`].
@@ -819,7 +912,7 @@
         <span class="self">self
     </span>}
 
-    <span class="doccomment">/// Get's whether `test_before_acquire` is currently set.
+    <span class="doccomment">/// Get whether `test_before_acquire` is currently set.
     </span><span class="kw">pub fn </span>get_test_before_acquire(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.test_before_acquire
     }

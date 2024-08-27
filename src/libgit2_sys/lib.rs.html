@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.16.2+1.7.2/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.16.2+1.7.2/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4353,7 +4352,7 @@
 <span class="kw">pub const </span>GIT_REVERT_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 <span class="kw">pub const </span>GIT_INDEXER_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 
-<span class="macro">macro_rules! </span>git_enum {
+<span class="macro">macro_rules!</span> git_enum {
     (<span class="kw">pub enum </span><span class="macro-nonterminal">$name</span>:ident { $(<span class="macro-nonterminal">$variants</span>:tt)* }) =&gt; {
         <span class="attr">#[cfg(target_env = <span class="string">"msvc"</span>)]
         </span><span class="kw">pub type </span><span class="macro-nonterminal">$name </span>= i32;
@@ -4482,7 +4481,7 @@
 <span class="kw">pub type </span>git_time_t = i64;
 <span class="kw">pub type </span>git_object_size_t = u64;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_revparse_mode_t {
         GIT_REVPARSE_SINGLE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_REVPARSE_RANGE = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -4490,7 +4489,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_error_code: c_int {
         GIT_OK = <span class="number">0</span>,
 
@@ -4527,7 +4526,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_error_t {
         GIT_ERROR_NONE = <span class="number">0</span>,
         GIT_ERROR_NOMEMORY,
@@ -4567,7 +4566,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_repository_state_t {
         GIT_REPOSITORY_STATE_NONE,
         GIT_REPOSITORY_STATE_MERGE,
@@ -4584,7 +4583,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_direction {
         GIT_DIRECTION_FETCH,
         GIT_DIRECTION_PUSH,
@@ -4605,7 +4604,7 @@
     <span class="kw">pub </span>remote_cb_payload: <span class="kw-2">*mut </span>c_void,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_clone_local_t {
         GIT_CLONE_LOCAL_AUTO,
         GIT_CLONE_LOCAL,
@@ -4734,7 +4733,7 @@
     depth: c_int,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_remote_autotag_option_t {
         GIT_REMOTE_DOWNLOAD_TAGS_UNSPECIFIED,
         GIT_REMOTE_DOWNLOAD_TAGS_AUTO,
@@ -4743,7 +4742,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_fetch_prune_t {
         GIT_FETCH_PRUNE_UNSPECIFIED,
         GIT_FETCH_PRUNE,
@@ -4751,7 +4750,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_remote_completion_type {
         GIT_REMOTE_COMPLETION_DOWNLOAD,
         GIT_REMOTE_COMPLETION_INDEXING,
@@ -4788,7 +4787,7 @@
     <span class="kw">pub </span>dst: git_oid,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_cert_t {
         GIT_CERT_NONE,
         GIT_CERT_X509,
@@ -4821,7 +4820,7 @@
     <span class="kw">pub </span>len: size_t,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_cert_ssh_t {
         GIT_CERT_SSH_MD5 = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_CERT_SSH_SHA1 = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -4830,7 +4829,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_cert_ssh_raw_type_t {
         GIT_CERT_SSH_RAW_TYPE_UNKNOWN = <span class="number">0</span>,
         GIT_CERT_SSH_RAW_TYPE_RSA = <span class="number">1</span>,
@@ -4842,7 +4841,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_diff_flag_t {
         GIT_DIFF_FLAG_BINARY     = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_DIFF_FLAG_NOT_BINARY = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -4873,7 +4872,7 @@
     ) -&gt; c_int,
 &gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_checkout_notify_t {
         GIT_CHECKOUT_NOTIFY_NONE = <span class="number">0</span>,
         GIT_CHECKOUT_NOTIFY_CONFLICT = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -4886,7 +4885,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_status_t {
         GIT_STATUS_CURRENT = <span class="number">0</span>,
 
@@ -4908,7 +4907,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_status_opt_t {
         GIT_STATUS_OPT_INCLUDE_UNTRACKED                = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_STATUS_OPT_INCLUDE_IGNORED                  = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -4930,7 +4929,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_status_show_t {
         GIT_STATUS_SHOW_INDEX_AND_WORKDIR = <span class="number">0</span>,
         GIT_STATUS_SHOW_INDEX_ONLY = <span class="number">1</span>,
@@ -4938,7 +4937,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_delta_t {
         GIT_DELTA_UNMODIFIED,
         GIT_DELTA_ADDED,
@@ -4981,7 +4980,7 @@
     <span class="kw">pub </span>index_to_workdir: <span class="kw-2">*mut </span>git_diff_delta,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_checkout_strategy_t {
         GIT_CHECKOUT_NONE = <span class="number">0</span>,
         GIT_CHECKOUT_SAFE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5007,7 +5006,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_reset_t {
         GIT_RESET_SOFT = <span class="number">1</span>,
         GIT_RESET_MIXED = <span class="number">2</span>,
@@ -5015,7 +5014,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_object_t: c_int {
         GIT_OBJECT_ANY = -<span class="number">2</span>,
         GIT_OBJECT_INVALID = -<span class="number">1</span>,
@@ -5028,7 +5027,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_reference_t {
         GIT_REFERENCE_INVALID = <span class="number">0</span>,
         GIT_REFERENCE_DIRECT = <span class="number">1</span>,
@@ -5037,7 +5036,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_filemode_t {
         GIT_FILEMODE_UNREADABLE = <span class="number">0o000000</span>,
         GIT_FILEMODE_TREE = <span class="number">0o040000</span>,
@@ -5049,7 +5048,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_treewalk_mode {
         GIT_TREEWALK_PRE = <span class="number">0</span>,
         GIT_TREEWALK_POST = <span class="number">1</span>,
@@ -5063,7 +5062,7 @@
 
 <span class="kw">pub type </span>git_revwalk_hide_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_oid, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_tree_update_t {
         GIT_TREE_UPDATE_UPSERT = <span class="number">0</span>,
         GIT_TREE_UPDATE_REMOVE = <span class="number">1</span>,
@@ -5086,7 +5085,7 @@
     <span class="kw">pub </span>size: size_t,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_branch_t {
         GIT_BRANCH_LOCAL = <span class="number">1</span>,
         GIT_BRANCH_REMOTE = <span class="number">2</span>,
@@ -5133,7 +5132,7 @@
 <span class="kw">pub type </span>git_index_matched_path_cb =
     <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_index_entry_extended_flag_t {
         GIT_INDEX_ENTRY_INTENT_TO_ADD     = <span class="number">1 </span>&lt;&lt; <span class="number">13</span>,
         GIT_INDEX_ENTRY_SKIP_WORKTREE     = <span class="number">1 </span>&lt;&lt; <span class="number">14</span>,
@@ -5142,7 +5141,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_index_entry_flag_t {
         GIT_INDEX_ENTRY_EXTENDED = <span class="number">0x4000</span>,
         GIT_INDEX_ENTRY_VALID    = <span class="number">0x8000</span>,
@@ -5187,7 +5186,7 @@
     <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_config_level_t: c_int {
         GIT_CONFIG_LEVEL_PROGRAMDATA = <span class="number">1</span>,
         GIT_CONFIG_LEVEL_SYSTEM = <span class="number">2</span>,
@@ -5199,7 +5198,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_submodule_update_t {
         GIT_SUBMODULE_UPDATE_CHECKOUT = <span class="number">1</span>,
         GIT_SUBMODULE_UPDATE_REBASE   = <span class="number">2</span>,
@@ -5209,7 +5208,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_submodule_ignore_t: c_int {
         GIT_SUBMODULE_IGNORE_UNSPECIFIED = -<span class="number">1</span>,
 
@@ -5238,7 +5237,7 @@
     <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_writestream)&gt;,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_attr_value_t {
         GIT_ATTR_VALUE_UNSPECIFIED = <span class="number">0</span>,
         GIT_ATTR_VALUE_TRUE,
@@ -5259,7 +5258,7 @@
     <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_cred)&gt;,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_credtype_t {
         GIT_CREDTYPE_USERPASS_PLAINTEXT = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_CREDTYPE_SSH_KEY = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -5312,7 +5311,7 @@
 <span class="kw">pub type </span>git_tag_foreach_cb =
     <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(name: <span class="kw-2">*const </span>c_char, oid: <span class="kw-2">*mut </span>git_oid, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_index_add_option_t {
         GIT_INDEX_ADD_DEFAULT = <span class="number">0</span>,
         GIT_INDEX_ADD_FORCE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5321,7 +5320,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_repository_open_flag_t {
         GIT_REPOSITORY_OPEN_NO_SEARCH = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_REPOSITORY_OPEN_CROSS_FS = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -5345,7 +5344,7 @@
 
 <span class="kw">pub const </span>GIT_REPOSITORY_INIT_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_repository_init_flag_t {
         GIT_REPOSITORY_INIT_BARE              = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_REPOSITORY_INIT_NO_REINIT         = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -5356,7 +5355,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_repository_init_mode_t {
         GIT_REPOSITORY_INIT_SHARED_UMASK = <span class="number">0</span>,
         GIT_REPOSITORY_INIT_SHARED_GROUP = <span class="number">0o002775</span>,
@@ -5364,7 +5363,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_sort_t {
         GIT_SORT_NONE        = <span class="number">0</span>,
         GIT_SORT_TOPOLOGICAL = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5373,7 +5372,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_submodule_status_t {
         GIT_SUBMODULE_STATUS_IN_HEAD = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_SUBMODULE_STATUS_IN_INDEX = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -5401,7 +5400,7 @@
     <span class="kw">pub </span>symref_target: <span class="kw-2">*mut </span>c_char,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_pathspec_flag_t {
         GIT_PATHSPEC_DEFAULT = <span class="number">0</span>,
         GIT_PATHSPEC_IGNORE_CASE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5437,7 +5436,7 @@
     <span class="kw">pub </span>header: [c_char; <span class="number">128</span>],
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_diff_line_t {
         GIT_DIFF_LINE_CONTEXT = <span class="string">b' ' </span><span class="kw">as </span>git_diff_line_t,
         GIT_DIFF_LINE_ADDITION = <span class="string">b'+' </span><span class="kw">as </span>git_diff_line_t,
@@ -5480,7 +5479,7 @@
     <span class="kw">pub </span>new_prefix: <span class="kw-2">*const </span>c_char,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_oid_t {
         GIT_OID_SHA1 = <span class="number">1</span>,
         <span class="comment">// SHA256 is still experimental so we are not going to enable it.
@@ -5488,7 +5487,7 @@
     </span>}
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_diff_format_t {
         GIT_DIFF_FORMAT_PATCH = <span class="number">1</span>,
         GIT_DIFF_FORMAT_PATCH_HEADER = <span class="number">2</span>,
@@ -5499,7 +5498,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_diff_stats_format_t {
         GIT_DIFF_STATS_NONE = <span class="number">0</span>,
         GIT_DIFF_STATS_FULL = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5516,7 +5515,7 @@
 <span class="kw">pub type </span>git_diff_progress_cb =
     <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>git_diff, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_diff_option_t {
         GIT_DIFF_NORMAL = <span class="number">0</span>,
         GIT_DIFF_REVERSE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5641,7 +5640,7 @@
     <span class="kw">pub </span>inflatedlen: size_t,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_diff_binary_t {
         GIT_DIFF_BINARY_NONE,
         GIT_DIFF_BINARY_LITERAL,
@@ -5662,7 +5661,7 @@
     <span class="kw">pub </span>file_flags: u32,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_merge_flag_t {
         GIT_MERGE_FIND_RENAMES = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_MERGE_FAIL_ON_CONFLICT = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -5671,7 +5670,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_merge_file_favor_t {
         GIT_MERGE_FILE_FAVOR_NORMAL = <span class="number">0</span>,
         GIT_MERGE_FILE_FAVOR_OURS = <span class="number">1</span>,
@@ -5680,7 +5679,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_merge_file_flag_t {
         GIT_MERGE_FILE_DEFAULT = <span class="number">0</span>,
         GIT_MERGE_FILE_STYLE_MERGE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5694,7 +5693,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_merge_analysis_t {
         GIT_MERGE_ANALYSIS_NONE = <span class="number">0</span>,
         GIT_MERGE_ANALYSIS_NORMAL = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5704,7 +5703,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_merge_preference_t {
         GIT_MERGE_PREFERENCE_NONE = <span class="number">0</span>,
         GIT_MERGE_PREFERENCE_NO_FASTFORWARD = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -5778,7 +5777,7 @@
     <span class="kw">pub </span>custom_headers: git_strarray,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_remote_redirect_t {
         GIT_REMOTE_REDIRECT_NONE = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_REMOTE_REDIRECT_INITIAL = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -5876,7 +5875,7 @@
     <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_odb_backend)&gt;,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_odb_lookup_flags_t {
         GIT_ODB_LOOKUP_NO_REFRESH = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
     }
@@ -5980,7 +5979,7 @@
     <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_proxy_t {
         GIT_PROXY_NONE = <span class="number">0</span>,
         GIT_PROXY_AUTO = <span class="number">1</span>,
@@ -5988,7 +5987,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_smart_service_t {
         GIT_SERVICE_UPLOADPACK_LS = <span class="number">1</span>,
         GIT_SERVICE_UPLOADPACK = <span class="number">2</span>,
@@ -6048,7 +6047,7 @@
     <span class="kw">pub </span>show_commit_oid_as_fallback: c_int,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_describe_strategy_t {
         GIT_DESCRIBE_DEFAULT,
         GIT_DESCRIBE_TAGS,
@@ -6064,14 +6063,14 @@
     <span class="kw">pub </span>dirty_suffix: <span class="kw-2">*const </span>c_char,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_packbuilder_stage_t {
         GIT_PACKBUILDER_ADDING_OBJECTS,
         GIT_PACKBUILDER_DELTAFICATION,
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_stash_flags {
         GIT_STASH_DEFAULT = <span class="number">0</span>,
         GIT_STASH_KEEP_INDEX = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -6081,14 +6080,14 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_stash_apply_flags {
         GIT_STASH_APPLY_DEFAULT = <span class="number">0</span>,
         GIT_STASH_APPLY_REINSTATE_INDEX = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_stash_apply_progress_t {
         GIT_STASH_APPLY_PROGRESS_NONE = <span class="number">0</span>,
         GIT_STASH_APPLY_PROGRESS_LOADING_STASH,
@@ -6177,7 +6176,7 @@
     <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_rebase_operation_t {
         GIT_REBASE_OPERATION_PICK = <span class="number">0</span>,
         GIT_REBASE_OPERATION_REWORD,
@@ -6211,7 +6210,7 @@
 <span class="kw">pub type </span>git_apply_hunk_cb =
     <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(hunk: <span class="kw-2">*const </span>git_diff_hunk, payload: <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_apply_flags_t {
         GIT_APPLY_CHECK = <span class="number">1</span>&lt;&lt;<span class="number">0</span>,
     }
@@ -6226,7 +6225,7 @@
     <span class="kw">pub </span>flags: u32,
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_apply_location_t {
         GIT_APPLY_LOCATION_WORKDIR = <span class="number">0</span>,
         GIT_APPLY_LOCATION_INDEX = <span class="number">1</span>,
@@ -6234,7 +6233,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_libgit2_opt_t {
         GIT_OPT_GET_MWINDOW_SIZE = <span class="number">0</span>,
         GIT_OPT_SET_MWINDOW_SIZE,
@@ -6276,7 +6275,7 @@
     }
 }
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_reference_format_t {
         GIT_REFERENCE_FORMAT_NORMAL = <span class="number">0</span>,
         GIT_REFERENCE_FORMAT_ALLOW_ONELEVEL = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -6295,7 +6294,7 @@
 
 <span class="kw">pub const </span>GIT_WORKTREE_ADD_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_worktree_prune_t {
         <span class="comment">/* Prune working tree even if working tree is valid */
         </span>GIT_WORKTREE_PRUNE_VALID = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
@@ -6321,7 +6320,7 @@
     <span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>c_char, <span class="kw-2">*const </span>git_oid, c_uint, <span class="kw-2">*mut </span>c_void) -&gt; c_int,
 &gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_trace_level_t {
         <span class="comment">/* No tracing will be performed. */
         </span>GIT_TRACE_NONE = <span class="number">0</span>,
@@ -6348,7 +6347,7 @@
 
 <span class="kw">pub type </span>git_trace_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(level: git_trace_level_t, msg: <span class="kw-2">*const </span>c_char)&gt;;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_feature_t {
         GIT_FEATURE_THREADS = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
         GIT_FEATURE_HTTPS   = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
@@ -6384,7 +6383,7 @@
 
 <span class="kw">pub const </span>GIT_EMAIL_CREATE_OPTIONS_VERSION: c_uint = <span class="number">1</span>;
 
-<span class="macro">git_enum! </span>{
+<span class="macro">git_enum!</span> {
     <span class="kw">pub enum </span>git_email_create_flags_t {
         GIT_EMAIL_CREATE_DEFAULT = <span class="number">0</span>,
         GIT_EMAIL_CREATE_OMIT_NUMBERS = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,

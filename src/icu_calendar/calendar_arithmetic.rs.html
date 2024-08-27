@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/calendar_arithmetic.rs`."><title>calendar_arithmetic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/calendar_arithmetic.rs`."><title>calendar_arithmetic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -335,43 +334,203 @@
 <a href="#334" id="334">334</a>
 <a href="#335" id="335">335</a>
 <a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
 
 </span><span class="kw">use crate</span>::{types, Calendar, CalendarError, DateDuration, DateDurationUnit};
+<span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::convert::TryInto;
+<span class="kw">use </span>core::fmt::Debug;
+<span class="kw">use </span>core::hash::{Hash, Hasher};
 <span class="kw">use </span>core::marker::PhantomData;
 <span class="kw">use </span>tinystr::tinystr;
 
 <span class="comment">// Note: The Ord/PartialOrd impls can be derived because the fields are in the correct order.
-</span><span class="attr">#[derive(Debug, Hash, Eq, PartialEq, Ord, PartialOrd)]
+</span><span class="attr">#[derive(Debug)]
 #[allow(clippy::exhaustive_structs)] </span><span class="comment">// this type is stable
-</span><span class="kw">pub struct </span>ArithmeticDate&lt;C&gt; {
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>ArithmeticDate&lt;C: CalendarArithmetic&gt; {
     <span class="kw">pub </span>year: i32,
     <span class="doccomment">/// 1-based month of year
     </span><span class="kw">pub </span>month: u8,
     <span class="doccomment">/// 1-based day of month
     </span><span class="kw">pub </span>day: u8,
+    <span class="doccomment">/// Invariant: MUST be updated to match the info for `year` whenever `year` is updated or set.
+    </span><span class="kw">pub </span>year_info: C::YearInfo,
     marker: PhantomData&lt;C&gt;,
 }
 
-<span class="kw">impl</span>&lt;C&gt; Copy <span class="kw">for </span>ArithmeticDate&lt;C&gt; {}
-<span class="kw">impl</span>&lt;C&gt; Clone <span class="kw">for </span>ArithmeticDate&lt;C&gt; {
+<span class="comment">// Manual impls since the derive will introduce a C: Trait bound
+// and many of these impls can ignore the year_info field
+</span><span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Copy <span class="kw">for </span>ArithmeticDate&lt;C&gt; {}
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Clone <span class="kw">for </span>ArithmeticDate&lt;C&gt; {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="kw-2">*</span><span class="self">self
     </span>}
+}
+
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; PartialEq <span class="kw">for </span>ArithmeticDate&lt;C&gt; {
+    <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
+        <span class="self">self</span>.year == other.year &amp;&amp; <span class="self">self</span>.month == other.month &amp;&amp; <span class="self">self</span>.day == other.day
+    }
+}
+
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Eq <span class="kw">for </span>ArithmeticDate&lt;C&gt; {}
+
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Ord <span class="kw">for </span>ArithmeticDate&lt;C&gt; {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+        <span class="self">self</span>.year
+            .cmp(<span class="kw-2">&amp;</span>other.year)
+            .then(<span class="self">self</span>.month.cmp(<span class="kw-2">&amp;</span>other.month))
+            .then(<span class="self">self</span>.day.cmp(<span class="kw-2">&amp;</span>other.day))
+    }
+}
+
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; PartialOrd <span class="kw">for </span>ArithmeticDate&lt;C&gt; {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cmp(other))
+    }
+}
+
+<span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; Hash <span class="kw">for </span>ArithmeticDate&lt;C&gt; {
+    <span class="kw">fn </span>hash&lt;H&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H)
+    <span class="kw">where
+        </span>H: Hasher,
+    {
+        <span class="self">self</span>.year.hash(state);
+        <span class="self">self</span>.month.hash(state);
+        <span class="self">self</span>.day.hash(state);
+    }
 }
 
 <span class="doccomment">/// Maximum number of iterations when iterating through the days of a month; can be increased if necessary
 </span><span class="attr">#[allow(dead_code)] </span><span class="comment">// TODO: Remove dead code tag after use
 </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MAX_ITERS_FOR_DAYS_OF_MONTH: u8 = <span class="number">33</span>;
 
-<span class="kw">pub trait </span>CalendarArithmetic: Calendar {
-    <span class="kw">fn </span>month_days(year: i32, month: u8) -&gt; u8;
-    <span class="kw">fn </span>months_for_every_year(year: i32) -&gt; u8;
-    <span class="kw">fn </span>is_leap_year(year: i32) -&gt; bool;
-    <span class="kw">fn </span>last_month_day_in_year(year: i32) -&gt; (u8, u8);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>CalendarArithmetic: Calendar {
+    <span class="doccomment">/// In case we plan to cache per-year data, this stores
+    /// useful computational information for the current year
+    /// as a field on ArithmeticDate
+    </span><span class="kw">type </span>YearInfo: Copy + Debug;
+
+    <span class="comment">// TODO(#3933): potentially make these methods take &amp;self instead, and absorb certain y/m parameters
+    // based on usage patterns (e.g month_days is only ever called with self.year)
+    </span><span class="kw">fn </span>month_days(year: i32, month: u8, year_info: <span class="self">Self</span>::YearInfo) -&gt; u8;
+    <span class="kw">fn </span>months_for_every_year(year: i32, year_info: <span class="self">Self</span>::YearInfo) -&gt; u8;
+    <span class="kw">fn </span>is_leap_year(year: i32, year_info: <span class="self">Self</span>::YearInfo) -&gt; bool;
+    <span class="kw">fn </span>last_month_day_in_year(year: i32, year_info: <span class="self">Self</span>::YearInfo) -&gt; (u8, u8);
 
     <span class="doccomment">/// Calculate the days in a given year
     /// Can be overridden with simpler implementations for solar calendars
@@ -379,60 +538,94 @@
     /// for lunar calendars
     ///
     /// The name has `provided` in it to avoid clashes with Calendar
-    </span><span class="kw">fn </span>days_in_provided_year(year: i32) -&gt; u16 {
-        <span class="kw">let </span>months_in_year = <span class="self">Self</span>::months_for_every_year(year);
+    </span><span class="kw">fn </span>days_in_provided_year(year: i32, year_info: <span class="self">Self</span>::YearInfo) -&gt; u16 {
+        <span class="kw">let </span>months_in_year = <span class="self">Self</span>::months_for_every_year(year, year_info);
         <span class="kw">let </span><span class="kw-2">mut </span>days: u16 = <span class="number">0</span>;
         <span class="kw">for </span>month <span class="kw">in </span><span class="number">1</span>..=months_in_year {
-            days += <span class="self">Self</span>::month_days(year, month) <span class="kw">as </span>u16;
+            days += <span class="self">Self</span>::month_days(year, month, year_info) <span class="kw">as </span>u16;
         }
         days
     }
 }
 
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">trait </span>PrecomputedDataSource&lt;YearInfo&gt; {
+    <span class="doccomment">/// Given a calendar year, load (or compute) the YearInfo for it
+    ///
+    /// In the future we may pass in an optional previous YearInfo alongside the year
+    /// it matches to allow code to take shortcuts.
+    </span><span class="kw">fn </span>load_or_compute_info(<span class="kw-2">&amp;</span><span class="self">self</span>, year: i32) -&gt; YearInfo;
+}
+
+<span class="kw">impl </span>PrecomputedDataSource&lt;()&gt; <span class="kw">for </span>() {
+    <span class="kw">fn </span>load_or_compute_info(<span class="kw-2">&amp;</span><span class="self">self</span>, _year: i32) {}
+}
+
 <span class="kw">impl</span>&lt;C: CalendarArithmetic&gt; ArithmeticDate&lt;C&gt; {
     <span class="doccomment">/// Create a new `ArithmeticDate` without checking that `month` and `day` are in bounds.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub const fn </span>new_unchecked(year: i32, month: u8, day: u8) -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub const fn </span>new_unchecked(year: i32, month: u8, day: u8) -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>C: CalendarArithmetic&lt;YearInfo = ()&gt;,
+    {
+        <span class="self">Self</span>::new_unchecked_with_info(year, month, day, ())
+    }
+    <span class="doccomment">/// Create a new `ArithmeticDate` without checking that `month` and `day` are in bounds.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub const fn </span>new_unchecked_with_info(
+        year: i32,
+        month: u8,
+        day: u8,
+        year_info: C::YearInfo,
+    ) -&gt; <span class="self">Self </span>{
         ArithmeticDate {
             year,
             month,
             day,
+            year_info,
             marker: PhantomData,
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>min_date() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>min_date() -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>C: CalendarArithmetic&lt;YearInfo = ()&gt;,
+    {
         ArithmeticDate {
             year: i32::MIN,
             month: <span class="number">1</span>,
             day: <span class="number">1</span>,
+            year_info: (),
             marker: PhantomData,
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>max_date() -&gt; <span class="self">Self </span>{
+    </span><span class="kw">pub fn </span>max_date() -&gt; <span class="self">Self
+    </span><span class="kw">where
+        </span>C: CalendarArithmetic&lt;YearInfo = ()&gt;,
+    {
         <span class="kw">let </span>year = i32::MAX;
-        <span class="kw">let </span>(month, day) = C::last_month_day_in_year(year);
+        <span class="kw">let </span>(month, day) = C::last_month_day_in_year(year, ());
         ArithmeticDate {
             year: i32::MAX,
             month,
             day,
+            year_info: (),
             marker: PhantomData,
         }
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>offset_days(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>day_offset: i32) {
+    </span><span class="kw">fn </span>offset_days(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>day_offset: i32, data: <span class="kw-2">&amp;</span><span class="kw">impl </span>PrecomputedDataSource&lt;C::YearInfo&gt;) {
         <span class="kw">while </span>day_offset != <span class="number">0 </span>{
-            <span class="kw">let </span>month_days = C::month_days(<span class="self">self</span>.year, <span class="self">self</span>.month);
+            <span class="kw">let </span>month_days = C::month_days(<span class="self">self</span>.year, <span class="self">self</span>.month, <span class="self">self</span>.year_info);
             <span class="kw">if </span><span class="self">self</span>.day <span class="kw">as </span>i32 + day_offset &gt; month_days <span class="kw">as </span>i32 {
-                <span class="self">self</span>.offset_months(<span class="number">1</span>);
+                <span class="self">self</span>.offset_months(<span class="number">1</span>, data);
                 day_offset -= month_days <span class="kw">as </span>i32;
             } <span class="kw">else if </span><span class="self">self</span>.day <span class="kw">as </span>i32 + day_offset &lt; <span class="number">1 </span>{
-                <span class="self">self</span>.offset_months(-<span class="number">1</span>);
-                day_offset += C::month_days(<span class="self">self</span>.year, <span class="self">self</span>.month) <span class="kw">as </span>i32;
+                <span class="self">self</span>.offset_months(-<span class="number">1</span>, data);
+                day_offset += C::month_days(<span class="self">self</span>.year, <span class="self">self</span>.month, <span class="self">self</span>.year_info) <span class="kw">as </span>i32;
             } <span class="kw">else </span>{
                 <span class="self">self</span>.day = (<span class="self">self</span>.day <span class="kw">as </span>i32 + day_offset) <span class="kw">as </span>u8;
                 day_offset = <span class="number">0</span>;
@@ -441,15 +634,21 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>offset_months(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>month_offset: i32) {
+    </span><span class="kw">fn </span>offset_months(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw-2">mut </span>month_offset: i32,
+        data: <span class="kw-2">&amp;</span><span class="kw">impl </span>PrecomputedDataSource&lt;C::YearInfo&gt;,
+    ) {
         <span class="kw">while </span>month_offset != <span class="number">0 </span>{
-            <span class="kw">let </span>year_months = C::months_for_every_year(<span class="self">self</span>.year);
+            <span class="kw">let </span>year_months = C::months_for_every_year(<span class="self">self</span>.year, <span class="self">self</span>.year_info);
             <span class="kw">if </span><span class="self">self</span>.month <span class="kw">as </span>i32 + month_offset &gt; year_months <span class="kw">as </span>i32 {
                 <span class="self">self</span>.year += <span class="number">1</span>;
+                <span class="self">self</span>.year_info = data.load_or_compute_info(<span class="self">self</span>.year);
                 month_offset -= year_months <span class="kw">as </span>i32;
             } <span class="kw">else if </span><span class="self">self</span>.month <span class="kw">as </span>i32 + month_offset &lt; <span class="number">1 </span>{
                 <span class="self">self</span>.year -= <span class="number">1</span>;
-                month_offset += C::months_for_every_year(<span class="self">self</span>.year) <span class="kw">as </span>i32;
+                <span class="self">self</span>.year_info = data.load_or_compute_info(<span class="self">self</span>.year);
+                month_offset += C::months_for_every_year(<span class="self">self</span>.year, <span class="self">self</span>.year_info) <span class="kw">as </span>i32;
             } <span class="kw">else </span>{
                 <span class="self">self</span>.month = (<span class="self">self</span>.month <span class="kw">as </span>i32 + month_offset) <span class="kw">as </span>u8;
                 month_offset = <span class="number">0
@@ -458,15 +657,22 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>offset_date(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: DateDuration&lt;C&gt;) {
-        <span class="comment">// For offset_date to work with lunar calendars, need to handle an edge case where the original month is not valid in the future year.
-        </span><span class="self">self</span>.year += offset.years;
+    </span><span class="kw">pub fn </span>offset_date(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        offset: DateDuration&lt;C&gt;,
+        data: <span class="kw-2">&amp;</span><span class="kw">impl </span>PrecomputedDataSource&lt;C::YearInfo&gt;,
+    ) {
+        <span class="kw">if </span>offset.years != <span class="number">0 </span>{
+            <span class="comment">// For offset_date to work with lunar calendars, need to handle an edge case where the original month is not valid in the future year.
+            </span><span class="self">self</span>.year += offset.years;
+            <span class="self">self</span>.year_info = data.load_or_compute_info(<span class="self">self</span>.year);
+        }
 
-        <span class="self">self</span>.offset_months(offset.months);
+        <span class="self">self</span>.offset_months(offset.months, data);
 
         <span class="kw">let </span>day_offset = offset.days + offset.weeks * <span class="number">7 </span>+ <span class="self">self</span>.day <span class="kw">as </span>i32 - <span class="number">1</span>;
         <span class="self">self</span>.day = <span class="number">1</span>;
-        <span class="self">self</span>.offset_days(day_offset);
+        <span class="self">self</span>.offset_days(day_offset, data);
     }
 
     <span class="attr">#[inline]
@@ -476,7 +682,9 @@
         _largest_unit: DateDurationUnit,
         _smaller_unit: DateDurationUnit,
     ) -&gt; DateDuration&lt;C&gt; {
-        DateDuration::new(
+        <span class="comment">// This simple implementation does not need C::PrecomputedDataSource right now, but it
+        // likely will once we've written a proper implementation
+        </span>DateDuration::new(
             <span class="self">self</span>.year - date2.year,
             <span class="self">self</span>.month <span class="kw">as </span>i32 - date2.month <span class="kw">as </span>i32,
             <span class="number">0</span>,
@@ -486,34 +694,37 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>days_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
-        C::days_in_provided_year(<span class="self">self</span>.year)
+        C::days_in_provided_year(<span class="self">self</span>.year, <span class="self">self</span>.year_info)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>months_in_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        C::months_for_every_year(<span class="self">self</span>.year)
+        C::months_for_every_year(<span class="self">self</span>.year, <span class="self">self</span>.year_info)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>days_in_month(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        C::month_days(<span class="self">self</span>.year, <span class="self">self</span>.month)
+        C::month_days(<span class="self">self</span>.year, <span class="self">self</span>.month, <span class="self">self</span>.year_info)
     }
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>day_of_year(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u16 {
         <span class="kw">let </span><span class="kw-2">mut </span>day_of_year = <span class="number">0</span>;
         <span class="kw">for </span>month <span class="kw">in </span><span class="number">1</span>..<span class="self">self</span>.month {
-            day_of_year += C::month_days(<span class="self">self</span>.year, month) <span class="kw">as </span>u16;
+            day_of_year += C::month_days(<span class="self">self</span>.year, month, <span class="self">self</span>.year_info) <span class="kw">as </span>u16;
         }
         day_of_year + (<span class="self">self</span>.day <span class="kw">as </span>u16)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>date_from_year_day(year: i32, year_day: u32) -&gt; ArithmeticDate&lt;C&gt; {
+    </span><span class="kw">pub fn </span>date_from_year_day(year: i32, year_day: u32) -&gt; ArithmeticDate&lt;C&gt;
+    <span class="kw">where
+        </span>C: CalendarArithmetic&lt;YearInfo = ()&gt;,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>month = <span class="number">1</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>day = year_day <span class="kw">as </span>i32;
-        <span class="kw">while </span>month &lt;= C::months_for_every_year(year) {
-            <span class="kw">let </span>month_days = C::month_days(year, month) <span class="kw">as </span>i32;
+        <span class="kw">while </span>month &lt;= C::months_for_every_year(year, ()) {
+            <span class="kw">let </span>month_days = C::month_days(year, month, ()) <span class="kw">as </span>i32;
             <span class="kw">if </span>day &lt;= month_days {
                 <span class="kw">break</span>;
             } <span class="kw">else </span>{
@@ -522,13 +733,14 @@
             }
         }
 
-        <span class="macro">debug_assert!</span>(day &lt;= C::month_days(year, month) <span class="kw">as </span>i32);
+        <span class="macro">debug_assert!</span>(day &lt;= C::month_days(year, month, ()) <span class="kw">as </span>i32);
         <span class="attr">#[allow(clippy::unwrap_used)]
         </span><span class="comment">// The day is expected to be within the range of month_days of C
         </span>ArithmeticDate {
             year,
             month,
             day: day.try_into().unwrap_or(<span class="number">0</span>),
+            year_info: (),
             marker: PhantomData,
         }
     }
@@ -548,7 +760,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>month(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; types::FormattableMonth {
         <span class="kw">let </span>code = <span class="kw">match </span><span class="self">self</span>.month {
-            a <span class="kw">if </span>a &gt; C::months_for_every_year(<span class="self">self</span>.year) =&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
+            a <span class="kw">if </span>a &gt; C::months_for_every_year(<span class="self">self</span>.year, <span class="self">self</span>.year_info) =&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"und"</span>),
             <span class="number">1 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M01"</span>),
             <span class="number">2 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M02"</span>),
             <span class="number">3 </span>=&gt; <span class="macro">tinystr!</span>(<span class="number">4</span>, <span class="string">"M03"</span>),
@@ -580,7 +792,10 @@
         year: i32,
         month_code: types::MonthCode,
         day: u8,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt;
+    <span class="kw">where
+        </span>C: CalendarArithmetic&lt;YearInfo = ()&gt;,
+    {
         <span class="kw">let </span>month = <span class="kw">if let </span><span class="prelude-val">Some</span>((ordinal, <span class="bool-val">false</span>)) = month_code.parsed() {
             ordinal
         } <span class="kw">else </span>{
@@ -590,14 +805,14 @@
             ));
         };
 
-        <span class="kw">if </span>month &gt; C::months_for_every_year(year) {
+        <span class="kw">if </span>month &gt; C::months_for_every_year(year, ()) {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::UnknownMonthCode(
                 month_code.<span class="number">0</span>,
                 cal.debug_name(),
             ));
         }
 
-        <span class="kw">let </span>max_day = C::month_days(year, month);
+        <span class="kw">let </span>max_day = C::month_days(year, month, ());
         <span class="kw">if </span>day &gt; max_day {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::Overflow {
                 field: <span class="string">"day"</span>,
@@ -611,15 +826,29 @@
     <span class="doccomment">/// Construct a new arithmetic date from a year, month ordinal, and day, bounds checking
     /// the month and day
     /// Originally (new_from_solar_ordinals) but renamed because it works for some lunar calendars
-    </span><span class="kw">pub fn </span>new_from_ordinals(year: i32, month: u8, day: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt; {
-        <span class="kw">let </span>max_month = C::months_for_every_year(year);
+    </span><span class="kw">pub fn </span>new_from_ordinals(year: i32, month: u8, day: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt;
+    <span class="kw">where
+        </span>C: CalendarArithmetic&lt;YearInfo = ()&gt;,
+    {
+        <span class="self">Self</span>::new_from_ordinals_with_info(year, month, day, ())
+    }
+
+    <span class="doccomment">/// Construct a new arithmetic date from a year, month ordinal, and day, bounds checking
+    /// the month and day
+    </span><span class="kw">pub fn </span>new_from_ordinals_with_info(
+        year: i32,
+        month: u8,
+        day: u8,
+        info: C::YearInfo,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt; {
+        <span class="kw">let </span>max_month = C::months_for_every_year(year, info);
         <span class="kw">if </span>month &gt; max_month {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::Overflow {
                 field: <span class="string">"month"</span>,
                 max: max_month <span class="kw">as </span>usize,
             });
         }
-        <span class="kw">let </span>max_day = C::month_days(year, month);
+        <span class="kw">let </span>max_day = C::month_days(year, month, info);
         <span class="kw">if </span>day &gt; max_day {
             <span class="kw">return </span><span class="prelude-val">Err</span>(CalendarError::Overflow {
                 field: <span class="string">"day"</span>,
@@ -627,13 +856,7 @@
             });
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new_unchecked(year, month, day))
-    }
-
-    <span class="doccomment">/// This fn currently just calls [`new_from_ordinals`], but exists separately for
-    /// lunar calendars in case different logic needs to be implemented later.
-    </span><span class="kw">pub fn </span>new_from_lunar_ordinals(year: i32, month: u8, day: u8) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, CalendarError&gt; {
-        <span class="self">Self</span>::new_from_ordinals(year, month, day)
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span>::new_unchecked_with_info(year, month, day, info))
     }
 }
 

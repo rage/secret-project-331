@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.4.0/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_provider-1.5.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_provider" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -266,6 +265,46 @@
 <a href="#265" id="265">265</a>
 <a href="#266" id="266">266</a>
 <a href="#267" id="267">267</a>
+<a href="#268" id="268">268</a>
+<a href="#269" id="269">269</a>
+<a href="#270" id="270">270</a>
+<a href="#271" id="271">271</a>
+<a href="#272" id="272">272</a>
+<a href="#273" id="273">273</a>
+<a href="#274" id="274">274</a>
+<a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -383,7 +422,7 @@
 //! [`BlobDataProvider`]: ../icu_provider_blob/struct.BlobDataProvider.html
 //! [`icu_datagen`]: ../icu_datagen/index.html
 
-</span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/docs/process/boilerplate.md#library-annotations
+</span><span class="comment">// https://github.com/unicode-org/icu4x/blob/main/documents/process/boilerplate.md#library-annotations
 </span><span class="attr">#![cfg_attr(not(any(test, feature = <span class="string">"std"</span>)), no_std)]
 #![cfg_attr(
     not(test),
@@ -421,7 +460,9 @@
 </span><span class="kw">pub mod </span>serde;
 
 <span class="comment">// Types from private modules
-</span><span class="kw">pub use </span><span class="kw">crate</span>::data_provider::DataProvider;
+</span><span class="kw">pub use </span><span class="kw">crate</span>::data_provider::BoundDataProvider;
+<span class="kw">pub use </span><span class="kw">crate</span>::data_provider::DataProvider;
+<span class="kw">pub use </span><span class="kw">crate</span>::data_provider::DataProviderWithKey;
 <span class="kw">pub use </span><span class="kw">crate</span>::data_provider::DynamicDataProvider;
 <span class="kw">pub use </span><span class="kw">crate</span>::error::DataError;
 <span class="kw">pub use </span><span class="kw">crate</span>::error::DataErrorKind;
@@ -436,6 +477,7 @@
 <span class="kw">pub use </span><span class="kw">crate</span>::request::DataRequestMetadata;
 <span class="kw">pub use </span><span class="kw">crate</span>::response::Cart;
 <span class="kw">pub use </span><span class="kw">crate</span>::response::DataPayload;
+<span class="kw">pub use </span><span class="kw">crate</span>::response::DataPayloadOr;
 <span class="kw">pub use </span><span class="kw">crate</span>::response::DataResponse;
 <span class="kw">pub use </span><span class="kw">crate</span>::response::DataResponseMetadata;
 <span class="attr">#[cfg(feature = <span class="string">"macros"</span>)]
@@ -453,6 +495,7 @@
 <span class="kw">pub use </span><span class="kw">crate</span>::buf::BufferProvider;
 <span class="kw">pub use </span><span class="kw">crate</span>::marker::DataMarker;
 <span class="kw">pub use </span><span class="kw">crate</span>::marker::KeyedDataMarker;
+<span class="kw">pub use </span><span class="kw">crate</span>::marker::NeverMarker;
 <span class="attr">#[cfg(feature = <span class="string">"serde"</span>)]
 </span><span class="kw">pub use </span><span class="kw">crate</span>::serde::AsDeserializingBufferProvider;
 
@@ -478,6 +521,8 @@
     <span class="attr">#[doc(no_inline)]
     #[cfg(feature = <span class="string">"experimental"</span>)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::AuxiliaryKeys;
+    <span class="attr">#[doc(no_inline)]
+    </span><span class="kw">pub use </span><span class="kw">crate</span>::BoundDataProvider;
     <span class="attr">#[doc(no_inline)]
     </span><span class="kw">pub use </span><span class="kw">crate</span>::BufferMarker;
     <span class="attr">#[doc(no_inline)]
@@ -532,5 +577,39 @@
 </span><span class="kw">pub mod </span>_internal {
     <span class="kw">pub use </span><span class="kw">super</span>::fallback::{LocaleFallbackPriority, LocaleFallbackSupplement};
     <span class="kw">pub use </span>icu_locid <span class="kw">as </span>locid;
+
+    <span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
+    </span><span class="kw">pub use </span>log;
+
+    <span class="attr">#[cfg(all(not(feature = <span class="string">"logging"</span>), debug_assertions, feature = <span class="string">"std"</span>))]
+    </span><span class="kw">pub mod </span>log {
+        <span class="kw">pub use </span>std::eprintln <span class="kw">as </span>error;
+        <span class="kw">pub use </span>std::eprintln <span class="kw">as </span>warn;
+        <span class="kw">pub use </span>std::eprintln <span class="kw">as </span>info;
+        <span class="kw">pub use </span>std::eprintln <span class="kw">as </span>debug;
+        <span class="kw">pub use </span>std::eprintln <span class="kw">as </span>trace;
+    }
+
+    <span class="attr">#[cfg(all(
+        not(feature = <span class="string">"logging"</span>),
+        any(not(debug_assertions), not(feature = <span class="string">"std"</span>))
+    ))]
+    </span><span class="kw">pub mod </span>log {
+        <span class="attr">#[macro_export]
+        </span><span class="macro">macro_rules!</span> _internal_noop_log {
+            ($(<span class="macro-nonterminal">$t</span>:expr),<span class="kw-2">*</span>) =&gt; {};
+        }
+        <span class="kw">pub use </span><span class="kw">crate</span>::_internal_noop_log <span class="kw">as </span>error;
+        <span class="kw">pub use </span><span class="kw">crate</span>::_internal_noop_log <span class="kw">as </span>warn;
+        <span class="kw">pub use </span><span class="kw">crate</span>::_internal_noop_log <span class="kw">as </span>info;
+        <span class="kw">pub use </span><span class="kw">crate</span>::_internal_noop_log <span class="kw">as </span>debug;
+        <span class="kw">pub use </span><span class="kw">crate</span>::_internal_noop_log <span class="kw">as </span>trace;
+    }
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_logging() {
+    <span class="comment">// This should compile on all combinations of features
+    </span><span class="macro">crate::_internal::log::info!</span>(<span class="string">"Hello World"</span>);
 }
 </code></pre></div></section></main></body></html>

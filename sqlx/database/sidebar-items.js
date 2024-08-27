@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["Database","HasArguments","HasStatement","HasStatementCache","HasValueRef"]};
+window.SIDEBAR_ITEMS = {"trait":["Database","HasStatementCache"]};

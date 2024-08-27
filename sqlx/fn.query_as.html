@@ -1,8 +1,123 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Make a SQL query that is mapped to a concrete type using `FromRow`."><title>query_as in sqlx - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../sqlx/index.html">sqlx</a><span class="version">0.7.3</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div>
-    <main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><div id="sidebar-button" tabindex="-1"><a href="../sqlx/all.html" title="show sidebar"></a></div><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Function <a href="index.html">sqlx</a>::<wbr><a class="fn" href="#">query_as</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="src" href="../src/sqlx_core/query_as.rs.html#171-174">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub fn query_as&lt;DB, O, 'q&gt;(
-    sql: &amp;'q <a class="primitive" href="https://doc.rust-lang.org/1.76.0/std/primitive.str.html">str</a>
-) -&gt; <a class="struct" href="query/struct.QueryAs.html" title="struct sqlx::query::QueryAs">QueryAs</a>&lt;'q, DB, O, &lt;DB as <a class="trait" href="database/trait.HasArguments.html" title="trait sqlx::database::HasArguments">HasArguments</a>&lt;'q&gt;&gt;::<a class="associatedtype" href="database/trait.HasArguments.html#associatedtype.Arguments" title="type sqlx::database::HasArguments::Arguments">Arguments</a>&gt;<div class="where">where
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Execute a single SQL query as a prepared statement (transparently cached). Maps rows to Rust types using `FromRow`."><title>query_as in sqlx - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc fn"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../sqlx/index.html">sqlx</a><span class="version">0.8.1</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Function <a href="index.html">sqlx</a>::<wbr><a class="fn" href="#">query_as</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/sqlx_core/query_as.rs.html#342-345">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>pub fn query_as&lt;'q, DB, O&gt;(
+    sql: &amp;'q <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.str.html">str</a>,
+) -&gt; <a class="struct" href="query/struct.QueryAs.html" title="struct sqlx::query::QueryAs">QueryAs</a>&lt;'q, DB, O, &lt;DB as <a class="trait" href="trait.Database.html" title="trait sqlx::Database">Database</a>&gt;::<a class="associatedtype" href="trait.Database.html#associatedtype.Arguments" title="type sqlx::Database::Arguments">Arguments</a>&lt;'q&gt;&gt;<div class="where">where
     DB: <a class="trait" href="trait.Database.html" title="trait sqlx::Database">Database</a>,
-    O: for&lt;'r&gt; <a class="trait" href="trait.FromRow.html" title="trait sqlx::FromRow">FromRow</a>&lt;'r, &lt;DB as <a class="trait" href="trait.Database.html" title="trait sqlx::Database">Database</a>&gt;::<a class="associatedtype" href="trait.Database.html#associatedtype.Row" title="type sqlx::Database::Row">Row</a>&gt;,</div></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Make a SQL query that is mapped to a concrete type
-using <a href="trait.FromRow.html" title="trait sqlx::FromRow"><code>FromRow</code></a>.</p>
+    O: for&lt;'r&gt; <a class="trait" href="trait.FromRow.html" title="trait sqlx::FromRow">FromRow</a>&lt;'r, &lt;DB as <a class="trait" href="trait.Database.html" title="trait sqlx::Database">Database</a>&gt;::<a class="associatedtype" href="trait.Database.html#associatedtype.Row" title="type sqlx::Database::Row">Row</a>&gt;,</div></code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Execute a single SQL query as a prepared statement (transparently cached).
+Maps rows to Rust types using <a href="trait.FromRow.html" title="trait sqlx::FromRow"><code>FromRow</code></a>.</p>
+<p>For details about prepared statements and allowed SQL syntax, see <a href="fn.query.html" title="fn sqlx::query"><code>query()</code></a>.</p>
+<h4 id="example-map-rows-using-tuples"><a class="doc-anchor" href="#example-map-rows-using-tuples">§</a>Example: Map Rows using Tuples</h4>
+<p><a href="trait.FromRow.html" title="trait sqlx::FromRow"><code>FromRow</code></a> is implemented for tuples of up to 16 elements<sup>1</sup>.
+Using a tuple of N elements will extract the first N columns from each row using <a href="trait.Decode.html" title="trait sqlx::Decode"><code>Decode</code></a>.
+Any extra columns are ignored.</p>
+<p>See <a href="../sqlx_core/types/index.html" title="mod sqlx_core::types"><code>sqlx::types</code></a> for the types that can be used.</p>
+<p>The <code>FromRow</code> implementation will check <a href="trait.Type.html#method.compatible" title="associated function sqlx::Type::compatible"><code>Type::compatible()</code></a> for each column to ensure a compatible type mapping
+is used. If an incompatible mapping is detected, an error is returned.
+To statically assert compatible types at compile time, see the <code>query!()</code> family of macros.</p>
+<p><strong>NOTE</strong>: <code>SELECT *</code> is not recommended with this approach because the ordering of returned columns may be different
+than expected, especially when using joins.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::Connection;
+<span class="kw">use </span>sqlx::PgConnection;
+
+<span class="comment">// This example can be applied to any database as it only uses standard types and syntax.
+</span><span class="kw">let </span><span class="kw-2">mut </span>conn: PgConnection = PgConnection::connect(<span class="string">"&lt;Database URL&gt;"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+sqlx::raw_sql(
+    <span class="string">"CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT UNIQUE, created_at TIMESTAMP DEFAULT (now())"
+</span>)
+    .execute(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+sqlx::query(<span class="string">"INSERT INTO users(id, username) VALUES (1, 'alice'), (2, 'bob');"</span>)
+    .execute(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// Get the first row of the result (note the `LIMIT 1` for efficiency)
+// This assumes the `time` feature of SQLx is enabled.
+</span><span class="kw">let </span>oldest_user: (i64, String, time::OffsetDateTime) = sqlx::query_as(
+    <span class="string">"SELECT id, username, created_at FROM users ORDER BY created_at LIMIT 1"
+</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(oldest_user.<span class="number">0</span>, <span class="number">1</span>);
+<span class="macro">assert_eq!</span>(oldest_user.<span class="number">1</span>, <span class="string">"alice"</span>);
+
+<span class="comment">// Get at most one row
+</span><span class="kw">let </span>maybe_charlie: <span class="prelude-ty">Option</span>&lt;(i64, String, time::OffsetDateTime)&gt; = sqlx::query_as(
+    <span class="string">"SELECT id, username, created_at FROM users WHERE username = 'charlie'"
+</span>)
+    .fetch_optional(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(maybe_charlie, <span class="prelude-val">None</span>);
+
+<span class="comment">// Get all rows in result (Beware of the size of the result set! Consider using `LIMIT`)
+</span><span class="kw">let </span>users: Vec&lt;(i64, String, time::OffsetDateTime)&gt; = sqlx::query_as(
+    <span class="string">"SELECT id, username, created_at FROM users ORDER BY id"
+</span>)
+    .fetch_all(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">println!</span>(<span class="string">"{users:?}"</span>);</code></pre></div>
+<p><sup>1</sup>: It’s impossible in Rust to implement a trait for tuples of arbitrary size.
+For larger result sets, either use an explicit struct (see below) or use <a href="fn.query.html" title="fn sqlx::query"><code>query()</code></a>
+instead and extract columns dynamically.</p>
+<h4 id="example-map-rows-using-derivefromrow"><a class="doc-anchor" href="#example-map-rows-using-derivefromrow">§</a>Example: Map Rows using <code>#[derive(FromRow)]</code></h4>
+<p>Using <code>#[derive(FromRow)]</code>, we can create a Rust struct to represent our row type
+so we can look up fields by name instead of tuple index.</p>
+<p>When querying this way, columns will be matched up to the corresponding fields by name, so <code>SELECT *</code> is safe to use.
+However, you will still want to be aware of duplicate column names in your query when using joins.</p>
+<p>The derived <code>FromRow</code> implementation will check <a href="trait.Type.html#method.compatible" title="associated function sqlx::Type::compatible"><code>Type::compatible()</code></a> for each column to ensure a compatible type
+mapping is used. If an incompatible mapping is detected, an error is returned.
+To statically assert compatible types at compile time, see the <code>query!()</code> family of macros.</p>
+<p>An error will also be returned if an expected column is missing from the result set.</p>
+<p><code>#[derive(FromRow)]</code> supports several control attributes which can be used to change how column names and types
+are mapped. See <a href="trait.FromRow.html" title="trait sqlx::FromRow"><code>FromRow</code></a> for details.</p>
+<p>Using our previous table definition, we can convert our queries like so:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::Connection;
+<span class="kw">use </span>sqlx::PgConnection;
+
+<span class="kw">use </span>time::OffsetDateTime;
+
+<span class="attr">#[derive(sqlx::FromRow, Debug, PartialEq, Eq)]
+</span><span class="kw">struct </span>User {
+    id: i64,
+    username: String,
+    <span class="comment">// Note: the derive won't compile if the `time` feature of SQLx is not enabled.
+    </span>created_at: OffsetDateTime,
+}
+
+<span class="kw">let </span><span class="kw-2">mut </span>conn: PgConnection = PgConnection::connect(<span class="string">"&lt;Database URL&gt;"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="comment">// Get the first row of the result (note the `LIMIT 1` for efficiency)
+</span><span class="kw">let </span>oldest_user: User = sqlx::query_as(
+    <span class="string">"SELECT id, username, created_at FROM users ORDER BY created_at LIMIT 1"
+</span>)
+    .fetch_one(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(oldest_user.id, <span class="number">1</span>);
+<span class="macro">assert_eq!</span>(oldest_user.username, <span class="string">"alice"</span>);
+
+<span class="comment">// Get at most one row
+</span><span class="kw">let </span>maybe_charlie: <span class="prelude-ty">Option</span>&lt;User&gt; = sqlx::query_as(
+    <span class="string">"SELECT id, username, created_at FROM users WHERE username = 'charlie'"
+</span>)
+    .fetch_optional(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(maybe_charlie, <span class="prelude-val">None</span>);
+
+<span class="comment">// Get all rows in result (Beware of the size of the result set! Consider using `LIMIT`)
+</span><span class="kw">let </span>users: Vec&lt;User&gt; = sqlx::query_as(
+    <span class="string">"SELECT id, username, created_at FROM users ORDER BY id"
+</span>)
+    .fetch_all(<span class="kw-2">&amp;mut </span>conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+<span class="macro">assert_eq!</span>(users[<span class="number">1</span>].id, <span class="number">2</span>);
+<span class="macro">assert_eq!</span>(users[<span class="number">1</span>].username, <span class="string">"bob"</span>);
+</code></pre></div>
 </div></details></section></div></main></body></html>

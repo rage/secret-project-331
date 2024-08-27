@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.7.3/src/any.rs`."><title>any.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-postgres-0.8.1/src/any.rs`."><title>any.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="sqlx_postgres" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -233,13 +232,28 @@
 <a href="#232" id="232">232</a>
 <a href="#233" id="233">233</a>
 <a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
 </pre></div><pre class="rust"><code><span class="kw">use crate</span>::{
     Either, PgColumn, PgConnectOptions, PgConnection, PgQueryResult, PgRow, PgTransactionManager,
     PgTypeInfo, Postgres,
 };
 <span class="kw">use </span>futures_core::future::BoxFuture;
 <span class="kw">use </span>futures_core::stream::BoxStream;
-<span class="kw">use </span>futures_util::{StreamExt, TryFutureExt, TryStreamExt};
+<span class="kw">use </span>futures_util::{stream, StreamExt, TryFutureExt, TryStreamExt};
+<span class="kw">use </span>std::future;
 
 <span class="kw">pub use </span>sqlx_core::any::<span class="kw-2">*</span>;
 
@@ -308,13 +322,19 @@
     <span class="kw">fn </span>fetch_many&lt;<span class="lifetime">'q</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'q </span><span class="kw-2">mut </span><span class="self">self</span>,
         query: <span class="kw-2">&amp;</span><span class="lifetime">'q </span>str,
+        persistent: bool,
         arguments: <span class="prelude-ty">Option</span>&lt;AnyArguments&lt;<span class="lifetime">'q</span>&gt;&gt;,
     ) -&gt; BoxStream&lt;<span class="lifetime">'q</span>, sqlx_core::Result&lt;Either&lt;AnyQueryResult, AnyRow&gt;&gt;&gt; {
-        <span class="kw">let </span>persistent = arguments.is_some();
-        <span class="kw">let </span>args = arguments.as_ref().map(AnyArguments::convert_to);
+        <span class="kw">let </span>persistent = persistent &amp;&amp; arguments.is_some();
+        <span class="kw">let </span>arguments = <span class="kw">match </span>arguments.as_ref().map(AnyArguments::convert_to).transpose() {
+            <span class="prelude-val">Ok</span>(arguments) =&gt; arguments,
+            <span class="prelude-val">Err</span>(error) =&gt; {
+                <span class="kw">return </span>stream::once(future::ready(<span class="prelude-val">Err</span>(sqlx_core::Error::Encode(error)))).boxed()
+            }
+        };
 
         Box::pin(
-            <span class="self">self</span>.run(query, args, <span class="number">0</span>, persistent, <span class="prelude-val">None</span>)
+            <span class="self">self</span>.run(query, arguments, <span class="number">0</span>, persistent, <span class="prelude-val">None</span>)
                 .try_flatten_stream()
                 .map(
                     <span class="kw">move </span>|res: sqlx_core::Result&lt;Either&lt;PgQueryResult, PgRow&gt;&gt;| <span class="kw">match </span>res<span class="question-mark">? </span>{
@@ -328,13 +348,19 @@
     <span class="kw">fn </span>fetch_optional&lt;<span class="lifetime">'q</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'q </span><span class="kw-2">mut </span><span class="self">self</span>,
         query: <span class="kw-2">&amp;</span><span class="lifetime">'q </span>str,
+        persistent: bool,
         arguments: <span class="prelude-ty">Option</span>&lt;AnyArguments&lt;<span class="lifetime">'q</span>&gt;&gt;,
     ) -&gt; BoxFuture&lt;<span class="lifetime">'q</span>, sqlx_core::Result&lt;<span class="prelude-ty">Option</span>&lt;AnyRow&gt;&gt;&gt; {
-        <span class="kw">let </span>persistent = arguments.is_some();
-        <span class="kw">let </span>args = arguments.as_ref().map(AnyArguments::convert_to);
+        <span class="kw">let </span>persistent = persistent &amp;&amp; arguments.is_some();
+        <span class="kw">let </span>arguments = arguments
+            .as_ref()
+            .map(AnyArguments::convert_to)
+            .transpose()
+            .map_err(sqlx_core::Error::Encode);
 
         Box::pin(<span class="kw">async move </span>{
-            <span class="kw">let </span>stream = <span class="self">self</span>.run(query, args, <span class="number">1</span>, persistent, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>arguments = arguments<span class="question-mark">?</span>;
+            <span class="kw">let </span>stream = <span class="self">self</span>.run(query, arguments, <span class="number">1</span>, persistent, <span class="prelude-val">None</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="macro">futures_util::pin_mut!</span>(stream);
 
             <span class="kw">if let </span><span class="prelude-val">Some</span>(Either::Right(row)) = stream.try_next().<span class="kw">await</span><span class="question-mark">? </span>{
@@ -406,6 +432,7 @@
     <span class="kw">fn </span>try_from(pg_type: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>PgTypeInfo) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, <span class="self">Self</span>::Error&gt; {
         <span class="prelude-val">Ok</span>(AnyTypeInfo {
             kind: <span class="kw">match </span><span class="kw-2">&amp;</span>pg_type.<span class="number">0 </span>{
+                PgType::Bool =&gt; AnyTypeInfoKind::Bool,
                 PgType::Void =&gt; AnyTypeInfoKind::Null,
                 PgType::Int2 =&gt; AnyTypeInfoKind::SmallInt,
                 PgType::Int4 =&gt; AnyTypeInfoKind::Integer,
@@ -413,7 +440,7 @@
                 PgType::Float4 =&gt; AnyTypeInfoKind::Real,
                 PgType::Float8 =&gt; AnyTypeInfoKind::Double,
                 PgType::Bytea =&gt; AnyTypeInfoKind::Blob,
-                PgType::Text =&gt; AnyTypeInfoKind::Text,
+                PgType::Text | PgType::Varchar =&gt; AnyTypeInfoKind::Text,
                 PgType::DeclareWithName(UStr::Static(<span class="string">"citext"</span>)) =&gt; AnyTypeInfoKind::Text,
                 <span class="kw">_ </span>=&gt; {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(sqlx_core::Error::AnyDriverError(

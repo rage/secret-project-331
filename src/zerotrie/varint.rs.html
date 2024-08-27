@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.2/src/varint.rs`."><title>varint.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zerotrie-0.1.3/src/varint.rs`."><title>varint.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="zerotrie" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -496,9 +495,6 @@
 <a href="#495" id="495">495</a>
 <a href="#496" id="496">496</a>
 <a href="#497" id="497">497</a>
-<a href="#498" id="498">498</a>
-<a href="#499" id="499">499</a>
-<a href="#500" id="500">500</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -548,16 +544,16 @@
 <span class="doccomment">/// Reads a varint with 2 bits of metadata in the lead byte.
 ///
 /// Returns the varint value and a subslice of `remainder` with the varint bytes removed.
-</span><span class="kw">pub const fn </span>read_varint_meta2(start: u8, remainder: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span>[u8])&gt; {
+///
+/// If the varint spills off the end of the slice, a debug assertion will fail,
+/// and the function will return the value up to that point.
+</span><span class="kw">pub const fn </span>read_varint_meta2(start: u8, remainder: <span class="kw-2">&amp;</span>[u8]) -&gt; (usize, <span class="kw-2">&amp;</span>[u8]) {
     <span class="kw">let </span><span class="kw-2">mut </span>value = (start &amp; <span class="number">0b00011111</span>) <span class="kw">as </span>usize;
     <span class="kw">let </span><span class="kw-2">mut </span>remainder = remainder;
     <span class="kw">if </span>(start &amp; <span class="number">0b00100000</span>) != <span class="number">0 </span>{
         <span class="kw">loop </span>{
             <span class="kw">let </span>next;
-            (next, remainder) = <span class="kw">match </span>remainder.split_first() {
-                <span class="prelude-val">Some</span>(t) =&gt; t,
-                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-            };
+            (next, remainder) = <span class="macro">debug_unwrap!</span>(remainder.split_first(), <span class="kw">break</span>, <span class="string">"invalid varint"</span>);
             <span class="comment">// Note: value &lt;&lt; 7 could drop high bits. The first addition can't overflow.
             // The second addition could overflow; in such a case we just inform the
             // developer via the debug assertion.
@@ -567,22 +563,22 @@
             }
         }
     }
-    <span class="prelude-val">Some</span>((value, remainder))
+    (value, remainder)
 }
 
 <span class="doccomment">/// Reads a varint with 3 bits of metadata in the lead byte.
 ///
 /// Returns the varint value and a subslice of `remainder` with the varint bytes removed.
-</span><span class="kw">pub const fn </span>read_varint_meta3(start: u8, remainder: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, <span class="kw-2">&amp;</span>[u8])&gt; {
+///
+/// If the varint spills off the end of the slice, a debug assertion will fail,
+/// and the function will return the value up to that point.
+</span><span class="kw">pub const fn </span>read_varint_meta3(start: u8, remainder: <span class="kw-2">&amp;</span>[u8]) -&gt; (usize, <span class="kw-2">&amp;</span>[u8]) {
     <span class="kw">let </span><span class="kw-2">mut </span>value = (start &amp; <span class="number">0b00001111</span>) <span class="kw">as </span>usize;
     <span class="kw">let </span><span class="kw-2">mut </span>remainder = remainder;
     <span class="kw">if </span>(start &amp; <span class="number">0b00010000</span>) != <span class="number">0 </span>{
         <span class="kw">loop </span>{
             <span class="kw">let </span>next;
-            (next, remainder) = <span class="kw">match </span>remainder.split_first() {
-                <span class="prelude-val">Some</span>(t) =&gt; t,
-                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-            };
+            (next, remainder) = <span class="macro">debug_unwrap!</span>(remainder.split_first(), <span class="kw">break</span>, <span class="string">"invalid varint"</span>);
             <span class="comment">// Note: value &lt;&lt; 7 could drop high bits. The first addition can't overflow.
             // The second addition could overflow; in such a case we just inform the
             // developer via the debug assertion.
@@ -592,7 +588,7 @@
             }
         }
     }
-    <span class="prelude-val">Some</span>((value, remainder))
+    (value, remainder)
 }
 
 <span class="doccomment">/// Reads and removes a varint with 3 bits of metadata from a [`TrieBuilderStore`].
@@ -863,7 +859,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read() {
         <span class="kw">for </span>cas <span class="kw">in </span>CASES {
-            <span class="kw">let </span>recovered = read_varint_meta2(cas.bytes[<span class="number">0</span>], <span class="kw-2">&amp;</span>cas.bytes[<span class="number">1</span>..]).unwrap();
+            <span class="kw">let </span>recovered = read_varint_meta2(cas.bytes[<span class="number">0</span>], <span class="kw-2">&amp;</span>cas.bytes[<span class="number">1</span>..]);
             <span class="macro">assert_eq!</span>(recovered, (cas.value, cas.remainder), <span class="string">"{:?}"</span>, cas);
         }
     }
@@ -884,7 +880,7 @@
                 <span class="string">"{:?}"</span>,
                 cas
             );
-            <span class="kw">let </span>recovered = read_varint_meta2(cas.bytes[<span class="number">0</span>], <span class="kw-2">&amp;</span>cas.bytes[<span class="number">1</span>..]).unwrap();
+            <span class="kw">let </span>recovered = read_varint_meta2(cas.bytes[<span class="number">0</span>], <span class="kw-2">&amp;</span>cas.bytes[<span class="number">1</span>..]);
             <span class="macro">assert_eq!</span>(recovered, (cas.value, cas.remainder), <span class="string">"{:?}"</span>, cas);
             <span class="kw">let </span>write_bytes = write_varint_meta2(cas.value);
             <span class="macro">assert_eq!</span>(
@@ -902,8 +898,7 @@
         <span class="kw">while </span>i &lt; MAX_VARINT {
             <span class="kw">let </span>bytes = write_varint_meta2(i);
             <span class="kw">let </span>recovered = read_varint_meta2(bytes.as_slice()[<span class="number">0</span>], <span class="kw-2">&amp;</span>bytes.as_slice()[<span class="number">1</span>..]);
-            <span class="macro">assert!</span>(recovered.is_some(), <span class="string">"{:?}"</span>, i);
-            <span class="macro">assert_eq!</span>(i, recovered.unwrap().<span class="number">0</span>, <span class="string">"{:?}"</span>, bytes.as_slice());
+            <span class="macro">assert_eq!</span>(i, recovered.<span class="number">0</span>, <span class="string">"{:?}"</span>, bytes.as_slice());
             i &lt;&lt;= <span class="number">1</span>;
             i += <span class="number">1</span>;
         }
@@ -915,8 +910,7 @@
         <span class="kw">while </span>i &lt; MAX_VARINT {
             <span class="kw">let </span>bytes = write_varint_meta3(i);
             <span class="kw">let </span>recovered = read_varint_meta3(bytes.as_slice()[<span class="number">0</span>], <span class="kw-2">&amp;</span>bytes.as_slice()[<span class="number">1</span>..]);
-            <span class="macro">assert!</span>(recovered.is_some(), <span class="string">"{:?}"</span>, i);
-            <span class="macro">assert_eq!</span>(i, recovered.unwrap().<span class="number">0</span>, <span class="string">"{:?}"</span>, bytes.as_slice());
+            <span class="macro">assert_eq!</span>(i, recovered.<span class="number">0</span>, <span class="string">"{:?}"</span>, bytes.as_slice());
             i &lt;&lt;= <span class="number">1</span>;
             i += <span class="number">1</span>;
         }
@@ -934,8 +928,7 @@
         <span class="kw">let </span>(recovered_value, remainder) = read_varint_meta2(
             <span class="kw-2">*</span>write_bytes.as_const_slice().first().unwrap(),
             subarray.as_slice(),
-        )
-        .unwrap();
+        );
         <span class="macro">assert!</span>(remainder.is_empty());
         <span class="macro">assert_eq!</span>(recovered_value, MAX_VARINT);
         <span class="macro">assert_eq!</span>(
@@ -960,7 +953,7 @@
         <span class="kw">let </span>write_bytes = write_varint_meta3(MAX_VARINT);
         <span class="macro">assert_eq!</span>(write_bytes.len(), MAX_VARINT_LENGTH);
         <span class="kw">let </span>(lead, trailing) = write_bytes.as_slice().split_first().unwrap();
-        <span class="kw">let </span>(recovered_value, remainder) = read_varint_meta3(<span class="kw-2">*</span>lead, trailing).unwrap();
+        <span class="kw">let </span>(recovered_value, remainder) = read_varint_meta3(<span class="kw-2">*</span>lead, trailing);
         <span class="macro">assert!</span>(remainder.is_empty());
         <span class="macro">assert_eq!</span>(recovered_value, MAX_VARINT);
         <span class="macro">assert_eq!</span>(
@@ -984,19 +977,19 @@
     </span><span class="kw">fn </span>test_latent_values() {
         <span class="comment">// Same values documented in the module docs: M=2
         </span><span class="kw">let </span>m2 = read_varint_meta2;
-        <span class="macro">assert_eq!</span>(m2(<span class="number">0</span>, <span class="kw-2">&amp;</span>[]).unwrap().<span class="number">0</span>, <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">32</span>);
-        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">4128</span>);
-        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">528416</span>);
-        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">67637280</span>);
+        <span class="macro">assert_eq!</span>(m2(<span class="number">0</span>, <span class="kw-2">&amp;</span>[]).<span class="number">0</span>, <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">32</span>);
+        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">4128</span>);
+        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">528416</span>);
+        <span class="macro">assert_eq!</span>(m2(<span class="number">0x20</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">67637280</span>);
 
         <span class="comment">// Same values documented in the module docs: M=3
         </span><span class="kw">let </span>m3 = read_varint_meta3;
-        <span class="macro">assert_eq!</span>(m3(<span class="number">0</span>, <span class="kw-2">&amp;</span>[]).unwrap().<span class="number">0</span>, <span class="number">0</span>);
-        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">16</span>);
-        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">2064</span>);
-        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">264208</span>);
-        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).unwrap().<span class="number">0</span>, <span class="number">33818640</span>);
+        <span class="macro">assert_eq!</span>(m3(<span class="number">0</span>, <span class="kw-2">&amp;</span>[]).<span class="number">0</span>, <span class="number">0</span>);
+        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">16</span>);
+        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">2064</span>);
+        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">264208</span>);
+        <span class="macro">assert_eq!</span>(m3(<span class="number">0x10</span>, <span class="kw-2">&amp;</span>[<span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x80</span>, <span class="number">0x00</span>]).<span class="number">0</span>, <span class="number">33818640</span>);
     }
 }
 </code></pre></div></section></main></body></html>

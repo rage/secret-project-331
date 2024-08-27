@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.32.2/src/read/macho/file.rs`."><title>file.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/macho/file.rs`."><title>file.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -778,18 +777,18 @@
 <a href="#777" id="777">777</a>
 <a href="#778" id="778">778</a>
 <a href="#779" id="779">779</a>
-<a href="#780" id="780">780</a>
-<a href="#781" id="781">781</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
 <span class="kw">use </span>core::{mem, str};
 
+<span class="kw">use </span><span class="kw">crate</span>::endian::{<span class="self">self</span>, BigEndian, Endian, Endianness};
+<span class="kw">use </span><span class="kw">crate</span>::macho;
+<span class="kw">use </span><span class="kw">crate</span>::pod::Pod;
 <span class="kw">use </span><span class="kw">crate</span>::read::{
-    <span class="self">self</span>, Architecture, ComdatKind, Error, Export, FileFlags, Import, NoDynamicRelocationIterator,
-    Object, ObjectComdat, ObjectKind, ObjectMap, ObjectSection, ReadError, ReadRef, <span class="prelude-ty">Result</span>,
-    SectionIndex, SubArchitecture, SymbolIndex,
+    <span class="self">self</span>, Architecture, ByteString, ComdatKind, Error, Export, FileFlags, Import,
+    NoDynamicRelocationIterator, Object, ObjectComdat, ObjectKind, ObjectMap, ObjectSection,
+    ReadError, ReadRef, <span class="prelude-ty">Result</span>, SectionIndex, SubArchitecture, SymbolIndex,
 };
-<span class="kw">use crate</span>::{endian, macho, BigEndian, ByteString, Endian, Endianness, Pod};
 
 <span class="kw">use super</span>::{
     DyldCacheImage, LoadCommandIterator, MachOSection, MachOSectionInternal, MachOSectionIterator,
@@ -824,7 +823,7 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) header_offset: u64,
     <span class="kw">pub</span>(<span class="kw">super</span>) header: <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Mach,
     <span class="kw">pub</span>(<span class="kw">super</span>) segments: Vec&lt;MachOSegmentInternal&lt;<span class="lifetime">'data</span>, Mach, R&gt;&gt;,
-    <span class="kw">pub</span>(<span class="kw">super</span>) sections: Vec&lt;MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">super</span>) sections: Vec&lt;MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach, R&gt;&gt;,
     <span class="kw">pub</span>(<span class="kw">super</span>) symbols: SymbolTable&lt;<span class="lifetime">'data</span>, Mach, R&gt;,
 }
 
@@ -845,11 +844,10 @@
         <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>commands) = header.load_commands(endian, data, <span class="number">0</span>) {
             <span class="kw">while let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(command)) = commands.next() {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((segment, section_data)) = Mach::Segment::from_command(command)<span class="question-mark">? </span>{
-                    <span class="kw">let </span>segment_index = segments.len();
                     segments.push(MachOSegmentInternal { segment, data });
                     <span class="kw">for </span>section <span class="kw">in </span>segment.sections(endian, section_data)<span class="question-mark">? </span>{
                         <span class="kw">let </span>index = SectionIndex(sections.len() + <span class="number">1</span>);
-                        sections.push(MachOSectionInternal::parse(index, segment_index, section));
+                        sections.push(MachOSectionInternal::parse(index, section, data));
                     }
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(symtab) = command.symtab()<span class="question-mark">? </span>{
                     symbols = symtab.symbols(endian, data)<span class="question-mark">?</span>;
@@ -890,6 +888,7 @@
                 <span class="kw">if let </span><span class="prelude-val">Some</span>((segment, section_data)) = Mach::Segment::from_command(command)<span class="question-mark">? </span>{
                     <span class="comment">// Each segment can be stored in a different subcache. Get the segment's
                     // address and look it up in the cache mappings, to find the correct cache data.
+                    // This was observed for the arm64e __LINKEDIT segment in macOS 12.0.1.
                     </span><span class="kw">let </span>addr = segment.vmaddr(endian).into();
                     <span class="kw">let </span>(data, _offset) = image
                         .cache
@@ -898,12 +897,11 @@
                     <span class="kw">if </span>segment.name() == macho::SEG_LINKEDIT.as_bytes() {
                         linkedit_data = <span class="prelude-val">Some</span>(data);
                     }
-                    <span class="kw">let </span>segment_index = segments.len();
                     segments.push(MachOSegmentInternal { segment, data });
 
                     <span class="kw">for </span>section <span class="kw">in </span>segment.sections(endian, section_data)<span class="question-mark">? </span>{
                         <span class="kw">let </span>index = SectionIndex(sections.len() + <span class="number">1</span>);
-                        sections.push(MachOSectionInternal::parse(index, segment_index, section));
+                        sections.push(MachOSectionInternal::parse(index, section, data));
                     }
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(st) = command.symtab()<span class="question-mark">? </span>{
                     symtab = <span class="prelude-val">Some</span>(st);
@@ -934,21 +932,12 @@
     </span><span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>section_internal(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         index: SectionIndex,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>MachOSectionInternal&lt;<span class="lifetime">'data</span>, Mach, R&gt;&gt; {
         index
             .<span class="number">0
             </span>.checked_sub(<span class="number">1</span>)
             .and_then(|index| <span class="self">self</span>.sections.get(index))
             .read_error(<span class="string">"Invalid Mach-O section index"</span>)
-    }
-
-    <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>segment_internal(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        index: usize,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>MachOSegmentInternal&lt;<span class="lifetime">'data</span>, Mach, R&gt;&gt; {
-        <span class="self">self</span>.segments
-            .get(index)
-            .read_error(<span class="string">"Invalid Mach-O segment index"</span>)
     }
 
     <span class="doccomment">/// Returns the endianness.
@@ -962,8 +951,27 @@
     }
 
     <span class="doccomment">/// Returns the raw Mach-O file header.
+    </span><span class="attr">#[deprecated(note = <span class="string">"Use `macho_header` instead"</span>)]
     </span><span class="kw">pub fn </span>raw_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Mach {
         <span class="self">self</span>.header
+    }
+
+    <span class="doccomment">/// Get the raw Mach-O file header.
+    </span><span class="kw">pub fn </span>macho_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'data </span>Mach {
+        <span class="self">self</span>.header
+    }
+
+    <span class="doccomment">/// Get the Mach-O load commands.
+    </span><span class="kw">pub fn </span>macho_load_commands(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;LoadCommandIterator&lt;<span class="lifetime">'data</span>, Mach::Endian&gt;&gt; {
+        <span class="self">self</span>.header
+            .load_commands(<span class="self">self</span>.endian, <span class="self">self</span>.data, <span class="self">self</span>.header_offset)
+    }
+
+    <span class="doccomment">/// Get the Mach-O symbol table.
+    ///
+    /// Returns an empty symbol table if the file has no symbol table.
+    </span><span class="kw">pub fn </span>macho_symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>SymbolTable&lt;<span class="lifetime">'data</span>, Mach, R&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.symbols
     }
 
     <span class="doccomment">/// Return the `LC_BUILD_VERSION` load command if present.
@@ -987,22 +995,21 @@
 {
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; Object&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>&gt; <span class="kw">for </span>MachOFile&lt;<span class="lifetime">'data</span>, Mach, R&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'data</span>, Mach, R&gt; Object&lt;<span class="lifetime">'data</span>&gt; <span class="kw">for </span>MachOFile&lt;<span class="lifetime">'data</span>, Mach, R&gt;
 <span class="kw">where
-    </span><span class="lifetime">'data</span>: <span class="lifetime">'file</span>,
-    Mach: MachHeader,
-    R: <span class="lifetime">'file </span>+ ReadRef&lt;<span class="lifetime">'data</span>&gt;,
+    </span>Mach: MachHeader,
+    R: ReadRef&lt;<span class="lifetime">'data</span>&gt;,
 {
-    <span class="kw">type </span>Segment = MachOSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>SegmentIterator = MachOSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>Section = MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>SectionIterator = MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>Comdat = MachOComdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>ComdatIterator = MachOComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>Symbol = MachOSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>SymbolIterator = MachOSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>SymbolTable = MachOSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;;
-    <span class="kw">type </span>DynamicRelocationIterator = NoDynamicRelocationIterator;
+    <span class="kw">type </span>Segment&lt;<span class="lifetime">'file</span>&gt; = MachOSegment&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SegmentIterator&lt;<span class="lifetime">'file</span>&gt; = MachOSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Section&lt;<span class="lifetime">'file</span>&gt; = MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SectionIterator&lt;<span class="lifetime">'file</span>&gt; = MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Comdat&lt;<span class="lifetime">'file</span>&gt; = MachOComdat&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>ComdatIterator&lt;<span class="lifetime">'file</span>&gt; = MachOComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>Symbol&lt;<span class="lifetime">'file</span>&gt; = MachOSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SymbolIterator&lt;<span class="lifetime">'file</span>&gt; = MachOSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>SymbolTable&lt;<span class="lifetime">'file</span>&gt; = MachOSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
+    <span class="kw">type </span>DynamicRelocationIterator&lt;<span class="lifetime">'file</span>&gt; = NoDynamicRelocationIterator <span class="kw">where </span><span class="self">Self</span>: <span class="lifetime">'file</span>, <span class="lifetime">'data</span>: <span class="lifetime">'file</span>;
 
     <span class="kw">fn </span>architecture(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Architecture {
         <span class="kw">match </span><span class="self">self</span>.header.cputype(<span class="self">self</span>.endian) {
@@ -1048,49 +1055,46 @@
         }
     }
 
-    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; MachOSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; {
+    <span class="kw">fn </span>segments(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachOSegmentIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt; {
         MachOSegmentIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.segments.iter(),
         }
     }
 
-    <span class="kw">fn </span>section_by_name_bytes(
+    <span class="kw">fn </span>section_by_name_bytes&lt;<span class="lifetime">'file</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
         section_name: <span class="kw-2">&amp;</span>[u8],
     ) -&gt; <span class="prelude-ty">Option</span>&lt;MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;&gt; {
-        <span class="comment">// Translate the "." prefix to the "__" prefix used by OSX/Mach-O, eg
-        // ".debug_info" to "__debug_info", and limit to 16 bytes total.
-        </span><span class="kw">let </span>system_name = <span class="kw">if </span>section_name.starts_with(<span class="string">b"."</span>) {
-            <span class="kw">if </span>section_name.len() &gt; <span class="number">15 </span>{
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>section_name[<span class="number">1</span>..<span class="number">15</span>])
-            } <span class="kw">else </span>{
-                <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>section_name[<span class="number">1</span>..])
-            }
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>};
-        <span class="kw">let </span>cmp_section_name = |section: <span class="kw-2">&amp;</span>MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;| {
-            section
-                .name_bytes()
-                .map(|name| {
-                    section_name == name
-                        || system_name
-                            .filter(|system_name| {
-                                name.starts_with(<span class="string">b"__"</span>) &amp;&amp; name[<span class="number">2</span>..] == <span class="kw-2">**</span>system_name
-                            })
-                            .is_some()
-                })
-                .unwrap_or(<span class="bool-val">false</span>)
+        <span class="comment">// Translate the section_name by stripping the query_prefix to construct
+        // a function that matches names starting with name_prefix, taking into
+        // consideration the maximum section name length.
+        </span><span class="kw">let </span>make_prefix_matcher = |query_prefix: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8], name_prefix: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]| {
+            <span class="kw">const </span>MAX_SECTION_NAME_LEN: usize = <span class="number">16</span>;
+            <span class="kw">let </span>suffix = section_name.strip_prefix(query_prefix).map(|suffix| {
+                <span class="kw">let </span>max_len = MAX_SECTION_NAME_LEN - name_prefix.len();
+                <span class="kw-2">&amp;</span>suffix[..suffix.len().min(max_len)]
+            });
+            <span class="kw">move </span>|name: <span class="kw-2">&amp;</span>[u8]| suffix.is_some() &amp;&amp; name.strip_prefix(name_prefix) == suffix
         };
-
-        <span class="self">self</span>.sections().find(cmp_section_name)
+        <span class="comment">// Matches "__text" when searching for ".text" and "__debug_str_offs"
+        // when searching for ".debug_str_offsets", as is common in
+        // macOS/Mach-O.
+        </span><span class="kw">let </span>matches_underscores_prefix = make_prefix_matcher(<span class="string">b"."</span>, <span class="string">b"__"</span>);
+        <span class="comment">// Matches "__zdebug_info" when searching for ".debug_info" and
+        // "__zdebug_str_off" when searching for ".debug_str_offsets", as is
+        // used by Go when using GNU-style compression.
+        </span><span class="kw">let </span>matches_zdebug_prefix = make_prefix_matcher(<span class="string">b".debug_"</span>, <span class="string">b"__zdebug_"</span>);
+        <span class="self">self</span>.sections().find(|section| {
+            section.name_bytes().map_or(<span class="bool-val">false</span>, |name| {
+                name == section_name
+                    || matches_underscores_prefix(name)
+                    || matches_zdebug_prefix(name)
+            })
+        })
     }
 
-    <span class="kw">fn </span>section_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
-        index: SectionIndex,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;&gt; {
+    <span class="kw">fn </span>section_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SectionIndex) -&gt; <span class="prelude-ty">Result</span>&lt;MachOSection&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt;&gt; {
         <span class="kw">let </span>internal = <span class="kw-2">*</span><span class="self">self</span>.section_internal(index)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(MachOSection {
             file: <span class="self">self</span>,
@@ -1098,50 +1102,41 @@
         })
     }
 
-    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; {
+    <span class="kw">fn </span>sections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachOSectionIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt; {
         MachOSectionIterator {
             file: <span class="self">self</span>,
             iter: <span class="self">self</span>.sections.iter(),
         }
     }
 
-    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; MachOComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; {
+    <span class="kw">fn </span>comdats(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachOComdatIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt; {
         MachOComdatIterator { file: <span class="self">self </span>}
     }
 
-    <span class="kw">fn </span>symbol_by_index(
-        <span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>,
-        index: SymbolIndex,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;MachOSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;&gt; {
-        <span class="kw">let </span>nlist = <span class="self">self</span>.symbols.symbol(index.<span class="number">0</span>)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>symbol_by_index(<span class="kw-2">&amp;</span><span class="self">self</span>, index: SymbolIndex) -&gt; <span class="prelude-ty">Result</span>&lt;MachOSymbol&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt;&gt; {
+        <span class="kw">let </span>nlist = <span class="self">self</span>.symbols.symbol(index)<span class="question-mark">?</span>;
         MachOSymbol::new(<span class="self">self</span>, index, nlist).read_error(<span class="string">"Unsupported Mach-O symbol index"</span>)
     }
 
-    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; MachOSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; {
-        MachOSymbolIterator {
-            file: <span class="self">self</span>,
-            index: <span class="number">0</span>,
-        }
+    <span class="kw">fn </span>symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachOSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt; {
+        MachOSymbolIterator::new(<span class="self">self</span>)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MachOSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;&gt; {
+    </span><span class="kw">fn </span>symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MachOSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt;&gt; {
         <span class="prelude-val">Some</span>(MachOSymbolTable { file: <span class="self">self </span>})
     }
 
-    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; MachOSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt; {
-        MachOSymbolIterator {
-            file: <span class="self">self</span>,
-            index: <span class="self">self</span>.symbols.len(),
-        }
+    <span class="kw">fn </span>dynamic_symbols(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MachOSymbolIterator&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt; {
+        MachOSymbolIterator::empty(<span class="self">self</span>)
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MachOSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'file</span>, Mach, R&gt;&gt; {
+    </span><span class="kw">fn </span>dynamic_symbol_table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;MachOSymbolTable&lt;<span class="lifetime">'data</span>, <span class="lifetime">'_</span>, Mach, R&gt;&gt; {
         <span class="prelude-val">None
     </span>}
 
-    <span class="kw">fn </span>object_map(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; ObjectMap&lt;<span class="lifetime">'data</span>&gt; {
+    <span class="kw">fn </span>object_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ObjectMap&lt;<span class="lifetime">'data</span>&gt; {
         <span class="self">self</span>.symbols.object_map(<span class="self">self</span>.endian)
     }
 
@@ -1171,7 +1166,7 @@
             <span class="kw">let </span>index = dysymtab.iundefsym.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize;
             <span class="kw">let </span>number = dysymtab.nundefsym.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize;
             <span class="kw">for </span>i <span class="kw">in </span>index..(index.wrapping_add(number)) {
-                <span class="kw">let </span>symbol = <span class="self">self</span>.symbols.symbol(i)<span class="question-mark">?</span>;
+                <span class="kw">let </span>symbol = <span class="self">self</span>.symbols.symbol(SymbolIndex(i))<span class="question-mark">?</span>;
                 <span class="kw">let </span>name = symbol.name(<span class="self">self</span>.endian, <span class="self">self</span>.symbols.strings())<span class="question-mark">?</span>;
                 <span class="kw">let </span>library = <span class="kw">if </span>twolevel {
                     libraries
@@ -1207,7 +1202,7 @@
             <span class="kw">let </span>index = dysymtab.iextdefsym.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize;
             <span class="kw">let </span>number = dysymtab.nextdefsym.get(<span class="self">self</span>.endian) <span class="kw">as </span>usize;
             <span class="kw">for </span>i <span class="kw">in </span>index..(index.wrapping_add(number)) {
-                <span class="kw">let </span>symbol = <span class="self">self</span>.symbols.symbol(i)<span class="question-mark">?</span>;
+                <span class="kw">let </span>symbol = <span class="self">self</span>.symbols.symbol(SymbolIndex(i))<span class="question-mark">?</span>;
                 <span class="kw">let </span>name = symbol.name(<span class="self">self</span>.endian, <span class="self">self</span>.symbols.strings())<span class="question-mark">?</span>;
                 <span class="kw">let </span>address = symbol.n_value(<span class="self">self</span>.endian).into();
                 exports.push(Export {
@@ -1220,7 +1215,7 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="lifetime">'file </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NoDynamicRelocationIterator&gt; {
+    </span><span class="kw">fn </span>dynamic_relocations(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;NoDynamicRelocationIterator&gt; {
         <span class="prelude-val">None
     </span>}
 
@@ -1336,12 +1331,12 @@
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>[u8]&gt; {
+    </span><span class="kw">fn </span>name_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>[u8]&gt; {
         <span class="macro">unreachable!</span>();
     }
 
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+    </span><span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'data </span>str&gt; {
         <span class="macro">unreachable!</span>();
     }
 

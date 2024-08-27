@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["impl_props_casemap_unfold_v1","impl_props_casemap_v1","make_provider"]};
+window.SIDEBAR_ITEMS = {"macro":["impl_props_casemap_unfold_v1","impl_props_casemap_v1","impliterable_props_casemap_unfold_v1","impliterable_props_casemap_v1","make_provider"]};

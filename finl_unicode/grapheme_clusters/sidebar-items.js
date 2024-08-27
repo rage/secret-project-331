@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Graphemes"],"trait":["GraphemeCluster","PeekChar"]};

@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytemuck-1.14.3/src/lib.rs`."><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytemuck" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytemuck-1.17.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytemuck" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -507,12 +506,42 @@
 <a href="#506" id="506">506</a>
 <a href="#507" id="507">507</a>
 <a href="#508" id="508">508</a>
+<a href="#509" id="509">509</a>
+<a href="#510" id="510">510</a>
+<a href="#511" id="511">511</a>
+<a href="#512" id="512">512</a>
+<a href="#513" id="513">513</a>
+<a href="#514" id="514">514</a>
+<a href="#515" id="515">515</a>
+<a href="#516" id="516">516</a>
+<a href="#517" id="517">517</a>
+<a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
+<a href="#527" id="527">527</a>
+<a href="#528" id="528">528</a>
+<a href="#529" id="529">529</a>
+<a href="#530" id="530">530</a>
+<a href="#531" id="531">531</a>
+<a href="#532" id="532">532</a>
+<a href="#533" id="533">533</a>
+<a href="#534" id="534">534</a>
+<a href="#535" id="535">535</a>
 </pre></div><pre class="rust"><code><span class="attr">#![no_std]
 #![warn(missing_docs)]
 #![allow(clippy::match_like_matches_macro)]
 #![allow(clippy::uninlined_format_args)]
+#![allow(clippy::result_unit_err)]
+#![allow(clippy::type_complexity)]
 #![cfg_attr(feature = <span class="string">"nightly_docs"</span>, feature(doc_cfg))]
 #![cfg_attr(feature = <span class="string">"nightly_portable_simd"</span>, feature(portable_simd))]
+#![cfg_attr(feature = <span class="string">"nightly_float"</span>, feature(f16, f128))]
 #![cfg_attr(
   all(
     feature = <span class="string">"nightly_stdsimd"</span>,
@@ -592,6 +621,7 @@
 //!   instead of just for a select list of array lengths.
 //! * `must_cast`: Provides the `must_` functions, which will compile error if
 //!   the requested cast can't be statically verified.
+//! * `const_zeroed`: Provides a const version of the `zeroed` function.
 
 </span><span class="attr">#[cfg(all(target_arch = <span class="string">"aarch64"</span>, feature = <span class="string">"aarch64_simd"</span>))]
 </span><span class="kw">use </span>core::arch::aarch64;
@@ -602,7 +632,12 @@
 <span class="attr">#[cfg(target_arch = <span class="string">"x86_64"</span>)]
 </span><span class="kw">use </span>core::arch::x86_64;
 <span class="comment">//
-</span><span class="kw">use </span>core::{marker::<span class="kw-2">*</span>, mem::<span class="kw-2">*</span>, num::<span class="kw-2">*</span>, ptr::<span class="kw-2">*</span>};
+</span><span class="kw">use </span>core::{
+  marker::<span class="kw-2">*</span>,
+  mem::{align_of, size_of},
+  num::<span class="kw-2">*</span>,
+  ptr::<span class="kw-2">*</span>,
+};
 
 <span class="comment">// Used from macros to ensure we aren't using some locally defined name and
 // actually are referencing libcore. This also would allow pre-2018 edition
@@ -611,7 +646,7 @@
 </span><span class="kw">pub use </span>::core <span class="kw">as </span>__core;
 
 <span class="attr">#[cfg(not(feature = <span class="string">"min_const_generics"</span>))]
-</span><span class="macro">macro_rules! </span>impl_unsafe_marker_for_array {
+</span><span class="macro">macro_rules!</span> impl_unsafe_marker_for_array {
   ( <span class="macro-nonterminal">$marker</span>:ident , $( <span class="macro-nonterminal">$n</span>:expr ),* ) =&gt; {
     $(<span class="kw">unsafe impl</span>&lt;T&gt; <span class="macro-nonterminal">$marker </span><span class="kw">for </span>[T; <span class="macro-nonterminal">$n</span>] <span class="kw">where </span>T: <span class="macro-nonterminal">$marker </span>{})*
   }
@@ -619,17 +654,28 @@
 
 <span class="doccomment">/// A macro to transmute between two types without requiring knowing size
 /// statically.
-</span><span class="macro">macro_rules! </span>transmute {
+</span><span class="macro">macro_rules!</span> transmute {
   (<span class="macro-nonterminal">$val</span>:expr) =&gt; {
     ::core::mem::transmute_copy(<span class="kw-2">&amp;</span>::core::mem::ManuallyDrop::new(<span class="macro-nonterminal">$val</span>))
   };
+  <span class="comment">// This arm is for use in const contexts, where the borrow required to use transmute_copy poses an issue
+  // since the compiler hedges that the type being borrowed could have interior mutability.
+  </span>(<span class="macro-nonterminal">$srcty</span>:ty; <span class="macro-nonterminal">$dstty</span>:ty; <span class="macro-nonterminal">$val</span>:expr) =&gt; {
+    {
+      <span class="kw">union </span>Transmute&lt;A, B&gt; {
+        src: ::core::mem::ManuallyDrop&lt;A&gt;,
+        dst: ::core::mem::ManuallyDrop&lt;B&gt;,
+      }
+      ::core::mem::ManuallyDrop::into_inner(Transmute::&lt;<span class="macro-nonterminal">$srcty</span>, <span class="macro-nonterminal">$dstty</span>&gt; { src: ::core::mem::ManuallyDrop::new(<span class="macro-nonterminal">$val</span>) }.dst)
+    }
+  }
 }
 
 <span class="doccomment">/// A macro to implement marker traits for various simd types.
 /// #[allow(unused)] because the impls are only compiled on relevant platforms
 /// with relevant cargo features enabled.
 </span><span class="attr">#[allow(unused)]
-</span><span class="macro">macro_rules! </span>impl_unsafe_marker_for_simd {
+</span><span class="macro">macro_rules!</span> impl_unsafe_marker_for_simd {
   ($(<span class="attr">#[cfg(<span class="macro-nonterminal">$cfg_predicate</span>:meta)]</span>)<span class="question-mark">? </span><span class="kw">unsafe impl </span><span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$platform</span>:ident :: {}) =&gt; {};
   ($(<span class="attr">#[cfg(<span class="macro-nonterminal">$cfg_predicate</span>:meta)]</span>)<span class="question-mark">? </span><span class="kw">unsafe impl </span><span class="macro-nonterminal">$</span><span class="kw">trait</span>:<span class="macro-nonterminal">ident </span><span class="kw">for </span><span class="macro-nonterminal">$platform</span>:ident :: { <span class="macro-nonterminal">$first_type</span>:ident $(, <span class="macro-nonterminal">$types</span>:ident)* $(,)<span class="question-mark">? </span>}) =&gt; {
     $( <span class="attr">#[cfg(<span class="macro-nonterminal">$cfg_predicate</span>)] </span>)<span class="question-mark">?
@@ -698,15 +744,14 @@
 <span class="doccomment">/// The things that can go wrong when casting between [`Pod`] data forms.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 </span><span class="kw">pub enum </span>PodCastError {
-  <span class="doccomment">/// You tried to cast a slice to an element type with a higher alignment
-  /// requirement but the slice wasn't aligned.
+  <span class="doccomment">/// You tried to cast a reference into a reference to a type with a higher alignment
+  /// requirement but the input reference wasn't aligned.
   </span>TargetAlignmentGreaterAndInputNotAligned,
-  <span class="doccomment">/// If the element size changes then the output slice changes length
-  /// accordingly. If the output slice wouldn't be a whole number of elements
+  <span class="doccomment">/// If the element size of a slice changes, then the output slice changes length
+  /// accordingly. If the output slice wouldn't be a whole number of elements,
   /// then the conversion fails.
   </span>OutputSliceWouldHaveSlop,
-  <span class="doccomment">/// When casting a slice you can't convert between ZST elements and non-ZST
-  /// elements. When casting an individual `T`, `&amp;T`, or `&amp;mut T` value the
+  <span class="doccomment">/// When casting an individual `T`, `&amp;T`, or `&amp;mut T` value the
   /// source size and destination size must be an exact match.
   </span>SizeMismatch,
   <span class="doccomment">/// For this type of cast the alignments must be exactly the same and they
@@ -1014,5 +1059,13 @@
     </span><span class="kw">let </span>len = core::mem::size_of_val::&lt;[T]&gt;(slice);
     <span class="kw">unsafe </span>{ core::ptr::write_bytes(slice.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>u8, <span class="number">0u8</span>, len) }
   }
+}
+
+<span class="doccomment">/// Same as [`Zeroable::zeroed`], but as a `const fn` const.
+</span><span class="attr">#[cfg(feature = <span class="string">"const_zeroed"</span>)]
+#[inline]
+#[must_use]
+</span><span class="kw">pub const fn </span>zeroed&lt;T: Zeroable&gt;() -&gt; T {
+  <span class="kw">unsafe </span>{ core::mem::zeroed() }
 }
 </code></pre></div></section></main></body></html>

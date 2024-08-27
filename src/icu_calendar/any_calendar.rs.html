@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.4.0/src/any_calendar.rs`."><title>any_calendar.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-ac92e1bbe349e143.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.76.0 (07dca489a 2024-02-04)" data-channel="1.76.0" data-search-js="search-2b6ce74ff89ae146.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-f2adc0d6ca4d09fb.js"></script><script defer src="../../static.files/src-script-39ed315d46fb705f.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-305769736d49e732.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-feafe1bb7466e4bd.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><div class="sidebar-resizer"></div>
-    <main><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" tabindex="-1"><a href="../../help.html" title="help">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/icu_calendar-1.5.2/src/any_calendar.rs`."><title>any_calendar.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="icu_calendar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1710,6 +1709,21 @@
 <a href="#1709" id="1709">1709</a>
 <a href="#1710" id="1710">1710</a>
 <a href="#1711" id="1711">1711</a>
+<a href="#1712" id="1712">1712</a>
+<a href="#1713" id="1713">1713</a>
+<a href="#1714" id="1714">1714</a>
+<a href="#1715" id="1715">1715</a>
+<a href="#1716" id="1716">1716</a>
+<a href="#1717" id="1717">1717</a>
+<a href="#1718" id="1718">1718</a>
+<a href="#1719" id="1719">1719</a>
+<a href="#1720" id="1720">1720</a>
+<a href="#1721" id="1721">1721</a>
+<a href="#1722" id="1722">1722</a>
+<a href="#1723" id="1723">1723</a>
+<a href="#1724" id="1724">1724</a>
+<a href="#1725" id="1725">1725</a>
+<a href="#1726" id="1726">1726</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is part of ICU4X. For terms of use, please see the file
 // called LICENSE at the top level of the ICU4X source tree
 // (online at: https://github.com/unicode-org/icu4x/blob/main/LICENSE ).
@@ -1752,17 +1766,15 @@
 ///
 /// There are many ways of constructing an AnyCalendar'd date:
 /// ```
-/// use icu::calendar::{AnyCalendar, AnyCalendarKind, DateTime, japanese::Japanese, types::Time};
+/// use icu::calendar::{AnyCalendar, DateTime, japanese::Japanese, Time};
 /// use icu::locid::locale;
-/// # use std::str::FromStr;
 /// # use std::rc::Rc;
-/// # use std::convert::TryInto;
 ///
 /// let locale = locale!("en-u-ca-japanese"); // English with the Japanese calendar
 ///
 /// let calendar = AnyCalendar::new_for_locale(&amp;locale.into());
 /// let calendar = Rc::new(calendar); // Avoid cloning it each time
-///                                   // If everything is a local reference, you may use icu_calendar::Ref instead.
+///                                   // If everything is a local reference, you may use icu::calendar::Ref instead.
 ///
 /// // manually construct a datetime in this calendar
 /// let manual_time = Time::try_new(12, 33, 12, 0).expect("failed to construct Time");
@@ -1865,7 +1877,7 @@
     </span>Roc(&lt;Roc <span class="kw">as </span>Calendar&gt;::DateInner),
 }
 
-<span class="macro">macro_rules! </span>match_cal_and_date {
+<span class="macro">macro_rules!</span> match_cal_and_date {
     (<span class="kw">match </span>(<span class="macro-nonterminal">$cal</span>:ident, <span class="macro-nonterminal">$date</span>:ident): (<span class="macro-nonterminal">$cal_matched</span>:ident, <span class="macro-nonterminal">$date_matched</span>:ident) =&gt; <span class="macro-nonterminal">$e</span>:expr) =&gt; {
         <span class="kw">match </span>(<span class="macro-nonterminal">$cal</span>, <span class="macro-nonterminal">$date</span>) {
             (<span class="kw-2">&amp;</span><span class="self">Self</span>::Buddhist(<span class="kw-2">ref </span><span class="macro-nonterminal">$cal_matched</span>), <span class="kw-2">&amp;</span>AnyDateInner::Buddhist(<span class="kw-2">ref </span><span class="macro-nonterminal">$date_matched</span>)) =&gt; <span class="macro-nonterminal">$e</span>,
@@ -2287,9 +2299,9 @@
     </span><span class="kw">pub const fn </span>new(kind: AnyCalendarKind) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span>kind {
             AnyCalendarKind::Buddhist =&gt; AnyCalendar::Buddhist(Buddhist),
-            AnyCalendarKind::Chinese =&gt; AnyCalendar::Chinese(Chinese),
+            AnyCalendarKind::Chinese =&gt; AnyCalendar::Chinese(Chinese::new()),
             AnyCalendarKind::Coptic =&gt; AnyCalendar::Coptic(Coptic),
-            AnyCalendarKind::Dangi =&gt; AnyCalendar::Dangi(Dangi),
+            AnyCalendarKind::Dangi =&gt; AnyCalendar::Dangi(Dangi::new()),
             AnyCalendarKind::Ethiopian =&gt; AnyCalendar::Ethiopian(Ethiopian::new_with_era_style(
                 EthiopianEraStyle::AmeteMihret,
             )),
@@ -2301,10 +2313,12 @@
             AnyCalendarKind::Indian =&gt; AnyCalendar::Indian(Indian),
             AnyCalendarKind::IslamicCivil =&gt; AnyCalendar::IslamicCivil(IslamicCivil),
             AnyCalendarKind::IslamicObservational =&gt; {
-                AnyCalendar::IslamicObservational(IslamicObservational)
+                AnyCalendar::IslamicObservational(IslamicObservational::new())
             }
             AnyCalendarKind::IslamicTabular =&gt; AnyCalendar::IslamicTabular(IslamicTabular),
-            AnyCalendarKind::IslamicUmmAlQura =&gt; AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura),
+            AnyCalendarKind::IslamicUmmAlQura =&gt; {
+                AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura::new())
+            }
             AnyCalendarKind::Iso =&gt; AnyCalendar::Iso(Iso),
             AnyCalendarKind::Japanese =&gt; AnyCalendar::Japanese(Japanese::new()),
             AnyCalendarKind::JapaneseExtended =&gt; {
@@ -2325,9 +2339,13 @@
     {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span>kind {
             AnyCalendarKind::Buddhist =&gt; AnyCalendar::Buddhist(Buddhist),
-            AnyCalendarKind::Chinese =&gt; AnyCalendar::Chinese(Chinese),
+            AnyCalendarKind::Chinese =&gt; {
+                AnyCalendar::Chinese(Chinese::try_new_with_any_provider(provider)<span class="question-mark">?</span>)
+            }
             AnyCalendarKind::Coptic =&gt; AnyCalendar::Coptic(Coptic),
-            AnyCalendarKind::Dangi =&gt; AnyCalendar::Dangi(Dangi),
+            AnyCalendarKind::Dangi =&gt; {
+                AnyCalendar::Dangi(Dangi::try_new_with_any_provider(provider)<span class="question-mark">?</span>)
+            }
             AnyCalendarKind::Ethiopian =&gt; AnyCalendar::Ethiopian(Ethiopian::new_with_era_style(
                 EthiopianEraStyle::AmeteMihret,
             )),
@@ -2338,11 +2356,13 @@
             AnyCalendarKind::Hebrew =&gt; AnyCalendar::Hebrew(Hebrew),
             AnyCalendarKind::Indian =&gt; AnyCalendar::Indian(Indian),
             AnyCalendarKind::IslamicCivil =&gt; AnyCalendar::IslamicCivil(IslamicCivil),
-            AnyCalendarKind::IslamicObservational =&gt; {
-                AnyCalendar::IslamicObservational(IslamicObservational)
-            }
+            AnyCalendarKind::IslamicObservational =&gt; AnyCalendar::IslamicObservational(
+                IslamicObservational::try_new_with_any_provider(provider)<span class="question-mark">?</span>,
+            ),
             AnyCalendarKind::IslamicTabular =&gt; AnyCalendar::IslamicTabular(IslamicTabular),
-            AnyCalendarKind::IslamicUmmAlQura =&gt; AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura),
+            AnyCalendarKind::IslamicUmmAlQura =&gt; AnyCalendar::IslamicUmmAlQura(
+                IslamicUmmAlQura::try_new_with_any_provider(provider)<span class="question-mark">?</span>,
+            ),
             AnyCalendarKind::Iso =&gt; AnyCalendar::Iso(Iso),
             AnyCalendarKind::Japanese =&gt; {
                 AnyCalendar::Japanese(Japanese::try_new_with_any_provider(provider)<span class="question-mark">?</span>)
@@ -2366,9 +2386,13 @@
     {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span>kind {
             AnyCalendarKind::Buddhist =&gt; AnyCalendar::Buddhist(Buddhist),
-            AnyCalendarKind::Chinese =&gt; AnyCalendar::Chinese(Chinese),
+            AnyCalendarKind::Chinese =&gt; {
+                AnyCalendar::Chinese(Chinese::try_new_with_buffer_provider(provider)<span class="question-mark">?</span>)
+            }
             AnyCalendarKind::Coptic =&gt; AnyCalendar::Coptic(Coptic),
-            AnyCalendarKind::Dangi =&gt; AnyCalendar::Dangi(Dangi),
+            AnyCalendarKind::Dangi =&gt; {
+                AnyCalendar::Dangi(Dangi::try_new_with_buffer_provider(provider)<span class="question-mark">?</span>)
+            }
             AnyCalendarKind::Ethiopian =&gt; AnyCalendar::Ethiopian(Ethiopian::new_with_era_style(
                 EthiopianEraStyle::AmeteMihret,
             )),
@@ -2379,11 +2403,13 @@
             AnyCalendarKind::Hebrew =&gt; AnyCalendar::Hebrew(Hebrew),
             AnyCalendarKind::Indian =&gt; AnyCalendar::Indian(Indian),
             AnyCalendarKind::IslamicCivil =&gt; AnyCalendar::IslamicCivil(IslamicCivil),
-            AnyCalendarKind::IslamicObservational =&gt; {
-                AnyCalendar::IslamicObservational(IslamicObservational)
-            }
+            AnyCalendarKind::IslamicObservational =&gt; AnyCalendar::IslamicObservational(
+                IslamicObservational::try_new_with_buffer_provider(provider)<span class="question-mark">?</span>,
+            ),
             AnyCalendarKind::IslamicTabular =&gt; AnyCalendar::IslamicTabular(IslamicTabular),
-            AnyCalendarKind::IslamicUmmAlQura =&gt; AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura),
+            AnyCalendarKind::IslamicUmmAlQura =&gt; AnyCalendar::IslamicUmmAlQura(
+                IslamicUmmAlQura::try_new_with_buffer_provider(provider)<span class="question-mark">?</span>,
+            ),
             AnyCalendarKind::Iso =&gt; AnyCalendar::Iso(Iso),
             AnyCalendarKind::Japanese =&gt; {
                 AnyCalendar::Japanese(Japanese::try_new_with_buffer_provider(provider)<span class="question-mark">?</span>)
@@ -2401,13 +2427,17 @@
     <span class="kw">where
         </span>P: DataProvider&lt;<span class="kw">crate</span>::provider::JapaneseErasV1Marker&gt;
             + DataProvider&lt;<span class="kw">crate</span>::provider::JapaneseExtendedErasV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::ChineseCacheV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::DangiCacheV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::IslamicObservationalCacheV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::IslamicUmmAlQuraCacheV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
         <span class="prelude-val">Ok</span>(<span class="kw">match </span>kind {
             AnyCalendarKind::Buddhist =&gt; AnyCalendar::Buddhist(Buddhist),
-            AnyCalendarKind::Chinese =&gt; AnyCalendar::Chinese(Chinese),
+            AnyCalendarKind::Chinese =&gt; AnyCalendar::Chinese(Chinese::try_new_unstable(provider)<span class="question-mark">?</span>),
             AnyCalendarKind::Coptic =&gt; AnyCalendar::Coptic(Coptic),
-            AnyCalendarKind::Dangi =&gt; AnyCalendar::Dangi(Dangi),
+            AnyCalendarKind::Dangi =&gt; AnyCalendar::Dangi(Dangi::try_new_unstable(provider)<span class="question-mark">?</span>),
             AnyCalendarKind::Ethiopian =&gt; AnyCalendar::Ethiopian(Ethiopian::new_with_era_style(
                 EthiopianEraStyle::AmeteMihret,
             )),
@@ -2419,10 +2449,12 @@
             AnyCalendarKind::Indian =&gt; AnyCalendar::Indian(Indian),
             AnyCalendarKind::IslamicCivil =&gt; AnyCalendar::IslamicCivil(IslamicCivil),
             AnyCalendarKind::IslamicObservational =&gt; {
-                AnyCalendar::IslamicObservational(IslamicObservational)
+                AnyCalendar::IslamicObservational(IslamicObservational::try_new_unstable(provider)<span class="question-mark">?</span>)
             }
             AnyCalendarKind::IslamicTabular =&gt; AnyCalendar::IslamicTabular(IslamicTabular),
-            AnyCalendarKind::IslamicUmmAlQura =&gt; AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura),
+            AnyCalendarKind::IslamicUmmAlQura =&gt; {
+                AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura::try_new_unstable(provider)<span class="question-mark">?</span>)
+            }
             AnyCalendarKind::Iso =&gt; AnyCalendar::Iso(Iso),
             AnyCalendarKind::Japanese =&gt; {
                 AnyCalendar::Japanese(Japanese::try_new_unstable(provider)<span class="question-mark">?</span>)
@@ -2471,6 +2503,10 @@
     <span class="kw">where
         </span>P: DataProvider&lt;<span class="kw">crate</span>::provider::JapaneseErasV1Marker&gt;
             + DataProvider&lt;<span class="kw">crate</span>::provider::JapaneseExtendedErasV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::ChineseCacheV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::DangiCacheV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::IslamicObservationalCacheV1Marker&gt;
+            + DataProvider&lt;<span class="kw">crate</span>::provider::IslamicUmmAlQuraCacheV1Marker&gt;
             + <span class="question-mark">?</span>Sized,
     {
         <span class="kw">let </span>kind = AnyCalendarKind::from_data_locale_with_fallback(locale);
@@ -2642,47 +2678,40 @@
     /// Returns `None` if the calendar is unknown. If you prefer an error, use
     /// [`CalendarError::unknown_any_calendar_kind`].
     </span><span class="kw">pub fn </span>get_for_bcp47_value(x: <span class="kw-2">&amp;</span>Value) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="kw">let </span>slice = x.as_tinystr_slice();
-
-        <span class="kw">if </span>slice.len() &lt;= <span class="number">2 </span>{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(first) = slice.get(<span class="number">0</span>) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(second) = slice.get(<span class="number">1</span>) {
-                    <span class="kw">if </span>first == <span class="string">"islamic" </span>{
-                        <span class="kw">match </span>second.as_str() {
-                            <span class="string">"civil" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
-                            <span class="string">"tbla" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicTabular),
-                            <span class="string">"umalqura" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicUmmAlQura),
-                            <span class="kw">_ </span>=&gt; (),
-                        }
-                    }
-                } <span class="kw">else </span>{
-                    <span class="kw">match </span>first.as_str() {
-                        <span class="string">"buddhist" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Buddhist),
-                        <span class="string">"chinese" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Chinese),
-                        <span class="string">"coptic" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Coptic),
-                        <span class="string">"dangi" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Dangi),
-                        <span class="string">"ethioaa" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::EthiopianAmeteAlem),
-                        <span class="string">"ethiopic" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Ethiopian),
-                        <span class="string">"gregory" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Gregorian),
-                        <span class="string">"hebrew" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Hebrew),
-                        <span class="string">"indian" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Indian),
-                        <span class="string">"islamic" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicObservational),
-                        <span class="string">"islamicc" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
-                        <span class="string">"iso" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Iso),
-                        <span class="string">"japanese" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Japanese),
-                        <span class="string">"japanext" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::JapaneseExtended),
-                        <span class="string">"persian" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Persian),
-                        <span class="string">"roc" </span>=&gt; <span class="kw">return </span><span class="prelude-val">Some</span>(AnyCalendarKind::Roc),
-                        <span class="kw">_ </span>=&gt; (),
-                    }
-                }
+        <span class="kw">match </span><span class="kw-2">*</span>x.as_tinystr_slice() {
+            [first] <span class="kw">if </span>first == <span class="string">"buddhist" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Buddhist),
+            [first] <span class="kw">if </span>first == <span class="string">"chinese" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Chinese),
+            [first] <span class="kw">if </span>first == <span class="string">"coptic" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Coptic),
+            [first] <span class="kw">if </span>first == <span class="string">"dangi" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Dangi),
+            [first] <span class="kw">if </span>first == <span class="string">"ethioaa" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::EthiopianAmeteAlem),
+            [first] <span class="kw">if </span>first == <span class="string">"ethiopic" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Ethiopian),
+            [first] <span class="kw">if </span>first == <span class="string">"gregory" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Gregorian),
+            [first] <span class="kw">if </span>first == <span class="string">"hebrew" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Hebrew),
+            [first] <span class="kw">if </span>first == <span class="string">"indian" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Indian),
+            [first] <span class="kw">if </span>first == <span class="string">"islamic" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::IslamicObservational),
+            [first] <span class="kw">if </span>first == <span class="string">"islamicc" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil),
+            [first, second] <span class="kw">if </span>first == <span class="string">"islamic" </span>&amp;&amp; second == <span class="string">"civil" </span>=&gt; {
+                <span class="prelude-val">Some</span>(AnyCalendarKind::IslamicCivil)
             }
+            [first, second] <span class="kw">if </span>first == <span class="string">"islamic" </span>&amp;&amp; second == <span class="string">"tbla" </span>=&gt; {
+                <span class="prelude-val">Some</span>(AnyCalendarKind::IslamicTabular)
+            }
+            [first, second] <span class="kw">if </span>first == <span class="string">"islamic" </span>&amp;&amp; second == <span class="string">"umalqura" </span>=&gt; {
+                <span class="prelude-val">Some</span>(AnyCalendarKind::IslamicUmmAlQura)
+            }
+            [first] <span class="kw">if </span>first == <span class="string">"iso" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Iso),
+            [first] <span class="kw">if </span>first == <span class="string">"japanese" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Japanese),
+            [first] <span class="kw">if </span>first == <span class="string">"japanext" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::JapaneseExtended),
+            [first] <span class="kw">if </span>first == <span class="string">"persian" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Persian),
+            [first] <span class="kw">if </span>first == <span class="string">"roc" </span>=&gt; <span class="prelude-val">Some</span>(AnyCalendarKind::Roc),
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Log a warning when a calendar value is passed in but doesn't match any calendars
+                </span>DataError::custom(<span class="string">"bcp47_value did not match any calendars"</span>)
+                    .with_display_context(x);
+                <span class="prelude-val">None
+            </span>}
         }
-
-        <span class="comment">// Log a warning when a calendar value is passed in but doesn't match any calendars
-        </span>DataError::custom(<span class="string">"bcp47_value did not match any calendars"</span>).with_display_context(x);
-        <span class="prelude-val">None
-    </span>}
+    }
 
     <span class="doccomment">/// Convert to a BCP-47 string
     </span><span class="kw">pub fn </span>as_bcp47_string(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
@@ -2738,18 +2767,18 @@
     <span class="kw">fn </span>debug_name(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         <span class="kw">match </span><span class="self">self </span>{
             AnyCalendarKind::Buddhist =&gt; Buddhist.debug_name(),
-            AnyCalendarKind::Chinese =&gt; Chinese.debug_name(),
+            AnyCalendarKind::Chinese =&gt; Chinese::DEBUG_NAME,
             AnyCalendarKind::Coptic =&gt; Coptic.debug_name(),
-            AnyCalendarKind::Dangi =&gt; Dangi.debug_name(),
+            AnyCalendarKind::Dangi =&gt; Dangi::DEBUG_NAME,
             AnyCalendarKind::Ethiopian =&gt; Ethiopian(<span class="bool-val">false</span>).debug_name(),
             AnyCalendarKind::EthiopianAmeteAlem =&gt; Ethiopian(<span class="bool-val">true</span>).debug_name(),
             AnyCalendarKind::Gregorian =&gt; Gregorian.debug_name(),
             AnyCalendarKind::Hebrew =&gt; Hebrew.debug_name(),
             AnyCalendarKind::Indian =&gt; Indian.debug_name(),
             AnyCalendarKind::IslamicCivil =&gt; IslamicCivil.debug_name(),
-            AnyCalendarKind::IslamicObservational =&gt; IslamicObservational.debug_name(),
+            AnyCalendarKind::IslamicObservational =&gt; IslamicObservational::DEBUG_NAME,
             AnyCalendarKind::IslamicTabular =&gt; IslamicTabular.debug_name(),
-            AnyCalendarKind::IslamicUmmAlQura =&gt; IslamicUmmAlQura.debug_name(),
+            AnyCalendarKind::IslamicUmmAlQura =&gt; IslamicUmmAlQura::DEBUG_NAME,
             AnyCalendarKind::Iso =&gt; Iso.debug_name(),
             AnyCalendarKind::Japanese =&gt; Japanese::DEBUG_NAME,
             AnyCalendarKind::JapaneseExtended =&gt; JapaneseExtended::DEBUG_NAME,
@@ -2843,10 +2872,10 @@
 
 <span class="kw">impl </span>IntoAnyCalendar <span class="kw">for </span>Chinese {
     <span class="kw">fn </span>to_any(<span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::Chinese(Chinese)
+        AnyCalendar::Chinese(<span class="self">self</span>)
     }
     <span class="kw">fn </span>to_any_cloned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::Chinese(Chinese)
+        AnyCalendar::Chinese(<span class="self">self</span>.clone())
     }
     <span class="kw">fn </span>date_to_any(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; AnyDateInner {
         AnyDateInner::Chinese(<span class="kw-2">*</span>d)
@@ -2867,10 +2896,10 @@
 
 <span class="kw">impl </span>IntoAnyCalendar <span class="kw">for </span>Dangi {
     <span class="kw">fn </span>to_any(<span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::Dangi(Dangi)
+        AnyCalendar::Dangi(<span class="self">self</span>)
     }
     <span class="kw">fn </span>to_any_cloned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::Dangi(Dangi)
+        AnyCalendar::Dangi(<span class="self">self</span>.clone())
     }
     <span class="kw">fn </span>date_to_any(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; AnyDateInner {
         AnyDateInner::Dangi(<span class="kw-2">*</span>d)
@@ -2928,10 +2957,10 @@
 
 <span class="kw">impl </span>IntoAnyCalendar <span class="kw">for </span>IslamicCivil {
     <span class="kw">fn </span>to_any(<span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicCivil(IslamicCivil)
+        AnyCalendar::IslamicCivil(<span class="self">self</span>)
     }
     <span class="kw">fn </span>to_any_cloned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicCivil(IslamicCivil)
+        AnyCalendar::IslamicCivil(<span class="kw-2">*</span><span class="self">self</span>)
     }
     <span class="kw">fn </span>date_to_any(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; AnyDateInner {
         AnyDateInner::IslamicCivil(<span class="kw-2">*</span>d)
@@ -2940,10 +2969,10 @@
 
 <span class="kw">impl </span>IntoAnyCalendar <span class="kw">for </span>IslamicObservational {
     <span class="kw">fn </span>to_any(<span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicObservational(IslamicObservational)
+        AnyCalendar::IslamicObservational(<span class="self">self</span>)
     }
     <span class="kw">fn </span>to_any_cloned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicObservational(IslamicObservational)
+        AnyCalendar::IslamicObservational(<span class="self">self</span>.clone())
     }
     <span class="kw">fn </span>date_to_any(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; AnyDateInner {
         AnyDateInner::IslamicObservational(<span class="kw-2">*</span>d)
@@ -2952,10 +2981,10 @@
 
 <span class="kw">impl </span>IntoAnyCalendar <span class="kw">for </span>IslamicTabular {
     <span class="kw">fn </span>to_any(<span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicTabular(IslamicTabular)
+        AnyCalendar::IslamicTabular(<span class="self">self</span>)
     }
     <span class="kw">fn </span>to_any_cloned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicTabular(IslamicTabular)
+        AnyCalendar::IslamicTabular(<span class="kw-2">*</span><span class="self">self</span>)
     }
     <span class="kw">fn </span>date_to_any(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; AnyDateInner {
         AnyDateInner::IslamicTabular(<span class="kw-2">*</span>d)
@@ -2964,10 +2993,10 @@
 
 <span class="kw">impl </span>IntoAnyCalendar <span class="kw">for </span>IslamicUmmAlQura {
     <span class="kw">fn </span>to_any(<span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura)
+        AnyCalendar::IslamicUmmAlQura(<span class="self">self</span>)
     }
     <span class="kw">fn </span>to_any_cloned(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; AnyCalendar {
-        AnyCalendar::IslamicUmmAlQura(IslamicUmmAlQura)
+        AnyCalendar::IslamicUmmAlQura(<span class="self">self</span>.clone())
     }
     <span class="kw">fn </span>date_to_any(<span class="kw-2">&amp;</span><span class="self">self</span>, d: <span class="kw-2">&amp;</span><span class="self">Self</span>::DateInner) -&gt; AnyDateInner {
         AnyDateInner::IslamicUmmAlQura(<span class="kw-2">*</span>d)

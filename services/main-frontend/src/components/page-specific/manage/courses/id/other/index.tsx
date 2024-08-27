@@ -27,7 +27,7 @@ const Subtabs: {
   glossary: CourseGlossary,
   chatbot: ChatBotPage,
   cheaters: CourseCheaters,
-  "code-giveaway": CodeGiveawayPage,
+  "code-giveaways": CodeGiveawayPage,
 }
 
 const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & AdditionalProps>> = ({
@@ -57,8 +57,8 @@ const Other: React.FC<React.PropsWithChildren<CourseManagementPagesProps & Addit
         <TabLink url={"other/cheaters"} isActive={activeSubtab === "cheaters"}>
           {t("link-cheaters")}
         </TabLink>
-        <TabLink url={"other/code-giveaway"} isActive={activeSubtab === "code-giveaway"}>
-          {t("heading-code-giveaway")}
+        <TabLink url={"other/code-giveaways"} isActive={activeSubtab === "code-giveaways"}>
+          {t("heading-code-giveaways")}
         </TabLink>
       </TabLinkNavigation>
       <TabLinkPanel>

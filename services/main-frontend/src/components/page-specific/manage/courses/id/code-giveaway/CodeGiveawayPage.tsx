@@ -15,7 +15,7 @@ const CodeGiveawayPage = () => {
           font-weight: bold;
         `}
       >
-        {t("heading-code-giveaway")}
+        {t("heading-code-giveaways")}
       </h1>
     </div>
   )

@@ -3,24 +3,20 @@ import { useTranslation } from "react-i18next"
 
 import MainFrontendBreadCrumbs from "../../../../components/MainFrontendBreadCrumbs"
 import CourseChangeRequests from "../../../../components/page-specific/manage/courses/id/change-request/CourseChangeRequests"
-import ChatBotPage from "../../../../components/page-specific/manage/courses/id/chatbot/ChatbotPage"
-import CourseCheaters from "../../../../components/page-specific/manage/courses/id/cheaters/CourseCheaters"
 import CourseCourseInstances from "../../../../components/page-specific/manage/courses/id/course-instances/CourseCourseInstances"
 import CourseExercises from "../../../../components/page-specific/manage/courses/id/exercises/CourseExercises"
 import CourseFeedback from "../../../../components/page-specific/manage/courses/id/feedback/CourseFeedback"
-import CourseGlossary from "../../../../components/page-specific/manage/courses/id/glossary/CourseGlossary"
 import CourseOverview from "../../../../components/page-specific/manage/courses/id/index/CourseOverview"
 import CourseLanguageVersionsPage from "../../../../components/page-specific/manage/courses/id/language-versions/CourseLanguageVersions"
+import Other from "../../../../components/page-specific/manage/courses/id/other"
 import CourseModules from "../../../../components/page-specific/manage/courses/id/pages/CourseModules"
 import CoursePages from "../../../../components/page-specific/manage/courses/id/pages/CoursePages"
 import CoursePermissions from "../../../../components/page-specific/manage/courses/id/permissions/CoursePermissions"
-import References from "../../../../components/page-specific/manage/courses/id/references"
 import CourseStatsPage from "../../../../components/page-specific/manage/courses/id/stats/CourseStatsPage"
 import useCountAnswersRequiringAttentionHook from "../../../../hooks/count/useCountAnswersRequiringAttentionHook"
 import createPendingChangeRequestCountHook from "../../../../hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "../../../../hooks/count/useUnreadFeedbackCount"
 
-import useCourseQuery from "@/hooks/useCourseQuery"
 import TabLink from "@/shared-module/common/components/Navigation/TabLinks/TabLink"
 import TabLinkNavigation from "@/shared-module/common/components/Navigation/TabLinks/TabLinkNavigation"
 import TabLinkPanel from "@/shared-module/common/components/Navigation/TabLinks/TabLinkPanel"
@@ -40,36 +36,68 @@ interface CourseManagementPageProps {
   query: SimplifiedUrlQuery<string>
 }
 
+export type TabPage = React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
+
 const CourseManagementPageTabs: {
-  [key: string]: React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
+  [key: string]: TabPage
 } = {
   overview: CourseOverview,
   pages: CoursePages,
   modules: CourseModules,
-  references: References,
   feedback: CourseFeedback,
   "change-requests": CourseChangeRequests,
   exercises: CourseExercises,
   "course-instances": CourseCourseInstances,
   "language-versions": CourseLanguageVersionsPage,
   permissions: CoursePermissions,
-  glossary: CourseGlossary,
   stats: CourseStatsPage,
-  // chatbot: ChatBotPage,
-  cheaters: CourseCheaters,
+}
+
+type PageToRender =
+  | {
+      type: "page"
+      component: TabPage
+    }
+  | {
+      type: "other"
+      subtab: string
+    }
+
+function selectPageToRender(path: string): PageToRender {
+  // if page is other the path format is other/subtab
+  try {
+    if (path.startsWith("other")) {
+      const subtab = path.split("/")[1]
+      return {
+        type: "other",
+        subtab,
+      }
+    }
+  } catch (e) {
+    // Default to overview
+    return {
+      type: "page",
+      component: CourseManagementPageTabs["overview"],
+    }
+  }
+  return {
+    type: "page",
+    component: CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"],
+  }
 }
 
 const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPageProps>> = ({
   query,
 }) => {
   const courseId = query.id
-  const courseQuery = useCourseQuery(courseId)
   const path = `${useQueryParameter("path")}`
   const { t } = useTranslation()
 
   // See if path exists, if not, default to first
   // Or should we implement 404 Not Found page and router push there or return that page?
-  const PageToRender = CourseManagementPageTabs[path] ?? CourseManagementPageTabs["overview"]
+  const pageToRender = selectPageToRender(path)
+
+  console.log("path", path)
 
   return (
     <>
@@ -83,9 +111,6 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         </TabLink>
         <TabLink url={"modules"} isActive={path === "modules"}>
           {t("link-modules")}
-        </TabLink>
-        <TabLink url={"references"} isActive={path === "references"}>
-          {t("references")}
         </TabLink>
         <TabLink
           url={"feedback"}
@@ -117,23 +142,22 @@ const CourseManagementPage: React.FC<React.PropsWithChildren<CourseManagementPag
         <TabLink url={"permissions"} isActive={path === "permissions"}>
           {t("link-permissions")}
         </TabLink>
-        <TabLink url={"glossary"} isActive={path === "glossary"}>
-          {t("link-glossary")}
-        </TabLink>
-        {/* {courseQuery.data?.can_add_chatbot === true && (
-          <TabLink url={"chatbot"} isActive={path === "chatbot"}>
-            {t("chatbot")}
-          </TabLink>
-        )} */}
-        <TabLink url={"cheaters"} isActive={path === "cheaters"}>
-          {t("link-cheaters")}
-        </TabLink>
         <TabLink url={"stats"} isActive={path === "stats"}>
           {t("link-stats")}
         </TabLink>
+        <TabLink url={"other/references"} isActive={path.startsWith("other")}>
+          {t("title-other")}
+        </TabLink>
       </TabLinkNavigation>
       <TabLinkPanel>
-        <PageToRender courseId={courseId} />
+        {pageToRender.type === "page" ? (
+          (() => {
+            const PageComponent = pageToRender.component
+            return <PageComponent courseId={courseId} />
+          })()
+        ) : (
+          <Other courseId={courseId} activeSubtab={pageToRender.subtab} />
+        )}
       </TabLinkPanel>
     </>
   )

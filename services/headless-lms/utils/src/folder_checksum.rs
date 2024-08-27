@@ -7,7 +7,7 @@ has changed after a refresh.
 
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
-use std::{fs::Permissions, path::Path, u32};
+use std::{fs::Permissions, path::Path};
 
 use crate::prelude::*;
 use blake3::Hash;

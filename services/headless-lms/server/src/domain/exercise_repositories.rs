@@ -173,7 +173,7 @@ async fn update_inner(
     let mut by_checksum = HashMap::new();
     for ex in &current_exercises {
         by_name.insert((&ex.part, &ex.name), ex);
-        by_checksum.insert(&ex.checksum, ex);
+        by_checksum.insert(ex.checksum.as_slice(), ex);
     }
     for ex in repository_exercises {
         if let Some(&current) = by_name.get(&(&ex.part, &ex.name)) {
@@ -187,7 +187,7 @@ async fn update_inner(
                 repository_exercises::update_checksum(&mut tx, current.id, ex.checksum.as_bytes())
                     .await?;
             }
-        } else if let Some(&current) = by_checksum.get(&ex.checksum.as_bytes().to_vec()) {
+        } else if let Some(&current) = by_checksum.get(ex.checksum.as_bytes().as_slice()) {
             // found known exercise by checksum
             if current.part != ex.part || current.name != ex.name {
                 // part and/or name changed

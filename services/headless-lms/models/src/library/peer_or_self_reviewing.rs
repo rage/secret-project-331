@@ -166,7 +166,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
 
             if let Some(last_submission_time) = last_submission_time {
                 let diff = peer_reviews_given - suspicious_amount_of_peer_reviews;
-                let coefficient = std::cmp::min(std::cmp::max(diff, 1), 10);
+                let coefficient = diff.clamp(1, 10);
                 // Between 30 seconds and 5 minutes
                 if Utc::now() - Duration::seconds(30 * coefficient as i64) < last_submission_time {
                     return Err(ModelError::new(

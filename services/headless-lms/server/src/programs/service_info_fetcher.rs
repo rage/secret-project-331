@@ -1,4 +1,4 @@
-use std::{env, usize};
+use std::env;
 
 use crate::{domain::models_requests, setup_tracing};
 use anyhow::Result;

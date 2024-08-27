@@ -472,6 +472,7 @@ pub async fn create_exam(
     minimum_points_treshold: i32,
     base_url: String,
     jwt_key: Arc<JwtKey>,
+    grade_manually: bool,
 ) -> Result<Uuid> {
     let new_exam_id = exams::insert(
         conn,
@@ -483,6 +484,7 @@ pub async fn create_exam(
             time_minutes,
             organization_id,
             minimum_points_treshold,
+            grade_manually,
         },
     )
     .await?;

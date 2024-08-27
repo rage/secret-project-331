@@ -239,9 +239,10 @@ INSERT INTO exams(
     ends_at,
     language,
     time_minutes,
-    minimum_points_treshold
+    minimum_points_treshold,
+    grade_manually
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING *
         ",
         new_exam.name,
@@ -252,6 +253,7 @@ RETURNING *
         parent_exam_fields.language,
         new_exam.time_minutes,
         parent_exam_fields.minimum_points_treshold,
+        new_exam.grade_manually,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -322,6 +324,7 @@ WHERE id = $2;
         page_id: get_page_id.page_id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
         language: copied_exam.language.unwrap_or("en-US".to_string()),
+        grade_manually: copied_exam.grade_manually,
     })
 }
 

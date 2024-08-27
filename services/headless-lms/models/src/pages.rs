@@ -2259,10 +2259,7 @@ WHERE page_id IN (
         .into_iter()
         .map(|page| {
             let page_id = page.id;
-            let mut exercises = match page_to_exercises.remove(&page_id) {
-                Some(ex) => ex,
-                None => Vec::new(),
-            };
+            let mut exercises = page_to_exercises.remove(&page_id).unwrap_or_default();
 
             exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
             PageWithExercises { page, exercises }
@@ -3284,6 +3281,7 @@ mod test {
                 time_minutes: 120,
                 organization_id: org,
                 minimum_points_treshold: 24,
+                grade_manually: false,
             },
         )
         .await

@@ -111,6 +111,8 @@ fn models(target: &mut File) {
         exercise_slide_submissions::ExerciseSlideSubmissionCountByExercise,
         exercise_slide_submissions::ExerciseSlideSubmissionCountByWeekAndHour,
         exercise_slide_submissions::ExerciseSlideSubmissionInfo,
+        exercise_slide_submissions::ExerciseSlideSubmissionAndUserExerciseState,
+        exercise_slide_submissions::ExerciseSlideSubmissionAndUserExerciseStateList,
         exercise_task_submissions::PeerOrSelfReviewsReceived,
         exercise_slides::CourseMaterialExerciseSlide,
         exercise_slides::ExerciseSlide,

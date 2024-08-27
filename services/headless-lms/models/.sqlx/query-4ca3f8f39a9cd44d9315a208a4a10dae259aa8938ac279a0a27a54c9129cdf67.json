@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\"\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n      ",
+  "query": "\nSELECT id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision AS \"teacher_decision: _\",\n  justification,\n  hidden\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\nORDER BY created_at DESC\nLIMIT 1\n      ",
   "describe": {
     "columns": [
       {
@@ -44,12 +44,22 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 7,
+        "name": "justification",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, false, true, false, false]
+    "nullable": [false, false, false, false, true, false, false, true, false]
   },
-  "hash": "69f09958c20649684f9da3a2308530802e8590348dd0959fea8a10263b830bd4"
+  "hash": "4ca3f8f39a9cd44d9315a208a4a10dae259aa8938ac279a0a27a54c9129cdf67"
 }

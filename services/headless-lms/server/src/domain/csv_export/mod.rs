@@ -452,22 +452,4 @@ mod test {
         .await
         .unwrap();
     }
-
-    struct WriteAdapter {
-        sender: Sender<Bytes>,
-    }
-
-    impl Write for WriteAdapter {
-        fn flush(&mut self) -> std::io::Result<()> {
-            Ok(())
-        }
-
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-            let bytes = Bytes::copy_from_slice(buf);
-            self.sender
-                .send(bytes)
-                .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
-            Ok(buf.len())
-        }
-    }
 }

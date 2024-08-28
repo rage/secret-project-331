@@ -18,8 +18,7 @@ import ExerciseTask from "./Exercise/ExerciseTask"
 import ExerciseCustomView from "./ExerciseCustomView"
 import ExerciseInChapter from "./ExerciseInChapter"
 import FlipCard from "./FlipCard"
-import BackCard from "./FlipCard/BackCard"
-import FrontCard from "./FlipCard/FrontCard"
+import InnerCard from "./FlipCard/InnerCard"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import HightlightBox from "./HighlightBox"
@@ -72,8 +71,7 @@ export const blockTypeMapForPages = [
   ["moocfi/partners", PartnersBlock],
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/flip-card", FlipCard],
-  ["moocfi/front-card", FrontCard],
-  ["moocfi/back-card", BackCard],
+  ["moocfi/inner-card", InnerCard],
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>

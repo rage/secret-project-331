@@ -75,6 +75,7 @@
   "failed-to-submit": "Lähettäminen epäonnistui {{ error }}",
   "feedback-submitted-succesfully": "Palaute lisätty onnistuneesti",
   "finnish": "Suomi",
+  "flip-card": "Käännettävä kortti",
   "generate-certicate": "Luo sertifikaatti",
   "generate-certificate-button-label": "Luo sertifikaatti suorituksesta",
   "give-feedback": "Anna palautetta",

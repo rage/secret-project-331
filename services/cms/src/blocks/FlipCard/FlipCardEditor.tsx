@@ -1,31 +1,39 @@
-/* eslint-disable i18next/no-literal-string */
-import { InnerBlocks } from "@wordpress/block-editor"
+import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-import BlockWrapper from "../BlockWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph"]
+import { FlipCardAttributes } from "."
+
+import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
+
+const ALLOWED_NESTED_BLOCKS = ["moocfi/inner-card"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [
-  ["moocfi/front-card", {}],
-  ["moocfi/back-card", {}],
+  ["moocfi/inner-card", {}],
+  ["moocfi/inner-card", {}],
 ]
 
-const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
+const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAttributes>>> = ({
   clientId,
+  attributes,
+  setAttributes,
 }) => {
+  const { t } = useTranslation()
+
   return (
     <BlockPlaceholderWrapper
-      id={"flip-card"}
-      title={"Flip card"}
-      explanation={"Add a front and a back card for the flip card"}
+      id={clientId}
+      title={t("flip-card-placeholder")}
+      explanation={t("flip-card-placeholder-explanation")}
     >
-      <BlockWrapper id={clientId}>
-        <div>
-          <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={INNER_BLOCKS_TEMPLATE} />
-        </div>
-      </BlockWrapper>
+      <InspectorControls key="flip-card-settings">
+        <FlipBoxSizeCustomizer attributes={attributes} setAttributes={setAttributes} />
+      </InspectorControls>
+      <div>
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={INNER_BLOCKS_TEMPLATE} />
+      </div>
     </BlockPlaceholderWrapper>
   )
 }

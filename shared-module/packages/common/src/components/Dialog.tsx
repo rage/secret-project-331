@@ -78,6 +78,10 @@ const Dialog: React.FC<DialogProps> = ({
     open,
   )
 
+  if (!open) {
+    return null
+  }
+
   return (
     <dialog
       ref={ref}
@@ -113,18 +117,16 @@ const Dialog: React.FC<DialogProps> = ({
         }
       `}
     >
-      {open && (
-        <div
-          //  For accessibility, so that screen readers don't interpret the whole dialog as clickable.
-          role="presentation"
-          ref={dialogContentRef}
-          className={css`
-            ${!noPadding && `padding: 2rem 3rem;`}
-          `}
-        >
-          {children}
-        </div>
-      )}
+      <div
+        //  For accessibility, so that screen readers don't interpret the whole dialog as clickable.
+        role="presentation"
+        ref={dialogContentRef}
+        className={css`
+          ${!noPadding && `padding: 2rem 3rem;`}
+        `}
+      >
+        {children}
+      </div>
     </dialog>
   )
 }

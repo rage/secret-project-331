@@ -1,0 +1,161 @@
+//! Controllers for requests starting with `/api/v0/course-material/code-giveaways`.
+
+use crate::{domain::authorization::skip_authorize, prelude::*};
+
+/**
+ GET /api/v0/course-material/code-giveaways/:id/given-code - If the user has gotten a code from the giveaway, returns the code. Otherwise returns null.
+*/
+#[instrument(skip(pool))]
+async fn get_given_code_for_code_giveaway(
+    user: AuthUser,
+    code_giveaway_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Option<String>>> {
+    let mut conn = pool.acquire().await?;
+    let given_code =
+        models::code_giveaway_codes::get_code_given_to_user(&mut conn, *code_giveaway_id, user.id)
+            .await?
+            .map(|o| o.code);
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(given_code))
+}
+
+/**
+ GET /api/v0/course-material/code-giveaways/:id/codes-left - Returns whether there are any codes left in the code giveaway.
+*/
+#[instrument(skip(pool))]
+async fn are_any_codes_left_for_code_giveaway(
+    code_giveaway_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    // If user has not completed the required course module, don't leak the information.
+    let code_giveaway = models::code_giveaways::get_by_id(&mut conn, *code_giveaway_id).await?;
+    if let Some(course_module_id) = code_giveaway.course_module_id {
+        let course_module_completions =
+            models::course_module_completions::get_all_by_user_id_and_course_module_id(
+                &mut conn,
+                user.id,
+                course_module_id,
+            )
+            .await?;
+
+        course_module_completions
+            .iter()
+            .find(|c| c.passed)
+            .ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "You have not completed the required course module.".to_string(),
+                    None,
+                )
+            })?;
+    }
+    // If the user has already gotten a code, don't leak the information anymore.
+    let already_given_code =
+        models::code_giveaway_codes::get_code_given_to_user(&mut conn, *code_giveaway_id, user.id)
+            .await?;
+    if already_given_code.is_some() {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "You have already gotten a code.".to_string(),
+            None,
+        ));
+    }
+    let codes_left =
+        models::code_giveaway_codes::are_any_codes_left(&mut conn, *code_giveaway_id).await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(codes_left))
+}
+
+/**
+ POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.
+*/
+#[instrument(skip(pool))]
+async fn claim_code_from_code_giveaway(
+    user: AuthUser,
+    code_giveaway_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<String>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let code_giveaway = models::code_giveaways::get_by_id(&mut conn, *code_giveaway_id).await?;
+    if !code_giveaway.enabled {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Code giveaway is not enabled.".to_string(),
+            None,
+        ));
+    }
+    if let Some(course_module_id) = code_giveaway.course_module_id {
+        let course_module_completions =
+            models::course_module_completions::get_all_by_user_id_and_course_module_id(
+                &mut conn,
+                user.id,
+                course_module_id,
+            )
+            .await?;
+
+        course_module_completions
+            .iter()
+            .find(|c| c.passed)
+            .ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "You have not completed the required course module.".to_string(),
+                    None,
+                )
+            })?;
+    } else {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "The required course module has not been configured to this code giveaway.".to_string(),
+            None,
+        ));
+    }
+
+    let already_given_code =
+        models::code_giveaway_codes::get_code_given_to_user(&mut conn, *code_giveaway_id, user.id)
+            .await?
+            .map(|o| o.code);
+
+    if let Some(code) = already_given_code {
+        // This is for a pretty message, in the end a database constraint ensures that only one code can be given to a user.
+        return token.authorized_ok(web::Json(code));
+    }
+
+    let give_code_result =
+        models::code_giveaway_codes::give_some_code_to_user(&mut conn, *code_giveaway_id, user.id)
+            .await;
+
+    if let Err(_e) = &give_code_result {
+        let codes_left =
+            models::code_giveaway_codes::are_any_codes_left(&mut conn, *code_giveaway_id).await?;
+        if !codes_left {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "The giveaway has ran out of codes.".to_string(),
+                None,
+            ));
+        }
+    }
+
+    let code = give_code_result?.code;
+    token.authorized_ok(web::Json(code))
+}
+
+pub fn _add_routes(cfg: &mut ServiceConfig) {
+    cfg.route(
+        "code-giveaways/{id}/given-code",
+        web::get().to(get_given_code_for_code_giveaway),
+    )
+    .route(
+        "code-giveaways/{id}/codes-left",
+        web::get().to(are_any_codes_left_for_code_giveaway),
+    )
+    .route(
+        "code-giveaways/{id}/claim",
+        web::post().to(claim_code_from_code_giveaway),
+    );
+}

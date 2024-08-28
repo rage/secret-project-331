@@ -126,7 +126,7 @@ pub async fn give_some_code_to_user(
     conn: &mut PgConnection,
     code_giveaway_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Option<CodeGiveawayCode>> {
+) -> ModelResult<CodeGiveawayCode> {
     let res = sqlx::query_as!(
         CodeGiveawayCode,
         r#"
@@ -140,7 +140,7 @@ RETURNING *
         code_giveaway_id,
         user_id
     )
-    .fetch_optional(conn)
+    .fetch_one(conn)
     .await?;
     Ok(res)
 }
@@ -178,6 +178,28 @@ RETURNING *
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn are_any_codes_left(
+    conn: &mut PgConnection,
+    code_giveaway_id: Uuid,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT EXISTS(
+    SELECT 1
+    FROM code_giveaway_codes
+    WHERE code_giveaway_id = $1
+      AND code_given_to_user_id IS NULL
+      AND deleted_at IS NULL
+    LIMIT 1
+  )
+        "#,
+        code_giveaway_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.exists.unwrap())
 }
 
 #[cfg(test)]

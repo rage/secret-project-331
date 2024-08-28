@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const BackCardSave: React.FC = () => {
+const InnerCardSave: React.FC = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -8,4 +8,4 @@ const BackCardSave: React.FC = () => {
   )
 }
 
-export default BackCardSave
+export default InnerCardSave

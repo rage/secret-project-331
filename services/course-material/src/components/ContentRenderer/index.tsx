@@ -45,9 +45,8 @@ import CourseProgressBlock from "./moocfi/CourseProgressBlock"
 import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseCustomViewBlock from "./moocfi/ExerciseCustomViewBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
-import BackCardBlock from "./moocfi/FlipCard/BackCardBlock"
 import FlipCardBlock from "./moocfi/FlipCard/FlipCardBlock"
-import FrontCardBlock from "./moocfi/FlipCard/FrontCardBlock"
+import InnerCardBlock from "./moocfi/FlipCard/InnerCardBlock"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
@@ -163,8 +162,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/research-consent-question": ResearchConsentQuestionBlock,
   "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
   "moocfi/flip-card": FlipCardBlock,
-  "moocfi/front-card": FrontCardBlock,
-  "moocfi/back-card": BackCardBlock,
+  "moocfi/inner-card": InnerCardBlock,
 }
 
 const highlightedBlockStyles = css`
@@ -292,7 +290,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         font-size: 20px;
         text-underline-offset: 4.6px;
         text-decoration-thickness: 1.6px;
-
         a {
           color: #1072ea;
           &:hover {

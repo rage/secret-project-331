@@ -1,4 +1,6 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/code-giveaways`.
+use chrono::Utc;
+use domain::csv_export::{code_giveaway_codes::CodeGiveawayCodesExportOperation, general_export};
 use headless_lms_models::{
     code_giveaway_codes::CodeGiveawayCode,
     code_giveaways::{CodeGiveaway, NewCodeGiveaway},
@@ -159,6 +161,44 @@ async fn delete_code_giveaway_code(
     models::code_giveaway_codes::delete_by_id(&mut conn, code_id).await?;
 
     token.authorized_ok(web::Json(()))
+}
+
+/**
+ * GET `/api/v0/main-frontend/code-giveaways/:id/codes/csv - Gets codes for a code giveaway by ID as CSV.
+ */
+#[instrument(skip(pool))]
+async fn get_codes_by_code_giveaway_id_csv(
+    pool: web::Data<PgPool>,
+    id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+
+    let code_giveaway = models::code_giveaways::get_by_id(&mut conn, *id).await?;
+    let course = models::courses::get_course(&mut conn, code_giveaway.course_id).await?;
+
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(code_giveaway.course_id),
+    )
+    .await?;
+
+    general_export(
+        pool,
+        &format!(
+            "attachment; filename=\"Giveaway codes {} / {} - {}.csv\"",
+            code_giveaway.name,
+            course.name,
+            Utc::now().format("%Y-%m-%d")
+        ),
+        CodeGiveawayCodesExportOperation {
+            code_giveaway_id: *id,
+        },
+        token,
+    )
+    .await
 }
 
 /**

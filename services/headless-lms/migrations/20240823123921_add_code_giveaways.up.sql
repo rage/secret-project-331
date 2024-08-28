@@ -5,7 +5,8 @@ CREATE TABLE code_giveaways (
   deleted_at TIMESTAMP WITH TIME ZONE,
   course_id UUID NOT NULL REFERENCES courses(id),
   course_module_id UUID REFERENCES course_modules(id),
-  enabled BOOLEAN NOT NULL DEFAULT FALSE
+  enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  name VARCHAR(2048) NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON code_giveaways FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
@@ -17,6 +18,7 @@ COMMENT ON COLUMN code_giveaways.deleted_at IS 'Timestamp when the record was de
 COMMENT ON COLUMN code_giveaways.course_id IS 'The course the code giveaway is available on.';
 COMMENT ON COLUMN code_giveaways.course_module_id IS 'The course module the code giveaway is available on. If null, the giveaway has not been placed on a course module on the CMS.';
 COMMENT ON COLUMN code_giveaways.enabled IS 'If the giveaway is enabled, the codes can be given to students.';
+COMMENT ON COLUMN code_giveaways.name IS 'The name of the giveaway.';
 
 CREATE TABLE code_giveaway_codes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

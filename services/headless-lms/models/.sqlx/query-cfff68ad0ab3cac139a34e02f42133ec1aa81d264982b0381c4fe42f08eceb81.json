@@ -37,12 +37,17 @@
         "ordinal": 6,
         "name": "enabled",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "name",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, false]
+    "nullable": [false, false, false, true, false, true, false, false]
   },
   "hash": "cfff68ad0ab3cac139a34e02f42133ec1aa81d264982b0381c4fe42f08eceb81"
 }

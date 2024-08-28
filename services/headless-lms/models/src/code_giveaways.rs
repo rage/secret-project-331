@@ -10,17 +10,26 @@ pub struct CodeGiveaway {
     pub course_id: Uuid,
     pub course_module_id: Option<Uuid>,
     pub enabled: bool,
+    pub name: String,
 }
 
-pub async fn insert(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<CodeGiveaway> {
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct NewCodeGiveaway {
+    pub course_id: Uuid,
+    pub name: String,
+}
+
+pub async fn insert(conn: &mut PgConnection, input: &NewCodeGiveaway) -> ModelResult<CodeGiveaway> {
     let res = sqlx::query_as!(
         CodeGiveaway,
         r#"
-INSERT INTO code_giveaways (course_id)
-VALUES ($1)
+INSERT INTO code_giveaways (course_id, name)
+VALUES ($1, $2)
 RETURNING *
         "#,
-        course_id
+        input.course_id,
+        input.name
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -48,7 +57,7 @@ WHERE course_id = $1
     Ok(res)
 }
 
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<CodeGiveaway>> {
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CodeGiveaway> {
     let res = sqlx::query_as!(
         CodeGiveaway,
         r#"
@@ -58,7 +67,7 @@ WHERE id = $1
 "#,
         id
     )
-    .fetch_optional(&mut *conn)
+    .fetch_one(&mut *conn)
     .await?;
 
     Ok(res)

@@ -16,6 +16,21 @@ pub struct CodeGiveawayCode {
     pub code: String,
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CodeGiveawayCode> {
+    let res = sqlx::query_as!(
+        CodeGiveawayCode,
+        r#"
+SELECT *
+FROM code_giveaway_codes
+WHERE id = $1
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn insert_many(
     conn: &mut PgConnection,
     code_giveaway_id: Uuid,
@@ -149,18 +164,40 @@ WHERE code_giveaway_id = $1
     stream
 }
 
+pub async fn delete_by_id(conn: &mut PgConnection, code_id: Uuid) -> ModelResult<CodeGiveawayCode> {
+    let res = sqlx::query_as!(
+        CodeGiveawayCode,
+        r#"
+UPDATE code_giveaway_codes
+SET deleted_at = now()
+WHERE id = $1
+RETURNING *
+        "#,
+        code_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::test_helper::*;
+    use crate::{code_giveaways::NewCodeGiveaway, test_helper::*};
 
     #[tokio::test]
     async fn test_insert_many_empty() {
         insert_data!(:tx, :user, :org, :course);
 
-        let code_giveaway = crate::code_giveaways::insert(tx.as_mut(), course)
-            .await
-            .unwrap();
+        let code_giveaway = crate::code_giveaways::insert(
+            tx.as_mut(),
+            &NewCodeGiveaway {
+                course_id: course,
+                name: "Test giveaway".to_string(),
+            },
+        )
+        .await
+        .unwrap();
 
         let insert_result = insert_many(tx.as_mut(), code_giveaway.id, &[], user)
             .await
@@ -173,9 +210,15 @@ mod tests {
     async fn test_insert_many_with_data() {
         insert_data!(:tx, :user, :org, :course);
 
-        let code_giveaway = crate::code_giveaways::insert(tx.as_mut(), course)
-            .await
-            .unwrap();
+        let code_giveaway = crate::code_giveaways::insert(
+            tx.as_mut(),
+            &NewCodeGiveaway {
+                course_id: course,
+                name: "Test giveaway".to_string(),
+            },
+        )
+        .await
+        .unwrap();
 
         let codes = vec![
             "code1".to_string(),

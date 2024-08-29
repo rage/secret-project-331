@@ -23,7 +23,6 @@ function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes>
 const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCardAttributes>>> = (
   props,
 ) => {
-  console.log("asd", props)
   if (isBlockImage(props.data.innerBlocks[0]) && props.data.innerBlocks.length == 1) {
     const imageBlock = props.data.innerBlocks[0] as Block<FlipCardAttributes>
     const imageLink = imageBlock.attributes.href

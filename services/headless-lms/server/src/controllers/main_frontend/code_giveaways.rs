@@ -217,6 +217,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("{id}", web::get().to(get_code_giveaway_by_id))
     .route("{id}/codes", web::get().to(get_codes_by_code_giveaway_id))
     .route(
+        "{id}/codes/csv",
+        web::get().to(get_codes_by_code_giveaway_id_csv),
+    )
+    .route("{id}/codes", web::post().to(add_codes_to_code_giveaway))
+    .route(
         "{id}/codes/{code_id}",
         web::delete().to(delete_code_giveaway_code),
     );

@@ -32,6 +32,7 @@
   "course-progress-placeholder": "Course progress placeholder",
   "course-progress-placeholder-explanation": "This block is placed on the course material where you wish to show to the user their current progress and how many points they have gotten from the whole course.",
   "default": "Default",
+  "label-default": "Default",
   "default-question": "Insert question here",
   "delete": "Delete",
   "edit": "Edit",

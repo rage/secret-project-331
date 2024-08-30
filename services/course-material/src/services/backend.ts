@@ -88,6 +88,7 @@ import {
 } from "@/shared-module/common/bindings.guard"
 import {
   isArray,
+  isBoolean,
   isNull,
   isNumber,
   isObjectMap,
@@ -714,4 +715,19 @@ export const sendChatbotMessage = async (
   }
 
   return stream
+}
+
+export const fetchGivenCodeFromCodeGiveaway = async (id: string): Promise<string | null> => {
+  const response = await courseMaterialClient.get(`/code-giveaways/${id}/given-code`)
+  return validateResponse(response, isUnion(isString, isNull))
+}
+
+export const fetchCodesLeftInCodeGiveaway = async (id: string): Promise<boolean> => {
+  const response = await courseMaterialClient.get(`/code-giveaways/${id}/codes-left`)
+  return validateResponse(response, isBoolean)
+}
+
+export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {
+  const response = await courseMaterialClient.post(`/code-giveaways/${id}/claim`)
+  return validateResponse(response, isString)
 }

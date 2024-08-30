@@ -61,6 +61,7 @@ fn models(target: &mut File) {
         code_giveaway_codes::CodeGiveawayCode,
         code_giveaways::CodeGiveaway,
         code_giveaways::NewCodeGiveaway,
+        code_giveaways::CodeGiveawayStatus,
         course_background_question_answers::CourseBackgroundQuestionAnswer,
         course_background_question_answers::NewCourseBackgroundQuestionAnswer,
         course_background_questions::CourseBackgroundQuestion,

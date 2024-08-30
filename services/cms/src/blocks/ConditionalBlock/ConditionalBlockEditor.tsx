@@ -12,6 +12,7 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
 
+import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -112,7 +113,9 @@ const ConditionalBlockEditor: React.FC<
           </Wrapper>
         )}
       </InspectorControls>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <InnerBlocksWrapper title={t("conditionally-shown-content")}>
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      </InnerBlocksWrapper>
     </BlockPlaceholderWrapper>
   )
 }

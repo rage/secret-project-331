@@ -115,6 +115,7 @@
   "slide-title": "Slide {{ number }}",
   "start": "Start",
   "table-box": "Tablebox",
+  "select-an-option": "Select an option",
   "table-box-description": "This is a custom table block with colored background",
   "table-width-customizer": "Table width customizer",
   "task": "Task",

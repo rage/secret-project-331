@@ -22,7 +22,7 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
 }) => {
   const [name, setName] = useState("")
 
-  const valid = useMemo(() => name.trim() === "", [name])
+  const valid = useMemo(() => name.trim() !== "", [name])
   const { t } = useTranslation()
 
   const createCodeGiveawayMutation = useToastMutation(

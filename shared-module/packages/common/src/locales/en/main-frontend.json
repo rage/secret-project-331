@@ -392,6 +392,7 @@
   "link-course-instances": "Course instances",
   "link-edit-exam-instructions": "Edit exam instructions",
   "link-exercises": "Exercises",
+  "link-export-given-codes-as-csv": "Export given codes as CSV",
   "link-export-completions": "Export completions as CSV",
   "link-export-course-instances": "Export course instances as CSV",
   "link-export-course-user-consents": "Export course research consent form answers as CSV",

@@ -64,7 +64,8 @@ where
         "code".to_string(),
     ]);
 
-    let mut stream = code_giveaway_codes::stream_code_giveaway_codes(conn, code_giveaway_id).await;
+    let mut stream =
+        code_giveaway_codes::stream_given_code_giveaway_codes(conn, code_giveaway_id).await;
 
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {

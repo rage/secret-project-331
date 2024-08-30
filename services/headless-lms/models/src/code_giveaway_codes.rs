@@ -46,7 +46,7 @@ pub async fn insert_many(
 
     query_builder.push_values(input, |mut b, code| {
         b.push_bind(code_giveaway_id)
-            .push_bind(code)
+            .push_bind(code.trim())
             .push_bind(added_by_user_id);
     });
 
@@ -145,7 +145,7 @@ RETURNING *
     Ok(res)
 }
 
-pub async fn stream_code_giveaway_codes<'a>(
+pub async fn stream_given_code_giveaway_codes<'a>(
     conn: &'a mut PgConnection,
     code_giveaway_id: Uuid,
 ) -> impl Stream<Item = sqlx::Result<CodeGiveawayCode>> + 'a {
@@ -156,6 +156,7 @@ SELECT *
 FROM code_giveaway_codes
 WHERE code_giveaway_id = $1
   AND deleted_at IS NULL
+  AND code_given_to_user_id IS NOT NULL
             "#,
         code_giveaway_id
     )

@@ -28,11 +28,14 @@ CREATE TABLE code_giveaway_codes (
   code_giveaway_id UUID NOT NULL REFERENCES code_giveaways(id),
   code_given_to_user_id UUID REFERENCES users(id),
   added_by_user_id UUID NOT NULL REFERENCES users(id),
-  code VARCHAR(2048) NOT NULL
+  code VARCHAR(2048) NOT NULL,
+  -- No duplicate codes in a giveaway
+  UNIQUE NULLS NOT DISTINCT (code_giveaway_id, code, deleted_at)
 );
 -- A user can only receive one code from a giveaway. We use unique index here because if we used a unique constraint we would like to have NULLS NOT disctinct on the delted_at column but NULLS DISTINCT on the code_given_to_user_id column. This did not seem possible so we use a unique index instead.
 CREATE UNIQUE INDEX giveaway_codes_one_code_per_user ON code_giveaway_codes (code_giveaway_id, code_given_to_user_id)
 WHERE deleted_at IS NULL;
+
 
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON code_giveaway_codes FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();

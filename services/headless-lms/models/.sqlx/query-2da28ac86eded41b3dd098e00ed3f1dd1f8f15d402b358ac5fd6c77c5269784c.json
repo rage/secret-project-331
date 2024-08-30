@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM code_giveaway_codes\nWHERE code_giveaway_id = $1\n  AND deleted_at IS NULL\n            ",
+  "query": "\nSELECT *\nFROM code_giveaway_codes\nWHERE code_giveaway_id = $1\n  AND deleted_at IS NULL\n  AND code_given_to_user_id IS NOT NULL\n            ",
   "describe": {
     "columns": [
       {
@@ -49,5 +49,5 @@
     },
     "nullable": [false, false, false, true, false, true, false, false]
   },
-  "hash": "28b1b1b396225e973197fc1e6dceefbaeab6f4da8a96c4ced3824c3f55217b94"
+  "hash": "2da28ac86eded41b3dd098e00ed3f1dd1f8f15d402b358ac5fd6c77c5269784c"
 }

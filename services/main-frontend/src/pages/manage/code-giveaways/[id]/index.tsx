@@ -14,10 +14,6 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 
-const CodesWrapper = styled.div`
-  margin: 2rem 0;
-`
-
 const CodeGiveawayPage = () => {
   const router = useRouter()
   const { id } = router.query
@@ -61,16 +57,26 @@ const CodeGiveawayPage = () => {
         {t("heading-code-giveaway-name", { name: codeGiveawayQuery.data?.name ?? "" })}
       </h1>
 
-      <Button
-        size="medium"
-        variant="primary"
-        onClick={() => setRevealCodes(!revealCodes)}
+      <div
         className={css`
           margin-top: 1rem;
         `}
       >
-        {t(revealCodes ? "hide" : "reveal")}
-      </Button>
+        <Button size="medium" variant="primary" onClick={() => setRevealCodes(!revealCodes)}>
+          {t(revealCodes ? "hide" : "reveal")}
+        </Button>
+        <a href={`/api/v0/main-frontend/code-giveaways/${id}/codes/csv`} download>
+          <Button
+            size="medium"
+            variant="primary"
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            {t("link-export-given-codes-as-csv")}
+          </Button>
+        </a>
+      </div>
       <FullWidthTable>
         <thead>
           <FullWidthTableRow>

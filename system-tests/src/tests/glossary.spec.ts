@@ -38,6 +38,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
 
   await page.locator("[aria-label=\"Manage course 'Glossary course'\"] svg").click()
 
+  await page.getByRole("tab", { name: "Other" }).click()
   await Promise.all([page.getByRole("tab", { name: "Glossary" }).click()])
 
   await page.getByRole("button", { name: "Edit" }).first().click()

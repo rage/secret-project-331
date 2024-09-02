@@ -16,7 +16,8 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   ])
 
   await page.locator("[aria-label=\"Manage course \\'Introduction to citations\\'\"] svg").click()
-
+  await page.getByRole("tab", { name: "Other" }).click()
+  await page.getByRole("tab", { name: "References" }).click()
   await page.locator('a[role="tab"]:has-text("References")').click()
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/049061ba-ac30-49f1-aa9d-b7566dc22b78/references",

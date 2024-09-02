@@ -1,72 +1,23 @@
 //! Controllers for requests starting with `/api/v0/course-material/code-giveaways`.
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
+use models::code_giveaways::CodeGiveawayStatus;
 
 /**
- GET /api/v0/course-material/code-giveaways/:id/given-code - If the user has gotten a code from the giveaway, returns the code. Otherwise returns null.
+ GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
 */
 #[instrument(skip(pool))]
 async fn get_given_code_for_code_giveaway(
     user: AuthUser,
     code_giveaway_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Option<String>>> {
+) -> ControllerResult<web::Json<CodeGiveawayStatus>> {
     let mut conn = pool.acquire().await?;
-    let given_code =
-        models::code_giveaway_codes::get_code_given_to_user(&mut conn, *code_giveaway_id, user.id)
-            .await?
-            .map(|o| o.code);
     let token = skip_authorize();
-    token.authorized_ok(web::Json(given_code))
-}
-
-/**
- GET /api/v0/course-material/code-giveaways/:id/codes-left - Returns whether there are any codes left in the code giveaway.
-*/
-#[instrument(skip(pool))]
-async fn are_any_codes_left_for_code_giveaway(
-    code_giveaway_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<bool>> {
-    let mut conn = pool.acquire().await?;
-    // If user has not completed the required course module, don't leak the information.
-    let code_giveaway = models::code_giveaways::get_by_id(&mut conn, *code_giveaway_id).await?;
-    if let Some(course_module_id) = code_giveaway.course_module_id {
-        let course_module_completions =
-            models::course_module_completions::get_all_by_user_id_and_course_module_id(
-                &mut conn,
-                user.id,
-                course_module_id,
-            )
+    let res =
+        models::code_giveaways::get_code_giveaway_status(&mut conn, *code_giveaway_id, user.id)
             .await?;
-
-        course_module_completions
-            .iter()
-            .find(|c| c.passed)
-            .ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "You have not completed the required course module.".to_string(),
-                    None,
-                )
-            })?;
-    }
-    // If the user has already gotten a code, don't leak the information anymore.
-    let already_given_code =
-        models::code_giveaway_codes::get_code_given_to_user(&mut conn, *code_giveaway_id, user.id)
-            .await?;
-    if already_given_code.is_some() {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "You have already gotten a code.".to_string(),
-            None,
-        ));
-    }
-    let codes_left =
-        models::code_giveaway_codes::are_any_codes_left(&mut conn, *code_giveaway_id).await?;
-    let token = skip_authorize();
-    token.authorized_ok(web::Json(codes_left))
+    token.authorized_ok(web::Json(res))
 }
 
 /**
@@ -147,12 +98,8 @@ async fn claim_code_from_code_giveaway(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "code-giveaways/{id}/given-code",
+        "code-giveaways/{id}/status",
         web::get().to(get_given_code_for_code_giveaway),
-    )
-    .route(
-        "code-giveaways/{id}/codes-left",
-        web::get().to(are_any_codes_left_for_code_giveaway),
     )
     .route(
         "code-giveaways/{id}/claim",

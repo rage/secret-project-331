@@ -23,15 +23,10 @@ pub struct NewCodeGiveaway {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CodeGiveawayStatus {
-    Disabled {
-        /// In case the user has already gotten a code, and this got disabled after that.
-        given_code: Option<String>,
-    },
+    Disabled,
     NotEligible,
-    Eligible {
-        given_code: Option<String>,
-        codes_left: bool,
-    },
+    Eligible { codes_left: bool },
+    AlreadyGottenCode { given_code: String },
 }
 
 pub async fn insert(conn: &mut PgConnection, input: &NewCodeGiveaway) -> ModelResult<CodeGiveaway> {
@@ -116,11 +111,7 @@ pub async fn get_code_giveaway_status(
 ) -> ModelResult<CodeGiveawayStatus> {
     let code_giveaway = get_by_id(conn, code_giveaway_id).await?;
     if !code_giveaway.enabled {
-        let given_code =
-            crate::code_giveaway_codes::get_code_given_to_user(conn, code_giveaway_id, user_id)
-                .await?
-                .map(|c| c.code);
-        return Ok(CodeGiveawayStatus::Disabled { given_code });
+        return Ok(CodeGiveawayStatus::Disabled);
     }
 
     if let Some(course_module_id) = code_giveaway.course_module_id {
@@ -132,26 +123,22 @@ pub async fn get_code_giveaway_status(
             )
             .await?;
 
-        if course_module_completions
-            .iter()
-            .find(|c| c.passed)
-            .is_none()
+        if !course_module_completions
+            .iter().any(|c| c.passed)
         {
             return Ok(CodeGiveawayStatus::NotEligible);
         }
     }
-
     let already_given_code =
         crate::code_giveaway_codes::get_code_given_to_user(conn, code_giveaway_id, user_id).await?;
-    if already_given_code.is_some() {
-        return Ok(CodeGiveawayStatus::Disabled {
-            given_code: already_given_code.map(|c| c.code),
+
+    if let Some(code) = already_given_code {
+        return Ok(CodeGiveawayStatus::AlreadyGottenCode {
+            given_code: code.code,
         });
     }
 
     let codes_left = crate::code_giveaway_codes::are_any_codes_left(conn, code_giveaway_id).await?;
-    Ok(CodeGiveawayStatus::Eligible {
-        given_code: None,
-        codes_left,
-    })
+
+    Ok(CodeGiveawayStatus::Eligible { codes_left })
 }

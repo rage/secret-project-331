@@ -39,6 +39,7 @@ import {
   CmsPeerOrSelfReviewQuestion,
   CodeGiveaway,
   CodeGiveawayCode,
+  CodeGiveawayStatus,
   CompletionPolicy,
   CompletionRegistrationLink,
   ContentManagementPage,
@@ -634,6 +635,23 @@ export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["name"] === "string"
+  )
+}
+
+export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
+  const typedObj = obj as CodeGiveawayStatus
+  return (
+    typedObj === "Disabled" ||
+    typedObj === "NotEligible" ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      ((typedObj["Eligible"] !== null && typeof typedObj["Eligible"] === "object") ||
+        typeof typedObj["Eligible"] === "function") &&
+      typeof typedObj["Eligible"]["codes_left"] === "boolean") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      ((typedObj["AlreadyGottenCode"] !== null &&
+        typeof typedObj["AlreadyGottenCode"] === "object") ||
+        typeof typedObj["AlreadyGottenCode"] === "function") &&
+      typeof typedObj["AlreadyGottenCode"]["given_code"] === "string")
   )
 }
 

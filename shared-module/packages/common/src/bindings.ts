@@ -242,6 +242,12 @@ export interface NewCodeGiveaway {
   name: string
 }
 
+export type CodeGiveawayStatus =
+  | "Disabled"
+  | "NotEligible"
+  | { Eligible: { codes_left: boolean } }
+  | { AlreadyGottenCode: { given_code: string } }
+
 export interface CourseBackgroundQuestionAnswer {
   id: string
   created_at: string

@@ -17,6 +17,8 @@ import ExerciseSlides from "./Exercise/ExerciseSlides"
 import ExerciseTask from "./Exercise/ExerciseTask"
 import ExerciseCustomView from "./ExerciseCustomView"
 import ExerciseInChapter from "./ExerciseInChapter"
+import ExpendableContent from "./ExpandableContent"
+import ExpendableContentInnerBlock from "./ExpandableContent/ExpandableContentInnerBlock"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import HightlightBox from "./HighlightBox"
@@ -68,6 +70,9 @@ export const blockTypeMapForPages = [
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   ["moocfi/partners", PartnersBlock],
   ["moocfi/top-level-pages", TopLevelPage],
+  ["moocfi/expandable-content", ExpendableContent],
+  ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

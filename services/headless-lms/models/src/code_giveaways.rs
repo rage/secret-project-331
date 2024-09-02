@@ -22,6 +22,7 @@ pub struct NewCodeGiveaway {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(tag = "tag")]
 pub enum CodeGiveawayStatus {
     Disabled,
     NotEligible,
@@ -123,9 +124,7 @@ pub async fn get_code_giveaway_status(
             )
             .await?;
 
-        if !course_module_completions
-            .iter().any(|c| c.passed)
-        {
+        if !course_module_completions.iter().any(|c| c.passed) {
             return Ok(CodeGiveawayStatus::NotEligible);
         }
     }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE code_giveaway_codes\nSET code_given_to_user_id = $2\nWHERE code_giveaway_id = $1\n  AND code_given_to_user_id IS NULL\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "query": "\nWITH to_update AS (\n    SELECT *\n    FROM code_giveaway_codes\n    WHERE code_giveaway_id = $1\n      AND code_given_to_user_id IS NULL\n      AND deleted_at IS NULL\n    LIMIT 1\n)\nUPDATE code_giveaway_codes cgc\nSET code_given_to_user_id = $2\nFROM to_update\nWHERE cgc.id = to_update.id\nRETURNING cgc.*\n        ",
   "describe": {
     "columns": [
       {
@@ -49,5 +49,5 @@
     },
     "nullable": [false, false, false, true, false, true, false, false]
   },
-  "hash": "36b71b769e5b8c7a058ffed11832fb83c88ca543b071e71dfe39aa31a9ffecda"
+  "hash": "e941c02282b09c80611b29d8b5dadf20dbcc60f879124b6462b8c7dc21eaf260"
 }

@@ -641,17 +641,16 @@ export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
 export function isCodeGiveawayStatus(obj: unknown): obj is CodeGiveawayStatus {
   const typedObj = obj as CodeGiveawayStatus
   return (
-    typedObj === "Disabled" ||
-    typedObj === "NotEligible" ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      ((typedObj["Eligible"] !== null && typeof typedObj["Eligible"] === "object") ||
-        typeof typedObj["Eligible"] === "function") &&
-      typeof typedObj["Eligible"]["codes_left"] === "boolean") ||
+      typedObj["tag"] === "Disabled") ||
     (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-      ((typedObj["AlreadyGottenCode"] !== null &&
-        typeof typedObj["AlreadyGottenCode"] === "object") ||
-        typeof typedObj["AlreadyGottenCode"] === "function") &&
-      typeof typedObj["AlreadyGottenCode"]["given_code"] === "string")
+      typedObj["tag"] === "NotEligible") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "Eligible" &&
+      typeof typedObj["codes_left"] === "boolean") ||
+    (((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+      typedObj["tag"] === "AlreadyGottenCode" &&
+      typeof typedObj["given_code"] === "string")
   )
 }
 

@@ -8,6 +8,7 @@ import {
   ChaptersWithStatus,
   ChatbotConversation,
   ChatbotConversationInfo,
+  CodeGiveawayStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
@@ -54,6 +55,7 @@ import {
   isChaptersWithStatus,
   isChatbotConversation,
   isChatbotConversationInfo,
+  isCodeGiveawayStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
@@ -88,7 +90,6 @@ import {
 } from "@/shared-module/common/bindings.guard"
 import {
   isArray,
-  isBoolean,
   isNull,
   isNumber,
   isObjectMap,
@@ -717,14 +718,12 @@ export const sendChatbotMessage = async (
   return stream
 }
 
-export const fetchGivenCodeFromCodeGiveaway = async (id: string): Promise<string | null> => {
-  const response = await courseMaterialClient.get(`/code-giveaways/${id}/given-code`)
-  return validateResponse(response, isUnion(isString, isNull))
-}
-
-export const fetchCodesLeftInCodeGiveaway = async (id: string): Promise<boolean> => {
-  const response = await courseMaterialClient.get(`/code-giveaways/${id}/codes-left`)
-  return validateResponse(response, isBoolean)
+/**
+ GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
+*/
+export const getCodeGiveawayStatus = async (id: string): Promise<CodeGiveawayStatus> => {
+  const response = await courseMaterialClient.get(`/code-giveaways/${id}/status`)
+  return validateResponse(response, isCodeGiveawayStatus)
 }
 
 export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {

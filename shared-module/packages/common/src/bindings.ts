@@ -243,10 +243,10 @@ export interface NewCodeGiveaway {
 }
 
 export type CodeGiveawayStatus =
-  | "Disabled"
-  | "NotEligible"
-  | { Eligible: { codes_left: boolean } }
-  | { AlreadyGottenCode: { given_code: string } }
+  | { tag: "Disabled" }
+  | { tag: "NotEligible" }
+  | { tag: "Eligible"; codes_left: boolean }
+  | { tag: "AlreadyGottenCode"; given_code: string }
 
 export interface CourseBackgroundQuestionAnswer {
   id: string

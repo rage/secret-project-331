@@ -130,12 +130,19 @@ pub async fn give_some_code_to_user(
     let res = sqlx::query_as!(
         CodeGiveawayCode,
         r#"
-UPDATE code_giveaway_codes
+WITH to_update AS (
+    SELECT *
+    FROM code_giveaway_codes
+    WHERE code_giveaway_id = $1
+      AND code_given_to_user_id IS NULL
+      AND deleted_at IS NULL
+    LIMIT 1
+)
+UPDATE code_giveaway_codes cgc
 SET code_given_to_user_id = $2
-WHERE code_giveaway_id = $1
-  AND code_given_to_user_id IS NULL
-  AND deleted_at IS NULL
-RETURNING *
+FROM to_update
+WHERE cgc.id = to_update.id
+RETURNING cgc.*
         "#,
         code_giveaway_id,
         user_id

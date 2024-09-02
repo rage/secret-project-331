@@ -5,7 +5,7 @@ CREATE TABLE code_giveaways (
   deleted_at TIMESTAMP WITH TIME ZONE,
   course_id UUID NOT NULL REFERENCES courses(id),
   course_module_id UUID REFERENCES course_modules(id),
-  enabled BOOLEAN NOT NULL DEFAULT FALSE,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
   name VARCHAR(2048) NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE

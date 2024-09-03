@@ -40,6 +40,11 @@
       },
       {
         "ordinal": 7,
+        "name": "require_course_specific_research_consent",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
         "name": "name",
         "type_info": "Varchar"
       }
@@ -47,7 +52,7 @@
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, false, false]
+    "nullable": [false, false, false, true, false, true, false, false, false]
   },
   "hash": "cfff68ad0ab3cac139a34e02f42133ec1aa81d264982b0381c4fe42f08eceb81"
 }

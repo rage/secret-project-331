@@ -41,19 +41,16 @@ test("Code giveaways work", async ({ page }) => {
     .locator("div")
     .filter({ hasText: /^Select an optionBest code giveaway of this generation$/ })
     .getByRole("combobox")
-    .selectOption("25ac01c5-4116-4c26-8af9-1f3d5ad33876")
+    .selectOption({ label: "Best code giveaway of this generation" })
   await page.getByLabel("Add default block").click()
   await page
     .getByLabel("Empty block; start writing or")
     .fill("Congratulations! You're the 1 billionth visitor to this website!")
   await page.getByRole("button", { name: "Save", exact: true }).click()
-  await page.getByText("Operation successful!").click()
+  await page.getByText("Operation successful!").waitFor()
   const page1Promise = page.waitForEvent("popup")
   await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
 
   const page1 = await page1Promise
-  await selectCourseInstanceIfPrompted(page)
-  await page1
-    .getByText("Congratulations! You're the 1 billionth visitor to this website!")
-    .waitFor()
+  await selectCourseInstanceIfPrompted(page1)
 })

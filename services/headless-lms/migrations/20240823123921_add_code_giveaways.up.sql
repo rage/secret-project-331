@@ -6,6 +6,7 @@ CREATE TABLE code_giveaways (
   course_id UUID NOT NULL REFERENCES courses(id),
   course_module_id UUID REFERENCES course_modules(id),
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  require_course_specific_research_consent BOOLEAN NOT NULL DEFAULT FALSE,
   name VARCHAR(2048) NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE

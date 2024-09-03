@@ -9,6 +9,7 @@ pub struct CodeGiveaway {
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
     pub course_module_id: Option<Uuid>,
+    pub require_course_specific_research_consent: bool,
     pub enabled: bool,
     pub name: String,
 }
@@ -18,6 +19,8 @@ pub struct CodeGiveaway {
 pub struct NewCodeGiveaway {
     pub course_id: Uuid,
     pub name: String,
+    pub course_module_id: Option<Uuid>,
+    pub require_course_specific_research_consent: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -34,12 +37,14 @@ pub async fn insert(conn: &mut PgConnection, input: &NewCodeGiveaway) -> ModelRe
     let res = sqlx::query_as!(
         CodeGiveaway,
         r#"
-INSERT INTO code_giveaways (course_id, name)
-VALUES ($1, $2)
+INSERT INTO code_giveaways (course_id, name, course_module_id, require_course_specific_research_consent)
+VALUES ($1, $2, $3, $4)
 RETURNING *
         "#,
         input.course_id,
-        input.name
+        input.name,
+        input.course_module_id,
+        input.require_course_specific_research_consent
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -125,6 +130,21 @@ pub async fn get_code_giveaway_status(
             .await?;
 
         if !course_module_completions.iter().any(|c| c.passed) {
+            return Ok(CodeGiveawayStatus::NotEligible);
+        }
+    } else {
+        warn!(
+            "Code giveaway {} does not have a course module requirement",
+            code_giveaway_id
+        );
+        return Ok(CodeGiveawayStatus::Disabled);
+    }
+    if code_giveaway.require_course_specific_research_consent {
+        let research_form_answers =
+            crate::research_forms::get_all_research_form_answers_with_user_id(conn, user_id)
+                .await?;
+
+        if !research_form_answers.iter().any(|a| a.research_consent) {
             return Ok(CodeGiveawayStatus::NotEligible);
         }
     }

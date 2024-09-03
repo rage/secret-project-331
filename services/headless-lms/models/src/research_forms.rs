@@ -282,3 +282,25 @@ AND deleted_at IS NULL
     .await?;
     Ok(form_res)
 }
+
+pub async fn get_all_research_form_answers_with_user_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<ResearchFormQuestionAnswer>> {
+    let form_res = sqlx::query_as!(
+        ResearchFormQuestionAnswer,
+        "
+SELECT *
+FROM course_specific_consent_form_answers
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(form_res)
+}

@@ -152,6 +152,7 @@ RETURNING cgc.*
     Ok(res)
 }
 
+#[allow(clippy::needless_lifetimes)]
 pub async fn stream_given_code_giveaway_codes<'a>(
     conn: &'a mut PgConnection,
     code_giveaway_id: Uuid,
@@ -224,6 +225,8 @@ mod tests {
             &NewCodeGiveaway {
                 course_id: course,
                 name: "Test giveaway".to_string(),
+                course_module_id: None,
+                require_course_specific_research_consent: false,
             },
         )
         .await
@@ -245,6 +248,8 @@ mod tests {
             &NewCodeGiveaway {
                 course_id: course,
                 name: "Test giveaway".to_string(),
+                course_module_id: None,
+                require_course_specific_research_consent: false,
             },
         )
         .await

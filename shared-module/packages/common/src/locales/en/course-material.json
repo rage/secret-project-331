@@ -31,6 +31,7 @@
   "chatbot-disclaimer-start": "You are opening a chatbot based on a large language model (LLM). To use this chatbot, you must agree that you will...",
   "choose-a-language": "Choose a language",
   "choose-preferred-language": "Choose your preferred language",
+  "claim-code": "Claim code",
   "clear-selection": "Clear selection",
   "click-on-course-material-to-make-it-editable": "Click on course material to make it editable!",
   "close": "Close",
@@ -58,6 +59,7 @@
   "error-comment-cannot-be-empty": "Comment cannot be empty",
   "error-comment-too-long": "Comment is too long",
   "error-missing-course-instance-id": "Missing course instance id",
+  "error-no-code-giveaway-id": "Here should be a code giveaway but it has not been configured which giveaway should be shown.",
   "error-no-exercise-type-selected": "No exercise type selected",
   "error-page-data-in-invalid-format": "Error: page data is in invalid format",
   "error-page-does-not-belong-to-chapter": "This page does not belong to a chapter",
@@ -203,9 +205,7 @@
   "written-feedback": "Written feedback",
   "you-have-completed-the-course-to-receive-certificate-use-following-links": "You have successfully completed the course! You can use the following links to generate your certificate.",
   "you-have-completed-the-course-to-receive-credits-or-certificate-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion and receive a certificate.",
+  "your-code-code": "Your code is: {{code}}",
   "youve-made-changes": "You've made changes",
-  "youve-selected-material-for-editing": "You've selected material for editing",
-  "error-no-code-giveaway-id": "Here should be a code giveaway but it has not been configured which giveaway should be shown.",
-  "claim-code": "Claim code",
-  "your-code-code": "Your code is: {{code}}"
+  "youve-selected-material-for-editing": "You've selected material for editing"
 }

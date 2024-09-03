@@ -17,10 +17,8 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByText("Operation successful!").waitFor()
   await page.getByRole("link", { name: "Best code giveaway of this" }).click()
   await page.getByRole("button", { name: "Import" }).click()
-  await page
-    .getByLabel("Codes, one per linecode 1")
-    .fill("\n\n\ncode 1\n  code 2\n\n  code 3  \n\n\n")
-  await page.getByRole("button", { name: "Import" }).click()
+  await page.getByLabel("Codes, one per line").fill("\n\n\ncode 1\n  code 2\n\n  code 3  \n\n\n")
+  await page.getByRole("button", { name: "Create" }).click()
   await page.getByText("******").first().waitFor()
   await page.getByRole("button", { name: "Reveal" }).click()
   await page.getByText("code 1").waitFor()

@@ -293,5 +293,14 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let _giveaway_course_id = seed_sample_course(
+        Uuid::parse_str("f118ce1e-3511-4b5e-ba92-9ab91b81de22")?,
+        "Giveaway",
+        "giveaway",
+        uh_data.clone(),
+        seed_users_result,
+    )
+    .await?;
+
     Ok(uh_mathstat_id)
 }

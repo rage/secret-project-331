@@ -12,6 +12,8 @@ pub mod chapters;
 pub mod chatbot_configurations;
 pub mod chatbot_conversation_messages;
 pub mod chatbot_conversations;
+pub mod code_giveaway_codes;
+pub mod code_giveaways;
 pub mod course_background_question_answers;
 pub mod course_background_questions;
 pub mod course_exams;

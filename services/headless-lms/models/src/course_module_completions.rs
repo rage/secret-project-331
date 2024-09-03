@@ -306,6 +306,28 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_all_by_user_id_and_course_module_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_module_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletion>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletion,
+        "
+SELECT *
+FROM course_module_completions
+WHERE user_id = $1
+  AND course_module_id = $2
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        course_module_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_all_by_course_module_instance_and_user_ids(
     conn: &mut PgConnection,
     course_module_id: Uuid,

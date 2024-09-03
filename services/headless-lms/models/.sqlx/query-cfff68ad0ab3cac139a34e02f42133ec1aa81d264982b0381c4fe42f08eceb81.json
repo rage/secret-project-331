@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM code_giveaways\nWHERE id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "enabled",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "require_course_specific_consent_form_question_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, false, false, true, false, true, false, true, false]
+  },
+  "hash": "cfff68ad0ab3cac139a34e02f42133ec1aa81d264982b0381c4fe42f08eceb81"
+}

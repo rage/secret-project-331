@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CodeGiveawayStatus"],"fn":["get_all_for_course","get_by_id","get_code_giveaway_status","insert","set_enabled"],"struct":["CodeGiveaway","NewCodeGiveaway"]};

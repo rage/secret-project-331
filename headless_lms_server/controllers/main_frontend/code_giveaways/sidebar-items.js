@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_codes_to_code_giveaway","create_code_giveaway","delete_code_giveaway_code","get_code_giveaway_by_id","get_code_giveaways_by_course","get_codes_by_code_giveaway_id","get_codes_by_code_giveaway_id_csv"]};

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["_add_routes"],"mod":["course_instances","courses","email_templates","exams","exercise_services","gutenberg","organizations","pages","repository_exercises"]};
+window.SIDEBAR_ITEMS = {"fn":["_add_routes"],"mod":["code_giveaways","course_instances","courses","email_templates","exams","exercise_services","gutenberg","organizations","pages","repository_exercises"]};

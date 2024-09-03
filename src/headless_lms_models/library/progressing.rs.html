@@ -2458,7 +2458,7 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>tags_suspected_cheater() {
-        <span class="macro">insert_data!</span>(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+        <span class="macro">insert_data!</span>(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
 
         <span class="kw">crate</span>::library::course_instances::enroll(tx.as_mut(), user, instance.id, <span class="kw-2">&amp;</span>[])
             .<span class="kw">await
@@ -2526,7 +2526,7 @@
 
     <span class="attr">#[tokio::test]
     </span><span class="kw">async fn </span>doesnt_tag_suspected_cheater() {
-        <span class="macro">insert_data!</span>(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise, :slide, :task);
+        <span class="macro">insert_data!</span>(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
 
         <span class="kw">crate</span>::library::course_instances::enroll(tx.as_mut(), user, instance.id, <span class="kw-2">&amp;</span>[])
             .<span class="kw">await

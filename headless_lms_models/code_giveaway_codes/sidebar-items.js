@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["are_any_codes_left","delete_by_id","get_all_by_code_giveaway_id","get_by_id","get_code_given_to_user","give_some_code_to_user","insert_many","stream_given_code_giveaway_codes"],"struct":["CodeGiveawayCode"]};

@@ -295,6 +295,15 @@
 <a href="#295" id="295">295</a>
 <a href="#296" id="296">296</a>
 <a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -587,6 +596,15 @@
             presence_penalty: <span class="number">0.0</span>,
             response_max_tokens: <span class="number">500</span>,
         },
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>_giveaway_course_id = seed_sample_course(
+        Uuid::parse_str(<span class="string">"f118ce1e-3511-4b5e-ba92-9ab91b81de22"</span>)<span class="question-mark">?</span>,
+        <span class="string">"Giveaway"</span>,
+        <span class="string">"giveaway"</span>,
+        uh_data.clone(),
+        seed_users_result,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
 

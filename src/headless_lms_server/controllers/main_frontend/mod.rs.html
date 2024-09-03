@@ -64,6 +64,8 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 Handlers for HTTP requests to `/api/v0/main_frontend`.
 
@@ -73,6 +75,7 @@ This documents all endpoints. Select a module below for a category.
 
 </span><span class="kw">pub mod </span>certificates;
 <span class="kw">pub mod </span>chapters;
+<span class="kw">pub mod </span>code_giveaways;
 <span class="kw">pub mod </span>course_instances;
 <span class="kw">pub mod </span>course_modules;
 <span class="kw">pub mod </span>courses;
@@ -128,6 +131,7 @@ This documents all endpoints. Select a module below for a category.
         .service(web::scope(<span class="string">"/page_audio"</span>).configure(page_audio_files::_add_routes))
         .service(web::scope(<span class="string">"/user-details"</span>).configure(user_details::_add_routes))
         .service(web::scope(<span class="string">"/certificates"</span>).configure(certificates::_add_routes))
-        .service(web::scope(<span class="string">"/global-stats"</span>).configure(global_stats::_add_routes));
+        .service(web::scope(<span class="string">"/global-stats"</span>).configure(global_stats::_add_routes))
+        .service(web::scope(<span class="string">"/code-giveaways"</span>).configure(code_giveaways::_add_routes));
 }
 </code></pre></div></section></main></body></html>

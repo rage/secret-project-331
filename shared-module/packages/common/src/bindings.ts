@@ -233,7 +233,7 @@ export interface CodeGiveaway {
   deleted_at: string | null
   course_id: string
   course_module_id: string | null
-  require_course_specific_research_consent: boolean
+  require_course_specific_consent_form_question_id: string | null
   enabled: boolean
   name: string
 }
@@ -242,7 +242,7 @@ export interface NewCodeGiveaway {
   course_id: string
   name: string
   course_module_id: string | null
-  require_course_specific_research_consent: boolean
+  require_course_specific_consent_form_question_id: string | null
 }
 
 export type CodeGiveawayStatus =

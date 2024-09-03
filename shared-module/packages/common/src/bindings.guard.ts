@@ -624,7 +624,8 @@ export function isCodeGiveaway(obj: unknown): obj is CodeGiveaway {
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     typeof typedObj["course_id"] === "string" &&
     (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
-    typeof typedObj["require_course_specific_research_consent"] === "boolean" &&
+    (typedObj["require_course_specific_consent_form_question_id"] === null ||
+      typeof typedObj["require_course_specific_consent_form_question_id"] === "string") &&
     typeof typedObj["enabled"] === "boolean" &&
     typeof typedObj["name"] === "string"
   )
@@ -637,7 +638,8 @@ export function isNewCodeGiveaway(obj: unknown): obj is NewCodeGiveaway {
     typeof typedObj["course_id"] === "string" &&
     typeof typedObj["name"] === "string" &&
     (typedObj["course_module_id"] === null || typeof typedObj["course_module_id"] === "string") &&
-    typeof typedObj["require_course_specific_research_consent"] === "boolean"
+    (typedObj["require_course_specific_consent_form_question_id"] === null ||
+      typeof typedObj["require_course_specific_consent_form_question_id"] === "string")
   )
 }
 

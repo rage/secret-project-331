@@ -9,7 +9,7 @@ pub struct CodeGiveaway {
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
     pub course_module_id: Option<Uuid>,
-    pub require_course_specific_research_consent: bool,
+    pub require_course_specific_consent_form_question_id: Option<Uuid>,
     pub enabled: bool,
     pub name: String,
 }
@@ -20,7 +20,7 @@ pub struct NewCodeGiveaway {
     pub course_id: Uuid,
     pub name: String,
     pub course_module_id: Option<Uuid>,
-    pub require_course_specific_research_consent: bool,
+    pub require_course_specific_consent_form_question_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -37,14 +37,14 @@ pub async fn insert(conn: &mut PgConnection, input: &NewCodeGiveaway) -> ModelRe
     let res = sqlx::query_as!(
         CodeGiveaway,
         r#"
-INSERT INTO code_giveaways (course_id, name, course_module_id, require_course_specific_research_consent)
+INSERT INTO code_giveaways (course_id, name, course_module_id, require_course_specific_consent_form_question_id)
 VALUES ($1, $2, $3, $4)
 RETURNING *
         "#,
         input.course_id,
         input.name,
         input.course_module_id,
-        input.require_course_specific_research_consent
+        input.require_course_specific_consent_form_question_id
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -139,10 +139,15 @@ pub async fn get_code_giveaway_status(
         );
         return Ok(CodeGiveawayStatus::Disabled);
     }
-    if code_giveaway.require_course_specific_research_consent {
+    if let Some(question_id) = code_giveaway.require_course_specific_consent_form_question_id {
         let research_form_answers =
-            crate::research_forms::get_all_research_form_answers_with_user_id(conn, user_id)
-                .await?;
+            crate::research_forms::get_all_research_form_answers_with_user_course_and_question_id(
+                conn,
+                user_id,
+                code_giveaway.course_id,
+                question_id,
+            )
+            .await?;
 
         if !research_form_answers.iter().any(|a| a.research_consent) {
             return Ok(CodeGiveawayStatus::NotEligible);

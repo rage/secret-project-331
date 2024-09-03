@@ -40,8 +40,8 @@
       },
       {
         "ordinal": 7,
-        "name": "require_course_specific_research_consent",
-        "type_info": "Bool"
+        "name": "require_course_specific_consent_form_question_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 8,
@@ -52,7 +52,7 @@
     "parameters": {
       "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, false, false, false]
+    "nullable": [false, false, false, true, false, true, false, true, false]
   },
   "hash": "25128916d3132e8c6a18b311ff0bf41c6f456c0442074005c37cf8c4f5fe3742"
 }

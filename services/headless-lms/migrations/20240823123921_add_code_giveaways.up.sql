@@ -6,7 +6,7 @@ CREATE TABLE code_giveaways (
   course_id UUID NOT NULL REFERENCES courses(id),
   course_module_id UUID REFERENCES course_modules(id),
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
-  require_course_specific_research_consent BOOLEAN NOT NULL DEFAULT FALSE,
+  require_course_specific_consent_form_question_id UUID REFERENCES public.course_specific_consent_form_questions(id),
   name VARCHAR(2048) NOT NULL
 );
 CREATE TRIGGER set_timestamp BEFORE
@@ -20,6 +20,7 @@ COMMENT ON COLUMN code_giveaways.course_id IS 'The course the code giveaway is a
 COMMENT ON COLUMN code_giveaways.course_module_id IS 'The course module the code giveaway is available on. If null, the giveaway has not been placed on a course module on the CMS.';
 COMMENT ON COLUMN code_giveaways.enabled IS 'If the giveaway is enabled, the codes can be given to students.';
 COMMENT ON COLUMN code_giveaways.name IS 'The name of the giveaway.';
+COMMENT ON COLUMN code_giveaways.require_course_specific_consent_form_question_id IS 'If not null, the student needs to consent to this question to receive a code from the giveaway.';
 
 CREATE TABLE code_giveaway_codes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

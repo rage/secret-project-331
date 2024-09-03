@@ -66,12 +66,13 @@ async fn claim_code_from_code_giveaway(
         ));
     }
 
-    if code_giveaway.require_course_specific_research_consent {
+    if let Some(question_id) = code_giveaway.require_course_specific_consent_form_question_id {
         let answers =
-            models::research_forms::get_all_research_form_answers_with_user_and_course_id(
+            models::research_forms::get_all_research_form_answers_with_user_course_and_question_id(
                 &mut conn,
                 user.id,
                 code_giveaway.course_id,
+                question_id,
             )
             .await
             .optional()?;

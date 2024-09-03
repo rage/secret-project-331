@@ -226,7 +226,7 @@ mod tests {
                 course_id: course,
                 name: "Test giveaway".to_string(),
                 course_module_id: None,
-                require_course_specific_research_consent: false,
+                require_course_specific_consent_form_question_id: None,
             },
         )
         .await
@@ -249,7 +249,7 @@ mod tests {
                 course_id: course,
                 name: "Test giveaway".to_string(),
                 course_module_id: None,
-                require_course_specific_research_consent: false,
+                require_course_specific_consent_form_question_id: None,
             },
         )
         .await

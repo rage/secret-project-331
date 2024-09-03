@@ -1,6 +1,6 @@
 import { mainFrontendClient } from "../mainFrontendClient"
 
-import { CodeGiveaway, CodeGiveawayCode } from "@/shared-module/common/bindings"
+import { CodeGiveaway, CodeGiveawayCode, NewCodeGiveaway } from "@/shared-module/common/bindings"
 import { isCodeGiveaway, isCodeGiveawayCode } from "@/shared-module/common/bindings.guard"
 import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
@@ -9,8 +9,8 @@ export const fetchCodeGiveawaysByCourse = async (courseId: string): Promise<Code
   return validateResponse(response, isArray(isCodeGiveaway))
 }
 
-export const createCodeGiveaway = async (courseId: string, name: string): Promise<CodeGiveaway> => {
-  const response = await mainFrontendClient.post("/code-giveaways", { course_id: courseId, name })
+export const createCodeGiveaway = async (input: NewCodeGiveaway): Promise<CodeGiveaway> => {
+  const response = await mainFrontendClient.post("/code-giveaways", input)
   return validateResponse(response, isCodeGiveaway)
 }
 

@@ -1,3 +1,4 @@
+pub mod code_giveaway_codes;
 pub mod course_instance_export;
 pub mod course_research_form_questions_answers_export;
 pub mod exercise_tasks_export;
@@ -259,13 +260,8 @@ pub async fn general_export(
 
 #[cfg(test)]
 mod test {
-    use std::{
-        collections::HashMap,
-        io::{self, Cursor},
-        sync::mpsc::Sender,
-    };
+    use std::{collections::HashMap, io::Cursor};
 
-    use bytes::Bytes;
     use headless_lms_models::{
         exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,

@@ -8,6 +8,7 @@ import {
   ChaptersWithStatus,
   ChatbotConversation,
   ChatbotConversationInfo,
+  CodeGiveawayStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
@@ -54,6 +55,7 @@ import {
   isChaptersWithStatus,
   isChatbotConversation,
   isChatbotConversationInfo,
+  isCodeGiveawayStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
@@ -714,4 +716,17 @@ export const sendChatbotMessage = async (
   }
 
   return stream
+}
+
+/**
+ GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
+*/
+export const getCodeGiveawayStatus = async (id: string): Promise<CodeGiveawayStatus> => {
+  const response = await courseMaterialClient.get(`/code-giveaways/${id}/status`)
+  return validateResponse(response, isCodeGiveawayStatus)
+}
+
+export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {
+  const response = await courseMaterialClient.post(`/code-giveaways/${id}/claim`)
+  return validateResponse(response, isString)
 }

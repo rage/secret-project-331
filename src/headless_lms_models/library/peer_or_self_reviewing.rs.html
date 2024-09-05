@@ -759,6 +759,11 @@
 <a href="#759" id="759">759</a>
 <a href="#760" id="760">760</a>
 <a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::Duration;
@@ -1282,6 +1287,11 @@
                 .<span class="kw">await
                 </span>.optional()<span class="question-mark">?</span>;
             <span class="kw">if let </span><span class="prelude-val">Some</span>(ess) = ess {
+                <span class="comment">// Peer reviewing only works if there is a course_id and a course instance id in it.
+                </span><span class="kw">if </span>ess.course_id.is_none() || ess.course_instance_id.is_none() {
+                    <span class="macro">warn!</span>(exercise_slide_submission_id = %ess_id, <span class="string">"Selected exercise slide submission that doesn't have a course_id or course_instance_id. Skipping it."</span>);
+                    <span class="kw">continue</span>;
+                };
                 <span class="kw">if </span>ess.deleted_at.is_none() {
                     <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ess));
                 }

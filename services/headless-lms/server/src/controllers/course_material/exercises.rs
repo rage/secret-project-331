@@ -317,20 +317,47 @@ async fn submit_peer_or_self_review(
             payload.exercise_slide_submission_id,
         )
         .await?;
-    let receiver_user_exercise_state = user_exercise_states::get_users_current_by_exercise(
-        &mut conn,
-        exercise_slide_submission.user_id,
-        &exercise,
-    )
-    .await?;
-    models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
-        &mut conn,
-        &exercise,
-        giver_user_exercise_state,
-        receiver_user_exercise_state,
-        payload.0,
-    )
-    .await?;
+
+    if let Some(receiver_course_instance_id) = exercise_slide_submission.course_instance_id {
+        let receiver_user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
+            &mut conn,
+            exercise_slide_submission.user_id,
+            exercise.id,
+            user_exercise_states::CourseInstanceOrExamId::Instance(receiver_course_instance_id),
+        )
+        .await?;
+        if let Some(receiver_user_exercise_state) = receiver_user_exercise_state {
+            models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
+            &mut conn,
+            &exercise,
+            giver_user_exercise_state,
+            receiver_user_exercise_state,
+            payload.0,
+        )
+        .await?;
+        } else {
+            warn!(
+                "No user exercise state found for receiver's exercise slide submission id: {}",
+                exercise_slide_submission.id
+            );
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "No user exercise state found for receiver's exercise slide submission."
+                    .to_string(),
+                None,
+            ));
+        }
+    } else {
+        warn!(
+            "No course instance id found for receiver's exercise slide submission id: {}",
+            exercise_slide_submission.id
+        );
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "No course instance id found for receiver's exercise slide submission.".to_string(),
+            None,
+        ));
+    }
     let token = skip_authorize();
     token.authorized_ok(web::Json(true))
 }

@@ -37,6 +37,7 @@ const useCombinedRefs = (
   }, [innerRef, fwdRef])
   return innerRef
 }
+
 const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   (
     {
@@ -66,13 +67,38 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         updateHeight(textareaRef)
       }
     }
+
     useEffect(() => {
-      // This auto-resizes the textarea if the feature is enabled
-      if (!autoResize || !textareaRef.current) {
+      if (!autoResize) {
         return
       }
       updateHeight(textareaRef)
-    }, [ref, rest.value, autoResize])
+    }, [autoResize])
+
+    useEffect(() => {
+      // When a peer review editor is rendered in an exercise, this component is rendered in a hidden state. Thus, the element scrollHeight is 0. We use an intersection observer to detect when the element is visible and then update the height.
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && textareaRef.current) {
+            updateHeight(textareaRef)
+            break
+          }
+        }
+      })
+
+      const currentTextareaRef = textareaRef.current
+
+      if (currentTextareaRef) {
+        observer.observe(currentTextareaRef)
+      }
+
+      return () => {
+        if (currentTextareaRef) {
+          observer.disconnect()
+        }
+      }
+    }, [])
+
     return (
       <div
         className={cx(
@@ -104,7 +130,6 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
           <textarea
             ref={combinedRef}
             onChange={handleOnChange}
-            /* onKeyPress={(event) => onKeyPress(event)} */
             defaultValue={rest.defaultValue}
             {...rest}
           />

@@ -60,6 +60,8 @@ import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import PartnersBlock from "./moocfi/PartnersBlock"
 import ResearchConsentQuestionBlock from "./moocfi/ResearchConsentQuestionBlock"
+import RevealableContentBlock from "./moocfi/RevealableContentBlock/RevealableContentBlock"
+import RevealableHiddenContentBlock from "./moocfi/RevealableContentBlock/RevealableHiddenContentBlock"
 import TableBox from "./moocfi/TableBox"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
@@ -163,6 +165,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
   "moocfi/expandable-content": ExpandableContentBlock,
   "moocfi/expandable-content-inner-block": ExpandableContentInnerBlock,
+  "moocfi/revelable-content": RevealableContentBlock,
+  "moocfi/revealable-hidden-content": RevealableHiddenContentBlock,
 }
 
 const highlightedBlockStyles = css`

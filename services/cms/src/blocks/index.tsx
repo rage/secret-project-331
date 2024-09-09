@@ -33,6 +33,8 @@ import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
 import PartnersBlock from "./Partners"
 import ResearchFormQuestion from "./ResearchConsentQuestion"
+import RevealableContent from "./RevealableContent"
+import RevealableHiddenContent from "./RevealableContent//RevealableHiddenContent"
 import TableBox from "./TableBox"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
@@ -72,6 +74,8 @@ export const blockTypeMapForPages = [
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/expandable-content", ExpendableContent],
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
+  ["moocfi/revelable-content", RevealableContent],
+  ["moocfi/revealable-hidden-content", RevealableHiddenContent],
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>

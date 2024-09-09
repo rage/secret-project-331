@@ -246,11 +246,13 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
         needs_peer_review: exercise.needs_peer_review,
         needs_self_review: exercise.needs_self_review,
         peer_or_self_review_config:
-          exercise.needs_peer_review && !exercise.use_course_default_peer_or_self_review_config
+          (exercise.needs_peer_review || exercise.needs_self_review) &&
+          !exercise.use_course_default_peer_or_self_review_config
             ? JSON.stringify(exercise.peer_or_self_review_config)
             : "null",
         peer_or_self_review_questions_config:
-          exercise.needs_peer_review && !exercise.use_course_default_peer_or_self_review_config
+          (exercise.needs_peer_review || exercise.needs_self_review) &&
+          !exercise.use_course_default_peer_or_self_review_config
             ? JSON.stringify(exercise.peer_or_self_review_questions)
             : "null",
         use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,

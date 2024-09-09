@@ -1116,7 +1116,7 @@
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(user)) =&gt; <span class="prelude-val">Ok</span>(verify_auth_user_exists(user, pool, <span class="kw-2">&amp;</span>session).<span class="kw">await</span><span class="question-mark">?</span>),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::Unauthorized,
-                    <span class="string">"Unauthorized."</span>.to_string(),
+                    <span class="string">"Unauthorized. You're not logged in."</span>.to_string(),
                     <span class="prelude-val">None</span>,
                 )),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -1124,7 +1124,7 @@
                     </span>session.remove(SESSION_KEY);
                     <span class="prelude-val">Err</span>(ControllerError::new(
                         ControllerErrorType::Unauthorized,
-                        <span class="string">"Unauthorized."</span>.to_string(),
+                        <span class="string">"Unauthorized. You're not logged in."</span>.to_string(),
                         <span class="comment">// Don't want to leak too many details from the error to the user
                         </span><span class="prelude-val">None</span>,
                     ))

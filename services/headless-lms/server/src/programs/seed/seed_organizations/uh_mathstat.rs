@@ -289,6 +289,7 @@ pub async fn seed_organization_uh_mathstat(
             frequency_penalty: 0.0,
             presence_penalty: 0.0,
             response_max_tokens: 500,
+            include_current_page_in_messages: true,
         },
     )
     .await?;

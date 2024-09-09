@@ -3257,6 +3257,23 @@ WHERE id = $1
     Ok(())
 }
 
+pub async fn get_content_search_original_text_for_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> ModelResult<Option<String>> {
+    let res = sqlx::query!(
+        "
+SELECT content_search_original_text
+FROM pages
+WHERE id = $1
+",
+        page_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(res.content_search_original_text)
+}
+
 #[cfg(test)]
 mod test {
     use chrono::TimeZone;

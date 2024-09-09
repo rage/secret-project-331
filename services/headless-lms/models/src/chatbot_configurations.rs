@@ -18,6 +18,7 @@ pub struct ChatbotConfiguration {
     pub frequency_penalty: f32,
     pub presence_penalty: f32,
     pub response_max_tokens: i32,
+    pub include_current_page_in_messages: bool,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
@@ -53,9 +54,10 @@ INSERT INTO chatbot_configurations (
     top_p,
     frequency_penalty,
     presence_penalty,
-    response_max_tokens
+    response_max_tokens,
+    include_current_page_in_messages
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *
         "#,
         input.course_id,
@@ -69,7 +71,8 @@ RETURNING *
         input.top_p,
         input.frequency_penalty,
         input.presence_penalty,
-        input.response_max_tokens
+        input.response_max_tokens,
+        input.include_current_page_in_messages,
     )
     .fetch_one(conn)
     .await?;

@@ -696,10 +696,11 @@ export const newChatbotConversation = async (
 export const sendChatbotMessage = async (
   chatBotConfigurationId: string,
   conversationId: string,
+  pageId: string,
   message: string,
 ): Promise<ReadableStream<Uint8Array>> => {
   const res = await fetch(
-    `/api/v0/course-material/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`,
+    `/api/v0/course-material/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/pages/${pageId}/send-message`,
     {
       method: "POST",
       body: JSON.stringify(message),

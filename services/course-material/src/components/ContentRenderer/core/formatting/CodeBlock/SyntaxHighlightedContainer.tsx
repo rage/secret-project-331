@@ -32,6 +32,7 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
         background-color: #1a2333;
         border-radius: 4px;
         font-variant-ligatures: none;
+        font-feature-settings: "liga" 0;
       `}
       ref={ref}
       dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(replacedContent) }}

@@ -97,6 +97,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           {...register("manualGradingEnabled")}
         />
         <CheckBox
+          defaultChecked={initialData?.minimum_points_treshold !== 0}
           label={t("label-related-courses-can-be-completed-automatically")}
           {...register("automaticCompletionEnabled")}
         />

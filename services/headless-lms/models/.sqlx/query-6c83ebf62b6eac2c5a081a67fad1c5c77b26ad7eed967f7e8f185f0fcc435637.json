@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT content_search_original_text\nFROM pages\nWHERE id = $1\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "content_search_original_text",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [true]
+  },
+  "hash": "6c83ebf62b6eac2c5a081a67fad1c5c77b26ad7eed967f7e8f185f0fcc435637"
+}

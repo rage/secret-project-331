@@ -82,6 +82,11 @@
         "ordinal": 15,
         "name": "response_max_tokens",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "include_current_page_in_messages",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -92,6 +97,7 @@
       false,
       false,
       true,
+      false,
       false,
       false,
       false,

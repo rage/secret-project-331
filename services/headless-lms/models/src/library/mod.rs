@@ -1,3 +1,4 @@
+pub mod chatbot;
 pub mod content_management;
 pub mod copying;
 pub mod course_instances;

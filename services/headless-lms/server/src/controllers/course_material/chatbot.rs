@@ -1,3 +1,4 @@
+use actix_session::config;
 use actix_web::http::header::ContentType;
 use chrono::Utc;
 use domain::chatbot::{
@@ -34,14 +35,14 @@ async fn get_chatbot_configuration_for_course(
 }
 
 /**
-POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
+POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/page/:page_id/send-message`
 
 Sends a new chat message to the chatbot.
 */
 #[instrument(skip(pool, app_conf))]
 async fn send_message(
     pool: web::Data<PgPool>,
-    params: web::Path<(Uuid, Uuid)>,
+    params: web::Path<(Uuid, Uuid, Uuid)>,
     user: AuthUser,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<String>,
@@ -49,6 +50,7 @@ async fn send_message(
     let message = payload.into_inner();
     let chatbot_configuration_id = params.0;
     let conversation_id = params.1;
+    let page_id = params.2;
     let mut conn = pool.acquire().await?;
     let mut tx: sqlx::Transaction<Postgres> = conn.begin().await?;
     let token = skip_authorize();
@@ -94,6 +96,25 @@ async fn send_message(
             content: configuration.prompt.clone(),
         },
     );
+
+    if let Some(metadata_message) =
+        models::library::chatbot::context_builder::build_chatbot_context(
+            &mut tx,
+            &configuration,
+            page_id,
+        )
+        .await?
+    {
+        api_chat_messages.insert(
+            1,
+            ApiChatMessage {
+                role: "system".to_string(),
+                content: metadata_message,
+            },
+        );
+    }
+
+    dbg!(&api_chat_messages);
 
     let chat_request = ChatRequest {
         messages: api_chat_messages,
@@ -215,7 +236,7 @@ We add the routes by calling the route method instead of using the route annotat
 */
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
-        "/{chatbot_configuration_id}/conversations/{conversation_id}/send-message",
+        "/{chatbot_configuration_id}/conversations/{conversation_id}/pages/{page_id}/send-message",
         web::post().to(send_message),
     )
     .route(

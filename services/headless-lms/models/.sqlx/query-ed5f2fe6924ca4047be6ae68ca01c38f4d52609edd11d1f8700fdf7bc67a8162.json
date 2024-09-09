@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)\nRETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_configurations (\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    response_max_tokens,\n    include_current_page_in_messages\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -82,6 +82,11 @@
         "ordinal": 15,
         "name": "response_max_tokens",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "include_current_page_in_messages",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -97,7 +102,8 @@
         "Float4",
         "Float4",
         "Float4",
-        "Int4"
+        "Int4",
+        "Bool"
       ]
     },
     "nullable": [
@@ -116,8 +122,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "5c4cfe506f694ba4f331c19c04ee0544bb9bb77706c6ae88d37007435fa52415"
+  "hash": "ed5f2fe6924ca4047be6ae68ca01c38f4d52609edd11d1f8700fdf7bc67a8162"
 }

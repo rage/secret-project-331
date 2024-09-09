@@ -1,13 +1,14 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
 import ThinkingIndicator from "./ThinkingIndicator"
 
+import PageContext from "@/contexts/PageContext"
 import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -26,6 +27,7 @@ const ChatbotDialogBody: React.FC<
   const [newMessage, setNewMessage] = useState("")
   const [optimisticSentMessage, setOptimisticSentMessage] = useState<string | null>(null)
   const [streamingMessage, setStreamingMessage] = useState<string | null>(null)
+  const pageContext = useContext(PageContext)
 
   const newConversationMutation = useToastMutation(
     () => newChatbotConversation(chatbotConfigurationId),
@@ -42,12 +44,16 @@ const ChatbotDialogBody: React.FC<
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
+      if (!pageContext.pageData?.id) {
+        throw new Error("I don't know the current page")
+      }
       const message = newMessage
       setOptimisticSentMessage(message)
       setNewMessage("")
       const stream = await sendChatbotMessage(
         chatbotConfigurationId,
         currentConversationInfo.data.current_conversation.id,
+        pageContext.pageData?.id,
         message,
       )
       const reader = stream.getReader()

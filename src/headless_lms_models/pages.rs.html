@@ -5936,7 +5936,7 @@ where p.chapter_id = $1
     .<span class="kw">await
     </span>.transpose()<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>chapter_front_page_data = chapter_front_page
+    <span class="kw">let </span>chapter_front_page = chapter_front_page
         .map(|front_page| -&gt; ModelResult&lt;<span class="kw">_</span>&gt; {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(chapter_front_page_chapter) = chapter_front_page_chapter {
                 <span class="prelude-val">Ok</span>(PageRoutingData {
@@ -5958,7 +5958,7 @@ where p.chapter_id = $1
         })
         .transpose()<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(PageNavigationInformation {
-        chapter_front_page: chapter_front_page_data,
+        chapter_front_page,
         next_page: next_page_data,
         previous_page: previous_page_data,
     })
@@ -6037,15 +6037,15 @@ WHERE p.order_number = (
     <span class="kw">let </span>previous_page = <span class="macro">sqlx::query_as!</span>(
         PageRoutingData,
         <span class="string">"
-SELECT p.url_path as url_path,
-  p.title as title,
-  p.id as page_id,
-  c.chapter_number as chapter_number,
-  c.id as chapter_id,
-  c.opens_at as chapter_opens_at,
-  c.front_page_id as chapter_front_page_id
+SELECT p.url_path AS url_path,
+  p.title AS title,
+  p.id AS page_id,
+  c.chapter_number AS chapter_number,
+  c.id AS chapter_id,
+  c.opens_at AS chapter_opens_at,
+  c.front_page_id AS chapter_front_page_id
 FROM chapters c
-  INNER JOIN pages p on c.id = p.chapter_id
+  INNER JOIN pages p ON c.id = p.chapter_id
 WHERE c.chapter_number = (
     SELECT MAX(ca.chapter_number)
     FROM chapters ca
@@ -6054,7 +6054,7 @@ WHERE c.chapter_number = (
   )
   AND c.course_id = $2
   AND p.deleted_at IS NULL
-ORDER BY p.order_number
+ORDER BY p.order_number DESC
 LIMIT 1;
         "</span>,
         current_page_metadata.chapter_number,

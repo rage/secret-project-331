@@ -929,6 +929,9 @@
 <a href="#929" id="929">929</a>
 <a href="#930" id="930">930</a>
 <a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>chrono::NaiveDate;
@@ -1617,27 +1620,30 @@ ORDER BY date;
     <span class="kw">let </span>count_list = <span class="macro">sqlx::query_as!</span>(
         ExerciseAnswersInCourseRequiringAttentionCount,
         <span class="string">r#"
-        SELECT
-        exercises.id,         (SELECT COUNT(us_state.id)::integer as count
-                FROM exercises AS exercises2
-                LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
-                LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
-                LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
-                WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
-                AND us_state.user_id = s_submission.user_id
-                AND us_state.reviewing_stage = 'waiting_for_manual_grading'
-                AND us_state.deleted_at IS NULL
-                AND exercises2.course_id = $1
-                AND exercises.id = exercises2.id
-                GROUP BY exercises2.id),
-                exercises.order_number,
-                exercises.name,
-                exercises.page_id,
-                exercises.chapter_id
-            FROM exercises
-            WHERE exercises.course_id = $1
-            AND exercises.deleted_at IS NULL
-            GROUP BY exercises.id;"#</span>,
+SELECT exercises.id,
+  (
+    SELECT COUNT(us_state.id)::integer AS COUNT
+    FROM exercises AS exercises2
+      LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
+      LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
+      LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
+    WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
+      AND us_state.user_id = s_submission.user_id
+      AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+      AND us_state.deleted_at IS NULL
+      AND exercises2.course_id = $1
+      AND exercises.id = exercises2.id
+    GROUP BY exercises2.id
+  ),
+  exercises.order_number,
+  exercises.name,
+  exercises.page_id,
+  exercises.chapter_id
+FROM exercises
+WHERE exercises.course_id = $1
+  AND exercises.deleted_at IS NULL
+GROUP BY exercises.id;
+"#</span>,
         course_id,
     )
     .fetch_all(conn)

@@ -3,7 +3,7 @@ import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
-// import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
@@ -11,11 +11,11 @@ import { ExpandableContentConfigurationProps } from "."
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 
-const ALLOWED_NESTED_BLOCKS = [""]
+const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/image", "core/list"]
 const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
 > = ({ clientId, attributes, setAttributes }) => {
-  //  const { t } = useTranslation()
+  const { t } = useTranslation()
   return (
     <BlockPlaceholderWrapper
       id={clientId}
@@ -23,8 +23,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
       explanation={"Expandable content"}
     >
       <TextField
-        label="header"
-        placeholder="header"
+        placeholder={t("label-title")}
         value={attributes.name}
         onChangeByValue={(value) => setAttributes({ name: value })}
         className={css`

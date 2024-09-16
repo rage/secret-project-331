@@ -48,6 +48,8 @@
   "exercise-title": "Exercise",
   "exercises-in-chapter-placeholder": "Exercises In Chapter Placeholder",
   "exercises-in-chapter-placeholder-explanation": "This block is placed on each chapter front page, e.g. /chapter-1/ for listing and navigating to different exercises within chapter.",
+  "expandable-content-explanation": "This block has one or multiple headers and each have content that can be expanded/collapsed",
+  "expandable-content-placeholder": "Expandable content",
   "failed-loading-repository-exercises": "Failed loading repository exercises",
   "font-color": "Font color",
   "glossary-placeholder": "Glossary Placeholder",

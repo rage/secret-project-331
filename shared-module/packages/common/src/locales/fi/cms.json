@@ -48,6 +48,8 @@
   "exercise-title": "Tehtävä",
   "exercises-in-chapter-placeholder": "Tehtäviä luvussa lohko",
   "exercises-in-chapter-placeholder-explanation": "Tämä lohko sijoitetaan jokaisen luvun etusivulle, esim. /luku-1/ luvun eri harjoitusten luetteloimiseen ja navigointiin.",
+  "expandable-content-explanation": "Tämä lohko sisältää yhen tai useamman otsikon jolla on kokoontaitettavaa sisältöä",
+  "expandable-content-placeholder": "Laajennettava sisältö",
   "failed-loading-repository-exercises": "Repositoriotehtävien lataus epäonnistui",
   "font-color": "Fontin väri",
   "glossary-placeholder": "Sanasto lohko",

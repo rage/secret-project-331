@@ -6,16 +6,13 @@ import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCa
 import ExpandableContentEditor from "./ExpandableContentInnerBlockEditor"
 import ExpandableContentSave from "./ExpandableContentInnerBlockSave"
 
-// eslint-disable-next-line i18next/no-literal-string
-const ExpandableContent = "ExpandableContent"
-
 export interface ExpandableContentConfigurationProps {
   name: string
 }
 const ExpandableContentInnerBlockConfiguration: BlockConfiguration<ExpandableContentConfigurationProps> =
   {
-    title: ExpandableContent,
-    description: ExpandableContent,
+    title: "Expandable Content",
+    description: "One or more heading that has expandable/collapsible content",
     category: MOOCFI_CATEGORY_SLUG,
     attributes: { name: { type: "string", default: "" } },
     parent: ["moocfi/expandable-content"],

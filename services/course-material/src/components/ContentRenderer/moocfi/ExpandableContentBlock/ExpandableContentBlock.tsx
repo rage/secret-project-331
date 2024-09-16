@@ -20,14 +20,6 @@ const ExpandableContentBlock: React.FC<
         flex-direction: column;
         border-bottom: 2px solid gray;
         margin: 0;
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          margin-top: 0;
-        }
       `}
     >
       {<InnerBlocks parentBlockProps={props} />}

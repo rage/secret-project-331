@@ -17,7 +17,7 @@ const ExpandableContentInnerBlock: React.FC<
 > = (props) => {
   const heading = props.data.attributes.name
 
-  const [x, setX] = useState(0)
+  const [open, setOpen] = useState(0)
   return (
     <div
       className={css`
@@ -26,20 +26,11 @@ const ExpandableContentInnerBlock: React.FC<
         padding: 2rem;
         border: 2px solid gray;
         border-bottom: 0;
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          margin-top: 0;
-        }
-
-        border-left: ${x === 1 ? "4px solid black" : "2px solid gray"};
+        border-left: ${open === 1 ? "4px solid gray" : "2px solid gray"};
       `}
       role="presentation"
-      onKeyDown={() => (x === 0 ? setX(1) : setX(0))}
-      onClick={() => (x === 0 ? setX(1) : setX(0))}
+      onKeyDown={() => (open === 0 ? setOpen(1) : setOpen(0))}
+      onClick={() => (open === 0 ? setOpen(1) : setOpen(0))}
     >
       <div
         className={css`
@@ -51,11 +42,11 @@ const ExpandableContentInnerBlock: React.FC<
       >
         <div>{heading}</div>
         <Button variant={"icon"} size={"small"}>
-          {x == 0 ? <PlusCircle /> : <MinusCircle />}
+          {open == 0 ? <PlusCircle /> : <MinusCircle />}
         </Button>
       </div>
 
-      {x == 1 && <InnerBlocks parentBlockProps={props} />}
+      {open == 1 && <InnerBlocks parentBlockProps={props} />}
     </div>
   )
 }

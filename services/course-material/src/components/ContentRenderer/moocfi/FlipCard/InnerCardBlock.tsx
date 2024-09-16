@@ -6,6 +6,8 @@ import { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
 
 import { Block } from "@/services/backend"
+import Button from "@/shared-module/common/components/Button"
+import { theme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface FlipCardAttributes {
@@ -45,15 +47,24 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
           className={css`
             position: fixed;
             bottom: 5px;
-            right: 1rem;
+            right: 5px;
           `}
         >
-          <ReplayArrowLeftRight
-            className={css`
-              border-radius: 5px;
-              background-color: rgba(255, 255, 255, 0.6);
-            `}
-          />
+          <Button variant={"icon"} size={"small"}>
+            <ReplayArrowLeftRight
+              size={28}
+              className={css`
+                color: white;
+                border-radius: 5px;
+                background-color: rgba(0, 0, 0, 0.5);
+                padding: 4px;
+
+                &:hover {
+                  color: ${theme.primary.hoverBorder};
+                }
+              `}
+            />
+          </Button>
         </div>
       </div>
     )
@@ -78,15 +89,24 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
           className={css`
             position: fixed;
             bottom: 5px;
-            right: 1rem;
+            right: 5px;
           `}
         >
-          <ReplayArrowLeftRight
-            className={css`
-              border-radius: 5px;
-              background-color: rgba(255, 255, 255, 0.6);
-            `}
-          />
+          <Button variant={"icon"} size={"small"}>
+            <ReplayArrowLeftRight
+              size={28}
+              className={css`
+                color: white;
+                border-radius: 5px;
+                background-color: rgba(0, 0, 0, 0.5);
+                padding: 4px;
+
+                &:hover {
+                  color: ${theme.primary.hoverBorder};
+                }
+              `}
+            />
+          </Button>
         </div>
       </div>
     )

@@ -28,7 +28,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
     size = 300
   }
 
-  const [x, setX] = useState(1)
+  const [open, setOpen] = useState(1)
   return (
     <div
       aria-label={t("flip-card")}
@@ -43,8 +43,8 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
           cursor: pointer;
         }
       `}
-      onClick={() => (x === 0 ? setX(1) : setX(0))}
-      onKeyDown={() => (x === 0 ? setX(1) : setX(0))}
+      onClick={() => (open === 0 ? setOpen(1) : setOpen(0))}
+      onKeyDown={() => (open === 0 ? setOpen(1) : setOpen(0))}
       role="presentation"
     >
       <div
@@ -54,7 +54,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
           height: 100%;
           transition: transform 0.8s;
           transform-style: preserve-3d;
-          ${x ? "transform: rotateY(180deg);" : "transform: rotateY(0);"}
+          ${open ? "transform: rotateY(180deg);" : "transform: rotateY(0);"}
 
           box-shadow:
           0 2px 6px 0 rgba(0, 0, 0, 0.2),

@@ -793,7 +793,8 @@ export function isCourseInstance(obj: unknown): obj is CourseInstance {
     (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
     typeof typedObj["teacher_in_charge_name"] === "string" &&
     typeof typedObj["teacher_in_charge_email"] === "string" &&
-    (typedObj["support_email"] === null || typeof typedObj["support_email"] === "string")
+    (typedObj["support_email"] === null || typeof typedObj["support_email"] === "string") &&
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
   )
 }
 

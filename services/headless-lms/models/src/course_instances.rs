@@ -24,6 +24,7 @@ pub struct CourseInstance {
     pub teacher_in_charge_name: String,
     pub teacher_in_charge_email: String,
     pub support_email: Option<String>,
+    pub join_code: Option<String>,
 }
 
 impl CourseInstance {
@@ -85,7 +86,8 @@ RETURNING id,
   description,
   teacher_in_charge_name,
   teacher_in_charge_email,
-  support_email
+  support_email,
+  join_code
 "#,
         pkey_policy.into_uuid(),
         new_course_instance.course_id,
@@ -118,7 +120,8 @@ SELECT id,
   description,
   teacher_in_charge_name,
   teacher_in_charge_email,
-  support_email
+  support_email,
+  join_code
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -187,7 +190,8 @@ SELECT i.id,
   i.description,
   i.teacher_in_charge_name,
   i.teacher_in_charge_email,
-  i.support_email
+  i.support_email,
+  i.join_code
 FROM user_course_settings ucs
   JOIN course_instances i ON (ucs.current_course_instance_id = i.id)
 WHERE ucs.user_id = $1
@@ -221,7 +225,8 @@ SELECT i.id,
   i.description,
   i.teacher_in_charge_name,
   i.teacher_in_charge_email,
-  i.support_email
+  i.support_email,
+  i.join_code
 FROM course_instances i
   JOIN course_instance_enrollments ie ON (i.id = ie.course_id)
 WHERE i.course_id = $1
@@ -253,7 +258,8 @@ SELECT id,
   description,
   teacher_in_charge_name,
   teacher_in_charge_email,
-  support_email
+  support_email,
+  join_code
 FROM course_instances
 WHERE deleted_at IS NULL
 "#
@@ -281,7 +287,8 @@ SELECT id,
   description,
   teacher_in_charge_name,
   teacher_in_charge_email,
-  support_email
+  support_email,
+  join_code
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;
@@ -850,6 +857,25 @@ WHERE ce.course_instance_id = $1
     .await?;
 
     Ok(res.map(|r| r.student_duration_seconds).unwrap_or_default())
+}
+
+pub async fn generate_join_code_for_course_instance(
+    conn: &mut PgConnection,
+    course_instance_id: Uuid,
+    join_code: String,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instances
+SET join_code = $2
+WHERE id = $1
+",
+        course_instance_id,
+        join_code
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 #[cfg(test)]

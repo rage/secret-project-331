@@ -146,3 +146,9 @@ export const fetchDefaultCertificateConfigurations = async (
   )
   return validateResponse(res, isArray(isCertificateConfigurationAndRequirements))
 }
+
+export const generateJoinCourseLinkForCourseInstance = async (
+  courseInstanceId: string,
+): Promise<void> => {
+  await mainFrontendClient.post(`/course-instances/${courseInstanceId}/generate-join-code`)
+}

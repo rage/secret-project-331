@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT i.id,\n  i.created_at,\n  i.updated_at,\n  i.deleted_at,\n  i.course_id,\n  i.starts_at,\n  i.ends_at,\n  i.name,\n  i.description,\n  i.teacher_in_charge_name,\n  i.teacher_in_charge_email,\n  i.support_email\nFROM course_instances i\n  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)\nWHERE i.course_id = $1\n  AND i.deleted_at IS NULL\n  AND ie.user_id = $2\n  AND ie.deleted_at IS NULL\nORDER BY ie.created_at DESC;\n    ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email,\n  join_code\nFROM course_instances\nWHERE course_id = $1\n  AND deleted_at IS NULL;\n        ",
   "describe": {
     "columns": [
       {
@@ -62,12 +62,17 @@
         "ordinal": 11,
         "name": "support_email",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid"]
+      "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+    "nullable": [false, false, false, true, false, true, true, true, true, false, false, true, true]
   },
-  "hash": "a9e6bf7e1afec5191482ce2cfaca22c670d50759540e166270fa2881e5db1dc4"
+  "hash": "b9ebc7e3b77c2f52d67720ae5bcfb865831429e12d26bed1786210abb23598dd"
 }

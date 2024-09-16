@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_instances\nSET join_code = $2\nWHERE id = $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Varchar"]
+    },
+    "nullable": []
+  },
+  "hash": "5f4303393e9944d6f985866d65646b7d27d42c453ed774a6afa34f955d085c3c"
+}

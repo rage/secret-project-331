@@ -62,12 +62,17 @@
         "ordinal": 11,
         "name": "teacher_in_charge_email",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
       "Left": ["UuidArray"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, true, true, false, false]
+    "nullable": [false, false, false, true, false, true, true, true, true, true, false, false, true]
   },
   "hash": "dd8c271c3a0901cc8c2fdecfbae5b052cb4c4c3b82e27817ae5a059685fa088b"
 }

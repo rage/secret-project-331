@@ -333,6 +333,7 @@ export interface CourseInstance {
   teacher_in_charge_name: string
   teacher_in_charge_email: string
   support_email: string | null
+  join_code: string | null
 }
 
 export interface CourseInstanceForm {

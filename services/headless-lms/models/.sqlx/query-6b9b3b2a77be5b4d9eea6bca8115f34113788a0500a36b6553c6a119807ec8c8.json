@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_instances (\n    id,\n    course_id,\n    name,\n    description,\n    teacher_in_charge_name,\n    teacher_in_charge_email,\n    support_email\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email,\n  join_code\nFROM course_instances\nWHERE id = $1\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -62,12 +62,17 @@
         "ordinal": 11,
         "name": "support_email",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
+      "Left": ["Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
+    "nullable": [false, false, false, true, false, true, true, true, true, false, false, true, true]
   },
-  "hash": "ad44e66896540a92d76d8b584ae7142955baf3641d83702179e92fe60f8e3836"
+  "hash": "6b9b3b2a77be5b4d9eea6bca8115f34113788a0500a36b6553c6a119807ec8c8"
 }

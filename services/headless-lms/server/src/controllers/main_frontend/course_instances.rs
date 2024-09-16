@@ -444,6 +444,28 @@ async fn get_user_progress_for_course_instance(
 }
 
 /**
+ POST /api/v0/main-frontend/course-instance/:course_instance_id/generate-join-code - Generates a code that is used as a part of URL to join course
+*/
+#[instrument(skip(pool))]
+async fn generate_join_code_for_course_instance(
+    id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::CourseInstance(*id),
+    )
+    .await?;
+    let code = Uuid::new_v4().to_string();
+
+    models::course_instances::generate_join_code_for_course_instance(&mut conn, *id, code).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
+}
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -502,5 +524,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/default-certificate-configurations",
             web::get().to(certificate_configurations),
+        )
+        .route(
+            "/{course_instance_id}/generate-join-code",
+            web::post().to(generate_join_code_for_course_instance),
         );
 }

@@ -101,6 +101,8 @@
   "remove": "Poista",
   "research-form-checkbox-description": "Tämä lohko lisää valintaruudun tutkimuslomakkeeseen.",
   "reset": "Palauta",
+  "revealable-content-explanation": "Tällä lohkolla on normaalia sisältöä ja lisäksi nappi jota opiskelija voi painaa ja paljastaa piilotetun lisäsisällön",
+  "revealable-content-placeholder": "Paljastettava sisältö",
   "save": "Tallenna",
   "saved": "Tallennettu",
   "saving": "Tallennetaan...",

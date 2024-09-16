@@ -101,6 +101,8 @@
   "remove": "Remove",
   "research-form-checkbox-description": "This block is used to add a question to the research form.",
   "reset": "Reset",
+  "revealable-content-explanation": "This block has normal content and a button that the student can click to reveal the hidden extra content",
+  "revealable-content-placeholder": "Revealable content",
   "save": "Save",
   "saved": "Saved",
   "saving": "Saving...",

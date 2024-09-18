@@ -6,22 +6,13 @@ import InnerCardSave from "./InnerCardSave"
 
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
 
-export interface InnerCardAttributes {
-  backgroundColor: string
-}
-
-const InnerCardConfiguration: BlockConfiguration<InnerCardAttributes> = {
+const InnerCardConfiguration: BlockConfiguration = {
   title: "Inner Card",
   description:
     "Inner block for the flip card block, two of these are required for the flip card to work",
   category: MOOCFI_CATEGORY_SLUG,
   parent: ["moocfi/flip-card"],
-  attributes: {
-    backgroundColor: {
-      type: "string",
-      default: "",
-    },
-  },
+  attributes: {},
   edit: InnerCardEditor,
   save: InnerCardSave,
 }

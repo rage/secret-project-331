@@ -12,6 +12,10 @@ interface FlipCardAttributes {
   size: string
 }
 
+function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes> {
+  return block.name === "core/image"
+}
+
 const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCardAttributes>>> = (
   props,
 ) => {
@@ -28,23 +32,29 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
     size = 300
   }
 
-  const [open, setOpen] = useState(1)
+  const [frontSideUp, setFrontSideUp] = useState(true)
+  const currentIsImage = isBlockImage(
+    frontSideUp ? frontCard.innerBlocks[0] : backCard.innerBlocks[0],
+  )
+
   return (
     <div
       aria-label={t("flip-card")}
       className={css`
         display: flex;
         flex-direction: column;
-        background-color: transparent;
         width: ${size}px;
         height: ${size}px;
         perspective: 1000px;
         :hover {
           cursor: pointer;
         }
+        .parent div {
+          border: 10px;
+        }
       `}
-      onClick={() => (open === 0 ? setOpen(1) : setOpen(0))}
-      onKeyDown={() => (open === 0 ? setOpen(1) : setOpen(0))}
+      onClick={() => (frontSideUp ? setFrontSideUp(false) : setFrontSideUp(true))}
+      onKeyDown={() => (frontSideUp ? setFrontSideUp(false) : setFrontSideUp(true))}
       role="presentation"
     >
       <div
@@ -54,11 +64,9 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
           height: 100%;
           transition: transform 0.8s;
           transform-style: preserve-3d;
-          ${open ? "transform: rotateY(180deg);" : "transform: rotateY(0);"}
-
-          box-shadow:
-          0 2px 6px 0 rgba(0, 0, 0, 0.2),
-          0 3px 10px 0 rgba(0, 0, 0, 0.19);
+          ${frontSideUp ? "transform: rotateY(180deg);" : "transform: rotateY(0);"}
+          ${currentIsImage ? "" : "border: 3px solid #bfbec6"};
+          border-radius: 10px;
         `}
       >
         <div
@@ -69,9 +77,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             position: absolute;
             width: 100%;
             height: 100%;
-            margin: 0 !important;
-            background-color: ${frontCard.attributes.backgroundColor};
-
+            margin: 0px !important;
+            padding: 0px !important;
+            background-color: #f4f4f6;
+            border-radius: 10px;
             overflow-x: auto;
           `}
         >
@@ -92,9 +101,9 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             position: absolute;
             width: 100%;
             height: 100%;
-            margin: 0 !important;
-            background-color: ${backCard.attributes.backgroundColor};
-
+            margin: 0px !important;
+            background-color: #f4f4f6;
+            border-radius: 10px;
             overflow-x: auto;
           `}
         >

@@ -6,7 +6,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 const CHEATER_EDITOR_PAGE =
-  "http://project-331.local/manage/courses/060c272f-8c68-4d90-946f-2d431114ed56/cheaters"
+  "http://project-331.local/manage/courses/060c272f-8c68-4d90-946f-2d431114ed56/other/cheaters"
 const TEST_PAGE =
   "http://project-331.local/org/uh-cs/courses/course-for-suspected-cheaters/chapter-1/page-1"
 

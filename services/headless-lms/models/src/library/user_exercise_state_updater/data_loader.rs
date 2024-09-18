@@ -151,13 +151,7 @@ async fn load_peer_or_self_review_information(
             peer_review_queue_entry,
             peer_or_self_review_config,
             peer_or_self_review_questions,
-        } = if let Some(already_loaded_peer_or_self_review_information) =
-            already_loaded_peer_or_self_review_information
-        {
-            already_loaded_peer_or_self_review_information
-        } else {
-            Default::default()
-        };
+        } = already_loaded_peer_or_self_review_information.unwrap_or_default();
 
         let loaded_latest_exercise_slide_submission = load_latest_exercise_slide_submission(
             conn,

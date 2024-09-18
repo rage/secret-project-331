@@ -8,7 +8,8 @@ import MOOCfi from "../img/moocfiLogo.svg"
 import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
-const PRIVACY_LINK = "https://www.mooc.fi/faq/tietosuojaseloste/"
+const PRIVACY_LINK_FI = "https://www.mooc.fi/faq/tietosuojaseloste/"
+const PRIVACY_LINK_EN = "https://www.mooc.fi/en/faq/tietosuojaseloste/"
 
 // To be link in the future
 // const CREATORS_LINK = "https://www.mooc.fi/en/"
@@ -159,7 +160,9 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
             </p>
           </Text>
           <Links>
-            <StyledLink href={PRIVACY_LINK}>{t("privacy")}</StyledLink>
+            <StyledLink href={useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN}>
+              {t("privacy")}
+            </StyledLink>
             {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink> */}
           </Links>
           <div

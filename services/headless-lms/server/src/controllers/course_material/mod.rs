@@ -7,6 +7,7 @@ This documents all endpoints. Select a module below for a category.
 
 pub mod chapters;
 pub mod chatbot;
+pub mod code_giveaways;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
@@ -33,5 +34,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/oembed").configure(oembed::_add_routes))
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/page_audio").configure(page_audio_files::_add_routes))
-        .service(web::scope("/chatbot").configure(chatbot::_add_routes));
+        .service(web::scope("/chatbot").configure(chatbot::_add_routes))
+        .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes));
 }

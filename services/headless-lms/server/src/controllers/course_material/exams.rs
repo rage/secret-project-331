@@ -1,7 +1,13 @@
 use chrono::{DateTime, Duration, Utc};
+use headless_lms_models::{
+    exercises::Exercise, user_exercise_states::CourseInstanceOrExamId, ModelError, ModelErrorType,
+};
 use models::{
     exams::{self, ExamEnrollment},
+    exercises,
     pages::{self, Page},
+    teacher_grading_decisions::{self, TeacherGradingDecision},
+    user_exercise_states,
 };
 
 use crate::prelude::*;
@@ -111,6 +117,11 @@ pub enum ExamEnrollmentData {
     NotYetStarted,
     /// The exam is still open but the student has run out of time.
     StudentTimeUp,
+    // Exam is still open but student can view published grading results
+    StudentCanViewGrading {
+        gradings: Vec<(TeacherGradingDecision, Exercise)>,
+        enrollment: ExamEnrollment,
+    },
 }
 
 /**
@@ -165,12 +176,108 @@ pub async fn fetch_exam_for_user(
     let enrollment = if let Some(enrollment) =
         exams::get_enrollment(&mut conn, *exam_id, user.id).await?
     {
+        if exam.grade_manually {
+            // Get the grading results, if the student has any
+            let teachers_grading_decisions_list =
+                teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_exam_id(
+                    &mut conn, user.id, *exam_id,
+                )
+                .await?;
+            let teacher_grading_decisions = teachers_grading_decisions_list.clone();
+
+            let exam_exercises = exercises::get_exercises_by_exam_id(&mut conn, *exam_id).await?;
+
+            let user_exercise_states =
+                user_exercise_states::get_all_for_user_and_course_instance_or_exam(
+                    &mut conn,
+                    user.id,
+                    CourseInstanceOrExamId::Exam(*exam_id),
+                )
+                .await?;
+
+            let mut grading_decision_and_exercise_list: Vec<(TeacherGradingDecision, Exercise)> =
+                Vec::new();
+
+            // Check if student has any published grading results they can view at the exam page
+            for grading_decision in teachers_grading_decisions_list.into_iter() {
+                if let Some(hidden) = grading_decision.hidden {
+                    if !hidden {
+                        // Get the corresponding exercise for the grading result
+                        for grading in teacher_grading_decisions.into_iter() {
+                            let user_exercise_state = user_exercise_states
+                                .iter()
+                                .find(|state| state.id == grading.user_exercise_state_id)
+                                .ok_or_else(|| {
+                                    ModelError::new(
+                                        ModelErrorType::Generic,
+                                        "User_exercise_state not found".into(),
+                                        None,
+                                    )
+                                })?;
+
+                            let exercise = exam_exercises
+                                .iter()
+                                .find(|exercise| exercise.id == user_exercise_state.exercise_id)
+                                .ok_or_else(|| {
+                                    ModelError::new(
+                                        ModelErrorType::Generic,
+                                        "Exercise not found".into(),
+                                        None,
+                                    )
+                                })?;
+
+                            grading_decision_and_exercise_list.push((grading, exercise.clone()));
+                        }
+
+                        let token =
+                            authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id))
+                                .await?;
+                        return token.authorized_ok(web::Json(ExamData {
+                            id: exam.id,
+                            name: exam.name,
+                            instructions: exam.instructions,
+                            starts_at,
+                            ends_at,
+                            ended,
+                            time_minutes: exam.time_minutes,
+                            enrollment_data: ExamEnrollmentData::StudentCanViewGrading {
+                                gradings: grading_decision_and_exercise_list,
+                                enrollment,
+                            },
+                            language: exam.language,
+                        }));
+                    }
+                }
+            }
+            // user has ended the exam
+            if enrollment.ended_at.is_some() {
+                let token: domain::authorization::AuthorizationToken =
+                    authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+                return token.authorized_ok(web::Json(ExamData {
+                    id: exam.id,
+                    name: exam.name,
+                    instructions: exam.instructions,
+                    starts_at,
+                    ends_at,
+                    ended,
+                    time_minutes: exam.time_minutes,
+                    enrollment_data: ExamEnrollmentData::StudentTimeUp,
+                    language: exam.language,
+                }));
+            }
+        }
+
         // user has started the exam
         if Utc::now() < ends_at
-            && Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+            && (Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into())
+                || enrollment.ended_at.is_some())
         {
-            // exam is still open but the student's time has expired
-            let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
+            // exam is still open but the student's time has expired or student has ended their exam
+            if enrollment.ended_at.is_none() {
+                exams::update_exam_ended_at(&mut conn, *exam_id, user.id, Utc::now()).await?;
+            }
+            let token: domain::authorization::AuthorizationToken =
+                authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
             return token.authorized_ok(web::Json(ExamData {
                 id: exam.id,
                 name: exam.name,
@@ -290,8 +397,32 @@ pub async fn fetch_exam_for_testing(
     }))
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ShowExerciseAnswers {
+    pub show_exercise_answers: bool,
+}
 /**
-GET /api/v0/course-material/exams/:id/reset-exam-progress
+POST /api/v0/course-material/exams/:id/update-show-exercise-answers
+
+Used for testing an exam, updates wheter exercise answers are shown.
+*/
+#[instrument(skip(pool))]
+pub async fn update_show_exercise_answers(
+    pool: web::Data<PgPool>,
+    exam_id: web::Path<Uuid>,
+    user: AuthUser,
+    payload: web::Json<ShowExerciseAnswers>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let show_answers = payload.show_exercise_answers;
+    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+POST /api/v0/course-material/exams/:id/reset-exam-progress
 
 Used for testing an exam, resets exercise submissions and restarts the exam time.
 */
@@ -315,27 +446,23 @@ pub async fn reset_exam_progress(
     token.authorized_ok(web::Json(()))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ShowExerciseAnswers {
-    pub show_exercise_answers: bool,
-}
 /**
-GET /api/v0/course-material/exams/:id/update-show-exercise-answers
+POST /api/v0/course-material/exams/:id/end-exam-time
 
-Used for testing an exam, updates wheter exercise answers are shown.
+Used for marking the students exam as ended in the exam enrollment
 */
 #[instrument(skip(pool))]
-pub async fn update_show_exercise_answers(
+pub async fn end_exam_time(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
     user: AuthUser,
-    payload: web::Json<ShowExerciseAnswers>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
-    let show_answers = payload.show_exercise_answers;
-    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+
+    let ended_at = Utc::now();
+    models::exams::update_exam_ended_at(&mut conn, *exam_id, user.id, ended_at).await?;
+
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Exam(*exam_id)).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -361,5 +488,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/testexam/{id}/reset-exam-progress",
             web::post().to(reset_exam_progress),
-        );
+        )
+        .route("/{id}/end-exam-time", web::post().to(end_exam_time));
 }

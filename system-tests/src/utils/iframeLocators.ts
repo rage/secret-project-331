@@ -32,6 +32,10 @@ export async function getLocatorForNthExerciseServiceIframe(
  * If the locator is inside an iframe, scrolls the iframe to the view. Sometimes needed for making locators working inside the iframe to work.
  */
 export async function scrollLocatorsParentIframeToViewIfNeeded(locator: Locator) {
+  const page = locator.page()
+  // We must wait here to counteract the automatic scrolling we do in `makeSureComponentStaysVisibleAfterChangingView`
+  // eslint-disable-next-line playwright/no-wait-for-timeout
+  await page.waitForTimeout(550)
   // Logic to make getting element handles from inside iframes that are offscreen to work
   await expect(async () => {
     const elementHandle = await locator.elementHandle({ timeout: 500 })

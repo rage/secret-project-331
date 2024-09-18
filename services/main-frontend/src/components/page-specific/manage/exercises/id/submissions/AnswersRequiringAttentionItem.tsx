@@ -114,6 +114,8 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
       exercise_id,
       action: action,
       manual_points: manual_points,
+      justification: null,
+      hidden: false,
     })
   }
 

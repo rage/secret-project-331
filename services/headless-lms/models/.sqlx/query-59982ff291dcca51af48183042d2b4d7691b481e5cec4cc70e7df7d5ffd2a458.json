@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT exams.id,\n  exams.name,\n  exams.instructions,\n  pages.id AS page_id,\n  exams.starts_at,\n  exams.ends_at,\n  exams.time_minutes,\n  exams.minimum_points_treshold,\n  exams.language\nFROM exams\n  JOIN pages ON pages.exam_id = exams.id\nWHERE exams.id = $1\n",
+  "query": "\nSELECT id,\n  name,\n  instructions,\n  starts_at,\n  ends_at,\n  time_minutes,\n  organization_id,\n  minimum_points_treshold\nFROM exams\nWHERE deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -20,39 +20,34 @@
       },
       {
         "ordinal": 3,
-        "name": "page_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 4,
         "name": "starts_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "ends_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "time_minutes",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "organization_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 7,
         "name": "minimum_points_treshold",
         "type_info": "Int4"
-      },
-      {
-        "ordinal": 8,
-        "name": "language",
-        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": []
     },
-    "nullable": [false, false, false, false, true, true, false, false, true]
+    "nullable": [false, false, false, true, true, false, false, false]
   },
-  "hash": "b97c13a86038590133180f6c54b1d4948ebef79cf621af73610ee427652f231a"
+  "hash": "59982ff291dcca51af48183042d2b4d7691b481e5cec4cc70e7df7d5ffd2a458"
 }

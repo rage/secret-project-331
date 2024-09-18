@@ -36,3 +36,21 @@ opt-level = 3
 [profile.release]
 # Include only line tables so that we get line numbers in backtraces
 debug = 1
+
+[workspace.dependencies]
+tokio = { version = "1.36.0", features = [
+  "fs",
+  "io-util",
+  "sync",
+  "parking_lot",
+  "rt-multi-thread"
+] }
+
+sqlx = { version = "0.8.1", features = [
+  "postgres",
+  "runtime-tokio",
+  "tls-rustls",
+  "uuid",
+  "chrono",
+  "json",
+] }

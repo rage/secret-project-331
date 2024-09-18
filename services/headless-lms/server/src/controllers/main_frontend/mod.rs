@@ -7,6 +7,7 @@ This documents all endpoints. Select a module below for a category.
 
 pub mod certificates;
 pub mod chapters;
+pub mod code_giveaways;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
@@ -62,5 +63,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/page_audio").configure(page_audio_files::_add_routes))
         .service(web::scope("/user-details").configure(user_details::_add_routes))
         .service(web::scope("/certificates").configure(certificates::_add_routes))
-        .service(web::scope("/global-stats").configure(global_stats::_add_routes));
+        .service(web::scope("/global-stats").configure(global_stats::_add_routes))
+        .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes));
 }

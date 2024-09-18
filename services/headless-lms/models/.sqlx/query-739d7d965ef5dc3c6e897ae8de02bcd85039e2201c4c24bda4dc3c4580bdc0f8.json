@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exam_enrollments\nSET ended_at = $3\nWHERE user_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND exam_id = $2\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["UuidArray", "Uuid", "Timestamptz"]
+    },
+    "nullable": []
+  },
+  "hash": "739d7d965ef5dc3c6e897ae8de02bcd85039e2201c4c24bda4dc3c4580bdc0f8"
+}

@@ -73,7 +73,7 @@ impl FromRequest for AuthUser {
                 Ok(Some(user)) => Ok(verify_auth_user_exists(user, pool, &session).await?),
                 Ok(None) => Err(ControllerError::new(
                     ControllerErrorType::Unauthorized,
-                    "Unauthorized.".to_string(),
+                    "Unauthorized. You're not logged in.".to_string(),
                     None,
                 )),
                 Err(_) => {
@@ -81,7 +81,7 @@ impl FromRequest for AuthUser {
                     session.remove(SESSION_KEY);
                     Err(ControllerError::new(
                         ControllerErrorType::Unauthorized,
-                        "Unauthorized.".to_string(),
+                        "Unauthorized. You're not logged in.".to_string(),
                         // Don't want to leak too many details from the error to the user
                         None,
                     ))

@@ -8,6 +8,7 @@ import {
   ChaptersWithStatus,
   ChatbotConversation,
   ChatbotConversationInfo,
+  CodeGiveawayStatus,
   Course,
   CourseBackgroundQuestionsAndAnswers,
   CourseInstance,
@@ -19,6 +20,7 @@ import {
   CustomViewExerciseSubmissions,
   ExamData,
   ExamEnrollment,
+  ExerciseSlideSubmissionAndUserExerciseStateList,
   IsChapterFrontPage,
   MaterialReference,
   NewFeedback,
@@ -53,6 +55,7 @@ import {
   isChaptersWithStatus,
   isChatbotConversation,
   isChatbotConversationInfo,
+  isCodeGiveawayStatus,
   isCourse,
   isCourseBackgroundQuestionsAndAnswers,
   isCourseInstance,
@@ -62,6 +65,7 @@ import {
   isCoursePageWithUserData,
   isCustomViewExerciseSubmissions,
   isExamData,
+  isExerciseSlideSubmissionAndUserExerciseStateList,
   isIsChapterFrontPage,
   isMaterialReference,
   isOEmbedResponse,
@@ -655,6 +659,22 @@ export const getAllCourseModuleCompletionsForUserAndCourseInstance = async (
   return validateResponse(response, isArray(isCourseModuleCompletion))
 }
 
+export const fetchExerciseSubmissions = async (
+  exerciseId: string,
+  page: number,
+  limit: number,
+): Promise<ExerciseSlideSubmissionAndUserExerciseStateList> => {
+  const response = await courseMaterialClient.get(
+    `/exams/${exerciseId}/submissions?page=${page}&limit=${limit}`,
+  )
+  return validateResponse(response, isExerciseSlideSubmissionAndUserExerciseStateList)
+}
+
+export const endExamTime = async (examId: string): Promise<void> => {
+  const response = await courseMaterialClient.post(`/exams/${examId}/end-exam-time`)
+  return response.data
+}
+
 export const getChatbotCurrentConversationInfo = async (
   chatBotConfigurationId: string,
 ): Promise<ChatbotConversationInfo> => {
@@ -696,4 +716,17 @@ export const sendChatbotMessage = async (
   }
 
   return stream
+}
+
+/**
+ GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
+*/
+export const getCodeGiveawayStatus = async (id: string): Promise<CodeGiveawayStatus> => {
+  const response = await courseMaterialClient.get(`/code-giveaways/${id}/status`)
+  return validateResponse(response, isCodeGiveawayStatus)
+}
+
+export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {
+  const response = await courseMaterialClient.post(`/code-giveaways/${id}/claim`)
+  return validateResponse(response, isString)
 }

@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exams (\n    id,\n    name,\n    instructions,\n    starts_at,\n    ends_at,\n    time_minutes,\n    organization_id,\n    minimum_points_treshold,\n    grade_manually\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Jsonb",
+        "Timestamptz",
+        "Timestamptz",
+        "Int4",
+        "Uuid",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": [false]
+  },
+  "hash": "89150494c3404618275e8142dc54455395271f993375ea74cb8e8c5c31dfe48b"
+}

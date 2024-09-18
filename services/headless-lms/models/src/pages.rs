@@ -2259,10 +2259,7 @@ WHERE page_id IN (
         .into_iter()
         .map(|page| {
             let page_id = page.id;
-            let mut exercises = match page_to_exercises.remove(&page_id) {
-                Some(ex) => ex,
-                None => Vec::new(),
-            };
+            let mut exercises = page_to_exercises.remove(&page_id).unwrap_or_default();
 
             exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
             PageWithExercises { page, exercises }
@@ -2436,7 +2433,7 @@ pub async fn get_page_navigation_data(
     .await
     .transpose()?;
 
-    let chapter_front_page_data = chapter_front_page
+    let chapter_front_page = chapter_front_page
         .map(|front_page| -> ModelResult<_> {
             if let Some(chapter_front_page_chapter) = chapter_front_page_chapter {
                 Ok(PageRoutingData {
@@ -2458,7 +2455,7 @@ pub async fn get_page_navigation_data(
         })
         .transpose()?;
     Ok(PageNavigationInformation {
-        chapter_front_page: chapter_front_page_data,
+        chapter_front_page,
         next_page: next_page_data,
         previous_page: previous_page_data,
     })
@@ -2537,15 +2534,15 @@ async fn get_previous_page_by_chapter_number(
     let previous_page = sqlx::query_as!(
         PageRoutingData,
         "
-SELECT p.url_path as url_path,
-  p.title as title,
-  p.id as page_id,
-  c.chapter_number as chapter_number,
-  c.id as chapter_id,
-  c.opens_at as chapter_opens_at,
-  c.front_page_id as chapter_front_page_id
+SELECT p.url_path AS url_path,
+  p.title AS title,
+  p.id AS page_id,
+  c.chapter_number AS chapter_number,
+  c.id AS chapter_id,
+  c.opens_at AS chapter_opens_at,
+  c.front_page_id AS chapter_front_page_id
 FROM chapters c
-  INNER JOIN pages p on c.id = p.chapter_id
+  INNER JOIN pages p ON c.id = p.chapter_id
 WHERE c.chapter_number = (
     SELECT MAX(ca.chapter_number)
     FROM chapters ca
@@ -2554,7 +2551,7 @@ WHERE c.chapter_number = (
   )
   AND c.course_id = $2
   AND p.deleted_at IS NULL
-ORDER BY p.order_number
+ORDER BY p.order_number DESC
 LIMIT 1;
         ",
         current_page_metadata.chapter_number,
@@ -3284,6 +3281,7 @@ mod test {
                 time_minutes: 120,
                 organization_id: org,
                 minimum_points_treshold: 24,
+                grade_manually: false,
             },
         )
         .await

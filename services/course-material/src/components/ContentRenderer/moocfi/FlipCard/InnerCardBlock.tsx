@@ -1,5 +1,6 @@
 import { css } from "@emotion/css"
 import { ReplayArrowLeftRight } from "@vectopus/atlas-icons-react"
+import { t } from "i18next"
 import React from "react"
 
 import { BlockRendererProps } from "../.."
@@ -7,7 +8,6 @@ import InnerBlocks from "../../util/InnerBlocks"
 
 import { Block } from "@/services/backend"
 import Button from "@/shared-module/common/components/Button"
-import { theme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface FlipCardAttributes {
@@ -51,19 +51,35 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
           `}
         >
           <Button variant={"icon"} size={"small"}>
-            <ReplayArrowLeftRight
-              size={28}
+            <div
               className={css`
-                color: white;
-                border-radius: 5px;
-                background-color: rgba(0, 0, 0, 0.5);
-                padding: 4px;
-
-                &:hover {
-                  color: ${theme.primary.hoverBorder};
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                border-radius: 10px;
+                width: 54px;
+                height: 42px;
+                background: #f9f9f9;
+                box-shadow: 0 4px 0px 0px #c4c4c4;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #57606fcc;
+                :hover {
+                  color: green;
                 }
               `}
-            />
+            >
+              <div
+                className={css`
+                  font-size: 9px;
+                `}
+              >
+                {t("button-text-flip")}
+              </div>
+              <ReplayArrowLeftRight size={16} />
+            </div>
           </Button>
         </div>
       </div>
@@ -85,29 +101,37 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
         `}
       >
         <InnerBlocks parentBlockProps={props} />
-        <div
-          className={css`
-            position: fixed;
-            bottom: 5px;
-            right: 5px;
-          `}
-        >
-          <Button variant={"icon"} size={"small"}>
-            <ReplayArrowLeftRight
-              size={28}
+        <Button variant={"icon"} size={"small"}>
+          <div
+            className={css`
+              position: fixed;
+              bottom: 10px;
+              right: 10px;
+              border-radius: 10px;
+              width: 54px;
+              height: 42px;
+              background: #f9f9f9;
+              box-shadow: 0 4px 0px 0px #c4c4c4;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              color: #57606fcc;
+              :hover {
+                color: green;
+              }
+            `}
+          >
+            <div
               className={css`
-                color: white;
-                border-radius: 5px;
-                background-color: rgba(0, 0, 0, 0.5);
-                padding: 4px;
-
-                &:hover {
-                  color: ${theme.primary.hoverBorder};
-                }
+                font-size: 9px;
               `}
-            />
-          </Button>
-        </div>
+            >
+              {t("button-text-flip")}
+            </div>
+            <ReplayArrowLeftRight size={16} />
+          </div>
+        </Button>
       </div>
     )
   }

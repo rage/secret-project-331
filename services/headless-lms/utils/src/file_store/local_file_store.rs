@@ -108,6 +108,7 @@ impl FileStore for LocalFileStore {
             fs::create_dir_all(&parent).await?;
         }
         let file = OpenOptions::new()
+            .truncate(true)
             .create(true)
             .write(true)
             .open(full_path)

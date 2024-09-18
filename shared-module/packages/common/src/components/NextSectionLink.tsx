@@ -14,7 +14,7 @@ import { respondToOrLarger } from "../styles/respond"
 import LinkOrNoLink from "./LinkOrNoLink"
 import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"
 
-export interface NextSectionLinkExtraProps {
+export interface NextSectionLinkProps {
   title: string
   subtitle: string
   nextTitle: string
@@ -77,8 +77,6 @@ const StyledLink = styled(Link)`
     }
   }
 `
-
-export type NextSectionLinkProps = React.HTMLAttributes<HTMLDivElement> & NextSectionLinkExtraProps
 
 const NextSectionLink: React.FC<
   React.PropsWithChildren<React.PropsWithChildren<NextSectionLinkProps>>

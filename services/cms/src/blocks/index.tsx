@@ -5,6 +5,7 @@ import Aside from "./Aside"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
+import CodeGiveaway from "./CodeGiveaway"
 import ConditionalBlock from "./ConditionalBlock"
 import Congratulations from "./Congratulations"
 import CourseChapterGrid from "./CourseChapterGrid"
@@ -72,7 +73,7 @@ export const blockTypeMapForPages = [
   ["moocfi/top-level-pages", TopLevelPage],
   ["moocfi/flip-card", FlipCard],
   ["moocfi/inner-card", InnerCard],
-
+  ["moocfi/code-giveaway", CodeGiveaway],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 
@@ -92,6 +93,7 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/map", Map],
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
+  ["moocfi/code-giveaway", CodeGiveaway],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

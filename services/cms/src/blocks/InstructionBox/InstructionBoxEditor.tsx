@@ -23,8 +23,10 @@ const InstructionBoxEditor: React.FC<
         `}
       >
         <RichText
-          className="has-text-align-center wp-block-heading"
-          tagName="span"
+          className={css`
+            width: 100%;
+          `}
+          tagName="div"
           value={content}
           onChange={(value: string) => setAttributes({ content: value })}
           placeholder={"Write a text here"}

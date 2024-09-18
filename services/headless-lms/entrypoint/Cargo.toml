@@ -19,4 +19,4 @@ anyhow = "1.0.80"
 # Combinators and utilities for working with Futures, Streams, Sinks, and the AsyncRead and AsyncWrite traits.
 futures-util = "0.3.30"
 # A runtime for writing reliable network applications without compromising speed.
-tokio = "1.36.0"
+tokio.workspace = true

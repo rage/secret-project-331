@@ -1,0 +1,4 @@
+DROP INDEX user_exercise_states_fast_search_2;
+DROP INDEX exercise_slide_submissions_exercise_id_idx;
+DROP INDEX page_visit_datum_summary_by_pages_course_id_idx;
+DROP INDEX peer_or_self_review_question__peer_or_self_review_submissio_idx;

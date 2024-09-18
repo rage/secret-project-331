@@ -7,12 +7,14 @@ use url::Url;
 
 use crate::{
     courses::Course,
+    exams::{self, ExamEnrollment},
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::UserPointsUpdateStrategy,
     exercise_tasks::CourseMaterialExerciseTask,
-    exercises::{Exercise, GradingProgress},
+    exercises::{self, Exercise, GradingProgress},
     prelude::*,
-    user_exercise_states::CourseInstanceOrExamId,
+    teacher_grading_decisions::{self, TeacherGradingDecision},
+    user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
     CourseOrExamId,
 };
 
@@ -111,6 +113,23 @@ pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSlideSubmissionAndUserExerciseState {
+    pub exercise: Exercise,
+    pub exercise_slide_submission: ExerciseSlideSubmission,
+    pub user_exercise_state: UserExerciseState,
+    pub teacher_grading_decision: Option<TeacherGradingDecision>,
+    pub user_exam_enrollment: ExamEnrollment,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
+    pub data: Vec<ExerciseSlideSubmissionAndUserExerciseState>,
+    pub total_pages: u32,
 }
 
 pub async fn insert_exercise_slide_submission(
@@ -451,6 +470,143 @@ LIMIT $2 OFFSET $3
     Ok(submissions)
 }
 
+pub async fn exercise_slide_submission_count_with_exam_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        "
+SELECT COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exam_id = $1
+AND deleted_at IS NULL
+",
+        exam_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn exercise_slide_submission_count_with_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<u32> {
+    let count = sqlx::query!(
+        "
+SELECT COUNT(*) as count
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+AND deleted_at IS NULL
+",
+        exercise_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count.count.unwrap_or(0).try_into()?)
+}
+
+pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_with_exercise_id(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    pagination: Pagination,
+) -> ModelResult<Vec<ExerciseSlideSubmissionAndUserExerciseState>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+    SELECT DISTINCT ON (user_id)
+        id,
+        created_at,
+        updated_at,
+        deleted_at,
+        exercise_slide_id,
+        course_id,
+        course_instance_id,
+        exam_id,
+        exercise_id,
+        user_id,
+        user_points_update_strategy AS "user_points_update_strategy: _"
+FROM exercise_slide_submissions
+WHERE exercise_id = $1
+      AND deleted_at IS NULL
+ORDER BY user_id, created_at DESC
+LIMIT $2 OFFSET $3
+        "#,
+        exercise_id,
+        pagination.limit(),
+        pagination.offset(),
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let user_ids = submissions
+        .iter()
+        .map(|sub| sub.user_id)
+        .collect::<Vec<_>>();
+
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let exam_id = exercise.exam_id;
+
+    let user_exercise_states_list =
+        user_exercise_states::get_or_create_user_exercise_state_for_users(
+            conn,
+            &user_ids,
+            exercise_id,
+            None,
+            exam_id,
+        )
+        .await?;
+
+    let mut user_exercise_state_id_list: Vec<Uuid> = Vec::new();
+
+    for (_key, value) in user_exercise_states_list.clone().into_iter() {
+        user_exercise_state_id_list.push(value.id);
+    }
+
+    let exercise = exercises::get_by_id(conn, exercise_id).await?;
+    let exam_id = exercise
+        .exam_id
+        .ok_or_else(|| ModelError::new(ModelErrorType::Generic, "No exam id found".into(), None))?;
+
+    let teacher_grading_decisions_list = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(conn, &user_exercise_state_id_list).await?;
+
+    let user_exam_enrollments_list =
+        exams::get_exam_enrollments_for_users(conn, exam_id, &user_ids).await?;
+
+    let mut list: Vec<ExerciseSlideSubmissionAndUserExerciseState> = Vec::new();
+    for sub in submissions {
+        let user_exercise_state = user_exercise_states_list.get(&sub.user_id).ok_or_else(|| {
+            ModelError::new(ModelErrorType::Generic, "No user found".into(), None)
+        })?;
+
+        let teacher_grading_decision = teacher_grading_decisions_list.get(&user_exercise_state.id);
+        let user_exam_enrollment =
+            user_exam_enrollments_list
+                .get(&sub.user_id)
+                .ok_or_else(|| {
+                    ModelError::new(
+                        ModelErrorType::Generic,
+                        "No users exam_enrollment found".into(),
+                        None,
+                    )
+                })?;
+
+        //Add submissions to the list only if the students exam time has ended
+        if user_exam_enrollment.ended_at.is_some() {
+            let data = ExerciseSlideSubmissionAndUserExerciseState {
+                exercise: exercise.clone(),
+                exercise_slide_submission: sub,
+                user_exercise_state: user_exercise_state.clone(),
+                teacher_grading_decision: teacher_grading_decision.cloned(),
+                user_exam_enrollment: user_exam_enrollment.clone(),
+            };
+            list.push(data);
+        }
+    }
+
+    Ok(list)
+}
+
 pub async fn get_course_daily_slide_submission_counts(
     conn: &mut PgConnection,
     course: &Course,
@@ -530,27 +686,30 @@ pub async fn get_count_of_answers_requiring_attention_in_exercise_by_course_id(
     let count_list = sqlx::query_as!(
         ExerciseAnswersInCourseRequiringAttentionCount,
         r#"
-        SELECT
-        exercises.id,         (SELECT COUNT(us_state.id)::integer as count
-                FROM exercises AS exercises2
-                LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
-                LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
-                LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
-                WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
-                AND us_state.user_id = s_submission.user_id
-                AND us_state.reviewing_stage = 'waiting_for_manual_grading'
-                AND us_state.deleted_at IS NULL
-                AND exercises2.course_id = $1
-                AND exercises.id = exercises2.id
-                GROUP BY exercises2.id),
-                exercises.order_number,
-                exercises.name,
-                exercises.page_id,
-                exercises.chapter_id
-            FROM exercises
-            WHERE exercises.course_id = $1
-            AND exercises.deleted_at IS NULL
-            GROUP BY exercises.id;"#,
+SELECT exercises.id,
+  (
+    SELECT COUNT(us_state.id)::integer AS COUNT
+    FROM exercises AS exercises2
+      LEFT JOIN user_exercise_states AS us_state ON us_state.exercise_id = exercises2.id
+      LEFT JOIN exercise_slide_submissions AS s_submission ON us_state.selected_exercise_slide_id = s_submission.exercise_slide_id
+      LEFT JOIN exercise_task_submissions AS t_submission ON s_submission.id = t_submission.exercise_slide_submission_id
+    WHERE us_state.selected_exercise_slide_id = t_submission.exercise_slide_id
+      AND us_state.user_id = s_submission.user_id
+      AND us_state.reviewing_stage = 'waiting_for_manual_grading'
+      AND us_state.deleted_at IS NULL
+      AND exercises2.course_id = $1
+      AND exercises.id = exercises2.id
+    GROUP BY exercises2.id
+  ),
+  exercises.order_number,
+  exercises.name,
+  exercises.page_id,
+  exercises.chapter_id
+FROM exercises
+WHERE exercises.course_id = $1
+  AND exercises.deleted_at IS NULL
+GROUP BY exercises.id;
+"#,
         course_id,
     )
     .fetch_all(conn)

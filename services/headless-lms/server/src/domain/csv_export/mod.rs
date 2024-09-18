@@ -1,3 +1,4 @@
+pub mod code_giveaway_codes;
 pub mod course_instance_export;
 pub mod course_research_form_questions_answers_export;
 pub mod exercise_tasks_export;
@@ -259,13 +260,8 @@ pub async fn general_export(
 
 #[cfg(test)]
 mod test {
-    use std::{
-        collections::HashMap,
-        io::{self, Cursor},
-        sync::mpsc::Sender,
-    };
+    use std::{collections::HashMap, io::Cursor};
 
-    use bytes::Bytes;
     use headless_lms_models::{
         exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,
@@ -450,23 +446,5 @@ mod test {
         )
         .await
         .unwrap();
-    }
-
-    struct WriteAdapter {
-        sender: Sender<Bytes>,
-    }
-
-    impl Write for WriteAdapter {
-        fn flush(&mut self) -> std::io::Result<()> {
-            Ok(())
-        }
-
-        fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-            let bytes = Bytes::copy_from_slice(buf);
-            self.sender
-                .send(bytes)
-                .map_err(|e| io::Error::new(io::ErrorKind::Other, e.to_string()))?;
-            Ok(buf.len())
-        }
     }
 }

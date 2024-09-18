@@ -12,6 +12,7 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
 
+import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -66,7 +67,7 @@ const ConditionalBlockEditor: React.FC<
               return (
                 <CheckBox
                   key={mod.id}
-                  label={mod.name ?? t("default")}
+                  label={mod.name ?? t("label-default")}
                   value={mod.id}
                   onChange={() => {
                     const previuoslyChecked = requiredModules.some((modId) => modId == mod.id)
@@ -90,7 +91,7 @@ const ConditionalBlockEditor: React.FC<
               return (
                 <CheckBox
                   key={inst.id}
-                  label={inst.name ?? t("default")}
+                  label={inst.name ?? t("label-default")}
                   value={inst.id}
                   onChange={() => {
                     const previuoslyChecked = requiredInstanceEnrollment.some(
@@ -112,7 +113,9 @@ const ConditionalBlockEditor: React.FC<
           </Wrapper>
         )}
       </InspectorControls>
-      <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      <InnerBlocksWrapper title={t("conditionally-shown-content")}>
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+      </InnerBlocksWrapper>
     </BlockPlaceholderWrapper>
   )
 }

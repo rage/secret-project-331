@@ -878,6 +878,37 @@ WHERE id = $1
     Ok(())
 }
 
+pub async fn get_course_instance_with_join_code(
+    conn: &mut PgConnection,
+    join_code: String,
+) -> ModelResult<CourseInstance> {
+    let course_instance = sqlx::query_as!(
+        CourseInstance,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  course_id,
+  starts_at,
+  ends_at,
+  name,
+  description,
+  teacher_in_charge_name,
+  teacher_in_charge_email,
+  support_email,
+  join_code
+FROM course_instances
+WHERE join_code = $1
+  AND deleted_at IS NULL;
+    "#,
+        join_code,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course_instance)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

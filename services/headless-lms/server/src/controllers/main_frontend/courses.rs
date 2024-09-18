@@ -1450,6 +1450,25 @@ async fn teacher_approve_suspected_cheater(
 }
 
 /**
+GET /courses/join/:join_code - Gets the course instance related to join code
+*/
+#[instrument(skip(pool))]
+async fn get_course_instance_with_join_code(
+    join_code: web::Path<String>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<CourseInstance>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let course_instance = models::course_instances::get_course_instance_with_join_code(
+        &mut conn,
+        join_code.to_string(),
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(course_instance))
+}
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1618,5 +1637,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",
             web::delete().to(teacher_reset_course_progress_for_everyone),
+        )
+        .route(
+            "/join/{join_code}",
+            web::get().to(get_course_instance_with_join_code),
         );
 }

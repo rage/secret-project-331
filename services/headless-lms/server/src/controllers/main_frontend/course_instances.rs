@@ -17,6 +17,7 @@ use models::{
     },
     user_exercise_states::UserCourseInstanceProgress,
 };
+use rand::Rng;
 
 use crate::{
     domain::csv_export::{
@@ -460,11 +461,45 @@ async fn generate_join_code_for_course_instance(
         Res::CourseInstance(*id),
     )
     .await?;
-    let code = Uuid::new_v4().to_string();
+
+    const CHARSET: &[u8] = b"ABCDEFGHJKMNPQRSTUVWXYZ\
+                            abcdefghjkmnpqrstuvwxyz";
+    const PASSWORD_LEN: usize = 64;
+    let mut rng = rand::thread_rng();
+
+    let code: String = (0..PASSWORD_LEN)
+        .map(|_| {
+            let idx = rng.gen_range(0..CHARSET.len());
+            CHARSET[idx] as char
+        })
+        .collect();
 
     models::course_instances::generate_join_code_for_course_instance(&mut conn, *id, code).await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
+
+/**
+POST /course_instances/:course_instance_id/join-course-with-join-code - Adds the user to join_code_uses so the user gets access to the course
+*/
+#[instrument(skip(pool))]
+async fn add_user_to_course_with_join_code(
+    course_instance_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let joined = models::join_code_uses::insert(
+        &mut conn,
+        PKeyPolicy::Generate,
+        user.id,
+        *course_instance_id,
+    )
+    .await?;
+    token.authorized_ok(web::Json(joined))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -528,5 +563,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_instance_id}/generate-join-code",
             web::post().to(generate_join_code_for_course_instance),
+        )
+        .route(
+            "/{course_instance_id}/join-course-with-join-code",
+            web::post().to(add_user_to_course_with_join_code),
         );
 }

@@ -148,7 +148,7 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
           <div>{t("support-email-description")}</div>
           {schedule}
 
-          <div>{data.join_code}</div>
+          <a href={`/join?code=${data.join_code}`}>{data.join_code}</a>
           <div>
             <Button
               variant={"primary"}

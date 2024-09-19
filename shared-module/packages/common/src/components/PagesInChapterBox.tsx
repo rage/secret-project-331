@@ -17,7 +17,6 @@ const Wrapper = styled.div`
 const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
-  opacity: 0.8;
   width: 24px;
   height: 24px;
   border-radius: 50%;

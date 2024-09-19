@@ -42,7 +42,7 @@ const TextWrapper = styled.div`
     cursor: pointer;
     font-size: 1.8rem;
     font-weight: 400;
-    font-family: "Josefin Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     list-style: none;
     outline: 0;
     height: auto;
@@ -164,7 +164,7 @@ const Reference: React.FC<React.PropsWithChildren<React.PropsWithChildren<Refere
           wrapper.style.cssText =
             "opacity: 1; z-index: 2; position: absolute; top: 20px; left: 50%; border-radius: 3px; min-width: 400px; transition: visibility 0s linear 100ms, opacity 100ms; box-shadow: rgba(0, 0, 0, 0.1) 0 2px 10px;"
           // eslint-disable-next-line i18next/no-literal-string
-          wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Lato', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
+          wrapper.innerHTML = `<div style="color: #313947; border: 1px solid #E2E4E6; border-radius: 3px; font-family: 'Inter', sans-serif; font-size: 14px; background: #F9f9f9; padding: 0 5px;">${el.text}</div`
           wrapperEl && wrapperEl.remove()
           citation?.appendChild(wrapper)
         } else if (evt.type === "mouseout") {

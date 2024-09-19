@@ -106,9 +106,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
       >
         <div
           className={css`
-            font-family:
-              Josefin Sans,
-              sans-serif;
+            font-family: Inter, sans-serif;
             font-weight: 600;
             font-size: 22px;
             line-height: 22px;

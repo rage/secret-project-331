@@ -17,7 +17,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     position: relative;
     font-size: 2.8vw;
     font-size: 22px;
-    font-family: Josefin Sans, sans-serif;
+    font-family: Inter, sans-serif;
     display: block;
     width: 50px;
     height: 50px;

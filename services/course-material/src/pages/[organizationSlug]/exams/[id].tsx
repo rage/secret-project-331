@@ -131,9 +131,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
       >
         <div
           className={css`
-            font-family:
-              Josefin Sans,
-              sans-serif;
+            font-family: Inter, sans-serif;
             font-size: 30px;
             font-style: normal;
             font-weight: 600;
@@ -149,7 +147,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         </div>
         <div
           className={css`
-            font-family: Lato, sans-serif;
+            font-family: Inter, sans-serif;
             font-size: 20px;
             font-style: normal;
             font-weight: 500;

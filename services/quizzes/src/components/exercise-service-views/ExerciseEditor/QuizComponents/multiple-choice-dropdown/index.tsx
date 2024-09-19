@@ -338,9 +338,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
               className={css`
                 color: #414246;
                 font-size: 14px;
-                font-family:
-                  Josefin Sans,
-                  sans-serif;
+                font-family: Inter, sans-serif;
                 display: block;
                 margin-bottom: 8px;
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}

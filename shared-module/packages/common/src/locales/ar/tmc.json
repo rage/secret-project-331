@@ -1,0 +1,21 @@
+{
+  "download-exercise": "تحميل التمرين",
+  "download-submission-button": "تحميل",
+  "file-upload-save-failure": "فشل في حفظ تحميل الملف",
+  "file-upload-save-success": "تم حفظ تحميل الملف بنجاح.",
+  "no-file-saved-yet": "لم يتم حفظ أي ملف بعد.",
+  "reset": "إعادة تعيين",
+  "reset-file": "إعادة تعيين الملف",
+  "save-file-for-submission": "حفظ الملف للتقديم",
+  "select-file-for-submission": "اختر ملفًا للتقديم",
+  "select-repository-exercise": "يرجى اختيار تمرين من المستودع.",
+  "selected-repository-exercise": "تم اختيار تمرين من المستودع",
+  "solve-in-browser": "حل في المتصفح",
+  "solve-in-editor-instructions": "هذا التمرين مصمم ليتم إكماله باستخدام إضافة TestMyCode لـ VSCode. يمكنك أيضًا تحميل التمرين ورفع الحل باستخدام الروابط أدناه.",
+  "solve-in-editor-label": "حل في محرر خارجي",
+  "submission-archive-download-label": "يمكن تحميل الأرشيف المقدم من الرابط التالي",
+  "submit": "تقديم",
+  "upload-solution-instructions": "رفع أرشيف الحل. أنواع الأرشيف المدعومة: .tar.zst",
+  "waiting-for-content": "في انتظار المحتوى...",
+  "waiting-for-port": "في انتظار المنفذ..."
+}

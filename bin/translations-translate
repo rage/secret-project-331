@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+
+import os
+import json
+import http.client
+from typing import Dict, Any
+import json5
+import pdb
+
+
+current_file_path = os.path.abspath(__file__)
+LOCALES_DIR = os.path.abspath(os.path.join(__file__, '..', '..', 'shared-module', 'packages', 'common', 'src', 'locales'))
+
+def create_payload(prompt: str, user_message: str) -> Dict[str, Any]:
+    """Create the payload for the API request."""
+    return {
+        "messages": [{"role": "system", "content": prompt}, {"role": "user", "content": user_message}],
+        "temperature": 0.4,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": None,
+        "stream": False
+    }
+
+def get_api_key() -> str:
+    """Retrieve the API key from environment variables."""
+    api_key = os.getenv('AZURE_API_KEY')
+
+    if not api_key:
+        raise ValueError("AZURE_API_KEY environment variable not set")
+    return api_key
+
+def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
+    api_host = os.getenv('AZURE_API_HOST')
+    api_model = os.getenv('AZURE_API_MODEL')
+    conn = http.client.HTTPSConnection(api_host)
+    headers = {
+        'api-key': api_key,
+        'Content-Type': "application/json"
+    }
+    conn.request(
+        "POST",
+        f"/openai/deployments/{api_model}/chat/completions?api-version=2024-06-01",
+        json.dumps(payload, ensure_ascii=False),
+        headers
+    )
+    res = conn.getresponse()
+    return res.read().decode("utf-8")
+
+def main():
+    desired_language = input("What language would you like to translate to? ").strip()
+    new_language_slug = input("What is the slug for the language? ").strip()
+    result_folder = os.path.join(LOCALES_DIR, new_language_slug)
+    if not os.path.exists(result_folder):
+        os.makedirs(result_folder)
+    for filename in os.listdir(os.path.join(LOCALES_DIR, "en")):
+        result_dict = {}
+        path_to_file = os.path.join(LOCALES_DIR, "en", filename)
+        if not path_to_file.endswith(".json"):
+            continue
+        with open(path_to_file, "r") as file:
+            input_file = file.read()
+        input_file: Dict[str, str] = json.loads(input_file)
+        # Do the operation in batches of 100 messages
+        batches = [dict(list(input_file.items())[i:i + 100]) for i in range(0, len(input_file), 100)]
+
+        for batch in batches:
+            prompt = f"Translate the given i18next translation file from english to #{desired_language}. Answer only with the contents of the translated file. Don't include markdown markup around the result. The result should be valid JSON, it should start with the '{{'-character and it should end with the '}}' character. The input is in the next message."
+            user_message = json.dumps(batch, indent=2, ensure_ascii=False)
+            payload = create_payload(prompt, user_message)
+            api_key = get_api_key()
+            response = make_api_request(payload, api_key)
+            parsed = json.loads(response)
+            res = parsed['choices'][0]['message']['content']
+            # Using json5 because it tolerates slightly wrong commas
+            res_parsed = json5.loads(res)
+            result_dict.update(res_parsed)
+            print("Completed a batch")
+        result_file_path = os.path.join(result_folder, filename)
+
+        res = json.dumps(result_dict, indent=2, ensure_ascii=False)
+        with open(result_file_path, "w") as file:
+            file.write(res)
+        print(f"Translation saved to {result_file_path}")
+
+
+
+print("Starting")
+main()

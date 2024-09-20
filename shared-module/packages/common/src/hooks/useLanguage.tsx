@@ -1,3 +1,4 @@
+import { dir } from "i18next"
 import { useRouter } from "next/router"
 
 import { LANGUAGE_COOKIE_KEY } from "../utils/constants"
@@ -10,6 +11,15 @@ const SUPPORTED_LANGUAGES = ["en", "fi"]
 const DEFAULT_LANGUAGE = "en"
 
 const CAN_ACCESS_COOKIES = detectAccessToCookies()
+
+function getDir(language: string) {
+  try {
+    return dir(language)
+  } catch (e) {
+    // eslint-disable-next-line i18next/no-literal-string
+    return "ltr"
+  }
+}
 
 // If language is specified with the `lang` query param, use that and save that as a langauge preference.
 // Otherwise use either the saved language preference or detect the desired language
@@ -36,6 +46,8 @@ export default function useLanguage(): string | null {
 
     // Set html lang=lang attribute
     document.documentElement.lang = selectedLanguage
+    // Set right text direction
+    document.documentElement.dir = getDir(selectedLanguage)
   }
 
   return selectedLanguage

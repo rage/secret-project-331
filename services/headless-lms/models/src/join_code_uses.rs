@@ -30,3 +30,23 @@ RETURNING id
     .await?;
     Ok(res.id)
 }
+
+pub async fn check_if_user_has_access_to_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_instance_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query!(
+        "
+SELECT id
+FROM join_code_uses
+WHERE user_id = $1
+AND course_instance_id = $2
+        ",
+        user_id,
+        course_instance_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.id)
+}

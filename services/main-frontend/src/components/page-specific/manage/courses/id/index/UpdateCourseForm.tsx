@@ -32,6 +32,8 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [draftStatus, setDraftStatus] = useState(course.is_draft)
   const [testStatus, setTestStatus] = useState(course.is_test_mode)
   const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
+  const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(course.is_unlisted)
+
   const [canAddChatbot, setCanAddChatbot] = useState(course.can_add_chatbot)
 
   const updateCourseMutation = useToastMutation(
@@ -48,6 +50,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
         is_test_mode: testStatus,
         is_unlisted: unlisted,
         can_add_chatbot: canAddChatbot,
+        is_joinable_by_code_only: joinableByCodeOnlyStatus,
       })
       onSubmitForm()
     },
@@ -87,6 +90,15 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
               setDraftStatus(!draftStatus)
             }}
             checked={draftStatus}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            label={t("joinable-by-code-only")}
+            onChange={() => {
+              setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
+            }}
+            checked={joinableByCodeOnlyStatus}
           />
         </FieldContainer>
         {!draftStatus && (

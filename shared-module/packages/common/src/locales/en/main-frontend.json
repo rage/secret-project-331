@@ -294,6 +294,7 @@
   "instance-opens-at-time": "Instance opens at {{time}}",
   "invalid-service-info": "Invalid service info",
   "invalid-url": "Invalid URL",
+  "joinable-by-code-only": "Joinable by code only",
   "label-action": "Action",
   "label-actions": "Actions",
   "label-add-user": "Add user",

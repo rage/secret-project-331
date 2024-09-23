@@ -495,6 +495,7 @@ pub async fn seed_organization_uh_cs(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
+        is_joinable_by_code_only: false,
     };
     let (cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(

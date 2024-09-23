@@ -618,6 +618,7 @@ mod tests {
                     is_test_mode: false,
                     is_unlisted: false,
                     copy_user_permissions: false,
+                    is_joinable_by_code_only: false,
                 },
                 user,
                 |_, _, _| unimplemented!(),

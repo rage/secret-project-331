@@ -86,6 +86,7 @@ pub async fn seed_organization_uh_mathstat(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
+        is_joinable_by_code_only: false,
     };
     let (
         statistics_course,
@@ -132,6 +133,7 @@ pub async fn seed_organization_uh_mathstat(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
+        is_joinable_by_code_only: false,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -180,6 +182,7 @@ pub async fn seed_organization_uh_mathstat(
             is_test_mode: false,
             is_unlisted: false,
             copy_user_permissions: false,
+            is_joinable_by_code_only: false,
         },
         true,
         admin_user_id,

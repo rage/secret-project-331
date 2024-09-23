@@ -1,1 +1,1 @@
-DROP TABLE course_accesses;
+DROP TABLE join_code_uses;

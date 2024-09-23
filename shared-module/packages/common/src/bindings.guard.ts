@@ -1022,7 +1022,8 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
-    typeof typedObj["can_add_chatbot"] === "boolean"
+    typeof typedObj["can_add_chatbot"] === "boolean" &&
+    typeof typedObj["is_joinable_by_code_only"] === "boolean"
   )
 }
 
@@ -1069,7 +1070,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
-    typeof typedObj["is_unlisted"] === "boolean"
+    typeof typedObj["is_unlisted"] === "boolean" &&
+    typeof typedObj["is_joinable_by_code_only"] === "boolean"
   )
 }
 
@@ -1087,7 +1089,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["is_draft"] === "boolean" &&
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
-    typeof typedObj["copy_user_permissions"] === "boolean"
+    typeof typedObj["copy_user_permissions"] === "boolean" &&
+    typeof typedObj["is_joinable_by_code_only"] === "boolean"
   )
 }
 

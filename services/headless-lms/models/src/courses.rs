@@ -46,6 +46,7 @@ pub struct Course {
     pub is_unlisted: bool,
     pub base_module_completion_requires_n_submodule_completions: i32,
     pub can_add_chatbot: bool,
+    pub is_joinable_by_code_only: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -76,6 +77,7 @@ pub struct NewCourse {
     pub is_unlisted: bool,
     /// If true, copies all user permissions from the original course to the new one.
     pub copy_user_permissions: bool,
+    pub is_joinable_by_code_only: bool,
 }
 
 pub async fn insert(
@@ -154,7 +156,8 @@ SELECT id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot,
-  is_unlisted
+  is_unlisted,
+  is_joinable_by_code_only
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -187,7 +190,8 @@ SELECT id,
   is_test_mode,
   is_unlisted,
   base_module_completion_requires_n_submodule_completions,
-  can_add_chatbot
+  can_add_chatbot,
+  is_joinable_by_code_only
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -227,7 +231,8 @@ SELECT id,
   is_test_mode,
   can_add_chatbot,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -279,7 +284,8 @@ SELECT id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot,
-  is_unlisted
+  is_unlisted,
+  is_joinable_by_code_only
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -316,7 +322,8 @@ SELECT
     c.is_test_mode,
     c.base_module_completion_requires_n_submodule_completions,
     can_add_chatbot,
-    c.is_unlisted
+    c.is_unlisted,
+    c.is_joinable_by_code_only
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -378,7 +385,8 @@ SELECT id,
   is_test_mode,
   can_add_chatbot,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only
 FROM courses
 WHERE id = $1;
     "#,
@@ -482,7 +490,8 @@ SELECT courses.id,
   courses.is_test_mode,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot,
-  courses.is_unlisted
+  courses.is_unlisted,
+  courses.is_joinable_by_code_only
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -545,6 +554,7 @@ pub struct CourseUpdate {
     pub is_test_mode: bool,
     pub can_add_chatbot: bool,
     pub is_unlisted: bool,
+    pub is_joinable_by_code_only: bool,
 }
 
 pub async fn update_course(
@@ -561,8 +571,9 @@ SET name = $1,
   is_draft = $3,
   is_test_mode = $4,
   can_add_chatbot = $5,
-  is_unlisted = $6
-WHERE id = $7
+  is_unlisted = $6,
+  is_joinable_by_code_only = $7
+WHERE id = $8
 RETURNING id,
   name,
   created_at,
@@ -579,7 +590,8 @@ RETURNING id,
   is_test_mode,
   can_add_chatbot,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only
     "#,
         course_update.name,
         course_update.description,
@@ -587,6 +599,7 @@ RETURNING id,
         course_update.is_test_mode,
         course_update.can_add_chatbot,
         course_update.is_unlisted,
+        course_update.is_joinable_by_code_only,
         course_id
     )
     .fetch_one(conn)
@@ -637,7 +650,8 @@ RETURNING id,
   is_test_mode,
   can_add_chatbot,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only
     "#,
         course_id
     )
@@ -666,7 +680,8 @@ SELECT id,
   is_test_mode,
   can_add_chatbot,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -740,7 +755,8 @@ SELECT id,
   is_test_mode,
   can_add_chatbot,
   is_unlisted,
-  base_module_completion_requires_n_submodule_completions
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   ",
@@ -852,6 +868,7 @@ mod test {
                 is_test_mode: false,
                 is_unlisted: false,
                 copy_user_permissions: false,
+                is_joinable_by_code_only: false,
             }
         }
     }

@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 import Layout from "../components/layout/Layout"
 
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
-import useLanguage from "@/shared-module/common/hooks/useLanguage"
+import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
@@ -43,6 +43,7 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
         return
       }
       htmlElement.setAttribute("lang", language)
+      htmlElement.setAttribute("dir", getDir(language))
       setLanguage(language)
     })
     i18n.on("loaded", () => {

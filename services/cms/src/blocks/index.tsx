@@ -20,6 +20,8 @@ import ExerciseCustomView from "./ExerciseCustomView"
 import ExerciseInChapter from "./ExerciseInChapter"
 import ExpendableContent from "./ExpandableContent"
 import ExpendableContentInnerBlock from "./ExpandableContent/ExpandableContentInnerBlock"
+import FlipCard from "./FlipCard"
+import InnerCard from "./FlipCard/InnerCard"
 import Glossary from "./Glossary"
 import HeroSection from "./HeroSection"
 import HightlightBox from "./HighlightBox"
@@ -78,6 +80,8 @@ export const blockTypeMapForPages = [
   ["moocfi/revelable-content", RevealableContent],
   ["moocfi/revealable-hidden-content", RevealableHiddenContent],
 
+  ["moocfi/flip-card", FlipCard],
+  ["moocfi/inner-card", InnerCard],
   ["moocfi/code-giveaway", CodeGiveaway],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>

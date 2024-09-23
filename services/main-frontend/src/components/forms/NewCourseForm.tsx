@@ -331,7 +331,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         <Button
           size="medium"
           variant="primary"
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault()
             mutation.mutate()
           }}
           disabled={submitDisabled}

@@ -7,7 +7,7 @@ const YellowBox = styled.div`
   background-color: ${baseTheme.colors.yellow[200]};
   color: #493f13;
   margin: 1rem 0;
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 140%;
   text-align: center;
   border-radius: 0.25rem;

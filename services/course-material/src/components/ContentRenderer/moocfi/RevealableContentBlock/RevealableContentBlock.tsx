@@ -6,6 +6,8 @@ import ContentRenderer, { BlockRendererProps } from "../.."
 
 import { Block } from "@/services/backend"
 import Button from "@/shared-module/common/components/Button"
+import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface RevealableContentProps {}
@@ -26,42 +28,53 @@ const RevealableContentBlock: React.FC<
   })
 
   return (
-    <div
-      className={css`
-        padding: 2rem;
-      `}
-    >
-      {reveleadContent.map((content) => (
-        <ContentRenderer
-          key={content.clientId}
-          data={[content]}
-          editing={false}
-          selectedBlockId={null}
-          setEdits={function (): void {
-            throw new Error("Function not implemented.")
-          }}
-          isExam={false}
-        />
-      ))}
-      {!open && (
-        <Button variant={"primary"} size={"medium"} onClick={() => setOpen(!open)}>
-          {t("button-text-proceed-after-thinking")}
-        </Button>
-      )}
-      {open &&
-        hiddenContent.map((content) => (
-          <ContentRenderer
-            key={content.clientId}
-            data={[content]}
-            editing={false}
-            selectedBlockId={null}
-            setEdits={function (): void {
-              throw new Error("Function not implemented.")
-            }}
-            isExam={false}
-          />
-        ))}
-    </div>
+    <BreakFromCentered sidebar={false} disabled={false}>
+      <div
+        className={css`
+          padding: 1rem;
+          background: #d9d9d980;
+          color: #4c5868;
+        `}
+      >
+        <Centered variant={"narrow"}>
+          {reveleadContent.map((content) => (
+            <ContentRenderer
+              key={content.clientId}
+              data={[content]}
+              editing={false}
+              selectedBlockId={null}
+              setEdits={function (): void {
+                throw new Error("Function not implemented.")
+              }}
+              isExam={false}
+            />
+          ))}
+          {!open && (
+            <Button
+              variant={"tertiary"}
+              size={"medium"}
+              transform={"capitalize"}
+              onClick={() => setOpen(!open)}
+            >
+              {t("button-text-proceed-after-thinking")}
+            </Button>
+          )}
+          {open &&
+            hiddenContent.map((content) => (
+              <ContentRenderer
+                key={content.clientId}
+                data={[content]}
+                editing={false}
+                selectedBlockId={null}
+                setEdits={function (): void {
+                  throw new Error("Function not implemented.")
+                }}
+                isExam={false}
+              />
+            ))}
+        </Centered>
+      </div>
+    </BreakFromCentered>
   )
 }
 

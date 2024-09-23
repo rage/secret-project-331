@@ -18,16 +18,9 @@ const RevealableHiddenContentBlock: React.FC<
     <div
       className={css`
         padding: 2rem;
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-          margin-top: 0;
-        }
-        border: 2px solid black;
+        border-radius: 4px;
+        background: #ffffff80;
+        border: 2px dashed #718dbfcc;
       `}
     >
       <InnerBlocks parentBlockProps={props} />

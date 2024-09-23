@@ -9,7 +9,7 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "tsx": "^3.12.8",
+    "tsx": "^4.19.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {

@@ -36,12 +36,12 @@ echo "$GENERATED" >> "$GENERATED_DOWNLOAD_TARGET"
 # write guard annotation for CliOutput and RunResult
 run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
 run_command sed -i '/^export interface RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$GENERATED_DOWNLOAD_TARGET"
-run_command npx eslint --fix "$GENERATED_DOWNLOAD_TARGET"
+run_command npx eslint@8 --fix "$GENERATED_DOWNLOAD_TARGET"
 
 # generate guard
 run_command npx ts-auto-guard --paths "$GENERATED_DOWNLOAD_TARGET" --project ./tsconfig.json
 run_command sed -i '1s;^;/* eslint-disable @typescript-eslint/no-explicit-any */\n/* eslint-disable @typescript-eslint/explicit-module-boundary-types */\n\n;' "$GENERATED_GUARD"
-run_command npx eslint --fix "$GENERATED_GUARD"
+run_command npx eslint@8 --fix "$GENERATED_GUARD"
 
 # this is done last so that if anything goes wrong earlier, we don't get a false "Already up to date!" message
 echo "Downloading CLI"

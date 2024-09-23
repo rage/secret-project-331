@@ -12,7 +12,7 @@ const DEFAULT_LANGUAGE = "en"
 
 const CAN_ACCESS_COOKIES = detectAccessToCookies()
 
-function getDir(language: string) {
+export function getDir(language: string) {
   try {
     return dir(language)
   } catch (e) {

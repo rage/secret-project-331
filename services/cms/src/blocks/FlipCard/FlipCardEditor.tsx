@@ -32,11 +32,7 @@ const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAt
         <FlipBoxSizeCustomizer attributes={attributes} setAttributes={setAttributes} />
       </InspectorControls>
       <div>
-        <InnerBlocks
-          allowedBlocks={ALLOWED_NESTED_BLOCKS}
-          template={INNER_BLOCKS_TEMPLATE}
-          templateLock="all"
-        />
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} template={INNER_BLOCKS_TEMPLATE} />
       </div>
     </BlockPlaceholderWrapper>
   )

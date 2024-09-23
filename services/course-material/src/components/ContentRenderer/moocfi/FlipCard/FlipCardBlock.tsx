@@ -42,10 +42,12 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
       aria-label={t("flip-card")}
       className={css`
         display: flex;
-        flex-direction: column;
+        align-items: center;
         width: ${size}px;
         height: ${size}px;
         perspective: 1000px;
+        color: #4c5868;
+
         :hover {
           cursor: pointer;
         }
@@ -82,6 +84,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             background-color: #f4f4f6;
             border-radius: 10px;
             overflow-x: auto;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           `}
         >
           <ContentRenderer
@@ -105,6 +111,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             background-color: #f4f4f6;
             border-radius: 10px;
             overflow-x: auto;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           `}
         >
           <ContentRenderer

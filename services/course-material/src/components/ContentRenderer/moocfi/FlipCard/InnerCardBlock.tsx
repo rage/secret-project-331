@@ -94,7 +94,8 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
           padding-left: 1rem;
           padding-right: 1rem;
           margin-top: 1rem !important;
-
+          justify-content: center;
+          align-items: center;
           ul {
             padding-inline-start: 1rem !important;
           }

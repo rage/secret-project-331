@@ -376,7 +376,7 @@ const ExerciseBlock: React.FC<
               >
                 <div
                   className={css`
-                    font-weight: 500;
+                    font-weight: 600;
                     font-size: 18px;
                     margin-bottom: 0.25rem;
                     color: #1b222c;

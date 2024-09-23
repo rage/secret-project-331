@@ -30,10 +30,10 @@ const globalCss = css`
 
   html, body {
     font-family: ${primaryFont};
-    font-weight: 300;
+    font-weight: 400;
     font-size: ${defaultFontSizePx}px;
+    color: #353f4b;
     overflow-x: hidden;
-    line-height: 150%;
   }
   h1,
   h2,

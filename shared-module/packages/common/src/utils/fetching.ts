@@ -55,6 +55,10 @@ export function isUuid(x: unknown): x is string {
   return UUID_REGEX.test(x)
 }
 
+export function isBoolean(x: unknown): x is boolean {
+  return typeof x === "boolean"
+}
+
 /**
  * Used when the rust type is a HashMap. Assumes keys are strings.
  *

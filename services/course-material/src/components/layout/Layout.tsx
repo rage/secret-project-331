@@ -26,6 +26,7 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
+import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
@@ -86,9 +87,22 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   }, [changedLanguageUrl, router])
 
   useEffect(() => {
-    if (currentLanguageCode && i18n.language !== currentLanguageCode) {
+    if (!currentLanguageCode) {
+      return
+    }
+    if (i18n.language !== currentLanguageCode) {
       i18n.changeLanguage(currentLanguageCode)
     }
+    const htmlElement = document.querySelector("html")
+    if (!htmlElement || !currentLanguageCode) {
+      return
+    }
+    setTimeout(() => {
+      // eslint-disable-next-line i18next/no-literal-string
+      htmlElement.setAttribute("lang", currentLanguageCode)
+      // eslint-disable-next-line i18next/no-literal-string
+      htmlElement.setAttribute("dir", getDir(currentLanguageCode))
+    }, 100)
   }, [currentLanguageCode, i18n])
 
   const layoutContextValue = useMemo(() => {

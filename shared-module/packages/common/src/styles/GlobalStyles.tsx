@@ -64,6 +64,8 @@ const globalCss = css`
   kbd,
   tt {
     font-family: ${monospaceFont};
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0;
   }
   .screen-reader-only {
     position: absolute;

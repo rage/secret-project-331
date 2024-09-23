@@ -48,3 +48,7 @@ export function editCourseDefaultPeerOrSelfReviewConfigRoute(courseId: string) {
 export function regradingsRoute() {
   return "/manage/regradings"
 }
+
+export function codeGiveawayRoute(codeGiveawayId: string) {
+  return `/manage/code-giveaways/${codeGiveawayId}`
+}

@@ -223,6 +223,18 @@ brew install kubectx stern
 
 # Running the development environment
 
+## Installing secret-projects dependencies
+
+In the root directory, run the command `nvm install` followed by `nvm use`. After that you should have Node 20. Then run `npm ci` in the root folder to install the dependencies and `./bin/npm-ci-all` which will install all the dependencies for the services. Then make sure that TMC-Langs is downloaded by running `bin/download-tmc-langs`. Otherwise the build won't succeed.
+
+Once you've installed the node modules run the command `./bin/copy-and-check-shared-module` which will copy the contents of the shared module to each of the services.
+
+Add the environment variables for the headless-lms by the following command
+
+```shell
+cp services/headless-lms/models/.env.example services/headless-lms/models/.env
+```
+
 ## Starting minikube
 
 **Before you do this the first time:** If you're running Linux, you can detect common problems with your setup by running `bin/detect-dev-env-problems` on the repo root. Once you see this script printing `Minikube is not running. Please start it with bin/minikube-start and run this again.`, you can proceed to the next step.
@@ -300,18 +312,6 @@ After that, you should be able to access the application by going to `http://pro
 
 Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
 
-## Installing secret-projects dependencies
-
-In the root directory, run the command `nvm use`. After that you should have node 16. Then run `npm ci` in the root folder to install the dependencies and `./bin/npm-ci-all` which will install all the dependencies for the services. Then make sure that TMC-Langs is downloaded by running `bin/download-tmc-langs`. Otherwise the build won't succeed.
-
-Once you've installed the node modules run the command `./bin/copy-and-check-shared-module` which will copy the contents of the shared module to each of the services.
-
-Add the environment variables for the headless-lms by the following command
-
-```shell
-cp services/headless-lms/models/.env.example services/headless-lms/models/.env
-```
-
 ## Starting development the application
 
 Before starting the application, make sure minikube is running.
@@ -324,11 +324,11 @@ For windows environment, you can use [windows terminal](https://aka.ms/terminal)
 
 For macOS, you can use [Iterm2](https://iterm2.com/)
 
-### Linux
-
 **Verify that you've setup minikube corretly by running `bin/detect-dev-env-problems`.**
 
-Afterwards, in the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+### Linux
+
+In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
 
 ### Windows
 

@@ -37,6 +37,7 @@ import AudioPlayer from "./moocfi/AudioPlayer/index"
 import AuthorBlock from "./moocfi/AuthorBlock"
 import AuthorInnerBlock from "./moocfi/AuthorInnerBlock"
 import ChapterProgressBlock from "./moocfi/ChapterProgressBlock"
+import CodeGiveawayBlock from "./moocfi/CodeGiveAway"
 import ConditionalBlock from "./moocfi/ConditionalBlock"
 import CongratulationsBlock from "./moocfi/CongratulationsBlock"
 import CourseChapterGridBlock from "./moocfi/CourseChapterGridBlock"
@@ -167,6 +168,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/expandable-content-inner-block": ExpandableContentInnerBlock,
   "moocfi/revelable-content": RevealableContentBlock,
   "moocfi/revealable-hidden-content": RevealableHiddenContentBlock,
+  "moocfi/code-giveaway": CodeGiveawayBlock,
 }
 
 const highlightedBlockStyles = css`

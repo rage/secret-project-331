@@ -40,7 +40,7 @@ test.describe(() => {
     await frame.getByText("Pick all the programming languages from below").waitFor()
 
     // eslint-disable-next-line playwright/no-conditional-in-test
-    if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
+    if (testInfo.retry) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
       await frame.getByText("Pick all the programming languages from below").waitFor()

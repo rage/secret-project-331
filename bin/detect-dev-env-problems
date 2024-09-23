@@ -28,6 +28,18 @@ echo "$DOCKER_OUTPUT"
 
 echo ""
 
+echo "Checking if langs exists"
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../services/tmc/"
+if [ -n "$(find "$FOLDER_PATH" -maxdepth 1 -type f -name "tmc-langs-cli-*")" ]; then
+  echo "Found langs"
+else
+  echo "Langs not found, please run bin/download-tmc-langs"
+  exit 255
+fi
+
+echo ""
+
 DOMAIN="project-331.local"
 
 ensure_program_in_path minikube

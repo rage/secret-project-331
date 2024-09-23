@@ -18,8 +18,7 @@ const ExpandableContentBlock: React.FC<
       className={css`
         display: flex;
         flex-direction: column;
-        border-bottom: 2px solid gray;
-        margin: 0;
+        gap: 6px;
       `}
     >
       {<InnerBlocks parentBlockProps={props} />}

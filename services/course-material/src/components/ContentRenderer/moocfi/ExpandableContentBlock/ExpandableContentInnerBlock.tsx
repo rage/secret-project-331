@@ -6,6 +6,7 @@ import { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
 
 import Button from "@/shared-module/common/components/Button"
+import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface ExpandableContentInnerBlockProps {
@@ -17,36 +18,58 @@ const ExpandableContentInnerBlock: React.FC<
 > = (props) => {
   const heading = props.data.attributes.name
 
-  const [open, setOpen] = useState(0)
+  const [open, setOpen] = useState(false)
   return (
     <div
       className={css`
         display: flex;
         flex-direction: column;
-        padding: 2rem;
-        border: 2px solid gray;
-        border-bottom: 0;
-        border-left: ${open === 1 ? "4px solid gray" : "2px solid gray"};
+        padding: 1rem;
+        border-radius: 4px;
+        background: #dfdfe480;
       `}
       role="presentation"
-      onKeyDown={() => (open === 0 ? setOpen(1) : setOpen(0))}
-      onClick={() => (open === 0 ? setOpen(1) : setOpen(0))}
+      onKeyDown={() => (open ? setOpen(false) : setOpen(true))}
+      onClick={() => (open ? setOpen(false) : setOpen(true))}
     >
       <div
         className={css`
           display: flex;
           flex-direction: row;
-          justify-content: space-between;
-          width: 100%;
+          font-family: ${headingFont};
+          color: #4c5868;
+          ${open ? "padding-bottom: 1rem;" : ""}
         `}
       >
-        <div>{heading}</div>
         <Button variant={"icon"} size={"small"}>
-          {open == 0 ? <PlusCircle /> : <MinusCircle />}
+          {open ? (
+            <MinusCircle size={18} color="#4C5868" />
+          ) : (
+            <PlusCircle size={18} color="#4C5868" />
+          )}
         </Button>
+        <h4
+          className={css`
+            font-weight: ${fontWeights.semibold};
+          `}
+        >
+          {heading}
+        </h4>
       </div>
 
-      {open == 1 && <InnerBlocks parentBlockProps={props} />}
+      {open && (
+        <div
+          className={css`
+            background: ${baseTheme.colors.primary[100]};
+            border-radius: 2px;
+
+            padding-right: 1rem;
+            padding-left: 1rem;
+          `}
+        >
+          <InnerBlocks parentBlockProps={props} />
+        </div>
+      )}
     </div>
   )
 }

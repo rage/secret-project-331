@@ -1,9 +1,11 @@
 import { css } from "@emotion/css"
+import { t } from "i18next"
 import React from "react"
 
 import { BlockRendererProps } from "../.."
 import InnerBlocks from "../../util/InnerBlocks"
 
+import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface RevealableContentProps {
@@ -17,12 +19,21 @@ const RevealableHiddenContentBlock: React.FC<
   return (
     <div
       className={css`
-        padding: 2rem;
+        padding-left: 14px;
+        padding-right: 14px;
+        padding-top: 14px;
         border-radius: 4px;
         background: #ffffff80;
         border: 2px dashed #718dbfcc;
       `}
     >
+      <h4
+        className={css`
+          font-weight: ${fontWeights.semibold};
+        `}
+      >
+        {t("an-insight-to-consider")}
+      </h4>
       <InnerBlocks parentBlockProps={props} />
     </div>
   )

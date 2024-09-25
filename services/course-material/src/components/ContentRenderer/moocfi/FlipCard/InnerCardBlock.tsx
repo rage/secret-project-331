@@ -99,6 +99,13 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
           ul {
             padding-inline-start: 1rem !important;
           }
+          h1,
+          h2,
+          h3,
+          h4,
+          h5 {
+            margin-top: 0px;
+          }
         `}
       >
         <InnerBlocks parentBlockProps={props} />

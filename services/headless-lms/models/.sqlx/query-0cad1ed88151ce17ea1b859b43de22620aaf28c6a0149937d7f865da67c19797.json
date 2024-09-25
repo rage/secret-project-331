@@ -10,9 +10,13 @@
       }
     ],
     "parameters": {
-      "Left": ["Date"]
+      "Left": [
+        "Date"
+      ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "0cad1ed88151ce17ea1b859b43de22620aaf28c6a0149937d7f865da67c19797"
 }

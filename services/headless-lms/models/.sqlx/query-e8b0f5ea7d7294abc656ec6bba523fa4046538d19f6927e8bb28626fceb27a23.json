@@ -19,13 +19,18 @@
           "Custom": {
             "name": "peer_review_question_type",
             "kind": {
-              "Enum": ["essay", "scale"]
+              "Enum": [
+                "essay",
+                "scale"
+              ]
             }
           }
         }
       ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "e8b0f5ea7d7294abc656ec6bba523fa4046538d19f6927e8bb28626fceb27a23"
 }

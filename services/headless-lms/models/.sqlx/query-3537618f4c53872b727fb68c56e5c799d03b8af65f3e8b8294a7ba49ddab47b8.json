@@ -90,7 +90,13 @@
       }
     ],
     "parameters": {
-      "Left": ["Bool", "Int4", "Int4", "Bool", "Uuid"]
+      "Left": [
+        "Bool",
+        "Int4",
+        "Int4",
+        "Bool",
+        "Uuid"
+      ]
     },
     "nullable": [
       false,

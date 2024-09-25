@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_page_sync_statuses (course_id, page_id)\nSELECT course_id, id\nFROM pages\nWHERE course_id = ANY($1)\nAND deleted_at IS NULL\nAND hidden IS FALSE\nON CONFLICT (page_id, deleted_at) DO NOTHING\nRETURNING *\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "page_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "error_message",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "synced_page_revision_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "aa4249daf87d146bddaaea2e319e9aa0d24890c022ef735fa8bd178580f1d91a"
+}

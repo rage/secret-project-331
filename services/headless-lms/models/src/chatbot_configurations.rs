@@ -18,6 +18,8 @@ pub struct ChatbotConfiguration {
     pub frequency_penalty: f32,
     pub presence_penalty: f32,
     pub response_max_tokens: i32,
+    pub use_azure_search: bool,
+    pub maintain_azure_search_index: bool,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
@@ -89,6 +91,23 @@ WHERE course_id = $1
 AND deleted_at IS NULL
 ",
         course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_for_azure_search_maintananace(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        "
+SELECT * FROM
+chatbot_configurations
+WHERE maintain_azure_search_index = true
+AND deleted_at IS NULL
+",
     )
     .fetch_all(conn)
     .await?;

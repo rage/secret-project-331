@@ -10,9 +10,19 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Varchar", "Uuid", "Uuid", "Int4", "Uuid"]
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Uuid"
+      ]
     },
-    "nullable": [false]
+    "nullable": [
+      false
+    ]
   },
   "hash": "e81d160c322b0c903d8105d39f22a1f26f37ffe46fa0d15f4c038b4ba2adc89c"
 }

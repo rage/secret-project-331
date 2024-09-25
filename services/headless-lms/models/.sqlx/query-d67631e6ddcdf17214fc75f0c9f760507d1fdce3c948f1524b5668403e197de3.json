@@ -45,9 +45,23 @@
       }
     ],
     "parameters": {
-      "Left": ["Varchar", "Varchar", "Int4", "Jsonb"]
+      "Left": [
+        "Varchar",
+        "Varchar",
+        "Int4",
+        "Jsonb"
+      ]
     },
-    "nullable": [false, false, false, true, false, false, false, false]
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
   },
   "hash": "d67631e6ddcdf17214fc75f0c9f760507d1fdce3c948f1524b5668403e197de3"
 }

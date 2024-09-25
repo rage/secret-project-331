@@ -90,7 +90,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Text"]
+      "Left": [
+        "Text"
+      ]
     },
     "nullable": [
       false,

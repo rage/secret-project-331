@@ -151,3 +151,30 @@ AND deleted_at IS NULL
     .await?;
     Ok(res.count.unwrap_or_default())
 }
+
+pub async fn get_latest_history_entries_by_course_ids(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<PageHistory>> {
+    let res = sqlx::query_as!(
+        PageHistory,
+        r#"
+SELECT ph.id,
+  ph.title,
+  ph.content,
+  ph.created_at,
+  ph.history_change_reason as "history_change_reason: HistoryChangeReason",
+  ph.restored_from_id,
+  ph.author_user_id
+FROM page_history ph
+JOIN pages ON pages.id = ph.page_id
+WHERE pages.course_id = ANY($1)
+AND ph.deleted_at IS NULL
+ORDER BY ph.created_at DESC
+"#,
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

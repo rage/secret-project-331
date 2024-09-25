@@ -4,7 +4,14 @@
   "describe": {
     "columns": [],
     "parameters": {
-      "Left": ["Varchar", "Uuid", "Uuid", "Uuid", "Varchar", "Jsonb"]
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Varchar",
+        "Jsonb"
+      ]
     },
     "nullable": []
   },

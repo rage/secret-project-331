@@ -1,0 +1,122 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT * FROM\nchatbot_configurations\nWHERE maintain_azure_search_index = true\nAND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "enabled_to_students",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "chatbot_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "prompt",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "initial_message",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 9,
+        "name": "weekly_tokens_per_user",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 10,
+        "name": "daily_tokens_per_user",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "temperature",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 12,
+        "name": "top_p",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 13,
+        "name": "frequency_penalty",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 14,
+        "name": "presence_penalty",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 15,
+        "name": "response_max_tokens",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "use_azure_search",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 17,
+        "name": "maintain_azure_search_index",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "4721a4c2982a15700bdb16c9ddc4a4b461ed23e39abe1fb8e41c32374e2f1df7"
+}

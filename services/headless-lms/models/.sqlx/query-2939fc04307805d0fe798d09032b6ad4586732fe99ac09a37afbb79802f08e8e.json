@@ -82,16 +82,30 @@
         "ordinal": 15,
         "name": "response_max_tokens",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 16,
+        "name": "use_azure_search",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 17,
+        "name": "maintain_azure_search_index",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
       false,
       false,
       true,
+      false,
+      false,
       false,
       false,
       false,

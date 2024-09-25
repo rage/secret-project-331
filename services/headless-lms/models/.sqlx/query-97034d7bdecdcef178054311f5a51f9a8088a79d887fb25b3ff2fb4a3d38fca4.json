@@ -50,7 +50,11 @@
           "Custom": {
             "name": "certificate_text_anchor",
             "kind": {
-              "Enum": ["start", "middle", "end"]
+              "Enum": [
+                "start",
+                "middle",
+                "end"
+              ]
             }
           }
         }
@@ -82,7 +86,11 @@
           "Custom": {
             "name": "certificate_text_anchor",
             "kind": {
-              "Enum": ["start", "middle", "end"]
+              "Enum": [
+                "start",
+                "middle",
+                "end"
+              ]
             }
           }
         }
@@ -114,7 +122,11 @@
           "Custom": {
             "name": "certificate_text_anchor",
             "kind": {
-              "Enum": ["start", "middle", "end"]
+              "Enum": [
+                "start",
+                "middle",
+                "end"
+              ]
             }
           }
         }
@@ -131,7 +143,10 @@
           "Custom": {
             "name": "certificate_paper_size",
             "kind": {
-              "Enum": ["horizontal-a4", "vertical-a4"]
+              "Enum": [
+                "horizontal-a4",
+                "vertical-a4"
+              ]
             }
           }
         }
@@ -158,7 +173,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,

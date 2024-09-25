@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ph.id,\n  ph.title,\n  ph.content,\n  ph.created_at,\n  ph.history_change_reason as \"history_change_reason: HistoryChangeReason\",\n  ph.restored_from_id,\n  ph.author_user_id\nFROM page_history ph\nJOIN pages ON pages.id = ph.page_id\nWHERE pages.course_id = ANY($1)\nAND ph.deleted_at IS NULL\nORDER BY ph.created_at DESC\n",
+  "query": "\nSELECT id,\n  title,\n  content,\n  created_at,\n  history_change_reason as \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id,\n  page_id\nFROM page_history\nWHERE page_id = $1\nAND deleted_at IS NULL\nORDER BY created_at DESC, id\nLIMIT $2\nOFFSET $3\n",
   "describe": {
     "columns": [
       {
@@ -44,12 +44,17 @@
         "ordinal": 6,
         "name": "author_user_id",
         "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "page_id",
+        "type_info": "Uuid"
       }
     ],
     "parameters": {
-      "Left": ["UuidArray"]
+      "Left": ["Uuid", "Int8", "Int8"]
     },
-    "nullable": [false, false, false, false, false, true, false]
+    "nullable": [false, false, false, false, false, true, false, false]
   },
-  "hash": "7fe7d88ace597c560870c2d094707c098b3f9a71163a25f26991a29c7bf30f21"
+  "hash": "cb79d14d1c90d3beb790bcedcde1aa9ece8fd93960df2db9eb70c1a23ea61728"
 }

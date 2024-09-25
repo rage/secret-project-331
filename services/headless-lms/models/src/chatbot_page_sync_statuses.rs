@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -16,7 +18,7 @@ pub struct ChatbotPageSyncStatus {
 pub async fn make_sure_sync_statuses_exist(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
-) -> ModelResult<Vec<ChatbotPageSyncStatus>> {
+) -> ModelResult<HashMap<Uuid, Vec<ChatbotPageSyncStatus>>> {
     let res = sqlx::query_as!(
         ChatbotPageSyncStatus,
         r#"
@@ -32,6 +34,16 @@ RETURNING *
         course_ids
     )
     .fetch_all(conn)
-    .await?;
+    .await?
+    .into_iter()
+    .fold(
+        HashMap::<Uuid, Vec<ChatbotPageSyncStatus>>::new(),
+        |mut map, status| {
+            map.entry(status.course_id)
+                .or_insert_with(Vec::new)
+                .push(status);
+            map
+        },
+    );
     Ok(res)
 }

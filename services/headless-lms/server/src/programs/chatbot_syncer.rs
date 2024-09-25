@@ -1,15 +1,10 @@
-use std::{
-    collections::{HashMap, HashSet},
-    env,
-    time::Duration,
-};
+use std::{collections::HashSet, env, time::Duration};
 
 use crate::setup_tracing;
-use chrono::Utc;
+
 use dotenv::dotenv;
-use headless_lms_models::{
-    self as models, chatbot_page_sync_statuses::ChatbotPageSyncStatus, courses::Course,
-};
+use headless_lms_models::pages::Page;
+use headless_lms_utils::document_schema_processor::{remove_sensitive_attributes, GutenbergBlock};
 use sqlx::{Connection, PgConnection, PgPool};
 use url::Url;
 use uuid::Uuid;
@@ -48,7 +43,8 @@ pub async fn main() -> anyhow::Result<()> {
 /// Continuously syncs page contents to the chatbot backend.
 async fn sync_pages(conn: &mut sqlx::PgConnection, index_name_prefix: &str) -> anyhow::Result<()> {
     let chatbot_configurations =
-        models::chatbot_configurations::get_for_azure_search_maintananace(conn).await?;
+        headless_lms_models::chatbot_configurations::get_for_azure_search_maintananace(conn)
+            .await?;
     let course_ids = chatbot_configurations
         .iter()
         .map(|config| config.course_id)
@@ -56,18 +52,44 @@ async fn sync_pages(conn: &mut sqlx::PgConnection, index_name_prefix: &str) -> a
         .into_iter()
         .collect::<Vec<_>>();
     let sync_statuses_by_course_id =
-        models::chatbot_page_sync_statuses::make_sure_sync_statuses_exist(conn, &course_ids)
-            .await?
-            .into_iter()
-            .fold(
-                HashMap::<Uuid, Vec<ChatbotPageSyncStatus>>::new(),
-                |mut map, status| {
-                    map.entry(status.course_id)
-                        .or_insert_with(Vec::new)
-                        .push(status);
-                    map
-                },
-            );
+        headless_lms_models::chatbot_page_sync_statuses::make_sure_sync_statuses_exist(
+            conn,
+            &course_ids,
+        )
+        .await?;
+    let latest_history_entries_by_page_id =
+        headless_lms_models::page_history::get_latest_history_entries_for_pages_by_course_ids(
+            conn,
+            &course_ids,
+        )
+        .await?;
+    for (course_id, statuses) in sync_statuses_by_course_id.iter() {
+        let statuses_not_up_to_date = statuses
+            .iter()
+            .filter(|status| {
+                if let Some(history_entry) = latest_history_entries_by_page_id.get(&status.page_id)
+                {
+                    status.synced_page_revision_id != Some(history_entry.id)
+                } else {
+                    warn!(
+                        "No history entry found for page with id {}. Skipping syncing. ",
+                        status.page_id
+                    );
+                    false
+                }
+            })
+            .collect::<Vec<_>>();
+        if statuses_not_up_to_date.is_empty() {
+            continue;
+        }
+        info!(
+            "Syncing {} pages for course with id {}.",
+            statuses_not_up_to_date.len(),
+            course_id
+        );
+        let index_name = format!("{}-{}", index_name_prefix, course_id);
+        ensure_index_exists(&mut *conn, &index_name, *course_id).await?;
+    }
     Ok(())
 }
 
@@ -75,6 +97,23 @@ async fn add_missing_sync_statuses(conn: &mut PgConnection) -> anyhow::Result<()
     Ok(())
 }
 
-async fn get_index_name(course: &Course, prefix: &str) -> String {
-    format!("{}-{}", prefix, course.id)
+async fn ensure_index_exists(
+    conn: &mut PgConnection,
+    index_name: &str,
+    course_id: Uuid,
+) -> anyhow::Result<()> {
+    todo!()
+}
+
+async fn sync_page(
+    conn: &mut PgConnection,
+    index_name: &str,
+    course_id: Uuid,
+    page: Page,
+) -> anyhow::Result<()> {
+    // Don't want to put the private spec to the index as the chatbot could use it to leak the correct anwers to exercises.
+    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
+    let content = remove_sensitive_attributes(parsed_content);
+    let json_content = serde_json::to_value(content)?;
+    todo!()
 }

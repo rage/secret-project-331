@@ -60,24 +60,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Bool",
-        "Uuid"
-      ]
+      "Left": ["Bool", "Uuid"]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ]
+    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
   },
   "hash": "d684fcc4ad0942b8fa8bdc4afb1ed171ef2ba003a6ece945a16289222083345f"
 }

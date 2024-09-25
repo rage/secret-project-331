@@ -91,19 +91,7 @@
         }
       ]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      true,
-      false,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false
-    ]
+    "nullable": [false, false, false, true, false, true, true, true, false, false, false]
   },
   "hash": "6abae7185ea5e131996a7792bce21e0e1f30b0bce4bae05061259a63cfc92a01"
 }

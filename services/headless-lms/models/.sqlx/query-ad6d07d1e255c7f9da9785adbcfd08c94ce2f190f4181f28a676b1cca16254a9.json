@@ -75,10 +75,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Jsonb",
-        "Uuid"
-      ]
+      "Left": ["Jsonb", "Uuid"]
     },
     "nullable": [
       false,

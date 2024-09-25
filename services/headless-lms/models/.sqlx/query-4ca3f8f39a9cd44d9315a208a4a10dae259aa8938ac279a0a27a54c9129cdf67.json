@@ -40,12 +40,7 @@
           "Custom": {
             "name": "teacher_decision_type",
             "kind": {
-              "Enum": [
-                "full-points",
-                "zero-points",
-                "custom-points",
-                "suspected-plagiarism"
-              ]
+              "Enum": ["full-points", "zero-points", "custom-points", "suspected-plagiarism"]
             }
           }
         }
@@ -62,21 +57,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": ["Uuid"]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      false,
-      true,
-      false,
-      false,
-      true,
-      false
-    ]
+    "nullable": [false, false, false, false, true, false, false, true, false]
   },
   "hash": "4ca3f8f39a9cd44d9315a208a4a10dae259aa8938ac279a0a27a54c9129cdf67"
 }

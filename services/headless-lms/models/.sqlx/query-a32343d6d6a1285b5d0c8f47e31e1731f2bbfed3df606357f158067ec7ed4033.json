@@ -55,13 +55,7 @@
           "Custom": {
             "name": "grading_progress",
             "kind": {
-              "Enum": [
-                "fully-graded",
-                "pending",
-                "pending-manual",
-                "failed",
-                "not-ready"
-              ]
+              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
             }
           }
         }
@@ -73,13 +67,7 @@
           "Custom": {
             "name": "activity_progress",
             "kind": {
-              "Enum": [
-                "initialized",
-                "started",
-                "in-progress",
-                "submitted",
-                "completed"
-              ]
+              "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
             }
           }
         }
@@ -116,13 +104,7 @@
           "Custom": {
             "name": "activity_progress",
             "kind": {
-              "Enum": [
-                "initialized",
-                "started",
-                "in-progress",
-                "submitted",
-                "completed"
-              ]
+              "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
             }
           }
         },
@@ -145,13 +127,7 @@
           "Custom": {
             "name": "grading_progress",
             "kind": {
-              "Enum": [
-                "fully-graded",
-                "pending",
-                "pending-manual",
-                "failed",
-                "not-ready"
-              ]
+              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
             }
           }
         },

@@ -10,13 +10,9 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Int4Array"
-      ]
+      "Left": ["Int4Array"]
     },
-    "nullable": [
-      false
-    ]
+    "nullable": [false]
   },
   "hash": "c118779ce8e5e8cf924539c14efbd62a1673fff5cfa2eda7ac495af348da8ba7"
 }

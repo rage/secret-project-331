@@ -45,31 +45,16 @@
           "Custom": {
             "name": "course_background_question_type",
             "kind": {
-              "Enum": [
-                "checkbox",
-                "text"
-              ]
+              "Enum": ["checkbox", "text"]
             }
           }
         }
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid",
-        "Uuid"
-      ]
+      "Left": ["Uuid", "Uuid"]
     },
-    "nullable": [
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false
-    ]
+    "nullable": [false, false, false, true, true, false, false, false]
   },
   "hash": "41cfd9a2006f2bae1e4e3d7b75687511d6311c82b3d0b3367e77c62c8ba17f97"
 }

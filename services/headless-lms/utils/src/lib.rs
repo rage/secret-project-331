@@ -34,18 +34,6 @@ pub struct ApplicationConfiguration {
     pub azure_configuration: Option<AzureConfiguration>,
 }
 
-#[derive(Clone, PartialEq)]
-pub struct AzureConfiguration {
-    pub chatbot_api_key: Option<String>,
-    pub chatbot_api_endpoint: Option<Url>,
-    pub vectorizer_resource_uri: Option<String>,
-    pub vectorizer_deployment_id: Option<String>,
-    pub vectorizer_api_key: Option<String>,
-    pub vectorizer_model_name: Option<String>,
-    pub search_endpoint: Option<Url>,
-    pub search_api_key: Option<String>,
-}
-
 impl ApplicationConfiguration {
     /// Attempts to create an ApplicationConfiguration from environment variables.
     pub fn try_from_env() -> anyhow::Result<Self> {
@@ -64,45 +52,106 @@ impl ApplicationConfiguration {
     }
 }
 
-impl AzureConfiguration {
-    /// Attempts to create an AzureConfiguration from environment variables.
-    /// Returns `Ok(Some(AzureConfiguration))` if any Azure-related environment variable is set.
-    /// Returns `Ok(None)` if no Azure-related environment variables are set.
-    /// Returns an error if any set Azure-related environment variable fails to parse.
+#[derive(Clone, PartialEq)]
+pub struct AzureChatbotConfiguration {
+    pub api_key: String,
+    pub api_endpoint: Url,
+}
+
+impl AzureChatbotConfiguration {
+    /// Attempts to create an AzureChatbotConfiguration from environment variables.
+    /// Returns `Ok(Some(AzureChatbotConfiguration))` if both environment variables are set.
+    /// Returns `Ok(None)` if no environment variables are set for chatbot.
+    /// Returns an error if set environment variables fail to parse.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
-        let chatbot_api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
-        let chatbot_api_endpoint = match env::var("AZURE_CHATBOT_API_ENDPOINT") {
-            Ok(s) => Some(Url::parse(&s).context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?),
-            Err(_) => None,
-        };
+        let api_key = env::var("AZURE_CHATBOT_API_KEY").ok();
+        let api_endpoint_str = env::var("AZURE_CHATBOT_API_ENDPOINT").ok();
+
+        if let (Some(api_key), Some(api_endpoint_str)) = (api_key, api_endpoint_str) {
+            let api_endpoint = Url::parse(&api_endpoint_str)
+                .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
+            Ok(Some(AzureChatbotConfiguration {
+                api_key,
+                api_endpoint,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub struct AzureSearchConfiguration {
+    pub vectorizer_resource_uri: String,
+    pub vectorizer_deployment_id: String,
+    pub vectorizer_api_key: String,
+    pub vectorizer_model_name: String,
+    pub search_endpoint: Url,
+    pub search_api_key: String,
+}
+
+impl AzureSearchConfiguration {
+    /// Attempts to create an AzureSearchConfiguration from environment variables.
+    /// Returns `Ok(Some(AzureSearchConfiguration))` if all related environment variables are set.
+    /// Returns `Ok(None)` if no environment variables are set for search and vectorizer.
+    /// Returns an error if set environment variables fail to parse.
+    pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let vectorizer_resource_uri = env::var("AZURE_VECTORIZER_RESOURCE_URI").ok();
         let vectorizer_deployment_id = env::var("AZURE_VECTORIZER_DEPLOYMENT_ID").ok();
         let vectorizer_api_key = env::var("AZURE_VECTORIZER_API_KEY").ok();
         let vectorizer_model_name = env::var("AZURE_VECTORIZER_MODEL_NAME").ok();
-        let search_endpoint = match env::var("AZURE_SEARCH_ENDPOINT") {
-            Ok(s) => Some(Url::parse(&s).context("Invalid URL in AZURE_SEARCH_ENDPOINT")?),
-            Err(_) => None,
-        };
+        let search_endpoint_str = env::var("AZURE_SEARCH_ENDPOINT").ok();
         let search_api_key = env::var("AZURE_SEARCH_API_KEY").ok();
 
-        if chatbot_api_key.is_some()
-            || chatbot_api_endpoint.is_some()
-            || vectorizer_resource_uri.is_some()
-            || vectorizer_deployment_id.is_some()
-            || vectorizer_api_key.is_some()
-            || vectorizer_model_name.is_some()
-            || search_endpoint.is_some()
-            || search_api_key.is_some()
-        {
-            Ok(Some(AzureConfiguration {
-                chatbot_api_key,
-                chatbot_api_endpoint,
+        if let (
+            Some(vectorizer_resource_uri),
+            Some(vectorizer_deployment_id),
+            Some(vectorizer_api_key),
+            Some(vectorizer_model_name),
+            Some(search_endpoint_str),
+            Some(search_api_key),
+        ) = (
+            vectorizer_resource_uri,
+            vectorizer_deployment_id,
+            vectorizer_api_key,
+            vectorizer_model_name,
+            search_endpoint_str,
+            search_api_key,
+        ) {
+            let search_endpoint =
+                Url::parse(&search_endpoint_str).context("Invalid URL in AZURE_SEARCH_ENDPOINT")?;
+            Ok(Some(AzureSearchConfiguration {
                 vectorizer_resource_uri,
                 vectorizer_deployment_id,
                 vectorizer_api_key,
                 vectorizer_model_name,
                 search_endpoint,
                 search_api_key,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
+pub struct AzureConfiguration {
+    pub chatbot_config: Option<AzureChatbotConfiguration>,
+    pub search_config: Option<AzureSearchConfiguration>,
+}
+
+impl AzureConfiguration {
+    /// Attempts to create an AzureConfiguration by calling the individual try_from_env functions.
+    /// Returns `Ok(Some(AzureConfiguration))` if either chatbot or search_config configurations are set.
+    /// Returns `Ok(None)` if no relevant environment variables are set.
+    pub fn try_from_env() -> anyhow::Result<Option<Self>> {
+        let chatbot = AzureChatbotConfiguration::try_from_env()?;
+        let search_config = AzureSearchConfiguration::try_from_env()?;
+
+        if chatbot.is_some() || search_config.is_some() {
+            Ok(Some(AzureConfiguration {
+                chatbot_config: chatbot,
+                search_config,
             }))
         } else {
             Ok(None)

@@ -233,12 +233,44 @@ pub struct Profile {
     vectorizer: Option<String>,
 }
 
-pub async fn get_search_index(
+pub async fn does_search_index_exist(
     index_name: &str,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
-    todo!();
-    Ok(())
+) -> anyhow::Result<bool> {
+    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+    })?;
+
+    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+    })?;
+
+    let search_service_endpoint = search_config.search_endpoint.clone();
+    let url = format!(
+        "{}/indexes('{}')?api-version={}",
+        search_service_endpoint, index_name, API_VERSION
+    );
+
+    let response = REQWEST_CLIENT
+        .get(&url)
+        .header("Content-Type", "application/json")
+        .header("api-key", search_config.search_api_key.clone())
+        .send()
+        .await?;
+
+    if response.status().is_success() {
+        Ok(true)
+    } else if response.status() == 404 {
+        Ok(false)
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(anyhow::anyhow!(
+            "Error checking if index exists. Status: {}. Error: {}",
+            status,
+            error_text
+        ))
+    }
 }
 
 pub async fn create_search_index(
@@ -247,6 +279,10 @@ pub async fn create_search_index(
 ) -> anyhow::Result<()> {
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         anyhow::anyhow!("Azure configuration is missing from the application configuration")
+    })?;
+
+    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
     })?;
 
     let fields = vec![
@@ -399,30 +435,10 @@ pub async fn create_search_index(
                 name: format!("{}-azureOpenAi-text-vectorizer", index_name),
                 kind: "azureOpenAI".to_string(),
                 azure_open_ai_parameters: AzureOpenAiParameters {
-                    resource_uri: azure_config.vectorizer_resource_uri.clone().ok_or_else(
-                        || {
-                            anyhow::anyhow!(
-                                "Vectorizer resource URI is missing from the Azure configuration"
-                            )
-                        },
-                    )?,
-                    deployment_id: azure_config.vectorizer_deployment_id.clone().ok_or_else(
-                        || {
-                            anyhow::anyhow!(
-                                "Vectorizer deployment id is missing from the Azure configuration"
-                            )
-                        },
-                    )?,
-                    api_key: azure_config.vectorizer_api_key.clone().ok_or_else(|| {
-                        anyhow::anyhow!(
-                            "Vectorizer api key is missing from the Azure configuration"
-                        )
-                    })?,
-                    model_name: azure_config.vectorizer_model_name.clone().ok_or_else(|| {
-                        anyhow::anyhow!(
-                            "Vectorizer model name is missing from the Azure configuration"
-                        )
-                    })?,
+                    resource_uri: search_config.vectorizer_resource_uri.clone(),
+                    deployment_id: search_config.vectorizer_deployment_id.clone(),
+                    api_key: search_config.vectorizer_api_key.clone(),
+                    model_name: search_config.vectorizer_model_name.clone(),
                     auth_identity: None,
                 },
                 custom_web_api_parameters: None,
@@ -435,25 +451,14 @@ pub async fn create_search_index(
 
     let url = format!(
         "{}/indexes?api-version={}",
-        azure_config.search_endpoint.as_ref().ok_or_else(|| {
-            anyhow::anyhow!("Azure search endpoint is missing from the Azure configuration")
-        })?,
+        search_config.search_endpoint.as_ref(),
         API_VERSION
     );
 
     let response = REQWEST_CLIENT
         .post(&url)
         .header("Content-Type", "application/json")
-        .header(
-            "api-key",
-            azure_config
-                .search_api_key
-                .as_ref()
-                .ok_or_else(|| {
-                    anyhow::anyhow!("Search api key is missing from the Azure configuration")
-                })?
-                .clone(),
-        )
+        .header("api-key", search_config.search_api_key.clone())
         .body(index_json)
         .send()
         .await?;

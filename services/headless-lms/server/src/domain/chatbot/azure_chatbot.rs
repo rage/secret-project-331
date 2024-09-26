@@ -161,15 +161,13 @@ pub async fn send_chat_request_and_parse_stream(
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Azure configuration not found"))?;
 
-    let api_key = azure_config
-        .chatbot_api_key
+    let chatbot_config = azure_config
+        .chatbot_config
         .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("Chatbot API key not found"))?;
-    let mut url = azure_config
-        .chatbot_api_endpoint
-        .as_ref()
-        .ok_or_else(|| anyhow::anyhow!("Chatbot API endpoint not found"))?
-        .clone();
+        .ok_or_else(|| anyhow::anyhow!("Chatbot configuration not found"))?;
+
+    let api_key = chatbot_config.api_key.clone();
+    let mut url = chatbot_config.api_endpoint.clone();
 
     // Always set the api version so that we actually use the api that the code is written for
     url.set_query(Some(&format!("api-version={}", CHATBOT_AZURE_API_VERSION)));

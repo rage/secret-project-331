@@ -44,7 +44,7 @@ impl ServerConfigBuilder {
                 .context("Failed to parse auth_url")?,
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
                 .context("ICU4X_POSTCARD_PATH must be defined")?,
-            file_store: crate::setup_file_store(), // Ensure this function exists
+            file_store: crate::setup_file_store(),
             app_conf: ApplicationConfiguration::try_from_env()?,
             redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
             jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,

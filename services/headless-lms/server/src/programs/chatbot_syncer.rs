@@ -1,13 +1,18 @@
 use std::{collections::HashSet, env, time::Duration};
 
-use crate::setup_tracing;
+use crate::{
+    domain::chatbot::azure_search_index::{create_search_index, does_search_index_exist},
+    setup_tracing,
+};
 
 use dotenv::dotenv;
 use headless_lms_models::pages::Page;
-use headless_lms_utils::document_schema_processor::{remove_sensitive_attributes, GutenbergBlock};
-use sqlx::{Connection, PgConnection, PgPool};
+use headless_lms_utils::{
+    document_schema_processor::{remove_sensitive_attributes, GutenbergBlock},
+    ApplicationConfiguration,
+};
+use sqlx::{PgConnection, PgPool};
 use url::Url;
-use uuid::Uuid;
 
 pub async fn main() -> anyhow::Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
@@ -17,10 +22,13 @@ pub async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
     let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
         .expect("BASE_URL must be a valid URL");
+
     let index_name_prefix = base_url
         .host_str()
         .expect("BASE_URL must have a host")
         .replace(".", "-");
+
+    let app_config = ApplicationConfiguration::try_from_env()?;
 
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -35,13 +43,17 @@ pub async fn main() -> anyhow::Result<()> {
             // Occasionally prints a reminder that the service is still running
             ticks = 0;
             tracing::info!("Syncing pages to chatbot backend.");
-            sync_pages(&mut conn, &index_name_prefix).await?;
+            sync_pages(&mut conn, &index_name_prefix, &app_config).await?;
         }
     }
 }
 
 /// Continuously syncs page contents to the chatbot backend.
-async fn sync_pages(conn: &mut sqlx::PgConnection, index_name_prefix: &str) -> anyhow::Result<()> {
+async fn sync_pages(
+    conn: &mut sqlx::PgConnection,
+    index_name_prefix: &str,
+    app_config: &ApplicationConfiguration,
+) -> anyhow::Result<()> {
     let chatbot_configurations =
         headless_lms_models::chatbot_configurations::get_for_azure_search_maintananace(conn)
             .await?;
@@ -88,7 +100,14 @@ async fn sync_pages(conn: &mut sqlx::PgConnection, index_name_prefix: &str) -> a
             course_id
         );
         let index_name = format!("{}-{}", index_name_prefix, course_id);
-        ensure_index_exists(&mut *conn, &index_name, *course_id).await?;
+        ensure_index_exists(&index_name, app_config).await?;
+        let page_ids = statuses_not_up_to_date
+            .iter()
+            .map(|status| status.page_id)
+            .collect::<Vec<_>>();
+        let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
+
+        sync_pages_batch(conn, &index_name, &pages, app_config).await?;
     }
     Ok(())
 }
@@ -98,22 +117,33 @@ async fn add_missing_sync_statuses(conn: &mut PgConnection) -> anyhow::Result<()
 }
 
 async fn ensure_index_exists(
-    conn: &mut PgConnection,
     index_name: &str,
-    course_id: Uuid,
+    app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    todo!()
+    if !does_search_index_exist(index_name, app_config).await? {
+        create_search_index(index_name.to_owned(), app_config).await?;
+    }
+    Ok(())
 }
 
-async fn sync_page(
+async fn sync_pages_batch(
     conn: &mut PgConnection,
     index_name: &str,
-    course_id: Uuid,
-    page: Page,
+    pages: &[Page],
+    app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    // Don't want to put the private spec to the index as the chatbot could use it to leak the correct anwers to exercises.
-    let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content)?;
-    let content = remove_sensitive_attributes(parsed_content);
-    let json_content = serde_json::to_value(content)?;
-    todo!()
+    let mut documents = Vec::new();
+
+    for page in pages {
+        // Don't want to put the private spec to the index as the chatbot could use it to leak the correct answers to exercises.
+        let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
+        let content = remove_sensitive_attributes(parsed_content);
+        let json_content = serde_json::to_value(content)?;
+        documents.push(json_content);
+    }
+
+    // TODO
+    // sync_documents_to_index(index_name, &documents, app_config).await?;
+
+    Ok(())
 }

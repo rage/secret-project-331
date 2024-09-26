@@ -1,6 +1,6 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
-use domain::chatbot::{
+use domain::chatbot::azure_chatbot::{
     estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
 };
 use headless_lms_models::chatbot_conversations::{

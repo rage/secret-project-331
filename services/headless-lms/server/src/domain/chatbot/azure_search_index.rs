@@ -1,4 +1,8 @@
 use crate::prelude::*;
+use headless_lms_utils::http::REQWEST_CLIENT;
+use serde::{Deserialize, Serialize};
+
+const API_VERSION: &str = "2024-07-01";
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -6,9 +10,12 @@ pub struct NewIndex {
     name: String,
     fields: Vec<Field>,
     scoring_profiles: Vec<ScoringProfile>,
-    default_scoring_profile: String,
+    default_scoring_profile: Option<String>,
     suggesters: Vec<Suggester>,
     analyzers: Vec<Analyzer>,
+    tokenizers: Vec<serde_json::Value>,
+    token_filters: Vec<serde_json::Value>,
+    char_filters: Vec<serde_json::Value>,
     cors_options: CorsOptions,
     encryption_key: Option<EncryptionKey>,
     similarity: Similarity,
@@ -61,13 +68,14 @@ pub struct Field {
     sortable: Option<bool>,
     facetable: Option<bool>,
     retrievable: Option<bool>,
-    index_analyzer: Option<serde_json::Value>,
-    search_analyzer: Option<serde_json::Value>,
+    index_analyzer: Option<String>,
+    search_analyzer: Option<String>,
     analyzer: Option<String>,
-    synonym_maps: Option<Vec<Option<serde_json::Value>>>,
+    synonym_maps: Option<Vec<String>>,
     dimensions: Option<i64>,
     vector_search_profile: Option<String>,
     stored: Option<bool>,
+    vector_encoding: Option<serde_json::Value>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -107,7 +115,9 @@ pub struct Weights {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Semantic {
+    default_configuration: String,
     configurations: Vec<SemanticConfiguration>,
 }
 
@@ -136,8 +146,8 @@ pub struct FieldDescriptor {
 pub struct Similarity {
     #[serde(rename = "@odata.type")]
     odata_type: String,
-    b: f64,
-    k1: f64,
+    b: Option<f64>,
+    k1: Option<f64>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -227,7 +237,7 @@ pub async fn get_search_index(
     index_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    let index = todo!();
+    todo!();
     Ok(())
 }
 
@@ -235,26 +245,127 @@ pub async fn create_search_index(
     index_name: String,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
+    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+    })?;
+
+    let fields = vec![
+        Field {
+            name: "chunk_id".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(true),
+            searchable: Some(true),
+            filterable: Some(true),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(true),
+            facetable: Some(true),
+            analyzer: Some("keyword".to_string()),
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
+            name: "parent_id".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(true),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(true),
+            facetable: Some(true),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
+            name: "chunk".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(false),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
+            name: "title".to_string(),
+            field_type: "Edm.String".to_string(),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(true),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: None,
+            vector_search_profile: None,
+            vector_encoding: None,
+        },
+        Field {
+            name: "text_vector".to_string(),
+            field_type: "Collection(Edm.Single)".to_string(),
+            key: Some(false),
+            searchable: Some(true),
+            filterable: Some(false),
+            retrievable: Some(true),
+            stored: Some(true),
+            sortable: Some(false),
+            facetable: Some(false),
+            analyzer: None,
+            index_analyzer: None,
+            search_analyzer: None,
+            synonym_maps: Some(vec![]),
+            dimensions: Some(1536),
+            vector_search_profile: Some(format!("{}-azureOpenAi-text-profile", index_name)),
+            vector_encoding: None,
+        },
+    ];
+
     let index = NewIndex {
         name: index_name.clone(),
-        fields: vec![],
+        fields,
         scoring_profiles: vec![],
-        default_scoring_profile: String::new(),
+        default_scoring_profile: None,
         suggesters: vec![],
         analyzers: vec![],
+        tokenizers: vec![],
+        token_filters: vec![],
+        char_filters: vec![],
         cors_options: CorsOptions {
-            allowed_origins: vec![],
-            max_age_in_seconds: 0,
+            allowed_origins: vec!["*".to_string()],
+            max_age_in_seconds: 300,
         },
         encryption_key: None,
         similarity: Similarity {
-            odata_type: String::new(),
-            b: 0.0,
-            k1: 0.0,
+            odata_type: "#Microsoft.Azure.Search.BM25Similarity".to_string(),
+            b: None,
+            k1: None,
         },
         semantic: Semantic {
+            default_configuration: format!("{}-semantic-configuration", index_name),
             configurations: vec![SemanticConfiguration {
-                name: index_name.clone(),
+                name: format!("{}-semantic-configuration", index_name),
                 prioritized_fields: SemanticConfigurationPrioritizedFields {
                     title_field: FieldDescriptor {
                         field_name: "title".to_string(),
@@ -268,31 +379,50 @@ pub async fn create_search_index(
         },
         vector_search: VectorSearch {
             profiles: vec![Profile {
-                name: index_name.clone(),
-                algorithm: index_name.clone(),
-                vectorizer: Some(index_name.clone()),
+                name: format!("{}-azureOpenAi-text-profile", index_name),
+                algorithm: format!("{}-algorithm", index_name),
+                vectorizer: Some(format!("{}-azureOpenAi-text-vectorizer", index_name)),
                 compression: None,
             }],
             algorithms: vec![Algorithm {
-                name: index_name.clone(),
+                name: format!("{}-algorithm", index_name),
                 kind: "hnsw".to_string(),
                 hnsw_parameters: Some(HnswParameters {
-                    m: 16,
+                    m: 4,
                     metric: "cosine".to_string(),
-                    ef_construction: 4,
+                    ef_construction: 400,
                     ef_search: 500,
                 }),
                 exhaustive_knn_parameters: None,
             }],
             vectorizers: vec![Vectorizer {
-                name: index_name.clone(),
+                name: format!("{}-azureOpenAi-text-vectorizer", index_name),
                 kind: "azureOpenAI".to_string(),
                 azure_open_ai_parameters: AzureOpenAiParameters {
-                    // TODO: read from env
-                    resource_uri: String::new(),
-                    deployment_id: String::new(),
-                    api_key: String::new(),
-                    model_name: String::new(),
+                    resource_uri: azure_config.vectorizer_resource_uri.clone().ok_or_else(
+                        || {
+                            anyhow::anyhow!(
+                                "Vectorizer resource URI is missing from the Azure configuration"
+                            )
+                        },
+                    )?,
+                    deployment_id: azure_config.vectorizer_deployment_id.clone().ok_or_else(
+                        || {
+                            anyhow::anyhow!(
+                                "Vectorizer deployment id is missing from the Azure configuration"
+                            )
+                        },
+                    )?,
+                    api_key: azure_config.vectorizer_api_key.clone().ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "Vectorizer api key is missing from the Azure configuration"
+                        )
+                    })?,
+                    model_name: azure_config.vectorizer_model_name.clone().ok_or_else(|| {
+                        anyhow::anyhow!(
+                            "Vectorizer model name is missing from the Azure configuration"
+                        )
+                    })?,
                     auth_identity: None,
                 },
                 custom_web_api_parameters: None,
@@ -300,5 +430,45 @@ pub async fn create_search_index(
             compressions: vec![],
         },
     };
-    Ok(())
+
+    let index_json = serde_json::to_string(&index)?;
+
+    let url = format!(
+        "{}/indexes?api-version={}",
+        azure_config.search_endpoint.as_ref().ok_or_else(|| {
+            anyhow::anyhow!("Azure search endpoint is missing from the Azure configuration")
+        })?,
+        API_VERSION
+    );
+
+    let response = REQWEST_CLIENT
+        .post(&url)
+        .header("Content-Type", "application/json")
+        .header(
+            "api-key",
+            azure_config
+                .search_api_key
+                .as_ref()
+                .ok_or_else(|| {
+                    anyhow::anyhow!("Search api key is missing from the Azure configuration")
+                })?
+                .clone(),
+        )
+        .body(index_json)
+        .send()
+        .await?;
+
+    // Check for a successful response
+    if response.status().is_success() {
+        println!("Index created successfully: {}", index_name);
+        Ok(())
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(anyhow::anyhow!(
+            "Failed to create index. Status: {}. Error: {}",
+            status,
+            error_text
+        ))
+    }
 }

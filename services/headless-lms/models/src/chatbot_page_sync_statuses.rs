@@ -39,9 +39,7 @@ RETURNING *
     .fold(
         HashMap::<Uuid, Vec<ChatbotPageSyncStatus>>::new(),
         |mut map, status| {
-            map.entry(status.course_id)
-                .or_insert_with(Vec::new)
-                .push(status);
+            map.entry(status.course_id).or_default().push(status);
             map
         },
     );

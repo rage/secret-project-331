@@ -7,6 +7,7 @@ pub mod error;
 pub mod file_store;
 pub mod folder_checksum;
 pub mod futures;
+pub mod http;
 pub mod icu4x;
 pub mod ip_to_country;
 pub mod language_tag_to_name;
@@ -41,6 +42,8 @@ pub struct AzureConfiguration {
     pub vectorizer_deployment_id: Option<String>,
     pub vectorizer_api_key: Option<String>,
     pub vectorizer_model_name: Option<String>,
+    pub search_endpoint: Option<Url>,
+    pub search_api_key: Option<String>,
 }
 
 impl ApplicationConfiguration {
@@ -76,6 +79,11 @@ impl AzureConfiguration {
         let vectorizer_deployment_id = env::var("AZURE_VECTORIZER_DEPLOYMENT_ID").ok();
         let vectorizer_api_key = env::var("AZURE_VECTORIZER_API_KEY").ok();
         let vectorizer_model_name = env::var("AZURE_VECTORIZER_MODEL_NAME").ok();
+        let search_endpoint = match env::var("AZURE_SEARCH_ENDPOINT") {
+            Ok(s) => Some(Url::parse(&s).context("Invalid URL in AZURE_SEARCH_ENDPOINT")?),
+            Err(_) => None,
+        };
+        let search_api_key = env::var("AZURE_SEARCH_API_KEY").ok();
 
         if chatbot_api_key.is_some()
             || chatbot_api_endpoint.is_some()
@@ -83,6 +91,8 @@ impl AzureConfiguration {
             || vectorizer_deployment_id.is_some()
             || vectorizer_api_key.is_some()
             || vectorizer_model_name.is_some()
+            || search_endpoint.is_some()
+            || search_api_key.is_some()
         {
             Ok(Some(AzureConfiguration {
                 chatbot_api_key,
@@ -91,6 +101,8 @@ impl AzureConfiguration {
                 vectorizer_deployment_id,
                 vectorizer_api_key,
                 vectorizer_model_name,
+                search_endpoint,
+                search_api_key,
             }))
         } else {
             Ok(None)

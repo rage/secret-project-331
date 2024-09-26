@@ -8,9 +8,8 @@ use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 
-use once_cell::sync::Lazy;
+use headless_lms_utils::http::REQWEST_CLIENT;
 use reqwest::header::HeaderMap;
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
@@ -19,14 +18,6 @@ use web::Bytes;
 use actix_web::web;
 
 use crate::prelude::*;
-
-static CLIENT: Lazy<Client> = Lazy::new(|| {
-    reqwest::Client::builder()
-        .use_rustls_tls()
-        .https_only(true)
-        .build()
-        .expect("Failed to build Client")
-});
 
 pub const CHATBOT_AZURE_API_VERSION: &str = "2024-02-01";
 
@@ -165,12 +156,17 @@ pub async fn send_chat_request_and_parse_stream(
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let done = Arc::new(AtomicBool::new(false));
 
-    let api_key = app_config
-        .chatbot_azure_api_key
+    let azure_config = app_config
+        .azure_configuration
+        .as_ref()
+        .ok_or_else(|| anyhow::anyhow!("Azure configuration not found"))?;
+
+    let api_key = azure_config
+        .chatbot_api_key
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Chatbot API key not found"))?;
-    let mut url = app_config
-        .chatbot_azure_api_endpoint
+    let mut url = azure_config
+        .chatbot_api_endpoint
         .as_ref()
         .ok_or_else(|| anyhow::anyhow!("Chatbot API endpoint not found"))?
         .clone();
@@ -217,7 +213,11 @@ pub async fn send_chat_request_and_parse_stream(
         done: done.clone(),
     };
 
-    let request = CLIENT.post(url).headers(headers).json(payload).send();
+    let request = REQWEST_CLIENT
+        .post(url)
+        .headers(headers)
+        .json(payload)
+        .send();
 
     let response = request.await?;
 

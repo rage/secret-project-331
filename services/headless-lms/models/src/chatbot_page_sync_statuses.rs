@@ -45,3 +45,35 @@ RETURNING *
     );
     Ok(res)
 }
+
+// Given a mapping from page id to the new revision id, update the sync statuses
+pub async fn update_page_revision_ids(
+    conn: &mut PgConnection,
+    page_id_to_new_revision_id: HashMap<Uuid, Uuid>,
+) -> ModelResult<()> {
+    // If there are no updates to perform, return early
+    if page_id_to_new_revision_id.is_empty() {
+        return Ok(());
+    }
+    let (page_ids, revision_ids): (Vec<Uuid>, Vec<Uuid>) =
+        page_id_to_new_revision_id.into_iter().unzip();
+
+    sqlx::query!(
+        r#"
+UPDATE chatbot_page_sync_statuses AS cps
+SET synced_page_revision_id = data.synced_page_revision_id
+FROM (
+    SELECT unnest($1::uuid []) AS page_id,
+      unnest($2::uuid []) AS synced_page_revision_id
+  ) AS data
+WHERE cps.page_id = data.page_id
+AND cps.deleted_at IS NULL
+    "#,
+        &page_ids,
+        &revision_ids
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}

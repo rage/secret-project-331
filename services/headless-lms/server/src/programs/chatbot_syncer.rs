@@ -1,4 +1,8 @@
-use std::{collections::HashSet, env, time::Duration};
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+    time::Duration,
+};
 
 use crate::{
     domain::chatbot::azure_search_index::{
@@ -8,13 +12,14 @@ use crate::{
 };
 
 use dotenv::dotenv;
-use headless_lms_models::pages::Page;
+use headless_lms_models::{page_history::PageHistory, pages::Page};
 use headless_lms_utils::{
     document_schema_processor::{remove_sensitive_attributes, GutenbergBlock},
     ApplicationConfiguration,
 };
 use sqlx::{PgConnection, PgPool};
 use url::Url;
+use uuid::Uuid;
 
 pub async fn main() -> anyhow::Result<()> {
     env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
@@ -109,12 +114,15 @@ async fn sync_pages(
             .collect::<Vec<_>>();
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
-        sync_pages_batch(conn, &index_name, &pages, app_config).await?;
+        sync_pages_batch(
+            conn,
+            &index_name,
+            &pages,
+            &latest_history_entries_by_page_id,
+            app_config,
+        )
+        .await?;
     }
-    Ok(())
-}
-
-async fn add_missing_sync_statuses(conn: &mut PgConnection) -> anyhow::Result<()> {
     Ok(())
 }
 
@@ -132,6 +140,7 @@ async fn sync_pages_batch(
     conn: &mut PgConnection,
     index_name: &str,
     pages: &[Page],
+    latest_history_entries_by_page_id: &HashMap<Uuid, PageHistory>,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     let mut documents = Vec::new();
@@ -144,6 +153,15 @@ async fn sync_pages_batch(
     }
 
     add_documents_to_index(index_name, documents, app_config).await?;
+    let page_id_to_latest_history_id = pages
+        .iter()
+        .map(|page| (page.id, latest_history_entries_by_page_id[&page.id].id))
+        .collect::<HashMap<_, _>>();
+    headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
+        conn,
+        page_id_to_latest_history_id,
+    )
+    .await?;
 
     Ok(())
 }

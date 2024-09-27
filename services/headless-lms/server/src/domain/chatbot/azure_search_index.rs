@@ -477,3 +477,73 @@ pub async fn create_search_index(
         ))
     }
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct IndexAction<T> {
+    #[serde(rename = "@search.action")]
+    pub search_action: String,
+    #[serde(flatten)]
+    pub document: T,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct IndexBatch<T> {
+    pub value: Vec<IndexAction<T>>,
+}
+
+pub async fn add_documents_to_index<T>(
+    index_name: &str,
+    documents: Vec<T>,
+    app_config: &ApplicationConfiguration,
+) -> anyhow::Result<()>
+where
+    T: Serialize,
+{
+    let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+    })?;
+
+    let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
+        anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
+    })?;
+
+    let url = format!(
+        "{}/indexes('{}')/docs/index?api-version={}",
+        search_config.search_endpoint, index_name, API_VERSION
+    );
+
+    let index_actions: Vec<IndexAction<T>> = documents
+        .into_iter()
+        .map(|doc| IndexAction {
+            search_action: "upload".to_string(),
+            document: doc,
+        })
+        .collect();
+
+    let batch = IndexBatch {
+        value: index_actions,
+    };
+
+    let batch_json = serde_json::to_string(&batch)?;
+
+    let response = REQWEST_CLIENT
+        .post(&url)
+        .header("Content-Type", "application/json")
+        .header("api-key", search_config.search_api_key.clone())
+        .body(batch_json)
+        .send()
+        .await?;
+
+    if response.status().is_success() {
+        println!("Documents added successfully to index: {}", index_name);
+        Ok(())
+    } else {
+        let status = response.status();
+        let error_text = response.text().await?;
+        Err(anyhow::anyhow!(
+            "Failed to add documents to index. Status: {}. Error: {}",
+            status,
+            error_text
+        ))
+    }
+}

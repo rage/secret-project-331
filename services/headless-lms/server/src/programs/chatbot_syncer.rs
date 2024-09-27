@@ -1,7 +1,9 @@
 use std::{collections::HashSet, env, time::Duration};
 
 use crate::{
-    domain::chatbot::azure_search_index::{create_search_index, does_search_index_exist},
+    domain::chatbot::azure_search_index::{
+        add_documents_to_index, create_search_index, does_search_index_exist,
+    },
     setup_tracing,
 };
 
@@ -138,12 +140,10 @@ async fn sync_pages_batch(
         // Don't want to put the private spec to the index as the chatbot could use it to leak the correct answers to exercises.
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let content = remove_sensitive_attributes(parsed_content);
-        let json_content = serde_json::to_value(content)?;
-        documents.push(json_content);
+        documents.push(content);
     }
 
-    // TODO
-    // sync_documents_to_index(index_name, &documents, app_config).await?;
+    add_documents_to_index(index_name, documents, app_config).await?;
 
     Ok(())
 }

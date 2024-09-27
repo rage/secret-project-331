@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import { DetailedHTMLProps, InputHTMLAttributes } from "react"
+import { DetailedHTMLProps, forwardRef, InputHTMLAttributes } from "react"
 
 import { baseTheme, primaryFont } from "../../styles"
 
@@ -50,28 +50,37 @@ const labelClass = css`
   }
 `
 
-export interface RadioFieldProps
+export interface RadioButtonProps
   extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
   label: string
 }
 
-const RadioField = ({ onChange, className, label, ...rest }: RadioFieldProps) => {
-  return (
-    <div
-      className={cx(
-        css`
-          margin-bottom: 1rem;
-          margin-top: 1rem;
-        `,
-        className,
-      )}
-    >
-      <label className={cx(labelClass)}>
-        <input type="radio" onChange={(event) => onChange && onChange(event)} {...rest} />
-        <span>{label}</span>
-      </label>
-    </div>
-  )
-}
+const RadioButton = forwardRef<HTMLInputElement, RadioButtonProps>(
+  ({ onChange, className, label, ...rest }, ref) => {
+    return (
+      <div
+        className={cx(
+          css`
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+          `,
+          className,
+        )}
+      >
+        <label className={cx(labelClass)}>
+          <input
+            type="radio"
+            onChange={(event) => onChange && onChange(event)}
+            ref={ref}
+            {...rest}
+          />
+          <span>{label}</span>
+        </label>
+      </div>
+    )
+  },
+)
 
-export default RadioField
+RadioButton.displayName = "RadioButton"
+
+export default RadioButton

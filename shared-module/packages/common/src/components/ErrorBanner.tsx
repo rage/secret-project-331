@@ -111,8 +111,7 @@ const DetailTag = styled.div`
 `
 
 export interface BannerExtraProps {
-  variant: "text" | "link" | "readOnly"
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variant?: "text" | "link" | "readOnly"
   error: unknown | string
 }
 

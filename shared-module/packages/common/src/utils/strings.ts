@@ -11,8 +11,10 @@ export function capitalizeFirstLetter(string: string): string {
 
 export function normalizeIETFLanguageTag(tag: string): string {
   const subtags = tag.split(/[-_]/)
-  if (subtags.length < 2) {
-    throw new Error("Language tag should follow the format aa-BB or aa-Bbbb-CC")
+  if (subtags.length < 1) {
+    throw new Error("Language tag should follow the format aa, or aa-BB, or aa-Bbbb-CC")
+  } else if (subtags.length === 1) {
+    return formatSimpleIETFLanguageTag(subtags[0])
   } else if (subtags.length === 2) {
     return formatIETFLanguageTagWithRegion(subtags[0], undefined, subtags[1])
   } else {
@@ -21,6 +23,19 @@ export function normalizeIETFLanguageTag(tag: string): string {
 }
 
 type IETFLanguageTagSubtagSeparator = "-" | "_"
+
+/**
+ * Formats a IETF language tag without separators by converting it to lowercase and trimming any surrounding whitespace.
+ *
+ * @param tag - The IETF language tag to format.
+ * @returns The formatted IETF language tag.
+ */
+function formatSimpleIETFLanguageTag(tag: string): string {
+  if (!tag.match(/^[a-z]{2,3}$/i)) {
+    throw new Error("Primary language should be between two and three letters.")
+  }
+  return tag.toLowerCase().trim()
+}
 
 /**
  * Formats an IETF language tag with region specified. Only the syntax of subtags are validated, and

@@ -293,6 +293,7 @@
   "instance-is-currently-open-and-has-no-set-ending-time": "Kurssiversio on auki eikä sille ole asetettu päättymispäivää",
   "instance-is-open-and-ends-at-time": "Kurssiversio on auki ja sulkeutuu {{time}}",
   "instance-opens-at-time": "Kurssiversio aukeaa {{time}}",
+  "invalid-email": "Virheellinen sähköpostiosoite",
   "invalid-service-info": "Virheellinen palvelun tieto",
   "invalid-url": "Epäkelpo osoite",
   "label-action": "Toiminta",

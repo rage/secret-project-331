@@ -1,12 +1,14 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useRef, useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { normalizePath } from "../../utils/normalizePath"
 
 import { Course, NewCourse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -14,9 +16,23 @@ import TextArea from "@/shared-module/common/components/InputFields/TextAreaFiel
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
+
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
+
+interface NewCourseFormFields {
+  name: string
+  slug: string
+  teacherInChargeName: string
+  teacherInChargeEmail: string
+  description: string
+  copyCourseUserPermissions: boolean
+  createDuplicate: boolean
+  courseId?: string
+  languageCode: string
+  customLanguageCode?: string
+}
 
 interface NewCourseFormProps {
   organizationId: string
@@ -31,7 +47,7 @@ const FINNISH_LANGUAGE_CODE = "fi-FI"
 const SWEDISH_LANGUAGE_CODE = "sv-SE"
 const DEFAULT_LANGUAGE_CODE = AMERICAN_ENGLISH_LANGUAGE_CODE
 
-const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
+const NewCourseForm: React.FC<NewCourseFormProps> = ({
   organizationId,
   onSubmitNewCourseForm,
   onSubmitDuplicateCourseForm,
@@ -39,180 +55,134 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
   onClose,
 }) => {
   const { t } = useTranslation()
-  const [courseId, setCourseId] = useState("")
-  const [name, setName] = useState("")
-  const [slug, setSlug] = useState("")
-  const [teacherInChargeName, setTeacherInChargeName] = useState("")
-  const [teacherInChargeEmail, setTeacherInChargeEmail] = useState("")
-  const [languageCode, setLanguageCode] = useState(DEFAULT_LANGUAGE_CODE)
-  const [showCustomLanguageCode, setShowCustomLanguageCode] = useState(false)
-  const [languageCodeValidationError, setLanguageCodeValidationError] = useState<string | null>(
-    null,
-  )
-  const [createDuplicate, setCreateDuplicate] = useState<boolean>(false)
-  const [description, setDescription] = useState("")
-  const [submitDisabled, setSubmitDisabled] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [copyCourseUserPermissions, setCopyUserCoursePermissions] = useState<boolean>(false)
-  const formRef = useRef<HTMLFormElement>(null)
 
-  const handleDuplicateMenu = (e: string, coursesData: Course[]) => {
-    const findCourse = coursesData.find((course) => course.id === e)
-    const courseName = findCourse?.name ? findCourse?.name : ""
-    setCourseId(e)
-    if (courseName !== "") {
-      setName(courseName)
-    }
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid },
+    watch,
+    setValue,
+    reset,
+  } = useForm<NewCourseFormFields>({
+    defaultValues: {
+      name: "",
+      slug: "",
+      teacherInChargeName: "",
+      teacherInChargeEmail: "",
+      description: "",
+      copyCourseUserPermissions: false,
+      createDuplicate: false,
+      courseId: courses?.[0]?.id || "",
+      languageCode: DEFAULT_LANGUAGE_CODE,
+      customLanguageCode: "",
+    },
+  })
 
-  const handleCreateNewLanguageVersion = async () => {
-    if (!onSubmitDuplicateCourseForm) {
-      return null
-    }
-    try {
-      setSubmitDisabled(true)
-      const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-      const newCourse: NewCourse = {
-        name: name,
-        description: description,
-        slug: slug,
-        organization_id: organizationId,
-        language_code: normalizedLanguageCode,
-        teacher_in_charge_email: teacherInChargeEmail,
-        teacher_in_charge_name: teacherInChargeName,
-        is_draft: true,
-        is_test_mode: false,
-        is_unlisted: false,
-        copy_user_permissions: copyCourseUserPermissions,
-      }
-      if (courseId) {
-        await onSubmitDuplicateCourseForm(courseId, newCourse)
-        setLanguageCode(DEFAULT_LANGUAGE_CODE)
-        setSlug("")
-        setTeacherInChargeName("")
-        setTeacherInChargeEmail("")
-        setError(null)
-      }
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
-      setError(e.toString())
-    } finally {
-      setSubmitDisabled(false)
-    }
-  }
-  const createNewCourse = async () => {
-    try {
-      setSubmitDisabled(true)
-      const normalizedLanguageCode = normalizeIETFLanguageTag(languageCode)
-      await onSubmitNewCourseForm({
-        name,
-        slug,
-        organization_id: organizationId,
-        language_code: normalizedLanguageCode,
-        teacher_in_charge_name: teacherInChargeName,
-        teacher_in_charge_email: teacherInChargeEmail,
-        description,
-        is_draft: true,
-        is_test_mode: false,
-        is_unlisted: false,
-        copy_user_permissions: copyCourseUserPermissions,
-      })
-      setName("")
-      setSlug("")
-      setLanguageCode(DEFAULT_LANGUAGE_CODE)
-      setError(null)
-    } catch (e) {
-      if (!(e instanceof Error)) {
-        throw e
-      }
-      setError(e.toString())
-    } finally {
-      setSubmitDisabled(false)
-    }
-  }
+  const watchCreateDuplicate = watch("createDuplicate")
+  const watchLanguageCode = watch("languageCode")
 
   const mutation = useToastMutation(
-    () => {
-      if (formRef.current && !formRef.current?.checkValidity()) {
-        return Promise.reject()
+    async (data: NewCourseFormFields) => {
+      const normalizedLanguageCode =
+        data.languageCode === "other"
+          ? normalizeIETFLanguageTag(data.customLanguageCode!)
+          : normalizeIETFLanguageTag(data.languageCode)
+
+      const newCourse: NewCourse = {
+        name: data.name,
+        slug: data.slug,
+        organization_id: organizationId,
+        language_code: normalizedLanguageCode,
+        teacher_in_charge_name: data.teacherInChargeName,
+        teacher_in_charge_email: data.teacherInChargeEmail,
+        description: data.description,
+        is_draft: true,
+        is_test_mode: false,
+        is_unlisted: false,
+        copy_user_permissions: data.copyCourseUserPermissions,
       }
-      if (createDuplicate) {
-        return handleCreateNewLanguageVersion()
+
+      if (data.createDuplicate && onSubmitDuplicateCourseForm && data.courseId) {
+        await onSubmitDuplicateCourseForm(data.courseId, newCourse)
+      } else {
+        await onSubmitNewCourseForm(newCourse)
       }
-      return createNewCourse()
+
+      reset()
     },
     { notify: true, method: "POST" },
   )
 
-  const handleLanguageSelectionChange = (value: string) => {
-    if (value === "other") {
-      setShowCustomLanguageCode(true)
-    } else {
-      setShowCustomLanguageCode(false)
-      setLanguageCode(value)
-    }
-  }
+  const onSubmit = handleSubmit((data) => {
+    mutation.mutate(data)
+  })
+
+  const errorMessages = Object.values(errors).map((error) => error.message)
 
   return (
     <form
-      ref={formRef}
+      onSubmit={onSubmit}
       className={css`
         padding: 1rem 0;
       `}
     >
       <div>
-        {error && <pre>{error}</pre>}
+        {Boolean(mutation.error) && <ErrorBanner error={mutation.error} />}
+
         <FieldContainer>
           <TextField
             required
             label={t("text-field-label-name")}
-            value={name}
-            onChangeByValue={(value) => {
-              setName(value)
-              setSlug(normalizePath(value))
-            }}
+            {...register("name", {
+              required: t("required-field"),
+              onChange: (e) => {
+                const value = e.target.value
+                setValue("slug", normalizePath(value))
+              },
+            })}
+            error={errors.name?.message}
           />
         </FieldContainer>
+
         <FieldContainer>
           <TextField
             required
             label={t("text-field-label-or-header-slug-or-short-name")}
-            value={slug}
-            onChangeByValue={(value) => {
-              setSlug(value)
-            }}
+            {...register("slug", { required: t("required-field") })}
+            error={errors.slug?.message}
           />
         </FieldContainer>
+
         <FieldContainer>
           <TextField
             required
             label={t("teacher-in-charge-name")}
-            value={teacherInChargeName}
-            onChangeByValue={(value) => {
-              setTeacherInChargeName(value)
-            }}
+            {...register("teacherInChargeName", { required: t("required-field") })}
+            error={errors.teacherInChargeName?.message}
           />
         </FieldContainer>
+
         <FieldContainer>
           <TextField
             required
             label={t("teacher-in-charge-email")}
             type="email"
-            value={teacherInChargeEmail}
-            onChangeByValue={(value) => {
-              setTeacherInChargeEmail(value)
-            }}
+            {...register("teacherInChargeEmail", {
+              required: t("required-field"),
+              pattern: {
+                value: /@/,
+                message: t("invalid-email"),
+              },
+            })}
+            error={errors.teacherInChargeEmail?.message}
           />
         </FieldContainer>
+
         <FieldContainer>
           <TextArea
             label={t("text-field-label-description")}
-            value={description}
-            onChangeByValue={(value) => {
-              setDescription(value)
-            }}
+            {...register("description")}
+            error={errors.description?.message}
           />
         </FieldContainer>
 
@@ -220,9 +190,8 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           <FieldContainer>
             <CheckBox
               label={t("grant-access-to-users-with-permissions-to-original-course")}
-              onChange={() => setCopyUserCoursePermissions(!copyCourseUserPermissions)}
-              checked={copyCourseUserPermissions}
-            ></CheckBox>
+              {...register("copyCourseUserPermissions")}
+            />
           </FieldContainer>
         )}
 
@@ -230,119 +199,131 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
           <FieldContainer>
             <CheckBox
               label={t("create-course-duplicate")}
-              onChange={() => {
-                setCreateDuplicate(!createDuplicate)
-                handleDuplicateMenu(courses[0].id, courses)
+              {...register("createDuplicate")}
+              onChange={(e) => {
+                setValue("createDuplicate", e.target.checked)
+                if (e.target.checked && courses.length > 0) {
+                  setValue("courseId", courses[0].id)
+                } else {
+                  setValue("courseId", "")
+                }
               }}
-              checked={createDuplicate}
-            ></CheckBox>
+            />
           </FieldContainer>
         )}
-        {courses && createDuplicate && (
-          <div>
+
+        {courses && watchCreateDuplicate && (
+          <>
             <FieldContainer>
               <SelectField
                 id="duplicate-course-select-menu"
-                defaultValue={courses[0].id}
-                onChangeByValue={(value) => handleDuplicateMenu(value, courses)}
-                options={courses.map((course) => {
-                  return { label: course.name, value: course.id }
-                })}
-              ></SelectField>
+                {...register("courseId", { required: t("required-field") })}
+                defaultValue={courses[0]?.id}
+                onChangeByValue={(value) => {
+                  setValue("courseId", value)
+                  const selectedCourse = courses.find((course) => course.id === value)
+                  if (selectedCourse) {
+                    setValue("name", selectedCourse.name)
+                    setValue("slug", normalizePath(selectedCourse.name))
+                  }
+                }}
+                options={courses.map((course) => ({
+                  label: course.name,
+                  value: course.id,
+                }))}
+                error={errors.courseId?.message}
+              />
             </FieldContainer>
+
             <FieldContainer>
               <CheckBox
                 label={t("grant-access-to-users-with-permissions-to-original-course")}
-                onChange={() => {
-                  setCopyUserCoursePermissions(!copyCourseUserPermissions)
-                }}
-                checked={copyCourseUserPermissions}
-              ></CheckBox>
-            </FieldContainer>
-          </div>
-        )}
-        <div>{t("course-language")}</div>
-        <FieldContainer aria-labelledby={t("course-version-selection")}>
-          <RadioButton
-            key={AMERICAN_ENGLISH_LANGUAGE_CODE}
-            label={t("english")}
-            value={AMERICAN_ENGLISH_LANGUAGE_CODE}
-            // eslint-disable-next-line i18next/no-literal-string
-            name="language-code"
-            onChange={(_event) => handleLanguageSelectionChange(AMERICAN_ENGLISH_LANGUAGE_CODE)}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <RadioButton
-            key={FINNISH_LANGUAGE_CODE}
-            label={t("finnish")}
-            value={FINNISH_LANGUAGE_CODE}
-            // eslint-disable-next-line i18next/no-literal-string
-            name="language-code"
-            onChange={(_event) => handleLanguageSelectionChange(FINNISH_LANGUAGE_CODE)}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <RadioButton
-            key={SWEDISH_LANGUAGE_CODE}
-            label={t("swedish")}
-            value={SWEDISH_LANGUAGE_CODE}
-            // eslint-disable-next-line i18next/no-literal-string
-            name="language-code"
-            onChange={(_event) => handleLanguageSelectionChange(SWEDISH_LANGUAGE_CODE)}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <RadioButton
-            key="other"
-            label={t("other-language")}
-            // eslint-disable-next-line i18next/no-literal-string
-            value="other"
-            // eslint-disable-next-line i18next/no-literal-string
-            name="language-code"
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={(_event) => handleLanguageSelectionChange("other")}
-          />
-        </FieldContainer>
-
-        {showCustomLanguageCode && (
-          <>
-            <div>{languageCodeValidationError}</div>
-            <FieldContainer>
-              <TextField
-                required
-                label={t("language-code")}
-                value={languageCode}
-                onChangeByValue={(value) => {
-                  setLanguageCode(value)
-                  try {
-                    normalizeIETFLanguageTag(value)
-                    setLanguageCodeValidationError(null)
-                  } catch (e) {
-                    setLanguageCodeValidationError(t("laguage-code-validation-error"))
-                  }
-                }}
+                {...register("copyCourseUserPermissions")}
               />
             </FieldContainer>
           </>
         )}
+
+        <div>{t("course-language")}</div>
+        <FieldContainer>
+          <RadioButton
+            label={t("english")}
+            value={AMERICAN_ENGLISH_LANGUAGE_CODE}
+            {...register("languageCode", { required: t("required-field") })}
+          />
+        </FieldContainer>
+
+        <FieldContainer>
+          <RadioButton
+            label={t("finnish")}
+            value={FINNISH_LANGUAGE_CODE}
+            {...register("languageCode", { required: t("required-field") })}
+          />
+        </FieldContainer>
+
+        <FieldContainer>
+          <RadioButton
+            label={t("swedish")}
+            value={SWEDISH_LANGUAGE_CODE}
+            {...register("languageCode", { required: t("required-field") })}
+          />
+        </FieldContainer>
+
+        <FieldContainer>
+          <RadioButton
+            label={t("other-language")}
+            // eslint-disable-next-line i18next/no-literal-string
+            value="other"
+            {...register("languageCode", { required: t("required-field") })}
+          />
+        </FieldContainer>
+
+        {watchLanguageCode === "other" && (
+          <FieldContainer>
+            <TextField
+              required
+              label={t("language-code")}
+              {...register("customLanguageCode", {
+                required: t("required-field"),
+                validate: (value) => {
+                  if (value === undefined) {
+                    return t("required-field")
+                  }
+                  try {
+                    normalizeIETFLanguageTag(value)
+                    return true
+                  } catch (e: unknown) {
+                    if (e instanceof Error) {
+                      return e.message
+                    }
+                    return false
+                  }
+                },
+              })}
+              error={errors.customLanguageCode?.message}
+            />
+          </FieldContainer>
+        )}
       </div>
+
       <div>
-        <Button
-          size="medium"
-          variant="primary"
-          onClick={(e) => {
-            e.preventDefault()
-            mutation.mutate()
-          }}
-          disabled={submitDisabled}
-        >
+        <Button type="submit" size="medium" variant="primary" disabled={isSubmitting || !isValid}>
           {t("button-text-create")}
         </Button>
         <Button size="medium" variant="secondary" onClick={onClose}>
           {t("button-text-close")}
         </Button>
       </div>
+
+      {errorMessages.length > 0 && (
+        <div className="error-messages">
+          <ul>
+            {errorMessages.map((message, index) => (
+              <li key={index}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </form>
   )
 }

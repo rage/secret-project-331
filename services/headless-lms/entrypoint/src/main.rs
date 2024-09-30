@@ -1,60 +1,115 @@
+use anyhow::Result;
+use headless_lms_server::programs;
 use std::future::Future;
 
-use futures_util::FutureExt;
-use headless_lms_server::programs;
+struct Program {
+    name: &'static str,
+    execute: Box<dyn Fn() -> Result<()> + Sync>,
+}
 
-/// The entrypoint to all the binaries provided by the project.
-/// Expects program name as the first argument.
-fn main() -> anyhow::Result<()> {
-    let program_name = std::env::args()
-        .nth(1)
-        .expect("No program name provided as the first argument.");
-    let future = match program_name.as_str() {
-        "doc-file-generator" => programs::doc_file_generator::main().boxed_local(),
-        "email-deliver" => programs::email_deliver::main().boxed_local(),
-        "ended-exams-processor" => programs::ended_exams_processor::main().boxed_local(),
-        "open-university-registration-link-fetcher" => {
-            programs::open_university_registration_link_fetcher::main().boxed_local()
-        }
-        "regrader" => programs::regrader::main().boxed_local(),
-        "seed" => programs::seed::main().boxed_local(),
-        "service-info-fetcher" => programs::service_info_fetcher::main().boxed_local(),
-        "peer-review-updater" => programs::peer_review_updater::main().boxed_local(),
-        "start-server" => {
+fn main() -> Result<()> {
+    let programs_list = vec![
+        Program {
+            name: "doc-file-generator",
+            execute: Box::new(|| tokio_run(programs::doc_file_generator::main())),
+        },
+        Program {
+            name: "email-deliver",
+            execute: Box::new(|| tokio_run(programs::email_deliver::main())),
+        },
+        Program {
+            name: "ended-exams-processor",
+            execute: Box::new(|| tokio_run(programs::ended_exams_processor::main())),
+        },
+        Program {
+            name: "open-university-registration-link-fetcher",
+            execute: Box::new(|| {
+                tokio_run(programs::open_university_registration_link_fetcher::main())
+            }),
+        },
+        Program {
+            name: "regrader",
+            execute: Box::new(|| tokio_run(programs::regrader::main())),
+        },
+        Program {
+            name: "seed",
+            execute: Box::new(|| tokio_run(programs::seed::main())),
+        },
+        Program {
+            name: "service-info-fetcher",
+            execute: Box::new(|| tokio_run(programs::service_info_fetcher::main())),
+        },
+        Program {
+            name: "peer-review-updater",
+            execute: Box::new(|| tokio_run(programs::peer_review_updater::main())),
+        },
+        Program {
+            name: "start-server",
             // we'll run the server on the actix runtime without boxing it
-            actix_run(programs::start_server::main())?;
-            return Ok(());
-        }
-        "sorter" => {
-            // not async so no need to involve a runtime
-            programs::sorter::sort()?;
-            return Ok(());
-        }
-        "sync-tmc-users" => programs::sync_tmc_users::main().boxed_local(),
-        "calculate-page-visit-stats" => programs::calculate_page_visit_stats::main().boxed_local(),
-        _ => panic!("Unknown program name: {}", program_name),
-    };
-    tokio_run(future)?;
+            execute: Box::new(|| actix_run(programs::start_server::main())),
+        },
+        Program {
+            name: "sorter",
+            execute: Box::new(|| {
+                // not async so no need to involve a runtime
+                programs::sorter::sort()?;
+                Ok(())
+            }),
+        },
+        Program {
+            name: "sync-tmc-users",
+            execute: Box::new(|| tokio_run(programs::sync_tmc_users::main())),
+        },
+        Program {
+            name: "calculate-page-visit-stats",
+            execute: Box::new(|| tokio_run(programs::calculate_page_visit_stats::main())),
+        },
+    ];
+
+    let program_name = std::env::args().nth(1).unwrap_or_else(|| {
+        eprintln!("Error: No program name provided as the first argument.");
+        print_valid_programs(&programs_list);
+        std::process::exit(1);
+    });
+
+    if let Some(program) = programs_list
+        .iter()
+        .find(|p| p.name == program_name.as_str())
+    {
+        (program.execute)()?;
+    } else {
+        eprintln!("Error: Unknown program name: '{}'.", program_name);
+        print_valid_programs(&programs_list);
+        std::process::exit(1);
+    }
 
     Ok(())
 }
 
-fn actix_run<F>(f: F) -> anyhow::Result<()>
-where
-    F: Future<Output = anyhow::Result<()>>,
-{
-    let rt = actix_web::rt::Runtime::new()?;
-    rt.block_on(f)?;
-    Ok(())
+/// Prints all valid program names to stderr.
+fn print_valid_programs(programs: &[Program]) {
+    eprintln!("Valid program names are:");
+    for program in programs {
+        eprintln!("  - {}", program.name);
+    }
 }
 
 // tokio's default runtime can use multiple threads, so it's less prone to stack overflows when spawning lots of tasks
 // making it better suited for non-actix-web tasks
-fn tokio_run<F>(f: F) -> anyhow::Result<()>
+fn tokio_run<F>(f: F) -> Result<()>
 where
-    F: Future<Output = anyhow::Result<()>>,
+    F: Future<Output = Result<()>> + 'static,
 {
-    let rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(f)?;
-    Ok(())
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()?;
+    rt.block_on(f)
+}
+
+fn actix_run<F>(f: F) -> Result<()>
+where
+    F: Future<Output = Result<()>> + 'static,
+{
+    let rt = actix_web::rt::Runtime::new()?;
+    rt.block_on(f)
 }

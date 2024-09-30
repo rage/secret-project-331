@@ -245,14 +245,14 @@ pub async fn does_search_index_exist(
         anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
     })?;
 
-    let search_service_endpoint = search_config.search_endpoint.clone();
-    let url = format!(
-        "{}/indexes('{}')?api-version={}",
-        search_service_endpoint, index_name, API_VERSION
-    );
+    let mut url = search_config.search_endpoint.clone();
+    url.set_path(&format!(
+        "indexes('{}')?api-version={}",
+        index_name, API_VERSION
+    ));
 
     let response = REQWEST_CLIENT
-        .get(&url)
+        .get(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.clone())
         .send()
@@ -449,14 +449,11 @@ pub async fn create_search_index(
 
     let index_json = serde_json::to_string(&index)?;
 
-    let url = format!(
-        "{}/indexes?api-version={}",
-        search_config.search_endpoint.as_ref(),
-        API_VERSION
-    );
+    let mut url = search_config.search_endpoint.clone();
+    url.set_path(&format!("/indexes?api-version={}", API_VERSION));
 
     let response = REQWEST_CLIENT
-        .post(&url)
+        .post(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.clone())
         .body(index_json)
@@ -507,10 +504,11 @@ where
         anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
     })?;
 
-    let url = format!(
-        "{}/indexes('{}')/docs/index?api-version={}",
-        search_config.search_endpoint, index_name, API_VERSION
-    );
+    let mut url = search_config.search_endpoint.clone();
+    url.set_path(&format!(
+        "indexes('{}')/docs/index?api-version={}",
+        index_name, API_VERSION
+    ));
 
     let index_actions: Vec<IndexAction<T>> = documents
         .into_iter()
@@ -527,7 +525,7 @@ where
     let batch_json = serde_json::to_string(&batch)?;
 
     let response = REQWEST_CLIENT
-        .post(&url)
+        .post(url)
         .header("Content-Type", "application/json")
         .header("api-key", search_config.search_api_key.clone())
         .body(batch_json)

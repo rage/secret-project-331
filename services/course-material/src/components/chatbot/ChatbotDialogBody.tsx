@@ -1,12 +1,12 @@
 import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ChatbotDialogProps } from "./ChatbotDialog"
-import ThinkingIndicator from "./ThinkingIndicator"
+import MessageBubble from "./MessageBubble"
 
 import { newChatbotConversation, sendChatbotMessage } from "@/services/backend"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
@@ -16,16 +16,40 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
+interface MessageState {
+  optimisticMessage: string | null
+  streamingMessage: string | null
+}
+
+type MessageAction =
+  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
+  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
+  | { type: "RESET_MESSAGES" }
+
+const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
+  switch (action.type) {
+    case "SET_OPTIMISTIC_MESSAGE":
+      return { ...state, optimisticMessage: action.payload }
+    case "APPEND_STREAMING_MESSAGE":
+      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
+    case "RESET_MESSAGES":
+      return { optimisticMessage: null, streamingMessage: null }
+    default:
+      return state
+  }
+}
+
 const ChatbotDialogBody: React.FC<
   ChatbotDialogProps & { currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error> }
 > = ({ currentConversationInfo, chatbotConfigurationId }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-
   const { t } = useTranslation()
 
-  const [newMessage, setNewMessage] = useState("")
-  const [optimisticSentMessage, setOptimisticSentMessage] = useState<string | null>(null)
-  const [streamingMessage, setStreamingMessage] = useState<string | null>(null)
+  const [newMessage, setNewMessage] = React.useState("")
+  const [messageState, dispatch] = useReducer(messageReducer, {
+    optimisticMessage: null,
+    streamingMessage: null,
+  })
 
   const newConversationMutation = useToastMutation(
     () => newChatbotConversation(chatbotConfigurationId),
@@ -33,6 +57,7 @@ const ChatbotDialogBody: React.FC<
     {
       onSuccess: () => {
         currentConversationInfo.refetch()
+        dispatch({ type: "RESET_MESSAGES" })
       },
     },
   )
@@ -42,8 +67,8 @@ const ChatbotDialogBody: React.FC<
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
-      const message = newMessage
-      setOptimisticSentMessage(message)
+      const message = newMessage.trim()
+      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
       setNewMessage("")
       const stream = await sendChatbotMessage(
         chatbotConfigurationId,
@@ -53,25 +78,24 @@ const ChatbotDialogBody: React.FC<
       const reader = stream.getReader()
 
       let done = false
-      let value = undefined
       while (!done) {
-        ;({ done, value } = await reader.read())
-        const valueAsString = new TextDecoder().decode(value)
-        const lines = valueAsString.split("\n")
-        for (const line of lines) {
-          if (line?.indexOf("{") !== 0) {
-            continue
-          }
-          console.log(line)
-          try {
-            const parsedValue = JSON.parse(line)
-            console.log(parsedValue)
-            if (parsedValue.text) {
-              setStreamingMessage((prev) => `${prev || ""}${parsedValue.text}`)
+        const { done: doneReading, value } = await reader.read()
+        done = doneReading
+        if (value) {
+          const valueAsString = new TextDecoder().decode(value)
+          const lines = valueAsString.split("\n")
+          for (const line of lines) {
+            if (line?.indexOf("{") !== 0) {
+              continue
             }
-          } catch (e) {
-            // NOP
-            console.error(e)
+            try {
+              const parsedValue = JSON.parse(line)
+              if (parsedValue.text) {
+                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
+              }
+            } catch (e) {
+              console.error(e)
+            }
           }
         }
       }
@@ -79,22 +103,20 @@ const ChatbotDialogBody: React.FC<
     },
     { notify: false },
     {
-      onSuccess: async (_stream) => {
+      onSuccess: async () => {
         await currentConversationInfo.refetch()
-        setStreamingMessage(null)
-        setOptimisticSentMessage(null)
+        dispatch({ type: "RESET_MESSAGES" })
       },
     },
   )
 
   const messages = useMemo(() => {
     const messages = [...(currentConversationInfo.data?.current_conversation_messages ?? [])]
-    const lastOrderNumber = Math.max(...messages.map((m) => m.order_number))
-    if (optimisticSentMessage) {
+    const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
+    if (messageState.optimisticMessage) {
       messages.push({
-        // eslint-disable-next-line i18next/no-literal-string
         id: v4(),
-        message: optimisticSentMessage,
+        message: messageState.optimisticMessage,
         is_from_chatbot: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -105,11 +127,10 @@ const ChatbotDialogBody: React.FC<
         order_number: lastOrderNumber + 1,
       })
     }
-    if (streamingMessage) {
+    if (messageState.streamingMessage) {
       messages.push({
-        // eslint-disable-next-line i18next/no-literal-string
         id: v4(),
-        message: streamingMessage,
+        message: messageState.streamingMessage,
         is_from_chatbot: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -124,19 +145,17 @@ const ChatbotDialogBody: React.FC<
   }, [
     currentConversationInfo.data?.current_conversation?.id,
     currentConversationInfo.data?.current_conversation_messages,
-    optimisticSentMessage,
-    streamingMessage,
+    messageState.optimisticMessage,
+    messageState.streamingMessage,
   ])
 
   const scrollToBottom = useCallback(() => {
-    if (!scrollContainerRef.current) {
-      return
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
     }
-    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
-  }, [scrollContainerRef])
+  }, [])
 
   useEffect(() => {
-    // Whenever the messages change, scroll to the bottom
     scrollToBottom()
   }, [scrollToBottom, messages])
 
@@ -150,11 +169,28 @@ const ChatbotDialogBody: React.FC<
   }
 
   if (currentConversationInfo.isError) {
-    return <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+    return (
+      <div
+        className={css`
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        `}
+      >
+        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+        <Button
+          onClick={() => currentConversationInfo.refetch()}
+          variant="secondary"
+          size={"small"}
+        >
+          {t("try-again")}
+        </Button>
+      </div>
+    )
   }
 
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
-    // The chatbot has loaded, but no conversation is active. Show the warning message.
     return (
       <div
         className={css`
@@ -188,9 +224,7 @@ const ChatbotDialogBody: React.FC<
           `}
         >
           <h2>{t("about-the-chatbot")}</h2>
-
           <p>{t("chatbot-disclaimer-start")}</p>
-
           <ul>
             <li>{t("chatbot-discalimer-sensitive-information")}</li>
             <li>{t("chatbot-disclaimer-check")}</li>
@@ -204,7 +238,6 @@ const ChatbotDialogBody: React.FC<
             </li>
           </ul>
         </div>
-
         <Button size="medium" variant="secondary" onClick={() => newConversationMutation.mutate()}>
           {t("button-text-agree")}
         </Button>
@@ -232,37 +265,18 @@ const ChatbotDialogBody: React.FC<
         ref={scrollContainerRef}
       >
         {messages.map((message) => (
-          <div
-            className={css`
-              padding: 1rem;
-              border-radius: 10px;
-              width: fit-content;
-              margin: 0.5rem 0;
-              ${message.is_from_chatbot &&
-              `margin-right: 2rem;
-                align-self: flex-start;
-                background-color: ${baseTheme.colors.gray[100]};
-                `}
-              ${!message.is_from_chatbot &&
-              `margin-left: 2rem;
-                align-self: flex-end;
-                border: 2px solid ${baseTheme.colors.gray[200]};
-                `}
-            `}
+          <MessageBubble
             key={`chatbot-message-${message.id}`}
-          >
-            <span>{message.message}</span>
-            {!message.message_is_complete && newMessageMutation.isPending && (
-              <ThinkingIndicator key="chat-message-thinking-indicator" />
-            )}
-          </div>
+            message={message.message ?? ""}
+            isFromChatbot={message.is_from_chatbot}
+            isPending={!message.message_is_complete && newMessageMutation.isPending}
+          />
         ))}
       </div>
       <div
         className={css`
           display: flex;
           gap: 10px;
-
           align-items: center;
           margin: 0 1rem;
         `}
@@ -276,7 +290,6 @@ const ChatbotDialogBody: React.FC<
             className={css`
               width: 100%;
               padding: 0.5rem;
-
               resize: none;
 
               &:focus {
@@ -286,7 +299,7 @@ const ChatbotDialogBody: React.FC<
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault()
                 if (canSubmit) {
                   newMessageMutation.mutate()
@@ -305,9 +318,7 @@ const ChatbotDialogBody: React.FC<
               display: flex;
               align-items: center;
               justify-content: center;
-
               padding: 0.3rem 0.6rem;
-
               transition: filter 0.2s;
 
               &:disabled {
@@ -318,11 +329,11 @@ const ChatbotDialogBody: React.FC<
               &:hover {
                 filter: brightness(0.9) contrast(1.1);
               }
+
               svg {
                 position: relative;
                 top: 0px;
                 left: -2px;
-
                 transform: rotate(45deg);
               }
             `}
@@ -348,4 +359,4 @@ const ChatbotDialogBody: React.FC<
   )
 }
 
-export default ChatbotDialogBody
+export default React.memo(ChatbotDialogBody)

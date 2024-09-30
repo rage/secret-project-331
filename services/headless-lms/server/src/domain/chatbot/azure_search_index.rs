@@ -246,10 +246,8 @@ pub async fn does_search_index_exist(
     })?;
 
     let mut url = search_config.search_endpoint.clone();
-    url.set_path(&format!(
-        "indexes('{}')?api-version={}",
-        index_name, API_VERSION
-    ));
+    url.set_path(&format!("indexes('{}')", index_name));
+    url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
     let response = REQWEST_CLIENT
         .get(url)
@@ -450,7 +448,8 @@ pub async fn create_search_index(
     let index_json = serde_json::to_string(&index)?;
 
     let mut url = search_config.search_endpoint.clone();
-    url.set_path(&format!("/indexes?api-version={}", API_VERSION));
+    url.set_path("/indexes");
+    url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
     let response = REQWEST_CLIENT
         .post(url)
@@ -479,7 +478,6 @@ pub async fn create_search_index(
 pub struct IndexAction<T> {
     #[serde(rename = "@search.action")]
     pub search_action: String,
-    #[serde(flatten)]
     pub document: T,
 }
 
@@ -505,16 +503,14 @@ where
     })?;
 
     let mut url = search_config.search_endpoint.clone();
-    url.set_path(&format!(
-        "indexes('{}')/docs/index?api-version={}",
-        index_name, API_VERSION
-    ));
+    url.set_path(&format!("indexes('{}')/docs/index", index_name));
+    url.set_query(Some(&format!("api-version={}", API_VERSION)));
 
-    let index_actions: Vec<IndexAction<T>> = documents
+    let index_actions: Vec<IndexAction<String>> = documents
         .into_iter()
         .map(|doc| IndexAction {
             search_action: "upload".to_string(),
-            document: doc,
+            document: serde_json::to_string(&doc).unwrap(),
         })
         .collect();
 
@@ -523,6 +519,8 @@ where
     };
 
     let batch_json = serde_json::to_string(&batch)?;
+
+    dbg!(&batch_json);
 
     let response = REQWEST_CLIENT
         .post(url)

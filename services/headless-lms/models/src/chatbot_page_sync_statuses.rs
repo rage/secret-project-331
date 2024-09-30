@@ -19,21 +19,31 @@ pub async fn make_sure_sync_statuses_exist(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
 ) -> ModelResult<HashMap<Uuid, Vec<ChatbotPageSyncStatus>>> {
-    let res = sqlx::query_as!(
-        ChatbotPageSyncStatus,
+    sqlx::query!(
         r#"
 INSERT INTO chatbot_page_sync_statuses (course_id, page_id)
-SELECT course_id, id
+SELECT course_id,
+  id
 FROM pages
 WHERE course_id = ANY($1)
-AND deleted_at IS NULL
-AND hidden IS FALSE
-ON CONFLICT (page_id, deleted_at) DO NOTHING
-RETURNING *
-      "#,
+  AND deleted_at IS NULL
+  AND hidden IS FALSE ON CONFLICT (page_id, deleted_at) DO NOTHING
+        "#,
         course_ids
     )
-    .fetch_all(conn)
+    .execute(&mut *conn)
+    .await?;
+
+    let all_statuses = sqlx::query_as!(
+        ChatbotPageSyncStatus,
+        r#"
+SELECT *
+FROM chatbot_page_sync_statuses
+WHERE course_id = ANY($1)
+        "#,
+        course_ids
+    )
+    .fetch_all(&mut *conn)
     .await?
     .into_iter()
     .fold(
@@ -43,7 +53,8 @@ RETURNING *
             map
         },
     );
-    Ok(res)
+
+    Ok(all_statuses)
 }
 
 // Given a mapping from page id to the new revision id, update the sync statuses

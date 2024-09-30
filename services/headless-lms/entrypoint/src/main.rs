@@ -64,6 +64,10 @@ fn main() -> Result<()> {
             name: "calculate-page-visit-stats",
             execute: Box::new(|| tokio_run(programs::calculate_page_visit_stats::main())),
         },
+        Program {
+            name: "chatbot-syncer",
+            execute: Box::new(|| tokio_run(programs::chatbot_syncer::main())),
+        },
     ];
 
     let program_name = std::env::args().nth(1).unwrap_or_else(|| {

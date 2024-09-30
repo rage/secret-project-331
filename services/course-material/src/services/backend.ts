@@ -702,7 +702,7 @@ export const sendChatbotMessage = async (
 
   const requestOptions: RequestInit = {
     method: "POST",
-    body: JSON.stringify({ message }), // It's better to send an object for clarity
+    body: JSON.stringify(message),
     headers: {
       "Content-Type": "application/json",
     },

@@ -1,4 +1,4 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage } from "@vectopus/atlas-icons-react"
 import React from "react"
@@ -59,6 +59,10 @@ const buttonStyle = css`
   }
 `
 
+const buttonsWrapper = css`
+  display: flex;
+`
+
 const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
   setDialogOpen,
   currentConversationInfo,
@@ -82,7 +86,7 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
         <Account />
       </div>
       <h1 className={titleStyle}>{currentConversationInfo.data?.chatbot_name}</h1>
-      <div>
+      <div className={buttonsWrapper}>
         <button
           onClick={() => newConversationMutation.mutate()}
           disabled={newConversationMutation.isPending}
@@ -93,11 +97,13 @@ const ChatbotDialogHeader: React.FC<ChatbotDialogHeaderProps> = ({
         </button>
         <button
           onClick={() => setDialogOpen(false)}
-          className={css`
-            ${buttonStyle}
-            position: relative;
-            top: -3px;
-          `}
+          className={cx(
+            buttonStyle,
+            css`
+              position: relative;
+              top: -3px;
+            `,
+          )}
           aria-label={t("close")}
         >
           <DownIcon />

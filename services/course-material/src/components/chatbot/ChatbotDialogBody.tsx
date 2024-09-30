@@ -16,6 +16,12 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
+interface ChatbotDialogBodyProps extends ChatbotDialogProps {
+  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
+  error: Error | null
+  setError: (error: Error | null) => void
+}
+
 interface MessageState {
   optimisticMessage: string | null
   streamingMessage: string | null
@@ -39,9 +45,12 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
   }
 }
 
-const ChatbotDialogBody: React.FC<
-  ChatbotDialogProps & { currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error> }
-> = ({ currentConversationInfo, chatbotConfigurationId }) => {
+const ChatbotDialogBody: React.FC<ChatbotDialogBodyProps> = ({
+  currentConversationInfo,
+  chatbotConfigurationId,
+  error,
+  setError,
+}) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 
@@ -58,6 +67,7 @@ const ChatbotDialogBody: React.FC<
       onSuccess: () => {
         currentConversationInfo.refetch()
         dispatch({ type: "RESET_MESSAGES" })
+        setError(null) // Clear any existing errors when starting a new conversation
       },
     },
   )
@@ -106,6 +116,17 @@ const ChatbotDialogBody: React.FC<
       onSuccess: async () => {
         await currentConversationInfo.refetch()
         dispatch({ type: "RESET_MESSAGES" })
+        setError(null)
+      },
+      onError: async (error) => {
+        if (error instanceof Error) {
+          setError(error)
+          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
+        } else {
+          console.error(`Failed to send chat message: ${error}`)
+          setError(new Error("Unknown error occurred"))
+        }
+        await currentConversationInfo.refetch()
       },
     },
   )
@@ -179,11 +200,7 @@ const ChatbotDialogBody: React.FC<
         `}
       >
         <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
-        <Button
-          onClick={() => currentConversationInfo.refetch()}
-          variant="secondary"
-          size={"small"}
-        >
+        <Button onClick={() => currentConversationInfo.refetch()} variant="secondary" size="small">
           {t("try-again")}
         </Button>
       </div>
@@ -273,6 +290,19 @@ const ChatbotDialogBody: React.FC<
           />
         ))}
       </div>
+      {error && (
+        <div
+          className={css`
+            padding: 10px;
+            background-color: ${baseTheme.colors.red[100]};
+            color: ${baseTheme.colors.red[500]};
+            margin: 10px;
+            border-radius: 5px;
+          `}
+        >
+          {t("failed-to-send-message")}: {error.message}
+        </div>
+      )}
       <div
         className={css`
           display: flex;

@@ -698,16 +698,29 @@ export const sendChatbotMessage = async (
   conversationId: string,
   message: string,
 ): Promise<ReadableStream<Uint8Array>> => {
-  const res = await fetch(
-    `/api/v0/course-material/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`,
-    {
-      method: "POST",
-      body: JSON.stringify(message),
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const url = `/api/v0/course-material/chatbot/${chatBotConfigurationId}/conversations/${conversationId}/send-message`
+
+  const requestOptions: RequestInit = {
+    method: "POST",
+    body: JSON.stringify({ message }), // It's better to send an object for clarity
+    headers: {
+      "Content-Type": "application/json",
     },
-  )
+  }
+
+  const res = await fetch(url, requestOptions)
+
+  if (res.status !== 200) {
+    let errorDetails: string
+    try {
+      const errorData = await res.json()
+      errorDetails = JSON.stringify(errorData)
+    } catch {
+      errorDetails = await res.text()
+    }
+
+    throw new Error(`Request failed with status ${res.status}: ${errorDetails}`)
+  }
 
   const stream = res.body
 

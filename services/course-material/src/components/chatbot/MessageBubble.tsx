@@ -26,20 +26,17 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
       margin-left: 2rem;
       align-self: flex-end;
       border: 2px solid ${baseTheme.colors.gray[200]};
+      background-color: #ffffff;
     `}
 `
 
-const MessageBubble: React.FC<MessageBubbleProps> = React.memo(
-  ({ message, isFromChatbot, isPending }) => {
-    return (
-      <div className={bubbleStyle(isFromChatbot)}>
-        <span>{message}</span>
-        {isPending && <ThinkingIndicator />}
-      </div>
-    )
-  },
-)
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isFromChatbot, isPending }) => {
+  return (
+    <div className={bubbleStyle(isFromChatbot)}>
+      <span>{message}</span>
+      {isPending && <ThinkingIndicator />}
+    </div>
+  )
+}
 
-MessageBubble.displayName = "MessageBubble"
-
-export default MessageBubble
+export default React.memo(MessageBubble)

@@ -81,6 +81,7 @@
   "exercises-attempted": "Exercises attempted",
   "exercises-in-this-chapter": "Exercises in this chapter",
   "exit": "Exit",
+  "failed-to-send-message": "Failed to send message",
   "failed-to-submit": "Failed to submit {{ error }}",
   "feedback-submitted-succesfully": "Feedback submitted successfully",
   "finnish": "Finnish",

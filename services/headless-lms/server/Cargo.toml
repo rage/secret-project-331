@@ -13,6 +13,7 @@ license.workspace = true
 headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
+headless-lms-chatbot = { path = "../chatbot" }
 mooc-langs-api = { path = "../langs-api" }
 doc-macro = { path = "../doc-macro" }
 

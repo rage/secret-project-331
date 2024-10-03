@@ -1,0 +1,36 @@
+[package]
+name = "headless-lms-chatbot"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+headless-lms-utils = { path = "../utils" }
+headless-lms-models = { path = "../models" }
+
+# Date and time library for Rust
+chrono = { version = "0.4.34", features = ["serde"] }
+# An implementation of futures and streams featuring zero allocations, composability, and itera…
+futures = "0.3.30"
+# Common utilities and extension traits for the futures-rs library.
+futures-util = "0.3.30"
+# An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
+tokio.workspace = true
+# Utilities for working with Tokio.
+tokio-util = "0.7.10"
+# higher level HTTP client library
+reqwest = { version = "0.12.4", features = ["brotli", "gzip", "json", "http2", "rustls-tls", "stream"] }
+# A generic serialization/deserialization framework
+serde = { version = "1.0.197", features = ["derive"] }
+# A JSON serialization file format
+serde_json = "1.0.114"
+# Application-level tracing for Rust.
+tracing = "0.1.40"
+# A library to generate and parse UUIDs.
+uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
+# Flexible concrete Error type built on std::error::Error
+anyhow = "1.0.80"
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
+sqlx.workspace = true

@@ -11,11 +11,9 @@ use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessa
 use headless_lms_utils::http::REQWEST_CLIENT;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
-use web::Bytes;
-
-use actix_web::web;
 
 use crate::prelude::*;
 
@@ -98,7 +96,7 @@ pub struct ChatReponse {
 struct RequestCancelledGuard {
     response_message_id: Uuid,
     received_string: Arc<Mutex<Vec<String>>>,
-    pool: web::Data<PgPool>,
+    pool: PgPool,
     done: Arc<AtomicBool>,
 }
 

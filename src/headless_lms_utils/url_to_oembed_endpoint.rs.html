@@ -281,6 +281,97 @@
 <a href="#281" id="281">281</a>
 <a href="#282" id="282">282</a>
 <a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
+<a href="#292" id="292">292</a>
+<a href="#293" id="293">293</a>
+<a href="#294" id="294">294</a>
+<a href="#295" id="295">295</a>
+<a href="#296" id="296">296</a>
+<a href="#297" id="297">297</a>
+<a href="#298" id="298">298</a>
+<a href="#299" id="299">299</a>
+<a href="#300" id="300">300</a>
+<a href="#301" id="301">301</a>
+<a href="#302" id="302">302</a>
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>percent_encoding::{percent_decode_str, utf8_percent_encode, NON_ALPHANUMERIC};
@@ -346,8 +437,11 @@
         }
         <span class="kw">if </span>host.ends_with(<span class="string">"vimeo.com"</span>) {
             <span class="kw">return </span>oembed_url_builder(
-                <span class="string">"https://vimeo.com/api/oembed.json"</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"url={}&amp;maxwidth=780&amp;maxheight=440"</span>, url),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"{}/api/v0/cms/gutenberg/oembed/vimeo"</span>, base_url.unwrap()),
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                    <span class="string">"url={}"</span>,
+                    utf8_percent_encode(url.as_str(), NON_ALPHANUMERIC)
+                ),
             );
         }
         <span class="kw">if </span>host.ends_with(<span class="string">"menti.com"</span>) || host.ends_with(<span class="string">"mentimeter.com"</span>) {
@@ -423,7 +517,13 @@
     url: String,
     base_url: String,
 ) -&gt; UtilResult&lt;OEmbedResponse&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).unwrap();
+    <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).map_err(|e| {
+        UtilError::new(
+            UtilErrorType::UrlParse,
+            <span class="string">"Failed to parse url"</span>.to_string(),
+            <span class="prelude-val">Some</span>(e.into()),
+        )
+    })<span class="question-mark">?</span>;
     <span class="comment">// Get the height and title params
     </span><span class="kw">let </span>params: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = parsed_url.query_pairs().into_owned().collect();
     <span class="comment">// We want to remove the query params so that the iframe src url doesn't have them
@@ -461,7 +561,13 @@
     url: String,
     base_url: String,
 ) -&gt; UtilResult&lt;OEmbedResponse&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).unwrap();
+    <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).map_err(|e| {
+        UtilError::new(
+            UtilErrorType::UrlParse,
+            <span class="string">"Failed to parse url"</span>.to_string(),
+            <span class="prelude-val">Some</span>(e.into()),
+        )
+    })<span class="question-mark">?</span>;
     <span class="comment">// Get the height and title params
     </span><span class="kw">let </span>params: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = parsed_url.query_pairs().into_owned().collect();
     <span class="comment">// We want to remove the query params so that the iframe src url doesn't have them
@@ -479,7 +585,7 @@
         author_name: <span class="string">"Mooc.fi"</span>.to_string(),
         author_url: base_url,
         html: <span class="macro">format!</span>(
-            <span class="string">"&lt;iframe sandbox=\"allow-scripts allow-same-origin\" src={} style='width: 99%;' height={:?} title={:?}&gt;&lt;/iframe&gt;"</span>,
+            <span class="string">"&lt;iframe sandbox=\"allow-scripts allow-same-origin\" src=\"{}\" style=\"width: 99%;\" height={:?} title=\"{:?}\"&gt;&lt;/iframe&gt;"</span>,
             parsed_url,
             params.get(<span class="string">"height"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">"500"</span>.to_string()),
             decoded_title
@@ -495,10 +601,74 @@
     <span class="prelude-val">Ok</span>(response)
 }
 
+<span class="kw">pub fn </span>vimeo_oembed_response_builder(url: String, base_url: String) -&gt; UtilResult&lt;OEmbedResponse&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>parsed_url = Url::parse(url.as_str()).map_err(|e| {
+        UtilError::new(
+            UtilErrorType::UrlParse,
+            <span class="string">"Failed to parse url"</span>.to_string(),
+            <span class="prelude-val">Some</span>(e.into()),
+        )
+    })<span class="question-mark">?</span>;
+    <span class="comment">// Get the height and title params
+    </span><span class="kw">let </span>params: HashMap&lt;<span class="kw">_</span>, <span class="kw">_</span>&gt; = parsed_url.query_pairs().into_owned().collect();
+    <span class="comment">// We want to remove the query params so that the iframe src url doesn't have them
+    </span>parsed_url.set_query(<span class="prelude-val">None</span>);
+    <span class="kw">let </span>decoded_title =
+        percent_decode_str(params.get(<span class="string">"title"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">"Vimeo%20embed"</span>.to_string()))
+            .decode_utf8()
+            .expect(<span class="string">"Decoding title or default value for vimeo embed failed"</span>)
+            .to_string();
+
+    <span class="kw">let </span>path = parsed_url.path();
+    <span class="kw">let </span>video_id = extract_numerical_id(path).ok_or_else(|| {
+        UtilError::new(
+            UtilErrorType::Other,
+            <span class="string">"Could not find video id from url"</span>.to_string(),
+            <span class="prelude-val">None</span>,
+        )
+    })<span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>iframe_url = Url::parse(<span class="string">"https://player.vimeo.com"</span>).map_err(|e| {
+        UtilError::new(
+            UtilErrorType::UrlParse,
+            <span class="string">"Failed to parse url"</span>.to_string(),
+            <span class="prelude-val">Some</span>(e.into()),
+        )
+    })<span class="question-mark">?</span>;
+    iframe_url.set_path(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">"/video/{}"</span>, video_id));
+    iframe_url.set_query(<span class="prelude-val">Some</span>(<span class="string">"app_id=122963"</span>));
+
+    <span class="kw">let </span>response = OEmbedResponse {
+        author_name: <span class="string">"Mooc.fi"</span>.to_string(),
+        author_url: base_url,
+        html: <span class="macro">format!</span>(
+            <span class="string">"&lt;iframe sandbox=\"allow-scripts allow-same-origin\" frameborder=\"0\" src=\"{}\" style=\"width: 99%;\" height={:?} title=\"{:?}\"&gt;&lt;/iframe&gt;"</span>,
+            iframe_url,
+            params.get(<span class="string">"height"</span>).unwrap_or(<span class="kw-2">&amp;</span><span class="string">"500"</span>.to_string()),
+            decoded_title
+        ),
+        provider_name: <span class="string">"vimeo"</span>.to_string(),
+        provider_url: parsed_url
+            .host_str()
+            .unwrap_or(<span class="string">"https://www.vimeo.com/"</span>)
+            .to_string(),
+        title: decoded_title,
+        version: <span class="string">"1.0"</span>.to_string(),
+    };
+    <span class="prelude-val">Ok</span>(response)
+}
+
 <span class="kw">fn </span>oembed_url_builder(url: <span class="kw-2">&amp;</span>str, query_params: <span class="kw-2">&amp;</span>str) -&gt; UtilResult&lt;Url&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>endpoint_url = Url::parse(url)<span class="question-mark">?</span>;
     endpoint_url.set_query(<span class="prelude-val">Some</span>(query_params));
     <span class="prelude-val">Ok</span>(endpoint_url)
+}
+
+<span class="kw">fn </span>extract_numerical_id(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    path.split(<span class="string">'/'</span>)
+        .map(|o| o.trim())
+        .find(|segment| !segment.is_empty() &amp;&amp; segment.chars().all(|c| c.is_ascii_digit()))
+        .map(|s| s.to_string())
 }
 
 <span class="attr">#[cfg(test)]
@@ -561,6 +731,18 @@
             )
             .unwrap().to_string(),
             <span class="string">"http://project-331.local/api/v0/cms/gutenberg/oembed/thinglink?url=https%3A%2F%2Fwww%2Ethinglink%2Ecom%2Fcard%2F1205257932048957445"
+        </span>)
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>works_with_vimeo() {
+        <span class="macro">assert_eq!</span>(
+            url_to_oembed_endpoint(
+                <span class="string">"https://vimeo.com/275255674"</span>.to_string(),
+                <span class="prelude-val">Some</span>(<span class="string">"http://project-331.local"</span>.to_string())
+            )
+            .unwrap().to_string(),
+            <span class="string">"http://project-331.local/api/v0/cms/gutenberg/oembed/vimeo?url=https%3A%2F%2Fvimeo%2Ecom%2F275255674"
         </span>)
     }
 }

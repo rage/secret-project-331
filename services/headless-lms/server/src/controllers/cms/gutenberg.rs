@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use headless_lms_utils::url_to_oembed_endpoint::{
     mentimeter_oembed_response_builder, thinglink_oembed_response_builder, url_to_oembed_endpoint,
-    OEmbedRequest, OEmbedResponse,
+    vimeo_oembed_response_builder, OEmbedRequest, OEmbedResponse,
 };
 use serde::{Deserialize, Serialize};
 
@@ -175,6 +175,18 @@ async fn get_thinglink_oembed_data(
     token.authorized_ok(web::Json(response))
 }
 
+#[instrument(skip(app_conf))]
+async fn get_vimeo_oembed_data(
+    query_params: web::Query<OEmbedRequest>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<OEmbedResponse>> {
+    let token = skip_authorize();
+    let url = query_params.url.to_string();
+    let response = vimeo_oembed_response_builder(url, app_conf.base_url.to_string())?;
+    token.authorized_ok(web::Json(response))
+}
+
 /**
 Add a route for each controller in this module.
 
@@ -195,5 +207,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/oembed/thinglink",
         web::get().to(get_thinglink_oembed_data),
-    );
+    )
+    .route("/oembed/vimeo", web::get().to(get_vimeo_oembed_data));
 }

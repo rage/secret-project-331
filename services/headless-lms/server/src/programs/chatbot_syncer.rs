@@ -7,8 +7,9 @@ use std::{
 use crate::setup_tracing;
 
 use dotenv::dotenv;
-use headless_lms_chatbot::azure_search_index::{
-    add_documents_to_index, create_search_index, does_search_index_exist,
+use headless_lms_chatbot::{
+    azure_blob_storage::AzureBlobClient,
+    azure_search_index::{add_documents_to_index, create_search_index, does_search_index_exist},
 };
 use headless_lms_models::{page_history::PageHistory, pages::Page};
 use headless_lms_utils::{
@@ -28,12 +29,14 @@ pub async fn main() -> anyhow::Result<()> {
     let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
         .expect("BASE_URL must be a valid URL");
 
-    let index_name_prefix = base_url
+    let name_prefix = base_url
         .host_str()
         .expect("BASE_URL must have a host")
         .replace(".", "-");
 
     let app_config = ApplicationConfiguration::try_from_env()?;
+    let blob_storage = AzureBlobClient::new(&app_config, &name_prefix).await?;
+    blob_storage.ensure_container_exists().await?;
 
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -48,7 +51,7 @@ pub async fn main() -> anyhow::Result<()> {
             // Occasionally prints a reminder that the service is still running
             ticks = 0;
             tracing::info!("Syncing pages to chatbot backend.");
-            sync_pages(&mut conn, &index_name_prefix, &app_config).await?;
+            sync_pages(&mut conn, &name_prefix, &app_config).await?;
         }
     }
 }

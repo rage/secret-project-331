@@ -135,23 +135,51 @@ impl AzureSearchConfiguration {
 }
 
 #[derive(Clone, PartialEq)]
+pub struct AzureBlobStorageConfiguration {
+    pub storage_account: String,
+    pub access_key: String,
+}
+
+impl AzureBlobStorageConfiguration {
+    /// Attempts to create an AzureBlobStorageConfiguration from environment variables.
+    /// Returns `Ok(Some(AzureBlobStorageConfiguration))` if both environment variables are set.
+    /// Returns `Ok(None)` if no environment variables are set for blob storage.
+    pub fn try_from_env() -> anyhow::Result<Option<Self>> {
+        let storage_account = env::var("AZURE_BLOB_STORAGE_ACCOUNT").ok();
+        let access_key = env::var("AZURE_BLOB_STORAGE_ACCESS_KEY").ok();
+
+        if let (Some(storage_account), Some(access_key)) = (storage_account, access_key) {
+            Ok(Some(AzureBlobStorageConfiguration {
+                storage_account,
+                access_key,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+#[derive(Clone, PartialEq)]
 pub struct AzureConfiguration {
     pub chatbot_config: Option<AzureChatbotConfiguration>,
     pub search_config: Option<AzureSearchConfiguration>,
+    pub blob_storage_config: Option<AzureBlobStorageConfiguration>,
 }
 
 impl AzureConfiguration {
     /// Attempts to create an AzureConfiguration by calling the individual try_from_env functions.
-    /// Returns `Ok(Some(AzureConfiguration))` if either chatbot or search_config configurations are set.
+    /// Returns `Ok(Some(AzureConfiguration))` if any of the configurations are set.
     /// Returns `Ok(None)` if no relevant environment variables are set.
     pub fn try_from_env() -> anyhow::Result<Option<Self>> {
         let chatbot = AzureChatbotConfiguration::try_from_env()?;
         let search_config = AzureSearchConfiguration::try_from_env()?;
+        let blob_storage_config = AzureBlobStorageConfiguration::try_from_env()?;
 
-        if chatbot.is_some() || search_config.is_some() {
+        if chatbot.is_some() || search_config.is_some() || blob_storage_config.is_some() {
             Ok(Some(AzureConfiguration {
                 chatbot_config: chatbot,
                 search_config,
+                blob_storage_config,
             }))
         } else {
             Ok(None)

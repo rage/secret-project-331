@@ -38,3 +38,7 @@ sqlx.workspace = true
 async-stream = "0.3.5"
 # Types and traits for working with bytes
 bytes = "1.5.0"
+# Azure Storage crate from the Azure SDK for Rust
+azure_storage = "0.20.0"
+# Azure Blob Storage crate from the Azure SDK for Rust
+azure_storage_blobs = "0.20.0"

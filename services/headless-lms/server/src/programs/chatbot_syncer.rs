@@ -9,7 +9,7 @@ use crate::setup_tracing;
 use dotenv::dotenv;
 use headless_lms_chatbot::{
     azure_blob_storage::AzureBlobClient,
-    azure_search_index::{add_documents_to_index, create_search_index, does_search_index_exist},
+    azure_search_index::{create_search_index, does_search_index_exist},
 };
 use headless_lms_models::{page_history::PageHistory, pages::Page};
 use headless_lms_utils::{
@@ -17,6 +17,7 @@ use headless_lms_utils::{
     ApplicationConfiguration,
 };
 use sqlx::{PgConnection, PgPool};
+use std::path::PathBuf;
 use url::Url;
 use uuid::Uuid;
 
@@ -35,8 +36,8 @@ pub async fn main() -> anyhow::Result<()> {
         .replace(".", "-");
 
     let app_config = ApplicationConfiguration::try_from_env()?;
-    let blob_storage = AzureBlobClient::new(&app_config, &name_prefix).await?;
-    blob_storage.ensure_container_exists().await?;
+    let blob_storage_client = AzureBlobClient::new(&app_config, &name_prefix).await?;
+    blob_storage_client.ensure_container_exists().await?;
 
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -51,7 +52,7 @@ pub async fn main() -> anyhow::Result<()> {
             // Occasionally prints a reminder that the service is still running
             ticks = 0;
             tracing::info!("Syncing pages to chatbot backend.");
-            sync_pages(&mut conn, &name_prefix, &app_config).await?;
+            sync_pages(&mut conn, &name_prefix, &app_config, &blob_storage_client).await?;
         }
     }
 }
@@ -61,6 +62,7 @@ async fn sync_pages(
     conn: &mut sqlx::PgConnection,
     index_name_prefix: &str,
     app_config: &ApplicationConfiguration,
+    blob_storage_client: &AzureBlobClient,
 ) -> anyhow::Result<()> {
     let chatbot_configurations =
         headless_lms_models::chatbot_configurations::get_for_azure_search_maintananace(conn)
@@ -121,6 +123,7 @@ async fn sync_pages(
             &pages,
             &latest_history_entries_by_page_id,
             app_config,
+            blob_storage_client,
         )
         .await?;
     }
@@ -143,21 +146,34 @@ async fn sync_pages_batch(
     pages: &[Page],
     latest_history_entries_by_page_id: &HashMap<Uuid, PageHistory>,
     app_config: &ApplicationConfiguration,
+    blob_storage_client: &AzureBlobClient,
 ) -> anyhow::Result<()> {
-    let mut documents = Vec::new();
-
     for page in pages {
-        // Don't want to put the private spec to the index as the chatbot could use it to leak the correct answers to exercises.
+        let base_path = if let Some(course_id) = page.course_id {
+            PathBuf::from(course_id.to_string())
+        } else {
+            return Err(anyhow::anyhow!(
+                "Trying to sync a page that does not belong to a course."
+            ));
+        };
+
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let content = remove_sensitive_attributes(parsed_content);
-        documents.push(content);
+        let content_string = serde_json::to_string(&content)?;
+        let content_bytes = content_string.as_bytes();
+        let blob_path = base_path.join(PathBuf::from(&page.url_path));
+
+        blob_storage_client
+            .upload_file(&blob_path, content_bytes)
+            .await?;
     }
 
-    add_documents_to_index(index_name, documents, app_config).await?;
+    // Mark the documents we just uploaded as synced
     let page_id_to_latest_history_id = pages
         .iter()
         .map(|page| (page.id, latest_history_entries_by_page_id[&page.id].id))
         .collect::<HashMap<_, _>>();
+
     headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
         conn,
         page_id_to_latest_history_id,

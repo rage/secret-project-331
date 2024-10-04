@@ -65,11 +65,7 @@ pub async fn upload_file_from_cms(
     user: AuthUser,
 ) -> Result<PathBuf, ControllerError> {
     let file_payload = payload.next().await.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Missing form data".into(),
-            None,
-        )
+        ControllerError::new(ControllerErrorType::BadRequest, "Missing form data", None)
     })?;
     match file_payload {
         Ok(field) => {
@@ -114,11 +110,7 @@ pub async fn upload_image_for_organization(
     validate_media_headers(headers, &user, conn).await?;
     let next_payload: Result<Field, mp::MultipartError> =
         payload.next().await.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Missing form data".into(),
-                None,
-            )
+            ControllerError::new(ControllerErrorType::BadRequest, "Missing form data", None)
         })?;
     match next_payload {
         Ok(field) => {
@@ -133,7 +125,7 @@ pub async fn upload_image_for_organization(
                 )),
                 None => Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    "Missing image Mime type".into(),
+                    "Missing image Mime type",
                     None,
                 )),
             }?;
@@ -324,7 +316,7 @@ fn generate_file_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, C
     let field_content_name = field_content.get_filename().ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Missing file name in content-disposition".into(),
+            "Missing file name in content-disposition",
             None,
         )
     })?;
@@ -381,7 +373,7 @@ async fn validate_media_headers(
     let content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Please provide a Content-Type header".into(),
+            "Please provide a Content-Type header",
             None,
         )
     })?;
@@ -398,7 +390,7 @@ async fn validate_media_headers(
     let content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Please provide a Content-Length in header".into(),
+            "Please provide a Content-Length in header",
             None,
         )
     })?;
@@ -417,7 +409,7 @@ async fn validate_media_headers(
     if content_length_number > 10485760 {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Content length over 10 MB".into(),
+            "Content length over 10 MB",
             None,
         ));
     }

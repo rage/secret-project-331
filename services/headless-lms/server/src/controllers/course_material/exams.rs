@@ -210,7 +210,7 @@ pub async fn fetch_exam_for_user(
                                 .ok_or_else(|| {
                                     ModelError::new(
                                         ModelErrorType::Generic,
-                                        "User_exercise_state not found".into(),
+                                        "User_exercise_state not found",
                                         None,
                                     )
                                 })?;
@@ -221,7 +221,7 @@ pub async fn fetch_exam_for_user(
                                 .ok_or_else(|| {
                                     ModelError::new(
                                         ModelErrorType::Generic,
-                                        "Exercise not found".into(),
+                                        "Exercise not found",
                                         None,
                                     )
                                 })?;

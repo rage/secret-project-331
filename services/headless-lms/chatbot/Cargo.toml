@@ -34,3 +34,7 @@ uuid = { version = "1.7.0", features = ["serde", "v4", "v5"] }
 anyhow = "1.0.80"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
+# Asynchronous streams using async & await notation
+async-stream = "0.3.5"
+# Types and traits for working with bytes
+bytes = "1.5.0"

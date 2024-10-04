@@ -1581,6 +1581,8 @@ name = "headless-lms-chatbot"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-stream",
+ "bytes",
  "chrono",
  "futures",
  "futures-util",

@@ -3,12 +3,13 @@ use std::sync::{
     Arc,
 };
 
+use bytes::Bytes;
 use chrono::Utc;
 use futures::prelude::stream::TryStreamExt;
 use futures::Stream;
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 
-use headless_lms_utils::http::REQWEST_CLIENT;
+use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
@@ -145,7 +146,7 @@ impl Drop for RequestCancelledGuard {
 pub async fn send_chat_request_and_parse_stream(
     conn: &mut PgConnection,
     // An Arc, cheap to clone.
-    pool: web::Data<PgPool>,
+    pool: PgPool,
     payload: &ChatRequest,
     app_config: &ApplicationConfiguration,
     conversation_id: Uuid,
@@ -267,8 +268,7 @@ pub async fn send_chat_request_and_parse_stream(
                         full_response_text.push(content.clone());
                         let response = ChatReponse { text: content.clone() };
                         let response_as_string = serde_json::to_string(&response)?;
-                        let bytes = Bytes::from(response_as_string);
-                        yield bytes;
+                        yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
                     }
 

@@ -1,6 +1,7 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
-use domain::chatbot::azure_chatbot::{
+
+use headless_lms_chatbot::azure_chatbot::{
     estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
 };
 use headless_lms_models::chatbot_conversations::{
@@ -109,7 +110,7 @@ async fn send_message(
     let response_stream = send_chat_request_and_parse_stream(
         &mut tx,
         // An Arc, cheap to clone.
-        pool.clone(),
+        pool.get_ref().clone(),
         &chat_request,
         &app_conf,
         conversation_id,

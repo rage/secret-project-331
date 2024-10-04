@@ -4,14 +4,12 @@ use std::{
     time::Duration,
 };
 
-use crate::{
-    domain::chatbot::azure_search_index::{
-        add_documents_to_index, create_search_index, does_search_index_exist,
-    },
-    setup_tracing,
-};
+use crate::setup_tracing;
 
 use dotenv::dotenv;
+use headless_lms_chatbot::azure_search_index::{
+    add_documents_to_index, create_search_index, does_search_index_exist,
+};
 use headless_lms_models::{page_history::PageHistory, pages::Page};
 use headless_lms_utils::{
     document_schema_processor::{remove_sensitive_attributes, GutenbergBlock},

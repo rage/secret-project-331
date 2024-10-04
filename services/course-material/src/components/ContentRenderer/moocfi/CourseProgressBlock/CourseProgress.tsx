@@ -9,7 +9,6 @@ import TempAccordionItem from "./TempAccordionItem"
 
 import { UserCourseInstanceProgress } from "@/shared-module/common/bindings"
 import Progress from "@/shared-module/common/components/CourseProgress"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export interface CourseProgressProps {
   userCourseInstanceProgress: UserCourseInstanceProgress[]
@@ -19,15 +18,11 @@ const Wrapper = styled.div`
   background-color: rgba(242, 245, 247, 0.8);
   margin: 3px 0 6px 0;
   padding: 0;
-
-  ${respondToOrLarger.md} {
-    padding: 0.8rem 3rem 1.5rem 3rem;
-  }
 `
 const TotalWrapper = styled.div`
   background-color: rgb(242, 245, 247);
   margin: 3px 0 3px 0;
-  padding: 0.8rem 3rem 1.5rem 3rem;
+  padding: 0.8rem 3rem 0 3rem;
 `
 
 const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = ({

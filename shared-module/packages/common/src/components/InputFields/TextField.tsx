@@ -20,7 +20,7 @@ interface InputExtraProps {
 // eslint-disable-next-line i18next/no-literal-string
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
-  border-width: 1.6px;
+  border-width: 2px;
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
@@ -30,7 +30,7 @@ const Input = styled.input<InputExtraProps>`
   min-width: 20px;
   width: 100%;
   display: block;
-  font-size: 17px;
+  font-size: 16px;
 
   ${({ disabled }) => disabled && `cursor: not-allowed;`}
 

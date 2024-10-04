@@ -555,9 +555,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               className={css`
                 margin-bottom: 2rem;
                 width: 100%;
-                ${respondToOrLarger.sm} {
-                  width: 80%;
-                }
               `}
               key={module.id}
             >
@@ -572,24 +569,30 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 .map((c) => (
                   <div
                     className={css`
-                      background-color: ${baseTheme.colors.green[100]};
-                      color: ${baseTheme.colors.green[700]};
+                      background-color: #fff;
+                      color: ${baseTheme.colors.gray[700]};
                       height: 3.5rem;
-                      margin-top: 0.25rem;
-                      margin-bottom: 0.25rem;
-                      min-width: 80%;
+                      min-width: 100%;
                       display: flex;
                       align-items: center;
-                      font-weight: 600;
+                      font-weight: 550;
+                      border-bottom: 2px solid #c4c9cd;
+                      border-right: 2px solid #c4c9cd;
+                      border-left: 2px solid #c4c9cd;
+
+                      &:last-of-type {
+                        border-bottom-right-radius: 4px;
+                        border-bottom-left-radius: 4px;
+                      }
                     `}
                     key={c.id}
                   >
                     <div
                       className={css`
-                        margin-left: 2rem;
+                        margin-left: 1.25rem;
                       `}
                     >
-                      {c.chapter_number}: {c.name}
+                      {c.chapter_number}. {c.name}
                     </div>
                   </div>
                 ))}

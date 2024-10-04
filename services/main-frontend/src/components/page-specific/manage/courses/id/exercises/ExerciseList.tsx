@@ -9,7 +9,7 @@ import { useCourseStructure } from "../../../../../../hooks/useCourseStructure"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme, fontWeights, headingFont, monospaceFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 
 export interface ExerciseListProps {
   courseId: string
@@ -37,6 +37,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
   )
 
   const chapters = courseStructure.data.chapters.sort((a, b) => a.chapter_number - b.chapter_number)
+  console.log
 
   return (
     <>
@@ -52,9 +53,9 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
               className={css`
                 font-style: normal;
                 font-weight: ${fontWeights.semibold};
-                font-size: 40px;
-                line-height: 140%;
-                text-align: center;
+                font-size: 22px;
+                line-height: 100%;
+                margin-top: 2rem;
                 color: ${baseTheme.colors.primary[200]};
               `}
             >
@@ -69,32 +70,43 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
               {pageByChapterId[chapter.id]
                 .sort((page1, page2) => page1.order_number - page2.order_number)
                 .map((page) => (
-                  <li key={page.id}>
+                  <li
+                    key={page.id}
+                    className={css`
+                      &:not(:has(ul li)) div {
+                        border-bottom-right-radius: 4px;
+                        border-bottom-left-radius: 4px;
+                      }
+                    `}
+                  >
                     <div
                       className={css`
                         box-sizing: border-box;
                         background-color: #f7f8f9;
-                        border: 2px solid #eef0f1;
-                        margin-bottom: 5px;
+                        border: 2px solid #c4c9cd;
                         margin-top: 20px;
-                        padding: 0 35px;
+                        padding: 0.8rem 1.25rem;
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
-                        height: 82px;
+                        border-top-right-radius: 4px;
+                        border-top-left-radius: 4px;
                       `}
                     >
                       <h3
                         className={css`
+                          font-family: ${primaryFont};
+                          font-size: 16px;
                           font-weight: ${fontWeights.semibold};
+                          line-height: 160%;
                         `}
                       >
                         {page.title}
                       </h3>
                       <p
                         className={css`
-                          font-weight: ${fontWeights.normal};
-                          font-size: 18px;
+                          font-weight: ${fontWeights.semibold};
+                          font-size: 14px;
                           line-height: 24px;
                           text-transform: uppercase;
                           color: ${baseTheme.colors.green[600]};
@@ -107,11 +119,19 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                       className={css`
                         padding: 0;
                         list-style-type: none;
-                        li:nth-child(odd) {
-                          background-color: #ebeff2;
+                        li:last-of-type {
+                          border-bottom-right-radius: 4px;
+                          border-bottom-left-radius: 4px;
                         }
                         li:nth-child(even) {
-                          background-color: #f7f8f9;
+                          border-right: 2px solid #c4c9cd;
+                          border-left: 2px solid #c4c9cd;
+                        }
+                        li:nth-child(odd) {
+                          &:first-of-type {
+                            border-top: none !important;
+                          }
+                          border: 2px solid #c4c9cd;
                         }
                       `}
                     >
@@ -122,8 +142,8 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                           <li
                             key={exercise.id}
                             className={css`
-                              height: 82px;
-                              padding-left: 35px;
+                              padding: 0.8rem;
+                              padding-left: 1.25rem;
                               display: flex;
                               align-items: center;
                               gap: 22px;
@@ -136,11 +156,11 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                           >
                             <div
                               className={css`
-                                font-family: ${headingFont};
+                                font-family: ${primaryFont};
                                 font-style: normal;
-                                font-weight: ${fontWeights.medium};
-                                font-size: 22px;
-                                line-height: 26px;
+                                font-weight: 400;
+                                font-size: 18px;
+                                line-height: 160%;
                               `}
                             >
                               <Link

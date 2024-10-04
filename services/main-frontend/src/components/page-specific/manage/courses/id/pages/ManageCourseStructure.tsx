@@ -126,7 +126,16 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       >
         {t("course-pages-for", { "course-name": courseStructure.course.name })}
       </h1>
-      <h2>{t("pages")}</h2>
+      <h2
+        className={css`
+          font-size: 1.875rem;
+          color: ${baseTheme.colors.gray[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+        `}
+      >
+        {t("pages")}
+      </h2>
       <FrontPage
         refetch={refetch}
         data={pageOrderState.chapterIdToFrontPage?.["null"]}
@@ -161,18 +170,18 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                 <BreakFromCentered key={chapter.id} sidebar={false}>
                   <div
                     className={css`
-                      padding: 6rem 0;
+                      padding: 3rem 0;
                       background-color: ${n % 2 === 0 ? baseTheme.colors.clear[100] : "white"};
                     `}
                   >
                     <Centered variant="default">
                       <h2
                         className={css`
-                          font-size: ${typography.h3};
+                          font-size: 1.875rem;
                           color: ${baseTheme.colors.gray[500]};
                           text-align: center;
-                          text-transform: uppercase;
-                          margin-bottom: 3rem;
+                          margin-bottom: 2rem;
+                          font-weight: bold;
                         `}
                       >
                         {t("title-chapter", {

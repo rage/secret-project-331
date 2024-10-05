@@ -51,15 +51,18 @@ import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
 import { IframeBlock } from "./moocfi/IframeBlock"
 import InfoBox from "./moocfi/InfoBox"
+import Ingress from "./moocfi/Ingress"
 import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
+import LogoLink from "./moocfi/LogoLink"
 import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import PartnersBlock from "./moocfi/PartnersBlock"
 import ResearchConsentQuestionBlock from "./moocfi/ResearchConsentQuestionBlock"
 import TableBox from "./moocfi/TableBox"
+import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
@@ -161,6 +164,9 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/research-consent-question": ResearchConsentQuestionBlock,
   "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
   "moocfi/code-giveaway": CodeGiveawayBlock,
+  "moocfi/ingress": Ingress,
+  "moocfi/terminology-block": TerminologyBlock,
+  "moocfi/logo-link": LogoLink,
 }
 
 const highlightedBlockStyles = css`

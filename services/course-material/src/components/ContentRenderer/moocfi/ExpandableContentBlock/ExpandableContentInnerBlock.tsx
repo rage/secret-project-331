@@ -63,8 +63,10 @@ const ExpandableContentInnerBlock: React.FC<
             background: ${baseTheme.colors.primary[100]};
             border-radius: 2px;
 
-            padding-right: 21px;
-            padding-left: 16px;
+            p,
+            h1 {
+              margin: 9px 21px 9px 16px;
+            }
           `}
         >
           <InnerBlocks parentBlockProps={props} />

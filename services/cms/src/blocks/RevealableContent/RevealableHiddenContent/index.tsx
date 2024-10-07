@@ -10,8 +10,8 @@ import RevealableHiddenContentSave from "./RevealableHiddenContentSave"
 export interface ConditionAttributes {}
 
 const RevealableHiddenContentConfiguration: BlockConfiguration<ConditionAttributes> = {
-  title: "Revealable Content",
-  description: "Add text and then hidden content that can be revealed with button",
+  title: "Hidden Content",
+  description: "This content is hidden and it can be revealed with pressing a button",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   parent: ["moocfi/revealable-content"],

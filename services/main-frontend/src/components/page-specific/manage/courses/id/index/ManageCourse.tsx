@@ -13,6 +13,7 @@ import {
 import UpdateCourseForm from "./UpdateCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
+import { setJoinCourseLinkForCourse } from "@/services/backend/courses"
 import { Course } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/Dialog"
@@ -76,6 +77,21 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
     setShowForm(!showForm)
     await refetch()
   }
+
+  const setJoinCourseLinkMutation = useToastMutation(
+    async (courseId: string) => {
+      await setJoinCourseLinkForCourse(courseId)
+    },
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: async () => {
+        await refetch()
+      },
+    },
+  )
 
   return (
     <>
@@ -294,6 +310,21 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </Button>
         </a>
       </OnlyRenderIfPermissions>
+      {course.is_joinable_by_code_only && (
+        <div>
+          {/*eslint-disable-next-line i18next/no-literal-string */}
+          <a href={`/join?code=${course.join_code}`}>{`/join?code=${course.join_code}`}</a>
+          <div>
+            <Button
+              variant={"primary"}
+              size={"small"}
+              onClick={() => setJoinCourseLinkMutation.mutate(course.id)}
+            >
+              {t("button-text-generate-join-course-link")}
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   )
 }

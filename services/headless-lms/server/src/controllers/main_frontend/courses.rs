@@ -3,6 +3,7 @@
 use chrono::Utc;
 use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::suspected_cheaters::{SuspectedCheaters, ThresholdData};
+use rand::Rng;
 use std::sync::Arc;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
@@ -1450,24 +1451,68 @@ async fn teacher_approve_suspected_cheater(
 }
 
 /**
-GET /courses/join/:join_code - Gets the course instance related to join code
+POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code_uses so the user gets access to the course
 */
 #[instrument(skip(pool))]
-async fn get_course_instance_with_join_code(
+async fn add_user_to_course_with_join_code(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+
+    let joined =
+        models::join_code_uses::insert(&mut conn, PKeyPolicy::Generate, user.id, *course_id)
+            .await?;
+    token.authorized_ok(web::Json(joined))
+}
+
+/**
+ POST /api/v0/main-frontend/courses/:course_id/generate-join-code - Generates a code that is used as a part of URL to join course
+*/
+#[instrument(skip(pool))]
+async fn set_join_code_for_course(
+    id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<HttpResponse> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*id)).await?;
+
+    const CHARSET: &[u8] = b"ABCDEFGHJKMNPQRSTUVWXYZ\
+                            abcdefghjkmnpqrstuvwxyz";
+    const PASSWORD_LEN: usize = 64;
+    let mut rng = rand::thread_rng();
+
+    let code: String = (0..PASSWORD_LEN)
+        .map(|_| {
+            let idx = rng.gen_range(0..CHARSET.len());
+            CHARSET[idx] as char
+        })
+        .collect();
+
+    models::courses::set_join_code_for_course(&mut conn, *id, code).await?;
+    token.authorized_ok(HttpResponse::Ok().finish())
+}
+
+/**
+GET /courses/join/:join_code - Gets the course related to join code
+*/
+#[instrument(skip(pool))]
+async fn get_course_with_join_code(
     join_code: web::Path<String>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<CourseInstance>> {
+) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let course_instance = models::course_instances::get_course_instance_with_join_code(
-        &mut conn,
-        join_code.to_string(),
-    )
-    .await?;
+    let course =
+        models::courses::get_course_with_join_code(&mut conn, join_code.to_string()).await?;
 
-    token.authorized_ok(web::Json(course_instance))
+    token.authorized_ok(web::Json(course))
 }
+
 /**
 Add a route for each controller in this module.
 
@@ -1639,7 +1684,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::delete().to(teacher_reset_course_progress_for_everyone),
         )
         .route(
+            "/{course_id}/join-course-with-join-code",
+            web::post().to(add_user_to_course_with_join_code),
+        )
+        .route(
+            "/{course_id}/set-join-code",
+            web::post().to(set_join_code_for_course),
+        )
+        .route(
             "/join/{join_code}",
-            web::get().to(get_course_instance_with_join_code),
+            web::get().to(get_course_with_join_code),
         );
 }

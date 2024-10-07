@@ -793,8 +793,7 @@ export function isCourseInstance(obj: unknown): obj is CourseInstance {
     (typedObj["description"] === null || typeof typedObj["description"] === "string") &&
     typeof typedObj["teacher_in_charge_name"] === "string" &&
     typeof typedObj["teacher_in_charge_email"] === "string" &&
-    (typedObj["support_email"] === null || typeof typedObj["support_email"] === "string") &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["support_email"] === null || typeof typedObj["support_email"] === "string")
   )
 }
 
@@ -1023,7 +1022,8 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
-    typeof typedObj["is_joinable_by_code_only"] === "boolean"
+    typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
   )
 }
 
@@ -1090,7 +1090,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["copy_user_permissions"] === "boolean" &&
-    typeof typedObj["is_joinable_by_code_only"] === "boolean"
+    typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
   )
 }
 

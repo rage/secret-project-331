@@ -96,7 +96,8 @@ SELECT id,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot,
   is_unlisted,
-  is_joinable_by_code_only
+  is_joinable_by_code_only,
+  join_code
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1

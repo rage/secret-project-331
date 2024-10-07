@@ -308,9 +308,16 @@ export const approveSuspectedCheaters = async (courseId: string, id: string): Pr
   await mainFrontendClient.post(`/courses/${courseId}/suspected-cheaters/approve/${id}`)
 }
 
-export const fetchCourseInstanceWithJoinCode = async (
-  joinCode: string,
-): Promise<CourseInstance> => {
+export const fetchCourseWithJoinCode = async (joinCode: string): Promise<Course> => {
   const response = await mainFrontendClient.get(`/courses/join/${joinCode}`)
-  return validateResponse(response, isCourseInstance)
+  return validateResponse(response, isCourse)
+}
+
+export const addUserToCourseWithJoinCode = async (courseId: string): Promise<string> => {
+  const response = await mainFrontendClient.post(`/courses/${courseId}/join-course-with-join-code`)
+  return validateResponse(response, isString)
+}
+
+export const setJoinCourseLinkForCourse = async (courseId: string): Promise<void> => {
+  await mainFrontendClient.post(`/courses/${courseId}/set-join-code`)
 }

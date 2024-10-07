@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_instances (\n    id,\n    course_id,\n    name,\n    description,\n    teacher_in_charge_name,\n    teacher_in_charge_email,\n    support_email\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  starts_at,\n  ends_at,\n  name,\n  description,\n  teacher_in_charge_name,\n  teacher_in_charge_email,\n  support_email,\n  join_code\n",
+  "query": "\nSELECT i.id,\n  i.created_at,\n  i.updated_at,\n  i.deleted_at,\n  i.course_id,\n  i.starts_at,\n  i.ends_at,\n  i.name,\n  i.description,\n  i.teacher_in_charge_name,\n  i.teacher_in_charge_email,\n  i.support_email\nFROM course_instances i\n  JOIN course_instance_enrollments ie ON (i.id = ie.course_id)\nWHERE i.course_id = $1\n  AND i.deleted_at IS NULL\n  AND ie.user_id = $2\n  AND ie.deleted_at IS NULL\nORDER BY ie.created_at DESC;\n    ",
   "describe": {
     "columns": [
       {
@@ -62,17 +62,12 @@
         "ordinal": 11,
         "name": "support_email",
         "type_info": "Varchar"
-      },
-      {
-        "ordinal": 12,
-        "name": "join_code",
-        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Uuid", "Varchar", "Varchar", "Varchar", "Varchar", "Varchar"]
+      "Left": ["Uuid", "Uuid"]
     },
-    "nullable": [false, false, false, true, false, true, true, true, true, false, false, true, true]
+    "nullable": [false, false, false, true, false, true, true, true, true, false, false, true]
   },
-  "hash": "fa6df49c2e89141f0f60ffa73fd39aecf88d4a09675adb64401c0cd2d51e2373"
+  "hash": "a9e6bf7e1afec5191482ce2cfaca22c670d50759540e166270fa2881e5db1dc4"
 }

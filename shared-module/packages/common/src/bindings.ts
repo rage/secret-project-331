@@ -333,7 +333,6 @@ export interface CourseInstance {
   teacher_in_charge_name: string
   teacher_in_charge_email: string
   support_email: string | null
-  join_code: string | null
 }
 
 export interface CourseInstanceForm {
@@ -474,6 +473,7 @@ export interface Course {
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
   is_joinable_by_code_only: boolean
+  join_code: string | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -518,6 +518,7 @@ export interface NewCourse {
   is_unlisted: boolean
   copy_user_permissions: boolean
   is_joinable_by_code_only: boolean
+  join_code: string | null
 }
 
 export interface EmailTemplate {

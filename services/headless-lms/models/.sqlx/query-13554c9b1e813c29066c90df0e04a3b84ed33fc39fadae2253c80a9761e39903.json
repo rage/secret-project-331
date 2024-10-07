@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  ",
   "describe": {
     "columns": [
       {
@@ -92,6 +92,11 @@
         "ordinal": 17,
         "name": "is_joinable_by_code_only",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -115,8 +120,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "6ef2a1a9e961467b04f1567307957880fb731a9093ce417aa184440ee5785b9e"
+  "hash": "13554c9b1e813c29066c90df0e04a3b84ed33fc39fadae2253c80a9761e39903"
 }

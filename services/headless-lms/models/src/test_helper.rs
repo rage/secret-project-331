@@ -175,6 +175,7 @@ macro_rules! insert_data {
                 is_unlisted: false,
                 copy_user_permissions: false,
                 is_joinable_by_code_only: false,
+                join_code: None,
             },
             $user,
             |_, _, _| unimplemented!(),

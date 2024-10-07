@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only\nFROM courses\nWHERE id = $1;\n    ",
+  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code\n    ",
   "describe": {
     "columns": [
       {
@@ -75,27 +75,46 @@
       },
       {
         "ordinal": 14,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "is_unlisted",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 16,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4"
       },
       {
         "ordinal": 17,
         "name": "is_joinable_by_code_only",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Varchar"
+      ]
     },
     "nullable": [
       false,
@@ -115,8 +134,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "7fdc9436380bfabc4001384e630473af8c5ceae41d64c87c101fd88d4ce493c6"
+  "hash": "5303f036fecb3efa8dce1756eaf2193d7e6c2f5cb7c9267b14e193daf525d997"
 }

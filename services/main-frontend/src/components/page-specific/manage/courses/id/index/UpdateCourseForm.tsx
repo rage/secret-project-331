@@ -32,7 +32,9 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [draftStatus, setDraftStatus] = useState(course.is_draft)
   const [testStatus, setTestStatus] = useState(course.is_test_mode)
   const [isUnlisted, setIsUnlisted] = useState(course.is_unlisted)
-  const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(course.is_unlisted)
+  const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(
+    course.is_joinable_by_code_only,
+  )
 
   const [canAddChatbot, setCanAddChatbot] = useState(course.can_add_chatbot)
 
@@ -92,15 +94,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
             checked={draftStatus}
           />
         </FieldContainer>
-        <FieldContainer>
-          <CheckBox
-            label={t("joinable-by-code-only")}
-            onChange={() => {
-              setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
-            }}
-            checked={joinableByCodeOnlyStatus}
-          />
-        </FieldContainer>
+
         {!draftStatus && (
           <FieldContainer>
             <CheckBox
@@ -132,6 +126,15 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
                 setCanAddChatbot(!canAddChatbot)
               }}
               checked={canAddChatbot}
+            />
+          </FieldContainer>
+          <FieldContainer>
+            <CheckBox
+              label={t("joinable-by-code-only")}
+              onChange={() => {
+                setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
+              }}
+              checked={joinableByCodeOnlyStatus}
             />
           </FieldContainer>
         </OnlyRenderIfPermissions>

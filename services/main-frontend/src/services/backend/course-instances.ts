@@ -1,4 +1,4 @@
-import { isBoolean, isString } from "lodash"
+import { isBoolean } from "lodash"
 
 import { mainFrontendClient } from "../mainFrontendClient"
 
@@ -145,17 +145,4 @@ export const fetchDefaultCertificateConfigurations = async (
     `/course-instances/${courseInstanceId}/default-certificate-configurations`,
   )
   return validateResponse(res, isArray(isCertificateConfigurationAndRequirements))
-}
-
-export const generateJoinCourseLinkForCourseInstance = async (
-  courseInstanceId: string,
-): Promise<void> => {
-  await mainFrontendClient.post(`/course-instances/${courseInstanceId}/generate-join-code`)
-}
-
-export const addUserToCourseWithJoinCode = async (courseInstanceId: string): Promise<string> => {
-  const response = await mainFrontendClient.post(
-    `/course-instances/${courseInstanceId}/join-course-with-join-code`,
-  )
-  return validateResponse(response, isString)
 }

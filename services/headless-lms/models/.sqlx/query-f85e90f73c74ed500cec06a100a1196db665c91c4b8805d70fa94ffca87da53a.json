@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only\nFROM courses\nWHERE course_language_group_id = $1\nAND deleted_at IS NULL\n        ",
+  "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft,\n  courses.is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  courses.is_unlisted,\n  courses.is_joinable_by_code_only,\n  courses.join_code\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    (\n      courses.is_draft IS FALSE\n      AND courses.is_unlisted IS FALSE\n    )\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
   "describe": {
     "columns": [
       {
@@ -92,10 +92,15 @@
         "ordinal": 17,
         "name": "is_joinable_by_code_only",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid"]
+      "Left": ["Uuid", "Uuid", "Int8", "Int8"]
     },
     "nullable": [
       false,
@@ -115,8 +120,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "e4fb49f3f3427e9bd2b4ed3dc12f5e4ee0e1b9e838f553e2bed1612873133c1c"
+  "hash": "f85e90f73c74ed500cec06a100a1196db665c91c4b8805d70fa94ffca87da53a"
 }

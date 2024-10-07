@@ -10,7 +10,6 @@ import {
   deleteCourseInstance,
   editCourseInstance,
   fetchCourseInstance,
-  generateJoinCourseLinkForCourseInstance,
 } from "../../../../services/backend/course-instances"
 
 import { CourseInstanceForm } from "@/shared-module/common/bindings"
@@ -66,21 +65,6 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
       onSuccess: (_, courseId) => {
         // eslint-disable-next-line i18next/no-literal-string
         router.push(`/manage/courses/${courseId}`)
-      },
-    },
-  )
-
-  const generateJoinCourseLinkMutation = useToastMutation(
-    async (_courseId: string) => {
-      await generateJoinCourseLinkForCourseInstance(courseInstanceId)
-    },
-    {
-      notify: true,
-      method: "POST",
-    },
-    {
-      onSuccess: () => {
-        getCourseInstances.refetch()
       },
     },
   )
@@ -147,17 +131,6 @@ const ManageCourseInstances: React.FC<React.PropsWithChildren<ManageCourseInstan
           {supportEmail}
           <div>{t("support-email-description")}</div>
           {schedule}
-
-          <a href={`/join?code=${data.join_code}`}>{data.join_code}</a>
-          <div>
-            <Button
-              variant={"primary"}
-              size={"small"}
-              onClick={() => generateJoinCourseLinkMutation.mutate(data.course_id)}
-            >
-              {t("button-text-generate-join-course-link")}
-            </Button>
-          </div>
           <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
             {t("edit")}
           </Button>

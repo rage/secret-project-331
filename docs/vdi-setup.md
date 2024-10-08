@@ -14,8 +14,9 @@
 2. Install the software.
 3. Open VMware Horizon Client.
 4. Double click the `New Server`-button.
-5. Enter your university credentials. The dropdown below the credentials-fields should default to `ATKK`, but if it's something else, switch it to `ATKK`.
-6. Select your virtual desktop, it should be `vdi-<your university username>`.
+5. Enter `vdi.helsinki.fi` as the name of the Connection Server.
+6. Enter your university credentials. The dropdown below the credentials-fields should default to `ATKK`, but if it's something else, switch it to `ATKK`.
+7. Select your virtual desktop, it should be `vdi-<your university username>`.
 
 **NB!** You can also access the virtual desktop at [vdi.helsinki.fi](https://vdi.helsinki.fi) without installing the VMware Horizon Client, but this isn't recommended as the connection is a lot worse and the website-version has more limited features.
 

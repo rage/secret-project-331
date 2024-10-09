@@ -97,7 +97,7 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-pub async fn get_for_azure_search_maintananace(
+pub async fn get_for_azure_search_maintenance(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<ChatbotConfiguration>> {
     let res = sqlx::query_as!(

@@ -15,7 +15,7 @@ pub struct ChatbotPageSyncStatus {
     pub synced_page_revision_id: Option<Uuid>,
 }
 
-pub async fn make_sure_sync_statuses_exist(
+pub async fn ensure_sync_statuses_exist(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
 ) -> ModelResult<HashMap<Uuid, Vec<ChatbotPageSyncStatus>>> {

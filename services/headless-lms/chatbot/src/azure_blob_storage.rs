@@ -2,8 +2,8 @@ use crate::prelude::*;
 use anyhow::Context;
 use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::*;
+use futures::StreamExt;
 use headless_lms_utils::{ApplicationConfiguration, AzureBlobStorageConfiguration};
-use std::path::Path;
 
 /// A client for interacting with Azure Blob Storage.
 pub struct AzureBlobClient {
@@ -54,32 +54,38 @@ impl AzureBlobClient {
     }
 
     /// Uploads a file to the specified container.
-    pub async fn upload_file(&self, path: &Path, file_bytes: &[u8]) -> anyhow::Result<()> {
-        let blob_name = Self::convert_path_to_blob_name(path);
-        let blob_client = self.container_client.blob_client(&blob_name);
+    pub async fn upload_file(&self, blob_path: &str, file_bytes: &[u8]) -> anyhow::Result<()> {
+        let blob_client = self.container_client.blob_client(blob_path);
 
         blob_client.put_block_blob(file_bytes.to_vec()).await?;
 
-        info!("Blob '{}' uploaded successfully.", &blob_name);
+        info!("Blob '{}' uploaded successfully.", blob_path);
         Ok(())
     }
 
     /// Deletes a file (blob) from the specified container.
-    pub async fn delete_file(&self, path: &Path) -> anyhow::Result<()> {
-        let blob_name = Self::convert_path_to_blob_name(path);
-        let blob_client = self.container_client.blob_client(&blob_name);
+    pub async fn delete_file(&self, path: &str) -> anyhow::Result<()> {
+        let blob_client = self.container_client.blob_client(path);
 
         blob_client.delete().await?;
 
-        info!("Blob '{}' deleted successfully.", &blob_name);
+        info!("Blob '{}' deleted successfully.", path);
         Ok(())
     }
 
-    /// Converts a path to a blob name by joining its components with '/'.
-    fn convert_path_to_blob_name(path: &Path) -> String {
-        path.components()
-            .map(|comp| comp.as_os_str().to_string_lossy())
-            .collect::<Vec<_>>()
-            .join("/")
+    pub async fn list_files_with_prefix(&self, prefix: &str) -> anyhow::Result<Vec<String>> {
+        let mut result = Vec::new();
+        let prefix_owned = prefix.to_string();
+        let response = self.container_client.list_blobs().prefix(prefix_owned);
+        let mut stream = response.into_stream();
+
+        while let Some(list) = stream.next().await {
+            let list = list?;
+            let blobs: Vec<_> = list.blobs.blobs().collect();
+            for blob in blobs {
+                result.push(blob.name.clone());
+            }
+        }
+        Ok(result)
     }
 }

@@ -11,7 +11,10 @@ use headless_lms_chatbot::{
     azure_blob_storage::AzureBlobClient,
     azure_search_index::{create_search_index, does_search_index_exist},
 };
-use headless_lms_models::{page_history::PageHistory, pages::Page};
+use headless_lms_models::{
+    page_history::PageHistory,
+    pages::{Page, PageVisibility},
+};
 use headless_lms_utils::{
     document_schema_processor::{remove_sensitive_attributes, GutenbergBlock},
     ApplicationConfiguration,
@@ -124,8 +127,12 @@ async fn sync_pages(
             &latest_history_entries_by_page_id,
             app_config,
             blob_storage_client,
+            *course_id,
         )
         .await?;
+
+        // Delete old files only when we have synced something new (thanks to the continue above). This way we don't constantly hammer the api when nothing has changed.
+        delete_old_files(&mut *conn, *course_id, blob_storage_client).await?;
     }
     Ok(())
 }
@@ -147,21 +154,18 @@ async fn sync_pages_batch(
     latest_history_entries_by_page_id: &HashMap<Uuid, PageHistory>,
     app_config: &ApplicationConfiguration,
     blob_storage_client: &AzureBlobClient,
+    course_id: Uuid,
 ) -> anyhow::Result<()> {
+    let mut allowed_file_paths = Vec::new();
     for page in pages {
-        let base_path = if let Some(course_id) = page.course_id {
-            PathBuf::from(course_id.to_string())
-        } else {
-            return Err(anyhow::anyhow!(
-                "Trying to sync a page that does not belong to a course."
-            ));
-        };
+        info!("Syncing page with id {}.", page.id);
 
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let content = remove_sensitive_attributes(parsed_content);
         let content_string = serde_json::to_string(&content)?;
         let content_bytes = content_string.as_bytes();
-        let blob_path = base_path.join(PathBuf::from(&page.url_path));
+        let blob_path = page_to_blob_path(&page)?;
+        allowed_file_paths.push(blob_path.clone());
 
         blob_storage_client
             .upload_file(&blob_path, content_bytes)
@@ -180,5 +184,51 @@ async fn sync_pages_batch(
     )
     .await?;
 
+    Ok(())
+}
+
+fn page_to_blob_path(page: &Page) -> anyhow::Result<String> {
+    let base_path = if let Some(course_id) = page.course_id {
+        PathBuf::from(course_id.to_string())
+    } else {
+        return Err(anyhow::anyhow!(
+            "Trying to sync a page that does not belong to a course."
+        ));
+    };
+    let mut url_path = page.url_path.clone();
+    if url_path.starts_with('/') {
+        url_path = url_path[1..].to_string();
+    }
+    if url_path.is_empty() {
+        url_path = "index".to_string();
+    }
+    Ok(format!("{}/{}.json", base_path.to_string_lossy(), url_path))
+}
+
+/** Deletes all files that don't belong to a page. */
+async fn delete_old_files(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    blob_storage_client: &AzureBlobClient,
+) -> anyhow::Result<()> {
+    let files = blob_storage_client
+        .list_files_with_prefix(&course_id.to_string())
+        .await?;
+    let all_pages = headless_lms_models::pages::get_all_by_course_id_and_visibility(
+        &mut *conn,
+        course_id,
+        PageVisibility::Public,
+    )
+    .await?;
+    let allowed_file_paths = all_pages
+        .iter()
+        .map(|page| page_to_blob_path(page))
+        .collect::<Result<Vec<_>, _>>()?;
+    for file in files {
+        if !allowed_file_paths.contains(&file) {
+            info!("Deleting file: {}", file);
+            blob_storage_client.delete_file(&file).await?;
+        }
+    }
     Ok(())
 }

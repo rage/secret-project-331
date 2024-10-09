@@ -519,8 +519,6 @@ where
 
     let batch_json = serde_json::to_string(&batch)?;
 
-    dbg!(&batch_json);
-
     let response = REQWEST_CLIENT
         .post(url)
         .header("Content-Type", "application/json")

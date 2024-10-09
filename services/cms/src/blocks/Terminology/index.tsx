@@ -10,6 +10,7 @@ export interface TerminologyBlockAttributes {
   title: string
   primaryColor: string
   content: string
+  blockName: string
 }
 
 const LandingPageHeroSectionConfiguration: BlockConfiguration<TerminologyBlockAttributes> = {
@@ -22,6 +23,10 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<TerminologyBlockAt
       source: "html",
       selector: "h1",
       default: "Welcome message for course...",
+    },
+    blockName: {
+      type: "string",
+      default: "Terminology",
     },
     primaryColor: {
       type: "string",

@@ -7,7 +7,7 @@ import InstructionBoxSave from "./IngressSave"
 
 export interface InstructionBoxAttributes {
   title: string
-  content: string
+  subtitle: string
 }
 
 const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> = {
@@ -21,10 +21,10 @@ const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> 
       selector: "h1",
       default: "Welcome message for course...",
     },
-    content: {
+    subtitle: {
       type: "string",
       source: "html",
-      selector: "span",
+      selector: "p",
     },
   },
   icon: formatLtr,

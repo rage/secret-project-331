@@ -38,7 +38,7 @@ const CourseCard = styled.div`
   background: #f5f6f7;
   border-radius: 6px;
 
-  border: 2px solid #bec3c7;
+  border: 2px solid #e5e7e9;
   :focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
     outline-offset: 2px;

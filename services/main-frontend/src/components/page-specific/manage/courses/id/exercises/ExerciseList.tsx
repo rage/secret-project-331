@@ -83,7 +83,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                       className={css`
                         box-sizing: border-box;
                         background-color: #f7f8f9;
-                        border: 2px solid #c4c9cd;
+                        border: 2px solid #e1e3e5;
                         margin-top: 20px;
                         padding: 0.8rem 1.25rem;
                         display: flex;
@@ -124,14 +124,14 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                           border-bottom-left-radius: 4px;
                         }
                         li:nth-child(even) {
-                          border-right: 2px solid #c4c9cd;
-                          border-left: 2px solid #c4c9cd;
+                          border-right: 2px solid #e1e3e5;
+                          border-left: 2px solid #e1e3e5;
                         }
                         li:nth-child(odd) {
                           &:first-of-type {
                             border-top: none !important;
                           }
-                          border: 2px solid #c4c9cd;
+                          border: 2px solid #e1e3e5;
                         }
                       `}
                     >

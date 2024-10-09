@@ -6,29 +6,51 @@ import InnerBlocks from "../util/InnerBlocks"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
+import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface InfoBoxBlockAttributes {
-  backgroundColor: string
-  noPadding: boolean
+  title: string
+  subtitle: boolean
 }
 
 const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
   props,
 ) => {
   return (
-    <BreakFromCentered sidebar={false}>
-      <div
+    <div
+      className={css`
+        margin-top: 5rem;
+        margin-bottom: 4rem;
+      `}
+    >
+      {props.data.attributes.title && (
+        <h2
+          className={css`
+            color: ##1a2333;
+            font-weight: 700;
+            font-size: 3.5rem;
+            line-height: 4.375rem;
+            margin-bottom: 1rem;
+            letter-spacing: -1;
+            font-family: ${headingFont};
+          `}
+        >
+          {props.data.attributes.title}
+        </h2>
+      )}
+      <h3
         className={css`
-          ${!props.data.attributes.noPadding && `padding: 3rem;`}
-          background-color: ${props.data.attributes.backgroundColor};
+          color: ##1a2333;
+          font-weight: normal;
+          font-size: 1.75rem;
+          line-height: 1.35;
+          font-family: ${primaryFont};
         `}
       >
-        <Centered variant="narrow">
-          <InnerBlocks parentBlockProps={props} />
-        </Centered>
-      </div>
-    </BreakFromCentered>
+        {props.data.attributes.subtitle}
+      </h3>
+    </div>
   )
 }
 

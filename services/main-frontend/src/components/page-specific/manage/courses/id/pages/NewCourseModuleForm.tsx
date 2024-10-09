@@ -64,7 +64,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         min-width: 100%;
         padding: 1.25rem;
         border: 2px solid rgba(205, 205, 205, 0.8);
-        margin-bottom: 2rem;
+        margin: 2rem 0;
       `}
       onSubmit={handleSubmit(onSubmitFormWrapper)}
     >

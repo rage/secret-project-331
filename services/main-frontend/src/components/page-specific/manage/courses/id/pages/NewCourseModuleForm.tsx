@@ -78,7 +78,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         />
         <div
           className={css`
-            font-size: 14px;
+            font-size: 0.875rem;
             font-weight: 400;
             margin-bottom: 0.4rem;
           `}

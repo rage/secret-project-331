@@ -33,7 +33,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import Dialog from "@/shared-module/common/components/Dialog"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const headingDropdown = css`
   float: right;

@@ -24,22 +24,22 @@ const TerminologyBlock: React.FC<
         width: 100%;
         padding: 2rem 2rem 4rem 2rem;
         border-left: 8px solid ${props.data.attributes.primaryColor};
-        box-shadow: rgba(0, 0, 0, 0.08) 0px 2px 12px 0px;
+        box-shadow: rgba(25, 35, 51, 0.06) 0px 2px 12px 0px;
 
         p {
           margin: 0 !important;
-          font-size: 1rem;
-          line-height: 170%;
+          font-size: 18px;
+          line-height: 160%;
         }
 
         div {
           margin-bottom: 0 !important;
         }
         h2 {
-          margin-top: 2rem;
+          margin-top: 1.5rem;
           font-weight: 600;
           font-family: ${primaryFont};
-          margin-bottom: 1rem;
+          margin-bottom: 0.8rem;
           font-weight: 600;
           font-size: 30px;
           color: #1a2333;

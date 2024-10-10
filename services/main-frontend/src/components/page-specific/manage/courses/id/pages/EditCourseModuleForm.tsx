@@ -10,7 +10,7 @@ import Button from "@/shared-module/common/components/Button"
 import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { baseTheme, theme } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
@@ -97,7 +97,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
         color: #1a2333;
         align-items: center;
         justify-content: space-between;
-        border: 2px solid #c4c9cd;
+        border: 2px solid #e1e3e5;
         border-top-right-radius: 4px;
         border-top-left-radius: 4px;
       `}
@@ -298,7 +298,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 flex-direction: column;
                 justify-content: left;
                 column-gap: 1rem;
-
+                margin-bottom: 1.4rem;
                 ${respondToOrLarger.md} {
                   align-items: flex-end;
                   flex-direction: row;
@@ -337,7 +337,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
         <div
           className={css`
             display: flex;
-            align-items: flex-end;
+
+            button {
+              margin-right: 1rem;
+            }
           `}
         >
           <div
@@ -350,9 +353,14 @@ const EditCourseModuleForm: React.FC<Props> = ({
               <Button
                 aria-label={t("button-text-save")}
                 className={css`
-                  border-radius: 0;
-                  height: 3.5rem;
-                  width: 3.5rem;
+                  display: flex !important;
+                  padding: 0 !important;
+                  justify-content: center;
+                  align-items: center;
+                  height: 2rem;
+                  width: 2rem;
+                  background: #e1e3e5 !important;
+                  border-radius: 100%;
                 `}
                 disabled={!isValid || isSubmitting}
                 type={"submit"}
@@ -369,9 +377,15 @@ const EditCourseModuleForm: React.FC<Props> = ({
               <Button
                 aria-label={t("button-text-cancel")}
                 className={css`
-                  border-radius: 0;
-                  height: 3.5rem;
-                  width: 3.5rem;
+                  display: flex !important;
+                  padding: 0 !important;
+                  justify-content: center;
+                  align-items: center;
+                  height: 2rem;
+                  width: 2rem;
+                  background: #e1e3e5 !important;
+                  border-radius: 100%;
+                  margin-bottom: 1rem;
                 `}
                 onClick={() => {
                   setActive(false)
@@ -388,31 +402,37 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <Button
               aria-label={t("edit")}
               className={css`
-                border-radius: 0;
-                height: 3.5rem;
-                width: 3.5rem;
+                border-radius: 100%;
+                height: 2rem;
+                width: 2rem;
+                background: #e1e3e5 !important;
               `}
               onClick={() => setActive(true)}
               variant={"icon"}
               size={"small"}
             >
-              <Pencil size={20} />
+              <Pencil size={14} color={"#313947"} />
             </Button>
           )}
           {module.name !== null && (
             <Button
               aria-label={t("button-text-delete")}
               className={css`
-                border-radius: 0;
-                height: 3.5rem;
-                width: 3.5rem;
+                height: 2rem;
+                width: 2rem;
+                background: #fbeef0 !important;
+                border-radius: 100%;
+                display: flex !important;
+                padding: 0 !important;
+                align-items: center;
+                justify-content: center;
               `}
               onClick={() => onDeleteModule(module.id)}
               disabled={isSubmitting}
               variant={"icon"}
               size={"small"}
             >
-              <Trash size={20} />
+              <Trash size={16} color={"#D85762"} />
             </Button>
           )}
         </div>

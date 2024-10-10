@@ -572,10 +572,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                       min-width: 100%;
                       display: flex;
                       align-items: center;
-                      font-weight: 550;
-                      border-bottom: 2px solid #c4c9cd;
-                      border-right: 2px solid #c4c9cd;
-                      border-left: 2px solid #c4c9cd;
+                      font-weight: 500;
+                      border-bottom: 2px solid #e1e3e5;
+                      border-right: 2px solid #e1e3e5;
+                      border-left: 2px solid #e1e3e5;
 
                       &:last-of-type {
                         border-bottom-right-radius: 4px;

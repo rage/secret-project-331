@@ -34,7 +34,16 @@ pub async fn process_exercise_service_upload(
     let mut tx = conn.begin().await?;
     while let Some(item) = payload.next().await {
         let field = item.unwrap();
-        let field_name = field.name().to_string();
+        let field_name = {
+            let name_ref = field.name().ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "Tried to upload a file without a file name".to_string(),
+                    None,
+                )
+            })?;
+            name_ref.to_string()
+        };
 
         let random_filename = generate_random_string(32);
         let path = format!("{exercise_service_slug}/{random_filename}");
@@ -161,9 +170,20 @@ async fn upload_field_to_storage(
         .content_type()
         .map(|ct| ct.to_string())
         .unwrap_or_default();
-    let name = field.name().to_string();
+
+    let name = {
+        let name_ref = field.name().ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Tried to upload a file without a file name".to_string(),
+                None,
+            )
+        })?;
+        name_ref.to_string()
+    };
 
     let contents = Box::pin(field.map_err(|orig| anyhow::Error::msg(orig.to_string())));
+
     upload_file_to_storage(
         conn,
         path,
@@ -176,7 +196,6 @@ async fn upload_field_to_storage(
     .await?;
     Ok(())
 }
-
 pub async fn upload_certificate_svg(
     conn: &mut PgConnection,
     file_name: &str,
@@ -320,7 +339,13 @@ fn generate_audio_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, 
 
 /// Generates a path for a generic file with the appropriate extension based on its filename.
 fn generate_file_path(field: &Field, store_kind: StoreKind) -> Result<PathBuf, ControllerError> {
-    let field_content = field.content_disposition();
+    let field_content = field.content_disposition().ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "No content disposition in uploaded file".to_string(),
+            None,
+        )
+    })?;
     let field_content_name = field_content.get_filename().ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,

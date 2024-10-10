@@ -32,7 +32,7 @@ const RevealableContentBlock: React.FC<
       <div
         className={css`
           padding: 1rem;
-          background: #d9d9d980;
+          background: #f2f2f2;
           color: #4c5868;
         `}
       >

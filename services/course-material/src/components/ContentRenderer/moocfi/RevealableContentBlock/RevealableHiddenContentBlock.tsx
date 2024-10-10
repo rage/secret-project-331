@@ -25,6 +25,12 @@ const RevealableHiddenContentBlock: React.FC<
         border-radius: 4px;
         background: #ffffff80;
         border: 2px dashed #718dbfcc;
+        margin: -1rem 0;
+        p,
+        h4,
+        li {
+          font-size: 18px !important;
+        }
       `}
     >
       <h4

@@ -63,7 +63,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
       className={css`
         min-width: 100%;
         padding: 1.25rem;
-        border: 2px solid rgba(205, 205, 205, 0.8);
+        background: #f7f8f9;
+        border-radius: 6px;
         margin: 2rem 0;
       `}
       onSubmit={handleSubmit(onSubmitFormWrapper)}
@@ -77,8 +78,9 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         />
         <div
           className={css`
-            font-size: 17px;
+            font-size: 14px;
             font-weight: 400;
+            margin-bottom: 0.4rem;
           `}
         >
           {t("select-module-start-end-chapters")}
@@ -128,8 +130,9 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         </div>
         <div
           className={css`
-            background: #f5f6f7;
+            background: #fff;
             padding: 1rem 1.4rem;
+            border-radius: 4px;
           `}
         >
           <span

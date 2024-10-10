@@ -2,10 +2,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import { BlockRendererProps } from ".."
-import InnerBlocks from "../util/InnerBlocks"
 
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Centered from "@/shared-module/common/components/Centering/Centered"
 import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 

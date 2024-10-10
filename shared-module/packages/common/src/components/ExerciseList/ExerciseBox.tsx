@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme, headingFont, monospaceFont, primaryFont, secondaryFont } from "../../styles"
+import { baseTheme, monospaceFont, primaryFont, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`

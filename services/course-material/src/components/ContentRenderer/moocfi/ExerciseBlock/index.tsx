@@ -552,8 +552,7 @@ const ExerciseBlock: React.FC<
               opacity: 0.9;
               `}
           `}
-          // Waiting for https://github.com/facebook/react/pull/24730
-          {...{ inert: !loginState.isPending && !loginState.signedIn ? "" : undefined }}
+          {...{ inert: !loginState.isPending && !loginState.signedIn }}
         >
           {exerciseDeadline &&
             (Date.now() < exerciseDeadline.getTime() ? (

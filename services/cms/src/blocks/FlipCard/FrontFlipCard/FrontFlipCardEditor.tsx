@@ -5,16 +5,16 @@ import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "core/heading"]
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/heading"]
 
-const InnerCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
+const FrontFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
   const { t } = useTranslation()
 
   return (
     <BlockPlaceholderWrapper
       id={clientId}
-      title={t("inner-card")}
-      explanation={t("inner-card-explanation")}
+      title={t("front-card")}
+      explanation={t("front-card-explanation")}
     >
       <div>
         <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
@@ -22,4 +22,4 @@ const InnerCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clie
     </BlockPlaceholderWrapper>
   )
 }
-export default InnerCardEditor
+export default FrontFlipCardEditor

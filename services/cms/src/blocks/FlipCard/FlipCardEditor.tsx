@@ -9,10 +9,10 @@ import { FlipCardAttributes } from "."
 
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
 
-const ALLOWED_NESTED_BLOCKS = ["moocfi/inner-card"]
+const ALLOWED_NESTED_BLOCKS = ["moocfi/front-card"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [
-  ["moocfi/inner-card", {}],
-  ["moocfi/inner-card", {}],
+  ["moocfi/front-card", {}],
+  ["moocfi/back-card", {}],
 ]
 
 const FlipCardEditor: React.FC<React.PropsWithChildren<BlockEditProps<FlipCardAttributes>>> = ({

@@ -171,7 +171,8 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/revelable-content": RevealableContentBlock,
   "moocfi/revealable-hidden-content": RevealableHiddenContentBlock,
   "moocfi/flip-card": FlipCardBlock,
-  "moocfi/inner-card": InnerCardBlock,
+  "moocfi/front-card": InnerCardBlock,
+  "moocfi/back-card": InnerCardBlock,
   "moocfi/code-giveaway": CodeGiveawayBlock,
 }
 

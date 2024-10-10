@@ -42,3 +42,5 @@ bytes = "1.5.0"
 azure_storage = "0.20.0"
 # Azure Blob Storage crate from the Azure SDK for Rust
 azure_storage_blobs = "0.20.0"
+# Rust wrappers around Microsoft Azure REST APIs - Core crate
+azure_core = "0.20.0"

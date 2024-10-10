@@ -1,7 +1,11 @@
+use std::collections::HashMap;
+
 use crate::prelude::*;
 use anyhow::Context;
+use azure_core::prelude::Metadata;
 use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::*;
+use bytes::Bytes;
 use futures::StreamExt;
 use headless_lms_utils::{ApplicationConfiguration, AzureBlobStorageConfiguration};
 
@@ -54,10 +58,25 @@ impl AzureBlobClient {
     }
 
     /// Uploads a file to the specified container.
-    pub async fn upload_file(&self, blob_path: &str, file_bytes: &[u8]) -> anyhow::Result<()> {
+    pub async fn upload_file(
+        &self,
+        blob_path: &str,
+        file_bytes: &[u8],
+        metadata: Option<HashMap<String, Bytes>>,
+    ) -> anyhow::Result<()> {
         let blob_client = self.container_client.blob_client(blob_path);
 
-        blob_client.put_block_blob(file_bytes.to_vec()).await?;
+        let mut put_blob = blob_client.put_block_blob(file_bytes.to_vec());
+
+        if let Some(meta) = metadata {
+            let mut m = Metadata::new();
+            for (key, value) in meta {
+                m.insert(key, value);
+            }
+            put_blob = put_blob.metadata(m);
+        }
+
+        put_blob.await?;
 
         info!("Blob '{}' uploaded successfully.", blob_path);
         Ok(())

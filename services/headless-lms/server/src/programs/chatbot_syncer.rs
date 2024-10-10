@@ -13,7 +13,12 @@ use crate::setup_tracing;
 
 use headless_lms_chatbot::{
     azure_blob_storage::AzureBlobClient,
+    azure_datasources::{create_azure_datasource, does_azure_datasource_exist},
     azure_search_index::{create_search_index, does_search_index_exist},
+    azure_search_indexer::{
+        create_search_indexer, does_search_indexer_exist, run_search_indexer_now,
+    },
+    azure_skillset::{create_skillset, does_skillset_exist},
 };
 use headless_lms_models::{
     page_history::PageHistory,
@@ -158,14 +163,14 @@ async fn sync_pages(
         );
 
         let index_name = format!("{}-{}", config.name_prefix, course_id);
-        ensure_search_index_exists(&index_name, &config.app_configuration).await?;
+        ensure_search_index_exists(&index_name, *course_id, &config.app_configuration).await?;
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
         sync_pages_batch(conn, &pages, &latest_histories, blob_client).await?;
-
         delete_old_files(conn, *course_id, blob_client).await?;
+        run_search_indexer_now(&index_name, &config.app_configuration).await?;
     }
 
     Ok(())
@@ -173,12 +178,29 @@ async fn sync_pages(
 
 /// Ensures that the specified search index exists, creating it if necessary.
 async fn ensure_search_index_exists(
-    index_name: &str,
+    name: &str,
+    course_id: Uuid,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    if !does_search_index_exist(index_name, app_config).await? {
-        create_search_index(index_name.to_owned(), app_config).await?;
+    if !does_search_index_exist(name, app_config).await? {
+        create_search_index(name.to_owned(), app_config).await?;
     }
+    if !does_azure_datasource_exist(name, app_config).await? {
+        create_azure_datasource(
+            name,
+            &course_id.to_string(),
+            &course_id.to_string(),
+            app_config,
+        )
+        .await?;
+    }
+    if !does_search_indexer_exist(name, app_config).await? {
+        create_search_indexer(name, name, name, name, app_config).await?;
+    }
+    if !does_skillset_exist(name, app_config).await? {
+        create_skillset(name, name, app_config).await?;
+    }
+
     Ok(())
 }
 
@@ -200,8 +222,11 @@ async fn sync_pages_batch(
         let blob_path = generate_blob_path(page)?;
 
         allowed_file_paths.push(blob_path.clone());
+        let mut metadata = HashMap::new();
+        metadata.insert("page_path".to_string(), page.url_path.to_string().into());
+
         blob_client
-            .upload_file(&blob_path, content_string.as_bytes())
+            .upload_file(&blob_path, content_string.as_bytes(), Some(metadata))
             .await?;
     }
 

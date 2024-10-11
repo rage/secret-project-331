@@ -41,12 +41,16 @@ export interface ButtonAttributes {
   textColor?: string
   gradient?: string
   width?: number
+  fontSize?: string
 }
 
-export interface ButtonsAttributes {}
+export interface ButtonsAttributes {
+  fontSize?: string
+}
 
 export interface CodeAttributes {
   content?: StringWithHTML
+  fontSize?: string
 }
 
 export interface ColumnAttributes {
@@ -54,12 +58,14 @@ export interface ColumnAttributes {
   width?: string
   allowedBlocks?: unknown[]
   templateLock?: "all" | "insert" | "contentOnly" | false
+  fontSize?: string
 }
 
 export interface ColumnsAttributes {
   verticalAlignment?: string
   isStackedOnMobile: boolean
   templateLock?: "all" | "insert" | "contentOnly" | false
+  fontSize?: string
 }
 
 export interface EmbedAttributes {
@@ -92,6 +98,7 @@ export interface HeadingAttributes {
   level: number
   levelOptions?: unknown[]
   placeholder?: string
+  fontSize?: string
 }
 
 export interface HtmlAttributes {
@@ -127,11 +134,13 @@ export interface ListAttributes {
   start?: number
   reversed?: boolean
   placeholder?: string
+  fontSize?: string
 }
 
 export interface ListItemAttributes {
   placeholder?: string
   content?: StringWithHTML
+  fontSize?: string
 }
 
 export interface ParagraphAttributes {
@@ -140,22 +149,26 @@ export interface ParagraphAttributes {
   dropCap: boolean
   placeholder?: string
   direction?: "ltr" | "rtl"
+  fontSize?: string
 }
 
 export interface PreformattedAttributes {
   content?: StringWithHTML
+  fontSize?: string
 }
 
 export interface PullquoteAttributes {
   value?: StringWithHTML
   citation?: StringWithHTML
   textAlign?: string
+  fontSize?: string
 }
 
 export interface QuoteAttributes {
   value: string
   citation?: StringWithHTML
   textAlign?: string
+  fontSize?: string
 }
 
 export interface SeparatorAttributes {
@@ -173,6 +186,7 @@ export interface TableAttributes {
   head: Cells[]
   body: Cells[]
   foot: Cells[]
+  fontSize?: string
 }
 export interface Cells {
   cells?: CellAttributes[]
@@ -189,4 +203,5 @@ export interface CellAttributes {
 export interface VerseAttributes {
   content?: StringWithHTML
   textAlign?: string
+  fontSize?: string
 }

@@ -91,96 +91,99 @@ async function main() {
   }
 
   const blockTypes: Array<Block<Record<string, unknown>>> = blocks.getBlockTypes()
-  const jsonSchemaTypes: JSONSchema[] = blockTypes.reverse().map((block) => {
-    // Fetch core/table head, foot, body types
-    if (block.name === "core/table") {
-      const tableBlockJSON = require("@wordpress/block-library/src/table/block.json")
-      const tableAttributes = fixProperties(tableBlockJSON.attributes)
-      return {
-        title: sanitizeNames(block.name),
-        type: "object" as JSONSchemaTypeName,
-        properties: {
-          ...fixProperties(block.attributes),
-          // We can use same cells ref, as they seem to be same for head, foot, body
-          head: {
-            items: {
-              $ref: "#/$defs/cells",
-            },
-          },
-          foot: {
-            items: {
-              $ref: "#/$defs/cells",
-            },
-          },
-          body: {
-            items: {
-              $ref: "#/$defs/cells",
-            },
-          },
-        },
-        additionalProperties: false,
-        required: Object.entries(block.attributes)
-          .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
-          .map(([key, _value]) => key),
-        $defs: {
-          // Cells and CellAttributes are equal for all three in block.json that is imported from block-library
-          cells: {
-            type: "object" as JSONSchemaTypeName,
-            properties: {
-              cells: {
-                ...tableAttributes.head.query.cells,
-                items: {
-                  $ref: "#/$defs/cellAttributes",
-                },
+  const jsonSchemaTypes: JSONSchema[] = blockTypes
+    .reverse()
+    .map(addSupportsAttributes)
+    .map((block) => {
+      // Fetch core/table head, foot, body types
+      if (block.name === "core/table") {
+        const tableBlockJSON = require("@wordpress/block-library/src/table/block.json")
+        const tableAttributes = fixProperties(tableBlockJSON.attributes)
+        return {
+          title: sanitizeNames(block.name),
+          type: "object" as JSONSchemaTypeName,
+          properties: {
+            ...fixProperties(block.attributes),
+            // We can use same cells ref, as they seem to be same for head, foot, body
+            head: {
+              items: {
+                $ref: "#/$defs/cells",
               },
             },
-            additionalProperties: false,
+            foot: {
+              items: {
+                $ref: "#/$defs/cells",
+              },
+            },
+            body: {
+              items: {
+                $ref: "#/$defs/cells",
+              },
+            },
           },
-          cellAttributes: {
-            type: "object" as JSONSchemaTypeName,
-            properties: fixProperties(tableAttributes.head.query.cells.query),
-            additionalProperties: false,
+          additionalProperties: false,
+          required: Object.entries(block.attributes)
+            .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+            .map(([key, _value]) => key),
+          $defs: {
+            // Cells and CellAttributes are equal for all three in block.json that is imported from block-library
+            cells: {
+              type: "object" as JSONSchemaTypeName,
+              properties: {
+                cells: {
+                  ...tableAttributes.head.query.cells,
+                  items: {
+                    $ref: "#/$defs/cellAttributes",
+                  },
+                },
+              },
+              additionalProperties: false,
+            },
+            cellAttributes: {
+              type: "object" as JSONSchemaTypeName,
+              properties: fixProperties(tableAttributes.head.query.cells.query),
+              additionalProperties: false,
+            },
           },
-        },
+        }
       }
-    }
 
-    let res = [
-      {
-        title: sanitizeNames(block.name),
-        type: "object" as JSONSchemaTypeName,
-        properties: fixProperties(block.attributes),
-        additionalProperties: false,
-        required: Object.entries(block.attributes)
-          .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
-          .map(([key, _value]) => key),
-        deprecated: false,
-      },
-    ]
-    if (block.deprecated) {
-      res = res.concat(
-        block.deprecated?.map((deprecated, n) => {
-          const blockName = sanitizeNames(block.name)
-          let required: string[] = []
-          if (deprecated.attributes !== null && deprecated.attributes !== undefined) {
-            required = Object.entries(deprecated.attributes)
-              .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
-              .map(([key, _value]) => key)
-          }
-          return {
-            title: blockName.replace("Attributes", `Deprecated${n + 1}Attributes`),
-            type: "object" as JSONSchemaTypeName,
-            properties: fixProperties(deprecated.attributes),
-            additionalProperties: false,
-            required: required,
-            deprecated: true,
-          }
-        }),
-      )
-    }
+      let res = [
+        {
+          title: sanitizeNames(block.name),
+          type: "object" as JSONSchemaTypeName,
+          properties: fixProperties(block.attributes),
+          additionalProperties: false,
+          required: Object.entries(block.attributes)
+            .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+            .map(([key, _value]) => key),
+          deprecated: false,
+        },
+      ]
+      if (block.deprecated) {
+        res = res.concat(
+          block.deprecated?.map((deprecated, n) => {
+            const blockName = sanitizeNames(block.name)
+            let required: string[] = []
+            if (deprecated.attributes !== null && deprecated.attributes !== undefined) {
+              required = Object.entries(deprecated.attributes)
+                .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+                .map(([key, _value]) => key)
+            }
+            return {
+              title: blockName.replace("Attributes", `Deprecated${n + 1}Attributes`),
+              type: "object" as JSONSchemaTypeName,
+              properties: fixProperties(deprecated.attributes),
+              additionalProperties: false,
+              required: required,
+              deprecated: true,
+            }
+          }),
+        )
+      }
 
-    return res
-  })
+      return res
+    })
 
   const typescriptTypes = await Promise.all(
     jsonSchemaTypes
@@ -251,6 +254,24 @@ function fixProperties(properties: { readonly [x: string]: any }) {
     }
   }
   return res
+}
+
+function addSupportsAttributes(block: Block): Block {
+  const attributes = block.attributes
+  const supports = block.supports
+
+  if (!supports) {
+    return block
+  }
+
+  if (supports.typography?.fontSize) {
+    // @ts-expect-error: adding a new attribute
+    attributes["fontSize"] = {
+      type: "string",
+    }
+  }
+
+  return { ...block, attributes: attributes }
 }
 
 main()

@@ -94,7 +94,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                       rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                       dangerouslySetInnerHTML={{
                         __html: parseText(
-                          cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
+                          cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
                           terms,
                         ).parsedText,
                       }}
@@ -116,7 +116,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                     rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                     dangerouslySetInnerHTML={{
                       __html: parseText(
-                        cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
+                        cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
                         terms,
                       ).parsedText,
                     }}
@@ -138,7 +138,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
                       rowSpan={stringToNumberOrPlaceholder(cell.rowspan, undefined)}
                       dangerouslySetInnerHTML={{
                         __html: parseText(
-                          cell.content !== "" ? cell.content ?? "&#xFEFF;" : "&#xFEFF;",
+                          cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;",
                           terms,
                         ).parsedText,
                       }}

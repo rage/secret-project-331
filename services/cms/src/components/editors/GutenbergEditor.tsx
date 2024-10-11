@@ -15,17 +15,19 @@ import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockInspector,
-  // @ts-ignore: no type definition
+  // @ts-expect-error: no type definition
   __experimentalLibrary as BlockLibrary,
   BlockList,
   EditorBlockListSettings,
   EditorSettings,
-  // @ts-ignore: no type definition
+  // @ts-expect-error: no type definition
   __experimentalListView as ListView,
   ObserveTyping,
+  // @ts-expect-error: no type definition
+  __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
   WritingFlow,
 } from "@wordpress/block-editor"
-// @ts-ignore: no type definition
+// @ts-expect-error: no type definition
 import { BlockTools } from "@wordpress/block-editor/build-module/components/"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
@@ -35,14 +37,14 @@ import {
   registerBlockType,
   setCategories,
   unregisterBlockType,
-  /* @ts-ignore: type signature incorrect */
   unregisterBlockVariation,
 } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
+import { useMergeRefs } from "@wordpress/compose"
 import { addFilter, removeFilter } from "@wordpress/hooks"
-// @ts-ignore: no types
+// @ts-expect-error: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
@@ -96,6 +98,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
+  const clearerRef = useBlockSelectionClearer()
+  const localRef = useRef()
+  const contentRef = useMergeRefs([clearerRef, localRef])
+
   const [editorSettings, setEditorSettings] = useState<
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
@@ -148,7 +154,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     if (allowedBlockVariations) {
       for (const [blockName, allowedVariations] of Object.entries(allowedBlockVariations)) {
         /* @ts-ignore: type signature incorrect */
-        getBlockType(blockName).variations.forEach((variation) => {
+        getBlockType(blockName)?.variations?.forEach((variation) => {
           if (allowedVariations.indexOf(variation.name) === -1) {
             unregisterBlockVariation(blockName, variation.name)
           }
@@ -345,12 +351,22 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
               </div>
             )}
             <div className="editor__content">
-              <BlockTools>
+              <BlockTools __unstableContentRef={localRef}>
                 <div className="editor-styles-wrapper">
                   {/* @ts-ignore: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
                   <CommonKeyboardShortcuts />
-                  <WritingFlow>
+                  <WritingFlow
+                    // @ts-expect-error: Ref missing from type definitions
+                    ref={contentRef}
+                    className="editor-styles-wrapper"
+                    tabIndex={-1}
+                    // eslint-disable-next-line react/forbid-component-props
+                    style={{
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  >
                     <ObserveTyping>
                       <BlockList />
                     </ObserveTyping>

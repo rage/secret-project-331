@@ -161,14 +161,18 @@ async function main() {
       res = res.concat(
         block.deprecated?.map((deprecated, n) => {
           const blockName = sanitizeNames(block.name)
+          let required: string[] = []
+          if (deprecated.attributes !== null && deprecated.attributes !== undefined) {
+            required = Object.entries(deprecated.attributes)
+              .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
+              .map(([key, _value]) => key)
+          }
           return {
             title: blockName.replace("Attributes", `Deprecated${n + 1}Attributes`),
             type: "object" as JSONSchemaTypeName,
             properties: fixProperties(deprecated.attributes),
             additionalProperties: false,
-            required: Object.entries(deprecated.attributes)
-              .filter(([_key, value]) => (value as { default: unknown }).default !== undefined)
-              .map(([key, _value]) => key),
+            required: required,
             deprecated: true,
           }
         }),
@@ -238,6 +242,9 @@ import type { StringWithHTML } from "."
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function fixProperties(properties: { readonly [x: string]: any }) {
   const res = { ...properties }
+  if (properties === null || properties === undefined) {
+    return properties
+  }
   for (const [_key, value] of Object.entries(properties)) {
     if (value.type === "rich-text") {
       value.tsType = "StringWithHTML"

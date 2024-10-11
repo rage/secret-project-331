@@ -36,6 +36,7 @@ export function isAudioAttributes(obj: unknown): obj is AudioAttributes {
   const typedObj = obj as AudioAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["blob"] === "undefined" || typeof typedObj["blob"] === "string") &&
     (typeof typedObj["src"] === "undefined" || typeof typedObj["src"] === "string") &&
     (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
     (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
@@ -45,32 +46,7 @@ export function isAudioAttributes(obj: unknown): obj is AudioAttributes {
     (typeof typedObj["loop"] === "undefined" ||
       typedObj["loop"] === false ||
       typedObj["loop"] === true) &&
-    (typeof typedObj["preload"] === "undefined" || typeof typedObj["preload"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["preload"] === "undefined" || typeof typedObj["preload"] === "string")
   )
 }
 
@@ -79,22 +55,9 @@ export function isBlockAttributes(obj: unknown): obj is BlockAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["ref"] === "undefined" || typeof typedObj["ref"] === "number") &&
-    (typeof typedObj["content"] === "undefined" ||
-      (((typedObj["content"] !== null && typeof typedObj["content"] === "object") ||
-        typeof typedObj["content"] === "function") &&
-        Object.entries<any>(typedObj["content"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    ((typedObj["content"] !== null && typeof typedObj["content"] === "object") ||
+      typeof typedObj["content"] === "function") &&
+    Object.entries<any>(typedObj["content"]).every(([key, _value]) => typeof key === "string")
   )
 }
 
@@ -116,110 +79,20 @@ export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
       typeof typedObj["backgroundColor"] === "string") &&
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
     (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number")
   )
 }
 
 export function isButtonsAttributes(obj: unknown): obj is ButtonsAttributes {
   const typedObj = obj as ButtonsAttributes
-  return (
-    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["layout"] === "undefined" ||
-      (((typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
-        typeof typedObj["layout"] === "function") &&
-        Object.entries<any>(typedObj["layout"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
-  )
+  return (typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function"
 }
 
 export function isCodeAttributes(obj: unknown): obj is CodeAttributes {
   const typedObj = obj as CodeAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string")
   )
 }
 
@@ -236,39 +109,7 @@ export function isColumnAttributes(obj: unknown): obj is ColumnAttributes {
       typedObj["templateLock"] === false ||
       typedObj["templateLock"] === "all" ||
       typedObj["templateLock"] === "insert" ||
-      typedObj["templateLock"] === "contentOnly") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["layout"] === "undefined" ||
-      (((typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
-        typeof typedObj["layout"] === "function") &&
-        Object.entries<any>(typedObj["layout"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+      typedObj["templateLock"] === "contentOnly")
   )
 }
 
@@ -283,46 +124,7 @@ export function isColumnsAttributes(obj: unknown): obj is ColumnsAttributes {
       typedObj["templateLock"] === false ||
       typedObj["templateLock"] === "all" ||
       typedObj["templateLock"] === "insert" ||
-      typedObj["templateLock"] === "contentOnly") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["layout"] === "undefined" ||
-      (((typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
-        typeof typedObj["layout"] === "function") &&
-        Object.entries<any>(typedObj["layout"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+      typedObj["templateLock"] === "contentOnly")
   )
 }
 
@@ -337,33 +139,7 @@ export function isEmbedAttributes(obj: unknown): obj is EmbedAttributes {
       typeof typedObj["providerNameSlug"] === "string") &&
     typeof typedObj["allowResponsive"] === "boolean" &&
     typeof typedObj["responsive"] === "boolean" &&
-    typeof typedObj["previewable"] === "boolean" &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["height"] === "undefined" || typeof typedObj["height"] === "number") &&
-    (typeof typedObj["title"] === "undefined" || typeof typedObj["title"] === "string")
+    typeof typedObj["previewable"] === "boolean"
   )
 }
 
@@ -372,6 +148,7 @@ export function isFileAttributes(obj: unknown): obj is FileAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["id"] === "undefined" || typeof typedObj["id"] === "number") &&
+    (typeof typedObj["blob"] === "undefined" || typeof typedObj["blob"] === "string") &&
     (typeof typedObj["href"] === "undefined" || typeof typedObj["href"] === "string") &&
     (typeof typedObj["fileId"] === "undefined" || typeof typedObj["fileId"] === "string") &&
     (typeof typedObj["fileName"] === "undefined" || typeof typedObj["fileName"] === "string") &&
@@ -385,36 +162,7 @@ export function isFileAttributes(obj: unknown): obj is FileAttributes {
     (typeof typedObj["displayPreview"] === "undefined" ||
       typedObj["displayPreview"] === false ||
       typedObj["displayPreview"] === true) &&
-    typeof typedObj["previewHeight"] === "number" &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    typeof typedObj["previewHeight"] === "number"
   )
 }
 
@@ -425,39 +173,8 @@ export function isHeadingAttributes(obj: unknown): obj is HeadingAttributes {
     (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
     (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
     typeof typedObj["level"] === "number" &&
-    (typeof typedObj["placeholder"] === "undefined" ||
-      typeof typedObj["placeholder"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["levelOptions"] === "undefined" || Array.isArray(typedObj["levelOptions"])) &&
+    (typeof typedObj["placeholder"] === "undefined" || typeof typedObj["placeholder"] === "string")
   )
 }
 
@@ -465,17 +182,7 @@ export function isHtmlAttributes(obj: unknown): obj is HtmlAttributes {
   const typedObj = obj as HtmlAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string")
   )
 }
 
@@ -483,6 +190,7 @@ export function isImageAttributes(obj: unknown): obj is ImageAttributes {
   const typedObj = obj as ImageAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    (typeof typedObj["blob"] === "undefined" || typeof typedObj["blob"] === "string") &&
     (typeof typedObj["url"] === "undefined" || typeof typedObj["url"] === "string") &&
     typeof typedObj["alt"] === "string" &&
     (typeof typedObj["caption"] === "undefined" || typeof typedObj["caption"] === "string") &&
@@ -503,36 +211,9 @@ export function isImageAttributes(obj: unknown): obj is ImageAttributes {
       typeof typedObj["aspectRatio"] === "string") &&
     (typeof typedObj["scale"] === "undefined" || typeof typedObj["scale"] === "string") &&
     (typeof typedObj["sizeSlug"] === "undefined" || typeof typedObj["sizeSlug"] === "string") &&
-    typeof typedObj["linkDestination"] === "string" &&
-    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    typeof typedObj["blurDataUrl"] === "string"
+    (typeof typedObj["linkDestination"] === "undefined" ||
+      typeof typedObj["linkDestination"] === "string") &&
+    (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string")
   )
 }
 
@@ -547,32 +228,7 @@ export function isListAttributes(obj: unknown): obj is ListAttributes {
     (typeof typedObj["reversed"] === "undefined" ||
       typedObj["reversed"] === false ||
       typedObj["reversed"] === true) &&
-    (typeof typedObj["placeholder"] === "undefined" ||
-      typeof typedObj["placeholder"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["placeholder"] === "undefined" || typeof typedObj["placeholder"] === "string")
   )
 }
 
@@ -582,26 +238,7 @@ export function isListItemAttributes(obj: unknown): obj is ListItemAttributes {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["placeholder"] === "undefined" ||
       typeof typedObj["placeholder"] === "string") &&
-    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string")
   )
 }
 
@@ -616,31 +253,7 @@ export function isParagraphAttributes(obj: unknown): obj is ParagraphAttributes 
       typeof typedObj["placeholder"] === "string") &&
     (typeof typedObj["direction"] === "undefined" ||
       typedObj["direction"] === "ltr" ||
-      typedObj["direction"] === "rtl") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+      typedObj["direction"] === "rtl")
   )
 }
 
@@ -648,31 +261,7 @@ export function isPreformattedAttributes(obj: unknown): obj is PreformattedAttri
   const typedObj = obj as PreformattedAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string")
   )
 }
 
@@ -682,40 +271,7 @@ export function isPullquoteAttributes(obj: unknown): obj is PullquoteAttributes 
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["value"] === "undefined" || typeof typedObj["value"] === "string") &&
     (typeof typedObj["citation"] === "undefined" || typeof typedObj["citation"] === "string") &&
-    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string")
   )
 }
 
@@ -725,37 +281,7 @@ export function isQuoteAttributes(obj: unknown): obj is QuoteAttributes {
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["value"] === "string" &&
     (typeof typedObj["citation"] === "undefined" || typeof typedObj["citation"] === "string") &&
-    (typeof typedObj["align"] === "undefined" || typeof typedObj["align"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["layout"] === "undefined" ||
-      (((typedObj["layout"] !== null && typeof typedObj["layout"] === "object") ||
-        typeof typedObj["layout"] === "function") &&
-        Object.entries<any>(typedObj["layout"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string")
   )
 }
 
@@ -763,36 +289,7 @@ export function isSeparatorAttributes(obj: unknown): obj is SeparatorAttributes 
   const typedObj = obj as SeparatorAttributes
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
-    typeof typedObj["opacity"] === "string" &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    typeof typedObj["opacity"] === "string"
   )
 }
 
@@ -801,25 +298,7 @@ export function isSpacerAttributes(obj: unknown): obj is SpacerAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["height"] === "string" &&
-    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "string")
   )
 }
 
@@ -834,40 +313,7 @@ export function isTableAttributes(obj: unknown): obj is TableAttributes {
     Array.isArray(typedObj["body"]) &&
     typedObj["body"].every((e: any) => isCells(e) as boolean) &&
     Array.isArray(typedObj["foot"]) &&
-    typedObj["foot"].every((e: any) => isCells(e) as boolean) &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["align"] === "undefined" ||
-      typedObj["align"] === "" ||
-      typedObj["align"] === "left" ||
-      typedObj["align"] === "center" ||
-      typedObj["align"] === "right" ||
-      typedObj["align"] === "wide" ||
-      typedObj["align"] === "full") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    typedObj["foot"].every((e: any) => isCells(e) as boolean)
   )
 }
 
@@ -899,32 +345,6 @@ export function isVerseAttributes(obj: unknown): obj is VerseAttributes {
   return (
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     (typeof typedObj["content"] === "undefined" || typeof typedObj["content"] === "string") &&
-    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string") &&
-    (typeof typedObj["borderColor"] === "undefined" ||
-      typeof typedObj["borderColor"] === "string") &&
-    (typeof typedObj["lock"] === "undefined" ||
-      (((typedObj["lock"] !== null && typeof typedObj["lock"] === "object") ||
-        typeof typedObj["lock"] === "function") &&
-        Object.entries<any>(typedObj["lock"]).every(([key, _value]) => typeof key === "string"))) &&
-    (typeof typedObj["anchor"] === "undefined" || typeof typedObj["anchor"] === "string") &&
-    (typeof typedObj["className"] === "undefined" || typeof typedObj["className"] === "string") &&
-    (typeof typedObj["backgroundColor"] === "undefined" ||
-      typeof typedObj["backgroundColor"] === "string") &&
-    (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
-    (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["fontFamily"] === "undefined" || typeof typedObj["fontFamily"] === "string") &&
-    (typeof typedObj["fontSize"] === "undefined" || typeof typedObj["fontSize"] === "string") &&
-    (typeof typedObj["style"] === "undefined" ||
-      (((typedObj["style"] !== null && typeof typedObj["style"] === "object") ||
-        typeof typedObj["style"] === "function") &&
-        Object.entries<any>(typedObj["style"]).every(
-          ([key, _value]) => typeof key === "string",
-        ))) &&
-    (typeof typedObj["metadata"] === "undefined" ||
-      (((typedObj["metadata"] !== null && typeof typedObj["metadata"] === "object") ||
-        typeof typedObj["metadata"] === "function") &&
-        Object.entries<any>(typedObj["metadata"]).every(
-          ([key, _value]) => typeof key === "string",
-        )))
+    (typeof typedObj["textAlign"] === "undefined" || typeof typedObj["textAlign"] === "string")
   )
 }

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -26,8 +27,15 @@ const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const courseBreadcrumbs = useQuery({
     queryKey: [`/courses/${courseId}/breadcrumb-info`, courseId],
     queryFn: () => getCourseBreadCrumbInfo(courseId ?? ""),
-    enabled: !!courseId,
+    enabled: false,
   })
+
+  useEffect(() => {
+    if (courseBreadcrumbs.isSuccess) {
+      // eslint-disable-next-line i18next/no-literal-string
+      location.href = `/org/${courseBreadcrumbs.data.organization_slug}/courses/${courseBreadcrumbs.data?.course_slug}`
+    }
+  }, [courseBreadcrumbs])
 
   const handleRedirectMutation = useToastMutation(
     async (courseId: string) => {
@@ -38,12 +46,9 @@ const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
       method: "POST",
     },
     {
-      onSuccess: () => {
-        courseBreadcrumbs.refetch()
-        if (courseBreadcrumbs.isSuccess) {
-          // eslint-disable-next-line i18next/no-literal-string
-          location.href = `/org/${courseBreadcrumbs.data.organization_slug}/courses/${courseBreadcrumbs.data?.course_slug}`
-        }
+      onSuccess: async () => {
+        await courseBreadcrumbs.refetch()
+        console.log(courseBreadcrumbs.isSuccess)
       },
     },
   )
@@ -61,13 +66,13 @@ const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
         <div>
           <h1>{course.data.name}</h1>
 
-          <div>{t("do-you-want-to-join-this-course")}</div>
+          <div>{t("do-you-want-to-join-this-course")}?</div>
           <Button
             variant={"primary"}
             size={"small"}
             onClick={() => handleRedirectMutation.mutate(course.data?.id)}
           >
-            {t("button-text-enroll-me")}{" "}
+            {t("yes")}
           </Button>
           <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
             {t("button-text-cancel")}

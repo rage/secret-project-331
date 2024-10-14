@@ -99,7 +99,9 @@ INSERT INTO courses(
     language_code,
     course_language_group_id,
     is_draft,
-    is_test_mode
+    is_test_mode,
+    is_joinable_by_code_only,
+    join_code
   )
 VALUES(
     $1,
@@ -110,7 +112,9 @@ VALUES(
     $6,
     $7,
     $8,
-    $9
+    $9,
+    $10,
+    $11
   )
 RETURNING id
         ",
@@ -122,7 +126,9 @@ RETURNING id
         new_course.language_code,
         course_language_group_id,
         new_course.is_draft,
-        new_course.is_test_mode
+        new_course.is_test_mode,
+        new_course.is_joinable_by_code_only,
+        new_course.join_code
     )
     .fetch_one(conn)
     .await?;

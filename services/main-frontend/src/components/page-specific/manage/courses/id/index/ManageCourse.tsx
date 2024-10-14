@@ -316,7 +316,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           <a href={`/join?code=${course.join_code}`}>{`/join?code=${course.join_code}`}</a>
           <div>
             <Button
-              variant={"primary"}
+              variant={"secondary"}
               size={"small"}
               onClick={() => setJoinCourseLinkMutation.mutate(course.id)}
             >

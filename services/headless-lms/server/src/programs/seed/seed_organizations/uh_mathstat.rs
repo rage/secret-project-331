@@ -150,6 +150,36 @@ pub async fn seed_organization_uh_mathstat(
     )
     .await?;
 
+    let cody_only_course = NewCourse {
+        name: "Joinable by code only".to_string(),
+        slug: "joinable-by-code-only".to_string(),
+        organization_id: uh_mathstat_id,
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "Just a draft.".to_string(),
+        is_draft: false,
+        is_test_mode: false,
+        is_unlisted: false,
+        copy_user_permissions: false,
+        is_joinable_by_code_only: true,
+        join_code: Some(
+            "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
+        ),
+    };
+    library::content_management::create_new_course(
+        &mut conn,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str("39a52e8c-ebbf-4b9a-a900-09aa344f3691")?,
+            default_course_instance_id: Uuid::parse_str("5b7286ce-22c5-4874-ade1-262949c4a604")?,
+        }),
+        cody_only_course,
+        admin_user_id,
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
+    )
+    .await?;
+
     let uh_data = CommonCourseData {
         db_pool: db_pool.clone(),
         organization_id: uh_mathstat_id,

@@ -128,16 +128,16 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
               checked={canAddChatbot}
             />
           </FieldContainer>
-          <FieldContainer>
-            <CheckBox
-              label={t("joinable-by-code-only")}
-              onChange={() => {
-                setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
-              }}
-              checked={joinableByCodeOnlyStatus}
-            />
-          </FieldContainer>
         </OnlyRenderIfPermissions>
+        <FieldContainer>
+          <CheckBox
+            label={t("joinable-by-code-only")}
+            onChange={() => {
+              setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
+            }}
+            checked={joinableByCodeOnlyStatus}
+          />
+        </FieldContainer>
       </div>
       <div>
         <Button size="medium" variant="primary" onClick={() => updateCourseMutation.mutate()}>

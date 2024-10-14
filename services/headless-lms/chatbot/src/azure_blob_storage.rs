@@ -12,6 +12,7 @@ use headless_lms_utils::{ApplicationConfiguration, AzureBlobStorageConfiguration
 /// A client for interacting with Azure Blob Storage.
 pub struct AzureBlobClient {
     container_client: ContainerClient,
+    pub container_name: String,
 }
 
 impl AzureBlobClient {
@@ -35,9 +36,12 @@ impl AzureBlobClient {
 
         let storage_credentials = StorageCredentials::access_key(&storage_account, access_key);
         let blob_service_client = BlobServiceClient::new(storage_account, storage_credentials);
-        let container_client = blob_service_client.container_client(container_name);
+        let container_client = blob_service_client.container_client(container_name.clone());
 
-        Ok(AzureBlobClient { container_client })
+        Ok(AzureBlobClient {
+            container_client,
+            container_name,
+        })
     }
 
     /// Ensures the container used to store the blobs exists. If it does not, the container is created.

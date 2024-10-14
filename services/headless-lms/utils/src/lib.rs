@@ -157,6 +157,13 @@ impl AzureBlobStorageConfiguration {
             Ok(None)
         }
     }
+
+    pub fn connection_string(&self) -> anyhow::Result<String> {
+        Ok(format!(
+            "DefaultEndpointsProtocol=https;AccountName={};AccountKey={};EndpointSuffix=core.windows.net",
+            self.storage_account, self.access_key
+        ))
+    }
 }
 
 #[derive(Clone, PartialEq)]

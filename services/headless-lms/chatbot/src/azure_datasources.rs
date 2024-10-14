@@ -60,6 +60,8 @@ pub async fn create_azure_datasource(
         anyhow::anyhow!("Blob storage configuration is missing from the Azure configuration")
     })?;
 
+    let connection_string = blob_storage_config.connection_string()?;
+
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("datasources/{}", datasource_name));
     url.set_query(Some(&format!("api-version={}", API_VERSION)));
@@ -72,8 +74,7 @@ pub async fn create_azure_datasource(
             "query": query,
         },
         "credentials": {
-            "accountName": blob_storage_config.storage_account.clone(),
-            "accountKey": blob_storage_config.access_key.clone(),
+            "connectionString": connection_string,
         },
     });
 

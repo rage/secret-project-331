@@ -16,7 +16,8 @@ use headless_lms_chatbot::{
     azure_datasources::{create_azure_datasource, does_azure_datasource_exist},
     azure_search_index::{create_search_index, does_search_index_exist},
     azure_search_indexer::{
-        create_search_indexer, does_search_indexer_exist, run_search_indexer_now,
+        check_search_indexer_status, create_search_indexer, does_search_indexer_exist,
+        run_search_indexer_now,
     },
     azure_skillset::{create_skillset, does_skillset_exist},
 };
@@ -163,7 +164,18 @@ async fn sync_pages(
         );
 
         let index_name = format!("{}-{}", config.name_prefix, course_id);
-        ensure_search_index_exists(&index_name, *course_id, &config.app_configuration).await?;
+        ensure_search_index_exists(
+            &index_name,
+            *course_id,
+            &config.app_configuration,
+            &blob_client.container_name,
+        )
+        .await?;
+
+        if !check_search_indexer_status(&index_name, &config.app_configuration).await? {
+            warn!("Search indexer is not ready to index. Skipping synchronization.");
+            return Ok(());
+        }
 
         let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
@@ -181,24 +193,19 @@ async fn ensure_search_index_exists(
     name: &str,
     course_id: Uuid,
     app_config: &ApplicationConfiguration,
+    container_name: &str,
 ) -> anyhow::Result<()> {
     if !does_search_index_exist(name, app_config).await? {
         create_search_index(name.to_owned(), app_config).await?;
     }
+    if !does_skillset_exist(name, app_config).await? {
+        create_skillset(name, name, app_config).await?;
+    }
     if !does_azure_datasource_exist(name, app_config).await? {
-        create_azure_datasource(
-            name,
-            &course_id.to_string(),
-            &course_id.to_string(),
-            app_config,
-        )
-        .await?;
+        create_azure_datasource(name, container_name, &course_id.to_string(), app_config).await?;
     }
     if !does_search_indexer_exist(name, app_config).await? {
         create_search_indexer(name, name, name, name, app_config).await?;
-    }
-    if !does_skillset_exist(name, app_config).await? {
-        create_skillset(name, name, app_config).await?;
     }
 
     Ok(())

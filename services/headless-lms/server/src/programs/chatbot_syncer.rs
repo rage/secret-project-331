@@ -158,7 +158,7 @@ async fn sync_pages(
         }
 
         info!(
-            "Syncing {} pages for course ID: {}.",
+            "Syncing {} pages for course id: {}.",
             outdated_statuses.len(),
             course_id
         );
@@ -183,6 +183,10 @@ async fn sync_pages(
         sync_pages_batch(conn, &pages, &latest_histories, blob_client).await?;
         delete_old_files(conn, *course_id, blob_client).await?;
         run_search_indexer_now(&index_name, &config.app_configuration).await?;
+        info!(
+            "New files have been synced and the search indexer has been started for course id: {}.",
+            course_id
+        );
     }
 
     Ok(())
@@ -221,7 +225,7 @@ async fn sync_pages_batch(
     let mut allowed_file_paths = Vec::new();
 
     for page in pages {
-        info!("Syncing page ID: {}.", page.id);
+        info!("Syncing page id: {}.", page.id);
 
         let parsed_content: Vec<GutenbergBlock> = serde_json::from_value(page.content.clone())?;
         let sanitized_content = remove_sensitive_attributes(parsed_content);

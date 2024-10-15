@@ -8,7 +8,7 @@ const API_VERSION: &str = "2024-07-01";
 struct IndexerStatusResponse {
     pub status: String,
     #[serde(rename = "lastResult")]
-    pub last_result: LastResult,
+    pub last_result: Option<LastResult>, // Changed to optional
 }
 
 #[derive(Debug, Deserialize)]
@@ -111,8 +111,7 @@ pub async fn create_search_indexer(
             "maxFailedItemsPerBatch": null,
             "base64EncodeKeys": null,
             "configuration": {
-                "dataToExtract": "contentAndMetadata",
-                "parsingMode": "json"
+                "dataToExtract": "contentAndMetadata"
             }
         },
         "fieldMappings": [
@@ -232,7 +231,11 @@ pub async fn check_search_indexer_status(
             Ok(status) => status,
             Err(e) => {
                 error!("Failed to parse indexer status JSON: {}", e);
-                error!("{}", serde_json::to_string_pretty(&response_text).unwrap());
+                error!(
+                    "{}",
+                    serde_json::to_string_pretty(&response_text)
+                        .unwrap_or_else(|_| "Invalid JSON".to_string())
+                );
                 return Err(anyhow::anyhow!(
                     "Failed to parse indexer status JSON: {}",
                     e
@@ -246,8 +249,8 @@ pub async fn check_search_indexer_status(
         // If the last run is in progress, we cannot start a new run.
         let last_result_in_progress = indexer_status
             .last_result
-            .status
-            .eq_ignore_ascii_case("inprogress");
+            .as_ref()
+            .map_or(false, |lr| lr.status.eq_ignore_ascii_case("inprogress"));
 
         if !is_running {
             info!("Indexer '{}' is not running normally.", indexer_name);
@@ -260,32 +263,40 @@ pub async fn check_search_indexer_status(
             );
         }
 
-        if !indexer_status.last_result.errors.is_empty() {
-            error!("Errors in the last execution:");
-            for error in &indexer_status.last_result.errors {
-                error!(
-                    "  - **Key**: {}\n    **Name**: {}\n    **Message**: {}\n    **Details**: {}\n    **Documentation**: {}\n",
-                    error.key.as_deref().unwrap_or("N/A"),
-                    error.name.as_deref().unwrap_or("N/A"),
-                    error.message.as_deref().unwrap_or("N/A"),
-                    error.details.as_deref().unwrap_or("N/A"),
-                    error.documentation_link.as_deref().unwrap_or("N/A"),
-                );
+        if let Some(last_result) = &indexer_status.last_result {
+            if !last_result.errors.is_empty() {
+                error!("Errors in the last execution:");
+                for error in &last_result.errors {
+                    error!(
+                        "  - **Key**: {}\n    **Name**: {}\n    **Message**: {}\n    **Details**: {}\n    **Documentation**: {}\n",
+                        error.key.as_deref().unwrap_or("N/A"),
+                        error.name.as_deref().unwrap_or("N/A"),
+                        error.message.as_deref().unwrap_or("N/A"),
+                        error.details.as_deref().unwrap_or("N/A"),
+                        error.documentation_link.as_deref().unwrap_or("N/A"),
+                    );
+                }
             }
-        }
 
-        if !indexer_status.last_result.warnings.is_empty() {
-            warn!("Warnings in the last execution:");
-            for warning in &indexer_status.last_result.warnings {
-                warn!(
-                    "  - **Key**: {}\n    **Name**: {}\n    **Message**: {}\n    **Details**: {}\n    **Documentation**: {}\n",
-                    warning.key.as_deref().unwrap_or("N/A"),
-                    warning.name.as_deref().unwrap_or("N/A"),
-                    warning.message.as_deref().unwrap_or("N/A"),
-                    warning.details.as_deref().unwrap_or("N/A"),
-                    warning.documentation_link.as_deref().unwrap_or("N/A"),
-                );
+            if !last_result.warnings.is_empty() {
+                warn!("Warnings in the last execution:");
+                for warning in &last_result.warnings {
+                    warn!(
+                        "  - **Key**: {}\n    **Name**: {}\n    **Message**: {}\n    **Details**: {}\n    **Documentation**: {}\n",
+                        warning.key.as_deref().unwrap_or("N/A"),
+                        warning.name.as_deref().unwrap_or("N/A"),
+                        warning.message.as_deref().unwrap_or("N/A"),
+                        warning.details.as_deref().unwrap_or("N/A"),
+                        warning.documentation_link.as_deref().unwrap_or("N/A"),
+                    );
+                }
             }
+        } else {
+            warn!(
+                "No last result information available for indexer '{}'. Assuming the index is not ready yet.",
+                indexer_name
+            );
+            return Ok(false);
         }
 
         if is_running && !last_result_in_progress {

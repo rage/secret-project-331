@@ -259,7 +259,6 @@ pub async fn send_chat_request_and_parse_stream(
                 break;
             }
             let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
-
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
             for choice in &response_chunk.choices {

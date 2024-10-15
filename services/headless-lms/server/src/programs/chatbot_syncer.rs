@@ -163,6 +163,8 @@ async fn sync_pages(
             course_id
         );
 
+        let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
+
         let index_name = format!("{}-{}", config.name_prefix, course_id);
         ensure_search_index_exists(
             &index_name,
@@ -177,11 +179,11 @@ async fn sync_pages(
             return Ok(());
         }
 
-        let page_ids: Vec<Uuid> = outdated_statuses.iter().map(|s| s.page_id).collect();
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
         sync_pages_batch(conn, &pages, &latest_histories, blob_client).await?;
         delete_old_files(conn, *course_id, blob_client).await?;
+
         run_search_indexer_now(&index_name, &config.app_configuration).await?;
         info!(
             "New files have been synced and the search indexer has been started for course id: {}.",

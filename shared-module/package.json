@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "devDependencies": {
-    "@types/lodash": "^4.17.9",
+    "@types/lodash": "^4.17.10",
     "tsx": "^4.19.1"
   },
   "dependencies": {

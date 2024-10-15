@@ -235,6 +235,7 @@ async fn sync_pages_batch(
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
         metadata.insert("page_path".to_string(), page.url_path.to_string().into());
+        metadata.insert("title".to_string(), page.title.to_string().into());
 
         blob_client
             .upload_file(&blob_path, content_string.as_bytes(), Some(metadata))

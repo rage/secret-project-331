@@ -112,20 +112,20 @@ pub async fn create_search_indexer(
             "base64EncodeKeys": null,
             "configuration": {
                 "dataToExtract": "contentAndMetadata",
-                "parsingMode": "default"
+                "parsingMode": "json"
             }
         },
         "fieldMappings": [
             {
-                "sourceFieldName": "metadata_storage_name",
+                "sourceFieldName": "title",
                 "targetFieldName": "title",
                 "mappingFunction": null
             },
             {
-              "sourceFieldName": "metadata_page_path",
-              "targetFieldName": "page_path",
-              "mappingFunction": null
-          }
+                "sourceFieldName": "page_path",
+                "targetFieldName": "page_path",
+                "mappingFunction": null
+            }
         ],
         "outputFieldMappings": [],
         "encryptionKey": null

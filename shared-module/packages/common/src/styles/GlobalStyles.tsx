@@ -32,7 +32,6 @@ const globalCss = css`
     font-family: ${primaryFont};
     font-weight: 400;
     font-size: ${defaultFontSizePx}px;
-    color: #353f4b;
     overflow-x: hidden;
   }
   h1,

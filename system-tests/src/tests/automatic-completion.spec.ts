@@ -92,7 +92,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   await page
     .getByPlaceholder("Completion registration link")
     .fill("https://www.example.com/override")
-  await page.getByRole("button", { name: "Save" }).click()
+  await page.getByLabel("Confirm").click()
   await page.getByRole("button", { name: "Save changes" }).click()
 
   await page.goto("http://project-331.local/organizations")

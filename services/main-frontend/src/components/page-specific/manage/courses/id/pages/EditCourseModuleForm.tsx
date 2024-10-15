@@ -351,7 +351,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
           {active ? (
             <>
               <Button
-                aria-label={t("button-text-save")}
+                aria-label={t("confirm")}
                 className={css`
                   display: flex !important;
                   padding: 0 !important;

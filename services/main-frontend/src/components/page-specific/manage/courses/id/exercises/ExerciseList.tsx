@@ -72,6 +72,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                 .map((page) => (
                   <li
                     key={page.id}
+                    data-testid="exercise-row"
                     className={css`
                       &:not(:has(ul li)) div {
                         border-bottom-right-radius: 4px;

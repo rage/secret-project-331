@@ -67,7 +67,7 @@ import SuccessNotification from "@/shared-module/common/components/Notifications
 import Spinner from "@/shared-module/common/components/Spinner"
 import { primaryFont } from "@/shared-module/common/styles"
 
-const { GlobalStylesContext } = unlock(blockEditorPrivateApis)
+// const { GlobalStylesContext } = unlock(blockEditorPrivateApis)
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -113,17 +113,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     disableCustomEditorFontSizes: false,
     styles: [],
     codeEditingEnabled: false,
-    fontSizes: [
-      { size: 10, name: "LOL", slug: "lol" },
-      { size: 20, name: "LOL 2", slug: "lol2" },
-      { size: 30, name: "LOL3", slug: "lol3" },
-    ],
-    alignWide: true,
-    // @ts-expect-error: missing from types
-    typography: {
-      fontSizes: true,
-    },
-    "typography.fontSizes": true,
   })
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
@@ -262,139 +251,139 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
         }
       `}
     >
-      <GlobalStylesContext.Provider>
-        <ShortcutProvider>
-          <SlotFillProvider>
-            <BlockEditorProvider
-              settings={editorSettings}
-              value={content}
-              onInput={handleInput}
-              onChange={handleChanges}
-            >
-              {showSidebar && (
-                <div className="editor__sidebar">
+      {/* <GlobalStylesContext.Provider> */}
+      <ShortcutProvider>
+        <SlotFillProvider>
+          <BlockEditorProvider
+            settings={editorSettings}
+            value={content}
+            onInput={handleInput}
+            onChange={handleChanges}
+          >
+            {showSidebar && (
+              <div className="editor__sidebar">
+                <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                  `}
+                >
                   <div
                     className={css`
                       display: flex;
-                      flex-direction: column;
-                      height: 100%;
+                      flex-grow: 1;
+                      overflow-y: auto;
+                      overflow-x: hidden;
                     `}
                   >
-                    <div
-                      className={css`
-                        display: flex;
-                        flex-grow: 1;
-                        overflow-y: auto;
-                        overflow-x: hidden;
-                      `}
-                    >
-                      {sidebarView === "block-props" && (
-                        <div
-                          className={css`
-                            width: 100%;
-                            .block-editor-block-inspector {
-                              width: 100%;
-                            }
-                          `}
-                        >
-                          <BlockInspector />
-                        </div>
-                      )}
-                      {sidebarView === "block-list" && (
-                        <div
-                          className={css`
-                            height: fit-content;
-                            width: 100%;
-                          `}
-                        >
-                          <ListView
-                            showNestedBlocks
-                            showBlockMovers
-                            __experimentalFeatures
-                            __experimentalPersistentListViewFeatures
-                            __experimentalHideContainerBlockActions
-                          />
-                        </div>
-                      )}
-                      {sidebarView === "block-menu" && (
-                        <div
-                          className={css`
-                            .block-editor-inserter__main-area {
-                              overflow-x: hidden;
-                            }
-                            .components-search-control {
-                              font-family: ${primaryFont} !important;
-                            }
-                          `}
-                        >
-                          <BlockLibrary />
-                        </div>
-                      )}
-                    </div>
-                    <div
-                      className={css`
-                        margin: 1rem;
-                        margin-bottom: 0;
-                      `}
-                    >
-                      <SelectField
-                        id={"select-sidebar-view"}
-                        value={sidebarView}
-                        label={t("editor-select-sidebar-view")}
-                        options={[
-                          // eslint-disable-next-line i18next/no-literal-string
-                          { value: "block-props", label: t("block-props") },
-                          // eslint-disable-next-line i18next/no-literal-string
-                          { value: "block-list", label: t("block-list") },
-                          // eslint-disable-next-line i18next/no-literal-string
-                          { value: "block-menu", label: t("block-menu") },
-                        ]}
-                        onChangeByValue={(val) => setSidebarView(val)}
-                      />
-                    </div>
-                    {inspectorButtons && (
+                    {sidebarView === "block-props" && (
                       <div
                         className={css`
-                          margin: 1rem;
-                          margin-top: 0;
+                          width: 100%;
+                          .block-editor-block-inspector {
+                            width: 100%;
+                          }
                         `}
                       >
-                        {inspectorButtons}
+                        <BlockInspector />
+                      </div>
+                    )}
+                    {sidebarView === "block-list" && (
+                      <div
+                        className={css`
+                          height: fit-content;
+                          width: 100%;
+                        `}
+                      >
+                        <ListView
+                          showNestedBlocks
+                          showBlockMovers
+                          __experimentalFeatures
+                          __experimentalPersistentListViewFeatures
+                          __experimentalHideContainerBlockActions
+                        />
+                      </div>
+                    )}
+                    {sidebarView === "block-menu" && (
+                      <div
+                        className={css`
+                          .block-editor-inserter__main-area {
+                            overflow-x: hidden;
+                          }
+                          .components-search-control {
+                            font-family: ${primaryFont} !important;
+                          }
+                        `}
+                      >
+                        <BlockLibrary />
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-              <div className="editor__content">
-                <BlockTools __unstableContentRef={localRef}>
-                  <div className="editor-styles-wrapper">
-                    {/* @ts-ignore: type signature incorrect */}
-                    <BlockEditorKeyboardShortcuts.Register />
-                    <CommonKeyboardShortcuts />
-                    <WritingFlow
-                      // @ts-expect-error: Ref missing from type definitions
-                      ref={contentRef}
-                      className="editor-styles-wrapper"
-                      tabIndex={-1}
-                      // eslint-disable-next-line react/forbid-component-props
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                      }}
-                    >
-                      <ObserveTyping>
-                        <BlockList />
-                      </ObserveTyping>
-                    </WritingFlow>
+                  <div
+                    className={css`
+                      margin: 1rem;
+                      margin-bottom: 0;
+                    `}
+                  >
+                    <SelectField
+                      id={"select-sidebar-view"}
+                      value={sidebarView}
+                      label={t("editor-select-sidebar-view")}
+                      options={[
+                        // eslint-disable-next-line i18next/no-literal-string
+                        { value: "block-props", label: t("block-props") },
+                        // eslint-disable-next-line i18next/no-literal-string
+                        { value: "block-list", label: t("block-list") },
+                        // eslint-disable-next-line i18next/no-literal-string
+                        { value: "block-menu", label: t("block-menu") },
+                      ]}
+                      onChangeByValue={(val) => setSidebarView(val)}
+                    />
                   </div>
-                </BlockTools>
+                  {inspectorButtons && (
+                    <div
+                      className={css`
+                        margin: 1rem;
+                        margin-top: 0;
+                      `}
+                    >
+                      {inspectorButtons}
+                    </div>
+                  )}
+                </div>
               </div>
-              {/* @ts-expect-error: slot is not in the type definitions */}
-              <Popover.Slot />
-            </BlockEditorProvider>
-          </SlotFillProvider>
-        </ShortcutProvider>
-      </GlobalStylesContext.Provider>
+            )}
+            <div className="editor__content">
+              <BlockTools __unstableContentRef={localRef}>
+                <div className="editor-styles-wrapper">
+                  {/* @ts-ignore: type signature incorrect */}
+                  <BlockEditorKeyboardShortcuts.Register />
+                  <CommonKeyboardShortcuts />
+                  <WritingFlow
+                    // @ts-expect-error: Ref missing from type definitions
+                    ref={contentRef}
+                    className="editor-styles-wrapper"
+                    tabIndex={-1}
+                    // eslint-disable-next-line react/forbid-component-props
+                    style={{
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  >
+                    <ObserveTyping>
+                      <BlockList />
+                    </ObserveTyping>
+                  </WritingFlow>
+                </div>
+              </BlockTools>
+            </div>
+            {/* @ts-expect-error: slot is not in the type definitions */}
+            <Popover.Slot />
+          </BlockEditorProvider>
+        </SlotFillProvider>
+      </ShortcutProvider>
+      {/* </GlobalStylesContext.Provider> */}
     </div>
   )
 }

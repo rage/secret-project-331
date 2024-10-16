@@ -90,6 +90,108 @@ pub struct ChatRequest {
     pub stream: bool,
 }
 
+impl ChatRequest {
+    pub async fn build(
+        conn: &mut PgConnection,
+        chatbot_configuration_id: Uuid,
+        conversation_id: Uuid,
+        message: &str,
+    ) -> anyhow::Result<(ChatRequest, ChatbotConversationMessage)> {
+        let configuration =
+            models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
+
+        let conversation_messages =
+            models::chatbot_conversation_messages::get_by_conversation_id(conn, conversation_id)
+                .await?;
+
+        let new_order_number = conversation_messages
+            .iter()
+            .map(|m| m.order_number)
+            .max()
+            .unwrap_or(0)
+            + 1;
+
+        let new_message = models::chatbot_conversation_messages::insert(
+            conn,
+            ChatbotConversationMessage {
+                id: Uuid::new_v4(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: None,
+                conversation_id,
+                message: Some(message.to_string()),
+                is_from_chatbot: false,
+                message_is_complete: true,
+                used_tokens: estimate_tokens(&message),
+                order_number: new_order_number,
+            },
+        )
+        .await?;
+
+        let mut api_chat_messages: Vec<ApiChatMessage> =
+            conversation_messages.into_iter().map(Into::into).collect();
+
+        api_chat_messages.push(new_message.clone().into());
+
+        api_chat_messages.insert(
+            0,
+            ApiChatMessage {
+                role: "system".to_string(),
+                content: configuration.prompt.clone(),
+            },
+        );
+
+        let mut data_sources = Vec::new();
+
+        if configuration.use_azure_search {
+            let index_name = format!("{}-{}", "test", configuration.course_id);
+            data_sources.push(DataSource {
+                data_type: "example_data_type".to_string(),
+                parameters: DataSourceParameters {
+                    endpoint: "your_endpoint".to_string(),
+                    authentication: DataSourceParametersAuthentication {
+                        auth_type: "your_auth_type".to_string(),
+                        managed_identity_resource_id: "your_managed_identity_resource_id".to_string(),
+                    },
+                    index_name: index_name.clone(),
+                    query_type: "your_query_type".to_string(),
+                    embedding_dependency: EmbeddingDependency {
+                        dep_type: "dep_type".to_string(),
+                        deployment_name: "todo".to_string(),
+                    },
+                    in_scope: true,
+                    top_n_documents: 5,
+                    strictness: 3,
+                    role_information: "You're an AI assistant on a course that helps students to learn and find information.".to_string(),
+                    fields_mapping: FieldsMapping {
+                        content_fields_separator: ",".to_string(),
+                        content_fields: vec!["content".to_string()],
+                        filepath_field: "filepath".to_string(),
+                        title_field: "title".to_string(),
+                        url_field: "url".to_string(),
+                        vector_fields: vec!["vector".to_string()],
+                    },
+                },
+            });
+        }
+
+        Ok((
+            Self {
+                messages: api_chat_messages,
+                data_sources,
+                temperature: configuration.temperature,
+                top_p: configuration.top_p,
+                frequency_penalty: configuration.frequency_penalty,
+                presence_penalty: configuration.presence_penalty,
+                max_tokens: configuration.response_max_tokens,
+                stop: None,
+                stream: true,
+            },
+            new_message,
+        ))
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DataSource {
     #[serde(rename = "type")]
@@ -193,11 +295,19 @@ pub async fn send_chat_request_and_parse_stream(
     conn: &mut PgConnection,
     // An Arc, cheap to clone.
     pool: PgPool,
-    payload: &ChatRequest,
     app_config: &ApplicationConfiguration,
+    chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
-    response_order_number: i32,
+    message: &str,
 ) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
+    let (chat_request, new_message) = ChatRequest::build(
+        &mut *conn,
+        chatbot_configuration_id,
+        conversation_id,
+        message,
+    )
+    .await?;
+
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
     let done = Arc::new(AtomicBool::new(false));
 
@@ -232,6 +342,8 @@ pub async fn send_chat_request_and_parse_stream(
             .map_err(|_e| anyhow::anyhow!("Internal error"))?,
     );
 
+    let response_order_number = new_message.order_number + 1;
+
     let response_message = models::chatbot_conversation_messages::insert(
         conn,
         models::chatbot_conversation_messages::ChatbotConversationMessage {
@@ -259,7 +371,7 @@ pub async fn send_chat_request_and_parse_stream(
     let request = REQWEST_CLIENT
         .post(url)
         .headers(headers)
-        .json(payload)
+        .json(&chat_request)
         .send();
 
     let response = request.await?;

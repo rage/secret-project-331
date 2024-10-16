@@ -8,28 +8,25 @@ import {
   TableAttributes,
 } from "../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../contexts/GlossaryContext"
-import colorMapper from "../../../../styles/colorMapper"
 import { parseText } from "../../util/textParsing"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttributes>>> = ({
-  data,
-}) => {
+interface ExtraAttributes {
+  className?: string
+}
+
+const TableBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<TableAttributes & ExtraAttributes>>
+> = ({ data }) => {
   const {
     hasFixedLayout,
     caption,
-    anchor,
-    backgroundColor,
-    // borderColor, // Bordercolor is same as textcolor in our version of Gutenberg
-    align,
     className,
-    gradient,
-    fontFamily,
+    // borderColor, // Bordercolor is same as textcolor in our version of Gutenberg
     // style,
-    textColor,
   } = data.attributes
   const body = data.attributes.body
   const head = data.attributes.head
@@ -52,14 +49,7 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
     <div>
       <table
         className={css`
-          ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-          ${gradient && `background: ${colorMapper(gradient)};`}
-          ${align !== "center" && `float: ${align};`}
-          ${align === "center" && "margin: 0 auto;"}
-          ${fontFamily && `font-family: ${fontFamily};`}
-          color: ${colorMapper(textColor)};
           border-collapse: collapse;
-          ${!align && "width: 100%;"}
           td,
           th {
             ${!isStriped && `border: 1px solid currentColor;`}
@@ -79,7 +69,6 @@ const TableBlock: React.FC<React.PropsWithChildren<BlockRendererProps<TableAttri
             border-top: 3px solid;
           }
         `}
-        {...(anchor && { id: anchor })}
       >
         {head && (
           <thead>

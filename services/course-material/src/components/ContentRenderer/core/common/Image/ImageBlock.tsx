@@ -10,18 +10,20 @@ import { parseText } from "../../../util/textParsing"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttributes>>> = ({
-  data,
-}) => {
+interface ExtraAttributes {
+  align?: string
+}
+
+const ImageBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
+> = ({ data }) => {
   const { t } = useTranslation()
   const {
     alt,
     // blurDataUrl,
     // linkDestination, // is custom if image link defined manually, can send user out from our web page
     align,
-    anchor,
     caption,
-    className,
     height,
     href,
     linkClass,
@@ -72,7 +74,6 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
           ${align === "left" && "margin-right: 1rem;"}
           `}
           `}
-          {...(anchor && { id: anchor })}
         >
           <div
             className={css`
@@ -95,7 +96,6 @@ const ImageBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ImageAttri
                   margin: 1rem 0;
                   ${scale && `transform: scale(${scale});`}
                   ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
-                  ${className === "is-style-rounded" && "border-radius: 9999px"}
                 `}
                 src={url}
                 alt={alt}

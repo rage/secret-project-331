@@ -16,7 +16,6 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
     showDownloadButton,
     // previewHeight,
     // align,
-    anchor,
     // className,
     // displayPreview,
     downloadButtonText,
@@ -28,12 +27,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
   return (
     <div>
       <span>
-        <a
-          href={href}
-          {...(textLinkTarget && { target: textLinkTarget })}
-          {...(anchor && { id: anchor })}
-          rel="noopener"
-        >
+        <a href={href} {...(textLinkTarget && { target: textLinkTarget })} rel="noopener">
           {fileName}
           {textLinkTarget && textLinkTarget.includes("_blank") && (
             <div>

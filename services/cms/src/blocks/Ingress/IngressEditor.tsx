@@ -25,7 +25,7 @@ const IngressEditor: React.FC<
       >
         <RichText
           className={css`
-            color: ##1a2333;
+            color: #1a2333;
             font-weight: 700;
             font-size: 3.5rem;
             line-height: 4.375rem;
@@ -40,7 +40,7 @@ const IngressEditor: React.FC<
         />
         <RichText
           className={css`
-            color: ##1a2333;
+            color: #1a2333;
             font-weight: normal;
             font-size: 1.75rem;
             line-height: 1.35;

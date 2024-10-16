@@ -336,46 +336,52 @@ const createMatrix = async (frame: Locator) => {
     await frame
       .getByRole("button", { name: "Matrix Assignment to write answer in the form of a matrix" })
       .click()
-    await frame.locator(".css-aklx7n-CellInputContainer").click()
-    await frame.locator(".css-aklx7n-CellInputContainer").fill("1")
-    await frame.locator(".css-864jm6-CellInputContainer").first().click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame.locator(".css-864jm6-CellInputContainer").first().click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame
-      .locator("tr:nth-child(2) > td > .css-v1bss2 > .css-864jm6-CellInputContainer")
-      .first()
-      .click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("1")
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("0")
-    await frame
-      .locator("tr:nth-child(3) > td > .css-v1bss2 > .css-864jm6-CellInputContainer")
-      .first()
-      .click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("0")
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("1")
+    // Define the values to fill in the matrix
+    const matrixValues = [
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+    ]
+
+    // Wait for the matrix container to exist based on its text and class
+    const matrixContainerLocator = frame.locator(".css-1sprzkc-EditorTitle") // Targeting the .EditorTitle class with text "Matrix"
+    await matrixContainerLocator.waitFor({ state: "attached", timeout: 30000 })
+
+    // Scroll the matrix container into view
+    await matrixContainerLocator.scrollIntoViewIfNeeded()
+
+    // Use the class that works for the first cell
+    const firstCellLocator = frame.locator(".css-12zb2oa-CellInputContainer").first()
+
+    // Scroll the first matrix cell into view
+    await firstCellLocator.scrollIntoViewIfNeeded()
+
+    // Ensure the first cell is visible before clicking
+    await firstCellLocator.waitFor({ state: "visible", timeout: 30000 })
+
+    // Click the first cell
+    try {
+      await firstCellLocator.click({ timeout: 10000 })
+    } catch (error) {
+      console.error("Click on the first cell failed:", error)
+    }
+
+    // Loop through the matrix rows and columns to fill the matrix cells
+    for (let row = 0; row < matrixValues.length; row++) {
+      for (let col = 0; col < matrixValues[row].length; col++) {
+        const cellLocator = frame.locator(`.matrix-cell.row-${row}.column-${col}`)
+
+        // Wait for the cell to be visible
+        await cellLocator.scrollIntoViewIfNeeded()
+        await cellLocator.waitFor({ state: "visible", timeout: 30000 })
+
+        // Click the cell based on the row and column
+        await cellLocator.click()
+
+        // Fill the cell with the appropriate value
+        await cellLocator.fill(String(matrixValues[row][col]))
+      }
+    }
   })
 }
 

@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface CellInputStyleProps {
   row: number
@@ -17,7 +17,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     position: relative;
     font-size: 2.8vw;
     font-size: 22px;
-    font-family: Inter, sans-serif;
+    font-family: ${primaryFont};
     display: block;
     width: 50px;
     height: 50px;

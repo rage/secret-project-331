@@ -31,7 +31,11 @@ const LogoLinkEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<str
         `}
       >
         <div>
-          <InnerBlocks template={LOGO_LINK_TEMPLATE} allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+          <InnerBlocks
+            template={LOGO_LINK_TEMPLATE}
+            allowedBlocks={ALLOWED_NESTED_BLOCKS}
+            templateLock="all"
+          />
         </div>
       </div>
     </BlockWrapper>

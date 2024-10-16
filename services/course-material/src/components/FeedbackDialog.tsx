@@ -175,7 +175,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                 )}
                 <div
                   className={css`
-                    font-family: Inter, sans-serif;
+                    font-family: ${primaryFont};
                     font-style: normal;
                     font-weight: normal;
                     font-size: 16px;
@@ -192,7 +192,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                 </div>
                 <button
                   className={css`
-                    font-family: Inter, sans-serif;
+                    font-family: ${primaryFont};
                     font-style: normal;
                     font-weight: normal;
                     font-size: 13px;

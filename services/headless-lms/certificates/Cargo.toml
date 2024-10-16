@@ -23,7 +23,7 @@ icu = { version = "1.3.2", features = ["std", "serde"] }
 # Trait and struct definitions for the ICU data provider
 icu_provider = "1.3.2"
 # Single assignment cells and lazy values.
-once_cell = "1.20.1"
+once_cell = "1.20.2"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.2"
 # Application-level tracing for Rust.
@@ -33,8 +33,8 @@ anyhow = "1.0.89"
 # Date and time library for Rust
 chrono = "0.4.38"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.10.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.11.0", features = ["serde", "v4", "v5"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.30"
+futures = "0.3.31"
 # supports loading ICU4X data from a single serialized blob
 icu_provider_blob = "1.3.2"

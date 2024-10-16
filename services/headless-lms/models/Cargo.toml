@@ -15,13 +15,13 @@ headless-lms-utils = { path = "../utils" }
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
-futures = "0.3.30"
+futures = "0.3.31"
 # A `dotenv` implementation for Rust
 dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.10.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.11.0", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.210", features = ["derive"] }
 # Date and time library for Rust

@@ -1,22 +1,26 @@
+use std::pin::Pin;
 use std::sync::{
     atomic::{self, AtomicBool},
     Arc,
 };
+use std::task::{Context, Poll};
 
 use bytes::Bytes;
 use chrono::Utc;
 use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
 use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
+use pin_project::pin_project;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_util::io::StreamReader;
+use url::Url;
 
 use crate::prelude::*;
 
-pub const CHATBOT_AZURE_API_VERSION: &str = "2024-02-01";
+pub const CHATBOT_AZURE_API_VERSION: &str = "2024-06-01";
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilterResults {
@@ -78,6 +82,7 @@ impl From<ChatbotConversationMessage> for ApiChatMessage {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChatRequest {
     pub messages: Vec<ApiChatMessage>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub data_sources: Vec<DataSource>,
     pub temperature: f32,
     pub top_p: f32,
@@ -94,7 +99,13 @@ impl ChatRequest {
         chatbot_configuration_id: Uuid,
         conversation_id: Uuid,
         message: &str,
+        app_config: &ApplicationConfiguration,
     ) -> anyhow::Result<(Self, ChatbotConversationMessage, i32)> {
+        let index_name_prefix = Url::parse(&app_config.base_url)?
+            .host_str()
+            .expect("BASE_URL must have a host")
+            .replace(".", "-");
+
         let configuration =
             models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
 
@@ -140,31 +151,41 @@ impl ChatRequest {
         );
 
         let data_sources = if configuration.use_azure_search {
+            let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
+                anyhow::anyhow!("Azure configuration is missing from the application configuration")
+            })?;
+
+            let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
+                anyhow::anyhow!(
+                    "Azure search configuration is missing from the Azure configuration"
+                )
+            })?;
+
             vec![DataSource {
-                data_type: "example_data_type".to_string(),
+                data_type: "azure_search".to_string(),
                 parameters: DataSourceParameters {
-                    endpoint: "your_endpoint".to_string(),
+                    endpoint: search_config.search_endpoint.to_string(),
                     authentication: DataSourceParametersAuthentication {
-                        auth_type: "your_auth_type".to_string(),
-                        managed_identity_resource_id: "your_managed_identity_resource_id".to_string(),
+                        auth_type: "api_key".to_string(),
+                        key: search_config.search_api_key.clone(),
                     },
-                    index_name: format!("test-{}", configuration.course_id),
-                    query_type: "your_query_type".to_string(),
+                    index_name: format!("{}-{}", index_name_prefix, configuration.course_id),
+                    query_type: "vector_simple_hybrid".to_string(),
+                    semantic_configuration: "default".to_string(),
                     embedding_dependency: EmbeddingDependency {
-                        dep_type: "dep_type".to_string(),
-                        deployment_name: "todo".to_string(),
+                        dep_type: "deployment_name".to_string(),
+                        deployment_name: search_config.vectorizer_deployment_id.clone(),
                     },
-                    in_scope: true,
+                    in_scope: false,
                     top_n_documents: 5,
                     strictness: 3,
-                    role_information: "You're an AI assistant on a course that helps students to learn and find information.".to_string(),
                     fields_mapping: FieldsMapping {
                         content_fields_separator: ",".to_string(),
-                        content_fields: vec!["content".to_string()],
+                        content_fields: vec!["chunk".to_string()],
                         filepath_field: "filepath".to_string(),
                         title_field: "title".to_string(),
-                        url_field: "url".to_string(),
-                        vector_fields: vec!["vector".to_string()],
+                        url_field: "page_path".to_string(),
+                        vector_fields: vec!["text_vector".to_string()],
                     },
                 },
             }]
@@ -210,15 +231,15 @@ pub struct DataSourceParameters {
     pub in_scope: bool,
     pub top_n_documents: i32,
     pub strictness: i32,
-    pub role_information: String,
     pub fields_mapping: FieldsMapping,
+    pub semantic_configuration: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DataSourceParametersAuthentication {
     #[serde(rename = "type")]
     pub auth_type: String,
-    pub managed_identity_resource_id: String,
+    pub key: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -241,6 +262,32 @@ pub struct FieldsMapping {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChatResponse {
     pub text: String,
+}
+
+/// Custom stream that encapsulates both the response stream and the cancellation guard. Makes sure that the guard is always dropped when the stream is dropped.
+#[pin_project]
+struct GuardedStream<S> {
+    guard: RequestCancelledGuard,
+    #[pin]
+    stream: S,
+}
+
+impl<S> GuardedStream<S> {
+    fn new(guard: RequestCancelledGuard, stream: S) -> Self {
+        Self { guard, stream }
+    }
+}
+
+impl<S> Stream for GuardedStream<S>
+where
+    S: Stream<Item = anyhow::Result<Bytes>> + Send,
+{
+    type Item = S::Item;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        let this = self.project();
+        this.stream.poll_next(cx)
+    }
 }
 
 struct RequestCancelledGuard {
@@ -302,13 +349,14 @@ pub async fn send_chat_request_and_parse_stream(
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     message: &str,
-) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
+) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
     let (chat_request, new_message, request_estimated_tokens) =
         ChatRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
             conversation_id,
             message,
+            app_config,
         )
         .await?;
 
@@ -352,7 +400,8 @@ pub async fn send_chat_request_and_parse_stream(
     )
     .await?;
 
-    let _request_cancelled_guard = RequestCancelledGuard {
+    // Instantiate the guard before creating the stream.
+    let guard = RequestCancelledGuard {
         response_message_id: response_message.id,
         received_string: full_response_text.clone(),
         pool: pool.clone(),
@@ -433,7 +482,12 @@ pub async fn send_chat_request_and_parse_stream(
         }
     };
 
-    Ok(response_stream)
+    // Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
+    // This way we do cleanup only when the stream is dropped and not when this function returns.
+    let guarded_stream = GuardedStream::new(guard, response_stream);
+
+    // Box and pin the GuardedStream to satisfy the Unpin requirement
+    Ok(Box::pin(guarded_stream))
 }
 
 /// Build the headers for the API request.

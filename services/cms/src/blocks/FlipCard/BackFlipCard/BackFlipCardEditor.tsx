@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"
 
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/heading"]
+const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/heading", "core/list"]
 
 const BackFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ clientId }) => {
   const { t } = useTranslation()
@@ -17,7 +17,7 @@ const BackFlipCardEditor: React.FC<BlockEditProps<Record<string, never>>> = ({ c
       explanation={t("back-card-explanation")}
     >
       <div>
-        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+        <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
       </div>
     </BlockPlaceholderWrapper>
   )

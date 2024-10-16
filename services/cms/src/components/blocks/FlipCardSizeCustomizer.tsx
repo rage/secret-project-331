@@ -1,4 +1,3 @@
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { BlockIcon } from "@wordpress/block-editor"
 import { PanelBody, Placeholder } from "@wordpress/components"
@@ -34,18 +33,24 @@ const FlipBoxSizeCustomizer: React.FC<React.PropsWithChildren<FlipCardCustomizer
         label={t("flip-card-size-customizer")}
       >
         <RadioButton
+          // eslint-disable-next-line i18next/no-literal-string
           label={"Xl (500x500)"}
           name={t("flip-card-size-customizer")}
+          // eslint-disable-next-line i18next/no-literal-string
           onChange={() => setAttributes({ size: "xl" })}
         />
         <RadioButton
+          // eslint-disable-next-line i18next/no-literal-string
           label={"M (300x300)"}
           name={t("flip-card-size-customizer")}
+          // eslint-disable-next-line i18next/no-literal-string
           onChange={() => setAttributes({ size: "m" })}
         />
         <RadioButton
+          // eslint-disable-next-line i18next/no-literal-string
           label={"S (200x200)"}
           name={t("flip-card-size-customizer")}
+          // eslint-disable-next-line i18next/no-literal-string
           onChange={() => setAttributes({ size: "s" })}
         />
       </Placeholder>

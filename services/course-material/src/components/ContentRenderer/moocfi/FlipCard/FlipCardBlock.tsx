@@ -13,7 +13,10 @@ interface FlipCardAttributes {
 }
 
 function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes> {
-  return block.name === "core/image"
+  if (block.innerBlocks.length > 0) {
+    return block.innerBlocks[0].name === "core/image"
+  }
+  return false
 }
 
 const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCardAttributes>>> = (
@@ -22,20 +25,10 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
   const { t } = useTranslation()
   const frontCard = props.data.innerBlocks[0] as Block<FlipCardAttributes>
   const backCard = props.data.innerBlocks[1] as Block<FlipCardAttributes>
-
-  let size = 0
-  if (props.data.attributes.size == "xl") {
-    size = 500
-  } else if (props.data.attributes.size == "m") {
-    size = 400
-  } else if (props.data.attributes.size == "s") {
-    size = 300
-  }
+  const size = sizeStringToSizepx(props.data)
 
   const [frontSideUp, setFrontSideUp] = useState(true)
-  const currentIsImage = isBlockImage(
-    frontSideUp ? frontCard.innerBlocks[0] : backCard.innerBlocks[0],
-  )
+  const currentIsImage = isBlockImage(frontSideUp ? frontCard : backCard)
 
   return (
     <div
@@ -67,7 +60,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
           transition: transform 0.8s;
           transform-style: preserve-3d;
           ${frontSideUp ? "transform: rotateY(180deg);" : "transform: rotateY(0);"}
-          ${currentIsImage ? "" : "border: 3px solid #bfbec6"};
+          ${!currentIsImage && "border: 3px solid #bfbec6;"}
           border-radius: 10px;
         `}
       >
@@ -94,9 +87,7 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             data={[frontCard]}
             editing={false}
             selectedBlockId={null}
-            setEdits={function (): void {
-              throw new Error("Function not implemented.")
-            }}
+            setEdits={function (): void {}}
             isExam={false}
           />
         </div>
@@ -121,15 +112,23 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             data={[backCard]}
             editing={false}
             selectedBlockId={null}
-            setEdits={function (): void {
-              throw new Error("Function not implemented.")
-            }}
+            setEdits={function (): void {}}
             isExam={false}
           />
         </div>
       </div>
     </div>
   )
+}
+
+function sizeStringToSizepx(block: Block<FlipCardAttributes>) {
+  if (block.attributes.size == "xl") {
+    return 500
+  } else if (block.attributes.size == "m") {
+    return 400
+  } else if (block.attributes.size == "s") {
+    return 300
+  }
 }
 
 export default withErrorBoundary(FlipCardBlock)

@@ -19,13 +19,17 @@ interface FlipCardAttributes {
 }
 
 function isBlockImage(block: Block<unknown>): block is Block<FlipCardAttributes> {
-  return block.name === "core/image"
+  if (block.innerBlocks.length > 0) {
+    return block.innerBlocks[0].name === "core/image"
+  }
+  return false
 }
 
 const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCardAttributes>>> = (
   props,
 ) => {
-  if (isBlockImage(props.data.innerBlocks[0]) && props.data.innerBlocks.length == 1) {
+  // Checks if the inner card block is an image to render it correctly
+  if (isBlockImage(props.data) && props.data.innerBlocks.length == 1) {
     const imageBlock = props.data.innerBlocks[0] as Block<FlipCardAttributes>
     const imageLink = imageBlock.attributes.href
     const altText = imageBlock.attributes.alt

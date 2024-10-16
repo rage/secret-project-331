@@ -2,7 +2,8 @@ use actix_web::http::header::ContentType;
 use chrono::Utc;
 
 use headless_lms_chatbot::azure_chatbot::{
-    estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
+    estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest, DataSource,
+    DataSourceParameters, DataSourceParametersAuthentication, EmbeddingDependency, FieldsMapping,
 };
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
@@ -96,8 +97,43 @@ async fn send_message(
         },
     );
 
+    let mut data_sources = Vec::new();
+
+    if configuration.use_azure_search {
+        let index_name = format!("{}-{}", "test", configuration.course_id);
+        data_sources.push(DataSource {
+            data_type: "example_data_type".to_string(),
+            parameters: DataSourceParameters {
+                endpoint: "your_endpoint".to_string(),
+                authentication: DataSourceParametersAuthentication {
+                    auth_type: "your_auth_type".to_string(),
+                    managed_identity_resource_id: "your_managed_identity_resource_id".to_string(),
+                },
+                index_name: index_name.clone(),
+                query_type: "your_query_type".to_string(),
+                embedding_dependency: EmbeddingDependency {
+                    dep_type: "dep_type".to_string(),
+                    deployment_name: "todo".to_string(),
+                },
+            in_scope: true,
+            top_n_documents: 5,
+            strictness: 3,
+            role_information: "You're an AI assistant on a course that helps students to learn and find information.".to_string(),
+            fields_mapping: FieldsMapping {
+                content_fields_separator: ",".to_string(),
+                content_fields: vec!["content".to_string()],
+                filepath_field: "filepath".to_string(),
+                title_field: "title".to_string(),
+                url_field: "url".to_string(),
+                vector_fields: vec!["vector".to_string()],
+            },
+        },
+        });
+    }
+
     let chat_request = ChatRequest {
         messages: api_chat_messages,
+        data_sources,
         temperature: configuration.temperature,
         top_p: configuration.top_p,
         frequency_penalty: configuration.frequency_penalty,

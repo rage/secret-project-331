@@ -80,6 +80,7 @@ impl From<ChatbotConversationMessage> for ApiChatMessage {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ChatRequest {
     pub messages: Vec<ApiChatMessage>,
+    pub data_sources: Vec<DataSource>,
     pub temperature: f32,
     pub top_p: f32,
     pub frequency_penalty: f32,
@@ -87,6 +88,51 @@ pub struct ChatRequest {
     pub max_tokens: i32,
     pub stop: Option<String>,
     pub stream: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DataSource {
+    #[serde(rename = "type")]
+    pub data_type: String,
+    pub parameters: DataSourceParameters,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DataSourceParameters {
+    pub endpoint: String,
+    pub authentication: DataSourceParametersAuthentication,
+    pub index_name: String,
+    pub query_type: String,
+    pub embedding_dependency: EmbeddingDependency,
+    pub in_scope: bool,
+    pub top_n_documents: i32,
+    pub strictness: i32,
+    pub role_information: String,
+    pub fields_mapping: FieldsMapping,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DataSourceParametersAuthentication {
+    #[serde(rename = "type")]
+    pub auth_type: String,
+    pub managed_identity_resource_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EmbeddingDependency {
+    #[serde(rename = "type")]
+    pub dep_type: String,
+    pub deployment_name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct FieldsMapping {
+    pub content_fields_separator: String,
+    pub content_fields: Vec<String>,
+    pub filepath_field: String,
+    pub title_field: String,
+    pub url_field: String,
+    pub vector_fields: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

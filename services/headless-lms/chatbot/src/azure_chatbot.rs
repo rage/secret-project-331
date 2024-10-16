@@ -5,10 +5,8 @@ use std::sync::{
 
 use bytes::Bytes;
 use chrono::Utc;
-use futures::prelude::stream::TryStreamExt;
-use futures::Stream;
+use futures::{Stream, TryStreamExt};
 use headless_lms_models::chatbot_conversation_messages::ChatbotConversationMessage;
-
 use headless_lms_utils::{http::REQWEST_CLIENT, ApplicationConfiguration};
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
@@ -57,7 +55,7 @@ pub struct ResponseChunk {
     pub system_fingerprint: Option<String>,
 }
 
-/** The format accepted by the api. */
+/// The format accepted by the API.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ApiChatMessage {
     pub role: String,
@@ -91,12 +89,12 @@ pub struct ChatRequest {
 }
 
 impl ChatRequest {
-    pub async fn build(
+    pub async fn build_and_insert_incoming_message_to_db(
         conn: &mut PgConnection,
         chatbot_configuration_id: Uuid,
         conversation_id: Uuid,
         message: &str,
-    ) -> anyhow::Result<(ChatRequest, ChatbotConversationMessage)> {
+    ) -> anyhow::Result<(Self, ChatbotConversationMessage)> {
         let configuration =
             models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
 
@@ -122,7 +120,7 @@ impl ChatRequest {
                 message: Some(message.to_string()),
                 is_from_chatbot: false,
                 message_is_complete: true,
-                used_tokens: estimate_tokens(&message),
+                used_tokens: estimate_tokens(message),
                 order_number: new_order_number,
             },
         )
@@ -141,11 +139,8 @@ impl ChatRequest {
             },
         );
 
-        let mut data_sources = Vec::new();
-
-        if configuration.use_azure_search {
-            let index_name = format!("{}-{}", "test", configuration.course_id);
-            data_sources.push(DataSource {
+        let data_sources = if configuration.use_azure_search {
+            vec![DataSource {
                 data_type: "example_data_type".to_string(),
                 parameters: DataSourceParameters {
                     endpoint: "your_endpoint".to_string(),
@@ -153,7 +148,7 @@ impl ChatRequest {
                         auth_type: "your_auth_type".to_string(),
                         managed_identity_resource_id: "your_managed_identity_resource_id".to_string(),
                     },
-                    index_name: index_name.clone(),
+                    index_name: format!("test-{}", configuration.course_id),
                     query_type: "your_query_type".to_string(),
                     embedding_dependency: EmbeddingDependency {
                         dep_type: "dep_type".to_string(),
@@ -172,8 +167,10 @@ impl ChatRequest {
                         vector_fields: vec!["vector".to_string()],
                     },
                 },
-            });
-        }
+            }]
+        } else {
+            Vec::new()
+        };
 
         Ok((
             Self {
@@ -238,7 +235,7 @@ pub struct FieldsMapping {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ChatReponse {
+pub struct ChatResponse {
     pub text: String,
 }
 
@@ -263,7 +260,6 @@ impl Drop for RequestCancelledGuard {
             info!("Verifying the received message has been handled");
             let mut conn = pool.acquire().await.expect("Could not acquire connection");
             let full_response_text = received_string.lock().await;
-            // TODO: Verify this works
             if full_response_text.is_empty() {
                 info!("No response received. Deleting the response message");
                 models::chatbot_conversation_messages::delete(&mut conn, response_message_id)
@@ -275,7 +271,7 @@ impl Drop for RequestCancelledGuard {
             let full_response_as_string = full_response_text.join("");
             let estimated_cost = estimate_tokens(&full_response_as_string);
             info!(
-                "End of chatbot response stream. Esimated cost: {}. Response: {}",
+                "End of chatbot response stream. Estimated cost: {}. Response: {}",
                 estimated_cost, full_response_as_string
             );
 
@@ -293,15 +289,14 @@ impl Drop for RequestCancelledGuard {
 
 pub async fn send_chat_request_and_parse_stream(
     conn: &mut PgConnection,
-    // An Arc, cheap to clone.
     pool: PgPool,
     app_config: &ApplicationConfiguration,
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
     message: &str,
 ) -> anyhow::Result<impl Stream<Item = anyhow::Result<Bytes>>> {
-    let (chat_request, new_message) = ChatRequest::build(
-        &mut *conn,
+    let (chat_request, new_message) = ChatRequest::build_and_insert_incoming_message_to_db(
+        conn,
         chatbot_configuration_id,
         conversation_id,
         message,
@@ -324,29 +319,16 @@ pub async fn send_chat_request_and_parse_stream(
     let api_key = chatbot_config.api_key.clone();
     let mut url = chatbot_config.api_endpoint.clone();
 
-    // Always set the api version so that we actually use the api that the code is written for
+    // Always set the API version so that we actually use the API that the code is written for
     url.set_query(Some(&format!("api-version={}", CHATBOT_AZURE_API_VERSION)));
 
-    let mut headers = HeaderMap::new();
-    headers.insert(
-        "api-key",
-        api_key
-            .parse()
-            .map_err(|_e| anyhow::anyhow!("Invalid API key"))?,
-    );
-    headers.insert(
-        "content-type",
-        "application/json"
-            .to_string()
-            .parse()
-            .map_err(|_e| anyhow::anyhow!("Internal error"))?,
-    );
+    let headers = build_headers(&api_key)?;
 
     let response_order_number = new_message.order_number + 1;
 
     let response_message = models::chatbot_conversation_messages::insert(
         conn,
-        models::chatbot_conversation_messages::ChatbotConversationMessage {
+        ChatbotConversationMessage {
             id: Uuid::new_v4(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
@@ -378,14 +360,14 @@ pub async fn send_chat_request_and_parse_stream(
 
     info!("Receiving chat response with {:?}", response.version());
 
-    if !&response.status().is_success() {
-        let status = &response.status();
-        let error_message = &response.text().await?;
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_message = response.text().await?;
         return Err(anyhow::anyhow!(
             "Failed to send chat request. Status: {}. Error: {}",
             status,
             error_message
-        ))?;
+        ));
     }
 
     let stream = response
@@ -402,10 +384,12 @@ pub async fn send_chat_request_and_parse_stream(
             let json_str = line.trim_start_matches("data: ");
             let mut full_response_text = full_response_text.lock().await;
             if json_str.trim() == "[DONE]" {
-
                 let full_response_as_string = full_response_text.join("");
                 let estimated_cost = estimate_tokens(&full_response_as_string);
-                info!("End of chatbot response stream. Esimated cost: {}. Response: {}", estimated_cost, full_response_as_string);
+                info!(
+                    "End of chatbot response stream. Estimated cost: {}. Response: {}",
+                    estimated_cost, full_response_as_string
+                );
                 done.store(true, atomic::Ordering::Relaxed);
                 let mut conn = pool.acquire().await?;
                 models::chatbot_conversation_messages::update(
@@ -423,7 +407,7 @@ pub async fn send_chat_request_and_parse_stream(
                 if let Some(delta) = &choice.delta {
                     if let Some(content) = &delta.content {
                         full_response_text.push(content.clone());
-                        let response = ChatReponse { text: content.clone() };
+                        let response = ChatResponse { text: content.clone() };
                         let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
@@ -441,13 +425,32 @@ pub async fn send_chat_request_and_parse_stream(
     Ok(response_stream)
 }
 
-/** Estimate the number of tokens in a given text. We use this for example to estimate the expense of a chat request. The result is not accurate but it is cheap to calculate. */
+/// Build the headers for the API request.
+fn build_headers(api_key: &str) -> anyhow::Result<HeaderMap> {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "api-key",
+        api_key
+            .parse()
+            .map_err(|_e| anyhow::anyhow!("Invalid API key"))?,
+    );
+    headers.insert(
+        "content-type",
+        "application/json"
+            .to_string()
+            .parse()
+            .map_err(|_e| anyhow::anyhow!("Internal error"))?,
+    );
+    Ok(headers)
+}
+
+/// Estimate the number of tokens in a given text. We use this for example to estimate the expense of a chat request. The result is not accurate but it is cheap to calculate.
 pub fn estimate_tokens(text: &str) -> i32 {
     // Counting text length by taking into account how much space each unicode character takes. This makes more complex characters more expensive.
     let text_length = text.chars().fold(0, |acc, c| {
         let mut len = c.len_utf8() as i32;
         if len > 1 {
-            // The longer the character is, the more likely the text around is taking up more tokens. This is because our estimate of 4 characters per token is only valid for english and non-english languages tend to have more complex characters.
+            // The longer the character is, the more likely the text around is taking up more tokens. This is because our estimate of 4 characters per token is only valid for English and non-English languages tend to have more complex characters.
             len *= 2;
         }
         if c.is_ascii_punctuation() {

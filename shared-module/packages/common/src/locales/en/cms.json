@@ -123,6 +123,7 @@
   "select-repository-exercise": "Select repository exercise",
   "selected-exercise-type": "Selected exercise type: {{exerciseType}}",
   "separator-color": "Separator color",
+  "primary-color": "Primary color",
   "serialize-to-html": "Serialize to HTML",
   "slide-title": "Slide {{ number }}",
   "start": "Start",
@@ -144,5 +145,6 @@
   "use-default-text-for-label": "Use default text for label",
   "warning-points-are-all-or-nothing-disabled": "Warning: It is recommended to enable “points are all or nothing”. The peer reviews given by students vary greatly in quality, which may lead to some students receiving unfair points from the exercise. Enabling this option reduces randomness in the received points, making the peer review process fairer for the students.",
   "welcome-message-for-course": "Welcome message for course...",
+  "terminology": "Terminology",
   "width-of-table": "Width of table"
 }

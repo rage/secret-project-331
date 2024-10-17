@@ -32,7 +32,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
@@ -187,7 +187,7 @@ const Exam: React.FC<React.PropsWithChildren<ExamProps>> = ({ query }) => {
         </div>
         <div
           className={css`
-            font-family: Lato, sans-serif;
+            font-family: ${primaryFont};
             font-size: 20px;
             font-style: normal;
             font-weight: 500;

@@ -4,7 +4,7 @@ import Link from "next/link"
 import React from "react"
 
 import ArrowSVGIcon from "../img/blackArrow.svg"
-import { baseTheme, headingFont, monospaceFont } from "../styles"
+import { baseTheme, monospaceFont, primaryFont } from "../styles"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
@@ -17,7 +17,6 @@ const Wrapper = styled.div`
 const PageNumberBox = styled.div`
   position: relative;
   display: inline-block;
-  opacity: 0.8;
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -37,7 +36,7 @@ const PageNumberBox = styled.div`
 // eslint-disable-next-line i18next/no-literal-string
 const ChapterParts = styled.div`
   margin-left: 0em;
-  padding: 0.8em 1em;
+  padding: 0.6em 1em;
   list-style-type: none;
   color: rgb(17, 24, 36);
   text-decoration: none;
@@ -73,8 +72,8 @@ const ChapterParts = styled.div`
   }
 
   span {
-    font-family: ${headingFont};
-    font-weight: 500;
+    font-family: ${primaryFont};
+    font-weight: 400;
     vertical-align: top;
     font-size: clamp(16px, 1.2vw, 20px);
     display: inline-block;

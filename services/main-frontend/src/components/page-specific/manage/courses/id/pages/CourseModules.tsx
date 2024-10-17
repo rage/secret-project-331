@@ -15,7 +15,7 @@ import { CompletionPolicy, ModifiedModule, NewModule } from "@/shared-module/com
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const AUTOMATIC = "automatic"
@@ -530,22 +530,19 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           display: flex;
           flex-direction: column;
           justify-content: center;
-          align-items: center;
         `}
       >
         <h1
           className={css`
-            margin-bottom: 2rem;
-            font-weight: 600;
-            font-size: 40px;
+            font-size: clamp(2rem, 3.6vh, 36px);
+            color: ${baseTheme.colors.gray[700]};
+            font-family: ${headingFont};
+            font-weight: bold;
+            margin-bottom: 1.6rem;
           `}
         >
           {t("modules")}
         </h1>
-        <NewCourseModuleForm
-          chapters={courseStructureQuery.data.chapterNumbers}
-          onSubmitForm={onSaveNewModule}
-        />
         {moduleList?.modules
           .sort((l, r) => {
             return l.order_number - r.order_number
@@ -555,9 +552,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
               className={css`
                 margin-bottom: 2rem;
                 width: 100%;
-                ${respondToOrLarger.sm} {
-                  width: 80%;
-                }
               `}
               key={module.id}
             >
@@ -572,24 +566,30 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 .map((c) => (
                   <div
                     className={css`
-                      background-color: ${baseTheme.colors.green[100]};
-                      color: ${baseTheme.colors.green[700]};
+                      background-color: #fff;
+                      color: ${baseTheme.colors.gray[700]};
                       height: 3.5rem;
-                      margin-top: 0.25rem;
-                      margin-bottom: 0.25rem;
-                      min-width: 80%;
+                      min-width: 100%;
                       display: flex;
                       align-items: center;
-                      font-weight: 600;
+                      font-weight: 500;
+                      border-bottom: 2px solid #e1e3e5;
+                      border-right: 2px solid #e1e3e5;
+                      border-left: 2px solid #e1e3e5;
+
+                      &:last-of-type {
+                        border-bottom-right-radius: 4px;
+                        border-bottom-left-radius: 4px;
+                      }
                     `}
                     key={c.id}
                   >
                     <div
                       className={css`
-                        margin-left: 2rem;
+                        margin-left: 1.25rem;
                       `}
                     >
-                      {c.chapter_number}: {c.name}
+                      {c.chapter_number}. {c.name}
                     </div>
                   </div>
                 ))}
@@ -609,6 +609,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         rightButtonText={t("button-reset")}
         onClickRight={handleReset}
         rightButtonDisabled={moduleUpdatesMutation.isPending}
+      />
+      <NewCourseModuleForm
+        chapters={courseStructureQuery.data.chapterNumbers}
+        onSubmitForm={onSaveNewModule}
       />
     </>
   )

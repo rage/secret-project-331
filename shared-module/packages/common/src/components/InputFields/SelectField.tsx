@@ -71,9 +71,9 @@ const SelectField = forwardRef<HTMLSelectElement, SelectMenuProps>(
 
             .select {
               width: 100%;
-              border: 1px solid #e0e0e0;
+              border: 2px solid #e0e0e0;
               border-radius: 3px;
-              font-size: 17px;
+              font-size: 16px;
               cursor: ${disabled ? "default" : "pointer"};
               background: #f9f9f9;
               display: grid;
@@ -93,8 +93,9 @@ const SelectField = forwardRef<HTMLSelectElement, SelectMenuProps>(
               margin-right: 10px;
               height: 0.8em;
               line-height: 0;
-              background-color: #333;
+              background-color: #1a2333;
               clip-path: polygon(52% 80%, 0 20%, 100% 20%);
+              opacity: 0.6;
             }
             label {
               color: #333;

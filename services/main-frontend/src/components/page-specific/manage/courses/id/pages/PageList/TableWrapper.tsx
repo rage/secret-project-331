@@ -29,17 +29,39 @@ const TableWrapper: React.FC<React.PropsWithChildren<{ className?: string }>> = 
           border-collapse: separate;
           border-spacing: 0 1rem;
 
-          td {
-            padding: 1rem;
-          }
-
           thead {
             td {
               padding-bottom: 0;
-              font-weight: 600;
-              font-size: 16px;
-              line-height: 16px;
+              font-weight: 500;
+              font-size: 1rem;
+              line-height: 1rem;
               color: ${baseTheme.colors.gray[500]};
+            }
+          }
+
+          tbody {
+            td {
+              padding: 0.75rem 1rem;
+            }
+
+            td {
+              background-color: ${baseTheme.colors.clear[100]};
+            }
+
+            tr td:first-child {
+              border-top-left-radius: 4px;
+            }
+
+            tr td:last-child {
+              border-top-right-radius: 4px;
+            }
+
+            tr td:first-child {
+              border-bottom-left-radius: 4px;
+            }
+
+            tr td:last-child {
+              border-bottom-right-radius: 4px;
             }
           }
         `}

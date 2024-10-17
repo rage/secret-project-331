@@ -3,18 +3,8 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import Bulleye from "../img/bulleye.svg"
-import Cross from "../img/cross.svg"
-import { headingFont } from "../styles"
+import { primaryFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
-
-interface SVGProps {
-  isEven: boolean
-}
-// eslint-disable-next-line i18next/no-literal-string
-const BulleyeTopPosition = "-48px"
-// eslint-disable-next-line i18next/no-literal-string
-const CrossTopPosition = "-26px"
 
 // eslint-disable-next-line i18next/no-literal-string
 const Content = styled.div`
@@ -25,7 +15,7 @@ const Content = styled.div`
   height: auto;
   align-items: center;
   justify-content: space-between;
-  padding: 1.8rem;
+  padding: 1.6rem;
   color: #1a2333;
   margin-bottom: 10px;
   overflow: hidden;
@@ -39,14 +29,14 @@ const Content = styled.div`
   }
 
   h3 {
-    font-family: ${headingFont};
-    font-size: clamp(22px, 2vw, 24px);
-    font-weight: 600;
+    font-family: ${primaryFont};
+    font-size: 22px;
+    font-weight: 400;
     color: #065853;
   }
 
   span {
-    font-family: ${headingFont};
+    font-family: ${primaryFont};
     font-size: 18px;
     opacity: 0.8;
   }
@@ -55,18 +45,10 @@ const Content = styled.div`
     height: 15px;
     width: 15px;
     ${respondToOrLarger.md} {
-      height: 30px;
-      width: 30px;
+      height: 22px;
+      width: 22px;
     }
   }
-`
-// eslint-disable-next-line i18next/no-literal-string
-const SVGWrapper = styled.div<SVGProps>`
-  position: absolute;
-  width: 90px;
-  height: 90px;
-  top: ${({ isEven }) => (isEven ? BulleyeTopPosition : CrossTopPosition)};
-  left: 20px;
 `
 
 export interface TopLevelPageExtraProps {
@@ -83,9 +65,7 @@ export type TopLevelPage = React.HTMLAttributes<HTMLDivElement> & TopLevelPageEx
 const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<TopLevelPage>>> = ({
   title,
   url,
-  index,
 }) => {
-  const isEven = index % 2 === 0
   return (
     <Link
       href={url}
@@ -95,9 +75,7 @@ const TopLevelPage: React.FC<React.PropsWithChildren<React.PropsWithChildren<Top
     >
       <Content>
         <div>
-          <SVGWrapper isEven={isEven}>{isEven ? <Bulleye /> : <Cross />}</SVGWrapper>
           <h3>{title}</h3>
-          {/* <span>{subtitlePlaceholder}</span> */}
         </div>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56.957 49" className="right-arrow">
           <path

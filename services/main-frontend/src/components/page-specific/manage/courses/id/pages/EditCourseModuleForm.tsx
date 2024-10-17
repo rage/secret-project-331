@@ -10,7 +10,7 @@ import Button from "@/shared-module/common/components/Button"
 import Checkbox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { baseTheme, theme } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
@@ -93,18 +93,20 @@ const EditCourseModuleForm: React.FC<Props> = ({
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        background-color: ${theme.primary.bg};
-        color: ${theme.primary.text};
+        background-color: #f7f8f9;
+        color: #1a2333;
         align-items: center;
-        margin-bottom: 0.5rem;
         justify-content: space-between;
+        border: 2px solid #e1e3e5;
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
       `}
     >
       <div
         className={css`
           text-transform: uppercase;
           font-weight: 600;
-          margin: 1rem;
+          margin: 1rem 1.25rem;
           flex-grow: 1;
           ${respondToOrLarger.sm} {
             max-width: 16rem;
@@ -123,7 +125,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
               error={errors["name"]?.message}
             />
           ) : (
-            `${module.order_number}: ${module.name}`
+            `${module.order_number}. ${module.name}`
           )
         ) : (
           t("default-module")
@@ -173,7 +175,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   id="editing-module-start"
                   label={t("starts")}
                   labelStyle={css`
-                    color: ${baseTheme.colors.clear[100]};
+                    color: ${baseTheme.colors.gray[500]};
                   `}
                   options={chapters.map((c) => {
                     return { value: c.toString(), label: c.toString() }
@@ -190,7 +192,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   id="editing-module-ends"
                   label={t("ends")}
                   labelStyle={css`
-                    color: ${baseTheme.colors.clear[100]};
+                    color: ${baseTheme.colors.gray[500]};
                   `}
                   options={chapters.map((cn) => {
                     return { value: cn.toString(), label: cn.toString() }
@@ -204,11 +206,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <Checkbox
               label={t("enable-automatic-completion")}
               {...register("automatic_completion")}
-              className={css`
-                label {
-                  color: #fff !important;
-                }
-              `}
             />
             <div
               className={css`
@@ -225,9 +222,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 type="number"
                 label={t("automatic-completion-points-treshold")}
-                labelStyle={css`
-                  color: #fff;
-                `}
                 placeholder={t("automatic-completion-points-treshold")}
                 {...register("automatic_completion_number_of_points_treshold", {
                   valueAsNumber: true,
@@ -241,9 +235,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   margin-bottom: 0;
                 `}
                 label={t("automatic-completion-exercise-treshold")}
-                labelStyle={css`
-                  color: #fff;
-                `}
                 placeholder={t("automatic-completion-exercise-treshold")}
                 type="number"
                 {...register("automatic_completion_number_of_exercises_attempted_treshold", {
@@ -268,10 +259,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
                       margin-bottom: 0;
                       position: relative;
                       top: 10px;
-
-                      label {
-                        color: #fff !important;
-                      }
                     `}
                   />
                 </div>
@@ -286,18 +273,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
               <Checkbox
                 label={t("override-completion-registration-link")}
                 {...register("override_completion_link")}
-                className={css`
-                  label {
-                    color: #fff !important;
-                  }
-                `}
               />
               <TextField
                 label={t("completion-registration-link")}
                 placeholder={t("completion-registration-link")}
-                labelStyle={css`
-                  color: #fff;
-                `}
                 className={css`
                   margin-bottom: 0;
                 `}
@@ -311,11 +290,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <Checkbox
               label={t("label-enable-registering-completion-to-uh-open-university")}
               {...register("enable_registering_completion_to_uh_open_university")}
-              className={css`
-                label {
-                  color: #fff !important;
-                }
-              `}
             />
             <div
               className={css`
@@ -324,7 +298,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 flex-direction: column;
                 justify-content: left;
                 column-gap: 1rem;
-
+                margin-bottom: 1.4rem;
                 ${respondToOrLarger.md} {
                   align-items: flex-end;
                   flex-direction: row;
@@ -339,9 +313,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 `}
                 label={t("uh-course-code")}
                 placeholder={t("uh-course-code")}
-                labelStyle={css`
-                  color: #fff;
-                `}
                 {...register("uh_course_code")}
                 error={errors["name"]?.message}
               />
@@ -352,9 +323,6 @@ const EditCourseModuleForm: React.FC<Props> = ({
                   margin-bottom: 0;
                 `}
                 label={t("ects-credits")}
-                labelStyle={css`
-                  color: #fff;
-                `}
                 placeholder={t("ects-credits")}
                 type="number"
                 // eslint-disable-next-line i18next/no-literal-string
@@ -369,7 +337,10 @@ const EditCourseModuleForm: React.FC<Props> = ({
         <div
           className={css`
             display: flex;
-            align-items: flex-end;
+
+            button {
+              margin-right: 1rem;
+            }
           `}
         >
           <div
@@ -380,11 +351,16 @@ const EditCourseModuleForm: React.FC<Props> = ({
           {active ? (
             <>
               <Button
-                aria-label={t("button-text-save")}
+                aria-label={t("confirm")}
                 className={css`
-                  border-radius: 0;
-                  height: 3.5rem;
-                  width: 3.5rem;
+                  display: flex !important;
+                  padding: 0 !important;
+                  justify-content: center;
+                  align-items: center;
+                  height: 2rem;
+                  width: 2rem;
+                  background: #e1e3e5 !important;
+                  border-radius: 100%;
                 `}
                 disabled={!isValid || isSubmitting}
                 type={"submit"}
@@ -394,16 +370,22 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 <CheckCircle
                   size={20}
                   className={css`
-                    color: black;
+                    color: #1a2333;
                   `}
                 />
               </Button>
               <Button
                 aria-label={t("button-text-cancel")}
                 className={css`
-                  border-radius: 0;
-                  height: 3.5rem;
-                  width: 3.5rem;
+                  display: flex !important;
+                  padding: 0 !important;
+                  justify-content: center;
+                  align-items: center;
+                  height: 2rem;
+                  width: 2rem;
+                  background: #e1e3e5 !important;
+                  border-radius: 100%;
+                  margin-bottom: 1rem;
                 `}
                 onClick={() => {
                   setActive(false)
@@ -420,31 +402,37 @@ const EditCourseModuleForm: React.FC<Props> = ({
             <Button
               aria-label={t("edit")}
               className={css`
-                border-radius: 0;
-                height: 3.5rem;
-                width: 3.5rem;
+                border-radius: 100%;
+                height: 2rem;
+                width: 2rem;
+                background: #e1e3e5 !important;
               `}
               onClick={() => setActive(true)}
               variant={"icon"}
               size={"small"}
             >
-              <Pencil size={20} />
+              <Pencil size={14} color={"#313947"} />
             </Button>
           )}
           {module.name !== null && (
             <Button
               aria-label={t("button-text-delete")}
               className={css`
-                border-radius: 0;
-                height: 3.5rem;
-                width: 3.5rem;
+                height: 2rem;
+                width: 2rem;
+                background: #fbeef0 !important;
+                border-radius: 100%;
+                display: flex !important;
+                padding: 0 !important;
+                align-items: center;
+                justify-content: center;
               `}
               onClick={() => onDeleteModule(module.id)}
               disabled={isSubmitting}
               variant={"icon"}
               size={"small"}
             >
-              <Trash size={20} />
+              <Trash size={16} color={"#D85762"} />
             </Button>
           )}
         </div>

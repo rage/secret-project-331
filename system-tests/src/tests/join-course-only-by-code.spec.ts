@@ -30,7 +30,7 @@ test("Join course by code only", async ({}) => {
 
   // Check that student can't see to the course
   await student1Page.goto("http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only")
-  await student1Page.getByText("Unauthorized", { exact: true }).click()
+  await student1Page.getByText("Unauthorized", { exact: true }).waitFor()
 
   // Go to join page and add student to the course
   await student1Page.goto(
@@ -45,7 +45,7 @@ test("Join course by code only", async ({}) => {
 
   // Check that student can't see to the course
   await student2Page.goto("http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only")
-  await student2Page.getByText("Unauthorized", { exact: true }).click()
+  await student2Page.getByText("Unauthorized", { exact: true }).waitFor()
 
   // Go to join page and add student to the course
   await student2Page.goto(

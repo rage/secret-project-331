@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["check_if_user_has_access_to_course","insert"],"struct":["JoinCodeUses"]};

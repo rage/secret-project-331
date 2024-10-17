@@ -535,6 +535,8 @@
 <a href="#535" id="535">535</a>
 <a href="#536" id="536">536</a>
 <a href="#537" id="537">537</a>
+<a href="#538" id="538">538</a>
+<a href="#539" id="539">539</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>chrono::{Duration, TimeZone, Utc};
@@ -1032,6 +1034,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>(cs_course, _cs_front_page, _cs_default_course_instance, _cs_default_course_module) =
         library::content_management::create_new_course(

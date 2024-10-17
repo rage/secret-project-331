@@ -304,6 +304,42 @@
 <a href="#304" id="304">304</a>
 <a href="#305" id="305">305</a>
 <a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -392,6 +428,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>(
         statistics_course,
@@ -438,6 +476,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
     library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -446,6 +486,36 @@
             default_course_instance_id: Uuid::parse_str(<span class="string">"5cb4b4d6-4599-4f81-ab7e-79b415f8f584"</span>)<span class="question-mark">?</span>,
         }),
         draft_course,
+        admin_user_id,
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
+        models_requests::fetch_service_info,
+    )
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span>cody_only_course = NewCourse {
+        name: <span class="string">"Joinable by code only"</span>.to_string(),
+        slug: <span class="string">"joinable-by-code-only"</span>.to_string(),
+        organization_id: uh_mathstat_id,
+        language_code: <span class="string">"en-US"</span>.to_string(),
+        teacher_in_charge_name: <span class="string">"admin"</span>.to_string(),
+        teacher_in_charge_email: <span class="string">"admin@example.com"</span>.to_string(),
+        description: <span class="string">"Just a draft."</span>.to_string(),
+        is_draft: <span class="bool-val">false</span>,
+        is_test_mode: <span class="bool-val">false</span>,
+        is_unlisted: <span class="bool-val">false</span>,
+        copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">true</span>,
+        join_code: <span class="prelude-val">Some</span>(
+            <span class="string">"zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU"</span>.to_string(),
+        ),
+    };
+    library::content_management::create_new_course(
+        <span class="kw-2">&amp;mut </span>conn,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str(<span class="string">"39a52e8c-ebbf-4b9a-a900-09aa344f3691"</span>)<span class="question-mark">?</span>,
+            default_course_instance_id: Uuid::parse_str(<span class="string">"5b7286ce-22c5-4874-ade1-262949c4a604"</span>)<span class="question-mark">?</span>,
+        }),
+        cody_only_course,
         admin_user_id,
         models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(<span class="kw-2">&amp;</span>jwt_key)),
         models_requests::fetch_service_info,
@@ -486,6 +556,8 @@
             is_test_mode: <span class="bool-val">false</span>,
             is_unlisted: <span class="bool-val">false</span>,
             copy_user_permissions: <span class="bool-val">false</span>,
+            is_joinable_by_code_only: <span class="bool-val">false</span>,
+            join_code: <span class="prelude-val">None</span>,
         },
         <span class="bool-val">true</span>,
         admin_user_id,

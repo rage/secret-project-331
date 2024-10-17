@@ -4806,6 +4806,16 @@
 <a href="#4806" id="4806">4806</a>
 <a href="#4807" id="4807">4807</a>
 <a href="#4808" id="4808">4808</a>
+<a href="#4809" id="4809">4809</a>
+<a href="#4810" id="4810">4810</a>
+<a href="#4811" id="4811">4811</a>
+<a href="#4812" id="4812">4812</a>
+<a href="#4813" id="4813">4813</a>
+<a href="#4814" id="4814">4814</a>
+<a href="#4815" id="4815">4815</a>
+<a href="#4816" id="4816">4816</a>
+<a href="#4817" id="4817">4817</a>
+<a href="#4818" id="4818">4818</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span><span class="kw">crate</span>::domain::models_requests::{<span class="self">self</span>, JwtKey};
@@ -4902,6 +4912,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>(course, _front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -6834,6 +6846,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
 
     <span class="kw">let </span>(course, _front_page, _default_instance, default_module) =
@@ -6958,6 +6972,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>(course, front_page, default_instance, default_module) =
         library::content_management::create_new_course(
@@ -7835,6 +7851,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(
         <span class="kw-2">&amp;mut </span>conn,
@@ -9240,6 +9258,8 @@
         is_test_mode: <span class="bool-val">false</span>,
         is_unlisted: <span class="bool-val">false</span>,
         copy_user_permissions: <span class="bool-val">false</span>,
+        is_joinable_by_code_only: <span class="bool-val">false</span>,
+        join_code: <span class="prelude-val">None</span>,
     };
 
     <span class="kw">let </span>(course, _front_page, <span class="kw">_</span>, default_module) = library::content_management::create_new_course(

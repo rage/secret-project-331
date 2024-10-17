@@ -1168,6 +1168,14 @@
 <a href="#1168" id="1168">1168</a>
 <a href="#1169" id="1169">1169</a>
 <a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde_json::Value;
@@ -1218,9 +1226,11 @@ INSERT INTO courses (
     is_draft,
     base_module_completion_requires_n_submodule_completions,
     can_add_chatbot,
-    is_unlisted
+    is_unlisted,
+    is_joinable_by_code_only,
+    join_code
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING id,
   name,
   created_at,
@@ -1237,7 +1247,9 @@ RETURNING id,
   is_test_mode,
   base_module_completion_requires_n_submodule_completions,
   can_add_chatbot,
-  is_unlisted
+  is_unlisted,
+  is_joinable_by_code_only,
+  join_code
     "</span>,
         new_course.name,
         new_course.organization_id,
@@ -1250,6 +1262,8 @@ RETURNING id,
         parent_course.base_module_completion_requires_n_submodule_completions,
         parent_course.can_add_chatbot,
         new_course.is_unlisted,
+        new_course.is_joinable_by_code_only,
+        new_course.join_code
     )
     .fetch_one(<span class="kw-2">&amp;mut *</span>tx)
     .<span class="kw">await</span><span class="question-mark">?</span>;
@@ -2334,6 +2348,8 @@ AND deleted_at IS NULL;
                 is_test_mode: <span class="bool-val">false</span>,
                 is_unlisted: <span class="bool-val">false</span>,
                 copy_user_permissions: <span class="bool-val">false</span>,
+                is_joinable_by_code_only: <span class="bool-val">false</span>,
+                join_code: <span class="prelude-val">None</span>,
             }
         }
     }

@@ -120,7 +120,7 @@ export const makeExerciseButtonMutedStyles = css`
 const DeadlineText = styled.div<DeadlineProps>`
   display: flex;
   justify-content: center;
-  font-size: 1.125rem;
+  font-size: 1rem;
   padding: 1rem;
   border-radius: 0.25rem;
   margin-bottom: 0.625rem;
@@ -376,7 +376,7 @@ const ExerciseBlock: React.FC<
               >
                 <div
                   className={css`
-                    font-weight: 500;
+                    font-weight: 600;
                     font-size: 18px;
                     margin-bottom: 0.25rem;
                     color: #1b222c;

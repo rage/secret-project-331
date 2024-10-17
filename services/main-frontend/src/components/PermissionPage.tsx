@@ -171,6 +171,11 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
       >
         <table
           className={css`
+            th {
+              font-weight: 500;
+              opacity: 0.7;
+            }
+
             margin-top: 67px;
             border-spacing: 0 10px;
             th:not(:first-child),
@@ -209,7 +214,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                 >
                   <CaretArrowDown
                     className={css`
-                      margin-bottom: 8px;
+                      margin-bottom: 2px;
+                      margin-left: 2px;
                       transform: scale(1.2);
                       path {
                         fill: #000;
@@ -241,7 +247,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                 >
                   <CaretArrowDown
                     className={css`
-                      margin-bottom: 8px;
+                      margin-bottom: 2px;
+                      margin-left: 2px;
                       transform: scale(1.2);
                       path {
                         fill: #000;
@@ -273,7 +280,8 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                 >
                   <CaretArrowDown
                     className={css`
-                      margin-bottom: 8px;
+                      margin-bottom: 2px;
+                      margin-left: 2px;
                       transform: scale(1.2);
                       path {
                         fill: #000;
@@ -291,20 +299,34 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                 className={css`
                   background: #ffffff;
                   td {
-                    padding-top: 24px;
-                    padding-bottom: 24px;
-                    border-top: 1px solid rgba(190, 190, 190, 0.6);
-                    border-bottom: 1px solid rgba(190, 190, 190, 0.6);
-                    font-size: 20px;
+                    padding-top: 16px;
+                    padding-bottom: 16px;
+                    background: #f5f6f7;
+                    font-size: 16px;
                     line-height: 20px;
+                    color: #1a2333;
                   }
                   & td:first-child {
                     padding-left: 24px;
-                    border-left: 1px solid rgba(190, 190, 190, 0.6);
                   }
                   & td:last-child {
                     padding-right: 24px;
-                    border-right: 1px solid rgba(190, 190, 190, 0.6);
+                  }
+
+                  td:first-child {
+                    border-top-left-radius: 4px;
+                  }
+
+                  td:last-child {
+                    border-top-right-radius: 4px;
+                  }
+
+                  td:first-child {
+                    border-bottom-left-radius: 4px;
+                  }
+
+                  td:last-child {
+                    border-bottom-right-radius: 4px;
                   }
                 `}
                 key={ur.id}
@@ -326,7 +348,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
                       >
-                        <Pencil />
+                        <Pencil size={20} color={"#1A2333"} />
                       </button>
                       <button
                         aria-label={t("remove-role")}
@@ -338,7 +360,7 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                         `}
                         onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
                       >
-                        <XmarkCircle />
+                        <XmarkCircle size={20} color={"#1A2333"} />
                       </button>
                     </td>
                   </>
@@ -405,8 +427,9 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
       <div
         className={css`
           display: flex;
-          flex-direction: column;
-          justify-content: space-around;
+          align-items: center;
+          justify-content: center;
+          margin-top: 1rem;
 
           ${respondToOrLarger.sm} {
             flex-direction: row;
@@ -430,13 +453,17 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
         </div>
         <div
           className={css`
-            display: flex;
-            flex-direction: column;
-            width: 200px;
-            padding-right: 16px;
+            width: 440px;
+            padding: 0;
+            margin-bottom: 3px;
           `}
         >
           <SelectField
+            className={css`
+              select {
+                padding: 10px;
+              }
+            `}
             id={`adding-${t("label-role")}`}
             label={t("label-role")}
             onChangeByValue={(role) => {
@@ -446,10 +473,19 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
             defaultValue={ASSISTANT}
           />
         </div>
+      </div>
 
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        `}
+      >
         <Button
           className={css`
             width: 144px;
+            padding: 0.7625rem 1.125rem !important;
           `}
           onClick={() => addMutation.mutate()}
           size="medium"

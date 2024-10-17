@@ -34,11 +34,11 @@ const CourseCard = styled.div`
   position: relative;
   max-width: 100%;
   width: 100%;
-  height: 320px;
+  height: 300px;
   background: #f5f6f7;
-  border-radius: 3px;
+  border-radius: 6px;
 
-  border: 1px solid #bec3c7;
+  border: 2px solid #e5e7e9;
   :focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};
     outline-offset: 2px;
@@ -54,6 +54,7 @@ const CourseWrapper = styled.div`
   width: 100%;
   height: 100%;
   background: #f5f6f7;
+  border-radius: 6px;
   :hover {
     cursor: pointer;
     background: #ebedee;
@@ -61,15 +62,15 @@ const CourseWrapper = styled.div`
 `
 
 const CourseContent = styled.div`
-  padding: 60px 28px 0px 40px;
+  padding: 2rem 1.5rem;
 `
 
 // eslint-disable-next-line i18next/no-literal-string
 const CourseHeading = styled.div`
   font-family: ${headingFont};
-  font-weight: 400;
-  font-size: 30px;
-  line-height: 1;
+  font-weight: 550;
+  font-size: 24px;
+  line-height: 120%;
   color: #1a2333;
   margin-bottom: 13px;
 `
@@ -86,17 +87,17 @@ const CourseDescription = styled.div`
   -webkit-box-orient: vertical;
 
   font-family: ${primaryFont};
-  font-weight: ${fontWeights["light"]};
-  font-size: 20px;
+  font-weight: 400;
+  font-size: 18px;
   line-height: 24px;
   color: #1a2333;
-  opacity: 0.8;
+  opacity: 0.75;
 `
 
 const CourseLanguageContent = styled.div`
   margin-top: 25px;
   display: flex;
-  padding: 0px 28px 20px 40px;
+  padding: 0px 28px 0rem 1.5rem;
   align-items: center;
 
   position: absolute;
@@ -113,7 +114,7 @@ const LanguageLabel = styled.div`
 // eslint-disable-next-line i18next/no-literal-string
 const LanguageCode = styled.div`
   font-family: ${primaryFont};
-  font-weight: ${fontWeights["semibold"]};
+  font-weight: 450;
   color: #1a2333;
 `
 
@@ -160,8 +161,8 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
             }
             outline: none;
             position: absolute;
-            top: 30px;
-            right: 40px;
+            bottom: 24px;
+            right: 16px;
             opacity: 0.6;
 
             :hover {
@@ -203,7 +204,7 @@ const CourseComponent: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
                   width: 45px;
                   height: 45px;
                   clip-path: ${LanguageComponent.clipPath ?? DEFAULT_FLAG_CLIP_PATH};
-                  margin-left: 35px;
+                  margin-left: 10px;
                 `}
               />
             )}

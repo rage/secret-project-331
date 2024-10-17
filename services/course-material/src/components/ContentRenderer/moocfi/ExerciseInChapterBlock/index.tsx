@@ -40,7 +40,7 @@ const Wrapper = styled.div`
     span {
       vertical-align: top;
       font-family: ${headingFont};
-      font-size: clamp(16px, 1vw, 18px);
+      font-size: 1.25rem;
       font-weight: 600;
       display: inline-block;
       width: 100%;

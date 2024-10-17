@@ -86,7 +86,11 @@ test.describe("test ManualReviewEverything behavior", () => {
     await teacherPage.goto("http://project-331.local/org/uh-cs")
     await teacherPage.getByRole("link", { name: "Manage course 'Peer review Course'" }).click()
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
-    await teacherPage.getByText("ManualReviewEverything 3View answers requiring attention").click()
+    await teacherPage
+      .getByTestId("exercise-row")
+      .filter({ hasText: "ManualReviewEverything" })
+      .getByText("View answers requiring attention")
+      .click()
 
     // Make sure the iframe above is loaded so that it does not cause scrolling
     await teacherPage.getByRole("button", { name: "Custom points" }).first().waitFor()

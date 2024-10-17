@@ -2,7 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface CellInputStyleProps {
   row: number
@@ -17,7 +17,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     position: relative;
     font-size: 2.8vw;
     font-size: 22px;
-    font-family: Josefin Sans, sans-serif;
+    font-family: ${primaryFont};
     display: block;
     width: 50px;
     height: 50px;
@@ -54,8 +54,8 @@ interface TableCellContentProps {
 }
 
 const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>> = ({
-  columnLoop,
-  rowLoop,
+  columnLoop: column,
+  rowLoop: row,
   cellText,
   handleTextarea,
   matrixSize,
@@ -64,7 +64,7 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
   return (
     <>
       <td
-        key={`cell ${rowLoop} ${columnLoop}`}
+        key={`cell ${row} ${column}`}
         className={css`
           padding: 0;
         `}
@@ -76,17 +76,20 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
             position: relative;
           `}
         >
-          <BorderDiv column={columnLoop} row={rowLoop} matrixSize={matrixSize}></BorderDiv>
+          <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
           <CellInputContainer
-            column={columnLoop}
-            row={rowLoop}
+            // eslint-disable-next-line i18next/no-literal-string
+            aria-label={`row: ${row}, column: ${column}`}
+            column={column}
+            data-testid="matrix-cell"
+            row={row}
             matrixSize={matrixSize}
             cellText={cellText}
             isActive={isActive}
             value={cellText ?? ""}
             onSelect={() => setIsActive(true)}
             onBlur={() => setIsActive(false)}
-            onChange={(event) => handleTextarea(event.target.value, columnLoop, rowLoop)}
+            onChange={(event) => handleTextarea(event.target.value, column, row)}
           ></CellInputContainer>
         </div>
       </td>

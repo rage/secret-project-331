@@ -1,87 +1,89 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$" $if(dir)$ dir="$dir$" $endif$>
+
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-$for(author-meta)$
+  $for(author-meta)$
   <meta name="author" content="$author-meta$" />
-$endfor$
-$if(date-meta)$
+  $endfor$
+  $if(date-meta)$
   <meta name="dcterms.date" content="$date-meta$" />
-$endif$
-$if(keywords)$
+  $endif$
+  $if(keywords)$
   <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
-$endif$
-$if(description-meta)$
+  $endif$
+  $if(description-meta)$
   <meta name="description" content="$description-meta$" />
-$endif$
+  $endif$
   <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
   <style>
-body {
-  font-family: "Lato", sans-serif;
-  font-size: 16px;
-  padding: 0.5rem;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Raleway", sans-serif;
-}
+    body {
+      font-family: "Lato", sans-serif;
+      font-size: 16px;
+      padding: 0.5rem;
+    }
 
-img {
-  max-width: 95vw;
-  margin: 1rem auto;
-}
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: "Raleway", sans-serif;
+    }
 
-table {
-  border-collapse: collapse;
-  margin: 1rem 0.5rem;
-  border: 1px solid rgba(168, 166, 166, 0.2);
-  /*! table-layout: fixed; */
-  width: min-content;
-}
+    img {
+      max-width: 95vw;
+      margin: 1rem auto;
+    }
 
-td {
-  padding: 0.5rem;
-  border: 1px solid rgba(168, 166, 166, 0.2);
-  max-width: 700px;
-  white-space:nowrap;
-}
+    table {
+      border-collapse: collapse;
+      margin: 1rem 0.5rem;
+      border: 1px solid rgba(168, 166, 166, 0.2);
+      /*! table-layout: fixed; */
+      width: min-content;
+    }
 
-tr:nth-child(odd) {
-  background-color: #f7f7f7;
-}
+    td {
+      padding: 0.5rem;
+      border: 1px solid rgba(168, 166, 166, 0.2);
+      max-width: 700px;
+      white-space: nowrap;
+    }
 
-thead tr {
-  background-color: white !important;
-}
+    tr:nth-child(odd) {
+      background-color: #f7f7f7;
+    }
 
-th.wide {
-  min-width: 500px;
-}
+    thead tr {
+      background-color: white !important;
+    }
 
-.wide, .canbreak {
-  white-space: normal;
-}
+    th.wide {
+      min-width: 500px;
+    }
 
-p {
-  max-width: 1500px;
-}
+    .wide,
+    .canbreak {
+      white-space: normal;
+    }
 
+    p {
+      max-width: 1500px;
+    }
   </style>
-$for(css)$
+  $for(css)$
   <link rel="stylesheet" href="$css$" />
-$endfor$
-$for(header-includes)$
+  $endfor$
+  $for(header-includes)$
   $header-includes$
-$endfor$
-$if(math)$
+  $endfor$
+  $if(math)$
   $math$
-$endif$
+  $endif$
   <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
   <![endif]-->
@@ -89,42 +91,44 @@ $endif$
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato&family=Raleway&display=swap" rel="stylesheet">
 </head>
+
 <body>
-$for(include-before)$
-$include-before$
-$endfor$
-<a href="index.html">Index</a>
-$body$
-$for(include-after)$
-$include-after$
-$endfor$
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const ths = document.querySelectorAll("th");
-  ths.forEach((th) => {
-    if (th.textContent === "Comment" || th.textContent === "Definition") {
-      th.classList.add("wide");
-      const childIndex = Array.from(th.parentNode.children).indexOf(th) + 1;
-      const selector = "td:nth-child(" + childIndex + ")";
-      console.log({selector, childIndex})
-      const tds = th.closest("table").querySelectorAll(selector);
+  $for(include-before)$
+  $include-before$
+  $endfor$
+  <a href="index.html">Index</a>
+  $body$
+  $for(include-after)$
+  $include-after$
+  $endfor$
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const ths = document.querySelectorAll("th");
+      ths.forEach((th) => {
+        if (th.textContent === "Comment" || th.textContent === "Definition") {
+          th.classList.add("wide");
+          const childIndex = Array.from(th.parentNode.children).indexOf(th) + 1;
+          const selector = "td:nth-child(" + childIndex + ")";
+          console.log({ selector, childIndex })
+          const tds = th.closest("table").querySelectorAll(selector);
 
-      Array.from(tds).forEach((td) => {
-        td.classList.add("wide");
-      });
-    }
-    if (th.textContent === "Children") {
-      const childIndex = Array.from(th.parentNode.children).indexOf(th) + 1;
-      const selector = "td:nth-child(" + childIndex + ")";
-      console.log({selector, childIndex})
-      const tds = th.closest("table").querySelectorAll(selector);
+          Array.from(tds).forEach((td) => {
+            td.classList.add("wide");
+          });
+        }
+        if (th.textContent === "Children") {
+          const childIndex = Array.from(th.parentNode.children).indexOf(th) + 1;
+          const selector = "td:nth-child(" + childIndex + ")";
+          console.log({ selector, childIndex })
+          const tds = th.closest("table").querySelectorAll(selector);
 
-      Array.from(tds).forEach((td) => {
-        td.classList.add("canbreak");
+          Array.from(tds).forEach((td) => {
+            td.classList.add("canbreak");
+          });
+        }
       });
-    }
-  });
-});
-</script>
+    });
+  </script>
 </body>
+
 </html>

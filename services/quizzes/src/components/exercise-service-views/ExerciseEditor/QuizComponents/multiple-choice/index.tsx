@@ -359,9 +359,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 color: #414246;
                 font-size: 14px;
                 margin-bottom: 8px;
-                font-family:
-                  Josefin Sans,
-                  sans-serif;
+                font-family: ${primaryFont};
                 display: block;
                 ${!selected.allowSelectingMultipleOptions && "opacity: 0.5;"}
               `}

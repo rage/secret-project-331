@@ -184,7 +184,7 @@ const MultipleChoiceSubmission: React.FC<
                       {correctAnswer == true && (
                         <div
                           className={css`
-                            background: #69af8a;
+                            background: #9dc7b1;
                             font-size: 0.625rem;
                             text-transform: uppercase;
                             font-weight: bold;

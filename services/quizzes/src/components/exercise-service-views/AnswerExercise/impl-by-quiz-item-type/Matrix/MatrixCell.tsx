@@ -16,7 +16,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     font-size: 2.8vw;
     font-size: 1.375rem;
     color: #313947;
-    font-family: Josefin Sans, sans-serif;
+    font-family: Inter, sans-serif;
     display: block;
     width: 3.125rem;
     height: 3.125rem;
@@ -73,9 +73,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
         font-size: 2.8vw;
         font-size: 1.375rem;
         font-weight: 600;
-        font-family:
-          Josefin Sans,
-          sans-serif;
+        font-family: Inter, sans-serif;
       `}
     >
       <div

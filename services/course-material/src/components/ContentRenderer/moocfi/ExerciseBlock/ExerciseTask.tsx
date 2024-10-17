@@ -116,6 +116,9 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             font-weight: 400;
             color: ${baseTheme.colors.gray[500]};
             padding: 0.75rem 1rem;
+            align-items: center;
+            display: flex;
+            font-size: 1rem;
 
             svg {
               margin-right: 0.5rem;

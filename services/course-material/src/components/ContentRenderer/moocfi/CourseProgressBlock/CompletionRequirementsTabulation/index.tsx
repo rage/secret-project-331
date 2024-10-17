@@ -5,10 +5,9 @@ import HighlightItem from "./HilightItem"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
-const HilightContainer = styled.div`
+const HighlightContainer = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 1rem 0;
 `
 
 export interface CompletionRequirementsTabulationProps {
@@ -22,7 +21,7 @@ const CompletionRequirementsTabulation: React.FC<
   const { t } = useTranslation()
   return (
     <>
-      <HilightContainer>
+      <HighlightContainer>
         {!!pointsRequiredForCompletion && (
           <HighlightItem
             highlightColor={baseTheme.colors.gradient["green"]}
@@ -38,7 +37,7 @@ const CompletionRequirementsTabulation: React.FC<
             leftBorder={!!pointsRequiredForCompletion}
           />
         )}
-      </HilightContainer>
+      </HighlightContainer>
     </>
   )
 }

@@ -14,20 +14,30 @@ const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const { t } = useTranslation()
   return (
     <>
-      <h2>{t("manage-exercise-repositories")}</h2>
-      <ExerciseRepositories courseId={courseId} examId={null} />
       <h2
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.gray[700]};
           font-family: ${headingFont};
           font-weight: bold;
-          text-align: center;
         `}
       >
         {t("title-all-exercises")}
       </h2>
       <ExerciseList courseId={courseId} />
+      <h2
+        className={css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.gray[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+          padding-top: 1rem;
+          margin-bottom: 1rem;
+        `}
+      >
+        {t("manage-exercise-repositories")}
+      </h2>
+      <ExerciseRepositories courseId={courseId} examId={null} />
     </>
   )
 }

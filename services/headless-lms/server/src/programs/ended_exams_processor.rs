@@ -84,9 +84,9 @@ async fn process_ended_exam_enrollments(conn: &mut PgConnection) -> anyhow::Resu
 
     let mut needs_ended_at_date: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
     for enrollment in ongoing_exam_enrollments {
-        let exam = exams.get(&enrollment.exam_id).ok_or_else(|| {
-            ModelError::new(ModelErrorType::Generic, "Exam not found".into(), None)
-        })?;
+        let exam = exams
+            .get(&enrollment.exam_id)
+            .ok_or_else(|| ModelError::new(ModelErrorType::Generic, "Exam not found", None))?;
 
         //Check if users exams should have ended
         if Utc::now() > enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {

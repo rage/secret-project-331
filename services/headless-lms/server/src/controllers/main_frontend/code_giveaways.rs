@@ -145,7 +145,7 @@ async fn delete_code_giveaway_code(
     if id != code.code_giveaway_id {
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Code giveaway and code course mismatch".into(),
+            "Code giveaway and code course mismatch",
             None,
         ));
     }

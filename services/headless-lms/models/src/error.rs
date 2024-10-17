@@ -119,10 +119,10 @@ impl Display for ModelError {
 impl BackendError for ModelError {
     type ErrorType = ModelErrorType;
 
-    fn new(
+    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
-        message: String,
-        source_error: Option<anyhow::Error>,
+        message: M,
+        source_error: S,
     ) -> Self {
         Self::new_with_traces(
             error_type,
@@ -149,17 +149,17 @@ impl BackendError for ModelError {
         &self.span_trace
     }
 
-    fn new_with_traces(
+    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
-        message: String,
-        source_error: Option<anyhow::Error>,
+        message: M,
+        source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
     ) -> Self {
         Self {
             error_type,
-            message,
-            source: source_error,
+            message: message.into(),
+            source: source_error.into(),
             span_trace,
             backtrace,
         }

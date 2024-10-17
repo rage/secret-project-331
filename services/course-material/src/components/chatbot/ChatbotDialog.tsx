@@ -1,6 +1,6 @@
 import { css, keyframes } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 
 import ChatbotDialogBody from "./ChatbotDialogBody"
 import ChatbotDialogHeader from "./ChatbotDialogHeader"
@@ -38,6 +38,8 @@ const closeAnimation = keyframes`
 const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   const { dialogOpen, chatbotConfigurationId } = props
   const [shouldRender, setShouldRender] = useState(dialogOpen)
+
+  const [error, setError] = useState<Error | null>(null)
 
   const currentConversationInfoQuery = useQuery({
     queryKey: ["currentConversationInfo", chatbotConfigurationId],
@@ -83,7 +85,12 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
       onAnimationEnd={handleAnimationEnd}
     >
       <ChatbotDialogHeader {...props} currentConversationInfo={currentConversationInfoQuery} />
-      <ChatbotDialogBody {...props} currentConversationInfo={currentConversationInfoQuery} />
+      <ChatbotDialogBody
+        {...props}
+        currentConversationInfo={currentConversationInfoQuery}
+        error={error}
+        setError={setError}
+      />
     </div>
   )
 }

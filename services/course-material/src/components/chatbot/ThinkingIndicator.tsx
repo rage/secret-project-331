@@ -1,6 +1,7 @@
 // Modified from https://github.com/vineethtrv/css-loader, MIT
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
+import React from "react"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -15,15 +16,18 @@ const bounce = keyframes`
   }
 `
 
+interface DotProps {
+  delaySeconds: number
+}
+
 // eslint-disable-next-line i18next/no-literal-string
-const Dot = styled.span<{ delaySeconds: number }>`
+const Dot = styled.span<DotProps>`
   display: inline-block;
   width: 3px;
   height: 3px;
   margin: 0 2px;
   background-color: ${baseTheme.colors.gray[400]};
   border-radius: 50%;
-
   animation-name: ${bounce};
   animation-duration: 1.3s;
   animation-timing-function: linear;
@@ -31,7 +35,7 @@ const Dot = styled.span<{ delaySeconds: number }>`
   animation-delay: ${({ delaySeconds }) => delaySeconds}s;
 `
 
-const ThinkingIndicator = () => {
+const ThinkingIndicator: React.FC = () => {
   return (
     <span
       className={css`
@@ -45,4 +49,4 @@ const ThinkingIndicator = () => {
   )
 }
 
-export default ThinkingIndicator
+export default React.memo(ThinkingIndicator)

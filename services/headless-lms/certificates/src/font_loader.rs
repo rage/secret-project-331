@@ -21,7 +21,7 @@ pub async fn get_font_database_with_fonts(
         .map_err(|original_error| {
             UtilError::new(
                 UtilErrorType::Other,
-                "Could not get a list of fonts".into(),
+                "Could not get a list of fonts",
                 Some(original_error.into()),
             )
         })?;

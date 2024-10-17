@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_page_sync_statuses AS cps\nSET synced_page_revision_id = data.synced_page_revision_id\nFROM (\n    SELECT unnest($1::uuid []) AS page_id,\n      unnest($2::uuid []) AS synced_page_revision_id\n  ) AS data\nWHERE cps.page_id = data.page_id\nAND cps.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["UuidArray", "UuidArray"]
+    },
+    "nullable": []
+  },
+  "hash": "0aea065aa3885564eb54fe708dd2bb9cf3ebd3989a2078da8c6fb7a4d65028c4"
+}

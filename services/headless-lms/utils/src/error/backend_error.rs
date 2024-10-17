@@ -9,16 +9,16 @@ use tracing_error::SpanTrace;
 pub trait BackendError: std::error::Error + std::marker::Sync {
     type ErrorType: std::fmt::Debug;
 
-    fn new(
+    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
-        message: String,
-        source_error: Option<anyhow::Error>,
+        message: M,
+        source_error: S,
     ) -> Self;
 
-    fn new_with_traces(
+    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
-        message: String,
-        source_error: Option<anyhow::Error>,
+        message: M,
+        source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
     ) -> Self;

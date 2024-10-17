@@ -6,6 +6,7 @@ members = [
   "utils",
   "doc-macro",
   "certificates",
+  "chatbot",
   "langs-api",
 ]
 

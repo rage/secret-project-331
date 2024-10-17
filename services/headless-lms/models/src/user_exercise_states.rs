@@ -118,14 +118,14 @@ impl CourseInstanceOrExamId {
         match (course_instance_id, exam_id) {
             (None, None) => Err(ModelError::new(
                 ModelErrorType::Generic,
-                "Expected either course instance or exam id, but neither were provided.".into(),
+                "Expected either course instance or exam id, but neither were provided.",
                 None,
             )),
             (Some(instance_id), None) => Ok(Self::Instance(instance_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
             (Some(_), Some(_)) => Err(ModelError::new(
                 ModelErrorType::Generic,
-                "Expected either course instance or exam id, but both were provided.".into(),
+                "Expected either course instance or exam id, but both were provided.",
                 None,
             )),
         }

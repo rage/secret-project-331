@@ -62,18 +62,20 @@ pub async fn update(
     id: Uuid,
     message: &str,
     message_is_complete: bool,
+    used_tokens: i32,
 ) -> ModelResult<ChatbotConversationMessage> {
     let res = sqlx::query_as!(
         ChatbotConversationMessage,
         r#"
 UPDATE chatbot_conversation_messages
-SET message = $2, message_is_complete = $3, updated_at = NOW()
+SET message = $2, message_is_complete = $3, used_tokens = $4
 WHERE id = $1
 RETURNING *
         "#,
         id,
         message,
-        message_is_complete
+        message_is_complete,
+        used_tokens
     )
     .fetch_one(conn)
     .await?;

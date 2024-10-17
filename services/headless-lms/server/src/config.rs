@@ -34,30 +34,21 @@ pub struct ServerConfigBuilder {
 
 impl ServerConfigBuilder {
     pub fn try_from_env() -> anyhow::Result<Self> {
-        let builder = Self {
+        Ok(Self {
             database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
             oauth_application_id: env::var("OAUTH_APPLICATION_ID")
                 .context("OAUTH_APPLICATION_ID must be defined")?,
             oauth_secret: env::var("OAUTH_SECRET").context("OAUTH_SECRET must be defined")?,
             auth_url: "https://tmc.mooc.fi/oauth/token"
                 .parse()
-                .expect("known to work"),
+                .context("Failed to parse auth_url")?,
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
                 .context("ICU4X_POSTCARD_PATH must be defined")?,
             file_store: crate::setup_file_store(),
-            app_conf: ApplicationConfiguration {
-                base_url: env::var("BASE_URL").context("BASE_URL must be defined")?,
-                test_mode: env::var("TEST_MODE").is_ok(),
-                development_uuid_login: env::var("DEVELOPMENT_UUID_LOGIN").is_ok(),
-                chatbot_azure_api_key: env::var("CHATBOT_AZURE_API_KEY").ok(),
-                chatbot_azure_api_endpoint: env::var("CHATBOT_AZURE_API_ENDPOINT")
-                    .ok()
-                    .map(|s| Url::parse(&s).expect("Invalid url in CHATBOT_AZURE_API_ENDPOINT")),
-            },
+            app_conf: ApplicationConfiguration::try_from_env()?,
             redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
             jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,
-        };
-        Ok(builder)
+        })
     }
 
     pub async fn build(self) -> anyhow::Result<ServerConfig> {

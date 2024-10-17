@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 
 import ChatbotDialog from "./ChatbotDialog"
 import OpenChatbotButton from "./OpenChatbotButton"
@@ -12,7 +12,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
 
   return (
     <>
-      {!dialogOpen && <OpenChatbotButton dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} />}
+      {!dialogOpen && <OpenChatbotButton setDialogOpen={setDialogOpen} />}
       <ChatbotDialog
         chatbotConfigurationId={chatbotConfigurationId}
         dialogOpen={dialogOpen}
@@ -22,4 +22,4 @@ const Chatbot: React.FC<ChatbotProps> = ({ chatbotConfigurationId }) => {
   )
 }
 
-export default Chatbot
+export default React.memo(Chatbot)

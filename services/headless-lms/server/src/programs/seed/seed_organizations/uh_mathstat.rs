@@ -325,6 +325,10 @@ pub async fn seed_organization_uh_mathstat(
             frequency_penalty: 0.0,
             presence_penalty: 0.0,
             response_max_tokens: 500,
+            use_azure_search: false,
+            maintain_azure_search_index: false,
+            hide_citations: false,
+            use_semantic_reranking: false,
         },
     )
     .await?;

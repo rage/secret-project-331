@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde_json::Value;
 
 use crate::{
@@ -25,6 +27,7 @@ pub struct PageHistory {
     pub history_change_reason: HistoryChangeReason,
     pub restored_from_id: Option<Uuid>,
     pub author_user_id: Uuid,
+    pub page_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -120,7 +123,8 @@ SELECT id,
   created_at,
   history_change_reason as "history_change_reason: HistoryChangeReason",
   restored_from_id,
-  author_user_id
+  author_user_id,
+  page_id
 FROM page_history
 WHERE page_id = $1
 AND deleted_at IS NULL
@@ -150,4 +154,47 @@ AND deleted_at IS NULL
     .fetch_one(conn)
     .await?;
     Ok(res.count.unwrap_or_default())
+}
+
+pub async fn get_latest_history_entries_for_pages_by_course_ids(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, PageHistory>> {
+    let res = sqlx::query_as!(
+        PageHistory,
+        r#"
+WITH ranked_history AS (
+  SELECT ph.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY ph.page_id
+      ORDER BY ph.created_at DESC
+    ) AS rn
+  FROM page_history ph
+    JOIN pages p ON p.id = ph.page_id
+  WHERE p.course_id = ANY($1)
+    AND ph.deleted_at IS NULL
+    AND p.deleted_at IS NULL
+)
+SELECT id,
+  title,
+  content,
+  created_at,
+  history_change_reason AS "history_change_reason: HistoryChangeReason",
+  restored_from_id,
+  author_user_id,
+  page_id
+FROM ranked_history
+WHERE rn = 1
+"#,
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?
+    .into_iter()
+    .fold(HashMap::new(), |mut map, history| {
+        map.insert(history.page_id, history);
+        map
+    });
+
+    Ok(res)
 }

@@ -47,7 +47,7 @@ async fn set_page_audio(
             None => {
                 return Err(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    "Didn't upload any files".into(),
+                    "Didn't upload any files",
                     None,
                 ))
             }

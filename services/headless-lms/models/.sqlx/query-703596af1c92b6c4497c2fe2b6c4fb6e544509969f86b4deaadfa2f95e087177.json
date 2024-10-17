@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET message = $2, message_is_complete = $3, updated_at = NOW()\nWHERE id = $1\nRETURNING *\n        ",
+  "query": "\nUPDATE chatbot_conversation_messages\nSET message = $2, message_is_complete = $3, used_tokens = $4\nWHERE id = $1\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -55,9 +55,9 @@
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Varchar", "Bool"]
+      "Left": ["Uuid", "Varchar", "Bool", "Int4"]
     },
     "nullable": [false, false, false, true, false, true, false, false, false, false]
   },
-  "hash": "b995ab57e52be33ecf7e7cfed470671532d2341a520c8af7e27f2403586617bf"
+  "hash": "703596af1c92b6c4497c2fe2b6c4fb6e544509969f86b4deaadfa2f95e087177"
 }

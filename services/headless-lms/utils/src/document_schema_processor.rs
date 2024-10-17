@@ -219,3 +219,17 @@ pub fn remap_ids_in_content(
     }
     Ok(serde_json::from_str(&content_str)?)
 }
+
+/** Removes the private spec from exercise tasks. */
+pub fn remove_sensitive_attributes(input: Vec<GutenbergBlock>) -> Vec<GutenbergBlock> {
+    input
+        .into_iter()
+        .map(|mut block| {
+            if block.name == "moocfi/exercise-task" {
+                block.attributes = Map::new();
+            }
+            block.inner_blocks = remove_sensitive_attributes(block.inner_blocks);
+            block
+        })
+        .collect()
+}

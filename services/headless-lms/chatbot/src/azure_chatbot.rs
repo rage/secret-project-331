@@ -161,6 +161,12 @@ impl ChatRequest {
                 )
             })?;
 
+            let query_type = if configuration.use_semantic_reranking {
+                "vector_semantic_hybrid"
+            } else {
+                "vector_simple_hybrid"
+            };
+
             vec![DataSource {
                 data_type: "azure_search".to_string(),
                 parameters: DataSourceParameters {
@@ -170,7 +176,7 @@ impl ChatRequest {
                         key: search_config.search_api_key.clone(),
                     },
                     index_name: format!("{}-{}", index_name_prefix, configuration.course_id),
-                    query_type: "vector_simple_hybrid".to_string(),
+                    query_type: query_type.to_string(),
                     semantic_configuration: "default".to_string(),
                     embedding_dependency: EmbeddingDependency {
                         dep_type: "deployment_name".to_string(),
@@ -184,7 +190,7 @@ impl ChatRequest {
                         content_fields: vec!["chunk".to_string()],
                         filepath_field: "filepath".to_string(),
                         title_field: "title".to_string(),
-                        url_field: "page_path".to_string(),
+                        url_field: "url".to_string(),
                         vector_fields: vec!["text_vector".to_string()],
                     },
                 },
@@ -300,11 +306,10 @@ struct RequestCancelledGuard {
 
 impl Drop for RequestCancelledGuard {
     fn drop(&mut self) {
-        info!("Request cancelled");
         if self.done.load(atomic::Ordering::Relaxed) {
             return;
         }
-        warn!("Request was not completed. Cleaning up.");
+        warn!("Request was not cancelled. Cleaning up.");
         let response_message_id = self.response_message_id;
         let received_string = self.received_string.clone();
         let pool = self.pool.clone();

@@ -1,5 +1,5 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useMemo } from "react"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
@@ -9,6 +9,7 @@ interface MessageBubbleProps {
   message: string
   isFromChatbot: boolean
   isPending: boolean
+  hideCitations?: boolean
 }
 
 const bubbleStyle = (isFromChatbot: boolean) => css`
@@ -30,7 +31,18 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
     `}
 `
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isFromChatbot, isPending }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  isFromChatbot,
+  isPending,
+  hideCitations,
+}) => {
+  const processedMessage = useMemo(() => {
+    if (hideCitations) {
+      return message.replace(/\[.*?\]/g, "")
+    }
+    return message
+  }, [hideCitations, message])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
       <span>{message}</span>

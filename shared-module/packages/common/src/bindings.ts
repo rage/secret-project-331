@@ -1189,6 +1189,7 @@ export interface PageHistory {
   history_change_reason: HistoryChangeReason
   restored_from_id: string | null
   author_user_id: string
+  page_id: string
 }
 
 export interface PageVisitDatumSummaryByCourse {

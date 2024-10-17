@@ -146,8 +146,8 @@ pub async fn create_skillset(
                             "inputs": []
                         },
                         {
-                          "name": "page_path",
-                          "source": "/document/page_path",
+                          "name": "url",
+                          "source": "/document/url",
                           "sourceContext": null,
                           "inputs": []
                       }

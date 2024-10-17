@@ -20,6 +20,8 @@ pub struct ChatbotConfiguration {
     pub response_max_tokens: i32,
     pub use_azure_search: bool,
     pub maintain_azure_search_index: bool,
+    pub hide_citations: bool,
+    pub use_semantic_reranking: bool,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {

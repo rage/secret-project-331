@@ -117,6 +117,7 @@ async fn sync_pages(
     config: &SyncerConfig,
     blob_client: &AzureBlobClient,
 ) -> anyhow::Result<()> {
+    let base_url = Url::parse(&config.app_configuration.base_url)?;
     let chatbot_configs =
         headless_lms_models::chatbot_configurations::get_for_azure_search_maintenance(conn).await?;
 
@@ -181,7 +182,7 @@ async fn sync_pages(
 
         let pages = headless_lms_models::pages::get_by_ids(conn, &page_ids).await?;
 
-        sync_pages_batch(conn, &pages, &latest_histories, blob_client).await?;
+        sync_pages_batch(conn, &pages, &latest_histories, blob_client, &base_url).await?;
         delete_old_files(conn, *course_id, blob_client).await?;
 
         run_search_indexer_now(&index_name, &config.app_configuration).await?;
@@ -223,7 +224,24 @@ async fn sync_pages_batch(
     pages: &[Page],
     latest_histories: &HashMap<Uuid, PageHistory>,
     blob_client: &AzureBlobClient,
+    base_url: &Url,
 ) -> anyhow::Result<()> {
+    let course_id = pages
+        .first()
+        .ok_or_else(|| anyhow::anyhow!("No pages to sync."))?
+        .course_id
+        .ok_or_else(|| anyhow::anyhow!("The first page does not belong to any course."))?;
+
+    let course = headless_lms_models::courses::get_course(conn, course_id).await?;
+    let organization =
+        headless_lms_models::organizations::get_organization(conn, course.organization_id).await?;
+
+    let mut url = base_url.clone();
+    url.set_path(&format!(
+        "/org/{}/courses/{}",
+        organization.slug, course.slug
+    ));
+
     let mut allowed_file_paths = Vec::new();
 
     for page in pages {
@@ -236,7 +254,7 @@ async fn sync_pages_batch(
 
         allowed_file_paths.push(blob_path.clone());
         let mut metadata = HashMap::new();
-        metadata.insert("page_path".to_string(), page.url_path.to_string().into());
+        metadata.insert("url".to_string(), url.to_string().into());
         metadata.insert("title".to_string(), page.title.to_string().into());
 
         blob_client

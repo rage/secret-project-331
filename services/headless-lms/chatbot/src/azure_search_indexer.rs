@@ -121,8 +121,8 @@ pub async fn create_search_indexer(
                 "mappingFunction": null
             },
             {
-                "sourceFieldName": "page_path",
-                "targetFieldName": "page_path",
+                "sourceFieldName": "url",
+                "targetFieldName": "url",
                 "mappingFunction": null
             }
         ],

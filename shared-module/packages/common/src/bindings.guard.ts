@@ -2252,7 +2252,8 @@ export function isPageHistory(obj: unknown): obj is PageHistory {
     typeof typedObj["title"] === "string" &&
     (isHistoryChangeReason(typedObj["history_change_reason"]) as boolean) &&
     (typedObj["restored_from_id"] === null || typeof typedObj["restored_from_id"] === "string") &&
-    typeof typedObj["author_user_id"] === "string"
+    typeof typedObj["author_user_id"] === "string" &&
+    typeof typedObj["page_id"] === "string"
   )
 }
 

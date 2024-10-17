@@ -356,7 +356,7 @@ pub async fn create_search_index(
             vector_encoding: None,
         },
         Field {
-            name: "page_path".to_string(),
+            name: "url".to_string(),
             field_type: "Edm.String".to_string(),
             key: Some(false),
             searchable: Some(false),

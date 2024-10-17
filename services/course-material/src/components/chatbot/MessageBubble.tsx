@@ -45,7 +45,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [hideCitations, message])
   return (
     <div className={bubbleStyle(isFromChatbot)}>
-      <span>{message}</span>
+      <span>{processedMessage}</span>
       {isPending && <ThinkingIndicator />}
     </div>
   )

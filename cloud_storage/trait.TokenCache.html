@@ -19,7 +19,7 @@
              'life0: 'async_trait</span>;
 <span class="item-spacer"></span>    fn <a href="#tymethod.fetch_token" class="fn">fetch_token</a>&lt;'life0, 'life1, 'async_trait&gt;(
         &amp;'life0 self,
-        client: &amp;'life1 Client,
+        client: &amp;'life1 <a class="struct" href="../reqwest/async_impl/client/struct.Client.html" title="struct reqwest::async_impl::client::Client">Client</a>,
     ) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.80.1/core/pin/struct.Pin.html" title="struct core::pin::Pin">Pin</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;dyn <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&lt;Output = <a class="type" href="type.Result.html" title="type cloud_storage::Result">Result</a>&lt;(<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u64.html">u64</a>)&gt;&gt; + <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'async_trait&gt;&gt;
        <span class="where">where Self: 'async_trait,
              'life0: 'async_trait,
@@ -28,7 +28,7 @@
     // Provided method
     fn <a href="#method.get" class="fn">get</a>&lt;'life0, 'life1, 'async_trait&gt;(
         &amp;'life0 self,
-        client: &amp;'life1 Client,
+        client: &amp;'life1 <a class="struct" href="../reqwest/async_impl/client/struct.Client.html" title="struct reqwest::async_impl::client::Client">Client</a>,
     ) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.80.1/core/pin/struct.Pin.html" title="struct core::pin::Pin">Pin</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;dyn <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&lt;Output = <a class="type" href="type.Result.html" title="type cloud_storage::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;&gt; + <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'async_trait&gt;&gt;
        <span class="where">where Self: 'async_trait,
              'life0: 'async_trait,
@@ -54,14 +54,14 @@ the expiry of that token as a u64 in seconds sine the Unix Epoch (1 Jan 1970).</
     'life0: 'async_trait,</div></h4></section></summary><div class="docblock"><p>Returns the intended scope for the current token.</p>
 </div></details><details class="toggle method-toggle" open><summary><section id="tymethod.fetch_token" class="method"><a class="src rightside" href="../src/cloud_storage/token.rs.html#34">source</a><h4 class="code-header">fn <a href="#tymethod.fetch_token" class="fn">fetch_token</a>&lt;'life0, 'life1, 'async_trait&gt;(
     &amp;'life0 self,
-    client: &amp;'life1 Client,
+    client: &amp;'life1 <a class="struct" href="../reqwest/async_impl/client/struct.Client.html" title="struct reqwest::async_impl::client::Client">Client</a>,
 ) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.80.1/core/pin/struct.Pin.html" title="struct core::pin::Pin">Pin</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;dyn <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&lt;Output = <a class="type" href="type.Result.html" title="type cloud_storage::Result">Result</a>&lt;(<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, <a class="primitive" href="https://doc.rust-lang.org/1.80.1/std/primitive.u64.html">u64</a>)&gt;&gt; + <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'async_trait&gt;&gt;<div class="where">where
     Self: 'async_trait,
     'life0: 'async_trait,
     'life1: 'async_trait,</div></h4></section></summary><div class="docblock"><p>Fetches and returns the token using the service account</p>
 </div></details></div><h2 id="provided-methods" class="section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="toggle method-toggle" open><summary><section id="method.get" class="method"><a class="src rightside" href="../src/cloud_storage/token.rs.html#18-31">source</a><h4 class="code-header">fn <a href="#method.get" class="fn">get</a>&lt;'life0, 'life1, 'async_trait&gt;(
     &amp;'life0 self,
-    client: &amp;'life1 Client,
+    client: &amp;'life1 <a class="struct" href="../reqwest/async_impl/client/struct.Client.html" title="struct reqwest::async_impl::client::Client">Client</a>,
 ) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.80.1/core/pin/struct.Pin.html" title="struct core::pin::Pin">Pin</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;dyn <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/future/future/trait.Future.html" title="trait core::future::future::Future">Future</a>&lt;Output = <a class="type" href="type.Result.html" title="type cloud_storage::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.80.1/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;&gt; + <a class="trait" href="https://doc.rust-lang.org/1.80.1/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + 'async_trait&gt;&gt;<div class="where">where
     Self: 'async_trait,
     'life0: 'async_trait,

@@ -1,0 +1,21 @@
+{
+  "download-exercise": "Завантажити вправу",
+  "download-submission-button": "Завантажити",
+  "file-upload-save-failure": "Не вдалося зберегти завантажений файл",
+  "file-upload-save-success": "Файл успішно завантажено.",
+  "no-file-saved-yet": "Файл ще не збережено.",
+  "reset": "Скинути",
+  "reset-file": "Скинути файл",
+  "save-file-for-submission": "Зберегти файл для подання",
+  "select-file-for-submission": "Виберіть файл для подання",
+  "select-repository-exercise": "Будь ласка, виберіть вправу з репозиторію.",
+  "selected-repository-exercise": "Вибрана вправа з репозиторію",
+  "solve-in-browser": "Вирішити в браузері",
+  "solve-in-editor-instructions": "Ця вправа призначена для виконання за допомогою розширення TestMyCode для VSCode. Ви також можете завантажити вправу та завантажити рішення за допомогою посилань нижче.",
+  "solve-in-editor-label": "Вирішити у зовнішньому редакторі",
+  "submission-archive-download-label": "Поданий архів можна завантажити за наступним посиланням",
+  "submit": "Подати",
+  "upload-solution-instructions": "Завантажте архів з рішенням. Підтримувані типи архівів: .tar.zst",
+  "waiting-for-content": "Очікування вмісту...",
+  "waiting-for-port": "Очікування порту..."
+}

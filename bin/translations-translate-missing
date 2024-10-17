@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+# Automatically adds missing translations for all non-English languages using the Azure API.
+
+import os
+import json
+import http.client
+from typing import Dict, Any, List
+import json5
+import logging
+
+current_file_path = os.path.abspath(__file__)
+LOCALES_DIR = os.path.abspath(
+    os.path.join(
+        __file__, "..", "..", "shared-module", "packages", "common", "src", "locales"
+    )
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler()],
+)
+
+
+def create_payload(prompt: str, user_message: str) -> Dict[str, Any]:
+    """Create the payload for the API request."""
+    return {
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": user_message},
+        ],
+        "temperature": 0.4,
+        "top_p": 1.0,
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0,
+        "stop": None,
+        "stream": False,
+    }
+
+
+def get_api_key() -> str:
+    """Retrieve the API key from environment variables."""
+    api_key = os.getenv("AZURE_API_KEY")
+
+    if not api_key:
+        raise ValueError("AZURE_API_KEY environment variable not set")
+    return api_key
+
+
+def make_api_request(payload: Dict[str, Any], api_key: str) -> str:
+    """Make a POST request to the Azure API with the given payload and API key."""
+    api_host = os.getenv("AZURE_API_HOST")
+    api_model = os.getenv("AZURE_API_MODEL")
+    if not api_host or not api_model:
+        raise ValueError(
+            "AZURE_API_HOST and AZURE_API_MODEL environment variables must be set"
+        )
+
+    # Sanitize api_host by removing protocol and leading slashes if present
+    original_api_host = api_host  # For logging
+    if api_host.startswith("https://"):
+        api_host = api_host[len("https://") :]
+    elif api_host.startswith("http://"):
+        api_host = api_host[len("http://") :]
+    if api_host.startswith("//"):
+        api_host = api_host.lstrip("/")
+
+    logging.info(f"Using API host: '{api_host}' (original: '{original_api_host}')")
+
+    conn = http.client.HTTPSConnection(api_host)
+    headers = {
+        "api-key": api_key,
+        "Content-Type": "application/json; charset=utf-8",  # Specify UTF-8 charset
+    }
+
+    # Encode the body as UTF-8 bytes
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+
+    try:
+        conn.request(
+            "POST",
+            f"/openai/deployments/{api_model}/chat/completions?api-version=2024-06-01",
+            body,
+            headers,
+        )
+        res = conn.getresponse()
+        response_data = res.read().decode("utf-8")  # Decode response as UTF-8
+        conn.close()
+        return response_data
+    except Exception as e:
+        logging.error(f"Error during API request: {e}")
+        conn.close()
+        raise
+
+
+def get_all_language_slugs(locales_dir: str) -> List[str]:
+    """Retrieve all language slugs except for 'en'."""
+    return [
+        lang
+        for lang in os.listdir(locales_dir)
+        if os.path.isdir(os.path.join(locales_dir, lang)) and lang.lower() != "en"
+    ]
+
+
+def load_json_file(filepath: str) -> Dict[str, str]:
+    """Load a JSON file and return its content as a dictionary."""
+    with open(filepath, "r", encoding="utf-8") as file:
+        try:
+            return json.load(file)
+        except json.JSONDecodeError:
+            # Fallback to json5 if standard json fails
+            file.seek(0)
+            return json5.load(file)
+
+
+def save_json_file(data: Dict[str, Any], filepath: str):
+    """Save a dictionary to a JSON file with pretty formatting."""
+    with open(filepath, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=2, ensure_ascii=False)
+        file.write("\n")  # Ensure the file ends with a newline for POSIX compliance
+
+
+def clean_response_content(res: str) -> str:
+    """
+    Remove Markdown code block syntax from the response.
+    Example:
+        Input: ```json\n{...}\n```
+        Output: {...}
+    """
+    res = res.strip()
+    if res.startswith("```"):
+        # Remove the opening ```
+        res = res.split("```", 1)[1]
+    if res.endswith("```"):
+        # Remove the closing ```
+        res = res.rsplit("```", 1)[0]
+    return res.strip()
+
+
+def translate_missing_keys(
+    en_keys: Dict[str, str], target_keys: Dict[str, str], target_lang: str
+) -> Dict[str, str]:
+    """Translate missing keys from English to the target language."""
+    missing = {k: v for k, v in en_keys.items() if k not in target_keys}
+    if not missing:
+        return {}
+
+    translated = {}
+    api_key = get_api_key()
+
+    # Split missing keys into batches of 100
+    batches = [
+        dict(list(missing.items())[i : i + 100]) for i in range(0, len(missing), 100)
+    ]
+    for idx, batch in enumerate(batches, 1):
+        logging.info(
+            f"Translating batch {idx}/{len(batches)} for language '{target_lang}'"
+        )
+        prompt = (
+            f"Translate the given i18next translation key-value pairs from English to {target_lang}. "
+            "Provide only the translated JSON object without any additional text or code blocks. Ensure the JSON is valid."
+        )
+        user_message = json.dumps(batch, indent=2, ensure_ascii=False)
+        payload = create_payload(prompt, user_message)
+        response = make_api_request(payload, api_key)
+
+        # Basic validation to ensure response starts with '{'
+        if not response.strip().startswith("{"):
+            logging.error(
+                f"Unexpected response format for batch {idx} in language '{target_lang}': {response}"
+            )
+            continue
+
+        try:
+            parsed = json.loads(response)
+            res = parsed["choices"][0]["message"]["content"]
+
+            # Clean the response content to remove code blocks
+            res_clean = clean_response_content(res)
+
+            # Now parse the cleaned response
+            res_parsed = json5.loads(res_clean)
+            if not isinstance(res_parsed, dict):
+                logging.error(
+                    f"Unexpected response format for batch {idx}: {res_clean}"
+                )
+                continue
+            translated.update(res_parsed)
+            logging.info(f"Batch {idx} translated successfully.")
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logging.error(f"Error parsing response for batch {idx}: {e}")
+            logging.error(f"Response content: {response}")
+            continue
+
+    return translated
+
+
+def main():
+    api_host = os.getenv("AZURE_API_HOST")
+    api_model = os.getenv("AZURE_API_MODEL")
+    if not api_host or not api_model:
+        raise ValueError(
+            "AZURE_API_HOST and AZURE_API_MODEL environment variables must be set"
+        )
+
+    en_dir = os.path.join(LOCALES_DIR, "en")
+    if not os.path.exists(en_dir):
+        raise FileNotFoundError(f"English locale directory not found at {en_dir}")
+
+    language_slugs = get_all_language_slugs(LOCALES_DIR)
+    logging.info(f"Found languages to process: {language_slugs}")
+
+    for lang_slug in language_slugs:
+        logging.info(f"\nProcessing language: '{lang_slug}'")
+        target_dir = os.path.join(LOCALES_DIR, lang_slug)
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+            logging.info(
+                f"Created directory for language '{lang_slug}' at {target_dir}"
+            )
+
+        for filename in os.listdir(en_dir):
+            if not filename.endswith(".json"):
+                continue
+
+            en_file_path = os.path.join(en_dir, filename)
+            target_file_path = os.path.join(target_dir, filename)
+
+            en_translations = load_json_file(en_file_path)
+            if os.path.exists(target_file_path):
+                target_translations = load_json_file(target_file_path)
+            else:
+                target_translations = {}
+                logging.info(
+                    f"Target file '{filename}' does not exist for language '{lang_slug}'. It will be created."
+                )
+
+            missing_translations = translate_missing_keys(
+                en_translations, target_translations, lang_slug
+            )
+            if not missing_translations:
+                logging.info(
+                    f"No missing translations in '{filename}' for language '{lang_slug}'."
+                )
+                continue
+
+            # Update target translations with the new translations
+            target_translations.update(missing_translations)
+            save_json_file(target_translations, target_file_path)
+            logging.info(
+                f"Updated '{filename}' with {len(missing_translations)} new translations for language '{lang_slug}'."
+            )
+
+    logging.info("\nAll missing translations have been processed.")
+
+
+if __name__ == "__main__":
+    logging.info("Starting translation process...")
+    main()

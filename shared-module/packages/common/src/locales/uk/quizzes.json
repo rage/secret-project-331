@@ -13,6 +13,7 @@
   "answer-settings": "Варіанти відповіді",
   "aria-label-option-index": "Варіант {{index}}",
   "body": "Тіло",
+  "button-add-example": "Додати приклад",
   "choose-quiz-item-option-direction-help-text": "Виберіть напрямок, у якому параметри елементів вікторини використовуватимуться для розміщення у віджеті",
   "column": "Колонка",
   "correct-answer": "Правильна відповідь",

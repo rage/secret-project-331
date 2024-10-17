@@ -36,6 +36,14 @@ const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
 pub async fn main() -> anyhow::Result<()> {
     initialize_environment()?;
     let config = initialize_configuration().await?;
+    if config.app_configuration.azure_configuration.is_none() {
+        warn!("Azure configuration not provided. Not running chatbot syncer.");
+        // Sleep indefinitely to prevent the program from exiting. This only happens in development.
+        loop {
+            tokio::time::sleep(Duration::from_secs(u64::MAX)).await;
+        }
+    }
+
     let db_pool = initialize_database_pool(&config.database_url).await?;
     let mut conn = db_pool.acquire().await?;
     let blob_client = initialize_blob_client(&config).await?;

@@ -43,6 +43,7 @@ pub mod feedback;
 pub mod file_uploads;
 pub mod generated_certificates;
 pub mod glossary;
+pub mod join_code_uses;
 pub mod library;
 pub mod material_references;
 pub mod offered_answers_to_peer_review_temporary;

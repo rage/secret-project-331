@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    DISTINCT(c.id),\n    c.name,\n    c.created_at,\n    c.updated_at,\n    c.organization_id,\n    c.deleted_at,\n    c.slug,\n    c.content_search_language::text,\n    c.language_code,\n    c.copied_from,\n    c.course_language_group_id,\n    c.description,\n    c.is_draft,\n    c.is_test_mode,\n    c.base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    c.is_unlisted\nFROM courses as c\n    LEFT JOIN course_instances as ci on c.id = ci.course_id\nWHERE\n    c.organization_id = $1 AND\n    ci.starts_at < NOW() AND ci.ends_at > NOW() AND\n    c.deleted_at IS NULL AND ci.deleted_at IS NULL\n    LIMIT $2 OFFSET $3;\n        ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_joinable_by_code_only,\n  join_code\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND id IN (\n    SELECT current_course_id\n    FROM user_course_settings\n    WHERE deleted_at IS NULL\n      AND user_id = $1\n  )\n",
   "describe": {
     "columns": [
       {
@@ -75,22 +75,32 @@
       },
       {
         "ordinal": 14,
+        "name": "is_unlisted",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4"
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "can_add_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 16,
-        "name": "is_unlisted",
+        "ordinal": 17,
+        "name": "is_joinable_by_code_only",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 18,
+        "name": "join_code",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
-      "Left": ["Uuid", "Int8", "Int8"]
+      "Left": ["Uuid"]
     },
     "nullable": [
       false,
@@ -109,8 +119,10 @@
       false,
       false,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "37d99e2343ab0466b42f792cde4c79713a11147c57114c60b5338e89461059aa"
+  "hash": "e45f9d2d34d5e905575efd5c61b0519ddeb78673c0df31a3e078c642f2b6106d"
 }

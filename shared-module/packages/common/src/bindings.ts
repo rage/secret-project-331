@@ -472,6 +472,8 @@ export interface Course {
   is_unlisted: boolean
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
+  is_joinable_by_code_only: boolean
+  join_code: string | null
 }
 
 export interface CourseBreadcrumbInfo {
@@ -500,6 +502,7 @@ export interface CourseUpdate {
   is_test_mode: boolean
   can_add_chatbot: boolean
   is_unlisted: boolean
+  is_joinable_by_code_only: boolean
 }
 
 export interface NewCourse {
@@ -514,6 +517,8 @@ export interface NewCourse {
   is_test_mode: boolean
   is_unlisted: boolean
   copy_user_permissions: boolean
+  is_joinable_by_code_only: boolean
+  join_code: string | null
 }
 
 export interface EmailTemplate {

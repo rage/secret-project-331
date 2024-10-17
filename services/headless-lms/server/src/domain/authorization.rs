@@ -289,9 +289,22 @@ pub async fn authorize_access_to_course_material(
             ));
         }
         authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await?
+    } else if models::courses::is_joinable_by_code_only(conn, course_id).await? {
+        if models::join_code_uses::check_if_user_has_access_to_course(
+            conn,
+            user_id.unwrap(),
+            course_id,
+        )
+        .await
+        .is_err()
+        {
+            authorize(conn, Act::ViewMaterial, user_id, Res::Course(course_id)).await?;
+        }
+        skip_authorize()
     } else {
         skip_authorize()
     };
+
     Ok(token)
 }
 

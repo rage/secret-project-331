@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BlobSignedResource","SasKey"],"struct":["BlobSasPermissions","BlobSharedAccessSignature","UserDeligationKey"]};

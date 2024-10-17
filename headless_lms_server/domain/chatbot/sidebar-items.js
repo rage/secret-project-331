@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["CHATBOT_AZURE_API_VERSION"],"fn":["estimate_tokens","send_chat_request_and_parse_stream"],"static":["CLIENT"],"struct":["ApiChatMessage","ChatReponse","ChatRequest","Choice","ContentFilter","ContentFilterResults","Delta","RequestCancelledGuard","ResponseChunk"]};

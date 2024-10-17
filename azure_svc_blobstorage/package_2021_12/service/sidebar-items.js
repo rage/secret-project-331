@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["filter_blobs","get_account_info","get_properties","get_statistics","get_user_delegation_key","list_containers_segment","set_properties","submit_batch"],"struct":["Client"]};

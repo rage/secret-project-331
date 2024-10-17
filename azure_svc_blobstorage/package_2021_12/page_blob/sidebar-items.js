@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["clear_pages","copy_incremental","create","get_page_ranges","get_page_ranges_diff","resize","update_sequence_number","upload_pages","upload_pages_from_url"],"struct":["Client"]};

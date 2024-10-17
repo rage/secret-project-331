@@ -50,16 +50,16 @@ Contains a common trait for all the error types for this application.
 </span><span class="kw">pub trait </span>BackendError: std::error::Error + std::marker::Sync {
     <span class="kw">type </span>ErrorType: std::fmt::Debug;
 
-    <span class="kw">fn </span>new(
+    <span class="kw">fn </span>new&lt;M: Into&lt;String&gt;, S: Into&lt;<span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;&gt;&gt;(
         error_type: <span class="self">Self</span>::ErrorType,
-        message: String,
-        source_error: <span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;,
+        message: M,
+        source_error: S,
     ) -&gt; <span class="self">Self</span>;
 
-    <span class="kw">fn </span>new_with_traces(
+    <span class="kw">fn </span>new_with_traces&lt;M: Into&lt;String&gt;, S: Into&lt;<span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;&gt;&gt;(
         error_type: <span class="self">Self</span>::ErrorType,
-        message: String,
-        source_error: <span class="prelude-ty">Option</span>&lt;anyhow::Error&gt;,
+        message: M,
+        source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
     ) -&gt; <span class="self">Self</span>;

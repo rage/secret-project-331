@@ -1,4 +1,5 @@
 (function() {var type_impls = {
+"infer":[],
 "libssh2_sys":[],
 "libz_sys":[],
 "openssl_sys":[]

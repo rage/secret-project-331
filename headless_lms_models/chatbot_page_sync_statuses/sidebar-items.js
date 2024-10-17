@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["ensure_sync_statuses_exist","update_page_revision_ids"],"struct":["ChatbotPageSyncStatus"]};

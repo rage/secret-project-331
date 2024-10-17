@@ -69,7 +69,7 @@
         </span>.map_err(|original_error| {
             UtilError::new(
                 UtilErrorType::Other,
-                <span class="string">"Could not get a list of fonts"</span>.into(),
+                <span class="string">"Could not get a list of fonts"</span>,
                 <span class="prelude-val">Some</span>(original_error.into()),
             )
         })<span class="question-mark">?</span>;

@@ -151,7 +151,56 @@
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
 <a href="#153" id="153">153</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>serde_json::Value;
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+
+<span class="kw">use </span>serde_json::Value;
 
 <span class="kw">use crate</span>::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
@@ -178,6 +227,7 @@
     <span class="kw">pub </span>history_change_reason: HistoryChangeReason,
     <span class="kw">pub </span>restored_from_id: <span class="prelude-ty">Option</span>&lt;Uuid&gt;,
     <span class="kw">pub </span>author_user_id: Uuid,
+    <span class="kw">pub </span>page_id: Uuid,
 }
 
 <span class="attr">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -273,7 +323,8 @@ SELECT id,
   created_at,
   history_change_reason as "history_change_reason: HistoryChangeReason",
   restored_from_id,
-  author_user_id
+  author_user_id,
+  page_id
 FROM page_history
 WHERE page_id = $1
 AND deleted_at IS NULL
@@ -303,5 +354,48 @@ AND deleted_at IS NULL
     .fetch_one(conn)
     .<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(res.count.unwrap_or_default())
+}
+
+<span class="kw">pub async fn </span>get_latest_history_entries_for_pages_by_course_ids(
+    conn: <span class="kw-2">&amp;mut </span>PgConnection,
+    course_ids: <span class="kw-2">&amp;</span>[Uuid],
+) -&gt; ModelResult&lt;HashMap&lt;Uuid, PageHistory&gt;&gt; {
+    <span class="kw">let </span>res = <span class="macro">sqlx::query_as!</span>(
+        PageHistory,
+        <span class="string">r#"
+WITH ranked_history AS (
+  SELECT ph.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY ph.page_id
+      ORDER BY ph.created_at DESC
+    ) AS rn
+  FROM page_history ph
+    JOIN pages p ON p.id = ph.page_id
+  WHERE p.course_id = ANY($1)
+    AND ph.deleted_at IS NULL
+    AND p.deleted_at IS NULL
+)
+SELECT id,
+  title,
+  content,
+  created_at,
+  history_change_reason AS "history_change_reason: HistoryChangeReason",
+  restored_from_id,
+  author_user_id,
+  page_id
+FROM ranked_history
+WHERE rn = 1
+"#</span>,
+        course_ids
+    )
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?
+    </span>.into_iter()
+    .fold(HashMap::new(), |<span class="kw-2">mut </span>map, history| {
+        map.insert(history.page_id, history);
+        map
+    });
+
+    <span class="prelude-val">Ok</span>(res)
 }
 </code></pre></div></section></main></body></html>

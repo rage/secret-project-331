@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AccountSasResource","AccountSasResourceType","AccountSasService","AccountSasVersion"],"struct":["AccountSasPermissions","AccountSharedAccessSignature"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ETag"],"mod":["if_match","if_none_match"],"struct":["IfMatch","IfModifiedSince","IfNoneMatch","IfUnmodifiedSince","LastModified","Vary"]};

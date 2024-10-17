@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["get_by_id","get_for_course","insert"],"struct":["ChatbotConfiguration"]};
+window.SIDEBAR_ITEMS = {"fn":["get_by_id","get_for_azure_search_maintenance","get_for_course","insert"],"struct":["ChatbotConfiguration"]};

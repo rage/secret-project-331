@@ -94,6 +94,8 @@
 <a href="#94" id="94">94</a>
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>futures::future::OptionFuture;
 
 <span class="kw">use crate</span>::{chatbot_conversation_messages::ChatbotConversationMessage, prelude::<span class="kw-2">*</span>};
@@ -117,6 +119,7 @@
     <span class="kw">pub </span>current_conversation: <span class="prelude-ty">Option</span>&lt;ChatbotConversation&gt;,
     <span class="kw">pub </span>current_conversation_messages: <span class="prelude-ty">Option</span>&lt;Vec&lt;ChatbotConversationMessage&gt;&gt;,
     <span class="kw">pub </span>chatbot_name: String,
+    <span class="kw">pub </span>hide_citations: bool,
 }
 
 <span class="kw">pub async fn </span>insert(
@@ -188,6 +191,7 @@ LIMIT 1
         current_conversation_messages,
         <span class="comment">// Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         </span>chatbot_name: chatbot_configuration.chatbot_name,
+        hide_citations: chatbot_configuration.hide_citations,
     })
 }
 </code></pre></div></section></main></body></html>

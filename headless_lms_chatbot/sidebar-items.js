@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["azure_blob_storage","azure_chatbot","azure_datasources","azure_search_index","azure_search_indexer","azure_skillset","prelude"]};

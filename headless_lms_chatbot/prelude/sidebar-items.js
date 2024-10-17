@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Deserialize","Serialize"],"macro":["error","info","warn"],"static":["REQWEST_CLIENT"],"struct":["ApplicationConfiguration","PgConnection","Uuid"],"trait":["Deserialize","Serialize"]};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pin-project-internal-1.1.5/src/pin_project/derive.rs`."><title>derive.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pin_project_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/pin-project-internal-1.1.6/src/pin_project/derive.rs`."><title>derive.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="pin_project_internal" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1128,14 +1128,17 @@
 <a href="#1128" id="1128">1128</a>
 <a href="#1129" id="1129">1129</a>
 <a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
 </pre></div><pre class="rust"><code><span class="comment">// SPDX-License-Identifier: Apache-2.0 OR MIT
 
 </span><span class="kw">use </span>proc_macro2::{Delimiter, Group, Span, TokenStream};
 <span class="kw">use </span>quote::{format_ident, quote, quote_spanned, ToTokens};
 <span class="kw">use </span>syn::{
-    parse_quote, punctuated::Punctuated, token, visit_mut::VisitMut, Attribute, Data, DataEnum,
-    DeriveInput, Error, Field, Fields, FieldsNamed, FieldsUnnamed, Generics, Ident, Index,
-    Lifetime, LifetimeParam, Meta, <span class="prelude-ty">Result</span>, Token, Type, Variant, Visibility, WhereClause,
+    parse_quote, punctuated::Punctuated, token, visit_mut::VisitMut, Attribute, Error, Field,
+    Fields, FieldsNamed, FieldsUnnamed, Generics, Ident, Index, Item, Lifetime, LifetimeParam,
+    Meta, <span class="prelude-ty">Result</span>, Token, Type, Variant, Visibility, WhereClause,
 };
 
 <span class="kw">use super</span>::{
@@ -1148,30 +1151,31 @@
 };
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_derive(input: TokenStream) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
-    <span class="kw">let </span><span class="kw-2">mut </span>input: DeriveInput = syn::parse2(input)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>input: Item = syn::parse2(input)<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>cx;
     <span class="kw">let </span><span class="kw-2">mut </span>generate = GenerateTokens::default();
 
-    <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
-    <span class="kw">let </span>ty_generics = input.generics.split_for_impl().<span class="number">1</span>;
-    <span class="kw">let </span>self_ty = <span class="macro">parse_quote!</span>(#ident #ty_generics);
-    <span class="kw">let </span><span class="kw-2">mut </span>visitor = ReplaceReceiver(<span class="kw-2">&amp;</span>self_ty);
-    visitor.visit_generics_mut(<span class="kw-2">&amp;mut </span>input.generics);
-    visitor.visit_data_mut(<span class="kw-2">&amp;mut </span>input.data);
-
-    <span class="kw">match </span><span class="kw-2">&amp;</span>input.data {
-        Data::Struct(data) =&gt; {
-            cx = Context::new(<span class="kw-2">&amp;</span>input.attrs, <span class="kw-2">&amp;</span>input.vis, ident, <span class="kw-2">&amp;mut </span>input.generics, Struct)<span class="question-mark">?</span>;
-            parse_struct(<span class="kw-2">&amp;mut </span>cx, <span class="kw-2">&amp;</span>data.fields, <span class="kw-2">&amp;mut </span>generate)<span class="question-mark">?</span>;
+    <span class="kw">match </span><span class="kw-2">&amp;mut </span>input {
+        Item::Struct(input) =&gt; {
+            <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+            <span class="kw">let </span>ty_generics = input.generics.split_for_impl().<span class="number">1</span>;
+            <span class="kw">let </span>self_ty = <span class="macro">parse_quote!</span>(#ident #ty_generics);
+            <span class="kw">let </span><span class="kw-2">mut </span>visitor = ReplaceReceiver(<span class="kw-2">&amp;</span>self_ty);
+            visitor.visit_item_struct_mut(input);
+            cx = Context::new(<span class="kw-2">&amp;</span>input.attrs, <span class="kw-2">&amp;</span>input.vis, <span class="kw-2">&amp;</span>input.ident, <span class="kw-2">&amp;mut </span>input.generics, Struct)<span class="question-mark">?</span>;
+            parse_struct(<span class="kw-2">&amp;mut </span>cx, <span class="kw-2">&amp;</span>input.fields, <span class="kw-2">&amp;mut </span>generate)<span class="question-mark">?</span>;
         }
-        Data::Enum(data) =&gt; {
-            cx = Context::new(<span class="kw-2">&amp;</span>input.attrs, <span class="kw-2">&amp;</span>input.vis, ident, <span class="kw-2">&amp;mut </span>input.generics, Enum)<span class="question-mark">?</span>;
-            parse_enum(<span class="kw-2">&amp;mut </span>cx, data, <span class="kw-2">&amp;mut </span>generate)<span class="question-mark">?</span>;
+        Item::Enum(input) =&gt; {
+            <span class="kw">let </span>ident = <span class="kw-2">&amp;</span>input.ident;
+            <span class="kw">let </span>ty_generics = input.generics.split_for_impl().<span class="number">1</span>;
+            <span class="kw">let </span>self_ty = <span class="macro">parse_quote!</span>(#ident #ty_generics);
+            <span class="kw">let </span><span class="kw-2">mut </span>visitor = ReplaceReceiver(<span class="kw-2">&amp;</span>self_ty);
+            visitor.visit_item_enum_mut(input);
+            cx = Context::new(<span class="kw-2">&amp;</span>input.attrs, <span class="kw-2">&amp;</span>input.vis, <span class="kw-2">&amp;</span>input.ident, <span class="kw-2">&amp;mut </span>input.generics, Enum)<span class="question-mark">?</span>;
+            parse_enum(<span class="kw-2">&amp;mut </span>cx, input.brace_token, <span class="kw-2">&amp;</span>input.variants, <span class="kw-2">&amp;mut </span>generate)<span class="question-mark">?</span>;
         }
-        Data::Union(<span class="kw">_</span>) =&gt; {
-            <span class="macro">bail!</span>(input, <span class="string">"#[pin_project] attribute may only be used on structs or enums"</span>);
-        }
+        <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(input, <span class="string">"#[pin_project] attribute may only be used on structs or enums"</span>),
     }
 
     <span class="prelude-val">Ok</span>(generate.into_tokens(<span class="kw-2">&amp;</span>cx))
@@ -1217,6 +1221,7 @@
             // - https://github.com/taiki-e/pin-project/pull/70
             </span>#allowed_lints
             <span class="attr">#[allow(unused_qualifications)]
+            #[allow(clippy::needless_lifetimes)]
             #[allow(clippy::semicolon_if_nothing_returned)]
             #[allow(clippy::use_self)]
             #[allow(clippy::used_underscore_binding)]
@@ -1546,7 +1551,8 @@
 
 <span class="kw">fn </span>parse_enum&lt;<span class="lifetime">'a</span>&gt;(
     cx: <span class="kw-2">&amp;mut </span>Context&lt;<span class="lifetime">'a</span>&gt;,
-    DataEnum { brace_token, variants, .. }: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>DataEnum,
+    brace_token: token::Brace,
+    variants: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Punctuated&lt;Variant, <span class="macro">Token!</span>[,]&gt;,
     generate: <span class="kw-2">&amp;mut </span>GenerateTokens,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
     <span class="kw">if let </span>ProjReplace::Unnamed { span } = <span class="kw-2">&amp;</span>cx.project_replace {
@@ -1563,7 +1569,7 @@
     // Do this first for a better error message.
     </span>ensure_not_packed(<span class="kw-2">&amp;</span>cx.orig, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
 
-    validate_enum(<span class="kw-2">*</span>brace_token, variants)<span class="question-mark">?</span>;
+    validate_enum(brace_token, variants)<span class="question-mark">?</span>;
 
     <span class="kw">let </span>ProjectedVariants {
         proj_variants,

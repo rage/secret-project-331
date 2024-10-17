@@ -1500,7 +1500,7 @@ LIMIT $2 OFFSET $3
     <span class="kw">let </span>exercise = exercises::get_by_id(conn, exercise_id).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>exam_id = exercise
         .exam_id
-        .ok_or_else(|| ModelError::new(ModelErrorType::Generic, <span class="string">"No exam id found"</span>.into(), <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
+        .ok_or_else(|| ModelError::new(ModelErrorType::Generic, <span class="string">"No exam id found"</span>, <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
 
     <span class="kw">let </span>teacher_grading_decisions_list = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(conn, <span class="kw-2">&amp;</span>user_exercise_state_id_list).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1509,9 +1509,9 @@ LIMIT $2 OFFSET $3
 
     <span class="kw">let </span><span class="kw-2">mut </span>list: Vec&lt;ExerciseSlideSubmissionAndUserExerciseState&gt; = Vec::new();
     <span class="kw">for </span>sub <span class="kw">in </span>submissions {
-        <span class="kw">let </span>user_exercise_state = user_exercise_states_list.get(<span class="kw-2">&amp;</span>sub.user_id).ok_or_else(|| {
-            ModelError::new(ModelErrorType::Generic, <span class="string">"No user found"</span>.into(), <span class="prelude-val">None</span>)
-        })<span class="question-mark">?</span>;
+        <span class="kw">let </span>user_exercise_state = user_exercise_states_list
+            .get(<span class="kw-2">&amp;</span>sub.user_id)
+            .ok_or_else(|| ModelError::new(ModelErrorType::Generic, <span class="string">"No user found"</span>, <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
 
         <span class="kw">let </span>teacher_grading_decision = teacher_grading_decisions_list.get(<span class="kw-2">&amp;</span>user_exercise_state.id);
         <span class="kw">let </span>user_exam_enrollment =
@@ -1520,7 +1520,7 @@ LIMIT $2 OFFSET $3
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
-                        <span class="string">"No users exam_enrollment found"</span>.into(),
+                        <span class="string">"No users exam_enrollment found"</span>,
                         <span class="prelude-val">None</span>,
                     )
                 })<span class="question-mark">?</span>;

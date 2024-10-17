@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["is_doc","is_docx","is_ppt","is_pptx","is_xls","is_xlsx"]};

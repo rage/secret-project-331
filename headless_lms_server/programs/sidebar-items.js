@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["calculate_page_visit_stats","doc_file_generator","email_deliver","ended_exams_processor","open_university_registration_link_fetcher","peer_review_updater","regrader","seed","service_info_fetcher","sorter","start_server","sync_tmc_users"]};
+window.SIDEBAR_ITEMS = {"mod":["calculate_page_visit_stats","chatbot_syncer","doc_file_generator","email_deliver","ended_exams_processor","open_university_registration_link_fetcher","peer_review_updater","regrader","seed","service_info_fetcher","sorter","start_server","sync_tmc_users"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["acquire_lease","break_lease","create","delete","get_acl","get_properties","list_blobs","release_lease","renew_lease","set_acl"]};

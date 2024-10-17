@@ -340,6 +340,10 @@
 <a href="#340" id="340">340</a>
 <a href="#341" id="341">341</a>
 <a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
 
 <span class="kw">use </span>headless_lms_models::{
@@ -667,6 +671,10 @@
             frequency_penalty: <span class="number">0.0</span>,
             presence_penalty: <span class="number">0.0</span>,
             response_max_tokens: <span class="number">500</span>,
+            use_azure_search: <span class="bool-val">false</span>,
+            maintain_azure_search_index: <span class="bool-val">false</span>,
+            hide_citations: <span class="bool-val">false</span>,
+            use_semantic_reranking: <span class="bool-val">false</span>,
         },
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;

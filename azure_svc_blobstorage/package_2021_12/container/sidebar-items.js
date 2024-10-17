@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["acquire_lease","break_lease","change_lease","create","delete","filter_blobs","get_access_policy","get_account_info","get_properties","list_blob_flat_segment","list_blob_hierarchy_segment","release_lease","rename","renew_lease","restore","set_access_policy","set_metadata","submit_batch"],"struct":["Client"]};

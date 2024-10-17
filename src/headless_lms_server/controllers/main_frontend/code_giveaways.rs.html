@@ -373,7 +373,7 @@ GET `/api/v0/main-frontend/code-giveaways/by-course/:course_id` - Returns code g
     <span class="kw">if </span>id != code.code_giveaway_id {
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">"Code giveaway and code course mismatch"</span>.into(),
+            <span class="string">"Code giveaway and code course mismatch"</span>,
             <span class="prelude-val">None</span>,
         ));
     }

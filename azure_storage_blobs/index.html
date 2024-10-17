@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="This crate is from the Azure SDK for Rust. It supports Azure Blob Storage."><title>azure_storage_blobs - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="azure_storage_blobs" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../azure_storage_blobs/index.html">azure_storage_blobs</a><span class="version">0.20.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li></ul></section></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">azure_storage_blobs</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/azure_storage_blobs/lib.rs.html#1-61">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate is from the <a href="https://github.com/azure/azure-sdk-for-rust">Azure SDK for Rust</a>.
+It supports <a href="https://docs.microsoft.com/azure/storage/blobs/storage-blobs-overview">Azure Blob Storage</a>.</p>
+<h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code>
+<span class="kw">use </span>azure_core::error::{ErrorKind, ResultExt};
+<span class="kw">use </span>azure_storage::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>azure_storage_blobs::prelude::<span class="kw-2">*</span>;
+<span class="kw">use </span>futures::stream::StreamExt;
+
+<span class="attr">#[tokio::main]
+</span><span class="kw">async fn </span>main() -&gt; azure_core::Result&lt;()&gt; {
+    <span class="kw">let </span>file_name = <span class="string">"azure_sdk_for_rust_stream_test.txt"</span>;
+
+    <span class="comment">// First we retrieve the account name and access key from environment variables.
+    </span><span class="kw">let </span>account = std::env::var(<span class="string">"STORAGE_ACCOUNT"</span>).expect(<span class="string">"missing STORAGE_ACCOUNT"</span>);
+    <span class="kw">let </span>access_key = std::env::var(<span class="string">"STORAGE_ACCESS_KEY"</span>).expect(<span class="string">"missing STORAGE_ACCOUNT_KEY"</span>);
+    <span class="kw">let </span>container = std::env::var(<span class="string">"STORAGE_CONTAINER"</span>).expect(<span class="string">"missing STORAGE_CONTAINER"</span>);
+    <span class="kw">let </span>blob_name = std::env::var(<span class="string">"STORAGE_BLOB_NAME"</span>).expect(<span class="string">"missing STORAGE_BLOB_NAME"</span>);
+
+    <span class="kw">let </span>storage_credentials = StorageCredentials::access_key(account.clone(), access_key);
+    <span class="kw">let </span>blob_client = ClientBuilder::new(account, storage_credentials).blob_client(<span class="kw-2">&amp;</span>container, blob_name);
+
+    blob_client.put_block_blob(<span class="string">"hello world"</span>).content_type(<span class="string">"text/plain"</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="kw">let </span><span class="kw-2">mut </span>result: Vec&lt;u8&gt; = <span class="macro">vec!</span>[];
+
+    <span class="comment">// The stream is composed of individual calls to the get blob endpoint
+    </span><span class="kw">let </span><span class="kw-2">mut </span>stream = blob_client.get().into_stream();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(value) = stream.next().<span class="kw">await </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>body = value<span class="question-mark">?</span>.data;
+        <span class="comment">// For each response, we stream the body instead of collecting it all
+        // into one large allocation.
+        </span><span class="kw">while let </span><span class="prelude-val">Some</span>(value) = body.next().<span class="kw">await </span>{
+            <span class="kw">let </span>value = value<span class="question-mark">?</span>;
+            result.extend(<span class="kw-2">&amp;</span>value);
+        }
+    }
+
+    <span class="macro">println!</span>(<span class="string">"result: {:?}"</span>, result);
+
+    <span class="prelude-val">Ok</span>(())
+}
+</code></pre></div>
+</div></details><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="blob/index.html" title="mod azure_storage_blobs::blob">blob</a></div></li><li><div class="item-name"><a class="mod" href="container/index.html" title="mod azure_storage_blobs::container">container</a></div></li><li><div class="item-name"><a class="mod" href="prelude/index.html" title="mod azure_storage_blobs::prelude">prelude</a></div></li><li><div class="item-name"><a class="mod" href="service/index.html" title="mod azure_storage_blobs::service">service</a></div></li></ul></section></div></main></body></html>

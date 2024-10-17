@@ -703,7 +703,7 @@ GET /api/v0/course-material/exams/:id
                                 .ok_or_else(|| {
                                     ModelError::new(
                                         ModelErrorType::Generic,
-                                        <span class="string">"User_exercise_state not found"</span>.into(),
+                                        <span class="string">"User_exercise_state not found"</span>,
                                         <span class="prelude-val">None</span>,
                                     )
                                 })<span class="question-mark">?</span>;
@@ -714,7 +714,7 @@ GET /api/v0/course-material/exams/:id
                                 .ok_or_else(|| {
                                     ModelError::new(
                                         ModelErrorType::Generic,
-                                        <span class="string">"Exercise not found"</span>.into(),
+                                        <span class="string">"Exercise not found"</span>,
                                         <span class="prelude-val">None</span>,
                                     )
                                 })<span class="question-mark">?</span>;

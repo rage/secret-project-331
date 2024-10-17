@@ -444,14 +444,6 @@
 <a href="#444" id="444">444</a>
 <a href="#445" id="445">445</a>
 <a href="#446" id="446">446</a>
-<a href="#447" id="447">447</a>
-<a href="#448" id="448">448</a>
-<a href="#449" id="449">449</a>
-<a href="#450" id="450">450</a>
-<a href="#451" id="451">451</a>
-<a href="#452" id="452">452</a>
-<a href="#453" id="453">453</a>
-<a href="#454" id="454">454</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Helper functions related to uploading to file storage.
 
 </span><span class="kw">pub use </span><span class="kw">crate</span>::domain::authorization::AuthorizationToken;
@@ -519,11 +511,7 @@
     user: AuthUser,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;PathBuf, ControllerError&gt; {
     <span class="kw">let </span>file_payload = payload.next().<span class="kw">await</span>.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            <span class="string">"Missing form data"</span>.into(),
-            <span class="prelude-val">None</span>,
-        )
+        ControllerError::new(ControllerErrorType::BadRequest, <span class="string">"Missing form data"</span>, <span class="prelude-val">None</span>)
     })<span class="question-mark">?</span>;
     <span class="kw">match </span>file_payload {
         <span class="prelude-val">Ok</span>(field) =&gt; {
@@ -568,11 +556,7 @@
     validate_media_headers(headers, <span class="kw-2">&amp;</span>user, conn).<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="kw">let </span>next_payload: <span class="prelude-ty">Result</span>&lt;Field, mp::MultipartError&gt; =
         payload.next().<span class="kw">await</span>.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
-                <span class="string">"Missing form data"</span>.into(),
-                <span class="prelude-val">None</span>,
-            )
+            ControllerError::new(ControllerErrorType::BadRequest, <span class="string">"Missing form data"</span>, <span class="prelude-val">None</span>)
         })<span class="question-mark">?</span>;
     <span class="kw">match </span>next_payload {
         <span class="prelude-val">Ok</span>(field) =&gt; {
@@ -587,7 +571,7 @@
                 )),
                 <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(ControllerError::new(
                     ControllerErrorType::BadRequest,
-                    <span class="string">"Missing image Mime type"</span>.into(),
+                    <span class="string">"Missing image Mime type"</span>,
                     <span class="prelude-val">None</span>,
                 )),
             }<span class="question-mark">?</span>;
@@ -778,7 +762,7 @@
     <span class="kw">let </span>field_content_name = field_content.get_filename().ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">"Missing file name in content-disposition"</span>.into(),
+            <span class="string">"Missing file name in content-disposition"</span>,
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -835,7 +819,7 @@
     <span class="kw">let </span>content_type = headers.get(header::CONTENT_TYPE).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">"Please provide a Content-Type header"</span>.into(),
+            <span class="string">"Please provide a Content-Type header"</span>,
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -852,7 +836,7 @@
     <span class="kw">let </span>content_length = headers.get(header::CONTENT_LENGTH).ok_or_else(|| {
         ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">"Please provide a Content-Length in header"</span>.into(),
+            <span class="string">"Please provide a Content-Length in header"</span>,
             <span class="prelude-val">None</span>,
         )
     })<span class="question-mark">?</span>;
@@ -871,7 +855,7 @@
     </span><span class="kw">if </span>content_length_number &gt; <span class="number">10485760 </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(ControllerError::new(
             ControllerErrorType::BadRequest,
-            <span class="string">"Content length over 10 MB"</span>.into(),
+            <span class="string">"Content length over 10 MB"</span>,
             <span class="prelude-val">None</span>,
         ));
     }

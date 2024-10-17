@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["API_VERSION"],"fn":["create_skillset","does_skillset_exist"]};

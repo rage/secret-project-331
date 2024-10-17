@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["API_VERSION"],"fn":["check_search_indexer_status","create_search_indexer","does_search_indexer_exist","run_search_indexer_now"],"struct":["IndexerError","IndexerStatusResponse","IndexerWarning","LastResult"]};

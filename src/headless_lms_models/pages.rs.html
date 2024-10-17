@@ -3501,6 +3501,35 @@
 <a href="#3501" id="3501">3501</a>
 <a href="#3502" id="3502">3502</a>
 <a href="#3503" id="3503">3503</a>
+<a href="#3504" id="3504">3504</a>
+<a href="#3505" id="3505">3505</a>
+<a href="#3506" id="3506">3506</a>
+<a href="#3507" id="3507">3507</a>
+<a href="#3508" id="3508">3508</a>
+<a href="#3509" id="3509">3509</a>
+<a href="#3510" id="3510">3510</a>
+<a href="#3511" id="3511">3511</a>
+<a href="#3512" id="3512">3512</a>
+<a href="#3513" id="3513">3513</a>
+<a href="#3514" id="3514">3514</a>
+<a href="#3515" id="3515">3515</a>
+<a href="#3516" id="3516">3516</a>
+<a href="#3517" id="3517">3517</a>
+<a href="#3518" id="3518">3518</a>
+<a href="#3519" id="3519">3519</a>
+<a href="#3520" id="3520">3520</a>
+<a href="#3521" id="3521">3521</a>
+<a href="#3522" id="3522">3522</a>
+<a href="#3523" id="3523">3523</a>
+<a href="#3524" id="3524">3524</a>
+<a href="#3525" id="3525">3525</a>
+<a href="#3526" id="3526">3526</a>
+<a href="#3527" id="3527">3527</a>
+<a href="#3528" id="3528">3528</a>
+<a href="#3529" id="3529">3529</a>
+<a href="#3530" id="3530">3530</a>
+<a href="#3531" id="3531">3531</a>
+<a href="#3532" id="3532">3532</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::{hash_map, HashMap};
 
 <span class="kw">use </span>futures::future::{BoxFuture, OptionFuture};
@@ -6758,6 +6787,35 @@ WHERE id = $1
 
     tx.commit().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="kw">pub async fn </span>get_by_ids(conn: <span class="kw-2">&amp;mut </span>PgConnection, ids: <span class="kw-2">&amp;</span>[Uuid]) -&gt; ModelResult&lt;Vec&lt;Page&gt;&gt; {
+    <span class="kw">let </span>pages = <span class="macro">sqlx::query_as!</span>(
+        Page,
+        <span class="string">"
+SELECT id,
+    created_at,
+    updated_at,
+    course_id,
+    exam_id,
+    chapter_id,
+    url_path,
+    title,
+    deleted_at,
+    content,
+    order_number,
+    copied_from,
+    hidden,
+    page_language_group_id
+FROM pages
+WHERE id = ANY($1)
+    AND deleted_at IS NULL
+    "</span>,
+        ids
+    )
+    .fetch_all(conn)
+    .<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(pages)
 }
 
 <span class="attr">#[cfg(test)]

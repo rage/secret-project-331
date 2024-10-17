@@ -215,9 +215,9 @@
 
     <span class="kw">let </span><span class="kw-2">mut </span>needs_ended_at_date: HashMap&lt;Uuid, Vec&lt;Uuid&gt;&gt; = HashMap::new();
     <span class="kw">for </span>enrollment <span class="kw">in </span>ongoing_exam_enrollments {
-        <span class="kw">let </span>exam = exams.get(<span class="kw-2">&amp;</span>enrollment.exam_id).ok_or_else(|| {
-            ModelError::new(ModelErrorType::Generic, <span class="string">"Exam not found"</span>.into(), <span class="prelude-val">None</span>)
-        })<span class="question-mark">?</span>;
+        <span class="kw">let </span>exam = exams
+            .get(<span class="kw-2">&amp;</span>enrollment.exam_id)
+            .ok_or_else(|| ModelError::new(ModelErrorType::Generic, <span class="string">"Exam not found"</span>, <span class="prelude-val">None</span>))<span class="question-mark">?</span>;
 
         <span class="comment">//Check if users exams should have ended
         </span><span class="kw">if </span>Utc::now() &gt; enrollment.started_at + Duration::minutes(exam.time_minutes.into()) {

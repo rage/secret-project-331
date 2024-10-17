@@ -219,6 +219,20 @@
 <a href="#219" id="219">219</a>
 <a href="#220" id="220">220</a>
 <a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
 <span class="kw">use </span>serde::{Deserialize, Serialize};
@@ -439,5 +453,19 @@
         content_str = content_str.replace(<span class="kw-2">&amp;</span>k.to_string(), <span class="kw-2">&amp;</span>v.to_string());
     }
     <span class="prelude-val">Ok</span>(serde_json::from_str(<span class="kw-2">&amp;</span>content_str)<span class="question-mark">?</span>)
+}
+
+<span class="doccomment">/** Removes the private spec from exercise tasks. */
+</span><span class="kw">pub fn </span>remove_sensitive_attributes(input: Vec&lt;GutenbergBlock&gt;) -&gt; Vec&lt;GutenbergBlock&gt; {
+    input
+        .into_iter()
+        .map(|<span class="kw-2">mut </span>block| {
+            <span class="kw">if </span>block.name == <span class="string">"moocfi/exercise-task" </span>{
+                block.attributes = Map::new();
+            }
+            block.inner_blocks = remove_sensitive_attributes(block.inner_blocks);
+            block
+        })
+        .collect()
 }
 </code></pre></div></section></main></body></html>

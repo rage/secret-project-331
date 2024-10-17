@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Helper for constructing operations"><title>operation in azure_core - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="azure_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc macro"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../azure_core/index.html">azure_core</a><span class="version">0.20.0</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Macro <a href="index.html">azure_core</a>::<wbr><a class="macro" href="#">operation</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/azure_core/macros.rs.html#124-279">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><span class="macro">macro_rules!</span> operation {
+    (@builder
+        $(<span class="attr">#[<span class="macro-nonterminal">$outer</span>:meta]</span>)*
+        <span class="comment">// The name of the operation and any generic params along with their constraints
+        </span><span class="macro-nonterminal">$name</span>:ident&lt;$(<span class="macro-nonterminal">$generic</span>:ident: <span class="macro-nonterminal">$first_constraint</span>:ident $(+ <span class="macro-nonterminal">$constraint</span>:ident)* ),* $(+ <span class="macro-nonterminal">$lt</span>:lifetime)<span class="question-mark">?</span>&gt;,
+        <span class="comment">// The client
+        </span>client: <span class="macro-nonterminal">$client</span>:ty,
+        <span class="comment">// The required fields that will be used in the constructor
+        </span>@required
+        $(<span class="macro-nonterminal">$required</span>:ident: <span class="macro-nonterminal">$rtype</span>:ty,)*
+        <span class="comment">// The optional fields that will have generated setters
+        </span>@optional
+        $(<span class="macro-nonterminal">$optional</span>:ident: <span class="macro-nonterminal">$otype</span>:ty,)*
+        <span class="comment">// The optional fields which won't have generated setters
+        </span>@nosetter
+        $(<span class="macro-nonterminal">$nosetter</span>:ident: <span class="macro-nonterminal">$nstype</span>:ty),*
+        ) =&gt; { ... };
+    (<span class="attr">#[stream] </span>$(<span class="attr">#[<span class="macro-nonterminal">$outer</span>:meta]</span>)* <span class="macro-nonterminal">$name</span>:ident,
+        client: <span class="macro-nonterminal">$client</span>:ty,
+        $(<span class="macro-nonterminal">$required</span>:ident: <span class="macro-nonterminal">$rtype</span>:ty,)*
+        $(<span class="question-mark">?</span><span class="macro-nonterminal">$optional</span>:ident: <span class="macro-nonterminal">$otype</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
+    (<span class="attr">#[stream] </span>$(<span class="attr">#[<span class="macro-nonterminal">$outer</span>:meta]</span>)*
+        <span class="macro-nonterminal">$name</span>:ident,
+        client: <span class="macro-nonterminal">$client</span>:ty,
+        $(<span class="macro-nonterminal">$required</span>:ident: <span class="macro-nonterminal">$rtype</span>:ty,)*
+        $(<span class="question-mark">?</span><span class="macro-nonterminal">$optional</span>:ident: <span class="macro-nonterminal">$otype</span>:ty,)*
+        $(<span class="attr">#[skip]</span><span class="macro-nonterminal">$nosetter</span>:ident: <span class="macro-nonterminal">$nstype</span>:ty),*
+    ) =&gt; { ... };
+    ($(<span class="attr">#[<span class="macro-nonterminal">$outer</span>:meta]</span>)* <span class="macro-nonterminal">$name</span>:ident&lt;$(<span class="macro-nonterminal">$generic</span>:ident: <span class="macro-nonterminal">$first_constraint</span>:ident $(+ <span class="macro-nonterminal">$constraint</span>:ident)* ),* $(+ <span class="macro-nonterminal">$lt</span>:lifetime)<span class="question-mark">?</span>&gt;,
+        client: <span class="macro-nonterminal">$client</span>:ty,
+        @required
+        $(<span class="macro-nonterminal">$required</span>:ident: <span class="macro-nonterminal">$rtype</span>:ty,)*
+        @optional
+        $(<span class="macro-nonterminal">$optional</span>:ident: <span class="macro-nonterminal">$otype</span>:ty,)*
+        @nosetter
+        $(<span class="macro-nonterminal">$nosetter</span>:ident: <span class="macro-nonterminal">$nstype</span>:ty),*
+        ) =&gt; { ... };
+    ($(<span class="attr">#[<span class="macro-nonterminal">$outer</span>:meta]</span>)* <span class="macro-nonterminal">$name</span>:ident,
+        client: <span class="macro-nonterminal">$client</span>:ty,
+        $(<span class="macro-nonterminal">$required</span>:ident: <span class="macro-nonterminal">$rtype</span>:ty,)*
+        $(<span class="question-mark">?</span><span class="macro-nonterminal">$optional</span>:ident: <span class="macro-nonterminal">$otype</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
+    ($(<span class="attr">#[<span class="macro-nonterminal">$outer</span>:meta]</span>)* <span class="macro-nonterminal">$name</span>:ident&lt;$(<span class="macro-nonterminal">$generic</span>:ident: <span class="macro-nonterminal">$first_constraint</span>:ident $(+ <span class="macro-nonterminal">$constraint</span>:ident)<span class="kw-2">*</span>),* $(+ <span class="macro-nonterminal">$lt</span>:lifetime)<span class="question-mark">?</span>&gt;,
+        client: <span class="macro-nonterminal">$client</span>:ty,
+        $(<span class="macro-nonterminal">$required</span>:ident: <span class="macro-nonterminal">$rtype</span>:ty,)*
+        $(<span class="question-mark">?</span><span class="macro-nonterminal">$optional</span>:ident: <span class="macro-nonterminal">$otype</span>:ty,)*
+        $(<span class="attr">#[skip] </span><span class="macro-nonterminal">$nosetter</span>:ident: <span class="macro-nonterminal">$nstype</span>:ty),<span class="kw-2">*</span>) =&gt; { ... };
+}</pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Helper for constructing operations</p>
+<p>For the following code:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="macro">azure_core::operation!</span> {
+   CreateCollection,
+   client: DatabaseClient,
+   collection_name: String,
+   <span class="question-mark">?</span>consistency_level: u32
+}</code></pre></div>
+<p>The following code will be generated</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>CreateCollectionBuilder {
+    client: DatabaseClient,
+    collection_name: String,
+    consistency_level: <span class="prelude-ty">Option</span>&lt;u32&gt;,
+    context: Context,
+}
+
+<span class="kw">impl </span>CreateCollectionBuilder {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        client: DatabaseClient,
+        collection_name: String,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            client,
+            collection_name,
+            consistency_level: <span class="prelude-val">None</span>,
+            context: Context::new(),
+        }
+    }
+
+    <span class="macro">setters!</span> {
+        consistency_level: u32 =&gt; <span class="prelude-val">Some</span>(consistency_level),
+        context: Context =&gt; context,
+    }
+}
+
+<span class="kw">impl </span>std::future::IntoFuture <span class="kw">for </span>CreateCollectionBuilder {
+    <span class="kw">type </span>IntoFuture = CreateCollection;
+    <span class="kw">type </span>Output = &lt;CreateCollection <span class="kw">as </span>std::future::Future&gt;::Output;
+    <span class="kw">fn </span>into_future(<span class="self">self</span>) -&gt; <span class="self">Self</span>::IntoFuture {
+        <span class="self">Self</span>::into_future(<span class="self">self</span>)
+    }
+}
+
+<span class="doccomment">/// The future returned by calling `into_future` on the builder.
+</span><span class="kw">pub type </span>CreateCollection =
+    futures::future::BoxFuture&lt;<span class="lifetime">'static</span>, azure_core::Result&lt;CreateCollectionResponse&gt;&gt;;</code></pre></div>
+<p>Additionally, <code>#[stream]</code> can be used before the operation name to generate code appropriate for list operations
+and <code>#[skip]</code> can be used at the end of the list of options for options where we should not generate a setter.</p>
+</div></details></section></div></main></body></html>

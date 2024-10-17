@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EMULATOR_ACCOUNT","EMULATOR_ACCOUNT_KEY"],"enum":["ServiceType"],"fn":["finalize_request","new_pipeline_from_options","shared_access_signature"]};

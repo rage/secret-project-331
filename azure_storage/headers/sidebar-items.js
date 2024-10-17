@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CONTENT_CRC64","COPY_ID","RENAME_SOURCE"],"fn":["consistency_from_headers","content_crc64_from_headers","content_crc64_from_headers_optional","content_md5_from_headers","content_md5_from_headers_optional"],"struct":["CommonStorageResponseHeaders"]};

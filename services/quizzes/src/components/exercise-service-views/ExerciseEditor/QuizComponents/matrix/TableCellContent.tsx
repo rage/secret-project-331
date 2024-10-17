@@ -54,8 +54,8 @@ interface TableCellContentProps {
 }
 
 const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>> = ({
-  columnLoop,
-  rowLoop,
+  columnLoop: column,
+  rowLoop: row,
   cellText,
   handleTextarea,
   matrixSize,
@@ -64,7 +64,7 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
   return (
     <>
       <td
-        key={`cell ${rowLoop} ${columnLoop}`}
+        key={`cell ${row} ${column}`}
         className={css`
           padding: 0;
         `}
@@ -76,17 +76,20 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
             position: relative;
           `}
         >
-          <BorderDiv column={columnLoop} row={rowLoop} matrixSize={matrixSize}></BorderDiv>
+          <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
           <CellInputContainer
-            column={columnLoop}
-            row={rowLoop}
+            // eslint-disable-next-line i18next/no-literal-string
+            aria-label={`row: ${row}, column: ${column}`}
+            column={column}
+            data-testid="matrix-cell"
+            row={row}
             matrixSize={matrixSize}
             cellText={cellText}
             isActive={isActive}
             value={cellText ?? ""}
             onSelect={() => setIsActive(true)}
             onBlur={() => setIsActive(false)}
-            onChange={(event) => handleTextarea(event.target.value, columnLoop, rowLoop)}
+            onChange={(event) => handleTextarea(event.target.value, column, row)}
           ></CellInputContainer>
         </div>
       </td>

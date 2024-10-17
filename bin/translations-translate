@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Machine translates the i18next translation files from english to another language using the Azure API.
 
 import os
 import json

@@ -49,6 +49,7 @@ import {
   UserCourseInstanceChapterProgress,
   UserCourseInstanceProgress,
   UserCourseSettings,
+  UserMarketingConsent,
   UserModuleCompletionStatus,
 } from "@/shared-module/common/bindings"
 import {
@@ -86,6 +87,7 @@ import {
   isUserCourseInstanceChapterProgress,
   isUserCourseInstanceProgress,
   isUserCourseSettings,
+  isUserMarketingConsent,
   isUserModuleCompletionStatus,
 } from "@/shared-module/common/bindings.guard"
 import {
@@ -742,4 +744,27 @@ export const getCodeGiveawayStatus = async (id: string): Promise<CodeGiveawaySta
 export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {
   const response = await courseMaterialClient.post(`/code-giveaways/${id}/claim`)
   return validateResponse(response, isString)
+}
+
+export const updateMarketingConsent = async (
+  courseId: string,
+  consent: boolean,
+): Promise<string> => {
+  const res = await courseMaterialClient.post(
+    `courses/${courseId}/user-marketing-consent`,
+    {
+      consent,
+    },
+    {
+      responseType: "json",
+    },
+  )
+  return validateResponse(res, isString)
+}
+
+export const fetchUserMarketingConsent = async (
+  courseId: string,
+): Promise<UserMarketingConsent> => {
+  const res = await courseMaterialClient.get(`courses/${courseId}/fetch-user-marketing-consent`)
+  return validateResponse(res, isUserMarketingConsent)
 }

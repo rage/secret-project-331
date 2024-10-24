@@ -239,6 +239,7 @@ import {
   UserDetail,
   UserExerciseState,
   UserInfo,
+  UserMarketingConsent,
   UserModuleCompletionStatus,
   UserPointsUpdateStrategy,
   UserResearchConsent,
@@ -594,7 +595,8 @@ export function isChatbotConversationInfo(obj: unknown): obj is ChatbotConversat
         typedObj["current_conversation_messages"].every(
           (e: any) => isChatbotConversationMessage(e) as boolean,
         ))) &&
-    typeof typedObj["chatbot_name"] === "string"
+    typeof typedObj["chatbot_name"] === "string" &&
+    typeof typedObj["hide_citations"] === "boolean"
   )
 }
 
@@ -1023,7 +1025,8 @@ export function isCourse(obj: unknown): obj is Course {
     typeof typedObj["base_module_completion_requires_n_submodule_completions"] === "number" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
+    typeof typedObj["ask_marketing_consent"] === "boolean"
   )
 }
 
@@ -1071,7 +1074,8 @@ export function isCourseUpdate(obj: unknown): obj is CourseUpdate {
     typeof typedObj["is_test_mode"] === "boolean" &&
     typeof typedObj["can_add_chatbot"] === "boolean" &&
     typeof typedObj["is_unlisted"] === "boolean" &&
-    typeof typedObj["is_joinable_by_code_only"] === "boolean"
+    typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
+    typeof typedObj["ask_marketing_consent"] === "boolean"
   )
 }
 
@@ -1091,7 +1095,8 @@ export function isNewCourse(obj: unknown): obj is NewCourse {
     typeof typedObj["is_unlisted"] === "boolean" &&
     typeof typedObj["copy_user_permissions"] === "boolean" &&
     typeof typedObj["is_joinable_by_code_only"] === "boolean" &&
-    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string")
+    (typedObj["join_code"] === null || typeof typedObj["join_code"] === "string") &&
+    typeof typedObj["ask_marketing_consent"] === "boolean"
   )
 }
 
@@ -2188,6 +2193,20 @@ export function isUserWithModuleCompletions(obj: unknown): obj is UserWithModule
     (typedObj["first_name"] === null || typeof typedObj["first_name"] === "string") &&
     (typedObj["last_name"] === null || typeof typedObj["last_name"] === "string") &&
     typeof typedObj["user_id"] === "string"
+  )
+}
+
+export function isUserMarketingConsent(obj: unknown): obj is UserMarketingConsent {
+  const typedObj = obj as UserMarketingConsent
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["user_id"] === "string" &&
+    typeof typedObj["consent"] === "boolean" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
   )
 }
 

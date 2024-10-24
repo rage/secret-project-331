@@ -50,9 +50,10 @@ INSERT INTO courses (
     can_add_chatbot,
     is_unlisted,
     is_joinable_by_code_only,
-    join_code
+    join_code,
+    ask_marketing_consent
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING id,
   name,
   created_at,
@@ -71,7 +72,8 @@ RETURNING id,
   can_add_chatbot,
   is_unlisted,
   is_joinable_by_code_only,
-  join_code
+  join_code,
+  ask_marketing_consent
     ",
         new_course.name,
         new_course.organization_id,
@@ -85,7 +87,8 @@ RETURNING id,
         parent_course.can_add_chatbot,
         new_course.is_unlisted,
         new_course.is_joinable_by_code_only,
-        new_course.join_code
+        new_course.join_code,
+        new_course.ask_marketing_consent
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -1172,6 +1175,7 @@ mod tests {
                 copy_user_permissions: false,
                 is_joinable_by_code_only: false,
                 join_code: None,
+                ask_marketing_consent: false,
             }
         }
     }

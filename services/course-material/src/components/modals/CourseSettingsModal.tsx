@@ -5,9 +5,14 @@ import React, { useContext, useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances, postSaveCourseSettings } from "../../services/backend"
+import {
+  fetchCourseById,
+  fetchCourseInstances,
+  postSaveCourseSettings,
+} from "../../services/backend"
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
+import SelectMarketingConstentForm from "../forms/SelectMarketingConsentForm"
 
 import {
   getLanguageName,
@@ -70,6 +75,12 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
   })
   sortInstances()
+
+  const getCourse = useQuery({
+    queryKey: ["courses/${course_id}", selectedLangCourseId],
+    queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
+    enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
+  })
 
   useEffect(() => {
     getCourseInstances.refetch()
@@ -183,6 +194,15 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             }
             dialogLanguage={dialogLanguage}
           />
+        )}
+      </div>
+      <div
+        className={css`
+          padding: 1rem 3rem;
+        `}
+      >
+        {getCourse.data?.ask_marketing_consent && (
+          <SelectMarketingConstentForm courseId={selectedLangCourseId} />
         )}
       </div>
       {languageChanged && (

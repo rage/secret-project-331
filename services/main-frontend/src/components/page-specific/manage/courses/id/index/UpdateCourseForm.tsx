@@ -35,8 +35,8 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
   const [joinableByCodeOnlyStatus, setjoinableByCodeOnlyStatus] = useState(
     course.is_joinable_by_code_only,
   )
-
   const [canAddChatbot, setCanAddChatbot] = useState(course.can_add_chatbot)
+  const [askMarketingConsent, setAskMarketingConsent] = useState(course.ask_marketing_consent)
 
   const updateCourseMutation = useToastMutation(
     async () => {
@@ -53,6 +53,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
         is_unlisted: unlisted,
         can_add_chatbot: canAddChatbot,
         is_joinable_by_code_only: joinableByCodeOnlyStatus,
+        ask_marketing_consent: askMarketingConsent,
       })
       onSubmitForm()
     },
@@ -136,6 +137,16 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
               setjoinableByCodeOnlyStatus(!joinableByCodeOnlyStatus)
             }}
             checked={joinableByCodeOnlyStatus}
+          />
+        </FieldContainer>
+        <FieldContainer>
+          <CheckBox
+            // eslint-disable-next-line i18next/no-literal-string
+            label={"Ask marketing consent"}
+            onChange={() => {
+              setAskMarketingConsent(!askMarketingConsent)
+            }}
+            checked={askMarketingConsent}
           />
         </FieldContainer>
       </div>

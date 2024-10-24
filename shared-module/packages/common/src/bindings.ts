@@ -213,6 +213,7 @@ export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
   current_conversation_messages: Array<ChatbotConversationMessage> | null
   chatbot_name: string
+  hide_citations: boolean
 }
 
 export interface CodeGiveawayCode {
@@ -474,6 +475,7 @@ export interface Course {
   can_add_chatbot: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
+  ask_marketing_consent: boolean
 }
 
 export interface CourseBreadcrumbInfo {
@@ -503,6 +505,7 @@ export interface CourseUpdate {
   can_add_chatbot: boolean
   is_unlisted: boolean
   is_joinable_by_code_only: boolean
+  ask_marketing_consent: boolean
 }
 
 export interface NewCourse {
@@ -519,6 +522,7 @@ export interface NewCourse {
   copy_user_permissions: boolean
   is_joinable_by_code_only: boolean
   join_code: string | null
+  ask_marketing_consent: boolean
 }
 
 export interface EmailTemplate {
@@ -1147,6 +1151,16 @@ export interface UserWithModuleCompletions {
   first_name: string | null
   last_name: string | null
   user_id: string
+}
+
+export interface UserMarketingConsent {
+  id: string
+  course_id: string
+  user_id: string
+  consent: boolean
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
 }
 
 export interface MaterialReference {

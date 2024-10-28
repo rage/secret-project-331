@@ -7,6 +7,7 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 // Trusted types blocked on: https://github.com/vercel/next.js/issues/32209
 const normalResponseHeaders = generateNormalResponseHeaders({ requireTrustedTypesFor: false })
 
+/** @type {import('next').NextConfig} */
 const config = {
   swcMinify: true,
   eslint: {
@@ -47,7 +48,7 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
-  transpilePackages: ["@vectopus/atlas-icons-react"],
+  transpilePackages: ["@vectopus/atlas-icons-react", "highlight.js"],
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {

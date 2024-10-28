@@ -48,11 +48,16 @@ const config = {
       transform: "lodash/{{member}}",
     },
   },
-  transpilePackages: ["@vectopus/atlas-icons-react", "highlight.js"],
+  transpilePackages: ["@vectopus/atlas-icons-react"],
 }
 
 if (process.env.NEXT_PUBLIC_BASE_PATH) {
   config.basePath = process.env.NEXT_PUBLIC_BASE_PATH
+}
+
+if (process.env.NODE_ENV === "production") {
+  // https://github.com/highlightjs/highlight.js/issues/4013#issuecomment-2219314004
+  config.transpilePackages.push("highlight.js")
 }
 
 module.exports = config

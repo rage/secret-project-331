@@ -30,7 +30,7 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<TerminologyBlockAt
     },
     primaryColor: {
       type: "string",
-      default: "#FFFFFF",
+      default: "#800080",
     },
     content: {
       type: "string",

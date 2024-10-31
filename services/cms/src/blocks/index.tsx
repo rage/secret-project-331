@@ -2,6 +2,7 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
+import AsideWithImage from "./AsideWIthImage"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
@@ -83,6 +84,7 @@ export const blockTypeMapForPages = [
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
   ["moocfi/revelable-content", RevealableContent],
   ["moocfi/revealable-hidden-content", RevealableHiddenContent],
+  ["moocfi/aside-with-image", AsideWithImage],
 
   ["moocfi/flip-card", FlipCard],
   ["moocfi/front-card", FrontFlipCard],

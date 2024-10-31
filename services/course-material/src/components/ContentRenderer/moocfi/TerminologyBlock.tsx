@@ -10,7 +10,7 @@ import Centered from "@/shared-module/common/components/Centering/Centered"
 import { primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface TerminnologyBlockAttributes {
   title: string
   primaryColor: string
   content: string
@@ -18,7 +18,7 @@ interface InfoBoxBlockAttributes {
 }
 
 const TerminologyBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>
+  React.PropsWithChildren<BlockRendererProps<TerminnologyBlockAttributes>>
 > = (props) => {
   const { terms } = useContext(GlossaryContext)
   return (
@@ -59,7 +59,6 @@ const TerminologyBlock: React.FC<
       >
         {props.data.attributes.blockName}
       </span>
-      <h2>{props.data.attributes.title}</h2>
       <h2
         dangerouslySetInnerHTML={{
           __html: parseText(props.data.attributes.title, terms).parsedText,

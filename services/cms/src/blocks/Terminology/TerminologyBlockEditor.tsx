@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
-import React, { useEffect } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
@@ -11,7 +11,7 @@ import { TerminologyBlockAttributes } from "."
 
 import { primaryFont } from "@/shared-module/common/styles"
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
+const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/list"]
 const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
   ["core/paragraph", { content: "Insert body text...", placeholder: "Insert body text..." }],
 ]
@@ -21,12 +21,6 @@ const TerminologyBlockEditor: React.FC<
 > = ({ clientId, attributes, setAttributes }) => {
   const { title, blockName } = attributes
   const { t } = useTranslation()
-
-  useEffect(() => {
-    if (attributes.primaryColor === undefined || attributes.primaryColor === null) {
-      setAttributes({ primaryColor: "#ff0000" })
-    }
-  })
 
   return (
     <BlockWrapper id={clientId}>

@@ -1,7 +1,9 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
+import { GlossaryContext } from "../../../contexts/GlossaryContext"
+import { parseText } from "../../ContentRenderer/util/textParsing"
 import InnerBlocks from "../util/InnerBlocks"
 
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -18,6 +20,7 @@ interface InfoBoxBlockAttributes {
 const TerminologyBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>
 > = (props) => {
+  const { terms } = useContext(GlossaryContext)
   return (
     <div
       className={css`
@@ -57,6 +60,11 @@ const TerminologyBlock: React.FC<
         {props.data.attributes.blockName}
       </span>
       <h2>{props.data.attributes.title}</h2>
+      <h2
+        dangerouslySetInnerHTML={{
+          __html: parseText(props.data.attributes.title, terms).parsedText,
+        }}
+      />
       <Centered variant="narrow">
         <InnerBlocks parentBlockProps={props} />
       </Centered>

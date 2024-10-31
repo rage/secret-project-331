@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
-import React from "react"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
@@ -21,6 +21,13 @@ const TerminologyBlockEditor: React.FC<
 > = ({ clientId, attributes, setAttributes }) => {
   const { title, blockName } = attributes
   const { t } = useTranslation()
+
+  useEffect(() => {
+    if (attributes.primaryColor === undefined || attributes.primaryColor === null) {
+      setAttributes({ primaryColor: "#ff0000" })
+    }
+  })
+
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">

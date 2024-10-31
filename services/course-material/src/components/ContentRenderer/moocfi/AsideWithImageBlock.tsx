@@ -23,9 +23,9 @@ const TerminologyBlock: React.FC<
     <div
       className={css`
         width: 100%;
-        padding: 0 1rem 4rem 1rem;
+        padding: 0 0 4rem 0;
         display: grid;
-        grid-template-columns: 0.35fr 1fr;
+        grid-template-columns: 0.32fr 1fr;
         border-bottom: 2px solid #eaedf0;
 
         div:first-of-type {
@@ -58,7 +58,7 @@ const TerminologyBlock: React.FC<
           font-weight: 600;
           line-height: 140%;
           font-family: ${primaryFont};
-          margin-bottom: 0.8rem;
+          margin-bottom: 1.125rem;
           font-weight: 550;
           font-size: 1.5rem;
           color: #1a2333;

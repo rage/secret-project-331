@@ -12,7 +12,7 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image"]
 
-const AuthorEditor: React.FC<
+const AsideWithImageEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<AsideWithImageBlockAttributes>>
 > = ({ clientId, attributes: { title, content }, setAttributes }) => {
   const { t } = useTranslation()
@@ -62,4 +62,4 @@ const AuthorEditor: React.FC<
   )
 }
 
-export default AuthorEditor
+export default AsideWithImageEditor

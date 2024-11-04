@@ -12,10 +12,10 @@ chrono = { version = "0.4.38", features = ["serde"] }
 # An extensible, strongly-typed implementation of OAuth2
 oauth2 = "4.4.2"
 # A generic serialization/deserialization framework
-serde = { version = "1.0.210", features = ["derive"] }
+serde = { version = "1.0.214", features = ["derive"] }
 # A JSON serialization file format
-serde_json = "1.0.128"
+serde_json = "1.0.132"
 # derive(Error)
-thiserror = "1.0.64"
+thiserror = "1.0.67"
 # A library to generate and parse UUIDs.
 uuid = { version = "1.11.0", features = ["serde"] }

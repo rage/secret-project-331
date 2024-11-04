@@ -2,7 +2,7 @@
 import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
-import AsideWithImage from "./AsideWIthImage"
+import AsideWithImage from "./AsideWithImage"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"

@@ -16,7 +16,7 @@ interface InfoBoxBlockAttributes {
   image: string
 }
 
-const TerminologyBlock: React.FC<
+const AsideWithImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>
 > = (props) => {
   const { terms } = useContext(GlossaryContext)
@@ -93,4 +93,4 @@ const TerminologyBlock: React.FC<
   )
 }
 
-export default withErrorBoundary(TerminologyBlock)
+export default withErrorBoundary(AsideWithImageBlock)

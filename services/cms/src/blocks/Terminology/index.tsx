@@ -6,6 +6,8 @@ import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCateg
 import LandingPageHeroSectionEditor from "./TerminologyBlockEditor"
 import LandingPageHeroSectionSave from "./TerminologyBlockSave"
 
+import { baseTheme } from "@/shared-module/common/styles"
+
 export interface TerminologyBlockAttributes {
   title: string
   primaryColor: string
@@ -30,7 +32,7 @@ const LandingPageHeroSectionConfiguration: BlockConfiguration<TerminologyBlockAt
     },
     primaryColor: {
       type: "string",
-      default: "#800080",
+      default: baseTheme.colors.purple[600],
     },
     content: {
       type: "string",

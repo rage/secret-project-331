@@ -10,14 +10,13 @@ import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface AsideWithImageBlockAttributes {
   title: string
   content: string
-  image: string
 }
 
 const AsideWithImageBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>
+  React.PropsWithChildren<BlockRendererProps<AsideWithImageBlockAttributes>>
 > = (props) => {
   const { terms } = useContext(GlossaryContext)
   return (

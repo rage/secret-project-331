@@ -8,12 +8,12 @@ import { parseText } from "../../ContentRenderer/util/textParsing"
 import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface IngressBlockAttributes {
   title: string
   subtitle: string
 }
 
-const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
+const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockAttributes>>> = (
   props,
 ) => {
   const { terms } = useContext(GlossaryContext)

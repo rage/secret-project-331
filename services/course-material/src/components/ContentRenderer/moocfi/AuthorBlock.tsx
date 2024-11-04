@@ -15,7 +15,7 @@ interface InfoBoxBlockAttributes {
 // eslint-disable-next-line i18next/no-literal-string
 const Wrapper = styled.div`
   background: #f7f8f9;
-  padding: 2rem 2rem 1rem 2rem;
+  padding: 1.25rem 1.4rem 0.4rem 1.4rem;
   margin-bottom: 1rem;
 
   h3 {
@@ -28,6 +28,10 @@ const Wrapper = styled.div`
   }
 
   /*Overwrite InnerBlock Component styles*/
+
+  .course-material-block {
+    margin: 1.25rem 0 !important;
+  }
 
   figure {
     margin: 0;

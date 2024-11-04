@@ -86,6 +86,8 @@ pub async fn seed_organization_uh_mathstat(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
+        is_joinable_by_code_only: false,
+        join_code: None,
     };
     let (
         statistics_course,
@@ -132,6 +134,8 @@ pub async fn seed_organization_uh_mathstat(
         is_test_mode: false,
         is_unlisted: false,
         copy_user_permissions: false,
+        is_joinable_by_code_only: false,
+        join_code: None,
     };
     library::content_management::create_new_course(
         &mut conn,
@@ -140,6 +144,36 @@ pub async fn seed_organization_uh_mathstat(
             default_course_instance_id: Uuid::parse_str("5cb4b4d6-4599-4f81-ab7e-79b415f8f584")?,
         }),
         draft_course,
+        admin_user_id,
+        models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
+        models_requests::fetch_service_info,
+    )
+    .await?;
+
+    let cody_only_course = NewCourse {
+        name: "Joinable by code only".to_string(),
+        slug: "joinable-by-code-only".to_string(),
+        organization_id: uh_mathstat_id,
+        language_code: "en-US".to_string(),
+        teacher_in_charge_name: "admin".to_string(),
+        teacher_in_charge_email: "admin@example.com".to_string(),
+        description: "Just a draft.".to_string(),
+        is_draft: false,
+        is_test_mode: false,
+        is_unlisted: false,
+        copy_user_permissions: false,
+        is_joinable_by_code_only: true,
+        join_code: Some(
+            "zARvZARjYhESMPVceEgZyJGQZZuUHVVgcUepyzEqzSqCMdbSCDrTaFhkJTxBshWU".to_string(),
+        ),
+    };
+    library::content_management::create_new_course(
+        &mut conn,
+        PKeyPolicy::Fixed(CreateNewCourseFixedIds {
+            course_id: Uuid::parse_str("39a52e8c-ebbf-4b9a-a900-09aa344f3691")?,
+            default_course_instance_id: Uuid::parse_str("5b7286ce-22c5-4874-ade1-262949c4a604")?,
+        }),
+        cody_only_course,
         admin_user_id,
         models_requests::make_spec_fetcher(base_url.clone(), Uuid::new_v4(), Arc::clone(&jwt_key)),
         models_requests::fetch_service_info,
@@ -180,6 +214,8 @@ pub async fn seed_organization_uh_mathstat(
             is_test_mode: false,
             is_unlisted: false,
             copy_user_permissions: false,
+            is_joinable_by_code_only: false,
+            join_code: None,
         },
         true,
         admin_user_id,
@@ -289,6 +325,10 @@ pub async fn seed_organization_uh_mathstat(
             frequency_penalty: 0.0,
             presence_penalty: 0.0,
             response_max_tokens: 500,
+            use_azure_search: false,
+            maintain_azure_search_index: false,
+            hide_citations: false,
+            use_semantic_reranking: false,
         },
     )
     .await?;

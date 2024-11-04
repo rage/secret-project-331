@@ -21,6 +21,8 @@ import "@fontsource/josefin-sans/300.css"
 import "@fontsource/josefin-sans/400.css"
 import "@fontsource/lato"
 import "@fontsource/space-mono"
+import "@fontsource/inter"
+import "@fontsource-variable/inter"
 
 // Using this instead of directly injectGlobal because stylelint works in this one.
 const globalCss = css`

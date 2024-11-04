@@ -61,10 +61,11 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
   return (
     <form
       className={css`
-        min-width: 60%;
-        padding: 2rem;
-        border: 0.1rem solid rgba(205, 205, 205, 0.8);
-        margin-bottom: 2rem;
+        min-width: 100%;
+        padding: 1.25rem;
+        background: #f7f8f9;
+        border-radius: 6px;
+        margin: 2rem 0;
       `}
       onSubmit={handleSubmit(onSubmitFormWrapper)}
     >
@@ -75,7 +76,15 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
           {...register("name", { required: t("required-field") })}
           error={errors["name"]?.message}
         />
-        <div>{t("select-module-start-end-chapters")}</div>
+        <div
+          className={css`
+            font-size: 0.875rem;
+            font-weight: 400;
+            margin-bottom: 0.4rem;
+          `}
+        >
+          {t("select-module-start-end-chapters")}
+        </div>
         <div
           className={css`
             display: flex;
@@ -89,6 +98,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               display: flex;
               flex-direction: row;
               align-items: center;
+              margin-bottom: 0.6rem;
             `}
           >
             <SelectField
@@ -120,14 +130,16 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
         </div>
         <div
           className={css`
-            background: #f5f6f7;
+            background: #fff;
             padding: 1rem 1.4rem;
+            border-radius: 4px;
           `}
         >
           <span
             className={css`
               margin-bottom: 1rem;
               display: inline-block;
+              font-weight: 500;
               font-size: 18px;
               color: ${baseTheme.colors.gray[700]};
             `}
@@ -151,6 +163,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               {...register("automatic_completion")}
               className={css`
                 grid-area: c;
+                font-size: 15px;
               `}
             />
 
@@ -185,6 +198,8 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
               {...register("enable_registering_completion_to_uh_open_university")}
               className={css`
                 grid-area: f;
+                font-size: 15px;
+                margin-top: 0.6rem;
               `}
             />
             <TextField

@@ -34,23 +34,17 @@ const FrontPage: React.FC<React.PropsWithChildren<Props>> = ({
       className={css`
         margin: 2rem 0;
         border: 2px solid ${baseTheme.colors.clear[500]};
-        border-radius: 12px;
+        border-radius: 8px;
         background-color: white;
-        padding: 2rem 1rem;
-
-        ${respondToOrLarger.sm} {
-          padding: 2rem 2rem;
-        }
-
-        ${respondToOrLarger.md} {
-          padding: 2rem 3rem;
-        }
+        padding: 1.4rem 1.25rem;
       `}
     >
       <h3
         className={css`
           font-size: ${typography.h5};
-          text-transform: uppercase;
+          font-size: 1.375rem;
+          opacity: 0.8;
+          font-weight: 550;
         `}
       >
         {chapter ? t("heading-chapter-front-page") : t("heading-course-front-page")}

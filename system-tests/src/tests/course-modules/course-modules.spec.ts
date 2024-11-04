@@ -61,7 +61,9 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "after-creating-new-module",
-    waitForTheseToBeVisibleAndStable: [page.getByText("1: invalid module")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("Error: Default module has missing chapters between 1 and 4"),
+    ],
     screenshotOptions: { fullPage: true },
     // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
     scrollToYCoordinate: 100_000,
@@ -69,19 +71,12 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // update invalid module to be valid
   await page.locator('[aria-label="Edit"]').nth(1).click()
-  await page.locator('[placeholder="Name of module"]').nth(1).fill("valid module")
+  await page.locator('[placeholder="Name of module"]').nth(0).fill("valid module")
   await page.locator("#editing-module-ends").selectOption("4")
-  await page.locator('[aria-label="Save"]').click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-updating-new-module",
-    waitForTheseToBeVisibleAndStable: [page.getByText("1: valid module")],
-    screenshotOptions: { fullPage: true },
-    // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
-    scrollToYCoordinate: 100_000,
-  })
+  await page.locator('[aria-label="Confirm"]').click()
+  await page
+    .getByText("Error: Default module has missing chapters between 1 and 4")
+    .waitFor({ state: "hidden" })
 
   // delete module
   await page.locator('[aria-label="Delete"]').nth(1).click()
@@ -97,15 +92,15 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
 
   // update last module
   await page.locator('[aria-label="Edit"]').nth(2).click()
-  await page.locator('[placeholder="Name of module"]').nth(1).fill("renamed module")
+  await page.locator('[placeholder="Name of module"]').nth(0).fill("renamed module")
   await page.locator("#editing-module-start").selectOption("3")
-  await page.locator('[aria-label="Save"]').click()
+  await page.locator('[aria-label="Confirm"]').click()
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "after-last-update",
-    waitForTheseToBeVisibleAndStable: [page.getByText("2: renamed module")],
+    waitForTheseToBeVisibleAndStable: [page.getByText("2. renamed module")],
     screenshotOptions: { fullPage: true },
     // arbitrary large scroll coordinate to fix the position of any popup menus to be consistent and out of the way
     scrollToYCoordinate: 100_000,

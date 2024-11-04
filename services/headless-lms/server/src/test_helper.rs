@@ -24,8 +24,7 @@ postgres://headless-lms:only-for-local-development-intentionally-public@postgres
             test_mode: true,
             base_url: "http://project-331.local".to_string(),
             development_uuid_login: false,
-            chatbot_azure_api_key: None,
-            chatbot_azure_api_endpoint: None,
+            azure_configuration: None,
         },
         redis_url: "redis://example.com".to_string(),
         jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
@@ -188,6 +187,8 @@ macro_rules! insert_data {
                 is_test_mode: false,
                 is_unlisted: false,
                 copy_user_permissions: false,
+                is_joinable_by_code_only: false,
+                join_code: None,
             },
             $user,
             |_, _, _| unimplemented!(),

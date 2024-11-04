@@ -1,4 +1,5 @@
 # Secret Project 331
+
 ## Development environment setup
 
 Read [Development.md](https://github.com/rage/secret-project-331/blob/master/docs/Development.md) on how to setup using Windows or Linux.
@@ -12,7 +13,7 @@ bin/seed
 ## Code style:
 
 ```bash
-npm run eslint
+bin/git-run-branch-ready-checks
 ```
 
 ## Documentation

@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import Link from "next/link"
 import React from "react"
 
-import { baseTheme, headingFont, monospaceFont, secondaryFont } from "../../styles"
+import { baseTheme, monospaceFont, primaryFont, secondaryFont } from "../../styles"
 import CircularProgressBar from "../CircularProgressBar"
 
 const Wrapper = styled.div`
@@ -84,8 +84,8 @@ const ExercisePart = styled.div<StyledProps>`
     display: inline-block;
     width: 80%;
     margin: 0.4em 0 0.4em 0.2em;
-    font-family: ${headingFont};
-    font-weight: 400;
+    font-family: ${primaryFont};
+    font-weight: 350;
   }
 
   div:last-of-type {

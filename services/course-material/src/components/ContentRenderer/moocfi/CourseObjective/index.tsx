@@ -75,7 +75,7 @@ const Objective = styled.div<StyledObjectiveProps>`
   background: #f7f8f9;
   position: relative;
   overflow: hidden;
-  padding: 2rem;
+  padding: 1.25rem;
   border: 2px solid #edf0f2;
 
   .paragraph {

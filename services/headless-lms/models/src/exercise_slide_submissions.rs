@@ -566,7 +566,7 @@ LIMIT $2 OFFSET $3
     let exercise = exercises::get_by_id(conn, exercise_id).await?;
     let exam_id = exercise
         .exam_id
-        .ok_or_else(|| ModelError::new(ModelErrorType::Generic, "No exam id found".into(), None))?;
+        .ok_or_else(|| ModelError::new(ModelErrorType::Generic, "No exam id found", None))?;
 
     let teacher_grading_decisions_list = teacher_grading_decisions::try_to_get_latest_grading_decision_by_user_exercise_state_id_for_users(conn, &user_exercise_state_id_list).await?;
 
@@ -575,9 +575,9 @@ LIMIT $2 OFFSET $3
 
     let mut list: Vec<ExerciseSlideSubmissionAndUserExerciseState> = Vec::new();
     for sub in submissions {
-        let user_exercise_state = user_exercise_states_list.get(&sub.user_id).ok_or_else(|| {
-            ModelError::new(ModelErrorType::Generic, "No user found".into(), None)
-        })?;
+        let user_exercise_state = user_exercise_states_list
+            .get(&sub.user_id)
+            .ok_or_else(|| ModelError::new(ModelErrorType::Generic, "No user found", None))?;
 
         let teacher_grading_decision = teacher_grading_decisions_list.get(&user_exercise_state.id);
         let user_exam_enrollment =
@@ -586,7 +586,7 @@ LIMIT $2 OFFSET $3
                 .ok_or_else(|| {
                     ModelError::new(
                         ModelErrorType::Generic,
-                        "No users exam_enrollment found".into(),
+                        "No users exam_enrollment found",
                         None,
                     )
                 })?;

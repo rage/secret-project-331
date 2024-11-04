@@ -46,20 +46,29 @@ import CourseProgressBlock from "./moocfi/CourseProgressBlock"
 import ExerciseBlock from "./moocfi/ExerciseBlock"
 import ExerciseCustomViewBlock from "./moocfi/ExerciseCustomViewBlock"
 import ExerciseInChapterBlock from "./moocfi/ExerciseInChapterBlock/index"
+import ExpandableContentBlock from "./moocfi/ExpandableContentBlock/ExpandableContentBlock"
+import ExpandableContentInnerBlock from "./moocfi/ExpandableContentBlock/ExpandableContentInnerBlock"
+import FlipCardBlock from "./moocfi/FlipCard/FlipCardBlock"
+import InnerCardBlock from "./moocfi/FlipCard/InnerCardBlock"
 import GlossaryBlock from "./moocfi/Glossary"
 import HeroSectionBlock from "./moocfi/HeroSectionBlock"
 import HighlightBox from "./moocfi/HighglightBox"
 import { IframeBlock } from "./moocfi/IframeBlock"
 import InfoBox from "./moocfi/InfoBox"
+import Ingress from "./moocfi/Ingress"
 import InstructionBoxBlock from "./moocfi/InstructionBox"
 import LandingPageCopyTextBlock from "./moocfi/LandingPageCopyTextBlock"
 import LandingPageHeroSectionBlock from "./moocfi/LandingPageHeroSectionBlock"
 import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
+import LogoLink from "./moocfi/LogoLink"
 import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
 import PartnersBlock from "./moocfi/PartnersBlock"
 import ResearchConsentQuestionBlock from "./moocfi/ResearchConsentQuestionBlock"
+import RevealableContentBlock from "./moocfi/RevealableContentBlock/RevealableContentBlock"
+import RevealableHiddenContentBlock from "./moocfi/RevealableContentBlock/RevealableHiddenContentBlock"
 import TableBox from "./moocfi/TableBox"
+import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
@@ -160,7 +169,17 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/author-inner-block": AuthorInnerBlock,
   "moocfi/research-consent-question": ResearchConsentQuestionBlock,
   "moocfi/exercise-custom-view-block": ExerciseCustomViewBlock,
+  "moocfi/expandable-content": ExpandableContentBlock,
+  "moocfi/expandable-content-inner-block": ExpandableContentInnerBlock,
+  "moocfi/revelable-content": RevealableContentBlock,
+  "moocfi/revealable-hidden-content": RevealableHiddenContentBlock,
+  "moocfi/flip-card": FlipCardBlock,
+  "moocfi/front-card": InnerCardBlock,
+  "moocfi/back-card": InnerCardBlock,
   "moocfi/code-giveaway": CodeGiveawayBlock,
+  "moocfi/ingress": Ingress,
+  "moocfi/terminology-block": TerminologyBlock,
+  "moocfi/logo-link": LogoLink,
 }
 
 const highlightedBlockStyles = css`
@@ -288,7 +307,6 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
         font-size: 20px;
         text-underline-offset: 4.6px;
         text-decoration-thickness: 1.6px;
-
         a {
           color: #1072ea;
           &:hover {

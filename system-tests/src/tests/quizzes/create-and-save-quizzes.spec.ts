@@ -342,46 +342,29 @@ const createMatrix = async (frame: Locator) => {
     await frame
       .getByRole("button", { name: "Matrix Assignment to write answer in the form of a matrix" })
       .click()
-    await frame.locator(".css-aklx7n-CellInputContainer").click()
-    await frame.locator(".css-aklx7n-CellInputContainer").fill("1")
-    await frame.locator(".css-864jm6-CellInputContainer").first().click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame.locator(".css-864jm6-CellInputContainer").first().click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame
-      .locator("tr:nth-child(2) > td > .css-v1bss2 > .css-864jm6-CellInputContainer")
-      .first()
-      .click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("1")
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(2) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("0")
-    await frame
-      .locator("tr:nth-child(3) > td > .css-v1bss2 > .css-864jm6-CellInputContainer")
-      .first()
-      .click()
-    await frame.locator(".css-3jjv4o-CellInputContainer").fill("0")
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(2) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("0")
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .click()
-    await frame
-      .locator("tr:nth-child(3) > td:nth-child(3) > .css-v1bss2 > .css-aklx7n-CellInputContainer")
-      .fill("1")
+
+    // Define a 6x6 matrix with the desired values for the 3x3 submatrix,
+    // and default '0' for the rest of the cells
+    const matrixValues = [
+      [1, 0, 0, 0, 0, 0],
+      [0, 1, 0, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+    ]
+
+    // Flatten the matrixValues array to easily map to the nth() index
+    const flattenedMatrix = matrixValues.flat()
+
+    // Loop through the flattened matrix and use nth() to target the cells
+    for (let i = 0; i < flattenedMatrix.length; i++) {
+      const cellLocator = frame.locator(`[data-testid="matrix-cell"]`).nth(i)
+
+      // Click the cell and fill with the value from the flattened matrix
+      await cellLocator.click()
+      await cellLocator.fill(String(flattenedMatrix[i]))
+    }
   })
 }
 

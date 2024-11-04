@@ -88,7 +88,6 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
       )}
       <tr
         className={css`
-          background-color: ${baseTheme.colors.clear[100]};
           border: 1px solid ${baseTheme.colors.clear[300]};
         `}
         key={page.id}

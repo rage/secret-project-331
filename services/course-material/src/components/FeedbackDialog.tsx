@@ -9,6 +9,7 @@ import { FeedbackBlock } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { primaryFont } from "@/shared-module/common/styles"
 
 interface Props {
   courseId: string
@@ -118,9 +119,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
       >
         <div
           className={css`
-            font-family:
-              Josefin Sans,
-              sans-serif;
+            font-family: ${primaryFont};
             font-style: normal;
             font-weight: 600;
             font-size: 22px;
@@ -176,7 +175,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                 )}
                 <div
                   className={css`
-                    font-family: Lato, sans-serif;
+                    font-family: ${primaryFont};
                     font-style: normal;
                     font-weight: normal;
                     font-size: 16px;
@@ -193,7 +192,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({
                 </div>
                 <button
                   className={css`
-                    font-family: Lato, sans-serif;
+                    font-family: ${primaryFont};
                     font-style: normal;
                     font-weight: normal;
                     font-size: 13px;

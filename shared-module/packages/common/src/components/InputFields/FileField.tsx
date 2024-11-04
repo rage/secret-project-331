@@ -20,7 +20,7 @@ interface InputExtraProps {
 // eslint-disable-next-line i18next/no-literal-string
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
-  border-width: 1.6px;
+  border-width: 2px;
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};

@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+echo -e "${BLUE}Checks code for common issues. This script should be used when you're done with branch, and you want to do finishing touches to it..${RESET_EVERYTHING}"
+echo -e "${BLUE}It might be a good idea to also run ${BOLD}bin/git-merge-origin-master${RESET_EVERYTHING}"
+echo ""
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+FOLDER_PATH="$BASEDIR/../"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
+
+run_command cd "$RELATIVE_PATH"
+
+CURRENT_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+MERGE_BASE=$(git merge-base origin/master "$CURRENT_BRANCH_NAME")
+
+run_command npx lint-staged -c ./.husky/lint-staged.branch-ready.config.js --diff "$MERGE_BASE" "$@"
+
+echo -e "${GREEN}✅ All precommit checks passed.${RESET_EVERYTHING}"

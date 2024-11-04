@@ -1,8 +1,7 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
-use domain::chatbot::{
-    estimate_tokens, send_chat_request_and_parse_stream, ApiChatMessage, ChatRequest,
-};
+
+use headless_lms_chatbot::azure_chatbot::{estimate_tokens, send_chat_request_and_parse_stream};
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
@@ -53,67 +52,14 @@ async fn send_message(
     let mut tx: sqlx::Transaction<Postgres> = conn.begin().await?;
     let token = skip_authorize();
 
-    let configuration =
-        models::chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id).await?;
-    let conversation_messages =
-        models::chatbot_conversation_messages::get_by_conversation_id(&mut tx, conversation_id)
-            .await?;
-    let new_order_number = conversation_messages
-        .iter()
-        .map(|m| m.order_number)
-        .max()
-        .unwrap_or(0)
-        + 1;
-    let new_message = models::chatbot_conversation_messages::insert(
-        &mut tx,
-        models::chatbot_conversation_messages::ChatbotConversationMessage {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            conversation_id,
-            message: Some(message.clone()),
-            is_from_chatbot: false,
-            message_is_complete: true,
-            used_tokens: estimate_tokens(&message),
-            order_number: new_order_number,
-        },
-    )
-    .await?;
-
-    let mut api_chat_messages = conversation_messages
-        .into_iter()
-        .map(Into::into)
-        .collect::<Vec<ApiChatMessage>>();
-
-    api_chat_messages.push(new_message.into());
-    api_chat_messages.insert(
-        0,
-        ApiChatMessage {
-            role: "system".to_string(),
-            content: configuration.prompt.clone(),
-        },
-    );
-
-    let chat_request = ChatRequest {
-        messages: api_chat_messages,
-        temperature: configuration.temperature,
-        top_p: configuration.top_p,
-        frequency_penalty: configuration.frequency_penalty,
-        presence_penalty: configuration.presence_penalty,
-        max_tokens: configuration.response_max_tokens,
-        stop: None,
-        stream: true,
-    };
-
     let response_stream = send_chat_request_and_parse_stream(
         &mut tx,
         // An Arc, cheap to clone.
-        pool.clone(),
-        &chat_request,
+        pool.get_ref().clone(),
         &app_conf,
+        chatbot_configuration_id,
         conversation_id,
-        new_order_number + 1,
+        &message,
     )
     .await?;
 

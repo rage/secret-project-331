@@ -2,6 +2,7 @@
 Executable programs that can be started. Contains for example the server program, background services, and utility programs.
 */
 pub mod calculate_page_visit_stats;
+pub mod chatbot_syncer;
 pub mod doc_file_generator;
 pub mod email_deliver;
 pub mod ended_exams_processor;

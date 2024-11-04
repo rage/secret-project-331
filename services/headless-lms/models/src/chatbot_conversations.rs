@@ -21,6 +21,7 @@ pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
     pub current_conversation_messages: Option<Vec<ChatbotConversationMessage>>,
     pub chatbot_name: String,
+    pub hide_citations: bool,
 }
 
 pub async fn insert(
@@ -92,5 +93,6 @@ pub async fn get_current_conversation_info(
         current_conversation_messages,
         // Don't want to expose everything from the chatbot configuration to the user because it contains private information like the prompt.
         chatbot_name: chatbot_configuration.chatbot_name,
+        hide_citations: chatbot_configuration.hide_citations,
     })
 }

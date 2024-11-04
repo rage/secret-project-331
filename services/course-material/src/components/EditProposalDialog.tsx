@@ -7,7 +7,7 @@ import { postProposedEdits } from "../services/backend"
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface Props {
   courseId: string
@@ -106,9 +106,7 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({
       >
         <div
           className={css`
-            font-family:
-              Josefin Sans,
-              sans-serif;
+            font-family: ${primaryFont};
             font-weight: 600;
             font-size: 22px;
             line-height: 22px;

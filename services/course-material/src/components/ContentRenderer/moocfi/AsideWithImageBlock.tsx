@@ -7,6 +7,7 @@ import InnerBlocks from "../util/InnerBlocks"
 import { parseText } from "../util/textParsing"
 
 import { primaryFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface InfoBoxBlockAttributes {
@@ -25,8 +26,14 @@ const TerminologyBlock: React.FC<
         width: 100%;
         padding: 0 0 4rem 0;
         display: grid;
-        grid-template-columns: 0.32fr 1fr;
+        grid-template-columns: 1fr;
+        row-gap: 2rem;
         border-bottom: 2px solid #eaedf0;
+
+        ${respondToOrLarger.sm} {
+          grid-template-columns: 0.2fr 1fr;
+          column-gap: 2.5rem;
+        }
 
         div:first-of-type {
           width: 150px;

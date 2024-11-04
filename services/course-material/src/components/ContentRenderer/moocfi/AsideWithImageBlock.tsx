@@ -43,13 +43,13 @@ const TerminologyBlock: React.FC<
           overflow: hidden;
           margin: 0;
           figure {
-            width: 120px;
+            width: 7.5rem;
             aspect-ratio: 1/1;
             margin: 0;
 
             img {
-              width: 150px;
-              height: 150px;
+              width: 9.375rem;
+              height: 9.375rem;
               margin: 0;
             }
           }
@@ -57,7 +57,7 @@ const TerminologyBlock: React.FC<
 
         p {
           margin: 0 !important;
-          font-size: 18px;
+          font-size: 1.125rem;
           line-height: 160%;
         }
 

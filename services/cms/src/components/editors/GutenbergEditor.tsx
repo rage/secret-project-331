@@ -67,8 +67,7 @@ import SelectField from "@/shared-module/common/components/InputFields/SelectFie
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { primaryFont } from "@/shared-module/common/styles"
-
-// const { GlobalStylesContext } = unlock(blockEditorPrivateApis)
+import editBlockThemeJsonSettings from "@/utils/Gutenberg/editBlockThemeJsonSettings"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -140,6 +139,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [])
 
   useEffect(() => {
+    console.log("a")
+    addFilter(
+      "blockEditor.useSetting.before",
+      "moocfi/editBlockThemeJsonSettings",
+      editBlockThemeJsonSettings,
+    )
+    console.log("b")
     // Register all core blocks
     registerCoreBlocks()
     // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
@@ -182,9 +188,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     window.wp = null
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
-  // eslint-disable-next-line i18next/no-literal-string
   addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
-  // eslint-disable-next-line i18next/no-literal-string
   addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
 
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
@@ -195,10 +199,8 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
    * Add the custom attributes for the Mentimeter to the sidebar.
    */
   useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
     return () => {
-      // eslint-disable-next-line i18next/no-literal-string
       removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
     }
   }, [])
@@ -252,7 +254,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
         }
       `}
     >
-      {/* <GlobalStylesContext.Provider> */}
       <ShortcutProvider>
         <SlotFillProvider>
           <BlockEditorProvider
@@ -388,7 +389,6 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
           </BlockEditorProvider>
         </SlotFillProvider>
       </ShortcutProvider>
-      {/* </GlobalStylesContext.Provider> */}
     </div>
   )
 }

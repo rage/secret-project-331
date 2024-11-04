@@ -8,7 +8,8 @@
     "export": "next export",
     "start": "NODE_ENV=production PORT=3000 node server.js",
     "list-gutenberg-block-names": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/listGutenbergBlockNames.ts",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "ts-node -O \"{\\\"module\\\":\\\"commonjs\\\"}\" scripts/cleanWordpressModules.ts"
   },
   "dependencies": {
     "@bytedance/tar-wasm": "^0.1.7",

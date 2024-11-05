@@ -43,7 +43,7 @@ const AsideWithImageEditor: React.FC<
               tagName="h4"
               value={title}
               onChange={(value: string) => setAttributes({ title: value })}
-              placeholder={t("welcome-message-for-course")}
+              placeholder={t("heading-placeholder")}
             />
             <RichText
               className={css`
@@ -53,7 +53,7 @@ const AsideWithImageEditor: React.FC<
               tagName="span"
               value={content}
               onChange={(value: string) => setAttributes({ content: value })}
-              placeholder={t("welcome-message-for-course")}
+              placeholder={t("copy-text-placeholder")}
             />
           </div>
         </div>

@@ -6,9 +6,13 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface selectMarketingConstentProps {
   courseId: string
+  courseLanguageGroupsId: string
 }
 
-const SelectMarketingConstentForm: React.FC<selectMarketingConstentProps> = ({ courseId }) => {
+const SelectMarketingConstentForm: React.FC<selectMarketingConstentProps> = ({
+  courseId,
+  courseLanguageGroupsId,
+}) => {
   const [marketingConsent, setMarketingConsent] = useState(false)
 
   useEffect(() => {
@@ -17,12 +21,12 @@ const SelectMarketingConstentForm: React.FC<selectMarketingConstentProps> = ({ c
       setMarketingConsent(response.consent)
     }
     fetchConsentStatus()
-  }, [courseId])
+  }, [courseId, courseLanguageGroupsId])
 
   const handleMarketingConsentChangeMutation = useToastMutation(
     async () => {
       try {
-        await updateMarketingConsent(courseId, marketingConsent)
+        await updateMarketingConsent(courseId, courseLanguageGroupsId, marketingConsent)
       } catch (error) {
         setMarketingConsent(!marketingConsent)
       }

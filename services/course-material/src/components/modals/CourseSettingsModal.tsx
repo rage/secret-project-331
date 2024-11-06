@@ -202,7 +202,10 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         `}
       >
         {getCourse.data?.ask_marketing_consent && (
-          <SelectMarketingConstentForm courseId={selectedLangCourseId} />
+          <SelectMarketingConstentForm
+            courseId={selectedLangCourseId}
+            courseLanguageGroupsId={getCourse.data?.course_language_group_id}
+          />
         )}
       </div>
       {languageChanged && (

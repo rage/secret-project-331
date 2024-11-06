@@ -6,7 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
-use headless_lms_models::marketing_consent::UserMarketingConsent;
+use headless_lms_models::marketing_consents::UserMarketingConsent;
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
@@ -905,6 +905,7 @@ async fn get_research_form_answers_with_user_id(
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserMarketingConsentPayload {
+    pub course_language_groups_id: Uuid,
     pub consent: bool,
 }
 /**
@@ -923,13 +924,12 @@ async fn update_marketing_consent(
 
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
 
-    let consent_data = payload.into_inner();
-
-    let result = models::marketing_consent::upsert_marketing_consent(
+    let result = models::marketing_consents::upsert_marketing_consent(
         &mut conn,
         *course_id,
+        payload.course_language_groups_id,
         &user.id,
-        consent_data.consent,
+        payload.consent,
     )
     .await?;
 
@@ -945,15 +945,16 @@ async fn fetch_user_marketing_consent(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
-) -> ControllerResult<web::Json<UserMarketingConsent>> {
+) -> ControllerResult<web::Json<Option<UserMarketingConsent>>> {
     let mut conn = pool.acquire().await?;
     let user_id = Some(user.id);
 
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
 
     let result =
-        models::marketing_consent::fetch_user_marketing_consent(&mut conn, *course_id, &user.id)
-            .await?;
+        models::marketing_consents::fetch_user_marketing_consent(&mut conn, *course_id, &user.id)
+            .await
+            .ok();
 
     token.authorized_ok(web::Json(result))
 }

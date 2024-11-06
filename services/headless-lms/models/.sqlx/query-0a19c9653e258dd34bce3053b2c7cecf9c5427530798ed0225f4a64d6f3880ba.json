@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    SELECT\n      id,\n      course_id,\n      course_language_groups_id,\n      server_prefix,\n      access_token,\n      mailchimp_mailing_list_id,\n      created_at,\n      updated_at,\n      deleted_at\n    FROM marketing_mailing_list_access_tokens\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "course_language_groups_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "server_prefix",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "access_token",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "mailchimp_mailing_list_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [false, false, false, false, false, false, false, false, true]
+  },
+  "hash": "0a19c9653e258dd34bce3053b2c7cecf9c5427530798ed0225f4a64d6f3880ba"
+}

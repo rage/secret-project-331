@@ -46,7 +46,7 @@ pub mod generated_certificates;
 pub mod glossary;
 pub mod join_code_uses;
 pub mod library;
-pub mod marketing_consent;
+pub mod marketing_consents;
 pub mod material_references;
 pub mod offered_answers_to_peer_review_temporary;
 pub mod open_university_registration_links;

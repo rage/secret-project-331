@@ -294,127 +294,129 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
             </tr>
           </thead>
           <tbody>
-            {roleQuery.data.sort(sortRoles).map((ur) => (
-              <tr
-                className={css`
-                  background: #ffffff;
-                  td {
-                    padding-top: 16px;
-                    padding-bottom: 16px;
-                    background: #f5f6f7;
-                    font-size: 16px;
-                    line-height: 20px;
-                    color: #1a2333;
-                  }
-                  & td:first-child {
-                    padding-left: 24px;
-                  }
-                  & td:last-child {
-                    padding-right: 24px;
-                  }
+            {roleQuery.data
+              .slice()
+              .sort(sortRoles)
+              .map((ur) => (
+                <tr
+                  className={css`
+                    background: #ffffff;
+                    td {
+                      padding-top: 16px;
+                      padding-bottom: 16px;
+                      background: #f5f6f7;
+                      font-size: 16px;
+                      line-height: 20px;
+                      color: #1a2333;
+                    }
+                    & td:first-child {
+                      padding-left: 24px;
+                    }
+                    & td:last-child {
+                      padding-right: 24px;
+                    }
+                    td:first-child {
+                      border-top-left-radius: 4px;
+                    }
 
-                  td:first-child {
-                    border-top-left-radius: 4px;
-                  }
+                    td:last-child {
+                      border-top-right-radius: 4px;
+                    }
 
-                  td:last-child {
-                    border-top-right-radius: 4px;
-                  }
+                    td:first-child {
+                      border-bottom-left-radius: 4px;
+                    }
 
-                  td:first-child {
-                    border-bottom-left-radius: 4px;
-                  }
-
-                  td:last-child {
-                    border-bottom-right-radius: 4px;
-                  }
-                `}
-                key={ur.id}
-              >
-                <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
-                <td>{ur.email}</td>
-                {editingRole?.userId !== ur.id && (
-                  <>
-                    <td>{ur.role}</td>
-                    <td>
-                      <button
-                        aria-label={t("edit-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                          margin-right: 8px;
-                        `}
-                        onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
-                      >
-                        <Pencil size={20} color={"#1A2333"} />
-                      </button>
-                      <button
-                        aria-label={t("remove-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                        `}
-                        onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
-                      >
-                        <XmarkCircle size={20} color={"#1A2333"} />
-                      </button>
-                    </td>
-                  </>
-                )}
-                {editingRole?.userId === ur.id && (
-                  <>
-                    <td>
-                      <SelectField
-                        id={"editing-role"}
-                        onChangeByValue={(role) => {
-                          setEditingRole({ userId: ur.id, newRole: role as UserRole })
-                        }}
-                        options={options(t)}
-                        defaultValue={ur.role}
-                      />
-                    </td>
-                    <td>
-                      <button
-                        aria-label={t("save-edited-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                          margin-right: 8px;
-                        `}
-                        onClick={() => {
-                          editMutation.mutate({
-                            email: ur.email,
-                            oldRole: ur.role,
-                            newRole: editingRole.newRole,
-                          })
-                          setEditingRole(null)
-                        }}
-                      >
-                        <CheckCircle />
-                      </button>{" "}
-                      <button
-                        aria-label={t("cancel-editing-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                        `}
-                        onClick={() => setEditingRole(null)}
-                      >
-                        <XmarkCircle />
-                      </button>
-                    </td>
-                  </>
-                )}
-              </tr>
-            ))}
+                    td:last-child {
+                      border-bottom-right-radius: 4px;
+                    }
+                  `}
+                  key={ur.id}
+                >
+                  <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
+                  <td>{ur.email}</td>
+                  {editingRole?.userId !== ur.id && (
+                    <>
+                      <td>{ur.role}</td>
+                      <td>
+                        <button
+                          aria-label={t("edit-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                            margin-right: 8px;
+                          `}
+                          onClick={() => setEditingRole({ userId: ur.id, newRole: ur.role })}
+                        >
+                          <Pencil size={20} color={"#1A2333"} />
+                        </button>
+                        <button
+                          aria-label={t("remove-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                          `}
+                          onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
+                        >
+                          <XmarkCircle size={20} color={"#1A2333"} />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                  {editingRole?.userId === ur.id && (
+                    <>
+                      <td>
+                        <SelectField
+                          id={"editing-role"}
+                          onChangeByValue={(role) => {
+                            setEditingRole({ userId: ur.id, newRole: role as UserRole })
+                          }}
+                          options={options(t)}
+                          defaultValue={ur.role}
+                        />
+                      </td>
+                      <td>
+                        <button
+                          aria-label={t("save-edited-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                            margin-right: 8px;
+                          `}
+                          onClick={() => {
+                            editMutation.mutate({
+                              email: ur.email,
+                              oldRole: ur.role,
+                              newRole: editingRole.newRole,
+                            })
+                            setEditingRole(null)
+                          }}
+                        >
+                          <CheckCircle />
+                        </button>{" "}
+                        <button
+                          aria-label={t("cancel-editing-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                          `}
+                          onClick={() => setEditingRole(null)}
+                        >
+                          <XmarkCircle />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

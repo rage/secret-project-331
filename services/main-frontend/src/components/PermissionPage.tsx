@@ -80,11 +80,11 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   const [sorting, setSorting] = useState(sort_key)
 
   function sortRoles(first: RoleUser, second: RoleUser): number {
-    if (sorting == SORT_KEY_NAME) {
+    if (sorting === SORT_KEY_NAME) {
       return 0 // first.name.localeCompare(second.name)
-    } else if (sorting == SORT_KEY_EMAIL) {
+    } else if (sorting === SORT_KEY_EMAIL) {
       return first.email.localeCompare(second.email)
-    } else if (sorting == SORT_KEY_ROLE) {
+    } else if (sorting === SORT_KEY_ROLE) {
       return first.role.localeCompare(second.role)
     }
     return 0

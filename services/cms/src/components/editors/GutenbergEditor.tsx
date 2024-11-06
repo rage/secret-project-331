@@ -139,13 +139,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [])
 
   useEffect(() => {
-    console.log("a")
     addFilter(
       "blockEditor.useSetting.before",
       "moocfi/editBlockThemeJsonSettings",
       editBlockThemeJsonSettings,
     )
-    console.log("b")
     // Register all core blocks
     registerCoreBlocks()
     // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.

@@ -43,7 +43,7 @@ azure_storage = "0.21.0"
 # Azure Blob Storage crate from the Azure SDK for Rust
 azure_storage_blobs = "0.21.0"
 # Rust wrappers around Microsoft Azure REST APIs - Core crate
-azure_core = "0.13.0"
+azure_core = "0.21.0"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.3"
 # A crate for safe and ergonomic pin-projection.

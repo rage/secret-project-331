@@ -8,12 +8,12 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface LogoLinkBlockAttributes {
   backgroundColor: string
   noPadding: boolean
 }
 
-const LogoLink: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
+const LogoLink: React.FC<React.PropsWithChildren<BlockRendererProps<LogoLinkBlockAttributes>>> = (
   props,
 ) => {
   return (

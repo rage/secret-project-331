@@ -80,12 +80,16 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
   const [sorting, setSorting] = useState(sort_key)
 
   function sortRoles(first: RoleUser, second: RoleUser): number {
-    if (sorting == SORT_KEY_NAME) {
+    if (sorting === SORT_KEY_NAME) {
       return 0 // first.name.localeCompare(second.name)
-    } else if (sorting == SORT_KEY_EMAIL) {
-      return first.email.localeCompare(second.email)
-    } else if (sorting == SORT_KEY_ROLE) {
-      return first.role.localeCompare(second.role)
+    } else if (sorting === SORT_KEY_EMAIL) {
+      // Primary sort by role, secondary by email
+      const roleComparison = first.role.localeCompare(second.role)
+      return roleComparison !== 0 ? roleComparison : first.email.localeCompare(second.email)
+    } else if (sorting === SORT_KEY_ROLE) {
+      // Primary sort by email, secondary by role
+      const emailComparison = first.email.localeCompare(second.email)
+      return emailComparison !== 0 ? emailComparison : first.role.localeCompare(second.role)
     }
     return 0
   }
@@ -312,7 +316,6 @@ export const PermissionPage: React.FC<React.PropsWithChildren<Props>> = ({ domai
                   & td:last-child {
                     padding-right: 24px;
                   }
-
                   td:first-child {
                     border-top-left-radius: 4px;
                   }

@@ -1,19 +1,22 @@
 import { css } from "@emotion/css"
-import React from "react"
+import React, { useContext } from "react"
 
 import { BlockRendererProps } from ".."
+import { GlossaryContext } from "../../../contexts/GlossaryContext"
+import { parseText } from "../../ContentRenderer/util/textParsing"
 
 import { headingFont, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface IngressBlockAttributes {
   title: string
-  subtitle: boolean
+  subtitle: string
 }
 
-const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
+const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockAttributes>>> = (
   props,
 ) => {
+  const { terms } = useContext(GlossaryContext)
   return (
     <div
       className={css`
@@ -32,9 +35,10 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockA
             letter-spacing: -1;
             font-family: ${headingFont};
           `}
-        >
-          {props.data.attributes.title}
-        </h2>
+          dangerouslySetInnerHTML={{
+            __html: parseText(props.data.attributes.title, terms).parsedText,
+          }}
+        />
       )}
       <h3
         className={css`
@@ -44,9 +48,10 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockA
           line-height: 1.35;
           font-family: ${primaryFont};
         `}
-      >
-        {props.data.attributes.subtitle}
-      </h3>
+        dangerouslySetInnerHTML={{
+          __html: parseText(props.data.attributes.subtitle, terms).parsedText,
+        }}
+      />
     </div>
   )
 }

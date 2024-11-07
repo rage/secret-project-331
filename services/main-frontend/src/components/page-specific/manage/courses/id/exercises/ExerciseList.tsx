@@ -123,6 +123,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                         li:last-of-type {
                           border-bottom-right-radius: 4px;
                           border-bottom-left-radius: 4px;
+                          border-bottom: 2px solid #e1e3e5;
                         }
                         li:nth-child(even) {
                           border-right: 2px solid #e1e3e5;

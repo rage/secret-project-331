@@ -8,7 +8,7 @@ import InnerBlocks from "../util/InnerBlocks"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface AuthorBlockAttributes {
   backgroundColor: string
 }
 
@@ -64,7 +64,7 @@ const Wrapper = styled.div`
   }
 `
 
-const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>> = (
+const AuthorBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AuthorBlockAttributes>>> = (
   props,
 ) => {
   return (

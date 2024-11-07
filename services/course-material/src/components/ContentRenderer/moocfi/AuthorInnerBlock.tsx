@@ -5,12 +5,12 @@ import InnerBlocks from "../util/InnerBlocks"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-interface InfoBoxBlockAttributes {
+interface AuthorInnerBlockAttributes {
   backgroundColor: string
 }
 
 const AuthorInnerBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<InfoBoxBlockAttributes>>
+  React.PropsWithChildren<BlockRendererProps<AuthorInnerBlockAttributes>>
 > = (props) => {
   return (
     <div>

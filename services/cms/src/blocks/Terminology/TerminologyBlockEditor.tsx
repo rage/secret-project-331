@@ -11,7 +11,7 @@ import { TerminologyBlockAttributes } from "."
 
 import { primaryFont } from "@/shared-module/common/styles"
 
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
+const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph", "core/list"]
 const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
   ["core/paragraph", { content: "Insert body text...", placeholder: "Insert body text..." }],
 ]
@@ -21,6 +21,7 @@ const TerminologyBlockEditor: React.FC<
 > = ({ clientId, attributes, setAttributes }) => {
   const { title, blockName } = attributes
   const { t } = useTranslation()
+
   return (
     <BlockWrapper id={clientId}>
       <InspectorControls key="settings">

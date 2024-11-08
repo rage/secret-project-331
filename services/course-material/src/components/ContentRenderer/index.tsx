@@ -33,6 +33,7 @@ import ColumnsBlock from "./core/layout/ColumnsBlock"
 import SeparatorBlock from "./core/layout/Separator"
 import SpacerBlock from "./core/layout/SpacerBlock"
 import AsideBlock from "./moocfi/AsideBlock"
+import AsideWithImageBlock from "./moocfi/AsideWithImageBlock"
 import AudioPlayer from "./moocfi/AudioPlayer/index"
 import AuthorBlock from "./moocfi/AuthorBlock"
 import AuthorInnerBlock from "./moocfi/AuthorInnerBlock"
@@ -180,6 +181,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/ingress": Ingress,
   "moocfi/terminology-block": TerminologyBlock,
   "moocfi/logo-link": LogoLink,
+  "moocfi/aside-with-image": AsideWithImageBlock,
 }
 
 const highlightedBlockStyles = css`

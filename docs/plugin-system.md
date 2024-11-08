@@ -1,6 +1,6 @@
 # Plugin System Developer Documentation
 
-This documentation provides guidance on adding new exercise types to our Learning Management System (host system) as plugins. Plugins are independent web applications that integrate with the host system by implementing specific user interfaces and REST APIs.
+This documentation provides guidance on adding new exercise types to this Learning Management System (host system) with plugins. Plugins are independent web applications that integrate with the host system by implementing specific user interfaces and REST APIs.
 
 This repo has several examples of plugins.
 

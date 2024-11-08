@@ -2,6 +2,17 @@
 
 This documentation provides guidance on adding new exercise types to our Learning Management System (host system) as plugins. Plugins are independent web applications that integrate with the host system by implementing specific user interfaces and REST APIs.
 
+This repo has several examples of plugins.
+
+- services/quizzes - Provides multiple-choice questions, essays, etc.
+- services/example-exercise - An example plugin
+- services/tmc - Provides programming exercises
+
+External examples:
+
+- https://github.com/rage/language-exercise-service
+- https://github.com/rage/factor-analysis-exercise-service
+
 ## Overview
 
 Plugins add new exercise types to the system. Each plugin is an independent web application hosted on a separate server and must implement the following:

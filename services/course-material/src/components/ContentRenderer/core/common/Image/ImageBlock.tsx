@@ -60,6 +60,10 @@ const ImageBlock: React.FC<
         `
         float: ${align};
         margin-right: 1em;`}
+
+        [data-rmiz-ghost] {
+          display: none;
+        }
       `}
     >
       <Zoom>

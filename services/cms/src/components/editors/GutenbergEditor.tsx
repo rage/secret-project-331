@@ -314,6 +314,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                           .components-search-control {
                             font-family: ${primaryFont} !important;
                           }
+                          /** We don't have a use for other tabs than the default tab **/
+                          .block-editor-tabbed-sidebar__tablist-and-close-button {
+                            display: none;
+                          }
                         `}
                       >
                         <BlockLibrary />
@@ -373,10 +377,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                   >
                     <ObserveTyping>
                       <BlockList />
-                      <ButtonBlockAppender
-                        // @ts-expect-error: Typically this component is used to insert innerblocks. However, we are using it to insert blocks at the root level.
-                        rootClientId={undefined}
-                      />
+
+                      {content.length > 0 && (
+                        <ButtonBlockAppender
+                          // @ts-expect-error: Typically this component is used to insert innerblocks. However, we are using it to insert blocks at the root level.
+                          rootClientId={undefined}
+                        />
+                      )}
                     </ObserveTyping>
                   </WritingFlow>
                 </div>

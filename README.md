@@ -52,8 +52,6 @@ Once installed, these settings will enable your editor to:
 - Automatically display code style issues.
 - Automatically fix some issues when saving files.
 
-These configurations are controlled by `.vscode/settings.json`. Do not modify this file unless you intend to change the defaults for all developers working in this repository.
-
 ## Documentation
 
 Documentation for teachers is located in the **Wiki** tab of this repository. The documentation within the repository itself is intended for developers only.

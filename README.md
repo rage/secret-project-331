@@ -1,35 +1,111 @@
 # Secret Project 331
 
-## Development environment setup
+Secret Project 331 is a Learning Management System (LMS) developed by the MOOC Center of the University of Helsinki. It's deployed at [https://courses.mooc.fi](https://courses.mooc.fi). This document contains technical information intended for developers. If you're not a developer, you might find these links helpful instead:
 
-Read [Development.md](https://github.com/rage/secret-project-331/blob/master/docs/Development.md) on how to setup using Windows or Linux.
+- To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
+- For teacher documentation, refer to the **Wiki** tab in this repository.
 
-## Seed cluster database
+## Development Environment Setup
 
-```sh
-bin/seed
+To begin development on Secret Project 331, set up your local environment by following the instructions in [Development.md](./docs/Development.md), which covers setup on Windows, Linux, and macOS.
+
+## Code Style
+
+In this project, code style is enforced with automatic tools. To ensure your contributions follow the project's code style, you need to set up pre-commit hooks and configure your editor.
+
+### Setting Up Pre-Commit Hooks
+
+Run `npm ci` in the repository root to install the necessary tools:
+
+```bash
+$ cd Code/secret-project-331/
+$ npm ci
 ```
 
-## Code style:
+This will install `lint-staged`, which ensures that your code passes some basic code style checks before committing.
+
+When you're ready to perform a comprehensive code style check (note: this may take some time), use:
 
 ```bash
 bin/git-run-branch-ready-checks
 ```
 
+### Configuring Your Editor
+
+#### Visual Studio Code
+
+To configure Visual Studio Code for this project, open it in the repository root with the pre-configured workspace:
+
+```bash
+$ cd Code/secret-project-331/
+$ bin/code
+```
+
+The `bin/code` command automatically opens the project with recommended settings.
+
+After opening, install the recommended extensions prompted in the bottom right corner:
+
+![Recommended extensions popup](./docs/img/recommended-extensions.png)
+
+Once installed, these settings will enable your editor to:
+
+- Automatically display code style issues.
+- Automatically fix some issues when saving files.
+
+These configurations are controlled by `.vscode/settings.json`. Do not modify this file unless you intend to change the defaults for all developers working in this repository.
+
 ## Documentation
 
-Backend: [https://rage.github.io/secret-project-331/headless_lms_server/index.html](https://rage.github.io/secret-project-331/headless_lms_server/index.html)
+Documentation for teachers is located in the **Wiki** tab of this repository. The documentation within the repository itself is intended for developers only.
 
-Database: [https://rage.github.io/secret-project-331-db-docs/](https://rage.github.io/secret-project-331-db-docs/)
+### Technical Documentation
 
-Shared module storybook: [https://rage.github.io/secret-project-storybook/](https://rage.github.io/secret-project-storybook/)
+- **Backend**: [Headless LMS Server Documentation](https://rage.github.io/secret-project-331/headless_lms_server/index.html)
+- **Database Schema**: [Database Documentation](https://rage.github.io/secret-project-331-db-docs/)
+- **Shared Module**: [Component Storybook](https://rage.github.io/secret-project-storybook/)
 
-Mobile first design: [https://github.com/rage/secret-project-331/tree/master/docs/mobile-first-design.md](https://github.com/rage/secret-project-331/tree/master/docs/mobile-first-design.md)
+For additional developer documentation, see the `docs` folder in the repository.
 
-For other documentation, check out the docs folder.
+## Development Resources
 
-# License
+Below are essential resources, conventions, and courses to support development on this codebase. Familiarize yourself with these resources before beginning work.
 
-The program in folder `services/cms` is licensed under [GPL-3.0-only](LICENSE-SERVICES-CMS).
+### Frontend Development
 
-Everything else is licensed under [Apache-2.0](LICENSE).
+- [Mobile-first CSS](./docs/mobile-first-css.md)
+- Full Stack React Development: [Fullstack Open](https://fullstackopen.com/en/)
+- Next.js: [Next.js Basics](https://nextjs.org/learn/basics/create-nextjs-app)
+- CSS Box Model: [Mozilla CSS Box Model](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model)
+- CSS-in-JS with Emotion: [Emotion Documentation](https://emotion.sh/docs/introduction)
+- CSS Layouts with Flexbox and Grid:
+  - **Flexbox** (primary layout tool):
+    - Patterns: [Flexbox Patterns](https://tobiasahlin.com/blog/common-flexbox-patterns/)
+    - Playground: [Flexyboxes](https://the-echoplex.net/flexyboxes/)
+    - Documentation: [Mozilla Flexbox Documentation](https://developer.mozilla.org/en-US/docs/Glossary/Flexbox)
+  - **Grid** (secondary layout tool):
+    - Documentation: [Mozilla Grid Documentation](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout)
+- TypeScript: [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- Iframes:
+  - Iframe Element: [MDN Iframe Documentation](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe)
+  - Channel Messaging API: [Channel Messaging Documentation](https://developer.mozilla.org/en-US/docs/Web/API/Channel_Messaging_API/Using_channel_messaging)
+
+### Deployment Resources
+
+- Docker: [DevOps with Docker](https://devopswithdocker.com/)
+- Kubernetes: [DevOps with Kubernetes](https://devopswithkubernetes.com/)
+
+### Backend Development
+
+- Rust Programming Language: [The Rust Book](https://doc.rust-lang.org/book/#the-rust-programming-language)
+- Actix Web Framework: [Actix Web](https://actix.rs/)
+- SQLx for Rust: [SQLx Usage](https://github.com/launchbadge/sqlx#usage)
+- Rust by Example: [Rust by Example](https://doc.rust-lang.org/rust-by-example/)
+- Learn Rust with Linked Lists: [Entirely Too Many Linked Lists](https://rust-unofficial.github.io/too-many-lists/)
+- Rustlings (Rust Exercises): [Rustlings](https://github.com/rust-lang/rustlings)
+- Rust Cookbook: [Rust Cookbook](https://rust-lang-nursery.github.io/rust-cookbook/)
+
+## License
+
+The program in the `services/cms` folder is licensed under [GPL-3.0-only](LICENSE-SERVICES-CMS).
+
+All other parts of the codebase are licensed under [Apache-2.0](LICENSE).

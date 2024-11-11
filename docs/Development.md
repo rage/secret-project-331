@@ -1,341 +1,267 @@
-# Table of contents
+# Development Environment Setup
 
-- Setting up the environment
-  1. [Setting up development environment on Linux](#setting-up-development-environment-on-linux)
-  2. [Setting up development environment on Windows 10](#setting-up-development-environment-on-windows-10)
-  3. [Setting up development environment on Mac](#setting-up-development-environment-on-mac)
-- [Running the development environment](#running-the-development-environment)
+This document outlines the steps required to set up a development environment for Secret Project 331 on Linux, Windows, and macOS. Note that we use Linux for development at the University of Helsinki, so it may offer the best support and compatibility.
 
-# Setting up the development environment
+## Table of Contents
 
-## Setting up development environment on Linux
+1. [Setting Up the Environment](#setting-up-the-environment)
+   - [Linux Setup](#setting-up-on-linux)
+   - [Windows Setup](#setting-up-on-windows)
+   - [macOS Setup](#setting-up-on-macos)
+2. [Running the Development Environment](#running-the-development-environment)
 
-**After you're done installing everything, please run `bin/print-versions` to verify you have everything installed.**
+---
 
-### Development tools
+## Setting Up the Environment
 
-#### DevOps
+### Setting Up on Linux
 
-Following executables are used for managing the system. You may add the these to the `/usr/local/bin`. Or alternatively add them to a folder in the path.
+**Note**: After installing all required tools, run `bin/print-versions` to confirm that dependencies are correctly installed.
+
+#### DevOps Tools
+
+Install the following tools to manage the development environment:
 
 1. [Skaffold](https://skaffold.dev/docs/install/)
 2. [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 3. [Minikube](https://minikube.sigs.k8s.io/docs/start/)
 4. [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/)
 
-#### Dependencies
+#### Additional Dependencies
 
-Install the following packages to your linux system:
+Install these packages on your Linux system:
 
 1. [Docker](https://docs.docker.com/engine/install/)
 2. [PostgreSQL](http://postgresguide.com/setup/install.html)
 3. [Actionlint](https://github.com/rhysd/actionlint#quick-start)
-4. [Node version manager (NVM)](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. [Node Version Manager (NVM)](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-You may also need:
+Optional utilities:
 
-1. [Stern](https://github.com/wercker/stern)
-2. [Kubectx](https://github.com/ahmetb/kubectx)
+- [Stern](https://github.com/wercker/stern) for logs aggregation
+- [Kubectx](https://github.com/ahmetb/kubectx) for easy Kubernetes context switching
 
-In addition, you need the commands (`bc, find, jq, rsync, sponge`) for the scripts:
+Other essential commands required by scripts (`bc`, `find`, `jq`, `rsync`, `sponge`):
 
-| Operation system | Install command                            |
-| ---------------- | ------------------------------------------ |
-| Ubuntu           | `sudo apt install bc find jq rsync sponge` |
-| Arch Linux       | `pacman -Syu bc find jq rsync moretools`   |
+```bash
+# Ubuntu
+sudo apt install bc find jq rsync moreutils
 
-#### Rust development tools
+# Arch Linux
+sudo pacman -Syu bc find jq rsync moreutils
+```
 
-1. Install [Rust](https://www.rust-lang.org/tools/install)
-2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
-3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora)
-4. Install `pkg-config`
-5. Install oxipng (`cargo install oxipng` or for Arch Linux `sudo pacman -S oxipng`)
+#### Rust Development Tools
 
-### Optional configuration
+1. Install [Rust](https://www.rust-lang.org/tools/install).
+2. Install `sqlx-cli`:
+   ```bash
+   cargo install sqlx-cli --no-default-features --features rustls,postgres
+   ```
+3. Install OpenSSL (`libssl-dev` on Ubuntu, `openssl-devel` on Fedora).
+4. Install `pkg-config` and `oxipng`:
+   ```bash
+   cargo install oxipng  # or sudo pacman -S oxipng on Arch
+   ```
 
-#### Moving docker data root to another drive with more space
+### Setting Up on Windows
 
-> NOTE: If you are using Cubbli laptop provided by the Computer Science department, please ensure that you move docker data root to your home drive, otherwise you will most likely run out of space. With Cubbli please use path ´/home/local/username/docker´ if not using cubbli please use path ´/home/username/docker"´.
+**DevOps Tools**
 
-1. `sudo systemctl stop docker`
-2. `sudo vim /etc/docker/daemon.json` -
-   with content:
+1. Install [Chocolatey](https://docs.chocolatey.org/en-us/choco/setup).
+2. Use Chocolatey to install the required packages:
+   ```bash
+   choco install kubernetes-cli minikube postgresql kustomize skaffold stern kubectx
+   ```
+
+#### Rust Development Tools
+
+1. Install [Rust](https://www.rust-lang.org/tools/install).
+2. Install `sqlx-cli` and `oxipng`:
+   ```bash
+   cargo install sqlx-cli --no-default-features --features rustls,postgres
+   cargo install oxipng
+   ```
+
+#### Windows Terminal and Cygwin
+
+1. Install [Windows Terminal](https://aka.ms/terminal).
+2. Install [Cygwin](https://www.cygwin.com/), ensuring you include the `postgres-client` and `procps-ng` packages.
+3. To add Cygwin as a profile in Windows Terminal, include the following in your Windows Terminal settings:
+
+   ```json
    {
-   "data-root": "path_from \_above"
+     "guid": "{00000000-0000-0000-0000-000000000001}",
+     "commandline": "C:/cygwin64/Cygwin.bat",
+     "icon": "C:/cygwin64/Cygwin-Terminal.ico",
+     "hidden": false,
+     "name": "Cygwin"
    }
-3. `mkdir path_from _above`
-4. `sudo rsync -aP /var/lib/docker path_from _above` (optional)
-5. `sudo mv /var/lib/docker /var/lib/docker.old`
-6. `sudo systemctl start docker`
-   - Ensure all works fine by running: `docker run --rm hello-world`
-7. `sudo rm -rf /var/lib/docker.old` (cleanup)
+   ```
 
-## Setting up development environment on Windows 10
+#### Configuring VSCode to Use Cygwin
 
-### DevOps
+1. Install **Shell Launcher** in VSCode.
+2. In your `settings.json`, add the following to use Cygwin as a terminal shell:
 
-Install [chocolatey](https://docs.chocolatey.org/en-us/choco/setup) as your package-manager. Then install the following packages.
+   ```json
+   "shellLauncher.shells.windows": [
+       {
+           "shell": "C:\\cygwin64\\bin\\bash.exe",
+           "args": ["--login"],
+           "label": "Cygwin Bash"
+       }
+   ]
+   ```
 
-1. Kubectl: [Choco instructions](https://community.chocolatey.org/packages/kubernetes-cli)
-   - Alternative: [Kubernetes](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-2. Minikube: [Choco instructions](https://community.chocolatey.org/packages/minikube)
-   - Alternative: [Minikube](https://minikube.sigs.k8s.io/docs/start/)
-3. Postgresql: [Choco instructions](https://community.chocolatey.org/packages/postgresql)
-   - Alternative: [Postgresql](http://postgresguide.com/setup/install.html)
-4. Kustomize: [Choco instructions](https://community.chocolatey.org/packages/kustomize)
-5. Skaffold: [Choco instructions](https://community.chocolatey.org/packages/skaffold)
-   You can install all of the above with the following command:
+3. Use `Ctrl+Shift+T` in VSCode to launch a Cygwin terminal.
 
-```shell
-choco install kubernetes-cli minikube postgresql kustomize skaffold
+### Setting Up on macOS
+
+#### Required Tools (via Homebrew)
+
+Install [Homebrew](https://brew.sh/) if not already installed, then use it to install the required packages:
+
+```bash
+brew install skaffold kubernetes-cli@1.22 minikube kustomize docker postgresql actionlint
 ```
 
-You may also need [stern](https://community.chocolatey.org/packages/stern) and [kubectx](https://community.chocolatey.org/packages/kubectx) which you can install with choco:
+Additional utilities:
 
-```shell
-choco install stern kubectx
+```bash
+brew install bc jq rsync sponge coreutils kubectx stern
 ```
 
-### Rust development tools
+#### Rust Development Tools
 
-1. Install rust (https://www.rust-lang.org/tools/install)
-2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
-3. Install oxipng (`cargo install oxipng`)
+1. Install [Rust](https://www.rust-lang.org/tools/install).
+2. Install `sqlx-cli`:
+   ```bash
+   cargo install sqlx-cli --no-default-features --features rustls,postgres
+   ```
+3. Install OpenSSL, `pkg-config`, and `oxipng`:
+   ```bash
+   brew install openssl@3 pkg-config
+   cargo install oxipng
+   ```
 
-### Configuration for windows
+---
 
-#### Windows Terminal & Cygwin
+## Running the Development Environment
 
-1. Install [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab)
-2. Install [Cygwin](https://www.cygwin.com/)
-   - During installation of Cygwin you will be prompted for additional packages, these are needed: `postgres-client` & `procps-ng`
-3. Open Windows Terminal and press the small arrow down and open Settings (as JSON), add the following:
+### Installing Project Dependencies
 
-```
-profiles: {
-  ...
-  list: [
-    ...
-    {
-      "guid": "{00000000-0000-0000-0000-000000000001}",
-      "commandline": "C:/cygwin64/Cygwin.bat",
-      "icon": "C:/cygwin64/Cygwin-Terminal.ico",
-      "hidden": false,
-      "name": "Cygwin"
-    }
-  ]
-}
+In the root directory, install the project dependencies:
+
+```bash
+nvm install
+nvm use
+npm ci
+bin/npm-ci-all
 ```
 
-#### Install Cygwin on VSCode
+Make sure `TMC-Langs` is downloaded:
 
-1. Install Cgywin to your windows computer as described above
-2. In order to install Cgywin on VSCode we need to install shell launcher extension
-3. Install shell launcher from the extension market on VSCode
-4. Read the installation guide to add keyboard shortcode to your VSCode keybindings.json file
-
-```
-[{
-   "key": "ctrl+shift+t",
-   "command": "shellLauncher.launch"
-}]
+```bash
+bin/download-tmc-langs
 ```
 
-5. Next go to settings on VSCode and search for shell launcher and click "Edit in settings",
-6. Add the code below to the `shellLauncher.shells.windows` array
+Next, copy the shared module contents:
 
-```
-[{
-   "shell": "C:\\cygwin64\\bin\\bash.exe",
-   "args": ["--login"],
-   "label": "Cygwin Bash",
-   "launchName": "Cygwin Bash",
-}]
+```bash
+bin/copy-and-check-shared-module
 ```
 
-7. To use Cygwin hold CTLR + SHIFT + T
+### Configuring Environment Variables
 
-#### Skaffold
+Set up the environment variables for `headless-lms`:
 
-1. Download [Skaffold](https://skaffold.dev/docs/install/) latest [stable release](https://storage.googleapis.com/skaffold/releases/latest/skaffold-windows-amd64.exe) for Windows and save it under `C:\Binary`.
-2. Rename the executable to `skaffold.exe`.
-3. Start `cmd` or `Powershell` as administrator and run: `rundll32.exe sysdm.cpl,EditEnvironmentVariables`
-4. Under **System variables** click the **Path** row and click button `Edit...`, click button `New` and type in the row: `C:\Binary\`.
-5. Check with `Git Bash` or `Cygwin` that Skaffold is in correct folder by running `which skaffold`.
-
-## Setting up development environment on Mac
-
-### Development tools
-
-#### Brew
-
-If you're using macOS, please install [homebrew](https://brew.sh/)
-
-#### DevOps
-
-Following executables are used for managing the system. You may add the these to the `/usr/local/bin`. Or alternatively add them to a folder in the path.
-
-1. [Skaffold](https://skaffold.dev/docs/install/)
-2. [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-3. [Minikube](https://minikube.sigs.k8s.io/docs/start/)
-4. [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/)
-
-You can install all of the above dependencies with homebrew:
-
-```
-brew install skaffold kubernetes-cli@1.22 minikube kustomize
-```
-
-#### Dependencies
-
-Install the following packages to your macOS:
-
-1. [Docker](https://docs.docker.com/engine/install/)
-2. [PostgreSQL](http://postgresguide.com/setup/install.html)
-3. [Actionlint](https://github.com/rhysd/actionlint#quick-start)
-4. [Node version manager (NVM)](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-You may also need:
-
-1. [Stern](https://github.com/wercker/stern)
-2. [Kubectx](https://github.com/ahmetb/kubectx)
-
-In addition, you need the commands (`bc, find, jq, rsync, sponge, realpath`) for the scripts:
-
-```
-brew install bc jq rsync sponge coreutils
-```
-
-You may also need stern and kubectx:
-
-```
-brew install kubectx stern
-```
-
-#### Rust development tools
-
-1. Install [Rust](https://www.rust-lang.org/tools/install)
-2. Install sqlx-cli (`cargo install sqlx-cli` or `cargo install sqlx-cli --no-default-features --features rustls,postgres` to install with minimal dependencies)
-3. Install OpenSSL (`brew install openssl@3`)
-4. Install `pkg-config` (`brew install pkg-config`)
-5. Install oxipng (`cargo install oxipng`)
-
-# Running the development environment
-
-## Installing secret-projects dependencies
-
-In the root directory, run the command `nvm install` followed by `nvm use`. After that you should have Node 20. Then run `npm ci` in the root folder to install the dependencies and `./bin/npm-ci-all` which will install all the dependencies for the services. Then make sure that TMC-Langs is downloaded by running `bin/download-tmc-langs`. Otherwise the build won't succeed.
-
-Once you've installed the node modules run the command `./bin/copy-and-check-shared-module` which will copy the contents of the shared module to each of the services.
-
-Add the environment variables for the headless-lms by the following command
-
-```shell
+```bash
 cp services/headless-lms/models/.env.example services/headless-lms/models/.env
 ```
 
-## Starting minikube
+### Starting Minikube
 
-**Before you do this the first time:** If you're running Linux, you can detect common problems with your setup by running `bin/detect-dev-env-problems` on the repo root. Once you see this script printing `Minikube is not running. Please start it with bin/minikube-start and run this again.`, you can proceed to the next step.
+Before running Minikube, check for any setup issues:
 
-Run the command `./bin/minikube-start` from the root directory.
+```bash
+bin/detect-dev-env-problems
+```
 
-## Setting up local domain
+To start Minikube, use:
 
-### Linux
+```bash
+bin/minikube-start
+```
 
-After skaffold has started up, we need to add a local domain name so that we can access the ingress of the cluster.
+### Setting Up a Local Domain
 
-Copy the IP address for `project-331-ingress` from:
+#### Linux
 
-```sh
+Retrieve the Minikube IP address:
+
+```bash
 minikube ip
 ```
 
-Next, add a hosts entry for the IP address you got from the previous command:
+Add this IP to your `/etc/hosts` file:
 
-```
-ip-from-previous-command	project-331.local
-```
-
-You can find the hosts file in Linux from `/etc/hosts`.
-
-After that, you should be able to access the application by going to `http://project-331.local/` in your web browser.
-
-Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
-
-**If you're having problems with minikube, try running `bin/detect-dev-env-problems`.**
-
-### Windows
-
-After skaffold has started up, we need to add a local domain name so that we can access the ingress of the cluster.
-
-Copy the IP address for `project-331-ingress` from:
-
-```sh
-minikube ip
+```plaintext
+<minikube-ip>    project-331.local
 ```
 
-Next, add a hosts entry for the IP address you got from the previous command:
+#### Windows
 
-```
-ip-from-previous-command	project-331.local
-```
+Use the Minikube IP obtained from `minikube ip` and add a hosts entry:
 
-You can find the hosts file in Windows from `C:\Windows\System32\drivers\etc` (edit as administrator).
-For example start `Powershell` in administrator mode, navigate to path above and write `notepad hosts`.
-
-After that, you should be able to access the application by going to `http://project-331.local/` in your web browser. Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
-
-Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
-
-### Mac
-
-After skaffold has started up, we need to add a local domain name so that we can access the ingress of the cluster.
-
-Copy the IP address for `project-331-ingress` from:
-
-```sh
-minikube ip
+```plaintext
+<minikube-ip>    project-331.local
 ```
 
-Next, add a hosts entry for the IP address you got from the previous command:
+Hosts file location: `C:\Windows\System32\drivers\etc\hosts`
 
+#### macOS
+
+Similar to Linux, use `minikube ip` to retrieve the IP, then add it to `/etc/hosts`.
+
+### Starting the Application
+
+Ensure Minikube is running, then:
+
+#### Linux
+
+In the root of the repository:
+
+```bash
+bin/dev
 ```
-ip-from-previous-command	project-331.local
+
+#### Windows
+
+Use **Cygwin** in Windows Terminal, navigate to the root of the repository:
+
+```bash
+bin/dev
 ```
 
-You can find the hosts file in macOS from `/etc/hosts`.
+#### macOS
 
-After that, you should be able to access the application by going to `http://project-331.local/` in your web browser.
+In the root of the repository:
 
-Take a look at `kubernetes/ingress.yml` to see how requests are routed to different services.
+```bash
+bin/dev
+```
 
-## Starting development the application
+### Recommended Terminal Tools for Multi-Window Management
 
-Before starting the application, make sure minikube is running.
+For efficient workflow, use a terminal with split-window support. Recommended options:
 
-TIP: For multiple terminal windows, we recommend you to use a terminal with split window support for convenience.
+- **Linux**: [Tilix](https://gnunn1.github.io/tilix-web/)
+- **Windows**: [Windows Terminal](https://aka.ms/terminal)
+- **macOS**: [iTerm2](https://iterm2.com/)
 
-For Linux, one good option is [Tilix](https://gnunn1.github.io/tilix-web/).
+Verify your setup with:
 
-For windows environment, you can use [windows terminal](https://aka.ms/terminal)
-
-For macOS, you can use [Iterm2](https://iterm2.com/)
-
-**Verify that you've setup minikube corretly by running `bin/detect-dev-env-problems`.**
-
-### Linux
-
-In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
-
-### Windows
-
-Start Windows Terminal (Make sure you are using _Cygwin_ terminal)
-
-In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
-
-### Mac
-
-In the root of the repo, run: `bin/dev`. This script will start the development environment inside Minikube with Skaffold. The initial build will take a while but after that is done, everything should be relatively quick.
+```bash
+bin/detect-dev-env-problems
+```

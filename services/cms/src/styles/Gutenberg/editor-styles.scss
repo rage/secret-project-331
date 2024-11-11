@@ -132,3 +132,16 @@
 .block-editor-plain-text {
   width: 100%;
 }
+
+.wp-block.is-selected {
+  // Makes the typing caret visible on a empty block
+  outline-offset: 5px;
+  // Makes the current block highlight less distracting
+  outline-color: #bec3c7;
+
+  // Apply the same styles to direct children, so that the highlight customization works with more block types
+  & > * {
+    outline-offset: 5px;
+    outline-color: #bec3c7;
+  }
+}

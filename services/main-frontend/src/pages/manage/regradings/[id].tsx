@@ -148,7 +148,7 @@ const ViewRegradingPage: React.FC<React.PropsWithChildren<unknown>> = () => {
                 <td>{si.grading_before_regrading.score_given ?? "null"}</td>
                 <td>
                   {si.grading_after_regrading
-                    ? si.grading_after_regrading.score_given ?? "null"
+                    ? (si.grading_after_regrading.score_given ?? "null")
                     : "null"}
                 </td>
               </FullWidthTableRow>

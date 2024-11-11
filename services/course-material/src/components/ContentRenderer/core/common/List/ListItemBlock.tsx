@@ -14,7 +14,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListItemAttributes>>> = (
   props,
 ) => {
-  const { content, fontFamily, fontSize } = props.data.attributes
+  const { content, fontSize } = props.data.attributes
 
   const { terms } = useContext(GlossaryContext)
 
@@ -24,8 +24,6 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
         props.wrapperClassName,
         css`
           font-size: 18px;
-          ${fontFamily && `font-family: ${fontFamily};`}
-
           ${respondToOrLarger.md} {
             font-size: ${fontSizeMapper(fontSize)};
           }

@@ -1,8 +1,9 @@
 /* eslint-disable i18next/no-literal-string */
-import { MediaItem } from "@wordpress/media-utils"
 import { RawAxiosRequestHeaders } from "axios"
 
 import { cmsClient } from "../cmsClient"
+
+import { MediaItem } from "./uploadMediaToServer"
 
 export type MediaUploadType = { organizationId: string } | { courseId: string } | { examId: string }
 

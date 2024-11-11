@@ -19,14 +19,18 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 //   type: string
 // }
 
-const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsAttributes>>> = ({
-  data,
-}) => {
-  const { t } = useTranslation()
-  const { anchor } = data.attributes
+interface ExtraAttributes {
+  orientation: string
+  justifyContent: string
+}
 
-  const orientation = data.attributes.layout?.orientation as string | undefined | null
-  const contentJustification = data.attributes.layout?.justifyContent as string | undefined | null
+const ButtonsBlock: React.FC<
+  React.PropsWithChildren<BlockRendererProps<ButtonsAttributes & ExtraAttributes>>
+> = ({ data }) => {
+  const { t } = useTranslation()
+
+  const orientation = data.attributes?.orientation as string | undefined | null
+  const contentJustification = data.attributes?.justifyContent as string | undefined | null
 
   const getContentJustification = (contentJustification: string) => {
     if (contentJustification === "center") {
@@ -62,11 +66,8 @@ const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsA
   const mappedButtons = data.innerBlocks.map((button) => {
     const {
       // align,
-      anchor,
       backgroundColor,
-      className,
       fontSize,
-      fontFamily,
       gradient,
       linkTarget,
       placeholder,
@@ -77,7 +78,8 @@ const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsA
       // title
       url,
       width,
-    } = button.attributes as ButtonAttributes
+      className,
+    } = button.attributes as ButtonAttributes & { className?: string }
 
     const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
       linkTarget && linkTarget.includes("_blank")
@@ -106,13 +108,11 @@ const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsA
             )} !important;`}
             ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
             ${width && `width: calc(100% - ${1 - width / 100}rem);`}
-            ${fontFamily && `font-family: ${fontFamily};`}
             margin: 0.5rem 0rem;
             margin-right: 0.5rem;
           `}
           variant={getButtonTypeFromClassName(className)}
           size="medium"
-          {...(anchor && { id: anchor })}
           dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
         />
         {linkTarget && linkTarget.includes("_blank") && (
@@ -129,7 +129,6 @@ const ButtonsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ButtonsA
         ${orientation === "vertical" ? "flex-direction: column;" : "flex-direction: row;"}
         ${contentJustification && getContentJustification(contentJustification)}
       `}
-      {...(anchor && { id: anchor })}
     >
       {mappedButtons}
     </div>

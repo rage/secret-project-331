@@ -9,8 +9,12 @@ import { parseText } from "../../../util/textParsing"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = (props) => {
-  const { citation, value, anchor, align } = props.data.attributes
+interface ExtraAttributes {
+  align?: string
+}
+
+const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>> = (props) => {
+  const { citation, value, align } = props.data.attributes
   const { terms } = useContext(GlossaryContext)
 
   const styleLeftDefault = css`
@@ -42,7 +46,6 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes>> = (props) => {
           margin-bottom: 1.75rem;
         `}
         cite={citation}
-        {...(anchor && { id: anchor })}
       >
         <div>
           {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}

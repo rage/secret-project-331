@@ -5,7 +5,6 @@ import { DetailedHTMLProps, HTMLAttributes } from "react"
 
 import { BlockRendererProps } from "../../.."
 import { HeadingAttributes } from "../../../../../../types/GutenbergBlockAttributes"
-import colorMapper from "../../../../../styles/colorMapper"
 import { fontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import { marginTopHeadingMapper } from "../../../../../styles/headerMarginMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../../utils/sanitizeCourseMaterialHtml"
@@ -20,14 +19,11 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
     content,
     level,
     // align,
-    anchor,
-    backgroundColor,
     // className,
     fontSize,
     // placeholder,
     // style,
     textAlign,
-    textColor,
   } = data.attributes
 
   const headingProps: DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> = {
@@ -42,13 +38,9 @@ const HeadingBlock: React.FC<React.PropsWithChildren<BlockRendererProps<HeadingA
         margin-top: ${marginTopHeadingMapper(level)};
         font-weight: 600;
         ${textAlign && `text-align: ${textAlign};`}
-        ${textColor && `color: ${colorMapper(textColor, "#000000")};`}
-      ${backgroundColor && `background-color: ${colorMapper(backgroundColor)};`}
-      ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
-      ${backgroundColor && "padding: 2.66rem 5rem !important;"}
+        ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
       `,
     ),
-    ...(anchor ? { id: anchor } : {}),
   }
   switch (level) {
     case 1:

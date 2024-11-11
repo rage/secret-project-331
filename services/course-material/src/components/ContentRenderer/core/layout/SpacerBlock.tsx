@@ -9,14 +9,13 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const SpacerBlock: React.FC<React.PropsWithChildren<BlockRendererProps<SpacerAttributes>>> = ({
   data,
 }) => {
-  const { height, anchor } = data.attributes
+  const { height } = data.attributes
   return (
     <div
       className={css`
         ${height && `height: ${height};`}
         width: 100%
       `}
-      {...(anchor && { id: anchor })}
     />
   )
 }

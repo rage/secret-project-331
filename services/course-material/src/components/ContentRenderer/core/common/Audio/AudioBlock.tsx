@@ -8,9 +8,9 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const AudioBlock: React.FC<React.PropsWithChildren<BlockRendererProps<AudioAttributes>>> = ({
   data,
 }) => {
-  const { anchor, autoplay, caption, loop, preload, src } = data.attributes
+  const { autoplay, caption, loop, preload, src } = data.attributes
   return (
-    <figure {...(anchor && { id: anchor })}>
+    <figure>
       {/* Gutenberg schema has no support for captions */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio

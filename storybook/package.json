@@ -31,6 +31,7 @@
     "@emotion/css": "^11.11.2",
     "@emotion/styled": "^11.11.5",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
+    "date-fns": "^4.1.0",
     "i18next": "^23.11.4",
     "react-i18next": "^14.1.1"
   }

@@ -21,6 +21,7 @@ const MOBILE_TOP_OFFSET_PX = 100
 
 const HEADING_START_OFFSET_PX = -30
 const HEADING_SCROLL_DESTINATION_START_OFFSET_PX = -20
+const Z_INDEX = 1000
 
 const WIDTH_PX = 300
 
@@ -214,32 +215,42 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
   }
 
   return (
-    <>
+    <div
+      className={css`
+        overflow: hidden;
+        position: ${fixed ? "fixed" : "absolute"};
+        /** Aligned to the right because our content text is left aligned and if this is on the right it's less likely that this will overlap with the content. **/
+        right: 0px;
+        top: ${offsetpx}px;
+        z-index: ${Z_INDEX};
+      `}
+    >
       <div
         className={css`
-          width: ${WIDTH_PX}px;
-          max-height: 90vh;
-          overflow-y: auto;
-
-          padding: 1.5rem;
-          padding-top: 12px;
-          z-index: 1000;
-          background-color: rgb(246, 248, 250);
-
-          h3 {
-            margin-bottom: 1rem;
-          }
-
-          position: ${fixed ? "fixed" : "absolute"};
-          /** Aligned to the right because our content text is left aligned and if this is on the right it's less likely that this will overlap with the content. **/
-          right: 0px;
-          top: ${offsetpx}px;
-          transition: transform 0.3s;
-          transform: ${realCollapsed ? `translateX(${WIDTH_PX}px);` : "translateX(0px)"};
+          position: relative;
+          overflow: hidden;
         `}
-        aria-hidden={Boolean(realCollapsed)}
       >
-        {!realCollapsed && (
+        <div
+          className={css`
+            width: ${WIDTH_PX}px;
+            max-height: 90vh;
+            overflow-y: auto;
+
+            padding: 1.5rem;
+            padding-top: 12px;
+            z-index: 1000;
+            background-color: rgb(246, 248, 250);
+
+            h3 {
+              margin-bottom: 1rem;
+            }
+
+            transition: transform 0.3s;
+            transform: ${realCollapsed ? `translateX(${WIDTH_PX}px);` : "translateX(0px)"};
+          `}
+          aria-hidden={Boolean(realCollapsed)}
+        >
           <div>
             <h3
               className={css`
@@ -317,40 +328,40 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
               </div>
             </StyledTopics>
           </div>
-        )}
+        </div>
+
+        <button
+          onClick={() => setUserHasCollapsed(!realCollapsed)}
+          aria-label={realCollapsed ? t("open-heading-menu") : t("close-heading-menu")}
+          className={css`
+            position: ${fixed ? "fixed" : "absolute"};
+            right: 0px;
+            top: ${fixed ? offsetpx : 0}px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: ${realCollapsed ? "#f8f8f8" : "transparent"};
+            width: 40px;
+            height: 40px;
+            z-index: ${Z_INDEX + 5};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+
+            &:focus-visible {
+              outline: 2px solid ${baseTheme.colors.green[500]};
+              outline-offset: 2px;
+            }
+          `}
+        >
+          {realCollapsed ? (
+            <ArrowLeft size={16} weight="bold" />
+          ) : (
+            <ArrowRight size={16} weight="bold" />
+          )}
+        </button>
       </div>
-
-      <button
-        onClick={() => setUserHasCollapsed(!realCollapsed)}
-        aria-label={realCollapsed ? t("open-heading-menu") : t("close-heading-menu")}
-        className={css`
-          all: unset;
-          position: ${fixed ? "fixed" : "absolute"};
-          right: 0px;
-          top: ${offsetpx}px;
-          cursor: pointer;
-          transition: background-color 0.2s;
-          background-color: ${realCollapsed ? "#f8f8f8" : "transparent"};
-          width: 40px;
-          height: 40px;
-          z-index: 1005;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-
-          &:focus-visible {
-            outline: 2px solid ${baseTheme.colors.green[500]};
-            outline-offset: 2px;
-          }
-        `}
-      >
-        {realCollapsed ? (
-          <ArrowLeft size={16} weight="bold" />
-        ) : (
-          <ArrowRight size={16} weight="bold" />
-        )}
-      </button>
-    </>
+    </div>
   )
 }
 

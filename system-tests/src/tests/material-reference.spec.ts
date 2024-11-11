@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
@@ -153,6 +153,8 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.locator('[aria-label="Body cell text"]').nth(2).fill(TABLE_CONTENT[2])
 
   await page.locator('[aria-label="Body cell text"]').nth(3).fill(TABLE_CONTENT[3])
+
+  await page.getByLabel("Add caption").click()
 
   await page.locator('[aria-label="Table caption text"]').fill(CAPTION_CONTENT)
 

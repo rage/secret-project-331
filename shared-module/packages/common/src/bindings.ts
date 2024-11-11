@@ -213,6 +213,7 @@ export interface ChatbotConversationInfo {
   current_conversation: ChatbotConversation | null
   current_conversation_messages: Array<ChatbotConversationMessage> | null
   chatbot_name: string
+  hide_citations: boolean
 }
 
 export interface CodeGiveawayCode {

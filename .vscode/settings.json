@@ -43,5 +43,6 @@
   "shellcheck.customArgs": ["--external-sources"],
   "stylelint.validate": ["css", "less", "postcss", "typescriptreact", "javascriptreact"],
   "stylelint.stylelintPath": "node_modules/stylelint",
-  "files.insertFinalNewline": true
+  "files.insertFinalNewline": true,
+  "rust-analyzer.linkedProjects": ["services/headless-lms/Cargo.toml"]
 }

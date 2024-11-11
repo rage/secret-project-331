@@ -82,7 +82,12 @@ test.describe("Students should be able to give extra peer reviews to receive pri
         .getByRole("row", { name: "02364d40-2aac-4763-8a06-" })
         .getByRole("button")
         .click()
-      adminPage.getByRole("button", { name: "Course status summary" }).nth(0).click()
+      await adminPage
+        .getByTestId("course-status-card")
+        .filter({ hasText: "Peer review Course" })
+        .getByRole("button", { name: "Course status summary" })
+        .click()
+
       await adminPage.getByText("Exercise: Can give extra").click()
       await expect(adminPage.locator("main")).toContainText("Priority: 4")
     })

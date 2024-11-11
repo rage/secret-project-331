@@ -67,6 +67,7 @@ const CourseInstanceEnrollmentsList: React.FC<CourseInstanceEnrollmentsListProps
         return (
           <div
             key={enrollment.course_instance_id}
+            data-testid="course-status-card"
             className={css`
               padding: 1rem;
               margin: 1rem 0;

@@ -28,7 +28,7 @@ impl Cache {
     where
         V: Serialize,
     {
-        match self.client.get_async_connection().await {
+        match self.client.get_multiplexed_async_connection().await {
             Ok(mut conn) => {
                 let Ok(value) = serde_json::to_vec(value) else {
                     return false;
@@ -56,7 +56,7 @@ impl Cache {
     where
         V: DeserializeOwned,
     {
-        match self.client.get_async_connection().await {
+        match self.client.get_multiplexed_async_connection().await {
             Ok(mut conn) => match conn.get::<_, Vec<u8>>(key).await {
                 Ok(bytes) => {
                     let value = serde_json::from_slice(bytes.as_slice()).ok()?;

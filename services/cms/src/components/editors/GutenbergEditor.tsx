@@ -15,17 +15,20 @@ import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockInspector,
-  // @ts-ignore: no type definition
+  // @ts-expect-error: no type definition
   __experimentalLibrary as BlockLibrary,
   BlockList,
+  ButtonBlockAppender,
   EditorBlockListSettings,
   EditorSettings,
-  // @ts-ignore: no type definition
+  // @ts-expect-error: no type definition
   __experimentalListView as ListView,
   ObserveTyping,
+  // @ts-expect-error: no type definition
+  __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
   WritingFlow,
 } from "@wordpress/block-editor"
-// @ts-ignore: no type definition
+// @ts-expect-error: no type definition
 import { BlockTools } from "@wordpress/block-editor/build-module/components/"
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
@@ -35,14 +38,14 @@ import {
   registerBlockType,
   setCategories,
   unregisterBlockType,
-  /* @ts-ignore: type signature incorrect */
   unregisterBlockVariation,
 } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
+import { useMergeRefs } from "@wordpress/compose"
 import { addFilter, removeFilter } from "@wordpress/hooks"
-// @ts-ignore: no types
+// @ts-expect-error: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
@@ -64,6 +67,7 @@ import SelectField from "@/shared-module/common/components/InputFields/SelectFie
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { primaryFont } from "@/shared-module/common/styles"
+import editBlockThemeJsonSettings from "@/utils/Gutenberg/editBlockThemeJsonSettings"
 
 interface GutenbergEditorProps {
   content: BlockInstance[]
@@ -96,6 +100,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
+  const clearerRef = useBlockSelectionClearer()
+  const localRef = useRef()
+  const contentRef = useMergeRefs([clearerRef, localRef])
+
   const [editorSettings, setEditorSettings] = useState<
     Partial<
       EditorSettings & EditorBlockListSettings & { mediaUpload: (props: MediaUploadProps) => void }
@@ -104,6 +112,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     disableCustomColors: false,
     disableCustomEditorFontSizes: false,
     styles: [],
+    codeEditingEnabled: false,
   })
 
   const sideBarStartingYCoordinate = useSidebarStartingYCoodrinate()
@@ -130,6 +139,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [])
 
   useEffect(() => {
+    addFilter(
+      "blockEditor.useSetting.before",
+      "moocfi/editBlockThemeJsonSettings",
+      editBlockThemeJsonSettings,
+    )
     // Register all core blocks
     registerCoreBlocks()
     // We register the BlockVariation and if it's not in allowedBlockVariations, it will be removed.
@@ -148,7 +162,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     if (allowedBlockVariations) {
       for (const [blockName, allowedVariations] of Object.entries(allowedBlockVariations)) {
         /* @ts-ignore: type signature incorrect */
-        getBlockType(blockName).variations.forEach((variation) => {
+        getBlockType(blockName)?.variations?.forEach((variation) => {
           if (allowedVariations.indexOf(variation.name) === -1) {
             unregisterBlockVariation(blockName, variation.name)
           }
@@ -172,9 +186,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     window.wp = null
   }, [allowedBlockVariations, allowedBlocks, customBlocks])
 
-  // eslint-disable-next-line i18next/no-literal-string
   addFilter("blocks.registerBlockType", "moocfi/modifyImageAttributes", modifyImageBlockAttributes)
-  // eslint-disable-next-line i18next/no-literal-string
   addFilter("blocks.registerBlockType", "moocfi/modifyEmbedAttributes", modifyEmbedBlockAttributes)
 
   // Media upload gallery not yet supported, uncommenting this will add a button besides the "Upload" button.
@@ -185,10 +197,8 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
    * Add the custom attributes for the Mentimeter to the sidebar.
    */
   useEffect(() => {
-    // eslint-disable-next-line i18next/no-literal-string
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
     return () => {
-      // eslint-disable-next-line i18next/no-literal-string
       removeFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector")
     }
   }, [])
@@ -304,6 +314,10 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                           .components-search-control {
                             font-family: ${primaryFont} !important;
                           }
+                          /** We don't have a use for other tabs than the default tab **/
+                          .block-editor-tabbed-sidebar__tablist-and-close-button {
+                            display: none;
+                          }
                         `}
                       >
                         <BlockLibrary />
@@ -345,14 +359,31 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
               </div>
             )}
             <div className="editor__content">
-              <BlockTools>
+              <BlockTools __unstableContentRef={localRef}>
                 <div className="editor-styles-wrapper">
                   {/* @ts-ignore: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
                   <CommonKeyboardShortcuts />
-                  <WritingFlow>
+                  <WritingFlow
+                    // @ts-expect-error: Ref missing from type definitions
+                    ref={contentRef}
+                    className="editor-styles-wrapper"
+                    tabIndex={-1}
+                    // eslint-disable-next-line react/forbid-component-props
+                    style={{
+                      height: "100%",
+                      width: "100%",
+                    }}
+                  >
                     <ObserveTyping>
                       <BlockList />
+
+                      {content.length > 0 && (
+                        <ButtonBlockAppender
+                          // @ts-expect-error: Typically this component is used to insert innerblocks. However, we are using it to insert blocks at the root level.
+                          rootClientId={undefined}
+                        />
+                      )}
                     </ObserveTyping>
                   </WritingFlow>
                 </div>

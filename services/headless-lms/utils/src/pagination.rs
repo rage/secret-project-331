@@ -153,7 +153,7 @@ impl<'de> Deserialize<'de> for Pagination {
                             limit = Some(value);
                         }
                         field => {
-                            return Err(de::Error::custom(&format!(
+                            return Err(de::Error::custom(format!(
                                 "unexpected parameter `{}`",
                                 field
                             )))

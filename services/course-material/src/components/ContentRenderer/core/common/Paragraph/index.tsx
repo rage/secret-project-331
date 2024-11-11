@@ -30,8 +30,13 @@ const hasDropCap = css`
   }
 `
 
+interface ExtraAttributes {
+  backgroundColor?: string
+  textColor?: string
+}
+
 const ParagraphBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<ParagraphAttributes>>
+  React.PropsWithChildren<BlockRendererProps<ParagraphAttributes & ExtraAttributes>>
 > = ({ data, id, editing, selectedBlockId, setEdits }) => {
   const {
     textColor,
@@ -40,8 +45,6 @@ const ParagraphBlock: React.FC<
     content,
     dropCap,
     align,
-    anchor,
-    fontFamily,
     // className, Additional classNames added in Advanced menu
     // direction, If read from right to left or left to right
     // style,
@@ -76,7 +79,6 @@ const ParagraphBlock: React.FC<
             min-width: 1px;
             color: ${textColor};
             background-color: ${backgroundColor};
-            ${fontFamily && `font-family: ${fontFamily};`}
             font-size: ${fontSizeMapper(fontSize)};
             ${backgroundColor && `padding: 1.25em 2.375em;`}
             border: 1px;
@@ -154,7 +156,6 @@ const ParagraphBlock: React.FC<
       dangerouslySetInnerHTML={{
         __html: parsedText,
       }}
-      {...(anchor ? { id: anchor } : {})}
     />
   )
 }

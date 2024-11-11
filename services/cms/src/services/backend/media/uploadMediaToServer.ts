@@ -1,6 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
-import { MediaItem, UploadMediaOptions } from "@wordpress/media-utils"
 
 import { MediaUploadType, uploadFileFromPage } from "."
 
@@ -8,6 +7,22 @@ import { validateFile } from "@/shared-module/common/utils/files"
 
 // Don't change this, with this default value we can detect when the teacher has not changed the alt text.
 const ALT_TEXT_NOT_CHANGED_PLACEHOLDER = "Add alt"
+
+export interface UploadMediaArgs {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  additionalData?: any
+  allowedTypes?: string[]
+  filesList: File[]
+  maxUploadFileSize?: number
+  signal?: AbortSignal
+}
+
+export interface MediaItem {
+  url: string
+  alt?: string
+  caption?: string
+  title?: string
+}
 
 // This thingy should support multiple file uploads, but Gutenberg seem to call uploadMedia for each file separately
 // if user uploads many file, for example using the Gallery block.
@@ -18,7 +33,7 @@ export async function uploadMedia({
   onError = () => undefined,
   onFileChange,
   uploadType,
-}: Omit<UploadMediaOptions, "onError" | "onFileChange" | "additionalData"> & {
+}: Omit<UploadMediaArgs, "onError" | "onFileChange" | "additionalData"> & {
   // We need to omit the UploadMediaOptions onError function,
   // because it seems to not be supported yet or the types definition is not up-to-date
   // Blocks still seem to use one param:
@@ -28,7 +43,7 @@ export async function uploadMedia({
   onFileChange: (files: Partial<MediaItem>[]) => void
 }): Promise<void> {
   const validFiles = Array.from(filesList).filter((file) =>
-    validateFileAndBroadcastErrors(file, allowedTypes ?? [], maxUploadFileSize, onError),
+    validateFileAndBroadcastErrors(file, allowedTypes ?? [], maxUploadFileSize ?? 0, onError),
   )
 
   const initialItems = validFiles.map<Partial<MediaItem>>((file) => {

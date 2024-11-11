@@ -51,7 +51,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
 
   const feedbackText =
     postThisStateToIFrame.view_type === "view-submission"
-      ? postThisStateToIFrame.data.grading?.feedback_text ?? null
+      ? (postThisStateToIFrame.data.grading?.feedback_text ?? null)
       : null
   const cannotAnswerButNoSubmission =
     !canPostSubmission && !exerciseTask.previous_submission && signedIn

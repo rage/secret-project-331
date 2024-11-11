@@ -395,7 +395,7 @@ fn calculate_peer_review_weighted_points(
         .count();
     let grouped = question_submissions_considered_for_weighted_points
         .iter()
-        .group_by(|prqs| prqs.peer_or_self_review_submission_id);
+        .chunk_by(|prqs| prqs.peer_or_self_review_submission_id);
 
     let weighted_score_by_submission = grouped
         .into_iter()

@@ -228,6 +228,7 @@ FROM course_instances
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE exercises.deleted_at IS NULL
   AND course_instances.id = $1
+  AND chapters.course_module_id IS NOT NULL
 GROUP BY chapters.course_module_id
         ",
         course_instance_id

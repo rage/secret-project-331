@@ -85,6 +85,7 @@
   "exercises-attempted": "Tehtäviä yritetty",
   "exercises-in-this-chapter": "Tehtävät tässä luvussa",
   "exit": "Poistu",
+  "failed-to-send-message": "Viestin lähettäminen epäonnistui",
   "failed-to-submit": "Lähettäminen epäonnistui {{ error }}",
   "feedback-submitted-succesfully": "Palaute lisätty onnistuneesti",
   "finnish": "Suomi",

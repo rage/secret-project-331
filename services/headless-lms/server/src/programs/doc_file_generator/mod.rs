@@ -162,7 +162,10 @@ fn ex<T: Example>() -> T {
 #[macro_export]
 macro_rules! doc_path {
     ($filename:expr, $extension:expr) => {{
-        let windows_safe_filename = $filename.replace('<', "(").replace('>', ")");
+        let windows_safe_filename = $filename
+            .replace('<', "(")
+            .replace('>', ")")
+            .replace(" ", "");
 
         let mut s = String::new();
         s.push_str(env!("CARGO_MANIFEST_DIR"));

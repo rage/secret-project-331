@@ -1,5 +1,9 @@
-(function() {var implementors = {
-"headless_lms_models":[["impl <a class=\"trait\" href=\"headless_lms_models/prelude/trait.BackendError.html\" title=\"trait headless_lms_models::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_models/error/struct.ModelError.html\" title=\"struct headless_lms_models::error::ModelError\">ModelError</a>"]],
-"headless_lms_server":[["impl <a class=\"trait\" href=\"headless_lms_server/prelude/trait.BackendError.html\" title=\"trait headless_lms_server::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_server/domain/error/struct.ControllerError.html\" title=\"struct headless_lms_server::domain::error::ControllerError\">ControllerError</a>"]],
-"headless_lms_utils":[]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["headless_lms_models",[["impl <a class=\"trait\" href=\"headless_lms_models/prelude/trait.BackendError.html\" title=\"trait headless_lms_models::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_models/error/struct.ModelError.html\" title=\"struct headless_lms_models::error::ModelError\">ModelError</a>"]]],["headless_lms_server",[["impl <a class=\"trait\" href=\"headless_lms_server/prelude/trait.BackendError.html\" title=\"trait headless_lms_server::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_server/domain/error/struct.ControllerError.html\" title=\"struct headless_lms_server::domain::error::ControllerError\">ControllerError</a>"]]],["headless_lms_utils",[]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[343,374,26]}

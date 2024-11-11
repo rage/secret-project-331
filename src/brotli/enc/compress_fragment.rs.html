@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/compress_fragment.rs`."><title>compress_fragment.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/compress_fragment.rs`."><title>compress_fragment.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1190,18 +1190,36 @@
 <a href="#1190" id="1190">1190</a>
 <a href="#1191" id="1191">1191</a>
 <a href="#1192" id="1192">1192</a>
-</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
-</span><span class="kw">use </span><span class="kw">super</span>::backward_references::kHashMul32;
-<span class="comment">//use super::super::alloc::{SliceWrapper, SliceWrapperMut};
+<a href="#1193" id="1193">1193</a>
+<a href="#1194" id="1194">1194</a>
+<a href="#1195" id="1195">1195</a>
+<a href="#1196" id="1196">1196</a>
+<a href="#1197" id="1197">1197</a>
+<a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
+<a href="#1201" id="1201">1201</a>
+<a href="#1202" id="1202">1202</a>
+<a href="#1203" id="1203">1203</a>
+<a href="#1204" id="1204">1204</a>
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>core::cmp::min;
 
-</span><span class="kw">use </span><span class="kw">super</span>::brotli_bit_stream::{BrotliBuildAndStoreHuffmanTreeFast, BrotliStoreHuffmanTree};
 <span class="comment">//caution: lots of the functions look structurally the same as two_pass,
 // but have subtle index differences
 // examples: IsMatch checks p1[4] and p1[5]
 // the hoops that BuildAndStoreCommandPrefixCode goes through are subtly different in order
 // (eg memcpy x+24, y instead of +24, y+40
-// pretty much assume compress_fragment_two_pass is a trap! except for BrotliStoreMetaBlockHeader
-</span><span class="kw">use </span><span class="kw">super</span>::compress_fragment_two_pass::{memcpy, BrotliStoreMetaBlockHeader, BrotliWriteBits};
+// pretty much assume compress_fragment_two_pass is a trap! except for store_meta_block_header
+</span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::backward_references::kHashMul32;
+<span class="kw">use </span><span class="kw">super</span>::brotli_bit_stream::{BrotliBuildAndStoreHuffmanTreeFast, BrotliStoreHuffmanTree};
+<span class="kw">use </span><span class="kw">super</span>::compress_fragment_two_pass::{memcpy, BrotliWriteBits};
 <span class="kw">use </span><span class="kw">super</span>::entropy_encode::{
     BrotliConvertBitDepthsToSymbols, BrotliCreateHuffmanTree, HuffmanTree,
 };
@@ -1209,7 +1227,8 @@
     FindMatchLengthWithLimit, BROTLI_UNALIGNED_LOAD32, BROTLI_UNALIGNED_LOAD64,
 };
 <span class="kw">use </span><span class="kw">super</span>::util::{FastLog2, Log2FloorNonZero};
-<span class="kw">use </span>core::cmp::min;
+<span class="kw">use </span><span class="kw">crate</span>::enc::compress_fragment_two_pass::store_meta_block_header;
+<span class="kw">use </span><span class="kw">crate</span>::enc::floatX;
 
 <span class="comment">//static kHashMul32: u32 = 0x1e35a7bdu32;
 
@@ -1432,7 +1451,7 @@
     storage: <span class="kw-2">&amp;mut </span>[u8],
 ) {
     RewindBitPosition(storage_ix_start, storage_ix, storage);
-    BrotliStoreMetaBlockHeader(len, <span class="number">1i32</span>, storage_ix, storage);
+    store_meta_block_header(len, <span class="bool-val">true</span>, storage_ix, storage);
     <span class="kw-2">*</span>storage_ix = storage_ix.wrapping_add(<span class="number">7u32 </span><span class="kw">as </span>usize) &amp; !<span class="number">7u32 </span><span class="kw">as </span>usize;
     memcpy(storage, (<span class="kw-2">*</span>storage_ix &gt;&gt; <span class="number">3</span>), begin, <span class="number">0</span>, len);
     <span class="kw-2">*</span>storage_ix = storage_ix.wrapping_add(len &lt;&lt; <span class="number">3</span>);
@@ -1740,12 +1759,9 @@
             .wrapping_add(kSampleRate)
             .wrapping_sub(<span class="number">1</span>)
             .wrapping_div(kSampleRate);
-        <span class="kw">let </span><span class="kw-2">mut </span>r: <span class="kw">super</span>::util::floatX = (FastLog2(total <span class="kw">as </span>u64) + <span class="number">0.5 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX)
-            * total <span class="kw">as </span>(<span class="kw">super</span>::util::floatX)
-            + <span class="number">200i32 </span><span class="kw">as </span>(<span class="kw">super</span>::util::floatX);
+        <span class="kw">let </span><span class="kw-2">mut </span>r: floatX = (FastLog2(total <span class="kw">as </span>u64) + <span class="number">0.5</span>) * (total <span class="kw">as </span>floatX) + <span class="number">200.0</span>;
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..<span class="number">256usize </span>{
-            r -= histo[i] <span class="kw">as </span>(<span class="kw">super</span>::util::floatX)
-                * (depths[i] <span class="kw">as </span>(<span class="kw">super</span>::util::floatX) + FastLog2(histo[i] <span class="kw">as </span>u64));
+            r -= (histo[i] <span class="kw">as </span>floatX) * ((depths[i] <span class="kw">as </span>floatX) + FastLog2(histo[i] <span class="kw">as </span>u64));
         }
         r &gt;= <span class="number">0.0
     </span>}
@@ -1841,11 +1857,11 @@
 }
 
 <span class="attr">#[allow(unused_assignments)]
-</span><span class="kw">fn </span>BrotliCompressFragmentFastImpl&lt;AllocHT: alloc::Allocator&lt;HuffmanTree&gt;&gt;(
+</span><span class="kw">fn </span>compress_fragment_fast_impl&lt;AllocHT: alloc::Allocator&lt;HuffmanTree&gt;&gt;(
     m: <span class="kw-2">&amp;mut </span>AllocHT,
     input_ptr: <span class="kw-2">&amp;</span>[u8],
     <span class="kw-2">mut </span>input_size: usize,
-    is_last: i32,
+    is_last: bool,
     table: <span class="kw-2">&amp;mut </span>[i32],
     table_bits: usize,
     cmd_depth: <span class="kw-2">&amp;mut </span>[u8],
@@ -1873,7 +1889,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>input_index = <span class="number">0usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>last_distance: i32;
     <span class="kw">let </span>shift: usize = (<span class="number">64u32 </span><span class="kw">as </span>usize).wrapping_sub(table_bits);
-    BrotliStoreMetaBlockHeader(block_size, <span class="number">0i32</span>, storage_ix, storage);
+    store_meta_block_header(block_size, <span class="bool-val">false</span>, storage_ix, storage);
     BrotliWriteBits(<span class="number">13usize</span>, <span class="number">0</span>, storage_ix, storage);
     literal_ratio = BuildAndStoreLiteralPrefixCode(
         m,
@@ -1897,7 +1913,7 @@
         storage_ix,
         storage,
     );
-    <span class="kw">let </span><span class="kw-2">mut </span>code_block_selection: CodeBlockState = CodeBlockState::EMIT_COMMANDS;
+    <span class="kw">let </span><span class="kw-2">mut </span>code_block_selection = CodeBlockState::EMIT_COMMANDS;
     <span class="lifetime">'continue_to_next_block</span>: <span class="kw">loop </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>ip_index: usize;
         <span class="kw">if </span>code_block_selection == CodeBlockState::EMIT_COMMANDS {
@@ -1923,155 +1939,146 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>next_ip = ip_index;
                     <span class="kw">let </span><span class="kw-2">mut </span>candidate = <span class="number">0usize</span>;
                     <span class="kw">loop </span>{
-                        {
-                            <span class="lifetime">'break15</span>: <span class="kw">loop </span>{
-                                {
-                                    <span class="kw">let </span>hash = next_hash;
-                                    <span class="kw">let </span>bytes_between_hash_lookups: u32 = skip &gt;&gt; <span class="number">5</span>;
-                                    skip = skip.wrapping_add(<span class="number">1</span>);
-                                    ip_index = next_ip;
-                                    next_ip =
-                                        ip_index.wrapping_add(bytes_between_hash_lookups <span class="kw">as </span>usize);
-                                    <span class="kw">if </span>next_ip &gt; ip_limit {
-                                        code_block_selection = CodeBlockState::EMIT_REMAINDER;
-                                        <span class="kw">break </span><span class="lifetime">'break15</span>;
-                                    }
-                                    next_hash = Hash(<span class="kw-2">&amp;</span>input_ptr[next_ip..], shift);
-                                    candidate = ip_index.wrapping_sub(last_distance <span class="kw">as </span>usize);
-                                    <span class="kw">if </span>IsMatch(<span class="kw-2">&amp;</span>input_ptr[ip_index..], <span class="kw-2">&amp;</span>input_ptr[candidate..])
-                                        &amp;&amp; candidate &lt; ip_index
-                                    {
-                                        table[hash <span class="kw">as </span>usize] =
-                                            ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
-                                        <span class="kw">break </span><span class="lifetime">'break15</span>;
-                                    }
-                                    candidate = base_ip.wrapping_add(table[hash <span class="kw">as </span>usize] <span class="kw">as </span>usize);
-                                    table[hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
-                                }
-                                <span class="kw">if </span>IsMatch(<span class="kw-2">&amp;</span>input_ptr[ip_index..], <span class="kw-2">&amp;</span>input_ptr[candidate..]) {
-                                    <span class="kw">break</span>;
-                                }
+                        <span class="kw">loop </span>{
+                            <span class="kw">let </span>hash = next_hash;
+                            <span class="kw">let </span>bytes_between_hash_lookups: u32 = skip &gt;&gt; <span class="number">5</span>;
+                            skip = skip.wrapping_add(<span class="number">1</span>);
+                            ip_index = next_ip;
+                            next_ip = ip_index.wrapping_add(bytes_between_hash_lookups <span class="kw">as </span>usize);
+                            <span class="kw">if </span>next_ip &gt; ip_limit {
+                                code_block_selection = CodeBlockState::EMIT_REMAINDER;
+                                <span class="kw">break</span>;
+                            }
+                            next_hash = Hash(<span class="kw-2">&amp;</span>input_ptr[next_ip..], shift);
+                            candidate = ip_index.wrapping_sub(last_distance <span class="kw">as </span>usize);
+                            <span class="kw">if </span>IsMatch(<span class="kw-2">&amp;</span>input_ptr[ip_index..], <span class="kw-2">&amp;</span>input_ptr[candidate..])
+                                &amp;&amp; candidate &lt; ip_index
+                            {
+                                table[hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
+                                <span class="kw">break</span>;
+                            }
+                            candidate = base_ip.wrapping_add(table[hash <span class="kw">as </span>usize] <span class="kw">as </span>usize);
+                            table[hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
+                            <span class="kw">if </span>IsMatch(<span class="kw-2">&amp;</span>input_ptr[ip_index..], <span class="kw-2">&amp;</span>input_ptr[candidate..]) {
+                                <span class="kw">break</span>;
                             }
                         }
                         <span class="kw">if </span>!(ip_index.wrapping_sub(candidate)
                             &gt; (<span class="number">1usize </span>&lt;&lt; <span class="number">18</span>).wrapping_sub(<span class="number">16</span>) <span class="kw">as </span>isize <span class="kw">as </span>usize
-                            &amp;&amp; (code_block_selection <span class="kw">as </span>i32
-                                == CodeBlockState::EMIT_COMMANDS <span class="kw">as </span>i32))
+                            &amp;&amp; code_block_selection == CodeBlockState::EMIT_COMMANDS)
                         {
                             <span class="kw">break</span>;
                         }
                     }
-                    <span class="kw">if </span>code_block_selection <span class="kw">as </span>i32 != CodeBlockState::EMIT_COMMANDS <span class="kw">as </span>i32 {
+                    <span class="kw">if </span>code_block_selection != CodeBlockState::EMIT_COMMANDS {
                         <span class="kw">break</span>;
                     }
-                    {
-                        <span class="kw">let </span>base: usize = ip_index;
-                        <span class="kw">let </span>matched = (<span class="number">5usize</span>).wrapping_add(FindMatchLengthWithLimit(
-                            <span class="kw-2">&amp;</span>input_ptr[candidate + <span class="number">5</span>..],
-                            <span class="kw-2">&amp;</span>input_ptr[ip_index + <span class="number">5</span>..],
-                            ip_end.wrapping_sub(ip_index).wrapping_sub(<span class="number">5</span>),
-                        ));
-                        <span class="kw">let </span>distance = base.wrapping_sub(candidate) <span class="kw">as </span>i32;
-                        <span class="kw">let </span>insert = base.wrapping_sub(next_emit);
-                        ip_index = ip_index.wrapping_add(matched);
-                        <span class="kw">if </span>insert &lt; <span class="number">6210 </span>{
-                            EmitInsertLen(
-                                insert,
-                                cmd_depth,
-                                cmd_bits,
-                                <span class="kw-2">&amp;mut </span>cmd_histo[..],
-                                storage_ix,
-                                storage,
-                            );
-                        } <span class="kw">else if </span>ShouldUseUncompressedMode(
-                            (next_emit <span class="kw">as </span>isize) - (metablock_start <span class="kw">as </span>isize),
+
+                    <span class="kw">let </span>base: usize = ip_index;
+                    <span class="kw">let </span>matched = (<span class="number">5usize</span>).wrapping_add(FindMatchLengthWithLimit(
+                        <span class="kw-2">&amp;</span>input_ptr[candidate + <span class="number">5</span>..],
+                        <span class="kw-2">&amp;</span>input_ptr[ip_index + <span class="number">5</span>..],
+                        ip_end.wrapping_sub(ip_index).wrapping_sub(<span class="number">5</span>),
+                    ));
+                    <span class="kw">let </span>distance = base.wrapping_sub(candidate) <span class="kw">as </span>i32;
+                    <span class="kw">let </span>insert = base.wrapping_sub(next_emit);
+                    ip_index = ip_index.wrapping_add(matched);
+                    <span class="kw">if </span>insert &lt; <span class="number">6210 </span>{
+                        EmitInsertLen(
                             insert,
-                            literal_ratio,
-                        ) {
-                            EmitUncompressedMetaBlock(
-                                <span class="kw-2">&amp;</span>input_ptr[metablock_start..],
-                                base.wrapping_sub(metablock_start),
-                                mlen_storage_ix.wrapping_sub(<span class="number">3</span>),
-                                storage_ix,
-                                storage,
-                            );
-                            input_size = input_size.wrapping_sub(base.wrapping_sub(input_index));
-                            input_index = base;
-                            next_emit = input_index;
-                            code_block_selection = CodeBlockState::NEXT_BLOCK;
-                            <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
-                        } <span class="kw">else </span>{
-                            EmitLongInsertLen(
-                                insert,
-                                cmd_depth,
-                                cmd_bits,
-                                <span class="kw-2">&amp;mut </span>cmd_histo[..],
-                                storage_ix,
-                                storage,
-                            );
-                        }
-                        EmitLiterals(
-                            <span class="kw-2">&amp;</span>input_ptr[next_emit..],
-                            insert,
-                            <span class="kw-2">&amp;mut </span>lit_depth[..],
-                            <span class="kw-2">&amp;mut </span>lit_bits[..],
-                            storage_ix,
-                            storage,
-                        );
-                        <span class="kw">if </span>distance == last_distance {
-                            BrotliWriteBits(
-                                cmd_depth[<span class="number">64</span>] <span class="kw">as </span>usize,
-                                cmd_bits[<span class="number">64</span>] <span class="kw">as </span>u64,
-                                storage_ix,
-                                storage,
-                            );
-                            {
-                                <span class="kw">let </span>_rhs = <span class="number">1u32</span>;
-                                <span class="kw">let </span>_lhs = <span class="kw-2">&amp;mut </span>cmd_histo[<span class="number">64</span>];
-                                <span class="kw-2">*</span>_lhs = (<span class="kw-2">*</span>_lhs).wrapping_add(_rhs);
-                            }
-                        } <span class="kw">else </span>{
-                            EmitDistance(
-                                distance <span class="kw">as </span>usize,
-                                cmd_depth,
-                                cmd_bits,
-                                <span class="kw-2">&amp;mut </span>cmd_histo[..],
-                                storage_ix,
-                                storage,
-                            );
-                            last_distance = distance;
-                        }
-                        EmitCopyLenLastDistance(
-                            matched,
                             cmd_depth,
                             cmd_bits,
                             <span class="kw-2">&amp;mut </span>cmd_histo[..],
                             storage_ix,
                             storage,
                         );
-                        next_emit = ip_index;
-                        <span class="kw">if </span>ip_index &gt;= ip_limit {
-                            code_block_selection = CodeBlockState::EMIT_REMAINDER;
-                            <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
-                        }
-                        {
-                            <span class="macro">assert!</span>(ip_index &gt;= <span class="number">3</span>);
-                            <span class="kw">let </span>input_bytes: u64 =
-                                BROTLI_UNALIGNED_LOAD64(<span class="kw-2">&amp;</span>input_ptr[ip_index - <span class="number">3</span>..]);
-                            <span class="kw">let </span><span class="kw-2">mut </span>prev_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">0i32</span>, shift);
-                            <span class="kw">let </span>cur_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">3i32</span>, shift);
-                            table[prev_hash <span class="kw">as </span>usize] =
-                                ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">3</span>) <span class="kw">as </span>i32;
-                            prev_hash = HashBytesAtOffset(input_bytes, <span class="number">1i32</span>, shift);
-                            table[prev_hash <span class="kw">as </span>usize] =
-                                ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">2</span>) <span class="kw">as </span>i32;
-                            prev_hash = HashBytesAtOffset(input_bytes, <span class="number">2i32</span>, shift);
-                            table[prev_hash <span class="kw">as </span>usize] =
-                                ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">1</span>) <span class="kw">as </span>i32;
-                            candidate = base_ip.wrapping_add(table[cur_hash <span class="kw">as </span>usize] <span class="kw">as </span>usize);
-                            table[cur_hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
-                        }
+                    } <span class="kw">else if </span>ShouldUseUncompressedMode(
+                        (next_emit <span class="kw">as </span>isize) - (metablock_start <span class="kw">as </span>isize),
+                        insert,
+                        literal_ratio,
+                    ) {
+                        EmitUncompressedMetaBlock(
+                            <span class="kw-2">&amp;</span>input_ptr[metablock_start..],
+                            base.wrapping_sub(metablock_start),
+                            mlen_storage_ix.wrapping_sub(<span class="number">3</span>),
+                            storage_ix,
+                            storage,
+                        );
+                        input_size = input_size.wrapping_sub(base.wrapping_sub(input_index));
+                        input_index = base;
+                        next_emit = input_index;
+                        code_block_selection = CodeBlockState::NEXT_BLOCK;
+                        <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
+                    } <span class="kw">else </span>{
+                        EmitLongInsertLen(
+                            insert,
+                            cmd_depth,
+                            cmd_bits,
+                            <span class="kw-2">&amp;mut </span>cmd_histo[..],
+                            storage_ix,
+                            storage,
+                        );
                     }
+                    EmitLiterals(
+                        <span class="kw-2">&amp;</span>input_ptr[next_emit..],
+                        insert,
+                        <span class="kw-2">&amp;mut </span>lit_depth[..],
+                        <span class="kw-2">&amp;mut </span>lit_bits[..],
+                        storage_ix,
+                        storage,
+                    );
+                    <span class="kw">if </span>distance == last_distance {
+                        BrotliWriteBits(
+                            cmd_depth[<span class="number">64</span>] <span class="kw">as </span>usize,
+                            cmd_bits[<span class="number">64</span>] <span class="kw">as </span>u64,
+                            storage_ix,
+                            storage,
+                        );
+                        {
+                            <span class="kw">let </span>_rhs = <span class="number">1u32</span>;
+                            <span class="kw">let </span>_lhs = <span class="kw-2">&amp;mut </span>cmd_histo[<span class="number">64</span>];
+                            <span class="kw-2">*</span>_lhs = (<span class="kw-2">*</span>_lhs).wrapping_add(_rhs);
+                        }
+                    } <span class="kw">else </span>{
+                        EmitDistance(
+                            distance <span class="kw">as </span>usize,
+                            cmd_depth,
+                            cmd_bits,
+                            <span class="kw-2">&amp;mut </span>cmd_histo[..],
+                            storage_ix,
+                            storage,
+                        );
+                        last_distance = distance;
+                    }
+                    EmitCopyLenLastDistance(
+                        matched,
+                        cmd_depth,
+                        cmd_bits,
+                        <span class="kw-2">&amp;mut </span>cmd_histo[..],
+                        storage_ix,
+                        storage,
+                    );
+                    next_emit = ip_index;
+                    <span class="kw">if </span>ip_index &gt;= ip_limit {
+                        code_block_selection = CodeBlockState::EMIT_REMAINDER;
+                        <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
+                    }
+
+                    <span class="macro">assert!</span>(ip_index &gt;= <span class="number">3</span>);
+                    <span class="kw">let </span>input_bytes: u64 = BROTLI_UNALIGNED_LOAD64(<span class="kw-2">&amp;</span>input_ptr[ip_index - <span class="number">3</span>..]);
+                    <span class="kw">let </span><span class="kw-2">mut </span>prev_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">0</span>, shift);
+                    <span class="kw">let </span>cur_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">3</span>, shift);
+                    table[prev_hash <span class="kw">as </span>usize] =
+                        ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">3</span>) <span class="kw">as </span>i32;
+                    prev_hash = HashBytesAtOffset(input_bytes, <span class="number">1</span>, shift);
+                    table[prev_hash <span class="kw">as </span>usize] =
+                        ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">2</span>) <span class="kw">as </span>i32;
+                    prev_hash = HashBytesAtOffset(input_bytes, <span class="number">2</span>, shift);
+                    table[prev_hash <span class="kw">as </span>usize] =
+                        ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">1</span>) <span class="kw">as </span>i32;
+                    candidate = base_ip.wrapping_add(table[cur_hash <span class="kw">as </span>usize] <span class="kw">as </span>usize);
+                    table[cur_hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
+
                     <span class="kw">while </span>IsMatch(<span class="kw-2">&amp;</span>input_ptr[ip_index..], <span class="kw-2">&amp;</span>input_ptr[candidate..]) {
                         <span class="kw">let </span>base: usize = ip_index;
                         <span class="kw">let </span>matched: usize = (<span class="number">5usize</span>).wrapping_add(FindMatchLengthWithLimit(
@@ -2105,28 +2112,26 @@
                             code_block_selection = CodeBlockState::EMIT_REMAINDER;
                             <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
                         }
-                        {
-                            <span class="macro">assert!</span>(ip_index &gt;= <span class="number">3</span>);
-                            <span class="kw">let </span>input_bytes: u64 =
-                                BROTLI_UNALIGNED_LOAD64(<span class="kw-2">&amp;</span>input_ptr[ip_index - <span class="number">3</span>..]);
-                            <span class="kw">let </span><span class="kw-2">mut </span>prev_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">0i32</span>, shift);
-                            <span class="kw">let </span>cur_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">3i32</span>, shift);
-                            table[prev_hash <span class="kw">as </span>usize] =
-                                ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">3</span>) <span class="kw">as </span>i32;
-                            prev_hash = HashBytesAtOffset(input_bytes, <span class="number">1i32</span>, shift);
-                            table[prev_hash <span class="kw">as </span>usize] =
-                                ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">2</span>) <span class="kw">as </span>i32;
-                            prev_hash = HashBytesAtOffset(input_bytes, <span class="number">2i32</span>, shift);
-                            table[prev_hash <span class="kw">as </span>usize] =
-                                ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">1</span>) <span class="kw">as </span>i32;
-                            candidate = base_ip.wrapping_add(table[cur_hash <span class="kw">as </span>usize] <span class="kw">as </span>usize);
-                            table[cur_hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
-                        }
+
+                        <span class="macro">assert!</span>(ip_index &gt;= <span class="number">3</span>);
+                        <span class="kw">let </span>input_bytes: u64 = BROTLI_UNALIGNED_LOAD64(<span class="kw-2">&amp;</span>input_ptr[ip_index - <span class="number">3</span>..]);
+                        <span class="kw">let </span><span class="kw-2">mut </span>prev_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">0</span>, shift);
+                        <span class="kw">let </span>cur_hash: u32 = HashBytesAtOffset(input_bytes, <span class="number">3</span>, shift);
+                        table[prev_hash <span class="kw">as </span>usize] =
+                            ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">3</span>) <span class="kw">as </span>i32;
+                        prev_hash = HashBytesAtOffset(input_bytes, <span class="number">1</span>, shift);
+                        table[prev_hash <span class="kw">as </span>usize] =
+                            ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">2</span>) <span class="kw">as </span>i32;
+                        prev_hash = HashBytesAtOffset(input_bytes, <span class="number">2</span>, shift);
+                        table[prev_hash <span class="kw">as </span>usize] =
+                            ip_index.wrapping_sub(base_ip).wrapping_sub(<span class="number">1</span>) <span class="kw">as </span>i32;
+                        candidate = base_ip.wrapping_add(table[cur_hash <span class="kw">as </span>usize] <span class="kw">as </span>usize);
+                        table[cur_hash <span class="kw">as </span>usize] = ip_index.wrapping_sub(base_ip) <span class="kw">as </span>i32;
                     }
-                    <span class="kw">if </span>code_block_selection <span class="kw">as </span>i32 == CodeBlockState::EMIT_REMAINDER <span class="kw">as </span>i32 {
+                    <span class="kw">if </span>code_block_selection == CodeBlockState::EMIT_REMAINDER {
                         <span class="kw">break</span>;
                     }
-                    <span class="kw">if </span>code_block_selection <span class="kw">as </span>i32 == CodeBlockState::EMIT_COMMANDS <span class="kw">as </span>i32 {
+                    <span class="kw">if </span>code_block_selection == CodeBlockState::EMIT_COMMANDS {
                         next_hash = Hash(
                             <span class="kw-2">&amp;</span>input_ptr[{
                                 ip_index = ip_index.wrapping_add(<span class="number">1</span>);
@@ -2139,7 +2144,7 @@
             }
             code_block_selection = CodeBlockState::EMIT_REMAINDER;
             <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
-        } <span class="kw">else if </span>code_block_selection <span class="kw">as </span>i32 == CodeBlockState::EMIT_REMAINDER <span class="kw">as </span>i32 {
+        } <span class="kw">else if </span>code_block_selection == CodeBlockState::EMIT_REMAINDER {
             input_index = input_index.wrapping_add(block_size);
             input_size = input_size.wrapping_sub(block_size);
             block_size = min(input_size, kMergeBlockSize);
@@ -2210,13 +2215,13 @@
             next_emit = ip_end;
             code_block_selection = CodeBlockState::NEXT_BLOCK;
             <span class="kw">continue </span><span class="lifetime">'continue_to_next_block</span>;
-        } <span class="kw">else if </span>code_block_selection <span class="kw">as </span>i32 == CodeBlockState::NEXT_BLOCK <span class="kw">as </span>i32 {
+        } <span class="kw">else if </span>code_block_selection == CodeBlockState::NEXT_BLOCK {
             <span class="kw">if </span>input_size &gt; <span class="number">0 </span>{
                 metablock_start = input_index;
                 block_size = min(input_size, kFirstBlockSize);
                 total_block_size = block_size;
                 mlen_storage_ix = storage_ix.wrapping_add(<span class="number">3</span>);
-                BrotliStoreMetaBlockHeader(block_size, <span class="number">0i32</span>, storage_ix, storage);
+                store_meta_block_header(block_size, <span class="bool-val">false</span>, storage_ix, storage);
                 BrotliWriteBits(<span class="number">13usize</span>, <span class="number">0</span>, storage_ix, storage);
                 literal_ratio = BuildAndStoreLiteralPrefixCode(
                     m,
@@ -2240,7 +2245,7 @@
             <span class="kw">break</span>;
         }
     }
-    <span class="kw">if </span>is_last == <span class="number">0 </span>{
+    <span class="kw">if </span>!is_last {
         cmd_code[<span class="number">0</span>] = <span class="number">0</span>;
         <span class="kw-2">*</span>cmd_code_numbits = <span class="number">0</span>;
         BuildAndStoreCommandPrefixCode(
@@ -2259,7 +2264,7 @@
             mht: <span class="kw-2">&amp;mut </span>AllocHT,
             input: <span class="kw-2">&amp;</span>[u8],
             input_size: usize,
-            is_last: i32,
+            is_last: bool,
             table: <span class="kw-2">&amp;mut </span>[i32],
             cmd_depth: <span class="kw-2">&amp;mut </span>[u8],
             cmd_bits: <span class="kw-2">&amp;mut </span>[u16],
@@ -2268,7 +2273,7 @@
             storage_ix: <span class="kw-2">&amp;mut </span>usize,
             storage: <span class="kw-2">&amp;mut </span>[u8],
         ) {
-            BrotliCompressFragmentFastImpl(
+            compress_fragment_fast_impl(
                 mht,
                 input,
                 input_size,
@@ -2291,11 +2296,42 @@
 <span class="macro">compress_specialization!</span>(<span class="number">13</span>, BrotliCompressFragmentFastImpl13);
 <span class="macro">compress_specialization!</span>(<span class="number">15</span>, BrotliCompressFragmentFastImpl15);
 
-<span class="kw">pub fn </span>BrotliCompressFragmentFast&lt;AllocHT: alloc::Allocator&lt;HuffmanTree&gt;&gt;(
+<span class="attr">#[deprecated(note = <span class="string">"use BrotliCompressFragmentFastImpl9 instead"</span>)]
+</span><span class="kw">pub fn </span>BrotliCompressFragmentFast&lt;AllocHT: alloc::Allocator&lt;HuffmanTree&gt;&gt;(
     m: <span class="kw-2">&amp;mut </span>AllocHT,
     input: <span class="kw-2">&amp;</span>[u8],
     input_size: usize,
     is_last: i32,
+    table: <span class="kw-2">&amp;mut </span>[i32],
+    table_size: usize,
+    cmd_depth: <span class="kw-2">&amp;mut </span>[u8],
+    cmd_bits: <span class="kw-2">&amp;mut </span>[u16],
+    cmd_code_numbits: <span class="kw-2">&amp;mut </span>usize,
+    cmd_code: <span class="kw-2">&amp;mut </span>[u8],
+    storage_ix: <span class="kw-2">&amp;mut </span>usize,
+    storage: <span class="kw-2">&amp;mut </span>[u8],
+) {
+    compress_fragment_fast(
+        m,
+        input,
+        input_size,
+        is_last != <span class="number">0</span>,
+        table,
+        table_size,
+        cmd_depth,
+        cmd_bits,
+        cmd_code_numbits,
+        cmd_code,
+        storage_ix,
+        storage,
+    )
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>compress_fragment_fast&lt;AllocHT: alloc::Allocator&lt;HuffmanTree&gt;&gt;(
+    m: <span class="kw-2">&amp;mut </span>AllocHT,
+    input: <span class="kw-2">&amp;</span>[u8],
+    input_size: usize,
+    is_last: bool,
     table: <span class="kw-2">&amp;mut </span>[i32],
     table_size: usize,
     cmd_depth: <span class="kw-2">&amp;mut </span>[u8],
@@ -2376,7 +2412,7 @@
     <span class="kw">if </span>storage_ix.wrapping_sub(initial_storage_ix) &gt; (<span class="number">31usize</span>).wrapping_add(input_size &lt;&lt; <span class="number">3</span>) {
         EmitUncompressedMetaBlock(input, input_size, initial_storage_ix, storage_ix, storage);
     }
-    <span class="kw">if </span>is_last != <span class="number">0 </span>{
+    <span class="kw">if </span>is_last {
         BrotliWriteBits(<span class="number">1usize</span>, <span class="number">1</span>, storage_ix, storage);
         BrotliWriteBits(<span class="number">1usize</span>, <span class="number">1</span>, storage_ix, storage);
         <span class="kw-2">*</span>storage_ix = storage_ix.wrapping_add(<span class="number">7u32 </span><span class="kw">as </span>usize) &amp; !<span class="number">7u32 </span><span class="kw">as </span>usize;

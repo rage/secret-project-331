@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/crypto/ring/kx.rs`."><title>kx.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/crypto/ring/kx.rs`."><title>kx.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -154,6 +154,44 @@
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::duplicate_mod)]
 
 </span><span class="kw">use </span>alloc::boxed::Box;
@@ -161,7 +199,7 @@
 
 <span class="kw">use </span><span class="kw">super</span>::ring_like::agreement;
 <span class="kw">use </span><span class="kw">super</span>::ring_like::rand::SystemRandom;
-<span class="kw">use </span><span class="kw">crate</span>::crypto::{ActiveKeyExchange, SharedSecret, SupportedKxGroup};
+<span class="kw">use </span><span class="kw">crate</span>::crypto::{ActiveKeyExchange, FfdheGroup, SharedSecret, SupportedKxGroup};
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, PeerMisbehaved};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::NamedGroup;
 <span class="kw">use </span><span class="kw">crate</span>::rand::GetRandomFailed;
@@ -182,6 +220,20 @@
     /// `SupportedKxGroup::fips()` is true if and only if the algorithm is allowed,
     /// _and_ the implementation is FIPS-validated.
     </span>fips_allowed: bool,
+
+    <span class="doccomment">/// aws-lc-rs 1.9 and later accepts more formats of public keys than
+    /// just uncompressed.
+    ///
+    /// That is not compatible with TLS:
+    /// - TLS1.3 outlaws other encodings,
+    /// - TLS1.2 negotiates other encodings (we only offer uncompressed), and
+    ///   defaults to uncompressed if negotiation is not done.
+    ///
+    /// This function should return `true` if the basic shape of its argument
+    /// is consistent with an uncompressed point encoding.  It does not need
+    /// to verify that the point is on the curve (if the curve requires that
+    /// for security); aws-lc-rs/ring must do that.
+    </span>pub_key_validator: <span class="kw">fn</span>(<span class="kw-2">&amp;</span>[u8]) -&gt; bool,
 }
 
 <span class="kw">impl </span>SupportedKxGroup <span class="kw">for </span>KxGroup {
@@ -199,8 +251,13 @@
             agreement_algorithm: <span class="self">self</span>.agreement_algorithm,
             priv_key,
             pub_key,
+            pub_key_validator: <span class="self">self</span>.pub_key_validator,
         }))
     }
+
+    <span class="kw">fn </span>ffdhe_group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;FfdheGroup&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="prelude-val">None
+    </span>}
 
     <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NamedGroup {
         <span class="self">self</span>.name
@@ -228,6 +285,8 @@
     //  are not compliant to SP 800-56Arev3."
     // -- &lt;https://csrc.nist.gov/csrc/media/Projects/cryptographic-module-validation-program/documents/fips%20140-3/FIPS%20140-3%20IG.pdf&gt;
     </span>fips_allowed: <span class="bool-val">false</span>,
+
+    pub_key_validator: |point: <span class="kw-2">&amp;</span>[u8]| point.len() == <span class="number">32</span>,
 };
 
 <span class="doccomment">/// Ephemeral ECDH on secp256r1 (aka NIST-P256)
@@ -235,6 +294,7 @@
     name: NamedGroup::secp256r1,
     agreement_algorithm: <span class="kw-2">&amp;</span>agreement::ECDH_P256,
     fips_allowed: <span class="bool-val">true</span>,
+    pub_key_validator: uncompressed_point,
 };
 
 <span class="doccomment">/// Ephemeral ECDH on secp384r1 (aka NIST-P384)
@@ -242,7 +302,15 @@
     name: NamedGroup::secp384r1,
     agreement_algorithm: <span class="kw-2">&amp;</span>agreement::ECDH_P384,
     fips_allowed: <span class="bool-val">true</span>,
+    pub_key_validator: uncompressed_point,
 };
+
+<span class="kw">fn </span>uncompressed_point(point: <span class="kw-2">&amp;</span>[u8]) -&gt; bool {
+    <span class="comment">// See `UncompressedPointRepresentation`, which is a retelling of
+    // SEC1 section 2.3.3 "Elliptic-Curve-Point-to-Octet-String Conversion"
+    // &lt;https://datatracker.ietf.org/doc/html/rfc8446#section-4.2.8.2&gt;
+    </span><span class="macro">matches!</span>(point.first(), <span class="prelude-val">Some</span>(<span class="number">0x04</span>))
+}
 
 <span class="doccomment">/// A list of all the key exchange groups supported by rustls.
 </span><span class="kw">pub static </span>ALL_KX_GROUPS: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw">dyn </span>SupportedKxGroup] = <span class="kw-2">&amp;</span>[X25519, SECP256R1, SECP384R1];
@@ -254,15 +322,23 @@
     agreement_algorithm: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>agreement::Algorithm,
     priv_key: agreement::EphemeralPrivateKey,
     pub_key: agreement::PublicKey,
+    pub_key_validator: <span class="kw">fn</span>(<span class="kw-2">&amp;</span>[u8]) -&gt; bool,
 }
 
 <span class="kw">impl </span>ActiveKeyExchange <span class="kw">for </span>KeyExchange {
     <span class="doccomment">/// Completes the key exchange, given the peer's public key.
     </span><span class="kw">fn </span>complete(<span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;, peer: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;SharedSecret, Error&gt; {
+        <span class="kw">if </span>!(<span class="self">self</span>.pub_key_validator)(peer) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(PeerMisbehaved::InvalidKeyShare.into());
+        }
         <span class="kw">let </span>peer_key = agreement::UnparsedPublicKey::new(<span class="self">self</span>.agreement_algorithm, peer);
         <span class="kw">super</span>::ring_shim::agree_ephemeral(<span class="self">self</span>.priv_key, <span class="kw-2">&amp;</span>peer_key)
             .map_err(|<span class="kw">_</span>| PeerMisbehaved::InvalidKeyShare.into())
     }
+
+    <span class="kw">fn </span>ffdhe_group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;FfdheGroup&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="prelude-val">None
+    </span>}
 
     <span class="doccomment">/// Return the group being used.
     </span><span class="kw">fn </span>group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NamedGroup {

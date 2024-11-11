@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/tag_table.rs`."><title>tag_table.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/tag_table.rs`."><title>tag_table.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2439,6 +2439,48 @@
 <a href="#2439" id="2439">2439</a>
 <a href="#2440" id="2440">2440</a>
 <a href="#2441" id="2441">2441</a>
+<a href="#2442" id="2442">2442</a>
+<a href="#2443" id="2443">2443</a>
+<a href="#2444" id="2444">2444</a>
+<a href="#2445" id="2445">2445</a>
+<a href="#2446" id="2446">2446</a>
+<a href="#2447" id="2447">2447</a>
+<a href="#2448" id="2448">2448</a>
+<a href="#2449" id="2449">2449</a>
+<a href="#2450" id="2450">2450</a>
+<a href="#2451" id="2451">2451</a>
+<a href="#2452" id="2452">2452</a>
+<a href="#2453" id="2453">2453</a>
+<a href="#2454" id="2454">2454</a>
+<a href="#2455" id="2455">2455</a>
+<a href="#2456" id="2456">2456</a>
+<a href="#2457" id="2457">2457</a>
+<a href="#2458" id="2458">2458</a>
+<a href="#2459" id="2459">2459</a>
+<a href="#2460" id="2460">2460</a>
+<a href="#2461" id="2461">2461</a>
+<a href="#2462" id="2462">2462</a>
+<a href="#2463" id="2463">2463</a>
+<a href="#2464" id="2464">2464</a>
+<a href="#2465" id="2465">2465</a>
+<a href="#2466" id="2466">2466</a>
+<a href="#2467" id="2467">2467</a>
+<a href="#2468" id="2468">2468</a>
+<a href="#2469" id="2469">2469</a>
+<a href="#2470" id="2470">2470</a>
+<a href="#2471" id="2471">2471</a>
+<a href="#2472" id="2472">2472</a>
+<a href="#2473" id="2473">2473</a>
+<a href="#2474" id="2474">2474</a>
+<a href="#2475" id="2475">2475</a>
+<a href="#2476" id="2476">2476</a>
+<a href="#2477" id="2477">2477</a>
+<a href="#2478" id="2478">2478</a>
+<a href="#2479" id="2479">2479</a>
+<a href="#2480" id="2480">2480</a>
+<a href="#2481" id="2481">2481</a>
+<a href="#2482" id="2482">2482</a>
+<a href="#2483" id="2483">2483</a>
 </pre></div><pre class="rust"><code><span class="comment">// WARNING: this file was generated by ../scripts/gen-tag-table.py
 
 </span><span class="kw">use </span>ttf_parser::Tag;
@@ -2453,6 +2495,7 @@
     LangTag { language: <span class="string">"aa"</span>, 	tag: Tag::from_bytes(<span class="string">b"AFR "</span>) }, <span class="comment">// Afar
     </span>LangTag { language: <span class="string">"aae"</span>, 	tag: Tag::from_bytes(<span class="string">b"SQI "</span>) }, <span class="comment">// Arbëreshë Albanian -&gt; Albanian
     </span>LangTag { language: <span class="string">"aao"</span>, 	tag: Tag::from_bytes(<span class="string">b"ARA "</span>) }, <span class="comment">// Algerian Saharan Arabic -&gt; Arabic
+//  LangTag { language: "aaq", 	tag: Tag::from_bytes(b"AAQ ") }, // Eastern Abnaki -&gt; Eastern Abenaki
     </span>LangTag { language: <span class="string">"aat"</span>, 	tag: Tag::from_bytes(<span class="string">b"SQI "</span>) }, <span class="comment">// Arvanitika Albanian -&gt; Albanian
     </span>LangTag { language: <span class="string">"ab"</span>, 	tag: Tag::from_bytes(<span class="string">b"ABK "</span>) }, <span class="comment">// Abkhazian
     </span>LangTag { language: <span class="string">"aba"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Abé != Abaza
@@ -2469,6 +2512,7 @@
     </span>LangTag { language: <span class="string">"acr"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Achi -&gt; Mayan
     </span>LangTag { language: <span class="string">"acw"</span>, 	tag: Tag::from_bytes(<span class="string">b"ARA "</span>) }, <span class="comment">// Hijazi Arabic -&gt; Arabic
     </span>LangTag { language: <span class="string">"acx"</span>, 	tag: Tag::from_bytes(<span class="string">b"ARA "</span>) }, <span class="comment">// Omani Arabic -&gt; Arabic
+    </span>LangTag { language: <span class="string">"acy"</span>, 	tag: Tag::from_bytes(<span class="string">b"ACY "</span>) }, <span class="comment">// Cypriot Arabic
     </span>LangTag { language: <span class="string">"acy"</span>, 	tag: Tag::from_bytes(<span class="string">b"ARA "</span>) }, <span class="comment">// Cypriot Arabic -&gt; Arabic
     </span>LangTag { language: <span class="string">"ada"</span>, 	tag: Tag::from_bytes(<span class="string">b"DNG "</span>) }, <span class="comment">// Adangme -&gt; Dangme
     </span>LangTag { language: <span class="string">"adf"</span>, 	tag: Tag::from_bytes(<span class="string">b"ARA "</span>) }, <span class="comment">// Dhofari Arabic -&gt; Arabic
@@ -2525,6 +2569,7 @@
 //  LangTag { language: "ast", 	tag: Tag::from_bytes(b"AST ") }, // Asturian
 //  LangTag { language: "ath", 	tag: Tag::from_bytes(b"ATH ") }, // Athapascan  [collection] -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"atj"</span>, 	tag: Tag::from_bytes(<span class="string">b"RCR "</span>) }, <span class="comment">// Atikamekw -&gt; R-Cree
+//  LangTag { language: "ats", 	tag: Tag::from_bytes(b"ATS ") }, // Gros Ventre (Atsina)
     </span>LangTag { language: <span class="string">"atv"</span>, 	tag: Tag::from_bytes(<span class="string">b"ALT "</span>) }, <span class="comment">// Northern Altai -&gt; Altai
     </span>LangTag { language: <span class="string">"auj"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Awjilah -&gt; Berber
     </span>LangTag { language: <span class="string">"auz"</span>, 	tag: Tag::from_bytes(<span class="string">b"ARA "</span>) }, <span class="comment">// Uzbeki Arabic -&gt; Arabic
@@ -2567,8 +2612,9 @@
     </span>LangTag { language: <span class="string">"bcl"</span>, 	tag: Tag::from_bytes(<span class="string">b"BIK "</span>) }, <span class="comment">// Central Bikol -&gt; Bikol
     </span>LangTag { language: <span class="string">"bcq"</span>, 	tag: Tag::from_bytes(<span class="string">b"BCH "</span>) }, <span class="comment">// Bench
     </span>LangTag { language: <span class="string">"bcr"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Babine -&gt; Athapaskan
+//  LangTag { language: "bdc", 	tag: Tag::from_bytes(b"BDC ") }, // Emberá-Baudó
 //  LangTag { language: "bdy", 	tag: Tag::from_bytes(b"BDY ") }, // Bandjalang
-    </span>LangTag { language: <span class="string">"be"</span>, 	tag: Tag::from_bytes(<span class="string">b"BEL "</span>) }, <span class="comment">// Belarusian -&gt; Belarussian
+    </span>LangTag { language: <span class="string">"be"</span>, 	tag: Tag::from_bytes(<span class="string">b"BEL "</span>) }, <span class="comment">// Belarusian
     </span>LangTag { language: <span class="string">"bea"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Beaver -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"beb"</span>, 	tag: Tag::from_bytes(<span class="string">b"BTI "</span>) }, <span class="comment">// Bebele -&gt; Beti
 //  LangTag { language: "bem", 	tag: Tag::from_bytes(b"BEM ") }, // Bemba (Zambia)
@@ -2672,6 +2718,8 @@
     </span>LangTag { language: <span class="string">"caf"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Southern Carrier -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"cak"</span>, 	tag: Tag::from_bytes(<span class="string">b"CAK "</span>) }, <span class="comment">// Kaqchikel
     </span>LangTag { language: <span class="string">"cak"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Kaqchikel -&gt; Mayan
+//  LangTag { language: "cay", 	tag: Tag::from_bytes(b"CAY ") }, // Cayuga
+//  LangTag { language: "cbg", 	tag: Tag::from_bytes(b"CBG ") }, // Chimila
     </span>LangTag { language: <span class="string">"cbk"</span>, 	tag: Tag::from_bytes(<span class="string">b"CBK "</span>) }, <span class="comment">// Chavacano -&gt; Zamboanga Chavacano
     </span>LangTag { language: <span class="string">"cbk"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Chavacano -&gt; Creoles
     </span>LangTag { language: <span class="string">"cbl"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Bualkhaw Chin -&gt; Chin
@@ -2718,7 +2766,9 @@
     </span>LangTag { language: <span class="string">"cld"</span>, 	tag: Tag::from_bytes(<span class="string">b"SYR "</span>) }, <span class="comment">// Chaldean Neo-Aramaic -&gt; Syriac
     </span>LangTag { language: <span class="string">"cle"</span>, 	tag: Tag::from_bytes(<span class="string">b"CCHN"</span>) }, <span class="comment">// Lealao Chinantec -&gt; Chinantec
     </span>LangTag { language: <span class="string">"clj"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Laitu Chin -&gt; Chin
+    </span>LangTag { language: <span class="string">"cls"</span>, 	tag: Tag::from_bytes(<span class="string">b"SAN "</span>) }, <span class="comment">// Classical Sanskrit -&gt; Sanskrit
     </span>LangTag { language: <span class="string">"clt"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Lautu Chin -&gt; Chin
+//  LangTag { language: "cmi", 	tag: Tag::from_bytes(b"CMI ") }, // Emberá-Chamí
     </span>LangTag { language: <span class="string">"cmn"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHS "</span>) }, <span class="comment">// Mandarin Chinese -&gt; Chinese, Simplified
     </span>LangTag { language: <span class="string">"cmr"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Mro-Khimi Chin -&gt; Chin
     </span>LangTag { language: <span class="string">"cnb"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Chinbon Chin -&gt; Chin
@@ -2733,6 +2783,7 @@
     </span>LangTag { language: <span class="string">"co"</span>, 	tag: Tag::from_bytes(<span class="string">b"COS "</span>) }, <span class="comment">// Corsican
     </span>LangTag { language: <span class="string">"coa"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Cocos Islands Malay -&gt; Malay
     </span>LangTag { language: <span class="string">"cob"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Chicomuceltec -&gt; Mayan
+//  LangTag { language: "coo", 	tag: Tag::from_bytes(b"COO ") }, // Comox
 //  LangTag { language: "cop", 	tag: Tag::from_bytes(b"COP ") }, // Coptic
     </span>LangTag { language: <span class="string">"coq"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Coquille -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"cpa"</span>, 	tag: Tag::from_bytes(<span class="string">b"CCHN"</span>) }, <span class="comment">// Palantla Chinantec -&gt; Chinantec
@@ -2784,6 +2835,7 @@
 //  LangTag { language: "ctg", 	tag: Tag::from_bytes(b"CTG ") }, // Chittagonian
     </span>LangTag { language: <span class="string">"cth"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Thaiphum Chin -&gt; Chin
     </span>LangTag { language: <span class="string">"ctl"</span>, 	tag: Tag::from_bytes(<span class="string">b"CCHN"</span>) }, <span class="comment">// Tlacoatzintepec Chinantec -&gt; Chinantec
+//  LangTag { language: "cto", 	tag: Tag::from_bytes(b"CTO ") }, // Emberá-Catío
     </span>LangTag { language: <span class="string">"cts"</span>, 	tag: Tag::from_bytes(<span class="string">b"BIK "</span>) }, <span class="comment">// Northern Catanduanes Bikol -&gt; Bikol
 //  LangTag { language: "ctt", 	tag: Tag::from_bytes(b"CTT ") }, // Wayanad Chetti
     </span>LangTag { language: <span class="string">"ctu"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Chol -&gt; Mayan
@@ -2812,7 +2864,7 @@
     </span>LangTag { language: <span class="string">"dep"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Pidgin Delaware -&gt; Creoles
     </span>LangTag { language: <span class="string">"dgo"</span>, 	tag: Tag::from_bytes(<span class="string">b"DGO "</span>) }, <span class="comment">// Dogri (individual language)
     </span>LangTag { language: <span class="string">"dgo"</span>, 	tag: Tag::from_bytes(<span class="string">b"DGR "</span>) }, <span class="comment">// Dogri (macrolanguage)
-    </span>LangTag { language: <span class="string">"dgr"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Dogrib -&gt; Athapaskan
+    </span>LangTag { language: <span class="string">"dgr"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Tlicho -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"dhd"</span>, 	tag: Tag::from_bytes(<span class="string">b"MAW "</span>) }, <span class="comment">// Dhundari -&gt; Marwari
 //  LangTag { language: "dhg", 	tag: Tag::from_bytes(b"DHG ") }, // Dhangu
     </span>LangTag { language: <span class="string">"dhv"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Dehu != Divehi (Dhivehi, Maldivian)(deprecated)
@@ -2820,7 +2872,7 @@
     </span>LangTag { language: <span class="string">"dik"</span>, 	tag: Tag::from_bytes(<span class="string">b"DNK "</span>) }, <span class="comment">// Southwestern Dinka -&gt; Dinka
     </span>LangTag { language: <span class="string">"din"</span>, 	tag: Tag::from_bytes(<span class="string">b"DNK "</span>) }, <span class="comment">// Dinka [macrolanguage]
     </span>LangTag { language: <span class="string">"dip"</span>, 	tag: Tag::from_bytes(<span class="string">b"DNK "</span>) }, <span class="comment">// Northeastern Dinka -&gt; Dinka
-    </span>LangTag { language: <span class="string">"diq"</span>, 	tag: Tag::from_bytes(<span class="string">b"DIQ "</span>) }, <span class="comment">// Dimli
+    </span>LangTag { language: <span class="string">"diq"</span>, 	tag: Tag::from_bytes(<span class="string">b"DIQ "</span>) }, <span class="comment">// Dimli 
     </span>LangTag { language: <span class="string">"diq"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZZA "</span>) }, <span class="comment">// Dimli  -&gt; Zazaki
     </span>LangTag { language: <span class="string">"diw"</span>, 	tag: Tag::from_bytes(<span class="string">b"DNK "</span>) }, <span class="comment">// Northwestern Dinka -&gt; Dinka
     </span>LangTag { language: <span class="string">"dje"</span>, 	tag: Tag::from_bytes(<span class="string">b"DJR "</span>) }, <span class="comment">// Zarma
@@ -2856,6 +2908,7 @@
     </span>LangTag { language: <span class="string">"el"</span>, 	tag: Tag::from_bytes(<span class="string">b"ELL "</span>) }, <span class="comment">// Modern Greek (1453-) -&gt; Greek
     </span>LangTag { language: <span class="string">"emk"</span>, 	tag: Tag::from_bytes(<span class="string">b"EMK "</span>) }, <span class="comment">// Eastern Maninkakan
     </span>LangTag { language: <span class="string">"emk"</span>, 	tag: Tag::from_bytes(<span class="string">b"MNK "</span>) }, <span class="comment">// Eastern Maninkakan -&gt; Maninka
+//  LangTag { language: "emp", 	tag: Tag::from_bytes(b"EMP ") }, // Northern Emberá
     </span>LangTag { language: <span class="string">"emy"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Epigraphic Mayan -&gt; Mayan
     </span>LangTag { language: <span class="string">"en"</span>, 	tag: Tag::from_bytes(<span class="string">b"ENG "</span>) }, <span class="comment">// English
     </span>LangTag { language: <span class="string">"enb"</span>, 	tag: Tag::from_bytes(<span class="string">b"KAL "</span>) }, <span class="comment">// Markweeta -&gt; Kalenjin
@@ -2913,6 +2966,7 @@
     </span>LangTag { language: <span class="string">"fuv"</span>, 	tag: Tag::from_bytes(<span class="string">b"FUL "</span>) }, <span class="comment">// Nigerian Fulfulde -&gt; Fulah
     </span>LangTag { language: <span class="string">"fy"</span>, 	tag: Tag::from_bytes(<span class="string">b"FRI "</span>) }, <span class="comment">// Western Frisian -&gt; Frisian
     </span>LangTag { language: <span class="string">"ga"</span>, 	tag: Tag::from_bytes(<span class="string">b"IRI "</span>) }, <span class="comment">// Irish
+    </span>LangTag { language: <span class="string">"ga"</span>, 	tag: Tag::from_bytes(<span class="string">b"IRT "</span>) }, <span class="comment">// Irish -&gt; Irish Traditional
     </span>LangTag { language: <span class="string">"gaa"</span>, 	tag: Tag::from_bytes(<span class="string">b"GAD "</span>) }, <span class="comment">// Ga
     </span>LangTag { language: <span class="string">"gac"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Mixed Great Andamanese -&gt; Creoles
     </span>LangTag { language: <span class="string">"gad"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Gaddang != Ga
@@ -2934,6 +2988,7 @@
 //  LangTag { language: "gez", 	tag: Tag::from_bytes(b"GEZ ") }, // Geez
     </span>LangTag { language: <span class="string">"ggo"</span>, 	tag: Tag::from_bytes(<span class="string">b"GON "</span>) }, <span class="comment">// Southern Gondi(retired code) -&gt; Gondi
     </span>LangTag { language: <span class="string">"gha"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Ghadamès -&gt; Berber
+    </span>LangTag { language: <span class="string">"ghc"</span>, 	tag: Tag::from_bytes(<span class="string">b"IRT "</span>) }, <span class="comment">// Hiberno-Scottish Gaelic -&gt; Irish Traditional
     </span>LangTag { language: <span class="string">"ghk"</span>, 	tag: Tag::from_bytes(<span class="string">b"KRN "</span>) }, <span class="comment">// Geko Karen -&gt; Karen
     </span>LangTag { language: <span class="string">"gho"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Ghomara -&gt; Berber
     </span>LangTag { language: <span class="string">"gib"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Gibanawa -&gt; Creoles
@@ -3036,6 +3091,7 @@
     </span>LangTag { language: <span class="string">"hu"</span>, 	tag: Tag::from_bytes(<span class="string">b"HUN "</span>) }, <span class="comment">// Hungarian
     </span>LangTag { language: <span class="string">"huj"</span>, 	tag: Tag::from_bytes(<span class="string">b"HMN "</span>) }, <span class="comment">// Northern Guiyang Hmong -&gt; Hmong
     </span>LangTag { language: <span class="string">"hup"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Hupa -&gt; Athapaskan
+//  LangTag { language: "hur", 	tag: Tag::from_bytes(b"HUR ") }, // Halkomelem
     </span>LangTag { language: <span class="string">"hus"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Huastec -&gt; Mayan
     </span>LangTag { language: <span class="string">"hwc"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Hawai'i Creole English -&gt; Creoles
     </span>LangTag { language: <span class="string">"hy"</span>, 	tag: Tag::from_bytes(<span class="string">b"HYE0"</span>) }, <span class="comment">// Armenian -&gt; Armenian East
@@ -3092,6 +3148,7 @@
     </span>LangTag { language: <span class="string">"jbn"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Nafusi -&gt; Berber
 //  LangTag { language: "jbo", 	tag: Tag::from_bytes(b"JBO ") }, // Lojban
 //  LangTag { language: "jct", 	tag: Tag::from_bytes(b"JCT ") }, // Krymchak
+//  LangTag { language: "jdt", 	tag: Tag::from_bytes(b"JDT ") }, // Judeo-Tat
     </span>LangTag { language: <span class="string">"jgo"</span>, 	tag: Tag::from_bytes(<span class="string">b"BML "</span>) }, <span class="comment">// Ngomba -&gt; Bamileke
     </span>LangTag { language: <span class="string">"ji"</span>, 	tag: Tag::from_bytes(<span class="string">b"JII "</span>) }, <span class="comment">// Yiddish(retired code)
     </span>LangTag { language: <span class="string">"jii"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Jiiddu != Yiddish
@@ -3110,6 +3167,7 @@
     </span>LangTag { language: <span class="string">"kam"</span>, 	tag: Tag::from_bytes(<span class="string">b"KMB "</span>) }, <span class="comment">// Kamba (Kenya)
     </span>LangTag { language: <span class="string">"kar"</span>, 	tag: Tag::from_bytes(<span class="string">b"KRN "</span>) }, <span class="comment">// Karen  [collection]
 //  LangTag { language: "kaw", 	tag: Tag::from_bytes(b"KAW ") }, // Kawi (Old Javanese)
+//  LangTag { language: "kbc", 	tag: Tag::from_bytes(b"KBC ") }, // Kadiwéu
     </span>LangTag { language: <span class="string">"kbd"</span>, 	tag: Tag::from_bytes(<span class="string">b"KAB "</span>) }, <span class="comment">// Kabardian
     </span>LangTag { language: <span class="string">"kby"</span>, 	tag: Tag::from_bytes(<span class="string">b"KNR "</span>) }, <span class="comment">// Manga Kanuri -&gt; Kanuri
     </span>LangTag { language: <span class="string">"kca"</span>, 	tag: Tag::from_bytes(<span class="string">b"KHK "</span>) }, <span class="comment">// Khanty -&gt; Khanty-Kazim
@@ -3142,12 +3200,13 @@
 //  LangTag { language: "khw", 	tag: Tag::from_bytes(b"KHW ") }, // Khowar
     </span>LangTag { language: <span class="string">"ki"</span>, 	tag: Tag::from_bytes(<span class="string">b"KIK "</span>) }, <span class="comment">// Kikuyu (Gikuyu)
     </span>LangTag { language: <span class="string">"kis"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Kis != Kisii
-    </span>LangTag { language: <span class="string">"kiu"</span>, 	tag: Tag::from_bytes(<span class="string">b"KIU "</span>) }, <span class="comment">// Kirmanjki
+    </span>LangTag { language: <span class="string">"kiu"</span>, 	tag: Tag::from_bytes(<span class="string">b"KIU "</span>) }, <span class="comment">// Kirmanjki 
     </span>LangTag { language: <span class="string">"kiu"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZZA "</span>) }, <span class="comment">// Kirmanjki  -&gt; Zazaki
     </span>LangTag { language: <span class="string">"kj"</span>, 	tag: Tag::from_bytes(<span class="string">b"KUA "</span>) }, <span class="comment">// Kuanyama
     </span>LangTag { language: <span class="string">"kjb"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Q'anjob'al -&gt; Mayan
 //  LangTag { language: "kjd", 	tag: Tag::from_bytes(b"KJD ") }, // Southern Kiwai
     </span>LangTag { language: <span class="string">"kjh"</span>, 	tag: Tag::from_bytes(<span class="string">b"KHA "</span>) }, <span class="comment">// Khakas -&gt; Khakass
+//  LangTag { language: "kjj", 	tag: Tag::from_bytes(b"KJJ ") }, // Khinalugh -&gt; Khinalug
     </span>LangTag { language: <span class="string">"kjp"</span>, 	tag: Tag::from_bytes(<span class="string">b"KJP "</span>) }, <span class="comment">// Pwo Eastern Karen -&gt; Eastern Pwo Karen
     </span>LangTag { language: <span class="string">"kjp"</span>, 	tag: Tag::from_bytes(<span class="string">b"KRN "</span>) }, <span class="comment">// Pwo Eastern Karen -&gt; Karen
     </span>LangTag { language: <span class="string">"kjt"</span>, 	tag: Tag::from_bytes(<span class="string">b"KRN "</span>) }, <span class="comment">// Phrae Pwo Karen -&gt; Karen
@@ -3171,7 +3230,7 @@
     </span>LangTag { language: <span class="string">"knc"</span>, 	tag: Tag::from_bytes(<span class="string">b"KNR "</span>) }, <span class="comment">// Central Kanuri -&gt; Kanuri
     </span>LangTag { language: <span class="string">"kng"</span>, 	tag: Tag::from_bytes(<span class="string">b"KON0"</span>) }, <span class="comment">// Koongo -&gt; Kongo
     </span>LangTag { language: <span class="string">"knj"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Western Kanjobal -&gt; Mayan
-    </span>LangTag { language: <span class="string">"knn"</span>, 	tag: Tag::from_bytes(<span class="string">b"KOK "</span>) }, <span class="comment">// Konkani
+    </span>LangTag { language: <span class="string">"knn"</span>, 	tag: Tag::from_bytes(<span class="string">b"KOK "</span>) }, <span class="comment">// Konkani 
     </span>LangTag { language: <span class="string">"knr"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Kaningra != Kanuri
     </span>LangTag { language: <span class="string">"ko"</span>, 	tag: Tag::from_bytes(<span class="string">b"KOR "</span>) }, <span class="comment">// Korean
     </span>LangTag { language: <span class="string">"ko"</span>, 	tag: Tag::from_bytes(<span class="string">b"KOH "</span>) }, <span class="comment">// Korean -&gt; Korean Old Hangul
@@ -3265,6 +3324,7 @@
 //  LangTag { language: "lij", 	tag: Tag::from_bytes(b"LIJ ") }, // Ligurian
     </span>LangTag { language: <span class="string">"lir"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Liberian English -&gt; Creoles
 //  LangTag { language: "lis", 	tag: Tag::from_bytes(b"LIS ") }, // Lisu
+//  LangTag { language: "liv", 	tag: Tag::from_bytes(b"LIV ") }, // Liv
     </span>LangTag { language: <span class="string">"liw"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Col -&gt; Malay
     </span>LangTag { language: <span class="string">"liy"</span>, 	tag: Tag::from_bytes(<span class="string">b"BAD0"</span>) }, <span class="comment">// Banda-Bambari -&gt; Banda
 //  LangTag { language: "ljp", 	tag: Tag::from_bytes(b"LJP ") }, // Lampung Api -&gt; Lampung
@@ -3335,6 +3395,7 @@
     </span>LangTag { language: <span class="string">"men"</span>, 	tag: Tag::from_bytes(<span class="string">b"MDE "</span>) }, <span class="comment">// Mende (Sierra Leone)
     </span>LangTag { language: <span class="string">"meo"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Kedah Malay -&gt; Malay
 //  LangTag { language: "mer", 	tag: Tag::from_bytes(b"MER ") }, // Meru
+//  LangTag { language: "mev", 	tag: Tag::from_bytes(b"MEV ") }, // Mano
     </span>LangTag { language: <span class="string">"mfa"</span>, 	tag: Tag::from_bytes(<span class="string">b"MFA "</span>) }, <span class="comment">// Pattani Malay
     </span>LangTag { language: <span class="string">"mfa"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Pattani Malay -&gt; Malay
     </span>LangTag { language: <span class="string">"mfb"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Bangka -&gt; Malay
@@ -3342,6 +3403,7 @@
     </span>LangTag { language: <span class="string">"mfe"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Morisyen -&gt; Creoles
     </span>LangTag { language: <span class="string">"mfp"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Makassar Malay -&gt; Creoles
     </span>LangTag { language: <span class="string">"mg"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLG "</span>) }, <span class="comment">// Malagasy [macrolanguage]
+    </span>LangTag { language: <span class="string">"mga"</span>, 	tag: Tag::from_bytes(<span class="string">b"SGA "</span>) }, <span class="comment">// Middle Irish (900-1200) -&gt; Old Irish
     </span>LangTag { language: <span class="string">"mh"</span>, 	tag: Tag::from_bytes(<span class="string">b"MAH "</span>) }, <span class="comment">// Marshallese
     </span>LangTag { language: <span class="string">"mhc"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Mocho -&gt; Mayan
     </span>LangTag { language: <span class="string">"mhr"</span>, 	tag: Tag::from_bytes(<span class="string">b"LMA "</span>) }, <span class="comment">// Eastern Mari -&gt; Low Mari
@@ -3376,7 +3438,7 @@
     </span>LangTag { language: <span class="string">"mnw"</span>, 	tag: Tag::from_bytes(<span class="string">b"MON "</span>) }, <span class="comment">// Mon
     </span>LangTag { language: <span class="string">"mnw"</span>, 	tag: Tag::from_bytes(<span class="string">b"MONT"</span>) }, <span class="comment">// Mon -&gt; Thailand Mon
     </span>LangTag { language: <span class="string">"mnx"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Manikion != Manx
-    </span>LangTag { language: <span class="string">"mo"</span>, 	tag: Tag::from_bytes(<span class="string">b"MOL "</span>) }, <span class="comment">// Moldavian(retired code) -&gt; Romanian (Moldova)
+    </span>LangTag { language: <span class="string">"mo"</span>, 	tag: Tag::from_bytes(<span class="string">b"MOL "</span>) }, <span class="comment">// Moldavian(retired code)
     </span>LangTag { language: <span class="string">"mo"</span>, 	tag: Tag::from_bytes(<span class="string">b"ROM "</span>) }, <span class="comment">// Moldavian(retired code) -&gt; Romanian
     </span>LangTag { language: <span class="string">"mod"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Mobilian -&gt; Creoles
 //  LangTag { language: "moh", 	tag: Tag::from_bytes(b"MOH ") }, // Mohawk
@@ -3488,7 +3550,7 @@
 //  LangTag { language: "noe", 	tag: Tag::from_bytes(b"NOE ") }, // Nimadi
 //  LangTag { language: "nog", 	tag: Tag::from_bytes(b"NOG ") }, // Nogai
 //  LangTag { language: "nov", 	tag: Tag::from_bytes(b"NOV ") }, // Novial
-    </span>LangTag { language: <span class="string">"npi"</span>, 	tag: Tag::from_bytes(<span class="string">b"NEP "</span>) }, <span class="comment">// Nepali
+    </span>LangTag { language: <span class="string">"npi"</span>, 	tag: Tag::from_bytes(<span class="string">b"NEP "</span>) }, <span class="comment">// Nepali 
     </span>LangTag { language: <span class="string">"npl"</span>, 	tag: Tag::from_bytes(<span class="string">b"NAH "</span>) }, <span class="comment">// Southeastern Puebla Nahuatl -&gt; Nahuatl
     </span>LangTag { language: <span class="string">"nqo"</span>, 	tag: Tag::from_bytes(<span class="string">b"NKO "</span>) }, <span class="comment">// N’Ko
     </span>LangTag { language: <span class="string">"nr"</span>, 	tag: Tag::from_bytes(<span class="string">b"NDB "</span>) }, <span class="comment">// South Ndebele -&gt; Ndebele
@@ -3521,6 +3583,8 @@
     </span>LangTag { language: <span class="string">"okm"</span>, 	tag: Tag::from_bytes(<span class="string">b"KOH "</span>) }, <span class="comment">// Middle Korean (10th-16th cent.) -&gt; Korean Old Hangul
     </span>LangTag { language: <span class="string">"okr"</span>, 	tag: Tag::from_bytes(<span class="string">b"IJO "</span>) }, <span class="comment">// Kirike -&gt; Ijo
     </span>LangTag { language: <span class="string">"om"</span>, 	tag: Tag::from_bytes(<span class="string">b"ORO "</span>) }, <span class="comment">// Oromo [macrolanguage]
+//  LangTag { language: "one", 	tag: Tag::from_bytes(b"ONE ") }, // Oneida
+//  LangTag { language: "ono", 	tag: Tag::from_bytes(b"ONO ") }, // Onondaga
     </span>LangTag { language: <span class="string">"onx"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Onin Based Pidgin -&gt; Creoles
     </span>LangTag { language: <span class="string">"oor"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Oorlams -&gt; Creoles
     </span>LangTag { language: <span class="string">"or"</span>, 	tag: Tag::from_bytes(<span class="string">b"ORI "</span>) }, <span class="comment">// Odia  [macrolanguage]
@@ -3529,7 +3593,7 @@
     </span>LangTag { language: <span class="string">"oro"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Orokolo != Oromo
     </span>LangTag { language: <span class="string">"orr"</span>, 	tag: Tag::from_bytes(<span class="string">b"IJO "</span>) }, <span class="comment">// Oruma -&gt; Ijo
     </span>LangTag { language: <span class="string">"ors"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Orang Seletar -&gt; Malay
-    </span>LangTag { language: <span class="string">"ory"</span>, 	tag: Tag::from_bytes(<span class="string">b"ORI "</span>) }, <span class="comment">// Odia
+    </span>LangTag { language: <span class="string">"ory"</span>, 	tag: Tag::from_bytes(<span class="string">b"ORI "</span>) }, <span class="comment">// Odia 
     </span>LangTag { language: <span class="string">"os"</span>, 	tag: Tag::from_bytes(<span class="string">b"OSS "</span>) }, <span class="comment">// Ossetian
     </span>LangTag { language: <span class="string">"otw"</span>, 	tag: Tag::from_bytes(<span class="string">b"OJB "</span>) }, <span class="comment">// Ottawa -&gt; Ojibway
     </span>LangTag { language: <span class="string">"oua"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Tagargrent -&gt; Berber
@@ -3566,7 +3630,7 @@
     </span>LangTag { language: <span class="string">"pkh"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Pankhu -&gt; Chin
     </span>LangTag { language: <span class="string">"pko"</span>, 	tag: Tag::from_bytes(<span class="string">b"KAL "</span>) }, <span class="comment">// Pökoot -&gt; Kalenjin
     </span>LangTag { language: <span class="string">"pl"</span>, 	tag: Tag::from_bytes(<span class="string">b"PLK "</span>) }, <span class="comment">// Polish
-    </span>LangTag { language: <span class="string">"plg"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Pilagá != Palaung
+    </span>LangTag { language: <span class="string">"plg"</span>, 	tag: Tag::from_bytes(<span class="string">b"PLG0"</span>) }, <span class="comment">// Pilagá
     </span>LangTag { language: <span class="string">"plk"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Kohistani Shina != Polish
     </span>LangTag { language: <span class="string">"pll"</span>, 	tag: Tag::from_bytes(<span class="string">b"PLG "</span>) }, <span class="comment">// Shwe Palaung -&gt; Palaung
     </span>LangTag { language: <span class="string">"pln"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Palenquero -&gt; Creoles
@@ -3715,7 +3779,7 @@
 //  LangTag { language: "rup", 	tag: Tag::from_bytes(b"RUP ") }, // Aromanian
     </span>LangTag { language: <span class="string">"rw"</span>, 	tag: Tag::from_bytes(<span class="string">b"RUA "</span>) }, <span class="comment">// Kinyarwanda
     </span>LangTag { language: <span class="string">"rwr"</span>, 	tag: Tag::from_bytes(<span class="string">b"MAW "</span>) }, <span class="comment">// Marwari (India)
-    </span>LangTag { language: <span class="string">"sa"</span>, 	tag: Tag::from_bytes(<span class="string">b"SAN "</span>) }, <span class="comment">// Sanskrit
+    </span>LangTag { language: <span class="string">"sa"</span>, 	tag: Tag::from_bytes(<span class="string">b"SAN "</span>) }, <span class="comment">// Sanskrit [macrolanguage]
     </span>LangTag { language: <span class="string">"sad"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Sandawe != Sadri
     </span>LangTag { language: <span class="string">"sah"</span>, 	tag: Tag::from_bytes(<span class="string">b"YAK "</span>) }, <span class="comment">// Yakut -&gt; Sakha
     </span>LangTag { language: <span class="string">"sam"</span>, 	tag: Tag::from_bytes(<span class="string">b"PAA "</span>) }, <span class="comment">// Samaritan Aramaic -&gt; Palestinian Aramaic
@@ -3738,6 +3802,7 @@
     </span>LangTag { language: <span class="string">"sdn"</span>, 	tag: Tag::from_bytes(<span class="string">b"SRD "</span>) }, <span class="comment">// Gallurese Sardinian -&gt; Sardinian
     </span>LangTag { language: <span class="string">"sds"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Sened -&gt; Berber
     </span>LangTag { language: <span class="string">"se"</span>, 	tag: Tag::from_bytes(<span class="string">b"NSM "</span>) }, <span class="comment">// Northern Sami
+//  LangTag { language: "see", 	tag: Tag::from_bytes(b"SEE ") }, // Seneca
     </span>LangTag { language: <span class="string">"seh"</span>, 	tag: Tag::from_bytes(<span class="string">b"SNA "</span>) }, <span class="comment">// Sena
     </span>LangTag { language: <span class="string">"sek"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Sekani -&gt; Athapaskan
 //  LangTag { language: "sel", 	tag: Tag::from_bytes(b"SEL ") }, // Selkup
@@ -3764,6 +3829,7 @@
 //  LangTag { language: "sid", 	tag: Tag::from_bytes(b"SID ") }, // Sidamo
     </span>LangTag { language: <span class="string">"sig"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Paasaal != Silte Gurage
     </span>LangTag { language: <span class="string">"siz"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Siwi -&gt; Berber
+//  LangTag { language: "sja", 	tag: Tag::from_bytes(b"SJA ") }, // Epena
     </span>LangTag { language: <span class="string">"sjd"</span>, 	tag: Tag::from_bytes(<span class="string">b"KSM "</span>) }, <span class="comment">// Kildin Sami
     </span>LangTag { language: <span class="string">"sjo"</span>, 	tag: Tag::from_bytes(<span class="string">b"SIB "</span>) }, <span class="comment">// Xibe -&gt; Sibe
     </span>LangTag { language: <span class="string">"sjs"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Senhaja De Srair -&gt; Berber
@@ -3809,6 +3875,7 @@
     </span>LangTag { language: <span class="string">"st"</span>, 	tag: Tag::from_bytes(<span class="string">b"SOT "</span>) }, <span class="comment">// Southern Sotho
     </span>LangTag { language: <span class="string">"sta"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Settla -&gt; Creoles
 //  LangTag { language: "stq", 	tag: Tag::from_bytes(b"STQ ") }, // Saterfriesisch -&gt; Saterland Frisian
+//  LangTag { language: "str", 	tag: Tag::from_bytes(b"STR ") }, // Straits Salish
     </span>LangTag { language: <span class="string">"stv"</span>, 	tag: Tag::from_bytes(<span class="string">b"SIG "</span>) }, <span class="comment">// Silt'e -&gt; Silte Gurage
     </span>LangTag { language: <span class="string">"su"</span>, 	tag: Tag::from_bytes(<span class="string">b"SUN "</span>) }, <span class="comment">// Sundanese
 //  LangTag { language: "suk", 	tag: Tag::from_bytes(b"SUK ") }, // Sukuma
@@ -3821,7 +3888,7 @@
     </span>LangTag { language: <span class="string">"sw"</span>, 	tag: Tag::from_bytes(<span class="string">b"SWK "</span>) }, <span class="comment">// Swahili  [macrolanguage]
     </span>LangTag { language: <span class="string">"swb"</span>, 	tag: Tag::from_bytes(<span class="string">b"CMR "</span>) }, <span class="comment">// Maore Comorian -&gt; Comorian
     </span>LangTag { language: <span class="string">"swc"</span>, 	tag: Tag::from_bytes(<span class="string">b"SWK "</span>) }, <span class="comment">// Congo Swahili -&gt; Swahili
-    </span>LangTag { language: <span class="string">"swh"</span>, 	tag: Tag::from_bytes(<span class="string">b"SWK "</span>) }, <span class="comment">// Swahili
+    </span>LangTag { language: <span class="string">"swh"</span>, 	tag: Tag::from_bytes(<span class="string">b"SWK "</span>) }, <span class="comment">// Swahili 
     </span>LangTag { language: <span class="string">"swk"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Malawi Sena != Swahili
     </span>LangTag { language: <span class="string">"swn"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Sawknah -&gt; Berber
     </span>LangTag { language: <span class="string">"swv"</span>, 	tag: Tag::from_bytes(<span class="string">b"MAW "</span>) }, <span class="comment">// Shekhawati -&gt; Marwari
@@ -3834,6 +3901,7 @@
     </span>LangTag { language: <span class="string">"taa"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Lower Tanana -&gt; Athapaskan
 //  LangTag { language: "tab", 	tag: Tag::from_bytes(b"TAB ") }, // Tabassaran -&gt; Tabasaran
     </span>LangTag { language: <span class="string">"taj"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Eastern Tamang != Tajiki
+    </span>LangTag { language: <span class="string">"taq"</span>, 	tag: Tag::from_bytes(<span class="string">b"TAQ "</span>) }, <span class="comment">// Tamasheq
     </span>LangTag { language: <span class="string">"taq"</span>, 	tag: Tag::from_bytes(<span class="string">b"TMH "</span>) }, <span class="comment">// Tamasheq -&gt; Tamashek
     </span>LangTag { language: <span class="string">"taq"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Tamasheq -&gt; Berber
     </span>LangTag { language: <span class="string">"tas"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Tay Boi -&gt; Creoles
@@ -3845,6 +3913,7 @@
     </span>LangTag { language: <span class="string">"tcs"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Torres Strait Creole -&gt; Creoles
     </span>LangTag { language: <span class="string">"tcy"</span>, 	tag: Tag::from_bytes(<span class="string">b"TUL "</span>) }, <span class="comment">// Tulu
     </span>LangTag { language: <span class="string">"tcz"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Thado Chin -&gt; Chin
+//  LangTag { language: "tdc", 	tag: Tag::from_bytes(b"TDC ") }, // Emberá-Tadó
 //  LangTag { language: "tdd", 	tag: Tag::from_bytes(b"TDD ") }, // Tai Nüa -&gt; Dehong Dai
     </span>LangTag { language: <span class="string">"tdx"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLG "</span>) }, <span class="comment">// Tandroy-Mahafaly Malagasy -&gt; Malagasy
     </span>LangTag { language: <span class="string">"te"</span>, 	tag: Tag::from_bytes(<span class="string">b"TEL "</span>) }, <span class="comment">// Telugu
@@ -3861,9 +3930,12 @@
     </span>LangTag { language: <span class="string">"tgx"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Tagish -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"tgy"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Togoyo != Tigrinya
     </span>LangTag { language: <span class="string">"th"</span>, 	tag: Tag::from_bytes(<span class="string">b"THA "</span>) }, <span class="comment">// Thai
+//  LangTag { language: "thp", 	tag: Tag::from_bytes(b"THP ") }, // Thompson
     </span>LangTag { language: <span class="string">"tht"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Tahltan -&gt; Athapaskan
+    </span>LangTag { language: <span class="string">"thv"</span>, 	tag: Tag::from_bytes(<span class="string">b"THV "</span>) }, <span class="comment">// Tahaggart Tamahaq
     </span>LangTag { language: <span class="string">"thv"</span>, 	tag: Tag::from_bytes(<span class="string">b"TMH "</span>) }, <span class="comment">// Tahaggart Tamahaq -&gt; Tamashek
     </span>LangTag { language: <span class="string">"thv"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Tahaggart Tamahaq -&gt; Berber
+    </span>LangTag { language: <span class="string">"thz"</span>, 	tag: Tag::from_bytes(<span class="string">b"THZ "</span>) }, <span class="comment">// Tayart Tamajeq
     </span>LangTag { language: <span class="string">"thz"</span>, 	tag: Tag::from_bytes(<span class="string">b"TMH "</span>) }, <span class="comment">// Tayart Tamajeq -&gt; Tamashek
     </span>LangTag { language: <span class="string">"thz"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Tayart Tamajeq -&gt; Berber
     </span>LangTag { language: <span class="string">"ti"</span>, 	tag: Tag::from_bytes(<span class="string">b"TGY "</span>) }, <span class="comment">// Tigrinya
@@ -3877,6 +3949,7 @@
     </span>LangTag { language: <span class="string">"tkm"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Takelma != Turkmen
     </span>LangTag { language: <span class="string">"tl"</span>, 	tag: Tag::from_bytes(<span class="string">b"TGL "</span>) }, <span class="comment">// Tagalog
 //  LangTag { language: "tli", 	tag: Tag::from_bytes(b"TLI ") }, // Tlingit
+//  LangTag { language: "tly", 	tag: Tag::from_bytes(b"TLY ") }, // Talysh
     </span>LangTag { language: <span class="string">"tmg"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Ternateño -&gt; Creoles
     </span>LangTag { language: <span class="string">"tmh"</span>, 	tag: Tag::from_bytes(<span class="string">b"TMH "</span>) }, <span class="comment">// Tamashek [macrolanguage]
     </span>LangTag { language: <span class="string">"tmh"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Tamashek [macrolanguage] -&gt; Berber
@@ -3907,11 +3980,13 @@
     </span>LangTag { language: <span class="string">"tt"</span>, 	tag: Tag::from_bytes(<span class="string">b"TAT "</span>) }, <span class="comment">// Tatar
     </span>LangTag { language: <span class="string">"ttc"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Tektiteko -&gt; Mayan
     </span>LangTag { language: <span class="string">"ttm"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Northern Tutchone -&gt; Athapaskan
+    </span>LangTag { language: <span class="string">"ttq"</span>, 	tag: Tag::from_bytes(<span class="string">b"TTQ "</span>) }, <span class="comment">// Tawallammat Tamajaq
     </span>LangTag { language: <span class="string">"ttq"</span>, 	tag: Tag::from_bytes(<span class="string">b"TMH "</span>) }, <span class="comment">// Tawallammat Tamajaq -&gt; Tamashek
     </span>LangTag { language: <span class="string">"ttq"</span>, 	tag: Tag::from_bytes(<span class="string">b"BBR "</span>) }, <span class="comment">// Tawallammat Tamajaq -&gt; Berber
     </span>LangTag { language: <span class="string">"tua"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Wiarumus != Turoyo Aramaic
     </span>LangTag { language: <span class="string">"tul"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Tula != Tulu
 //  LangTag { language: "tum", 	tag: Tag::from_bytes(b"TUM ") }, // Tumbuka
+//  LangTag { language: "tus", 	tag: Tag::from_bytes(b"TUS ") }, // Tuscarora
     </span>LangTag { language: <span class="string">"tuu"</span>, 	tag: Tag::from_bytes(<span class="string">b"ATH "</span>) }, <span class="comment">// Tututni -&gt; Athapaskan
     </span>LangTag { language: <span class="string">"tuv"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Turkana != Tuvin
     </span>LangTag { language: <span class="string">"tuy"</span>, 	tag: Tag::from_bytes(<span class="string">b"KAL "</span>) }, <span class="comment">// Tugen -&gt; Kalenjin
@@ -3931,6 +4006,7 @@
     </span>LangTag { language: <span class="string">"tzo"</span>, 	tag: Tag::from_bytes(<span class="string">b"TZO "</span>) }, <span class="comment">// Tzotzil
     </span>LangTag { language: <span class="string">"tzo"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Tzotzil -&gt; Mayan
     </span>LangTag { language: <span class="string">"ubl"</span>, 	tag: Tag::from_bytes(<span class="string">b"BIK "</span>) }, <span class="comment">// Buhi'non Bikol -&gt; Bikol
+//  LangTag { language: "udi", 	tag: Tag::from_bytes(b"UDI ") }, // Udi
 //  LangTag { language: "udm", 	tag: Tag::from_bytes(b"UDM ") }, // Udmurt
     </span>LangTag { language: <span class="string">"ug"</span>, 	tag: Tag::from_bytes(<span class="string">b"UYG "</span>) }, <span class="comment">// Uyghur
     </span>LangTag { language: <span class="string">"uk"</span>, 	tag: Tag::from_bytes(<span class="string">b"UKR "</span>) }, <span class="comment">// Ukrainian
@@ -3956,14 +4032,18 @@
     </span>LangTag { language: <span class="string">"vls"</span>, 	tag: Tag::from_bytes(<span class="string">b"FLE "</span>) }, <span class="comment">// Vlaams -&gt; Dutch (Flemish)
     </span>LangTag { language: <span class="string">"vmw"</span>, 	tag: Tag::from_bytes(<span class="string">b"MAK "</span>) }, <span class="comment">// Makhuwa
     </span>LangTag { language: <span class="string">"vo"</span>, 	tag: Tag::from_bytes(<span class="string">b"VOL "</span>) }, <span class="comment">// Volapük
-//  LangTag { language: "vro", 	tag: Tag::from_bytes(b"VRO ") }, // Võro
+    </span>LangTag { language: <span class="string">"vro"</span>, 	tag: Tag::from_bytes(<span class="string">b"VRO "</span>) }, <span class="comment">// Võro
+    </span>LangTag { language: <span class="string">"vro"</span>, 	tag: Tag::from_bytes(<span class="string">b"ETI "</span>) }, <span class="comment">// Võro -&gt; Estonian
+    </span>LangTag { language: <span class="string">"vsn"</span>, 	tag: Tag::from_bytes(<span class="string">b"SAN "</span>) }, <span class="comment">// Vedic Sanskrit -&gt; Sanskrit
     </span>LangTag { language: <span class="string">"wa"</span>, 	tag: Tag::from_bytes(<span class="string">b"WLN "</span>) }, <span class="comment">// Walloon
     </span>LangTag { language: <span class="string">"wag"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Wa'ema != Wagdi
 //  LangTag { language: "war", 	tag: Tag::from_bytes(b"WAR ") }, // Waray (Philippines) -&gt; Waray-Waray
+//  LangTag { language: "wbl", 	tag: Tag::from_bytes(b"WBL ") }, // Wakhi
     </span>LangTag { language: <span class="string">"wbm"</span>, 	tag: Tag::from_bytes(<span class="string">b"WA  "</span>) }, <span class="comment">// Wa
     </span>LangTag { language: <span class="string">"wbr"</span>, 	tag: Tag::from_bytes(<span class="string">b"WAG "</span>) }, <span class="comment">// Wagdi
     </span>LangTag { language: <span class="string">"wbr"</span>, 	tag: Tag::from_bytes(<span class="string">b"RAJ "</span>) }, <span class="comment">// Wagdi -&gt; Rajasthani
 //  LangTag { language: "wci", 	tag: Tag::from_bytes(b"WCI ") }, // Waci Gbe
+//  LangTag { language: "wdt", 	tag: Tag::from_bytes(b"WDT ") }, // Wendat
     </span>LangTag { language: <span class="string">"wea"</span>, 	tag: Tag::from_bytes(<span class="string">b"KRN "</span>) }, <span class="comment">// Wewaw -&gt; Karen
     </span>LangTag { language: <span class="string">"wes"</span>, 	tag: Tag::from_bytes(<span class="string">b"CPP "</span>) }, <span class="comment">// Cameroon Pidgin -&gt; Creoles
     </span>LangTag { language: <span class="string">"weu"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Rawngtu Chin -&gt; Chin
@@ -3976,6 +4056,9 @@
     </span>LangTag { language: <span class="string">"wsg"</span>, 	tag: Tag::from_bytes(<span class="string">b"GON "</span>) }, <span class="comment">// Adilabad Gondi -&gt; Gondi
 //  LangTag { language: "wtm", 	tag: Tag::from_bytes(b"WTM ") }, // Mewati
     </span>LangTag { language: <span class="string">"wuu"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHS "</span>) }, <span class="comment">// Wu Chinese -&gt; Chinese, Simplified
+    </span>LangTag { language: <span class="string">"wya"</span>, 	tag: Tag::from_bytes(<span class="string">b"WDT "</span>) }, <span class="comment">// Wyandot(retired code) -&gt; Wendat
+    </span>LangTag { language: <span class="string">"wya"</span>, 	tag: Tag::from_bytes(<span class="string">b"WYN "</span>) }, <span class="comment">// Wyandot(retired code)
+//  LangTag { language: "wyn", 	tag: Tag::from_bytes(b"WYN ") }, // Wyandot
     </span>LangTag { language: <span class="string">"xal"</span>, 	tag: Tag::from_bytes(<span class="string">b"KLM "</span>) }, <span class="comment">// Kalmyk
     </span>LangTag { language: <span class="string">"xal"</span>, 	tag: Tag::from_bytes(<span class="string">b"TOD "</span>) }, <span class="comment">// Kalmyk -&gt; Todo
     </span>LangTag { language: <span class="string">"xan"</span>, 	tag: Tag::from_bytes(<span class="string">b"SEK "</span>) }, <span class="comment">// Xamtanga -&gt; Sekota
@@ -4020,6 +4103,7 @@
     </span>LangTag { language: <span class="string">"yos"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Yos(retired code) -&gt; Chin
     </span>LangTag { language: <span class="string">"yua"</span>, 	tag: Tag::from_bytes(<span class="string">b"MYN "</span>) }, <span class="comment">// Yucateco -&gt; Mayan
     </span>LangTag { language: <span class="string">"yue"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHH "</span>) }, <span class="comment">// Yue Chinese -&gt; Chinese, Traditional, Hong Kong SAR
+//  LangTag { language: "yuf", 	tag: Tag::from_bytes(b"YUF ") }, // Havasupai-Walapai-Yavapai
 //  LangTag { language: "ywq", 	tag: Tag::from_bytes(b"YWQ ") }, // Wuding-Luquan Yi
     </span>LangTag { language: <span class="string">"za"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Zhuang [macrolanguage]
     </span>LangTag { language: <span class="string">"zch"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Central Hongshuihe Zhuang -&gt; Zhuang
@@ -4037,13 +4121,13 @@
     </span>LangTag { language: <span class="string">"zhn"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Nong Zhuang -&gt; Zhuang
     </span>LangTag { language: <span class="string">"zkb"</span>, 	tag: Tag::from_bytes(<span class="string">b"KHA "</span>) }, <span class="comment">// Koibal(retired code) -&gt; Khakass
     </span>LangTag { language: <span class="string">"zlj"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Liujiang Zhuang -&gt; Zhuang
-    </span>LangTag { language: <span class="string">"zlm"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Malay
+    </span>LangTag { language: <span class="string">"zlm"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Malay 
     </span>LangTag { language: <span class="string">"zln"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Lianshan Zhuang -&gt; Zhuang
     </span>LangTag { language: <span class="string">"zlq"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Liuqian Zhuang -&gt; Zhuang
     </span>LangTag { language: <span class="string">"zmi"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Negeri Sembilan Malay -&gt; Malay
     </span>LangTag { language: <span class="string">"zmz"</span>, 	tag: Tag::from_bytes(<span class="string">b"BAD0"</span>) }, <span class="comment">// Mbandja -&gt; Banda
     </span>LangTag { language: <span class="string">"znd"</span>, 	tag: Tag(<span class="number">0</span>)	            }, <span class="comment">// Zande  [collection] != Zande
-    </span>LangTag { language: <span class="string">"zne"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZND "</span>) }, <span class="comment">// Zande
+    </span>LangTag { language: <span class="string">"zne"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZND "</span>) }, <span class="comment">// Zande 
     </span>LangTag { language: <span class="string">"zom"</span>, 	tag: Tag::from_bytes(<span class="string">b"QIN "</span>) }, <span class="comment">// Zou -&gt; Chin
     </span>LangTag { language: <span class="string">"zqe"</span>, 	tag: Tag::from_bytes(<span class="string">b"ZHA "</span>) }, <span class="comment">// Qiubei Zhuang -&gt; Zhuang
     </span>LangTag { language: <span class="string">"zsm"</span>, 	tag: Tag::from_bytes(<span class="string">b"MLY "</span>) }, <span class="comment">// Standard Malay -&gt; Malay
@@ -4762,7 +4846,7 @@
             <span class="kw">if </span>strncmp(<span class="kw-2">&amp;</span>language[<span class="number">1</span>..], <span class="string">"o-"</span>, <span class="number">2</span>) &amp;&amp; subtag_matches(language, <span class="string">"-md"</span>) {
                 <span class="comment">// Romanian; Moldova
                 </span><span class="kw">let </span>possible_tags = <span class="kw-2">&amp;</span>[
-                    Tag::from_bytes(<span class="string">b"MOL "</span>), <span class="comment">// Romanian (Moldova)
+                    Tag::from_bytes(<span class="string">b"MOL "</span>), <span class="comment">// Moldavian
                     </span>Tag::from_bytes(<span class="string">b"ROM "</span>), <span class="comment">// Romanian
                 </span>];
                 tags.extend_from_slice(possible_tags);

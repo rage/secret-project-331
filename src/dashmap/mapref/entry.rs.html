@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dashmap-5.5.3/src/mapref/entry.rs`."><title>entry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="dashmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dashmap-6.1.0/src/mapref/entry.rs`."><title>entry.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="dashmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -276,22 +276,24 @@
 <a href="#276" id="276">276</a>
 <a href="#277" id="277">277</a>
 <a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::one::RefMut;
 <span class="kw">use </span><span class="kw">crate</span>::lock::RwLockWriteGuard;
-<span class="kw">use </span><span class="kw">crate</span>::util;
 <span class="kw">use </span><span class="kw">crate</span>::util::SharedValue;
 <span class="kw">use </span><span class="kw">crate</span>::HashMap;
-<span class="kw">use </span>core::hash::{BuildHasher, Hash};
+<span class="kw">use </span>core::hash::Hash;
 <span class="kw">use </span>core::mem;
-<span class="kw">use </span>core::ptr;
-<span class="kw">use </span>std::collections::hash_map::RandomState;
 
-<span class="kw">pub enum </span>Entry&lt;<span class="lifetime">'a</span>, K, V, S = RandomState&gt; {
-    Occupied(OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt;),
-    Vacant(VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt;),
+<span class="kw">pub enum </span>Entry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    Occupied(OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;),
+    Vacant(VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt;),
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V, S: BuildHasher&gt; Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V&gt; Entry&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="doccomment">/// Apply a function to the stored value if it exists.
     </span><span class="kw">pub fn </span>and_modify(<span class="self">self</span>, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;mut </span>V)) -&gt; <span class="self">Self </span>{
         <span class="kw">match </span><span class="self">self </span>{
@@ -323,7 +325,7 @@
 
     <span class="doccomment">/// Return a mutable reference to the element if it exists,
     /// otherwise insert the default and return a mutable reference to that.
-    </span><span class="kw">pub fn </span>or_default(<span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;
+    </span><span class="kw">pub fn </span>or_default(<span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;
     <span class="kw">where
         </span>V: Default,
     {
@@ -335,7 +337,7 @@
 
     <span class="doccomment">/// Return a mutable reference to the element if it exists,
     /// otherwise a provided value and return a mutable reference to that.
-    </span><span class="kw">pub fn </span>or_insert(<span class="self">self</span>, value: V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>or_insert(<span class="self">self</span>, value: V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Entry::Occupied(entry) =&gt; entry.into_ref(),
             Entry::Vacant(entry) =&gt; entry.insert(value),
@@ -344,7 +346,7 @@
 
     <span class="doccomment">/// Return a mutable reference to the element if it exists,
     /// otherwise insert the result of a provided function and return a mutable reference to that.
-    </span><span class="kw">pub fn </span>or_insert_with(<span class="self">self</span>, value: <span class="kw">impl </span>FnOnce() -&gt; V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>or_insert_with(<span class="self">self</span>, value: <span class="kw">impl </span>FnOnce() -&gt; V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Entry::Occupied(entry) =&gt; entry.into_ref(),
             Entry::Vacant(entry) =&gt; entry.insert(value()),
@@ -354,7 +356,7 @@
     <span class="kw">pub fn </span>or_try_insert_with&lt;E&gt;(
         <span class="self">self</span>,
         value: <span class="kw">impl </span>FnOnce() -&gt; <span class="prelude-ty">Result</span>&lt;V, E&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;, E&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;, E&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Entry::Occupied(entry) =&gt; <span class="prelude-val">Ok</span>(entry.into_ref()),
             Entry::Vacant(entry) =&gt; <span class="prelude-val">Ok</span>(entry.insert(value()<span class="question-mark">?</span>)),
@@ -362,7 +364,7 @@
     }
 
     <span class="doccomment">/// Sets the value of the entry, and returns a reference to the inserted value.
-    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, value: V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>insert(<span class="self">self</span>, value: V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             Entry::Occupied(<span class="kw-2">mut </span>entry) =&gt; {
                 entry.insert(value);
@@ -378,7 +380,7 @@
     /// consider [`insert`] as it doesn't need to clone the key.
     ///
     /// [`insert`]: Entry::insert
-    </span><span class="kw">pub fn </span>insert_entry(<span class="self">self</span>, value: V) -&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt;
+    </span><span class="kw">pub fn </span>insert_entry(<span class="self">self</span>, value: V) -&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;
     <span class="kw">where
         </span>K: Clone,
     {
@@ -392,52 +394,58 @@
     }
 }
 
-<span class="kw">pub struct </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S = RandomState&gt; {
-    shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt;,
+<span class="kw">pub struct </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt;,
     key: K,
+    hash: u64,
+    slot: hashbrown::raw::InsertSlot,
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Send <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {}
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Sync <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync&gt; Send <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync&gt; Sync <span class="kw">for </span>VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V, S: BuildHasher&gt; VacantEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>new(shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt;, key: K) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ shard, key }
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V&gt; VacantEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>new(
+        shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt;,
+        key: K,
+        hash: u64,
+        slot: hashbrown::raw::InsertSlot,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            shard,
+            key,
+            hash,
+            slot,
+        }
     }
 
-    <span class="kw">pub fn </span>insert(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    <span class="kw">pub fn </span>insert(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="kw">unsafe </span>{
-            <span class="kw">let </span>c: K = ptr::read(<span class="kw-2">&amp;</span><span class="self">self</span>.key);
+            <span class="kw">let </span>occupied = <span class="self">self</span>.shard.insert_in_slot(
+                <span class="self">self</span>.hash,
+                <span class="self">self</span>.slot,
+                (<span class="self">self</span>.key, SharedValue::new(value)),
+            );
 
-            <span class="self">self</span>.shard.insert(<span class="self">self</span>.key, SharedValue::new(value));
+            <span class="kw">let </span>(k, v) = occupied.as_ref();
 
-            <span class="kw">let </span>(k, v) = <span class="self">self</span>.shard.get_key_value(<span class="kw-2">&amp;</span>c).unwrap();
-
-            <span class="kw">let </span>k = util::change_lifetime_const(k);
-
-            <span class="kw">let </span>v = <span class="kw-2">&amp;mut *</span>v.as_ptr();
-
-            <span class="kw">let </span>r = RefMut::new(<span class="self">self</span>.shard, k, v);
-
-            mem::forget(c);
-
-            r
+            RefMut::new(<span class="self">self</span>.shard, k, v.as_ptr())
         }
     }
 
     <span class="doccomment">/// Sets the value of the entry with the VacantEntry’s key, and returns an OccupiedEntry.
-    </span><span class="kw">pub fn </span>insert_entry(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt;
+    </span><span class="kw">pub fn </span>insert_entry(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt;
     <span class="kw">where
         </span>K: Clone,
     {
         <span class="kw">unsafe </span>{
-            <span class="self">self</span>.shard.insert(<span class="self">self</span>.key.clone(), SharedValue::new(value));
+            <span class="kw">let </span>bucket = <span class="self">self</span>.shard.insert_in_slot(
+                <span class="self">self</span>.hash,
+                <span class="self">self</span>.slot,
+                (<span class="self">self</span>.key.clone(), SharedValue::new(value)),
+            );
 
-            <span class="kw">let </span>(k, v) = <span class="self">self</span>.shard.get_key_value(<span class="kw-2">&amp;</span><span class="self">self</span>.key).unwrap();
-
-            <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = k;
-            <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = v.as_ptr();
-            OccupiedEntry::new(<span class="self">self</span>.shard, <span class="self">self</span>.key, (kptr, vptr))
+            OccupiedEntry::new(<span class="self">self</span>.shard, <span class="self">self</span>.key, bucket)
         }
     }
 
@@ -450,38 +458,41 @@
     }
 }
 
-<span class="kw">pub struct </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S = RandomState&gt; {
-    shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt;,
-    elem: (<span class="kw-2">*const </span>K, <span class="kw-2">*mut </span>V),
+<span class="kw">pub struct </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+    shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt;,
+    bucket: hashbrown::raw::Bucket&lt;(K, SharedValue&lt;V&gt;)&gt;,
     key: K,
 }
 
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Send <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {}
-<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync, S: BuildHasher&gt; Sync <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync&gt; Send <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {}
+<span class="kw">unsafe impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash + Sync, V: Sync&gt; Sync <span class="kw">for </span>OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {}
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V, S: BuildHasher&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V&gt; OccupiedEntry&lt;<span class="lifetime">'a</span>, K, V&gt; {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>new(
-        shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt;,
+        shard: RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt;,
         key: K,
-        elem: (<span class="kw-2">*const </span>K, <span class="kw-2">*mut </span>V),
+        bucket: hashbrown::raw::Bucket&lt;(K, SharedValue&lt;V&gt;)&gt;,
     ) -&gt; <span class="self">Self </span>{
-        <span class="self">Self </span>{ shard, elem, key }
+        <span class="self">Self </span>{ shard, bucket, key }
     }
 
     <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>V {
-        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.elem.<span class="number">1 </span>}
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.bucket.as_ref().<span class="number">1</span>.get() }
     }
 
     <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>V {
-        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span><span class="self">self</span>.elem.<span class="number">1 </span>}
+        <span class="kw">unsafe </span>{ <span class="self">self</span>.bucket.as_mut().<span class="number">1</span>.get_mut() }
     }
 
     <span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, value: V) -&gt; V {
         mem::replace(<span class="self">self</span>.get_mut(), value)
     }
 
-    <span class="kw">pub fn </span>into_ref(<span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
-        <span class="kw">unsafe </span>{ RefMut::new(<span class="self">self</span>.shard, <span class="self">self</span>.elem.<span class="number">0</span>, <span class="self">self</span>.elem.<span class="number">1</span>) }
+    <span class="kw">pub fn </span>into_ref(<span class="self">self</span>) -&gt; RefMut&lt;<span class="lifetime">'a</span>, K, V&gt; {
+        <span class="kw">unsafe </span>{
+            <span class="kw">let </span>(k, v) = <span class="self">self</span>.bucket.as_ref();
+            RefMut::new(<span class="self">self</span>.shard, k, v.as_ptr())
+        }
     }
 
     <span class="kw">pub fn </span>into_key(<span class="self">self</span>) -&gt; K {
@@ -489,25 +500,24 @@
     }
 
     <span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>K {
-        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.elem.<span class="number">0 </span>}
+        <span class="kw">unsafe </span>{ <span class="kw-2">&amp;</span><span class="self">self</span>.bucket.as_ref().<span class="number">0 </span>}
     }
 
     <span class="kw">pub fn </span>remove(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; V {
-        <span class="kw">let </span>key = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.elem.<span class="number">0 </span>};
-        <span class="self">self</span>.shard.remove(key).unwrap().into_inner()
+        <span class="kw">let </span>((_k, v), <span class="kw">_</span>) = <span class="kw">unsafe </span>{ <span class="self">self</span>.shard.remove(<span class="self">self</span>.bucket) };
+        v.into_inner()
     }
 
     <span class="kw">pub fn </span>remove_entry(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; (K, V) {
-        <span class="kw">let </span>key = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.elem.<span class="number">0 </span>};
-        <span class="kw">let </span>(k, v) = <span class="self">self</span>.shard.remove_entry(key).unwrap();
+        <span class="kw">let </span>((k, v), <span class="kw">_</span>) = <span class="kw">unsafe </span>{ <span class="self">self</span>.shard.remove(<span class="self">self</span>.bucket) };
         (k, v.into_inner())
     }
 
-    <span class="kw">pub fn </span>replace_entry(<span class="kw-2">mut </span><span class="self">self</span>, value: V) -&gt; (K, V) {
-        <span class="kw">let </span>nk = <span class="self">self</span>.key;
-        <span class="kw">let </span>key = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;*</span><span class="self">self</span>.elem.<span class="number">0 </span>};
-        <span class="kw">let </span>(k, v) = <span class="self">self</span>.shard.remove_entry(key).unwrap();
-        <span class="self">self</span>.shard.insert(nk, SharedValue::new(value));
+    <span class="kw">pub fn </span>replace_entry(<span class="self">self</span>, value: V) -&gt; (K, V) {
+        <span class="kw">let </span>(k, v) = mem::replace(
+            <span class="kw">unsafe </span>{ <span class="self">self</span>.bucket.as_mut() },
+            (<span class="self">self</span>.key, SharedValue::new(value)),
+        );
         (k, v.into_inner())
     }
 }

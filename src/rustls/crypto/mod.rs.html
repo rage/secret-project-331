@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/crypto/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/crypto/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -598,18 +598,83 @@
 <a href="#598" id="598">598</a>
 <a href="#599" id="599">599</a>
 <a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
 
-<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
-</span><span class="kw">use </span>once_cell::race::OnceBox;
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">use </span>once_cell::sync::OnceCell;
 <span class="kw">use </span>pki_types::PrivateKeyDer;
 <span class="kw">use </span>zeroize::Zeroize;
 
+<span class="kw">use </span><span class="kw">crate</span>::msgs::ffdhe_groups::FfdheGroup;
 <span class="kw">use </span><span class="kw">crate</span>::sign::SigningKey;
 <span class="kw">pub use </span><span class="kw">crate</span>::webpki::{
     verify_tls12_signature, verify_tls13_signature, WebPkiSupportedAlgorithms,
@@ -690,7 +755,8 @@
 /// - _libraries_ should use [`ClientConfig::builder()`]/[`ServerConfig::builder()`]
 ///   or otherwise rely on the [`CryptoProvider::get_default()`] provider.
 /// - _applications_ should call [`CryptoProvider::install_default()`] early
-///   in their `fn main()`.
+///   in their `fn main()`. If _applications_ uses a custom provider based on the one built-in,
+///   they can activate the `custom-provider` feature to ensure its usage.
 ///
 /// # Using a specific `CryptoProvider`
 ///
@@ -704,6 +770,10 @@
 ///
 /// - [`client::WebPkiServerVerifier::builder_with_provider()`]
 /// - [`server::WebPkiClientVerifier::builder_with_provider()`]
+///
+/// If you install a custom provider and want to avoid any accidental use of a built-in provider, the feature
+/// `custom-provider` can be activated to ensure your custom provider is used everywhere
+/// and not a built-in one. This will disable any implicit use of a built-in provider.
 ///
 /// # Making a custom `CryptoProvider`
 ///
@@ -821,28 +891,15 @@
     /// Call this early in your process to configure which provider is used for
     /// the provider.  The configuration should happen before any use of
     /// [`ClientConfig::builder()`] or [`ServerConfig::builder()`].
-    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>install_default(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Arc&lt;<span class="self">Self</span>&gt;&gt; {
-        PROCESS_DEFAULT_PROVIDER.set(Arc::new(<span class="self">self</span>))
-    }
-
-    <span class="doccomment">/// Sets this `CryptoProvider` as the default for this process.
-    ///
-    /// This can be called successfully at most once in any process execution.
-    ///
-    /// Call this early in your process to configure which provider is used for
-    /// the provider.  The configuration should happen before any use of
-    /// [`ClientConfig::builder()`] or [`ServerConfig::builder()`].
-    </span><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
-    </span><span class="kw">pub fn </span>install_default(<span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;Arc&lt;<span class="self">Self</span>&gt;&gt;&gt; {
-        PROCESS_DEFAULT_PROVIDER.set(Box::new(Arc::new(<span class="self">self</span>)))
+        static_default::install_default(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// Returns the default `CryptoProvider` for this process.
     ///
     /// This will be `None` if no default has been set yet.
     </span><span class="kw">pub fn </span>get_default() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Arc&lt;<span class="self">Self</span>&gt;&gt; {
-        PROCESS_DEFAULT_PROVIDER.get()
+        static_default::get_default()
     }
 
     <span class="doccomment">/// An internal function that:
@@ -865,15 +922,24 @@
     <span class="doccomment">/// Returns a provider named unambiguously by rustls crate features.
     ///
     /// This function returns `None` if the crate features are ambiguous (ie, specify two
-    /// providers), or specify no providers.  In both cases the application should
-    /// explicitly specify the provider to use with [`CryptoProvider::install_default`].
+    /// providers), or specify no providers, or the feature `custom-provider` is activated.
+    /// In all cases the application should explicitly specify the provider to use
+    /// with [`CryptoProvider::install_default`].
     </span><span class="kw">fn </span>from_crate_features() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt; {
-        <span class="attr">#[cfg(all(feature = <span class="string">"ring"</span>, not(feature = <span class="string">"aws_lc_rs"</span>)))]
+        <span class="attr">#[cfg(all(
+            feature = <span class="string">"ring"</span>,
+            not(feature = <span class="string">"aws_lc_rs"</span>),
+            not(feature = <span class="string">"custom-provider"</span>)
+        ))]
         </span>{
             <span class="kw">return </span><span class="prelude-val">Some</span>(ring::default_provider());
         }
 
-        <span class="attr">#[cfg(all(feature = <span class="string">"aws_lc_rs"</span>, not(feature = <span class="string">"ring"</span>)))]
+        <span class="attr">#[cfg(all(
+            feature = <span class="string">"aws_lc_rs"</span>,
+            not(feature = <span class="string">"ring"</span>),
+            not(feature = <span class="string">"custom-provider"</span>)
+        ))]
         </span>{
             <span class="kw">return </span><span class="prelude-val">Some</span>(aws_lc_rs::default_provider());
         }
@@ -903,11 +969,6 @@
             &amp;&amp; key_provider.fips()
     }
 }
-
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceCell&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceCell::new();
-<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
-</span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceBox&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceBox::new();
 
 <span class="doccomment">/// A source of cryptographically secure randomness.
 </span><span class="kw">pub trait </span>SecureRandom: Send + Sync + Debug {
@@ -997,6 +1058,21 @@
         })
     }
 
+    <span class="doccomment">/// FFDHE group the `SupportedKxGroup` operates in.
+    ///
+    /// Return `None` if this group is not a FFDHE one.
+    ///
+    /// The default implementation calls `FfdheGroup::from_named_group`: this function
+    /// is extremely linker-unfriendly so it is recommended all key exchange implementers
+    /// provide this function.
+    ///
+    /// `rustls::ffdhe_groups` contains suitable values to return from this,
+    /// for example [`rustls::ffdhe_groups::FFDHE2048`][crate::ffdhe_groups::FFDHE2048].
+    </span><span class="kw">fn </span>ffdhe_group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;FfdheGroup&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="attr">#[allow(deprecated)]
+        </span>FfdheGroup::from_named_group(<span class="self">self</span>.name())
+    }
+
     <span class="doccomment">/// Named group the SupportedKxGroup operates in.
     ///
     /// If the `NamedGroup` enum does not have a name for the algorithm you are implementing,
@@ -1006,6 +1082,13 @@
     <span class="doccomment">/// Return `true` if this is backed by a FIPS-approved implementation.
     </span><span class="kw">fn </span>fips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="bool-val">false
+    </span>}
+
+    <span class="doccomment">/// Return `true` if this should be offered/selected with the given version.
+    ///
+    /// The default implementation returns true for all versions.
+    </span><span class="kw">fn </span>usable_for_version(<span class="kw-2">&amp;</span><span class="self">self</span>, _version: ProtocolVersion) -&gt; bool {
+        <span class="bool-val">true
     </span>}
 }
 
@@ -1076,6 +1159,21 @@
     /// For FFDHE, the encoding required is defined in
     /// [RFC8446 section 4.2.8.1](https://www.rfc-editor.org/rfc/rfc8446#section-4.2.8.1).
     </span><span class="kw">fn </span>pub_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8];
+
+    <span class="doccomment">/// FFDHE group the `ActiveKeyExchange` is operating in.
+    ///
+    /// Return `None` if this group is not a FFDHE one.
+    ///
+    /// The default implementation calls `FfdheGroup::from_named_group`: this function
+    /// is extremely linker-unfriendly so it is recommended all key exchange implementers
+    /// provide this function.
+    ///
+    /// `rustls::ffdhe_groups` contains suitable values to return from this,
+    /// for example [`rustls::ffdhe_groups::FFDHE2048`][crate::ffdhe_groups::FFDHE2048].
+    </span><span class="kw">fn </span>ffdhe_group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;FfdheGroup&lt;<span class="lifetime">'static</span>&gt;&gt; {
+        <span class="attr">#[allow(deprecated)]
+        </span>FfdheGroup::from_named_group(<span class="self">self</span>.group())
+    }
 
     <span class="doccomment">/// Return the group being used.
     </span><span class="kw">fn </span>group(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; NamedGroup;
@@ -1168,10 +1266,48 @@
 ///     .with_no_client_auth();
 /// # }
 /// ```
-</span><span class="attr">#[cfg(any(feature = <span class="string">"fips"</span>, docsrs))]
+</span><span class="attr">#[cfg(all(feature = <span class="string">"aws_lc_rs"</span>, any(feature = <span class="string">"fips"</span>, docsrs)))]
 #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"fips"</span>)))]
 </span><span class="kw">pub fn </span>default_fips_provider() -&gt; CryptoProvider {
     aws_lc_rs::default_provider()
+}
+
+<span class="kw">mod </span>static_default {
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">use </span>alloc::boxed::Box;
+    <span class="kw">use </span>alloc::sync::Arc;
+
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">use </span>once_cell::race::OnceBox;
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">use </span>once_cell::sync::OnceCell;
+
+    <span class="kw">use </span><span class="kw">super</span>::CryptoProvider;
+
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>install_default(
+        default_provider: CryptoProvider,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Arc&lt;CryptoProvider&gt;&gt; {
+        PROCESS_DEFAULT_PROVIDER.set(Arc::new(default_provider))
+    }
+
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>install_default(
+        default_provider: CryptoProvider,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Arc&lt;CryptoProvider&gt;&gt; {
+        PROCESS_DEFAULT_PROVIDER
+            .set(Box::new(Arc::new(default_provider)))
+            .map_err(|e| <span class="kw-2">*</span>e)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_default() -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'static </span>Arc&lt;CryptoProvider&gt;&gt; {
+        PROCESS_DEFAULT_PROVIDER.get()
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+    </span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceCell&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceCell::new();
+    <span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+    </span><span class="kw">static </span>PROCESS_DEFAULT_PROVIDER: OnceBox&lt;Arc&lt;CryptoProvider&gt;&gt; = OnceBox::new();
 }
 
 <span class="attr">#[cfg(test)]

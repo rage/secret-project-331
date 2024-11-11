@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/stroke.rs`."><title>stroke.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/stroke.rs`."><title>stroke.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -859,6 +859,34 @@
 <a href="#859" id="859">859</a>
 <a href="#860" id="860">860</a>
 <a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2023 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -1510,16 +1538,12 @@
     dashes: <span class="kw-2">&amp;</span>[f64],
 ) -&gt; DashIterator&lt;T&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>dash_ix = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>dash_remaining = dash_offset;
+    <span class="kw">let </span><span class="kw-2">mut </span>dash_remaining = dashes[dash_ix] - dash_offset;
     <span class="kw">let </span><span class="kw-2">mut </span>is_active = <span class="bool-val">true</span>;
     <span class="comment">// Find place in dashes array for initial offset.
-    </span><span class="kw">while </span>dash_remaining &gt; <span class="number">0.0 </span>{
-        <span class="kw">let </span>dash_len = dashes[dash_ix];
-        <span class="kw">if </span>dash_remaining &lt; dash_len {
-            <span class="kw">break</span>;
-        }
-        dash_remaining -= dash_len;
+    </span><span class="kw">while </span>dash_remaining &lt; <span class="number">0.0 </span>{
         dash_ix = (dash_ix + <span class="number">1</span>) % dashes.len();
+        dash_remaining += dashes[dash_ix];
         is_active = !is_active;
     }
     DashIterator {
@@ -1669,7 +1693,9 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use crate</span>::{stroke, Cap::Butt, CubicBez, Join::Miter, Shape, Stroke};
+    <span class="kw">use crate</span>::{
+        dash, segments, stroke, Cap::Butt, CubicBez, Join::Miter, Line, PathSeg, Shape, Stroke,
+    };
 
     <span class="comment">// A degenerate stroke with a cusp at the endpoint.
     </span><span class="attr">#[test]
@@ -1718,6 +1744,36 @@
             <span class="kw">let </span>stroked = stroke(path, <span class="kw-2">&amp;</span>stroke_style, <span class="kw-2">&amp;</span>Default::default(), <span class="number">0.001</span>);
             <span class="macro">assert!</span>(stroked.is_finite());
         }
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>dash_sequence() {
+        <span class="kw">let </span>shape = Line::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">21.0</span>, <span class="number">0.0</span>));
+        <span class="kw">let </span>dashes = [<span class="number">1.</span>, <span class="number">5.</span>, <span class="number">2.</span>, <span class="number">5.</span>];
+        <span class="kw">let </span>expansion = [
+            PathSeg::Line(Line::new((<span class="number">6.</span>, <span class="number">0.</span>), (<span class="number">8.</span>, <span class="number">0.</span>))),
+            PathSeg::Line(Line::new((<span class="number">13.</span>, <span class="number">0.</span>), (<span class="number">14.</span>, <span class="number">0.</span>))),
+            PathSeg::Line(Line::new((<span class="number">19.</span>, <span class="number">0.</span>), (<span class="number">21.</span>, <span class="number">0.</span>))),
+            PathSeg::Line(Line::new((<span class="number">0.</span>, <span class="number">0.</span>), (<span class="number">1.</span>, <span class="number">0.</span>))),
+        ];
+        <span class="kw">let </span>iter = segments(dash(shape.path_elements(<span class="number">0.</span>), <span class="number">0.</span>, <span class="kw-2">&amp;</span>dashes));
+        <span class="macro">assert_eq!</span>(iter.collect::&lt;Vec&lt;PathSeg&gt;&gt;(), expansion);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>dash_sequence_offset() {
+        <span class="comment">// Same as dash_sequence, but with a dash offset
+        // of 3, which skips the first dash and cuts into
+        // the first gap.
+        </span><span class="kw">let </span>shape = Line::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">21.0</span>, <span class="number">0.0</span>));
+        <span class="kw">let </span>dashes = [<span class="number">1.</span>, <span class="number">5.</span>, <span class="number">2.</span>, <span class="number">5.</span>];
+        <span class="kw">let </span>expansion = [
+            PathSeg::Line(Line::new((<span class="number">3.</span>, <span class="number">0.</span>), (<span class="number">5.</span>, <span class="number">0.</span>))),
+            PathSeg::Line(Line::new((<span class="number">10.</span>, <span class="number">0.</span>), (<span class="number">11.</span>, <span class="number">0.</span>))),
+            PathSeg::Line(Line::new((<span class="number">16.</span>, <span class="number">0.</span>), (<span class="number">18.</span>, <span class="number">0.</span>))),
+        ];
+        <span class="kw">let </span>iter = segments(dash(shape.path_elements(<span class="number">0.</span>), <span class="number">3.</span>, <span class="kw-2">&amp;</span>dashes));
+        <span class="macro">assert_eq!</span>(iter.collect::&lt;Vec&lt;PathSeg&gt;&gt;(), expansion);
     }
 }
 </code></pre></div></section></main></body></html>

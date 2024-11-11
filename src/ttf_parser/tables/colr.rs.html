@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.21.1/src/tables/colr.rs`."><title>colr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.24.1/src/tables/colr.rs`."><title>colr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1905,6 +1905,9 @@
 <a href="#1905" id="1905">1905</a>
 <a href="#1906" id="1906">1906</a>
 <a href="#1907" id="1907">1907</a>
+<a href="#1908" id="1908">1908</a>
+<a href="#1909" id="1909">1909</a>
+<a href="#1910" id="1910">1910</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A [Color Table](
 //! https://docs.microsoft.com/en-us/typography/opentype/spec/colr) implementation.
 
@@ -2601,16 +2604,6 @@
     </span><span class="kw">fn </span>push_layer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: CompositeMode);
     <span class="doccomment">/// Pop the last layer.
     </span><span class="kw">fn </span>pop_layer(<span class="kw-2">&amp;mut </span><span class="self">self</span>);
-
-    <span class="comment">// TODO: Unify transforms into one callback.
-    </span><span class="doccomment">/// Push a translation transform.
-    </span><span class="kw">fn </span>push_translate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tx: f32, ty: f32);
-    <span class="doccomment">/// Push a scaling transform.
-    </span><span class="kw">fn </span>push_scale(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sx: f32, sy: f32);
-    <span class="doccomment">/// Push a rotation transform.
-    </span><span class="kw">fn </span>push_rotate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, angle: f32);
-    <span class="doccomment">/// Push a skewing transform.
-    </span><span class="kw">fn </span>push_skew(<span class="kw-2">&amp;mut </span><span class="self">self</span>, skew_x: f32, skew_y: f32);
     <span class="doccomment">/// Push a transform.
     </span><span class="kw">fn </span>push_transform(<span class="kw-2">&amp;mut </span><span class="self">self</span>, transform: Transform);
     <span class="doccomment">/// Pop the last transform.
@@ -2773,6 +2766,21 @@
         <span class="self">self</span>.get_v1(glyph_id).is_some() || <span class="self">self</span>.get_v0(glyph_id).is_some()
     }
 
+    <span class="doccomment">/// Returns the clip box for a glyph.
+    </span><span class="kw">pub fn </span>clip_box(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        glyph_id: GlyphId,
+        <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)] </span>coords: <span class="kw-2">&amp;</span>[NormalizedCoordinate],
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ClipBox&gt; {
+        <span class="self">self</span>.clip_list.find(
+            glyph_id,
+            <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+            </span><span class="kw-2">&amp;</span><span class="self">self</span>.variation_data(),
+            <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
+            </span>coords,
+        )
+    }
+
     <span class="comment">// This method should only be called from outside, not from within `colr.rs`.
     // From inside, you always should call paint_impl, so that the recursion stack can
     // be passed on and any kind of recursion can be prevented.
@@ -2862,10 +2870,8 @@
         <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)] </span>coords: <span class="kw-2">&amp;</span>[NormalizedCoordinate],
         foreground_color: RgbaColor,
     ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-        <span class="kw">let </span>clip_box = <span class="self">self</span>.clip_list.find(
+        <span class="kw">let </span>clip_box = <span class="self">self</span>.clip_box(
             base.glyph_id,
-            <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
-            </span><span class="kw-2">&amp;</span><span class="self">self</span>.variation_data(),
             <span class="attr">#[cfg(feature = <span class="string">"variable-fonts"</span>)]
             </span>coords,
         );
@@ -3225,7 +3231,7 @@
                 <span class="kw">let </span>tx = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
                 <span class="kw">let </span>ty = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
 
-                painter.push_translate(tx, ty);
+                painter.push_transform(Transform::new_translate(tx, ty));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3253,7 +3259,7 @@
                 <span class="kw">let </span>tx = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">0</span>];
                 <span class="kw">let </span>ty = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">1</span>];
 
-                painter.push_translate(tx, ty);
+                painter.push_transform(Transform::new_translate(tx, ty));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3270,7 +3276,7 @@
                 <span class="kw">let </span>sx = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.to_f32();
                 <span class="kw">let </span>sy = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.to_f32();
 
-                painter.push_scale(sx, sy);
+                painter.push_transform(Transform::new_scale(sx, sy));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3298,7 +3304,7 @@
                 <span class="kw">let </span>sx = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.apply_float_delta(deltas[<span class="number">0</span>]);
                 <span class="kw">let </span>sy = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.apply_float_delta(deltas[<span class="number">1</span>]);
 
-                painter.push_scale(sx, sy);
+                painter.push_transform(Transform::new_scale(sx, sy));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3317,9 +3323,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
 
-                painter.push_translate(center_x, center_y);
-                painter.push_scale(sx, sy);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_scale(sx, sy));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3351,9 +3357,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">2</span>];
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">3</span>];
 
-                painter.push_translate(center_x, center_y);
-                painter.push_scale(sx, sy);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_scale(sx, sy));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3371,7 +3377,7 @@
                 </span><span class="kw">let </span>paint_offset = s.read::&lt;Offset24&gt;()<span class="question-mark">?</span>;
                 <span class="kw">let </span>scale = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.to_f32();
 
-                painter.push_scale(scale, scale);
+                painter.push_transform(Transform::new_scale(scale, scale));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3398,7 +3404,7 @@
 
                 <span class="kw">let </span>scale = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.apply_float_delta(deltas[<span class="number">0</span>]);
 
-                painter.push_scale(scale, scale);
+                painter.push_transform(Transform::new_scale(scale, scale));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3416,9 +3422,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
 
-                painter.push_translate(center_x, center_y);
-                painter.push_scale(scale, scale);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_scale(scale, scale));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3449,9 +3455,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">1</span>];
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">2</span>];
 
-                painter.push_translate(center_x, center_y);
-                painter.push_scale(scale, scale);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_scale(scale, scale));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3469,7 +3475,7 @@
                 </span><span class="kw">let </span>paint_offset = s.read::&lt;Offset24&gt;()<span class="question-mark">?</span>;
                 <span class="kw">let </span>angle = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.to_f32();
 
-                painter.push_rotate(angle);
+                painter.push_transform(Transform::new_rotate(angle));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3496,7 +3502,7 @@
 
                 <span class="kw">let </span>angle = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.apply_float_delta(deltas[<span class="number">0</span>]);
 
-                painter.push_rotate(angle);
+                painter.push_transform(Transform::new_rotate(angle));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3514,9 +3520,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
 
-                painter.push_translate(center_x, center_y);
-                painter.push_rotate(angle);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_rotate(angle));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3547,9 +3553,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">1</span>];
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">2</span>];
 
-                painter.push_translate(center_x, center_y);
-                painter.push_rotate(angle);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_rotate(angle));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3568,7 +3574,7 @@
                 <span class="kw">let </span>skew_x = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.to_f32();
                 <span class="kw">let </span>skew_y = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.to_f32();
 
-                painter.push_skew(skew_x, skew_y);
+                painter.push_transform(Transform::new_skew(skew_x, skew_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3596,7 +3602,7 @@
                 <span class="kw">let </span>skew_x = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.apply_float_delta(deltas[<span class="number">0</span>]);
                 <span class="kw">let </span>skew_y = s.read::&lt;F2DOT14&gt;()<span class="question-mark">?</span>.apply_float_delta(deltas[<span class="number">1</span>]);
 
-                painter.push_skew(skew_x, skew_y);
+                painter.push_transform(Transform::new_skew(skew_x, skew_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3615,9 +3621,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>);
 
-                painter.push_translate(center_x, center_y);
-                painter.push_skew(skew_x, skew_y);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_skew(skew_x, skew_y));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3649,9 +3655,9 @@
                 <span class="kw">let </span>center_x = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">2</span>];
                 <span class="kw">let </span>center_y = f32::from(s.read::&lt;i16&gt;()<span class="question-mark">?</span>) + deltas[<span class="number">3</span>];
 
-                painter.push_translate(center_x, center_y);
-                painter.push_skew(skew_x, skew_y);
-                painter.push_translate(-center_x, -center_y);
+                painter.push_transform(Transform::new_translate(center_x, center_y));
+                painter.push_transform(Transform::new_skew(skew_x, skew_y));
+                painter.push_transform(Transform::new_translate(-center_x, -center_y));
                 <span class="self">self</span>.parse_paint(
                     offset + paint_offset.to_usize(),
                     palette,
@@ -3801,8 +3807,8 @@
 
         <span class="kw">let </span>variation_store = <span class="self">self</span>.variation_store.as_ref().unwrap();
 
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..N {
-            deltas[i] = <span class="self">self
+        <span class="kw">for </span>(i, delta) <span class="kw">in </span>deltas.iter_mut().enumerate() {
+            <span class="kw-2">*</span>delta = <span class="self">self
                 </span>.delta_map
                 .and_then(|d| d.map(var_index_base + i <span class="kw">as </span>u32))
                 .and_then(|d| variation_store.parse_delta(d.<span class="number">0</span>, d.<span class="number">1</span>, coordinates))

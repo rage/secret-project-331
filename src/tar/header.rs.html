@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tar-0.4.41/src/header.rs`."><title>header.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tar-0.4.43/src/header.rs`."><title>header.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1643,6 +1643,44 @@
 <a href="#1643" id="1643">1643</a>
 <a href="#1644" id="1644">1644</a>
 <a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
+<a href="#1651" id="1651">1651</a>
+<a href="#1652" id="1652">1652</a>
+<a href="#1653" id="1653">1653</a>
+<a href="#1654" id="1654">1654</a>
+<a href="#1655" id="1655">1655</a>
+<a href="#1656" id="1656">1656</a>
+<a href="#1657" id="1657">1657</a>
+<a href="#1658" id="1658">1658</a>
+<a href="#1659" id="1659">1659</a>
+<a href="#1660" id="1660">1660</a>
+<a href="#1661" id="1661">1661</a>
+<a href="#1662" id="1662">1662</a>
+<a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
+<a href="#1682" id="1682">1682</a>
+<a href="#1683" id="1683">1683</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(unix)]
 </span><span class="kw">use </span>std::os::unix::prelude::<span class="kw-2">*</span>;
 <span class="attr">#[cfg(windows)]
@@ -1653,7 +1691,7 @@
 <span class="kw">use </span>std::fs;
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::iter;
-<span class="kw">use </span>std::iter::repeat;
+<span class="kw">use </span>std::iter::{once, repeat};
 <span class="kw">use </span>std::mem;
 <span class="kw">use </span>std::path::{Component, Path, PathBuf};
 <span class="kw">use </span>std::str;
@@ -1668,6 +1706,10 @@
 /// which is the date of the first commit for what would become Rust.
 </span><span class="attr">#[cfg(any(unix, windows))]
 </span><span class="kw">const </span>DETERMINISTIC_TIMESTAMP: u64 = <span class="number">1153704088</span>;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>GNU_SPARSE_HEADERS_COUNT: usize = <span class="number">4</span>;
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>GNU_EXT_SPARSE_HEADERS_COUNT: usize = <span class="number">21</span>;
 
 <span class="doccomment">/// Representation of the header of an entry in an archive
 </span><span class="attr">#[repr(C)]
@@ -1757,7 +1799,7 @@
     <span class="kw">pub </span>offset: [u8; <span class="number">12</span>],
     <span class="kw">pub </span>longnames: [u8; <span class="number">4</span>],
     <span class="kw">pub </span>unused: [u8; <span class="number">1</span>],
-    <span class="kw">pub </span>sparse: [GnuSparseHeader; <span class="number">4</span>],
+    <span class="kw">pub </span>sparse: [GnuSparseHeader; GNU_SPARSE_HEADERS_COUNT],
     <span class="kw">pub </span>isextended: [u8; <span class="number">1</span>],
     <span class="kw">pub </span>realsize: [u8; <span class="number">12</span>],
     <span class="kw">pub </span>pad: [u8; <span class="number">17</span>],
@@ -1780,7 +1822,7 @@
 </span><span class="attr">#[repr(C)]
 #[allow(missing_docs)]
 </span><span class="kw">pub struct </span>GnuExtSparseHeader {
-    <span class="kw">pub </span>sparse: [GnuSparseHeader; <span class="number">21</span>],
+    <span class="kw">pub </span>sparse: [GnuSparseHeader; GNU_EXT_SPARSE_HEADERS_COUNT],
     <span class="kw">pub </span>isextended: [u8; <span class="number">1</span>],
     <span class="kw">pub </span>padding: [u8; <span class="number">7</span>],
 }
@@ -2895,7 +2937,7 @@
     /// This is applicable for sparse files where the returned size here is the
     /// size of the entire file after the sparse regions have been filled in.
     </span><span class="kw">pub fn </span>real_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;u64&gt; {
-        octal_from(<span class="kw-2">&amp;</span><span class="self">self</span>.realsize).map_err(|err| {
+        num_field_wrapper_from(<span class="kw-2">&amp;</span><span class="self">self</span>.realsize).map_err(|err| {
             io::Error::new(
                 err.kind(),
                 <span class="macro">format!</span>(
@@ -2907,6 +2949,11 @@
         })
     }
 
+    <span class="doccomment">/// Encodes the `real_size` provided into this header.
+    </span><span class="kw">pub fn </span>set_real_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, real_size: u64) {
+        num_field_wrapper_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.realsize, real_size);
+    }
+
     <span class="doccomment">/// Indicates whether this header will be followed by additional
     /// sparse-header records.
     ///
@@ -2915,6 +2962,15 @@
     </span><span class="kw">pub fn </span>is_extended(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.isextended[<span class="number">0</span>] == <span class="number">1
     </span>}
+
+    <span class="doccomment">/// Sets whether this header should be followed by additional sparse-header
+    /// records.
+    ///
+    /// To append a sparse [`std::fs::File`] to an archive, prefer using the
+    /// [`crate::Builder`] instead.
+    </span><span class="kw">pub fn </span>set_is_extended(<span class="kw-2">&amp;mut </span><span class="self">self</span>, is_extended: bool) {
+        <span class="self">self</span>.isextended[<span class="number">0</span>] = <span class="kw">if </span>is_extended { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+    }
 
     <span class="doccomment">/// Views this as a normal `Header`
     </span><span class="kw">pub fn </span>as_header(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Header {
@@ -2967,7 +3023,7 @@
     ///
     /// Returns `Err` for a malformed `offset` field.
     </span><span class="kw">pub fn </span>offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;u64&gt; {
-        octal_from(<span class="kw-2">&amp;</span><span class="self">self</span>.offset).map_err(|err| {
+        num_field_wrapper_from(<span class="kw-2">&amp;</span><span class="self">self</span>.offset).map_err(|err| {
             io::Error::new(
                 err.kind(),
                 <span class="macro">format!</span>(<span class="string">"{} when getting offset from sparse header"</span>, err),
@@ -2975,16 +3031,26 @@
         })
     }
 
+    <span class="doccomment">/// Encodes the `offset` provided into this header.
+    </span><span class="kw">pub fn </span>set_offset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, offset: u64) {
+        num_field_wrapper_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.offset, offset);
+    }
+
     <span class="doccomment">/// Length of the block
     ///
     /// Returns `Err` for a malformed `numbytes` field.
     </span><span class="kw">pub fn </span>length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; io::Result&lt;u64&gt; {
-        octal_from(<span class="kw-2">&amp;</span><span class="self">self</span>.numbytes).map_err(|err| {
+        num_field_wrapper_from(<span class="kw-2">&amp;</span><span class="self">self</span>.numbytes).map_err(|err| {
             io::Error::new(
                 err.kind(),
                 <span class="macro">format!</span>(<span class="string">"{} when getting length from sparse header"</span>, err),
             )
         })
+    }
+
+    <span class="doccomment">/// Encodes the `length` provided into this header.
+    </span><span class="kw">pub fn </span>set_length(<span class="kw-2">&amp;mut </span><span class="self">self</span>, length: u64) {
+        num_field_wrapper_into(<span class="kw-2">&amp;mut </span><span class="self">self</span>.numbytes, length);
     }
 }
 
@@ -3027,10 +3093,20 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.sparse
     }
 
+    <span class="doccomment">/// Same as `sparse` but mutable version.
+    </span><span class="kw">pub fn </span>sparse_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[GnuSparseHeader; <span class="number">21</span>] {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.sparse
+    }
+
     <span class="doccomment">/// Indicates if another sparse header should be following this one.
     </span><span class="kw">pub fn </span>is_extended(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.isextended[<span class="number">0</span>] == <span class="number">1
     </span>}
+
+    <span class="doccomment">/// Sets whether another sparse header should be following this one.
+    </span><span class="kw">pub fn </span>set_is_extended(<span class="kw-2">&amp;mut </span><span class="self">self</span>, is_extended: bool) {
+        <span class="self">self</span>.isextended[<span class="number">0</span>] = <span class="kw">if </span>is_extended { <span class="number">1 </span>} <span class="kw">else </span>{ <span class="number">0 </span>};
+    }
 }
 
 <span class="kw">impl </span>Default <span class="kw">for </span>GnuExtSparseHeader {
@@ -3058,8 +3134,8 @@
 
 <span class="kw">fn </span>octal_into&lt;T: fmt::Octal&gt;(dst: <span class="kw-2">&amp;mut </span>[u8], val: T) {
     <span class="kw">let </span>o = <span class="macro">format!</span>(<span class="string">"{:o}"</span>, val);
-    <span class="kw">let </span>value = o.bytes().rev().chain(repeat(<span class="string">b'0'</span>));
-    <span class="kw">for </span>(slot, value) <span class="kw">in </span>dst.iter_mut().rev().skip(<span class="number">1</span>).zip(value) {
+    <span class="kw">let </span>value = once(<span class="string">b'\0'</span>).chain(o.bytes().rev().chain(repeat(<span class="string">b'0'</span>)));
+    <span class="kw">for </span>(slot, value) <span class="kw">in </span>dst.iter_mut().rev().zip(value) {
         <span class="kw-2">*</span>slot = value;
     }
 }

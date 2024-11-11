@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/ot_map.rs`."><title>ot_map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/ot_map.rs`."><title>ot_map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -572,8 +572,49 @@
 <a href="#572" id="572">572</a>
 <a href="#573" id="573">573</a>
 <a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
+<a href="#591" id="591">591</a>
+<a href="#592" id="592">592</a>
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::cmp::Ordering;
 <span class="kw">use </span>core::ops::Range;
+<span class="kw">use </span>ttf_parser::FromData;
 
 <span class="kw">use </span>ttf_parser::opentype_layout::{
     FeatureIndex, LanguageIndex, LookupIndex, ScriptIndex, VariationIndex,
@@ -593,7 +634,7 @@
     stages: [Vec&lt;StageMap&gt;; <span class="number">2</span>],
 }
 
-<span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+<span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>feature_map_t {
     tag: hb_tag_t,
     <span class="comment">// GSUB/GPOS
@@ -607,6 +648,18 @@
     auto_zwj: bool,
     random: bool,
     per_syllable: bool,
+}
+
+<span class="kw">impl </span>Ord <span class="kw">for </span>feature_map_t {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; Ordering {
+        <span class="self">self</span>.tag.cmp(<span class="kw-2">&amp;</span>other.tag)
+    }
+}
+
+<span class="kw">impl </span>PartialOrd <span class="kw">for </span>feature_map_t {
+    <span class="kw">fn </span>partial_cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Ordering&gt; {
+        <span class="self">self</span>.tag.partial_cmp(<span class="kw-2">&amp;</span>other.tag)
+    }
 }
 
 <span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -627,7 +680,9 @@
     <span class="kw">pub </span>pause_func: <span class="prelude-ty">Option</span>&lt;pause_func_t&gt;,
 }
 
-<span class="kw">pub type </span>pause_func_t = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>hb_ot_shape_plan_t, <span class="kw-2">&amp;</span>hb_font_t, <span class="kw-2">&amp;mut </span>hb_buffer_t);
+<span class="comment">// Pause functions return true if new glyph indices might have been added to the buffer.
+// This is used to update buffer digest.
+</span><span class="kw">pub type </span>pause_func_t = <span class="kw">fn</span>(<span class="kw-2">&amp;</span>hb_ot_shape_plan_t, <span class="kw-2">&amp;</span>hb_font_t, <span class="kw-2">&amp;mut </span>hb_buffer_t) -&gt; bool;
 
 <span class="kw">impl </span>hb_ot_map_t {
     <span class="kw">pub const </span>MAX_BITS: u32 = <span class="number">8</span>;
@@ -739,6 +794,7 @@
     current_stage: [usize; <span class="number">2</span>],
     feature_infos: Vec&lt;feature_info_t&gt;,
     stages: [Vec&lt;stage_info_t&gt;; <span class="number">2</span>],
+    <span class="kw">pub</span>(<span class="kw">crate</span>) is_simple: bool,
 }
 
 <span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -759,6 +815,9 @@
     index: usize,
     pause_func: <span class="prelude-ty">Option</span>&lt;pause_func_t&gt;,
 }
+
+<span class="kw">const </span>GLOBAL_BIT_SHIFT: u32 = <span class="number">8 </span>* u32::SIZE <span class="kw">as </span>u32 - <span class="number">1</span>;
+<span class="kw">const </span>GLOBAL_BIT_MASK: hb_mask_t = <span class="number">1 </span>&lt;&lt; GLOBAL_BIT_SHIFT;
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; hb_ot_map_builder_t&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub fn </span>new(
@@ -796,6 +855,7 @@
             current_stage: [<span class="number">0</span>, <span class="number">0</span>],
             feature_infos: Vec::new(),
             stages: [Vec::new(), Vec::new()],
+            is_simple: <span class="bool-val">false</span>,
         }
     }
 
@@ -803,6 +863,22 @@
     </span><span class="kw">pub fn </span>chosen_script(<span class="kw-2">&amp;</span><span class="self">self</span>, table_index: TableIndex) -&gt; <span class="prelude-ty">Option</span>&lt;hb_tag_t&gt; {
         <span class="self">self</span>.chosen_script[table_index]
     }
+
+    <span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>has_feature(<span class="kw-2">&amp;</span><span class="self">self</span>, tag: hb_tag_t) -&gt; bool {
+        <span class="kw">for </span>(table_index, table) <span class="kw">in </span><span class="self">self</span>.face.layout_tables() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(script_index) = <span class="self">self</span>.script_index[table_index] {
+                <span class="kw">if </span>table
+                    .find_language_feature(script_index, <span class="self">self</span>.lang_index[table_index], tag)
+                    .is_some()
+                {
+                    <span class="kw">return </span><span class="bool-val">true</span>;
+                }
+            }
+        }
+
+        <span class="bool-val">false
+    </span>}
 
     <span class="attr">#[inline]
     </span><span class="kw">pub fn </span>add_feature(<span class="kw-2">&amp;mut </span><span class="self">self</span>, tag: hb_tag_t, flags: hb_ot_map_feature_flags_t, value: u32) {
@@ -848,9 +924,6 @@
         <span class="self">self</span>.current_stage[table_index] += <span class="number">1</span>;
     }
 
-    <span class="kw">const </span>GLOBAL_BIT_MASK: hb_mask_t = glyph_flag::DEFINED + <span class="number">1</span>;
-    <span class="kw">const </span>GLOBAL_BIT_SHIFT: u32 = glyph_flag::DEFINED.count_ones();
-
     <span class="kw">pub fn </span>compile(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; hb_ot_map_t {
         <span class="comment">// We default to applying required feature in stage 0.  If the required
         // feature has a tag that is known to the shaper, we apply required feature
@@ -892,8 +965,8 @@
     ) -&gt; (Vec&lt;feature_map_t&gt;, [usize; <span class="number">2</span>], hb_mask_t) {
         <span class="kw">let </span><span class="kw-2">mut </span>map_features = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>required_stage = [<span class="number">0</span>; <span class="number">2</span>];
-        <span class="kw">let </span><span class="kw-2">mut </span>global_mask = <span class="self">Self</span>::GLOBAL_BIT_MASK;
-        <span class="kw">let </span><span class="kw-2">mut </span>next_bit = <span class="self">Self</span>::GLOBAL_BIT_SHIFT + <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>global_mask = GLOBAL_BIT_MASK;
+        <span class="kw">let </span><span class="kw-2">mut </span>next_bit = glyph_flag::DEFINED.count_ones() + <span class="number">1</span>;
 
         <span class="comment">// Sort features and merge duplicates.
         </span><span class="self">self</span>.dedup_feature_infos();
@@ -909,8 +982,7 @@
                 hb_ot_map_t::MAX_BITS.min(num_bits)
             };
 
-            <span class="kw">let </span>bits_available = <span class="number">8 </span>* core::mem::size_of::&lt;hb_mask_t&gt;() <span class="kw">as </span>u32;
-            <span class="kw">if </span>info.max_value == <span class="number">0 </span>|| next_bit + bits_needed &gt; bits_available {
+            <span class="kw">if </span>info.max_value == <span class="number">0 </span>|| next_bit + bits_needed &gt;= GLOBAL_BIT_SHIFT {
                 <span class="comment">// Feature disabled, or not enough bits.
                 </span><span class="kw">continue</span>;
             }
@@ -948,7 +1020,7 @@
 
             <span class="kw">let </span>(shift, mask) = <span class="kw">if </span>info.flags &amp; F_GLOBAL != <span class="number">0 </span>&amp;&amp; info.max_value == <span class="number">1 </span>{
                 <span class="comment">// Uses the global bit
-                </span>(<span class="self">Self</span>::GLOBAL_BIT_SHIFT, <span class="self">Self</span>::GLOBAL_BIT_MASK)
+                </span>(GLOBAL_BIT_SHIFT, GLOBAL_BIT_MASK)
             } <span class="kw">else </span>{
                 <span class="kw">let </span>shift = next_bit;
                 <span class="kw">let </span>mask = (<span class="number">1 </span>&lt;&lt; (next_bit + bits_needed)) - (<span class="number">1 </span>&lt;&lt; next_bit);
@@ -971,6 +1043,10 @@
             });
         }
 
+        <span class="kw">if </span><span class="self">self</span>.is_simple {
+            map_features.sort();
+        }
+
         (map_features, required_stage, global_mask)
     }
 
@@ -980,7 +1056,9 @@
             <span class="kw">return</span>;
         }
 
-        feature_infos.sort();
+        <span class="kw">if </span>!<span class="self">self</span>.is_simple {
+            feature_infos.sort();
+        }
 
         <span class="kw">let </span><span class="kw-2">mut </span>j = <span class="number">0</span>;
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..feature_infos.len() {
@@ -1040,7 +1118,7 @@
                             table_index,
                             feature_index,
                             variation_index,
-                            <span class="self">Self</span>::GLOBAL_BIT_MASK,
+                            GLOBAL_BIT_MASK,
                             <span class="bool-val">true</span>,
                             <span class="bool-val">true</span>,
                             <span class="bool-val">false</span>,
@@ -1071,7 +1149,7 @@
                 </span><span class="kw">let </span>lookups = <span class="kw-2">&amp;mut </span>map_lookups[table_index];
                 <span class="kw">let </span>len = lookups.len();
 
-                <span class="kw">if </span>last_lookup &lt; len {
+                <span class="kw">if </span>last_lookup + <span class="number">1 </span>&lt; len {
                     lookups[last_lookup..].sort();
 
                     <span class="kw">let </span><span class="kw-2">mut </span>j = last_lookup;

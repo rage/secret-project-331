@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/cfi.rs`."><title>cfi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.31.1/src/read/cfi.rs`."><title>cfi.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -7919,6 +7919,37 @@
 <a href="#7919" id="7919">7919</a>
 <a href="#7920" id="7920">7920</a>
 <a href="#7921" id="7921">7921</a>
+<a href="#7922" id="7922">7922</a>
+<a href="#7923" id="7923">7923</a>
+<a href="#7924" id="7924">7924</a>
+<a href="#7925" id="7925">7925</a>
+<a href="#7926" id="7926">7926</a>
+<a href="#7927" id="7927">7927</a>
+<a href="#7928" id="7928">7928</a>
+<a href="#7929" id="7929">7929</a>
+<a href="#7930" id="7930">7930</a>
+<a href="#7931" id="7931">7931</a>
+<a href="#7932" id="7932">7932</a>
+<a href="#7933" id="7933">7933</a>
+<a href="#7934" id="7934">7934</a>
+<a href="#7935" id="7935">7935</a>
+<a href="#7936" id="7936">7936</a>
+<a href="#7937" id="7937">7937</a>
+<a href="#7938" id="7938">7938</a>
+<a href="#7939" id="7939">7939</a>
+<a href="#7940" id="7940">7940</a>
+<a href="#7941" id="7941">7941</a>
+<a href="#7942" id="7942">7942</a>
+<a href="#7943" id="7943">7943</a>
+<a href="#7944" id="7944">7944</a>
+<a href="#7945" id="7945">7945</a>
+<a href="#7946" id="7946">7946</a>
+<a href="#7947" id="7947">7947</a>
+<a href="#7948" id="7948">7948</a>
+<a href="#7949" id="7949">7949</a>
+<a href="#7950" id="7950">7950</a>
+<a href="#7951" id="7951">7951</a>
+<a href="#7952" id="7952">7952</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"read"</span>)]
 </span><span class="kw">use </span>alloc::boxed::Box;
 
@@ -7935,7 +7966,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::constants::{<span class="self">self</span>, DwEhPe};
 <span class="kw">use </span><span class="kw">crate</span>::endianity::Endianity;
 <span class="kw">use </span><span class="kw">crate</span>::read::{
-    EndianSlice, Error, Expression, Reader, ReaderOffset, <span class="prelude-ty">Result</span>, Section, StoreOnHeap,
+    EndianSlice, Error, Expression, Reader, ReaderAddress, ReaderOffset, <span class="prelude-ty">Result</span>, Section,
+    StoreOnHeap,
 };
 
 <span class="doccomment">/// `DebugFrame` contains the `.debug_frame` section's frame unwinding
@@ -7956,7 +7988,6 @@
 </span><span class="kw">pub struct </span>DebugFrame&lt;R: Reader&gt; {
     section: R,
     address_size: u8,
-    segment_size: u8,
     vendor: Vendor,
 }
 
@@ -7967,14 +7998,6 @@
     /// This is only used if the CIE version is less than 4.
     </span><span class="kw">pub fn </span>set_address_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, address_size: u8) {
         <span class="self">self</span>.address_size = address_size
-    }
-
-    <span class="doccomment">/// Set the size of a segment selector in bytes.
-    ///
-    /// This defaults to 0.
-    /// This is only used if the CIE version is less than 4.
-    </span><span class="kw">pub fn </span>set_segment_size(<span class="kw-2">&amp;mut </span><span class="self">self</span>, segment_size: u8) {
-        <span class="self">self</span>.segment_size = segment_size
     }
 
     <span class="doccomment">/// Set the vendor extensions to use.
@@ -8021,11 +8044,10 @@
 
 <span class="kw">impl</span>&lt;R: Reader&gt; From&lt;R&gt; <span class="kw">for </span>DebugFrame&lt;R&gt; {
     <span class="kw">fn </span>from(section: R) -&gt; <span class="self">Self </span>{
-        <span class="comment">// Default to no segments and native word size.
+        <span class="comment">// Default to native word size.
         </span>DebugFrame {
             section,
             address_size: mem::size_of::&lt;usize&gt;() <span class="kw">as </span>u8,
-            segment_size: <span class="number">0</span>,
             vendor: Vendor::Default,
         }
     }
@@ -8090,7 +8112,10 @@
         <span class="kw">if </span>fde_count_enc == constants::DW_EH_PE_omit || table_enc == constants::DW_EH_PE_omit {
             fde_count = <span class="number">0
         </span>} <span class="kw">else </span>{
-            fde_count = parse_encoded_pointer(fde_count_enc, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>.direct()<span class="question-mark">?</span>;
+            <span class="kw">if </span>fde_count_enc != fde_count_enc.format() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedPointerEncoding);
+            }
+            fde_count = parse_encoded_value(fde_count_enc, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>reader)<span class="question-mark">?</span>;
         }
 
         <span class="prelude-val">Ok</span>(ParsedEhFrameHdr {
@@ -8128,7 +8153,7 @@
     }
 
     <span class="doccomment">/// Retrieves the CFI binary search table, if there is one.
-    </span><span class="kw">pub fn </span>table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;EhHdrTable&lt;R&gt;&gt; {
+    </span><span class="kw">pub fn </span>table(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;EhHdrTable&lt;<span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="comment">// There are two big edge cases here:
         // * You search the table for an invalid address. As this is just a binary
         //   search table, we always have to return a valid result for that (unless
@@ -8189,7 +8214,7 @@
             constants::DW_EH_PE_sdata2 | constants::DW_EH_PE_udata2 =&gt; <span class="number">2</span>,
             constants::DW_EH_PE_sdata4 | constants::DW_EH_PE_udata4 =&gt; <span class="number">4</span>,
             constants::DW_EH_PE_sdata8 | constants::DW_EH_PE_udata8 =&gt; <span class="number">8</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownPointerEncoding),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownPointerEncoding(<span class="self">self</span>.hdr.table_enc)),
         };
 
         <span class="kw">let </span>row_size = size * <span class="number">2</span>;
@@ -8256,7 +8281,7 @@
             constants::DW_EH_PE_sdata2 | constants::DW_EH_PE_udata2 =&gt; <span class="number">2</span>,
             constants::DW_EH_PE_sdata4 | constants::DW_EH_PE_udata4 =&gt; <span class="number">4</span>,
             constants::DW_EH_PE_sdata8 | constants::DW_EH_PE_udata8 =&gt; <span class="number">8</span>,
-            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownPointerEncoding),
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownPointerEncoding(<span class="self">self</span>.hdr.table_enc)),
         };
 
         <span class="kw">let </span>row_size = size * <span class="number">2</span>;
@@ -8380,20 +8405,21 @@
     ///
     /// You must provide a function to get the associated CIE. See
     /// `PartialFrameDescriptionEntry::parse` for more information.
-    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, A: UnwindContextStorage&lt;R::Offset&gt;&gt;(
+    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, S&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         frame: <span class="kw-2">&amp;</span>EhFrame&lt;R&gt;,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
         address: u64,
         get_cie: F,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, S&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(
             <span class="kw-2">&amp;</span>EhFrame&lt;R&gt;,
             <span class="kw-2">&amp;</span>BaseAddresses,
             EhFrameOffset&lt;R::Offset&gt;,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;CommonInformationEntry&lt;R&gt;&gt;,
+        S: UnwindContextStorage&lt;R::Offset&gt;,
     {
         <span class="kw">let </span>fde = <span class="self">self</span>.fde_for_address(frame, bases, address, get_cie)<span class="question-mark">?</span>;
         fde.unwind_info_for_address(frame, bases, ctx, address)
@@ -8527,9 +8553,8 @@
     <span class="doccomment">/// Get the underlying section data.
     </span><span class="kw">fn </span>section(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>R;
 
-    <span class="doccomment">/// Returns true if the given length value should be considered an
-    /// end-of-entries sentinel.
-    </span><span class="kw">fn </span>length_value_is_end_of_entries(length: R::Offset) -&gt; bool;
+    <span class="doccomment">/// Returns true if the section allows a zero terminator.
+    </span><span class="kw">fn </span>has_zero_terminator() -&gt; bool;
 
     <span class="doccomment">/// Return true if the given offset if the CIE sentinel, false otherwise.
     </span><span class="kw">fn </span>is_cie(format: Format, id: u64) -&gt; bool;
@@ -8551,9 +8576,6 @@
 
     <span class="doccomment">/// The address size to use if `has_address_and_segment_sizes` returns false.
     </span><span class="kw">fn </span>address_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8;
-
-    <span class="doccomment">/// The segment size to use if `has_address_and_segment_sizes` returns false.
-    </span><span class="kw">fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8;
 
     <span class="doccomment">/// The vendor extensions to use.
     </span><span class="kw">fn </span>vendor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vendor;
@@ -8699,15 +8721,16 @@
     /// # }
     /// ```
     </span><span class="attr">#[inline]
-    </span><span class="kw">fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, A: UnwindContextStorage&lt;R::Offset&gt;&gt;(
+    </span><span class="kw">fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, F, S&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
         address: u64,
         get_cie: F,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt;
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, S&gt;&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span><span class="self">Self</span>, <span class="kw-2">&amp;</span>BaseAddresses, <span class="self">Self</span>::Offset) -&gt; <span class="prelude-ty">Result</span>&lt;CommonInformationEntry&lt;R&gt;&gt;,
+        S: UnwindContextStorage&lt;R::Offset&gt;,
     {
         <span class="kw">let </span>fde = <span class="self">self</span>.fde_for_address(bases, address, get_cie)<span class="question-mark">?</span>;
         fde.unwind_info_for_address(<span class="self">self</span>, bases, ctx, address)
@@ -8719,7 +8742,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.section
     }
 
-    <span class="kw">fn </span>length_value_is_end_of_entries(<span class="kw">_</span>: R::Offset) -&gt; bool {
+    <span class="kw">fn </span>has_zero_terminator() -&gt; bool {
         <span class="bool-val">false
     </span>}
 
@@ -8749,10 +8772,6 @@
         <span class="self">self</span>.address_size
     }
 
-    <span class="kw">fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.segment_size
-    }
-
     <span class="kw">fn </span>vendor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vendor {
         <span class="self">self</span>.vendor
     }
@@ -8767,8 +8786,8 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.section
     }
 
-    <span class="kw">fn </span>length_value_is_end_of_entries(length: R::Offset) -&gt; bool {
-        length.into_u64() == <span class="number">0
+    <span class="kw">fn </span>has_zero_terminator() -&gt; bool {
+        <span class="bool-val">true
     </span>}
 
     <span class="kw">fn </span>is_cie(<span class="kw">_</span>: Format, id: u64) -&gt; bool {
@@ -8792,10 +8811,6 @@
     <span class="kw">fn </span>address_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
         <span class="self">self</span>.address_size
     }
-
-    <span class="kw">fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="number">0
-    </span>}
 
     <span class="kw">fn </span>vendor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vendor {
         <span class="self">self</span>.vendor
@@ -8949,20 +8964,30 @@
 {
     <span class="doccomment">/// Advance the iterator to the next entry.
     </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;CieOrFde&lt;<span class="lifetime">'bases</span>, Section, R&gt;&gt;&gt; {
-        <span class="kw">if </span><span class="self">self</span>.input.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
-        }
+        <span class="kw">loop </span>{
+            <span class="kw">if </span><span class="self">self</span>.input.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            }
 
-        <span class="kw">match </span>parse_cfi_entry(<span class="self">self</span>.bases, <span class="kw-2">&amp;</span><span class="self">self</span>.section, <span class="kw-2">&amp;mut </span><span class="self">self</span>.input) {
-            <span class="prelude-val">Err</span>(e) =&gt; {
-                <span class="self">self</span>.input.empty();
-                <span class="prelude-val">Err</span>(e)
+            <span class="kw">match </span>parse_cfi_entry(<span class="self">self</span>.bases, <span class="kw-2">&amp;</span><span class="self">self</span>.section, <span class="kw-2">&amp;mut </span><span class="self">self</span>.input) {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry)) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry)),
+                <span class="prelude-val">Err</span>(e) =&gt; {
+                    <span class="self">self</span>.input.empty();
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(e);
+                }
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
+                    <span class="kw">if </span>Section::has_zero_terminator() {
+                        <span class="self">self</span>.input.empty();
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+                    }
+
+                    <span class="comment">// Hack: If we get to here, then we're reading `.debug_frame` and
+                    // encountered a length of 0. This is a compiler or linker bug
+                    // (originally seen for NASM, fixed in 2.15rc9).
+                    // Skip this value and try again.
+                    </span><span class="kw">continue</span>;
+                }
             }
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
-                <span class="self">self</span>.input.empty();
-                <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-            }
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry)) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry)),
         }
     }
 }
@@ -9005,23 +9030,11 @@
     </span>R: Reader,
     Section: UnwindSection&lt;R&gt;,
 {
-    <span class="kw">let </span>(offset, length, format) = <span class="kw">loop </span>{
-        <span class="kw">let </span>offset = input.offset_from(section.section());
-        <span class="kw">let </span>(length, format) = input.read_initial_length()<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>Section::length_value_is_end_of_entries(length) {
-            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
-        }
-
-        <span class="comment">// Hack: skip zero padding inserted by buggy compilers/linkers.
-        // We require that the padding is a multiple of 32-bits, otherwise
-        // there is no reliable way to determine when the padding ends. This
-        // should be okay since CFI entries must be aligned to the address size.
-
-        </span><span class="kw">if </span>length.into_u64() != <span class="number">0 </span>|| format != Format::Dwarf32 {
-            <span class="kw">break </span>(offset, length, format);
-        }
-    };
+    <span class="kw">let </span>offset = input.offset_from(section.section());
+    <span class="kw">let </span>(length, format) = input.read_initial_length()<span class="question-mark">?</span>;
+    <span class="kw">if </span>length.into_u64() == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+    }
 
     <span class="kw">let </span><span class="kw-2">mut </span>rest = input.split(length)<span class="question-mark">?</span>;
     <span class="kw">let </span>cie_offset_base = rest.offset_from(section.section());
@@ -9166,7 +9179,7 @@
 <span class="kw">impl </span>AugmentationData {
     <span class="kw">fn </span>parse&lt;R: Reader&gt;(
         augmentation: <span class="kw-2">&amp;</span>Augmentation,
-        encoding_parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;R&gt;,
+        encoding_parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;<span class="lifetime">'_</span>, R&gt;,
         input: <span class="kw-2">&amp;mut </span>R,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;AugmentationData&gt; {
         <span class="comment">// In theory, we should be iterating over the original augmentation
@@ -9217,10 +9230,6 @@
     /// &gt; bytes. If a compilation unit exists for this frame, its address size
     /// &gt; must match the address size here.
     </span>address_size: u8,
-
-    <span class="doccomment">/// "The size of a segment selector in this CIE and any FDEs that use it, in
-    /// bytes."
-    </span>segment_size: u8,
 
     <span class="doccomment">/// "A constant that is factored out of all advance location instructions
     /// (see Section 6.4.2.1)."
@@ -9281,12 +9290,15 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>augmentation_string = rest.read_null_terminated_slice()<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>(address_size, segment_size) = <span class="kw">if </span>Section::has_address_and_segment_sizes(version) {
-            <span class="kw">let </span>address_size = rest.read_u8()<span class="question-mark">?</span>;
+        <span class="kw">let </span>address_size = <span class="kw">if </span>Section::has_address_and_segment_sizes(version) {
+            <span class="kw">let </span>address_size = rest.read_address_size()<span class="question-mark">?</span>;
             <span class="kw">let </span>segment_size = rest.read_u8()<span class="question-mark">?</span>;
-            (address_size, segment_size)
+            <span class="kw">if </span>segment_size != <span class="number">0 </span>{
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedSegmentSize);
+            }
+            address_size
         } <span class="kw">else </span>{
-            (section.address_size(), section.segment_size())
+            section.address_size()
         };
 
         <span class="kw">let </span>code_alignment_factor = rest.read_uleb128()<span class="question-mark">?</span>;
@@ -9317,7 +9329,6 @@
             version,
             augmentation,
             address_size,
-            segment_size,
             code_alignment_factor,
             data_alignment_factor,
             return_address_register,
@@ -9556,8 +9567,7 @@
     <span class="doccomment">/// &gt; The address of the first location associated with this table entry. If
     /// &gt; the segment_size field of this FDE's CIE is non-zero, the initial
     /// &gt; location is preceded by a segment selector of the given length.
-    </span>initial_segment: u64,
-    initial_address: u64,
+    </span>initial_address: u64,
 
     <span class="doccomment">/// "The number of bytes of program instructions described by this entry."
     </span>address_range: u64,
@@ -9589,12 +9599,6 @@
     {
         <span class="kw">let </span>cie = get_cie(section, bases, cie_pointer)<span class="question-mark">?</span>;
 
-        <span class="kw">let </span>initial_segment = <span class="kw">if </span>cie.segment_size &gt; <span class="number">0 </span>{
-            rest.read_address(cie.segment_size)<span class="question-mark">?
-        </span>} <span class="kw">else </span>{
-            <span class="number">0
-        </span>};
-
         <span class="kw">let </span><span class="kw-2">mut </span>parameters = PointerEncodingParameters {
             bases: <span class="kw-2">&amp;</span>bases.eh_frame,
             func_base: <span class="prelude-val">None</span>,
@@ -9620,7 +9624,6 @@
             length,
             format,
             cie,
-            initial_segment,
             initial_address,
             address_range,
             augmentation: aug_data,
@@ -9633,19 +9636,14 @@
     <span class="kw">fn </span>parse_addresses(
         input: <span class="kw-2">&amp;mut </span>R,
         cie: <span class="kw-2">&amp;</span>CommonInformationEntry&lt;R&gt;,
-        parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;R&gt;,
+        parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;<span class="lifetime">'_</span>, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(u64, u64)&gt; {
         <span class="kw">let </span>encoding = cie.augmentation().and_then(|a| a.fde_address_encoding);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(encoding) = encoding {
-            <span class="kw">let </span>initial_address = parse_encoded_pointer(encoding, parameters, input)<span class="question-mark">?</span>;
-
             <span class="comment">// Ignore indirection.
-            </span><span class="kw">let </span>initial_address = initial_address.pointer();
-
-            <span class="comment">// Address ranges cannot be relative to anything, so just grab the
-            // data format bits from the encoding.
-            </span><span class="kw">let </span>address_range = parse_encoded_pointer(encoding.format(), parameters, input)<span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>((initial_address, address_range.pointer()))
+            </span><span class="kw">let </span>initial_address = parse_encoded_pointer(encoding, parameters, input)<span class="question-mark">?</span>.pointer();
+            <span class="kw">let </span>address_range = parse_encoded_value(encoding, parameters, input)<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>((initial_address, address_range))
         } <span class="kw">else </span>{
             <span class="kw">let </span>initial_address = input.read_address(cie.address_size)<span class="question-mark">?</span>;
             <span class="kw">let </span>address_range = input.read_address(cie.address_size)<span class="question-mark">?</span>;
@@ -9655,12 +9653,16 @@
 
     <span class="doccomment">/// Return the table of unwind information for this FDE.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>rows&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, Section: UnwindSection&lt;R&gt;, A: UnwindContextStorage&lt;R::Offset&gt;&gt;(
+    </span><span class="kw">pub fn </span>rows&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, Section, S&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, A&gt;&gt; {
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, S&gt;&gt;
+    <span class="kw">where
+        </span>Section: UnwindSection&lt;R&gt;,
+        S: UnwindContextStorage&lt;R::Offset&gt;,
+    {
         UnwindTable::new(section, bases, ctx, <span class="self">self</span>)
     }
 
@@ -9670,17 +9672,17 @@
     /// context in the form `Ok((unwind_info, context))`. If not found,
     /// `Err(gimli::Error::NoUnwindInfoForAddress)` is returned. If parsing or
     /// CFI evaluation fails, the error is returned.
-    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;
-        <span class="lifetime">'ctx</span>,
-        Section: UnwindSection&lt;R&gt;,
-        A: UnwindContextStorage&lt;R::Offset&gt;,
-    &gt;(
+    </span><span class="kw">pub fn </span>unwind_info_for_address&lt;<span class="lifetime">'ctx</span>, Section, S&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         section: <span class="kw-2">&amp;</span>Section,
         bases: <span class="kw-2">&amp;</span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
         address: u64,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, S&gt;&gt;
+    <span class="kw">where
+        </span>Section: UnwindSection&lt;R&gt;,
+        S: UnwindContextStorage&lt;R::Offset&gt;,
+    {
         <span class="kw">let </span><span class="kw-2">mut </span>table = <span class="self">self</span>.rows(section, bases, ctx)<span class="question-mark">?</span>;
         <span class="kw">while let </span><span class="prelude-val">Some</span>(row) = table.next_row()<span class="question-mark">? </span>{
             <span class="kw">if </span>row.contains(address) {
@@ -9748,6 +9750,15 @@
         <span class="self">self</span>.initial_address
     }
 
+    <span class="doccomment">/// One more than the last address that this entry has unwind information for.
+    ///
+    /// This uses wrapping arithmetic, so the result may be less than
+    /// `initial_address`.
+    </span><span class="kw">pub fn </span>end_address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.initial_address
+            .wrapping_add_sized(<span class="self">self</span>.address_range, <span class="self">self</span>.cie.address_size)
+    }
+
     <span class="doccomment">/// The number of bytes of instructions that this entry has unwind
     /// information for.
     </span><span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
@@ -9760,9 +9771,7 @@
     /// This is equivalent to `entry.initial_address() &lt;= address &lt;
     /// entry.initial_address() + entry.len()`.
     </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, address: u64) -&gt; bool {
-        <span class="kw">let </span>start = <span class="self">self</span>.initial_address();
-        <span class="kw">let </span>end = start + <span class="self">self</span>.len();
-        start &lt;= address &amp;&amp; address &lt; end
+        <span class="self">self</span>.initial_address() &lt;= address &amp;&amp; address &lt; <span class="self">self</span>.end_address()
     }
 
     <span class="doccomment">/// The address of this FDE's language-specific data area (LSDA), if it has
@@ -9891,11 +9900,15 @@ You may want to supply your own storage type for one of the following reasons:
 /// # }
 /// ```
 </span><span class="attr">#[derive(Clone, PartialEq, Eq)]
-</span><span class="kw">pub struct </span>UnwindContext&lt;T: ReaderOffset, A: UnwindContextStorage&lt;T&gt; = StoreOnHeap&gt; {
+</span><span class="kw">pub struct </span>UnwindContext&lt;T, S = StoreOnHeap&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="comment">// Stack of rows. The last row is the row currently being built by the
     // program. There is always at least one row. The vast majority of CFI
     // programs will only ever have one row on the stack.
-    </span>stack: ArrayVec&lt;A::Stack&gt;,
+    </span>stack: ArrayVec&lt;S::Stack&gt;,
 
     <span class="comment">// If we are evaluating an FDE's instructions, then `is_initialized` will be
     // `true`. If `initial_rule` is `Some`, then the initial register rules are either
@@ -9910,8 +9923,12 @@ You may want to supply your own storage type for one of the following reasons:
     is_initialized: bool,
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Debug <span class="kw">for </span>UnwindContext&lt;T, S&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;T, S&gt; Debug <span class="kw">for </span>UnwindContext&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"UnwindContext"</span>)
             .field(<span class="string">"stack"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.stack)
             .field(<span class="string">"initial_rule"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.initial_rule)
@@ -9920,7 +9937,11 @@ You may want to supply your own storage type for one of the following reasons:
     }
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, A: UnwindContextStorage&lt;T&gt;&gt; Default <span class="kw">for </span>UnwindContext&lt;T, A&gt; {
+<span class="kw">impl</span>&lt;T, S&gt; Default <span class="kw">for </span>UnwindContext&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self</span>::new_in()
     }
@@ -9938,7 +9959,11 @@ You may want to supply your own storage type for one of the following reasons:
 ///
 /// These methods are guaranteed not to allocate, acquire locks, or perform any
 /// other signal-unsafe operations, if an non-allocating storage is used.
-</span><span class="kw">impl</span>&lt;T: ReaderOffset, A: UnwindContextStorage&lt;T&gt;&gt; UnwindContext&lt;T, A&gt; {
+</span><span class="kw">impl</span>&lt;T, S&gt; UnwindContext&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="doccomment">/// Construct a new call frame unwinding context.
     </span><span class="kw">pub fn </span>new_in() -&gt; <span class="self">Self </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = UnwindContext {
@@ -9979,11 +10004,11 @@ You may want to supply your own storage type for one of the following reasons:
         <span class="self">self</span>.is_initialized = <span class="bool-val">false</span>;
     }
 
-    <span class="kw">fn </span>row(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>UnwindTableRow&lt;T, A&gt; {
+    <span class="kw">fn </span>row(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>UnwindTableRow&lt;T, S&gt; {
         <span class="self">self</span>.stack.last().unwrap()
     }
 
-    <span class="kw">fn </span>row_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>UnwindTableRow&lt;T, A&gt; {
+    <span class="kw">fn </span>row_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>UnwindTableRow&lt;T, S&gt; {
         <span class="self">self</span>.stack.last_mut().unwrap()
     }
 
@@ -10117,28 +10142,37 @@ You may want to supply your own storage type for one of the following reasons:
 /// &gt; recording just the differences starting at the beginning address of each
 /// &gt; subroutine in the program.
 </span><span class="attr">#[derive(Debug)]
-</span><span class="kw">pub struct </span>UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R: Reader, A: UnwindContextStorage&lt;R::Offset&gt; = StoreOnHeap&gt; {
+</span><span class="kw">pub struct </span>UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, S = StoreOnHeap&gt;
+<span class="kw">where
+    </span>R: Reader,
+    S: UnwindContextStorage&lt;R::Offset&gt;,
+{
     code_alignment_factor: Wrapping&lt;u64&gt;,
     data_alignment_factor: Wrapping&lt;i64&gt;,
+    address_size: u8,
     next_start_address: u64,
     last_end_address: u64,
     returned_last_row: bool,
     current_row_valid: bool,
     instructions: CallFrameInstructionIter&lt;<span class="lifetime">'a</span>, R&gt;,
-    ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+    ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
 }
 
 <span class="doccomment">/// # Signal Safe Methods
 ///
 /// These methods are guaranteed not to allocate, acquire locks, or perform any
 /// other signal-unsafe operations.
-</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R: Reader, A: UnwindContextStorage&lt;R::Offset&gt;&gt; UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, A&gt; {
+</span><span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, S&gt; UnwindTable&lt;<span class="lifetime">'a</span>, <span class="lifetime">'ctx</span>, R, S&gt;
+<span class="kw">where
+    </span>R: Reader,
+    S: UnwindContextStorage&lt;R::Offset&gt;,
+{
     <span class="doccomment">/// Construct a new `UnwindTable` for the given
     /// `FrameDescriptionEntry`'s CFI unwinding program.
     </span><span class="kw">pub fn </span>new&lt;Section: UnwindSection&lt;R&gt;&gt;(
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
         fde: <span class="kw-2">&amp;</span>FrameDescriptionEntry&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>&gt; {
         ctx.initialize(section, bases, fde.cie())<span class="question-mark">?</span>;
@@ -10148,15 +10182,16 @@ You may want to supply your own storage type for one of the following reasons:
     <span class="kw">fn </span>new_for_fde&lt;Section: UnwindSection&lt;R&gt;&gt;(
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
         fde: <span class="kw-2">&amp;</span>FrameDescriptionEntry&lt;R&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(ctx.stack.len() &gt;= <span class="number">1</span>);
         UnwindTable {
             code_alignment_factor: Wrapping(fde.cie().code_alignment_factor()),
             data_alignment_factor: Wrapping(fde.cie().data_alignment_factor()),
+            address_size: fde.cie().address_size,
             next_start_address: fde.initial_address(),
-            last_end_address: fde.initial_address().wrapping_add(fde.len()),
+            last_end_address: fde.end_address(),
             returned_last_row: <span class="bool-val">false</span>,
             current_row_valid: <span class="bool-val">false</span>,
             instructions: fde.instructions(section, bases),
@@ -10167,13 +10202,14 @@ You may want to supply your own storage type for one of the following reasons:
     <span class="kw">fn </span>new_for_cie&lt;Section: UnwindSection&lt;R&gt;&gt;(
         section: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Section,
         bases: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>BaseAddresses,
-        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, A&gt;,
+        ctx: <span class="kw-2">&amp;</span><span class="lifetime">'ctx </span><span class="kw-2">mut </span>UnwindContext&lt;R::Offset, S&gt;,
         cie: <span class="kw-2">&amp;</span>CommonInformationEntry&lt;R&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(ctx.stack.len() &gt;= <span class="number">1</span>);
         UnwindTable {
             code_alignment_factor: Wrapping(cie.code_alignment_factor()),
             data_alignment_factor: Wrapping(cie.data_alignment_factor()),
+            address_size: cie.address_size,
             next_start_address: <span class="number">0</span>,
             last_end_address: <span class="number">0</span>,
             returned_last_row: <span class="bool-val">false</span>,
@@ -10188,7 +10224,7 @@ You may want to supply your own storage type for one of the following reasons:
     ///
     /// Unfortunately, this cannot be used with `FallibleIterator` because of
     /// the restricted lifetime of the yielded item.
-    </span><span class="kw">pub fn </span>next_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>UnwindTableRow&lt;R::Offset, A&gt;&gt;&gt; {
+    </span><span class="kw">pub fn </span>next_row(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>UnwindTableRow&lt;R::Offset, S&gt;&gt;&gt; {
         <span class="macro">assert!</span>(<span class="self">self</span>.ctx.stack.len() &gt;= <span class="number">1</span>);
         <span class="self">self</span>.ctx.set_start_address(<span class="self">self</span>.next_start_address);
         <span class="self">self</span>.current_row_valid = <span class="bool-val">false</span>;
@@ -10221,7 +10257,7 @@ You may want to supply your own storage type for one of the following reasons:
     }
 
     <span class="doccomment">/// Returns the current row with the lifetime of the context.
-    </span><span class="kw">pub fn </span>into_current_row(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, A&gt;&gt; {
+    </span><span class="kw">pub fn </span>into_current_row(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'ctx </span>UnwindTableRow&lt;R::Offset, S&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.current_row_valid {
             <span class="prelude-val">Some</span>(<span class="self">self</span>.ctx.row())
         } <span class="kw">else </span>{
@@ -10248,7 +10284,10 @@ You may want to supply your own storage type for one of the following reasons:
             }
             AdvanceLoc { delta } =&gt; {
                 <span class="kw">let </span>delta = Wrapping(u64::from(delta)) * <span class="self">self</span>.code_alignment_factor;
-                <span class="self">self</span>.next_start_address = (Wrapping(<span class="self">self</span>.ctx.start_address()) + delta).<span class="number">0</span>;
+                <span class="self">self</span>.next_start_address = <span class="self">self
+                    </span>.ctx
+                    .start_address()
+                    .add_sized(delta.<span class="number">0</span>, <span class="self">self</span>.address_size)<span class="question-mark">?</span>;
                 <span class="self">self</span>.ctx.row_mut().end_address = <span class="self">self</span>.next_start_address;
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="bool-val">true</span>);
             }
@@ -10440,19 +10479,31 @@ You may want to supply your own storage type for one of the following reasons:
 // - https://github.com/libunwind/libunwind/blob/11fd461095ea98f4b3e3a361f5a8a558519363fa/include/tdep-aarch64/dwarf-config.h#L32
 // - https://github.com/libunwind/libunwind/blob/11fd461095ea98f4b3e3a361f5a8a558519363fa/include/tdep-arm/dwarf-config.h#L31
 // - https://github.com/libunwind/libunwind/blob/11fd461095ea98f4b3e3a361f5a8a558519363fa/include/tdep-mips/dwarf-config.h#L31
-</span><span class="kw">struct </span>RegisterRuleMap&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt; = StoreOnHeap&gt; {
+</span><span class="kw">struct </span>RegisterRuleMap&lt;T, S = StoreOnHeap&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     rules: ArrayVec&lt;S::Rules&gt;,
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Debug <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;T, S&gt; Debug <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"RegisterRuleMap"</span>)
             .field(<span class="string">"rules"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.rules)
             .finish()
     }
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Clone <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; {
+<span class="kw">impl</span>&lt;T, S&gt; Clone <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             rules: <span class="self">self</span>.rules.clone(),
@@ -10460,7 +10511,11 @@ You may want to supply your own storage type for one of the following reasons:
     }
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Default <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; {
+<span class="kw">impl</span>&lt;T, S&gt; Default <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         RegisterRuleMap {
             rules: Default::default(),
@@ -10472,7 +10527,11 @@ You may want to supply your own storage type for one of the following reasons:
 ///
 /// These methods are guaranteed not to allocate, acquire locks, or perform any
 /// other signal-unsafe operations.
-</span><span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; RegisterRuleMap&lt;T, S&gt; {
+</span><span class="kw">impl</span>&lt;T, S&gt; RegisterRuleMap&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.rules.is_empty()
     }
@@ -10515,15 +10574,15 @@ You may want to supply your own storage type for one of the following reasons:
             .map_err(|<span class="kw">_</span>| Error::TooManyRegisterRules)
     }
 
-    <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;T&gt; {
+    <span class="kw">fn </span>iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;<span class="lifetime">'_</span>, T&gt; {
         RegisterRuleIter(<span class="self">self</span>.rules.iter())
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R, S: UnwindContextStorage&lt;R&gt;&gt; FromIterator&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>(Register, RegisterRule&lt;R&gt;)&gt;
-    <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R, S&gt; FromIterator&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>(Register, RegisterRule&lt;R&gt;)&gt; <span class="kw">for </span>RegisterRuleMap&lt;R, S&gt;
 <span class="kw">where
     </span>R: <span class="lifetime">'a </span>+ ReaderOffset,
+    S: UnwindContextStorage&lt;R&gt;,
 {
     <span class="kw">fn </span>from_iter&lt;T&gt;(iter: T) -&gt; <span class="self">Self
     </span><span class="kw">where
@@ -10541,9 +10600,10 @@ You may want to supply your own storage type for one of the following reasons:
     }
 }
 
-<span class="kw">impl</span>&lt;T, S: UnwindContextStorage&lt;T&gt;&gt; PartialEq <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
+<span class="kw">impl</span>&lt;T, S&gt; PartialEq <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
 <span class="kw">where
     </span>T: ReaderOffset + PartialEq,
+    S: UnwindContextStorage&lt;T&gt;,
 {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, rhs: <span class="kw-2">&amp;</span><span class="self">Self</span>) -&gt; bool {
         <span class="kw">for </span><span class="kw-2">&amp;</span>(reg, <span class="kw-2">ref </span>rule) <span class="kw">in </span><span class="kw-2">&amp;*</span><span class="self">self</span>.rules {
@@ -10564,7 +10624,12 @@ You may want to supply your own storage type for one of the following reasons:
     </span>}
 }
 
-<span class="kw">impl</span>&lt;T, S: UnwindContextStorage&lt;T&gt;&gt; Eq <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt; <span class="kw">where </span>T: ReaderOffset + Eq {}
+<span class="kw">impl</span>&lt;T, S&gt; Eq <span class="kw">for </span>RegisterRuleMap&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset + Eq,
+    S: UnwindContextStorage&lt;T&gt;,
+{
+}
 
 <span class="doccomment">/// An unordered iterator for register rules.
 </span><span class="attr">#[derive(Debug, Clone)]
@@ -10583,7 +10648,11 @@ You may want to supply your own storage type for one of the following reasons:
 <span class="doccomment">/// A row in the virtual unwind table that describes how to find the values of
 /// the registers in the *previous* frame for a range of PC addresses.
 </span><span class="attr">#[derive(PartialEq, Eq)]
-</span><span class="kw">pub struct </span>UnwindTableRow&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt; = StoreOnHeap&gt; {
+</span><span class="kw">pub struct </span>UnwindTableRow&lt;T, S = StoreOnHeap&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     start_address: u64,
     end_address: u64,
     saved_args_size: u64,
@@ -10591,8 +10660,12 @@ You may want to supply your own storage type for one of the following reasons:
     registers: RegisterRuleMap&lt;T, S&gt;,
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Debug <span class="kw">for </span>UnwindTableRow&lt;T, S&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+<span class="kw">impl</span>&lt;T, S&gt; Debug <span class="kw">for </span>UnwindTableRow&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         f.debug_struct(<span class="string">"UnwindTableRow"</span>)
             .field(<span class="string">"start_address"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.start_address)
             .field(<span class="string">"end_address"</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.end_address)
@@ -10603,7 +10676,11 @@ You may want to supply your own storage type for one of the following reasons:
     }
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Clone <span class="kw">for </span>UnwindTableRow&lt;T, S&gt; {
+<span class="kw">impl</span>&lt;T, S&gt; Clone <span class="kw">for </span>UnwindTableRow&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             start_address: <span class="self">self</span>.start_address,
@@ -10615,7 +10692,11 @@ You may want to supply your own storage type for one of the following reasons:
     }
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; Default <span class="kw">for </span>UnwindTableRow&lt;T, S&gt; {
+<span class="kw">impl</span>&lt;T, S&gt; Default <span class="kw">for </span>UnwindTableRow&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         UnwindTableRow {
             start_address: <span class="number">0</span>,
@@ -10627,7 +10708,11 @@ You may want to supply your own storage type for one of the following reasons:
     }
 }
 
-<span class="kw">impl</span>&lt;T: ReaderOffset, S: UnwindContextStorage&lt;T&gt;&gt; UnwindTableRow&lt;T, S&gt; {
+<span class="kw">impl</span>&lt;T, S&gt; UnwindTableRow&lt;T, S&gt;
+<span class="kw">where
+    </span>T: ReaderOffset,
+    S: UnwindContextStorage&lt;T&gt;,
+{
     <span class="kw">fn </span>is_default(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.start_address == <span class="number">0
             </span>&amp;&amp; <span class="self">self</span>.end_address == <span class="number">0
@@ -10733,7 +10818,7 @@ You may want to supply your own storage type for one of the following reasons:
     /// }
     /// # }
     /// ```
-    </span><span class="kw">pub fn </span>registers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;T&gt; {
+    </span><span class="kw">pub fn </span>registers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; RegisterRuleIter&lt;<span class="lifetime">'_</span>, T&gt; {
         <span class="self">self</span>.registers.iter()
     }
 }
@@ -10748,8 +10833,7 @@ You may want to supply your own storage type for one of the following reasons:
         <span class="doccomment">/// The offset from the register's base value.
         </span>offset: i64,
     },
-    <span class="doccomment">/// The CFA is obtained by evaluating this `Reader` as a DWARF expression
-    /// program.
+    <span class="doccomment">/// The CFA is obtained by evaluating a DWARF expression program.
     </span>Expression(UnwindExpression&lt;T&gt;),
 }
 
@@ -11130,7 +11214,7 @@ You may want to supply your own storage type for one of the following reasons:
     <span class="kw">fn </span>parse&lt;R: Reader&lt;Offset = T&gt;&gt;(
         input: <span class="kw-2">&amp;mut </span>R,
         address_encoding: <span class="prelude-ty">Option</span>&lt;DwEhPe&gt;,
-        parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;R&gt;,
+        parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;<span class="lifetime">'_</span>, R&gt;,
         vendor: Vendor,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;CallFrameInstruction&lt;T&gt;&gt; {
         <span class="kw">let </span>instruction = input.read_u8()<span class="question-mark">?</span>;
@@ -11380,6 +11464,28 @@ You may want to supply your own storage type for one of the following reasons:
 ///
 /// This is stored as an offset and length within the section instead of as a
 /// `Reader` to avoid lifetime issues when reusing [`UnwindContext`].
+///
+/// # Example
+/// ```
+/// # use gimli::{EhFrame, EndianSlice, NativeEndian, Error, FrameDescriptionEntry, UnwindExpression, EvaluationResult};
+/// # fn foo() -&gt; Result&lt;(), Error&gt; {
+/// # let eh_frame: EhFrame&lt;EndianSlice&lt;NativeEndian&gt;&gt; = unreachable!();
+/// # let fde: FrameDescriptionEntry&lt;EndianSlice&lt;NativeEndian&gt;&gt; = unimplemented!();
+/// # let unwind_expression: UnwindExpression&lt;_&gt; = unimplemented!();
+/// let expression = unwind_expression.get(&amp;eh_frame)?;
+/// let mut evaluation = expression.evaluation(fde.cie().encoding());
+/// let mut result = evaluation.evaluate()?;
+/// loop {
+///   match result {
+///      EvaluationResult::Complete =&gt; break,
+///      // Provide information to the evaluation.
+///      _ =&gt; { unimplemented!()}
+///   }
+/// }
+/// let value = evaluation.value_result();
+/// # Ok(())
+/// # }
+/// ```
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>UnwindExpression&lt;T: ReaderOffset&gt; {
     <span class="doccomment">/// The offset of the expression within the section.
@@ -11393,10 +11499,11 @@ You may want to supply your own storage type for one of the following reasons:
     ///
     /// The offset and length were previously validated when the
     /// `UnwindExpression` was created, so this should not fail.
-    </span><span class="kw">pub fn </span>get&lt;R: Reader&lt;Offset = T&gt;, S: UnwindSection&lt;R&gt;&gt;(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        section: <span class="kw-2">&amp;</span>S,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;R&gt;&gt; {
+    </span><span class="kw">pub fn </span>get&lt;R, S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, section: <span class="kw-2">&amp;</span>S) -&gt; <span class="prelude-ty">Result</span>&lt;Expression&lt;R&gt;&gt;
+    <span class="kw">where
+        </span>R: Reader&lt;Offset = T&gt;,
+        S: UnwindSection&lt;R&gt;,
+    {
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>section.section().clone();
         input.skip(<span class="self">self</span>.offset)<span class="question-mark">?</span>;
         <span class="kw">let </span>data = input.split(<span class="self">self</span>.length)<span class="question-mark">?</span>;
@@ -11414,7 +11521,7 @@ You may want to supply your own storage type for one of the following reasons:
     <span class="kw">if </span>eh_pe.is_valid_encoding() {
         <span class="prelude-val">Ok</span>(eh_pe)
     } <span class="kw">else </span>{
-        <span class="prelude-val">Err</span>(Error::UnknownPointerEncoding)
+        <span class="prelude-val">Err</span>(Error::UnknownPointerEncoding(eh_pe))
     }
 }
 
@@ -11478,12 +11585,12 @@ You may want to supply your own storage type for one of the following reasons:
 
 <span class="kw">fn </span>parse_encoded_pointer&lt;R: Reader&gt;(
     encoding: constants::DwEhPe,
-    parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;R&gt;,
+    parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;<span class="lifetime">'_</span>, R&gt;,
     input: <span class="kw-2">&amp;mut </span>R,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;Pointer&gt; {
     <span class="comment">// TODO: check this once only in parse_pointer_encoding
     </span><span class="kw">if </span>!encoding.is_valid_encoding() {
-        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownPointerEncoding);
+        <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownPointerEncoding(encoding));
     }
 
     <span class="kw">if </span>encoding == constants::DW_EH_PE_omit {
@@ -11495,7 +11602,8 @@ You may want to supply your own storage type for one of the following reasons:
         constants::DW_EH_PE_pcrel =&gt; {
             <span class="kw">if let </span><span class="prelude-val">Some</span>(section_base) = parameters.bases.section {
                 <span class="kw">let </span>offset_from_section = input.offset_from(parameters.section);
-                section_base.wrapping_add(offset_from_section.into_u64())
+                section_base
+                    .wrapping_add_sized(offset_from_section.into_u64(), parameters.address_size)
             } <span class="kw">else </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::PcRelativePointerButSectionBaseIsUndefined);
             }
@@ -11525,7 +11633,19 @@ You may want to supply your own storage type for one of the following reasons:
         <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
     };
 
-    <span class="kw">let </span>offset = <span class="kw">match </span>encoding.format() {
+    <span class="kw">let </span>offset = parse_encoded_value(encoding, parameters, input)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(Pointer::new(
+        encoding,
+        base.wrapping_add_sized(offset, parameters.address_size),
+    ))
+}
+
+<span class="kw">fn </span>parse_encoded_value&lt;R: Reader&gt;(
+    encoding: constants::DwEhPe,
+    parameters: <span class="kw-2">&amp;</span>PointerEncodingParameters&lt;<span class="lifetime">'_</span>, R&gt;,
+    input: <span class="kw-2">&amp;mut </span>R,
+) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
+    <span class="kw">match </span>encoding.format() {
         <span class="comment">// Unsigned variants.
         </span>constants::DW_EH_PE_absptr =&gt; input.read_address(parameters.address_size),
         constants::DW_EH_PE_uleb128 =&gt; input.read_uleb128(),
@@ -11544,9 +11664,7 @@ You may want to supply your own storage type for one of the following reasons:
 
         <span class="comment">// That was all of the valid encoding formats.
         </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
-    }<span class="question-mark">?</span>;
-
-    <span class="prelude-val">Ok</span>(Pointer::new(encoding, base.wrapping_add(offset)))
+    }
 }
 
 <span class="attr">#[cfg(test)]
@@ -11564,7 +11682,6 @@ You may want to supply your own storage type for one of the following reasons:
     <span class="kw">use </span>alloc::vec::Vec;
     <span class="kw">use </span>core::marker::PhantomData;
     <span class="kw">use </span>core::mem;
-    <span class="kw">use </span>core::u64;
     <span class="kw">use </span>test_assembler::{Endian, Label, LabelMaker, LabelOrNum, Section, ToLabelOrNum};
 
     <span class="comment">// Ensure each test tries to read the same section kind that it wrote.
@@ -11687,7 +11804,7 @@ You may want to supply your own storage type for one of the following reasons:
             </span><span class="kw">let </span>section = section.D8(<span class="number">0</span>);
 
             <span class="kw">let </span>section = <span class="kw">if </span>T::has_address_and_segment_sizes(cie.version) {
-                section.D8(cie.address_size).D8(cie.segment_size)
+                section.D8(cie.address_size).D8(<span class="number">0</span>)
             } <span class="kw">else </span>{
                 section
             };
@@ -11736,13 +11853,6 @@ You may want to supply your own storage type for one of the following reasons:
                     <span class="kw">let </span>section = <span class="self">self</span>.D32(<span class="number">0xffff_ffff</span>);
                     section.D64(<span class="kw-2">&amp;</span>length).mark(<span class="kw-2">&amp;</span>start).D64(cie_offset)
                 }
-            };
-
-            <span class="kw">let </span>section = <span class="kw">match </span>fde.cie.segment_size {
-                <span class="number">0 </span>=&gt; section,
-                <span class="number">4 </span>=&gt; section.D32(fde.initial_segment <span class="kw">as </span>u32),
-                <span class="number">8 </span>=&gt; section.D64(fde.initial_segment),
-                x =&gt; <span class="macro">panic!</span>(<span class="string">"Unsupported test segment size: {}"</span>, x),
             };
 
             <span class="kw">let </span>section = <span class="kw">match </span>fde.cie.address_size {
@@ -11898,7 +12008,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">99</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">2</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -11959,7 +12068,6 @@ You may want to supply your own storage type for one of the following reasons:
             version,
             augmentation: <span class="prelude-val">None</span>,
             address_size,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">16</span>,
             data_alignment_factor: <span class="number">32</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -12006,7 +12114,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">0</span>,
             data_alignment_factor: <span class="number">0</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -12095,7 +12202,6 @@ You may want to supply your own storage type for one of the following reasons:
             augmentation: <span class="prelude-val">None</span>,
             <span class="comment">// DWARF32 with a 64 bit address size! Holy moly!
             </span>address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">3</span>,
             data_alignment_factor: <span class="number">2</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -12107,59 +12213,8 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">39</span>,
-            augmentation: <span class="prelude-val">None</span>,
-            instructions: EndianSlice::new(<span class="kw-2">&amp;</span>expected_instrs, LittleEndian),
-        };
-
-        <span class="kw">let </span>kind = debug_frame_le();
-        <span class="kw">let </span>section = Section::with_endian(kind.endian())
-            .fde(kind, cie_offset, <span class="kw-2">&amp;mut </span>fde)
-            .append_bytes(<span class="kw-2">&amp;</span>expected_rest);
-
-        <span class="kw">let </span>section = section.get_contents().unwrap();
-        <span class="kw">let </span>debug_frame = kind.section(<span class="kw-2">&amp;</span>section);
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>section, LittleEndian);
-
-        <span class="kw">let </span>get_cie = |<span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">_</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">_</span>, offset| {
-            <span class="macro">assert_eq!</span>(offset, DebugFrameOffset(cie_offset <span class="kw">as </span>usize));
-            <span class="prelude-val">Ok</span>(cie.clone())
-        };
-
-        <span class="macro">assert_eq!</span>(parse_fde(debug_frame, rest, get_cie), <span class="prelude-val">Ok</span>(fde));
-        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>expected_rest, LittleEndian));
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_parse_fde_32_with_segment_ok() {
-        <span class="kw">let </span>expected_rest = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
-        <span class="kw">let </span>cie_offset = <span class="number">0xbad0_bad1</span>;
-        <span class="kw">let </span>expected_instrs: Vec&lt;<span class="kw">_</span>&gt; = (<span class="number">0</span>..<span class="number">92</span>).map(|<span class="kw">_</span>| constants::DW_CFA_nop.<span class="number">0</span>).collect();
-
-        <span class="kw">let </span>cie = CommonInformationEntry {
-            offset: <span class="number">0</span>,
-            length: <span class="number">100</span>,
-            format: Format::Dwarf32,
-            version: <span class="number">4</span>,
-            augmentation: <span class="prelude-val">None</span>,
-            address_size: <span class="number">4</span>,
-            segment_size: <span class="number">4</span>,
-            code_alignment_factor: <span class="number">3</span>,
-            data_alignment_factor: <span class="number">2</span>,
-            return_address_register: Register(<span class="number">1</span>),
-            initial_instructions: EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian),
-        };
-
-        <span class="kw">let </span><span class="kw-2">mut </span>fde = FrameDescriptionEntry {
-            offset: <span class="number">0</span>,
-            length: <span class="number">0</span>,
-            format: Format::Dwarf32,
-            cie: cie.clone(),
-            initial_segment: <span class="number">0xbadb_ad11</span>,
-            initial_address: <span class="number">0xfeed_beef</span>,
-            address_range: <span class="number">999</span>,
             augmentation: <span class="prelude-val">None</span>,
             instructions: EndianSlice::new(<span class="kw-2">&amp;</span>expected_instrs, LittleEndian),
         };
@@ -12195,7 +12250,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">3</span>,
             data_alignment_factor: <span class="number">2</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -12207,7 +12261,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf64,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">999</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -12244,7 +12297,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">16</span>,
             data_alignment_factor: <span class="number">32</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -12280,7 +12332,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">16</span>,
             data_alignment_factor: <span class="number">32</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -12292,7 +12343,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">39</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -12345,7 +12395,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">2</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -12359,7 +12408,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">3</span>,
             data_alignment_factor: <span class="number">2</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -12384,7 +12432,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie1.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">39</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -12396,7 +12443,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie2.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_face</span>,
             address_range: <span class="number">9000</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -12467,7 +12513,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">4</span>,
             data_alignment_factor: <span class="number">8</span>,
             return_address_register: Register(<span class="number">12</span>),
@@ -13249,7 +13294,6 @@ You may want to supply your own storage type for one of the following reasons:
             address_size: mem::size_of::&lt;usize&gt;() <span class="kw">as </span>u8,
             initial_instructions: EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian),
             augmentation: <span class="prelude-val">None</span>,
-            segment_size: <span class="number">0</span>,
             data_alignment_factor: <span class="number">2</span>,
             code_alignment_factor: <span class="number">3</span>,
         }
@@ -13290,13 +13334,30 @@ You may want to supply your own storage type for one of the following reasons:
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_eval_advance_loc_overflow() {
-        <span class="kw">let </span>cie = make_test_cie();
+    </span><span class="kw">fn </span>test_eval_advance_loc_overflow_32() {
+        <span class="kw">let </span><span class="kw-2">mut </span>cie = make_test_cie();
+        cie.address_size = <span class="number">4</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = UnwindContext::new();
+        ctx.row_mut().start_address = u32::MAX.into();
+        <span class="kw">let </span>expected = ctx.clone();
+        <span class="kw">let </span>instructions = [(
+            <span class="prelude-val">Err</span>(Error::AddressOverflow),
+            CallFrameInstruction::AdvanceLoc { delta: <span class="number">42 </span>},
+        )];
+        assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_eval_advance_loc_overflow_64() {
+        <span class="kw">let </span><span class="kw-2">mut </span>cie = make_test_cie();
+        cie.address_size = <span class="number">8</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>ctx = UnwindContext::new();
         ctx.row_mut().start_address = u64::MAX;
-        <span class="kw">let </span><span class="kw-2">mut </span>expected = ctx.clone();
-        expected.row_mut().end_address = <span class="number">42 </span>* cie.code_alignment_factor - <span class="number">1</span>;
-        <span class="kw">let </span>instructions = [(<span class="prelude-val">Ok</span>(<span class="bool-val">true</span>), CallFrameInstruction::AdvanceLoc { delta: <span class="number">42 </span>})];
+        <span class="kw">let </span>expected = ctx.clone();
+        <span class="kw">let </span>instructions = [(
+            <span class="prelude-val">Err</span>(Error::AddressOverflow),
+            CallFrameInstruction::AdvanceLoc { delta: <span class="number">42 </span>},
+        )];
         assert_eval(ctx, expected, cie, <span class="prelude-val">None</span>, instructions);
     }
 
@@ -13600,7 +13661,6 @@ You may want to supply your own storage type for one of the following reasons:
             address_range: <span class="number">0</span>,
             augmentation: <span class="prelude-val">None</span>,
             initial_address: <span class="number">0</span>,
-            initial_segment: <span class="number">0</span>,
             cie: cie.clone(),
             instructions: EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian),
         };
@@ -13751,7 +13811,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -13768,7 +13827,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0</span>,
             address_range: <span class="number">100</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -13826,7 +13884,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -13843,7 +13900,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0</span>,
             address_range: <span class="number">100</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -13900,7 +13956,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -13921,7 +13976,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -13933,7 +13987,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie1.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0</span>,
             address_range: <span class="number">100</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -13945,7 +13998,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie2.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0</span>,
             address_range: <span class="number">100</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -13997,7 +14049,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -14034,7 +14085,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0</span>,
             address_range: <span class="number">100</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14174,7 +14224,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">8</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">3</span>),
@@ -14188,7 +14237,6 @@ You may want to supply your own storage type for one of the following reasons:
             version: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
             address_size: <span class="number">4</span>,
-            segment_size: <span class="number">0</span>,
             code_alignment_factor: <span class="number">1</span>,
             data_alignment_factor: <span class="number">1</span>,
             return_address_register: Register(<span class="number">1</span>),
@@ -14213,7 +14261,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie1.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">200</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14225,7 +14272,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie2.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_face</span>,
             address_range: <span class="number">9000</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14257,7 +14303,7 @@ You may want to supply your own storage type for one of the following reasons:
             <span class="kw-2">*</span>unwind_info,
             UnwindTableRow {
                 start_address: fde1.initial_address() + <span class="number">100</span>,
-                end_address: fde1.initial_address() + fde1.len(),
+                end_address: fde1.end_address(),
                 saved_args_size: <span class="number">0</span>,
                 cfa: CfaRule::RegisterAndOffset {
                     register: Register(<span class="number">4</span>),
@@ -14471,7 +14517,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">9</span>,
             address_range: <span class="number">4</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14482,7 +14527,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">20</span>,
             address_range: <span class="number">8</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14591,18 +14635,43 @@ You may want to supply your own storage type for one of the following reasons:
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_eh_frame_stops_at_zero_length() {
-        <span class="kw">let </span>section = Section::with_endian(Endian::Little).L32(<span class="number">0</span>);
-        <span class="kw">let </span>section = section.get_contents().unwrap();
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>section, LittleEndian);
+        <span class="kw">let </span><span class="kw-2">mut </span>cie = make_test_cie();
+        <span class="kw">let </span>kind = eh_frame_le();
+        <span class="kw">let </span>section = Section::with_endian(Endian::Little)
+            .L32(<span class="number">0</span>)
+            .cie(kind, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>cie)
+            .L32(<span class="number">0</span>);
+        <span class="kw">let </span>contents = section.get_contents().unwrap();
+        <span class="kw">let </span>eh_frame = kind.section(<span class="kw-2">&amp;</span>contents);
         <span class="kw">let </span>bases = Default::default();
 
-        <span class="macro">assert_eq!</span>(
-            parse_cfi_entry(<span class="kw-2">&amp;</span>bases, <span class="kw-2">&amp;</span>EhFrame::new(<span class="kw-2">&amp;</span>section, LittleEndian), rest),
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
-        );
+        <span class="kw">let </span><span class="kw-2">mut </span>entries = eh_frame.entries(<span class="kw-2">&amp;</span>bases);
+        <span class="macro">assert_eq!</span>(entries.next(), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
 
         <span class="macro">assert_eq!</span>(
-            EhFrame::new(<span class="kw-2">&amp;</span>section, LittleEndian).cie_from_offset(<span class="kw-2">&amp;</span>bases, EhFrameOffset(<span class="number">0</span>)),
+            eh_frame.cie_from_offset(<span class="kw-2">&amp;</span>bases, EhFrameOffset(<span class="number">0</span>)),
+            <span class="prelude-val">Err</span>(Error::NoEntryAtGivenOffset)
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_debug_frame_skips_zero_length() {
+        <span class="kw">let </span><span class="kw-2">mut </span>cie = make_test_cie();
+        <span class="kw">let </span>kind = debug_frame_le();
+        <span class="kw">let </span>section = Section::with_endian(Endian::Little)
+            .L32(<span class="number">0</span>)
+            .cie(kind, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>cie)
+            .L32(<span class="number">0</span>);
+        <span class="kw">let </span>contents = section.get_contents().unwrap();
+        <span class="kw">let </span>debug_frame = kind.section(<span class="kw-2">&amp;</span>contents);
+        <span class="kw">let </span>bases = Default::default();
+
+        <span class="kw">let </span><span class="kw-2">mut </span>entries = debug_frame.entries(<span class="kw-2">&amp;</span>bases);
+        <span class="macro">assert_eq!</span>(entries.next(), <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(CieOrFde::Cie(cie))));
+        <span class="macro">assert_eq!</span>(entries.next(), <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>));
+
+        <span class="macro">assert_eq!</span>(
+            debug_frame.cie_from_offset(<span class="kw-2">&amp;</span>bases, DebugFrameOffset(<span class="number">0</span>)),
             <span class="prelude-val">Err</span>(Error::NoEntryAtGivenOffset)
         );
     }
@@ -14613,7 +14682,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf64,
             cie: make_test_cie(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">39</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14662,7 +14730,7 @@ You may want to supply your own storage type for one of the following reasons:
     </span><span class="kw">fn </span>test_eh_frame_resolve_cie_offset_underflow() {
         <span class="kw">let </span>buf = [<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>];
         <span class="macro">assert_eq!</span>(
-            resolve_cie_offset(<span class="kw-2">&amp;</span>buf, ::core::usize::MAX),
+            resolve_cie_offset(<span class="kw-2">&amp;</span>buf, usize::MAX),
             <span class="prelude-val">Err</span>(Error::OffsetOutOfBounds)
         );
     }
@@ -14690,7 +14758,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">999</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14735,7 +14802,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf64,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_beef</span>,
             address_range: <span class="number">999</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -14978,7 +15044,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_face</span>,
             address_range: <span class="number">9000</span>,
             augmentation: <span class="prelude-val">None</span>,
@@ -15016,7 +15081,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_face</span>,
             address_range: <span class="number">9000</span>,
             augmentation: <span class="prelude-val">Some</span>(AugmentationData::default()),
@@ -15055,7 +15119,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_face</span>,
             address_range: <span class="number">9000</span>,
             augmentation: <span class="prelude-val">Some</span>(AugmentationData {
@@ -15097,7 +15160,6 @@ You may want to supply your own storage type for one of the following reasons:
             length: <span class="number">0</span>,
             format: Format::Dwarf32,
             cie: cie.clone(),
-            initial_segment: <span class="number">0</span>,
             initial_address: <span class="number">0xfeed_face</span>,
             address_range: <span class="number">9000</span>,
             augmentation: <span class="prelude-val">Some</span>(AugmentationData {
@@ -15304,7 +15366,7 @@ You may want to supply your own storage type for one of the following reasons:
         <span class="kw">let </span>input = [expected.<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>];
         <span class="kw">let </span>input = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>input, NativeEndian);
         <span class="macro">assert_eq!</span>(
-            <span class="prelude-val">Err</span>(Error::UnknownPointerEncoding),
+            <span class="prelude-val">Err</span>(Error::UnknownPointerEncoding(expected)),
             parse_pointer_encoding(input)
         );
     }
@@ -15609,7 +15671,7 @@ You may want to supply your own storage type for one of the following reasons:
         <span class="kw">let </span>parameters = PointerEncodingParameters {
             bases: <span class="kw-2">&amp;</span>SectionBaseAddresses::default(),
             func_base: <span class="prelude-val">None</span>,
-            address_size: <span class="number">4</span>,
+            address_size: <span class="number">8</span>,
             section: <span class="kw-2">&amp;</span>input,
         };
         <span class="macro">assert_eq!</span>(
@@ -15712,7 +15774,7 @@ You may want to supply your own storage type for one of the following reasons:
         <span class="kw">let </span>parameters = PointerEncodingParameters {
             bases: <span class="kw-2">&amp;</span>SectionBaseAddresses::default(),
             func_base: <span class="prelude-val">None</span>,
-            address_size: <span class="number">4</span>,
+            address_size: <span class="number">8</span>,
             section: <span class="kw-2">&amp;</span>input,
         };
         <span class="macro">assert_eq!</span>(
@@ -15761,7 +15823,7 @@ You may want to supply your own storage type for one of the following reasons:
         };
         <span class="macro">assert_eq!</span>(
             parse_encoded_pointer(encoding, <span class="kw-2">&amp;</span>parameters, <span class="kw-2">&amp;mut </span>rest),
-            <span class="prelude-val">Err</span>(Error::UnknownPointerEncoding)
+            <span class="prelude-val">Err</span>(Error::UnknownPointerEncoding(encoding))
         );
     }
 

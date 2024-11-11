@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.16.2+1.7.2/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/libgit2-sys-0.17.0+1.8.1/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="libgit2_sys" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4323,7 +4323,30 @@
 <a href="#4323" id="4323">4323</a>
 <a href="#4324" id="4324">4324</a>
 <a href="#4325" id="4325">4325</a>
-</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/libgit2-sys/0.16"</span>)]
+<a href="#4326" id="4326">4326</a>
+<a href="#4327" id="4327">4327</a>
+<a href="#4328" id="4328">4328</a>
+<a href="#4329" id="4329">4329</a>
+<a href="#4330" id="4330">4330</a>
+<a href="#4331" id="4331">4331</a>
+<a href="#4332" id="4332">4332</a>
+<a href="#4333" id="4333">4333</a>
+<a href="#4334" id="4334">4334</a>
+<a href="#4335" id="4335">4335</a>
+<a href="#4336" id="4336">4336</a>
+<a href="#4337" id="4337">4337</a>
+<a href="#4338" id="4338">4338</a>
+<a href="#4339" id="4339">4339</a>
+<a href="#4340" id="4340">4340</a>
+<a href="#4341" id="4341">4341</a>
+<a href="#4342" id="4342">4342</a>
+<a href="#4343" id="4343">4343</a>
+<a href="#4344" id="4344">4344</a>
+<a href="#4345" id="4345">4345</a>
+<a href="#4346" id="4346">4346</a>
+<a href="#4347" id="4347">4347</a>
+<a href="#4348" id="4348">4348</a>
+</pre></div><pre class="rust"><code><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/libgit2-sys/0.17"</span>)]
 #![allow(non_camel_case_types, unused_extern_crates)]
 
 </span><span class="comment">// This is required to link libz when libssh2-sys is not included.
@@ -4523,6 +4546,10 @@
         GIT_EINDEXDIRTY = -<span class="number">34</span>,
         GIT_EAPPLYFAIL = -<span class="number">35</span>,
         GIT_EOWNER = -<span class="number">36</span>,
+        GIT_TIMEOUT = -<span class="number">37</span>,
+        GIT_EUNCHANGED = -<span class="number">38</span>,
+        GIT_ENOTSUPPORTED = -<span class="number">39</span>,
+        GIT_EREADONLY = -<span class="number">40</span>,
     }
 }
 
@@ -4691,6 +4718,13 @@
 
 <span class="kw">pub type </span>git_remote_ready_cb = <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_remote, c_int, <span class="kw-2">*mut </span>c_void) -&gt; c_int&gt;;
 
+<span class="macro">git_enum!</span> {
+    <span class="kw">pub enum </span>git_remote_update_flags {
+        GIT_REMOTE_UPDATE_FETCHHEAD = <span class="number">1 </span>&lt;&lt; <span class="number">0</span>,
+        GIT_REMOTE_UPDATE_REPORT_UNCHANGED = <span class="number">1 </span>&lt;&lt; <span class="number">1</span>,
+    }
+}
+
 <span class="attr">#[repr(C)]
 </span><span class="kw">pub struct </span>git_remote_callbacks {
     <span class="kw">pub </span>version: c_uint,
@@ -4716,7 +4750,7 @@
     <span class="kw">pub </span>version: c_int,
     <span class="kw">pub </span>callbacks: git_remote_callbacks,
     <span class="kw">pub </span>prune: git_fetch_prune_t,
-    <span class="kw">pub </span>update_fetchhead: c_int,
+    <span class="kw">pub </span>update_fetchhead: c_uint,
     <span class="kw">pub </span>download_tags: git_remote_autotag_option_t,
     <span class="kw">pub </span>proxy_opts: git_proxy_options,
     <span class="kw">pub </span>depth: c_int,
@@ -5180,10 +5214,11 @@
 </span><span class="kw">pub struct </span>git_config_entry {
     <span class="kw">pub </span>name: <span class="kw-2">*const </span>c_char,
     <span class="kw">pub </span>value: <span class="kw-2">*const </span>c_char,
+    <span class="kw">pub </span>backend_type: <span class="kw-2">*const </span>c_char,
+    <span class="kw">pub </span>origin_path: <span class="kw-2">*const </span>c_char,
     <span class="kw">pub </span>include_depth: c_uint,
     <span class="kw">pub </span>level: git_config_level_t,
     <span class="kw">pub </span>free: <span class="prelude-ty">Option</span>&lt;<span class="kw">extern </span><span class="string">"C" </span><span class="kw">fn</span>(<span class="kw-2">*mut </span>git_config_entry)&gt;,
-    <span class="kw">pub </span>payload: <span class="kw-2">*mut </span>c_void,
 }
 
 <span class="macro">git_enum!</span> {
@@ -5193,7 +5228,8 @@
         GIT_CONFIG_LEVEL_XDG = <span class="number">3</span>,
         GIT_CONFIG_LEVEL_GLOBAL = <span class="number">4</span>,
         GIT_CONFIG_LEVEL_LOCAL = <span class="number">5</span>,
-        GIT_CONFIG_LEVEL_APP = <span class="number">6</span>,
+        GIT_CONFIG_LEVEL_WORKTREE = <span class="number">6</span>,
+        GIT_CONFIG_LEVEL_APP = <span class="number">7</span>,
         GIT_CONFIG_HIGHEST_LEVEL = -<span class="number">1</span>,
     }
 }
@@ -5306,6 +5342,7 @@
     <span class="kw">pub </span>proxy_opts: git_proxy_options,
     <span class="kw">pub </span>follow_redirects: git_remote_redirect_t,
     <span class="kw">pub </span>custom_headers: git_strarray,
+    <span class="kw">pub </span>remote_push_options: git_strarray,
 }
 
 <span class="kw">pub type </span>git_tag_foreach_cb =
@@ -6272,6 +6309,14 @@
         GIT_OPT_SET_EXTENSIONS,
         GIT_OPT_GET_OWNER_VALIDATION,
         GIT_OPT_SET_OWNER_VALIDATION,
+        GIT_OPT_GET_HOMEDIR,
+        GIT_OPT_SET_HOMEDIR,
+        GIT_OPT_SET_SERVER_CONNECT_TIMEOUT,
+        GIT_OPT_GET_SERVER_CONNECT_TIMEOUT,
+        GIT_OPT_SET_SERVER_TIMEOUT,
+        GIT_OPT_GET_SERVER_TIMEOUT,
+        GIT_OPT_SET_USER_AGENT_PRODUCT,
+        GIT_OPT_GET_USER_AGENT_PRODUCT,
     }
 }
 
@@ -6288,6 +6333,7 @@
 </span><span class="kw">pub struct </span>git_worktree_add_options {
     <span class="kw">pub </span>version: c_uint,
     <span class="kw">pub </span>lock: c_int,
+    <span class="kw">pub </span>checkout_existing: c_int,
     <span class="kw">pub </span>reference: <span class="kw-2">*mut </span>git_reference,
     <span class="kw">pub </span>checkout_options: git_checkout_options,
 }
@@ -6651,7 +6697,7 @@
     <span class="kw">pub fn </span>git_remote_update_tips(
         remote: <span class="kw-2">*mut </span>git_remote,
         callbacks: <span class="kw-2">*const </span>git_remote_callbacks,
-        update_fetchead: c_int,
+        update_flags: c_uint,
         download_tags: git_remote_autotag_option_t,
         reflog_message: <span class="kw-2">*const </span>c_char,
     ) -&gt; c_int;
@@ -7207,7 +7253,7 @@
         message: <span class="kw-2">*const </span>c_char,
         tree: <span class="kw-2">*const </span>git_tree,
         parent_count: size_t,
-        parents: <span class="kw-2">*mut *const </span>git_commit,
+        parents: <span class="kw-2">*const *mut </span>git_commit,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_commit_create_buffer(
         out: <span class="kw-2">*mut </span>git_buf,
@@ -7218,7 +7264,7 @@
         message: <span class="kw-2">*const </span>c_char,
         tree: <span class="kw-2">*const </span>git_tree,
         parent_count: size_t,
-        parents: <span class="kw-2">*mut *const </span>git_commit,
+        parents: <span class="kw-2">*const *mut </span>git_commit,
     ) -&gt; c_int;
     <span class="kw">pub fn </span>git_commit_header_field(
         out: <span class="kw-2">*mut </span>git_buf,

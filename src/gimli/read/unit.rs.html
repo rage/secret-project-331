@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/unit.rs`."><title>unit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.31.1/src/read/unit.rs`."><title>unit.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -6117,11 +6117,19 @@
 <a href="#6117" id="6117">6117</a>
 <a href="#6118" id="6118">6118</a>
 <a href="#6119" id="6119">6119</a>
+<a href="#6120" id="6120">6120</a>
+<a href="#6121" id="6121">6121</a>
+<a href="#6122" id="6122">6122</a>
+<a href="#6123" id="6123">6123</a>
+<a href="#6124" id="6124">6124</a>
+<a href="#6125" id="6125">6125</a>
+<a href="#6126" id="6126">6126</a>
+<a href="#6127" id="6127">6127</a>
+<a href="#6128" id="6128">6128</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Functions for parsing DWARF `.debug_info` and `.debug_types` sections.
 
 </span><span class="kw">use </span>core::cell::Cell;
 <span class="kw">use </span>core::ops::{Range, RangeFrom, RangeTo};
-<span class="kw">use </span>core::{u16, u8};
 
 <span class="kw">use </span><span class="kw">crate</span>::common::{
     DebugAbbrevOffset, DebugAddrBase, DebugAddrIndex, DebugInfoOffset, DebugLineOffset,
@@ -6694,7 +6702,7 @@
     // reader.
     </span><span class="kw">if </span><span class="number">2 </span>&lt;= version &amp;&amp; version &lt;= <span class="number">4 </span>{
         abbrev_offset = parse_debug_abbrev_offset(<span class="kw-2">&amp;mut </span>rest, format)<span class="question-mark">?</span>;
-        address_size = rest.read_u8()<span class="question-mark">?</span>;
+        address_size = rest.read_address_size()<span class="question-mark">?</span>;
         <span class="comment">// Before DWARF5, all units in the .debug_info section are compilation
         // units, and all units in the .debug_types section are type units.
         </span>unit_type = <span class="kw">match </span>unit_offset {
@@ -6703,7 +6711,7 @@
         };
     } <span class="kw">else if </span>version == <span class="number">5 </span>{
         unit_type = parse_unit_type(<span class="kw-2">&amp;mut </span>rest)<span class="question-mark">?</span>;
-        address_size = rest.read_u8()<span class="question-mark">?</span>;
+        address_size = rest.read_address_size()<span class="question-mark">?</span>;
         abbrev_offset = parse_debug_abbrev_offset(<span class="kw-2">&amp;mut </span>rest, format)<span class="question-mark">?</span>;
     } <span class="kw">else </span>{
         <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownVersion(u64::from(version)));
@@ -7031,7 +7039,9 @@
         <span class="kw">if </span>code == <span class="number">0 </span>{
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         };
-        <span class="kw">let </span>abbrev = abbreviations.get(code).ok_or(Error::UnknownAbbreviation)<span class="question-mark">?</span>;
+        <span class="kw">let </span>abbrev = abbreviations
+            .get(code)
+            .ok_or(Error::UnknownAbbreviation(code))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(DebuggingInformationEntry {
             offset: UnitOffset(offset),
             attrs_slice: input.clone(),
@@ -7966,7 +7976,7 @@
             AttributeValue::Data8(data) =&gt; data <span class="kw">as </span>i64,
             AttributeValue::Sdata(data) =&gt; data,
             AttributeValue::Udata(data) =&gt; {
-                <span class="kw">if </span>data &gt; i64::max_value() <span class="kw">as </span>u64 {
+                <span class="kw">if </span>data &gt; i64::MAX <span class="kw">as </span>u64 {
                     <span class="comment">// Maybe we should emit a warning here
                     </span><span class="kw">return </span><span class="prelude-val">None</span>;
                 }
@@ -8299,7 +8309,7 @@
                 AttributeValue::DebugRngListsIndex(DebugRngListsIndex(index))
             }
             <span class="kw">_ </span>=&gt; {
-                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownForm);
+                <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownForm(form));
             }
         };
         <span class="kw">let </span>attr = Attribute {
@@ -8365,7 +8375,7 @@
                     input.skip_leb128()<span class="question-mark">?</span>;
                 }
                 <span class="kw">_ </span>=&gt; {
-                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownForm);
+                    <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownForm(form));
                 }
             };
             <span class="kw">break</span>;
@@ -8544,7 +8554,7 @@
         <span class="kw">let </span>abbrev = <span class="self">self
             </span>.abbreviations
             .get(code)
-            .ok_or(Error::UnknownAbbreviation)<span class="question-mark">?</span>;
+            .ok_or(Error::UnknownAbbreviation(code))<span class="question-mark">?</span>;
         <span class="kw">if </span>abbrev.has_children() {
             <span class="self">self</span>.depth += <span class="number">1</span>;
         }
@@ -10308,34 +10318,30 @@
     </span><span class="kw">fn </span>test_attribute_udata_sdata_value() {
         <span class="attr">#[allow(clippy::type_complexity)]
         </span><span class="kw">let </span>tests: <span class="kw-2">&amp;</span>[(
-            AttributeValue&lt;EndianSlice&lt;LittleEndian&gt;&gt;,
+            AttributeValue&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt;,
             <span class="prelude-ty">Option</span>&lt;u64&gt;,
             <span class="prelude-ty">Option</span>&lt;i64&gt;,
         )] = <span class="kw-2">&amp;</span>[
             (AttributeValue::Data1(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>)),
             (
-                AttributeValue::Data1(core::u8::MAX),
-                <span class="prelude-val">Some</span>(u64::from(std::u8::MAX)),
+                AttributeValue::Data1(u8::MAX),
+                <span class="prelude-val">Some</span>(u64::from(u8::MAX)),
                 <span class="prelude-val">Some</span>(-<span class="number">1</span>),
             ),
             (AttributeValue::Data2(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>)),
             (
-                AttributeValue::Data2(core::u16::MAX),
-                <span class="prelude-val">Some</span>(u64::from(std::u16::MAX)),
+                AttributeValue::Data2(u16::MAX),
+                <span class="prelude-val">Some</span>(u64::from(u16::MAX)),
                 <span class="prelude-val">Some</span>(-<span class="number">1</span>),
             ),
             (AttributeValue::Data4(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>)),
             (
-                AttributeValue::Data4(core::u32::MAX),
-                <span class="prelude-val">Some</span>(u64::from(std::u32::MAX)),
+                AttributeValue::Data4(u32::MAX),
+                <span class="prelude-val">Some</span>(u64::from(u32::MAX)),
                 <span class="prelude-val">Some</span>(-<span class="number">1</span>),
             ),
             (AttributeValue::Data8(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>)),
-            (
-                AttributeValue::Data8(core::u64::MAX),
-                <span class="prelude-val">Some</span>(core::u64::MAX),
-                <span class="prelude-val">Some</span>(-<span class="number">1</span>),
-            ),
+            (AttributeValue::Data8(u64::MAX), <span class="prelude-val">Some</span>(u64::MAX), <span class="prelude-val">Some</span>(-<span class="number">1</span>)),
             (AttributeValue::Sdata(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>)),
             (AttributeValue::Sdata(-<span class="number">1</span>), <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(-<span class="number">1</span>)),
             (AttributeValue::Udata(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>), <span class="prelude-val">Some</span>(<span class="number">1</span>)),
@@ -11155,8 +11161,10 @@
         <span class="macro">assert!</span>(entry.attrs_len.get().is_none());
     }
 
-    <span class="kw">fn </span>assert_entry_name&lt;Endian&gt;(entry: <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;EndianSlice&lt;Endian&gt;&gt;, name: <span class="kw-2">&amp;</span>str)
-    <span class="kw">where
+    <span class="kw">fn </span>assert_entry_name&lt;Endian&gt;(
+        entry: <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
+        name: <span class="kw-2">&amp;</span>str,
+    ) <span class="kw">where
         </span>Endian: Endianity,
     {
         <span class="kw">let </span>value = entry
@@ -11170,16 +11178,20 @@
         );
     }
 
-    <span class="kw">fn </span>assert_current_name&lt;Endian&gt;(cursor: <span class="kw-2">&amp;</span>EntriesCursor&lt;EndianSlice&lt;Endian&gt;&gt;, name: <span class="kw-2">&amp;</span>str)
-    <span class="kw">where
+    <span class="kw">fn </span>assert_current_name&lt;Endian&gt;(
+        cursor: <span class="kw-2">&amp;</span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
+        name: <span class="kw-2">&amp;</span>str,
+    ) <span class="kw">where
         </span>Endian: Endianity,
     {
         <span class="kw">let </span>entry = cursor.current().expect(<span class="string">"Should have an entry result"</span>);
         assert_entry_name(entry, name);
     }
 
-    <span class="kw">fn </span>assert_next_entry&lt;Endian&gt;(cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;EndianSlice&lt;Endian&gt;&gt;, name: <span class="kw-2">&amp;</span>str)
-    <span class="kw">where
+    <span class="kw">fn </span>assert_next_entry&lt;Endian&gt;(
+        cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
+        name: <span class="kw-2">&amp;</span>str,
+    ) <span class="kw">where
         </span>Endian: Endianity,
     {
         cursor
@@ -11189,7 +11201,7 @@
         assert_current_name(cursor, name);
     }
 
-    <span class="kw">fn </span>assert_next_entry_null&lt;Endian&gt;(cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;EndianSlice&lt;Endian&gt;&gt;)
+    <span class="kw">fn </span>assert_next_entry_null&lt;Endian&gt;(cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;)
     <span class="kw">where
         </span>Endian: Endianity,
     {
@@ -11201,7 +11213,7 @@
     }
 
     <span class="kw">fn </span>assert_next_dfs&lt;Endian&gt;(
-        cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;EndianSlice&lt;Endian&gt;&gt;,
+        cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
         name: <span class="kw-2">&amp;</span>str,
         depth: isize,
     ) <span class="kw">where
@@ -11218,8 +11230,10 @@
         assert_current_name(cursor, name);
     }
 
-    <span class="kw">fn </span>assert_next_sibling&lt;Endian&gt;(cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;EndianSlice&lt;Endian&gt;&gt;, name: <span class="kw-2">&amp;</span>str)
-    <span class="kw">where
+    <span class="kw">fn </span>assert_next_sibling&lt;Endian&gt;(
+        cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;,
+        name: <span class="kw-2">&amp;</span>str,
+    ) <span class="kw">where
         </span>Endian: Endianity,
     {
         {
@@ -11232,7 +11246,7 @@
         assert_current_name(cursor, name);
     }
 
-    <span class="kw">fn </span>assert_valid_sibling_ptr&lt;Endian&gt;(cursor: <span class="kw-2">&amp;</span>EntriesCursor&lt;EndianSlice&lt;Endian&gt;&gt;)
+    <span class="kw">fn </span>assert_valid_sibling_ptr&lt;Endian&gt;(cursor: <span class="kw-2">&amp;</span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, Endian&gt;&gt;)
     <span class="kw">where
         </span>Endian: Endianity,
     {
@@ -11612,7 +11626,9 @@
         section.get_contents().unwrap()
     }
 
-    <span class="kw">fn </span>test_cursor_next_sibling_with_ptr(cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;EndianSlice&lt;LittleEndian&gt;&gt;) {
+    <span class="kw">fn </span>test_cursor_next_sibling_with_ptr(
+        cursor: <span class="kw-2">&amp;mut </span>EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt;,
+    ) {
         assert_next_dfs(cursor, <span class="string">"001"</span>, <span class="number">0</span>);
 
         <span class="comment">// Down to the first child of the root.
@@ -11819,7 +11835,9 @@
             node.children()
         }
 
-        <span class="kw">fn </span>assert_null&lt;E: Endianity&gt;(node: <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;EntriesTreeNode&lt;EndianSlice&lt;E&gt;&gt;&gt;&gt;) {
+        <span class="kw">fn </span>assert_null&lt;E: Endianity&gt;(
+            node: <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;EntriesTreeNode&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, <span class="lifetime">'_</span>, EndianSlice&lt;<span class="lifetime">'_</span>, E&gt;&gt;&gt;&gt;,
+        ) {
             <span class="kw">match </span>node {
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {}
                 otherwise =&gt; {

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/common_state.rs`."><title>common_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/common_state.rs`."><title>common_state.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -977,6 +977,48 @@
 <a href="#977" id="977">977</a>
 <a href="#978" id="978">978</a>
 <a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::vec::Vec;
 
@@ -985,13 +1027,14 @@
 <span class="kw">use </span><span class="kw">crate</span>::crypto::SupportedKxGroup;
 <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, ContentType, HandshakeType, ProtocolVersion};
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, InvalidMessage, PeerMisbehaved};
-<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, error, warn};
+<span class="kw">use </span><span class="kw">crate</span>::hash_hs::HandshakeHash;
+<span class="kw">use </span><span class="kw">crate</span>::log::{debug, error, warn};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::alert::AlertMessagePayload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::codec::Codec;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::enums::{AlertLevel, KeyUpdateRequest};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::fragmenter::MessageFragmenter;
-<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::CertificateChain;
+<span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{CertificateChain, HandshakeMessagePayload};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::{
     Message, MessagePayload, OutboundChunks, OutboundOpaqueMessage, OutboundPlainMessage,
     PlainMessage,
@@ -1361,7 +1404,7 @@
 
     <span class="doccomment">/// Mark the connection as ready to send application data.
     ///
-    /// Also flush `sendable_plaintext` if it is `Some`.  
+    /// Also flush `sendable_plaintext` if it is `Some`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>start_outgoing_traffic(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         sendable_plaintext: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ChunkVecBuffer&gt;,
@@ -1374,7 +1417,7 @@
 
     <span class="doccomment">/// Mark the connection as ready to send and receive application data.
     ///
-    /// Also flush `sendable_plaintext` if it is `Some`.  
+    /// Also flush `sendable_plaintext` if it is `Some`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>start_traffic(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sendable_plaintext: <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>ChunkVecBuffer&gt;) {
         <span class="self">self</span>.may_receive_application_data = <span class="bool-val">true</span>;
         <span class="self">self</span>.start_outgoing_traffic(sendable_plaintext);
@@ -1412,7 +1455,10 @@
                     <span class="self">self</span>.quic.alert = <span class="prelude-val">Some</span>(alert.description);
                 } <span class="kw">else </span>{
                     <span class="macro">debug_assert!</span>(
-                        <span class="macro">matches!</span>(m.payload, MessagePayload::Handshake { .. }),
+                        <span class="macro">matches!</span>(
+                            m.payload,
+                            MessagePayload::Handshake { .. } | MessagePayload::HandshakeFlight(<span class="kw">_</span>)
+                        ),
                         <span class="string">"QUIC uses TLS for the cryptographic handshake only"
                     </span>);
                     <span class="kw">let </span><span class="kw-2">mut </span>bytes = Vec::new();
@@ -1953,6 +1999,44 @@
         }
     }
 }
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>HandshakeFlight&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>TLS13: bool&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) transcript: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>HandshakeHash,
+    body: Vec&lt;u8&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="kw">const </span>TLS13: bool&gt; HandshakeFlight&lt;<span class="lifetime">'a</span>, TLS13&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(transcript: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>HandshakeHash) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            transcript,
+            body: Vec::new(),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hs: HandshakeMessagePayload&lt;<span class="lifetime">'_</span>&gt;) {
+        <span class="kw">let </span>start_len = <span class="self">self</span>.body.len();
+        hs.encode(<span class="kw-2">&amp;mut </span><span class="self">self</span>.body);
+        <span class="self">self</span>.transcript
+            .add(<span class="kw-2">&amp;</span><span class="self">self</span>.body[start_len..]);
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>finish(<span class="self">self</span>, common: <span class="kw-2">&amp;mut </span>CommonState) {
+        common.send_msg(
+            Message {
+                version: <span class="kw">match </span>TLS13 {
+                    <span class="bool-val">true </span>=&gt; ProtocolVersion::TLSv1_3,
+                    <span class="bool-val">false </span>=&gt; ProtocolVersion::TLSv1_2,
+                },
+                payload: MessagePayload::HandshakeFlight(Payload::new(<span class="self">self</span>.body)),
+            },
+            TLS13,
+        );
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"tls12"</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>HandshakeFlightTls12&lt;<span class="lifetime">'a</span>&gt; = HandshakeFlight&lt;<span class="lifetime">'a</span>, <span class="bool-val">false</span>&gt;;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>HandshakeFlightTls13&lt;<span class="lifetime">'a</span>&gt; = HandshakeFlight&lt;<span class="lifetime">'a</span>, <span class="bool-val">true</span>&gt;;
 
 <span class="kw">const </span>DEFAULT_RECEIVED_PLAINTEXT_LIMIT: usize = <span class="number">16 </span>* <span class="number">1024</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEFAULT_BUFFER_LIMIT: usize = <span class="number">64 </span>* <span class="number">1024</span>;

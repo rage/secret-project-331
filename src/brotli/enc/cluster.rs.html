@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/cluster.rs`."><title>cluster.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/cluster.rs`."><title>cluster.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -465,31 +465,18 @@
 <a href="#465" id="465">465</a>
 <a href="#466" id="466">466</a>
 <a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
-<a href="#470" id="470">470</a>
-<a href="#471" id="471">471</a>
-<a href="#472" id="472">472</a>
-<a href="#473" id="473">473</a>
-<a href="#474" id="474">474</a>
-<a href="#475" id="475">475</a>
-<a href="#476" id="476">476</a>
-<a href="#477" id="477">477</a>
-<a href="#478" id="478">478</a>
-<a href="#479" id="479">479</a>
-<a href="#480" id="480">480</a>
-<a href="#481" id="481">481</a>
-<a href="#482" id="482">482</a>
-<a href="#483" id="483">483</a>
-<a href="#484" id="484">484</a>
-</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
-</span><span class="kw">use </span><span class="kw">super</span>::bit_cost::BrotliPopulationCost;
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
+<span class="kw">use </span>core::cmp::min;
+
+<span class="kw">use </span>{alloc, core};
+
+<span class="kw">use </span><span class="kw">super</span>::bit_cost::BrotliPopulationCost;
 <span class="kw">use </span><span class="kw">super</span>::histogram::{
     CostAccessors, HistogramAddHistogram, HistogramClear, HistogramSelfAddHistogram,
 };
 <span class="kw">use </span><span class="kw">super</span>::util::FastLog2;
-<span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
-<span class="kw">use </span>core::cmp::min;
+<span class="kw">use </span><span class="kw">crate</span>::enc::combined_alloc::{alloc_or_default, allocate};
+
 <span class="attr">#[derive(Clone, Copy)]
 </span><span class="kw">pub struct </span>HistogramPair {
     <span class="kw">pub </span>idx1: u32,
@@ -504,8 +491,8 @@
         HistogramPair {
             idx1: <span class="number">0</span>,
             idx2: <span class="number">0</span>,
-            cost_combo: <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
-            cost_diff: <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+            cost_combo: <span class="number">0.0</span>,
+            cost_diff: <span class="number">0.0</span>,
         }
     }
 }
@@ -541,7 +528,7 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
     pairs: <span class="kw-2">&amp;mut </span>[HistogramPair],
     num_pairs: <span class="kw-2">&amp;mut </span>usize,
 ) {
-    <span class="kw">let </span><span class="kw-2">mut </span>is_good_pair: i32 = <span class="number">0i32</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>is_good_pair = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>p: HistogramPair = HistogramPair {
         idx1: <span class="number">0</span>,
         idx2: <span class="number">0</span>,
@@ -555,8 +542,8 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
         }
         p.idx1 = idx1;
         p.idx2 = idx2;
-        p.cost_diff = <span class="number">0.5 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX
-            * ClusterCostDiff(
+        p.cost_diff = <span class="number">0.5
+            </span>* ClusterCostDiff(
                 cluster_size[idx1 <span class="kw">as </span>usize] <span class="kw">as </span>usize,
                 cluster_size[idx2 <span class="kw">as </span>usize] <span class="kw">as </span>usize,
             );
@@ -564,14 +551,14 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
         p.cost_diff -= (out[idx2 <span class="kw">as </span>usize]).bit_cost();
         <span class="kw">if </span>(out[idx1 <span class="kw">as </span>usize]).total_count() == <span class="number">0usize </span>{
             p.cost_combo = (out[idx2 <span class="kw">as </span>usize]).bit_cost();
-            is_good_pair = <span class="number">1i32</span>;
+            is_good_pair = <span class="bool-val">true</span>;
         } <span class="kw">else if </span>(out[idx2 <span class="kw">as </span>usize]).total_count() == <span class="number">0usize </span>{
             p.cost_combo = (out[idx1 <span class="kw">as </span>usize]).bit_cost();
-            is_good_pair = <span class="number">1i32</span>;
+            is_good_pair = <span class="bool-val">true</span>;
         } <span class="kw">else </span>{
-            <span class="kw">let </span>threshold: <span class="kw">super</span>::util::floatX = <span class="kw">if </span><span class="kw-2">*</span>num_pairs == <span class="number">0usize </span>{
-                <span class="number">1e38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX
-            } <span class="kw">else </span>{
+            <span class="kw">let </span>threshold = <span class="kw">if </span><span class="kw-2">*</span>num_pairs == <span class="number">0 </span>{
+                <span class="number">1e38
+            </span>} <span class="kw">else </span>{
                 pairs[<span class="number">0</span>].cost_diff.max(<span class="number">0.0</span>)
             };
 
@@ -580,10 +567,10 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
             <span class="kw">let </span>cost_combo: <span class="kw">super</span>::util::floatX = BrotliPopulationCost(<span class="kw-2">&amp;</span>combo, scratch_space);
             <span class="kw">if </span>cost_combo &lt; threshold - p.cost_diff {
                 p.cost_combo = cost_combo;
-                is_good_pair = <span class="number">1i32</span>;
+                is_good_pair = <span class="bool-val">true</span>;
             }
         }
-        <span class="kw">if </span>is_good_pair != <span class="number">0 </span>{
+        <span class="kw">if </span>is_good_pair {
             p.cost_diff += p.cost_combo;
             <span class="kw">if </span><span class="kw-2">*</span>num_pairs &gt; <span class="number">0usize </span>&amp;&amp; HistogramPairIsLess(<span class="kw-2">&amp;</span>pairs[<span class="number">0</span>], <span class="kw-2">&amp;</span>p) {
                 <span class="comment">/* Replace the top of the queue if needed. */
@@ -614,7 +601,7 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
     max_num_pairs: usize,
     scratch_space: <span class="kw-2">&amp;mut </span>HistogramType::i32vec,
 ) -&gt; usize {
-    <span class="kw">let </span><span class="kw-2">mut </span>cost_diff_threshold: <span class="kw">super</span>::util::floatX = <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+    <span class="kw">let </span><span class="kw-2">mut </span>cost_diff_threshold: <span class="kw">super</span>::util::floatX = <span class="number">0.0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>min_cluster_size: usize = <span class="number">1</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>num_pairs: usize = <span class="number">0usize</span>;
     {
@@ -638,7 +625,7 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
     <span class="kw">while </span>num_clusters &gt; min_cluster_size {
         <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
         <span class="kw">if </span>(pairs[<span class="number">0</span>]).cost_diff &gt;= cost_diff_threshold {
-            cost_diff_threshold = <span class="number">1e38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+            cost_diff_threshold = <span class="number">1e38</span>;
             min_cluster_size = max_clusters;
             {
                 <span class="kw">continue</span>;
@@ -730,8 +717,8 @@ it is below a threshold, stores the pair (idx1, idx2) in the *pairs queue. */
     scratch_space: <span class="kw-2">&amp;mut </span>HistogramType::i32vec,
 ) -&gt; <span class="kw">super</span>::util::floatX {
     <span class="kw">if </span>histogram.total_count() == <span class="number">0usize </span>{
-        <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX
-    } <span class="kw">else </span>{
+        <span class="number">0.0
+    </span>} <span class="kw">else </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>tmp: HistogramType = histogram.clone();
         HistogramAddHistogram(<span class="kw-2">&amp;mut </span>tmp, candidate);
         BrotliPopulationCost(<span class="kw-2">&amp;</span>tmp, scratch_space) - candidate.bit_cost()
@@ -802,12 +789,8 @@ Returns N, the number of unique values in symbols[]. */
     symbols: <span class="kw-2">&amp;mut </span>[u32],
     length: usize,
 ) -&gt; usize {
-    <span class="kw">static </span>kInvalidIndex: u32 = !(<span class="number">0u32</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>new_index = <span class="kw">if </span>length != <span class="number">0 </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, length)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="kw">static </span>kInvalidIndex: u32 = u32::MAX;
+    <span class="kw">let </span><span class="kw-2">mut </span>new_index = alloc_or_default::&lt;u32, <span class="kw">_</span>&gt;(alloc, length);
     <span class="kw">let </span><span class="kw-2">mut </span>next_index: u32;
     <span class="kw">let </span><span class="kw-2">mut </span>tmp: &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::AllocatedMemory;
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..length {
@@ -820,11 +803,7 @@ Returns N, the number of unique values in symbols[]. */
             next_index = next_index.wrapping_add(<span class="number">1</span>);
         }
     }
-    tmp = <span class="kw">if </span>next_index != <span class="number">0 </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::alloc_cell(alloc, next_index <span class="kw">as </span>usize)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::AllocatedMemory::default()
-    };
+    tmp = alloc_or_default::&lt;HistogramType, <span class="kw">_</span>&gt;(alloc, next_index <span class="kw">as </span>usize);
     next_index = <span class="number">0u32</span>;
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..length {
         <span class="kw">if </span>new_index.slice()[(symbols[i] <span class="kw">as </span>usize)] == next_index {
@@ -858,23 +837,14 @@ Returns N, the number of unique values in symbols[]. */
     out_size: <span class="kw-2">&amp;mut </span>usize,
     histogram_symbols: <span class="kw-2">&amp;mut </span>[u32],
 ) {
-    <span class="kw">let </span><span class="kw-2">mut </span>cluster_size = <span class="kw">if </span>in_size != <span class="number">0 </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, in_size)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default()
-    };
-    <span class="kw">let </span><span class="kw-2">mut </span>clusters = <span class="kw">if </span>in_size != <span class="number">0 </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, in_size)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="kw">let </span><span class="kw-2">mut </span>cluster_size = alloc_or_default::&lt;u32, Alloc&gt;(alloc, in_size);
+    <span class="kw">let </span><span class="kw-2">mut </span>clusters = alloc_or_default::&lt;u32, Alloc&gt;(alloc, in_size);
     <span class="kw">let </span><span class="kw-2">mut </span>num_clusters: usize = <span class="number">0usize</span>;
     <span class="kw">let </span>max_input_histograms: usize = <span class="number">64usize</span>;
     <span class="kw">let </span>pairs_capacity: usize = max_input_histograms
         .wrapping_mul(max_input_histograms)
         .wrapping_div(<span class="number">2</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>pairs =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::alloc_cell(alloc, pairs_capacity.wrapping_add(<span class="number">1</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>pairs = allocate::&lt;HistogramPair, <span class="kw">_</span>&gt;(alloc, pairs_capacity.wrapping_add(<span class="number">1</span>));
     <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..in_size {
         cluster_size.slice_mut()[i] = <span class="number">1u32</span>;
@@ -924,11 +894,7 @@ Returns N, the number of unique values in symbols[]. */
                 <span class="kw">while </span>_new_size &lt; max_num_pairs.wrapping_add(<span class="number">1</span>) {
                     _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
                 }
-                new_array = <span class="kw">if </span>_new_size != <span class="number">0 </span>{
-                    &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::alloc_cell(alloc, _new_size)
-                } <span class="kw">else </span>{
-                    &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::AllocatedMemory::default()
-                };
+                new_array = alloc_or_default::&lt;HistogramPair, <span class="kw">_</span>&gt;(alloc, _new_size);
                 new_array.slice_mut()[..pairs_capacity]
                     .clone_from_slice(<span class="kw-2">&amp;</span>pairs.slice()[..pairs_capacity]);
                 &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::free_cell(

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/groupbylazy.rs`."><title>groupbylazy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/groupbylazy.rs`."><title>groupbylazy.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -606,10 +606,15 @@
 <a href="#606" id="606">606</a>
 <a href="#607" id="607">607</a>
 <a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::{<span class="self">self</span>, Vec};
 <span class="kw">use </span>std::cell::{Cell, RefCell};
 
-<span class="doccomment">/// A trait to unify `FnMut` for `GroupBy` with the chunk key in `IntoChunks`
+<span class="doccomment">/// A trait to unify `FnMut` for `ChunkBy` with the chunk key in `IntoChunks`
 </span><span class="kw">trait </span>KeyFunction&lt;A&gt; {
     <span class="kw">type </span>Key;
     <span class="kw">fn </span>call_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, arg: A) -&gt; <span class="self">Self</span>::Key;
@@ -674,12 +679,13 @@
     <span class="doccomment">/// Least index for which we still have elements buffered
     </span>oldest_buffered_group: usize,
     <span class="doccomment">/// Group index for `buffer[0]` -- the slots
-    /// bottom_group..oldest_buffered_group are unused and will be erased when
+    /// `bottom_group..oldest_buffered_group` are unused and will be erased when
     /// that range is large enough.
     </span>bottom_group: usize,
     <span class="doccomment">/// Buffered groups, from `bottom_group` (index 0) to `top_group`.
     </span>buffer: Vec&lt;vec::IntoIter&lt;I::Item&gt;&gt;,
-    <span class="doccomment">/// index of last group iter that was dropped, usize::MAX == none
+    <span class="doccomment">/// index of last group iter that was dropped,
+    /// `usize::MAX` initially when no group was dropped
     </span>dropped_group: usize,
 }
 
@@ -890,10 +896,14 @@
     }
 }
 
-<span class="doccomment">/// `GroupBy` is the storage for the lazy grouping operation.
+<span class="attr">#[deprecated(note = <span class="string">"Use `ChunkBy` instead"</span>, since = <span class="string">"0.13.0"</span>)]
+</span><span class="doccomment">/// See [`ChunkBy`](crate::structs::ChunkBy).
+</span><span class="kw">pub type </span>GroupBy&lt;K, I, F&gt; = ChunkBy&lt;K, I, F&gt;;
+
+<span class="doccomment">/// `ChunkBy` is the storage for the lazy grouping operation.
 ///
 /// If the groups are consumed in their original order, or if each
-/// group is dropped without keeping it around, then `GroupBy` uses
+/// group is dropped without keeping it around, then `ChunkBy` uses
 /// no allocations. It needs allocations only if several group iterators
 /// are alive at the same time.
 ///
@@ -902,9 +912,9 @@
 /// value. It should be stored in a local variable or temporary and
 /// iterated.
 ///
-/// See [`.group_by()`](crate::Itertools::group_by) for more information.
+/// See [`.chunk_by()`](crate::Itertools::chunk_by) for more information.
 </span><span class="attr">#[must_use = <span class="string">"iterator adaptors are lazy and do nothing unless consumed"</span>]
-</span><span class="kw">pub struct </span>GroupBy&lt;K, I, F&gt;
+</span><span class="kw">pub struct </span>ChunkBy&lt;K, I, F&gt;
 <span class="kw">where
     </span>I: Iterator,
 {
@@ -915,12 +925,12 @@
 }
 
 <span class="doccomment">/// Create a new
-</span><span class="kw">pub fn </span>new&lt;K, J, F&gt;(iter: J, f: F) -&gt; GroupBy&lt;K, J::IntoIter, F&gt;
+</span><span class="kw">pub fn </span>new&lt;K, J, F&gt;(iter: J, f: F) -&gt; ChunkBy&lt;K, J::IntoIter, F&gt;
 <span class="kw">where
     </span>J: IntoIterator,
     F: FnMut(<span class="kw-2">&amp;</span>J::Item) -&gt; K,
 {
-    GroupBy {
+    ChunkBy {
         inner: RefCell::new(GroupInner {
             key: f,
             iter: iter.into_iter(),
@@ -937,7 +947,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;K, I, F&gt; GroupBy&lt;K, I, F&gt;
+<span class="kw">impl</span>&lt;K, I, F&gt; ChunkBy&lt;K, I, F&gt;
 <span class="kw">where
     </span>I: Iterator,
 {
@@ -956,7 +966,7 @@
     }
 }
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, I, F&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>GroupBy&lt;K, I, F&gt;
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, I, F&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>ChunkBy&lt;K, I, F&gt;
 <span class="kw">where
     </span>I: Iterator,
     I::Item: <span class="lifetime">'a</span>,
@@ -976,7 +986,7 @@
 /// Iterator element type is `(K, Group)`:
 /// the group's key `K` and the group's iterator.
 ///
-/// See [`.group_by()`](crate::Itertools::group_by) for more information.
+/// See [`.chunk_by()`](crate::Itertools::chunk_by) for more information.
 </span><span class="attr">#[must_use = <span class="string">"iterator adaptors are lazy and do nothing unless consumed"</span>]
 </span><span class="kw">pub struct </span>Groups&lt;<span class="lifetime">'a</span>, K, I, F&gt;
 <span class="kw">where
@@ -985,7 +995,7 @@
     K: <span class="lifetime">'a</span>,
     F: <span class="lifetime">'a</span>,
 {
-    parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>GroupBy&lt;K, I, F&gt;,
+    parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ChunkBy&lt;K, I, F&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K, I, F&gt; Iterator <span class="kw">for </span>Groups&lt;<span class="lifetime">'a</span>, K, I, F&gt;
@@ -1026,7 +1036,7 @@
     K: <span class="lifetime">'a</span>,
     F: <span class="lifetime">'a</span>,
 {
-    parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>GroupBy&lt;K, I, F&gt;,
+    parent: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ChunkBy&lt;K, I, F&gt;,
     index: usize,
     first: <span class="prelude-ty">Option</span>&lt;I::Item&gt;,
 }
@@ -1084,7 +1094,7 @@
 
 <span class="doccomment">/// `ChunkLazy` is the storage for a lazy chunking operation.
 ///
-/// `IntoChunks` behaves just like `GroupBy`: it is iterable, and
+/// `IntoChunks` behaves just like `ChunkBy`: it is iterable, and
 /// it only buffers if several chunk iterators are alive at the same time.
 ///
 /// This type implements [`IntoIterator`] (it is **not** an iterator

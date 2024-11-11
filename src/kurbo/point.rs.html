@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/point.rs`."><title>point.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/point.rs`."><title>point.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -342,6 +342,33 @@
 <a href="#342" id="342">342</a>
 <a href="#343" id="343">343</a>
 <a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2019 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -408,19 +435,22 @@
     }
 
     <span class="doccomment">/// Euclidean distance.
+    ///
+    /// See [`Vec2::hypot`] for the same operation on [`Vec2`].
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>distance(<span class="self">self</span>, other: Point) -&gt; f64 {
         (<span class="self">self </span>- other).hypot()
     }
 
     <span class="doccomment">/// Squared Euclidean distance.
+    ///
+    /// See [`Vec2::hypot2`] for the same operation on [`Vec2`].
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>distance_squared(<span class="self">self</span>, other: Point) -&gt; f64 {
         (<span class="self">self </span>- other).hypot2()
     }
 
-    <span class="doccomment">/// Returns a new `Point`,
-    /// with `x` and `y` rounded to the nearest integer.
+    <span class="doccomment">/// Returns a new `Point`, with `x` and `y` [rounded] to the nearest integer.
     ///
     /// # Examples
     ///
@@ -433,13 +463,15 @@
     /// assert_eq!(b.x, 3.0);
     /// assert_eq!(b.y, -3.0);
     /// ```
+    ///
+    /// [rounded]: f64::round
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>round(<span class="self">self</span>) -&gt; Point {
         Point::new(<span class="self">self</span>.x.round(), <span class="self">self</span>.y.round())
     }
 
     <span class="doccomment">/// Returns a new `Point`,
-    /// with `x` and `y` rounded up to the nearest integer,
+    /// with `x` and `y` [rounded up] to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -453,13 +485,15 @@
     /// assert_eq!(b.x, 3.0);
     /// assert_eq!(b.y, -3.0);
     /// ```
+    ///
+    /// [rounded up]: f64::ceil
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>ceil(<span class="self">self</span>) -&gt; Point {
         Point::new(<span class="self">self</span>.x.ceil(), <span class="self">self</span>.y.ceil())
     }
 
     <span class="doccomment">/// Returns a new `Point`,
-    /// with `x` and `y` rounded down to the nearest integer,
+    /// with `x` and `y` [rounded down] to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -473,13 +507,15 @@
     /// assert_eq!(b.x, 3.0);
     /// assert_eq!(b.y, -4.0);
     /// ```
+    ///
+    /// [rounded down]: f64::floor
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>floor(<span class="self">self</span>) -&gt; Point {
         Point::new(<span class="self">self</span>.x.floor(), <span class="self">self</span>.y.floor())
     }
 
     <span class="doccomment">/// Returns a new `Point`,
-    /// with `x` and `y` rounded away from zero to the nearest integer,
+    /// with `x` and `y` [rounded away] from zero to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -493,13 +529,15 @@
     /// assert_eq!(b.x, 3.0);
     /// assert_eq!(b.y, -4.0);
     /// ```
+    ///
+    /// [rounded away]: FloatExt::expand
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>expand(<span class="self">self</span>) -&gt; Point {
         Point::new(<span class="self">self</span>.x.expand(), <span class="self">self</span>.y.expand())
     }
 
     <span class="doccomment">/// Returns a new `Point`,
-    /// with `x` and `y` rounded towards zero to the nearest integer,
+    /// with `x` and `y` [rounded towards] zero to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -513,21 +551,37 @@
     /// assert_eq!(b.x, 3.0);
     /// assert_eq!(b.y, -3.0);
     /// ```
+    ///
+    /// [rounded towards]: f64::trunc
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>trunc(<span class="self">self</span>) -&gt; Point {
         Point::new(<span class="self">self</span>.x.trunc(), <span class="self">self</span>.y.trunc())
     }
 
-    <span class="doccomment">/// Is this point finite?
+    <span class="doccomment">/// Is this point [finite]?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.x.is_finite() &amp;&amp; <span class="self">self</span>.y.is_finite()
     }
 
-    <span class="doccomment">/// Is this point NaN?
+    <span class="doccomment">/// Is this point [`NaN`]?
+    ///
+    /// [`NaN`]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.x.is_nan() || <span class="self">self</span>.y.is_nan()
+    }
+}
+
+<span class="kw">impl </span>From&lt;(f32, f32)&gt; <span class="kw">for </span>Point {
+    <span class="attr">#[inline]
+    </span><span class="kw">fn </span>from(v: (f32, f32)) -&gt; Point {
+        Point {
+            x: v.<span class="number">0 </span><span class="kw">as </span>f64,
+            y: v.<span class="number">1 </span><span class="kw">as </span>f64,
+        }
     }
 }
 
@@ -557,7 +611,7 @@
 <span class="kw">impl </span>AddAssign&lt;Vec2&gt; <span class="kw">for </span>Point {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Vec2) {
-        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x + other.x, <span class="self">self</span>.y + other.y)
+        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x + other.x, <span class="self">self</span>.y + other.y);
     }
 }
 
@@ -573,7 +627,7 @@
 <span class="kw">impl </span>SubAssign&lt;Vec2&gt; <span class="kw">for </span>Point {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Vec2) {
-        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x - other.x, <span class="self">self</span>.y - other.y)
+        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x - other.x, <span class="self">self</span>.y - other.y);
     }
 }
 
@@ -589,7 +643,7 @@
 <span class="kw">impl </span>AddAssign&lt;(f64, f64)&gt; <span class="kw">for </span>Point {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, (x, y): (f64, f64)) {
-        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x + x, <span class="self">self</span>.y + y)
+        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x + x, <span class="self">self</span>.y + y);
     }
 }
 
@@ -605,7 +659,7 @@
 <span class="kw">impl </span>SubAssign&lt;(f64, f64)&gt; <span class="kw">for </span>Point {
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, (x, y): (f64, f64)) {
-        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x - x, <span class="self">self</span>.y - y)
+        <span class="kw-2">*</span><span class="self">self </span>= Point::new(<span class="self">self</span>.x - x, <span class="self">self</span>.y - y);
     }
 }
 

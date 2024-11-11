@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/ot_layout_common.rs`."><title>ot_layout_common.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/ot_layout_common.rs`."><title>ot_layout_common.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -136,17 +136,11 @@
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
-
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::hb::set_digest::{hb_set_digest_ext, hb_set_digest_t};
+<span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>ttf_parser::gpos::PositioningSubtable;
 <span class="kw">use </span>ttf_parser::gsub::SubstitutionSubtable;
 <span class="kw">use </span>ttf_parser::opentype_layout::{Coverage, Lookup};
-
-<span class="kw">use </span><span class="kw">super</span>::glyph_set::{GlyphSet, GlyphSetBuilder};
 
 <span class="attr">#[allow(dead_code)]
 </span><span class="kw">pub mod </span>lookup_flags {
@@ -178,21 +172,19 @@
 }
 
 <span class="kw">pub trait </span>CoverageExt {
-    <span class="kw">fn </span>collect(<span class="kw-2">&amp;</span><span class="self">self</span>, set: <span class="kw-2">&amp;mut </span>GlyphSetBuilder);
+    <span class="kw">fn </span>collect(<span class="kw-2">&amp;</span><span class="self">self</span>, set_digest: <span class="kw-2">&amp;mut </span>hb_set_digest_t);
 }
 
 <span class="kw">impl </span>CoverageExt <span class="kw">for </span>Coverage&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="doccomment">/// Collect this coverage table into a glyph set.
-    </span><span class="kw">fn </span>collect(<span class="kw-2">&amp;</span><span class="self">self</span>, set: <span class="kw-2">&amp;mut </span>GlyphSetBuilder) {
+    <span class="doccomment">/// Collect this coverage table into a set digest.
+    </span><span class="kw">fn </span>collect(<span class="kw-2">&amp;</span><span class="self">self</span>, set_digest: <span class="kw-2">&amp;mut </span>hb_set_digest_t) {
         <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
             <span class="self">Self</span>::Format1 { glyphs } =&gt; {
-                <span class="kw">for </span>glyph <span class="kw">in </span>glyphs {
-                    set.insert(glyph);
-                }
+                set_digest.add_array(glyphs);
             }
             <span class="self">Self</span>::Format2 { records } =&gt; {
                 <span class="kw">for </span>record <span class="kw">in </span>records {
-                    set.insert_range(record.start..=record.end);
+                    set_digest.add_range(record.start, record.end);
                 }
             }
         }
@@ -202,7 +194,7 @@
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>PositioningLookup&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>subtables: Vec&lt;PositioningSubtable&lt;<span class="lifetime">'a</span>&gt;&gt;,
-    <span class="kw">pub </span>coverage: GlyphSet,
+    <span class="kw">pub </span>set_digest: hb_set_digest_t,
     <span class="kw">pub </span>props: u32,
 }
 
@@ -213,14 +205,14 @@
             .into_iter::&lt;PositioningSubtable&gt;()
             .collect();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>coverage = GlyphSet::builder();
+        <span class="kw">let </span><span class="kw-2">mut </span>set_digest = hb_set_digest_t::new();
         <span class="kw">for </span>subtable <span class="kw">in </span><span class="kw-2">&amp;</span>subtables {
-            subtable.coverage().collect(<span class="kw-2">&amp;mut </span>coverage);
+            subtable.coverage().collect(<span class="kw-2">&amp;mut </span>set_digest);
         }
 
         <span class="self">Self </span>{
             subtables,
-            coverage: coverage.finish(),
+            set_digest,
             props: lookup_props(lookup),
         }
     }
@@ -243,7 +235,7 @@
 <span class="attr">#[derive(Clone)]
 </span><span class="kw">pub struct </span>SubstLookup&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>subtables: Vec&lt;SubstitutionSubtable&lt;<span class="lifetime">'a</span>&gt;&gt;,
-    <span class="kw">pub </span>coverage: GlyphSet,
+    <span class="kw">pub </span>set_digest: hb_set_digest_t,
     <span class="kw">pub </span>reverse: bool,
     <span class="kw">pub </span>props: u32,
 }
@@ -255,17 +247,17 @@
             .into_iter::&lt;SubstitutionSubtable&gt;()
             .collect();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>coverage = GlyphSet::builder();
+        <span class="kw">let </span><span class="kw-2">mut </span>set_digest = hb_set_digest_t::new();
         <span class="kw">let </span><span class="kw-2">mut </span>reverse = !subtables.is_empty();
 
         <span class="kw">for </span>subtable <span class="kw">in </span><span class="kw-2">&amp;</span>subtables {
-            subtable.coverage().collect(<span class="kw-2">&amp;mut </span>coverage);
+            subtable.coverage().collect(<span class="kw-2">&amp;mut </span>set_digest);
             reverse &amp;= subtable.is_reverse();
         }
 
         <span class="self">Self </span>{
             subtables,
-            coverage: coverage.finish(),
+            set_digest,
             reverse,
             props: lookup_props(lookup),
         }

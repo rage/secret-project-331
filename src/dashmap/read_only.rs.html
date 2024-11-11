@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dashmap-5.5.3/src/read_only.rs`."><title>read_only.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="dashmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dashmap-6.1.0/src/read_only.rs`."><title>read_only.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="dashmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -260,15 +260,6 @@
 <a href="#260" id="260">260</a>
 <a href="#261" id="261">261</a>
 <a href="#262" id="262">262</a>
-<a href="#263" id="263">263</a>
-<a href="#264" id="264">264</a>
-<a href="#265" id="265">265</a>
-<a href="#266" id="266">266</a>
-<a href="#267" id="267">267</a>
-<a href="#268" id="268">268</a>
-<a href="#269" id="269">269</a>
-<a href="#270" id="270">270</a>
-<a href="#271" id="271">271</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::lock::RwLock;
 <span class="kw">use </span><span class="kw">crate</span>::t::Map;
 <span class="kw">use crate</span>::{DashMap, HashMap};
@@ -276,6 +267,7 @@
 <span class="kw">use </span>core::borrow::Borrow;
 <span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::hash::{BuildHasher, Hash};
+<span class="kw">use </span>crossbeam_utils::CachePadded;
 <span class="kw">use </span>std::collections::hash_map::RandomState;
 
 <span class="doccomment">/// A read-only view into a `DashMap`. Allows to obtain raw references to the stored values.
@@ -332,13 +324,7 @@
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.map.hash_usize(<span class="kw-2">&amp;</span>key);
-
-        <span class="kw">let </span>idx = <span class="self">self</span>.map.determine_shard(hash);
-
-        <span class="kw">let </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>.map._get_read_shard(idx) };
-
-        shard.contains_key(key)
+        <span class="self">self</span>.get(key).is_some()
     }
 
     <span class="doccomment">/// Returns a reference to the value corresponding to the key.
@@ -347,13 +333,7 @@
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.map.hash_usize(<span class="kw-2">&amp;</span>key);
-
-        <span class="kw">let </span>idx = <span class="self">self</span>.map.determine_shard(hash);
-
-        <span class="kw">let </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>.map._get_read_shard(idx) };
-
-        shard.get(key).map(|v| v.get())
+        <span class="self">self</span>.get_key_value(key).map(|(_k, v)| v)
     }
 
     <span class="doccomment">/// Returns the key-value pair corresponding to the supplied key.
@@ -362,37 +342,39 @@
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.map.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.map.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.map.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.map.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>.map._get_read_shard(idx) };
 
-        shard.get_key_value(key).map(|(k, v)| (k, v.get()))
-    }
-
-    <span class="kw">fn </span>shard_read_iter(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>HashMap&lt;K, V, S&gt;&gt; + <span class="lifetime">'a </span>{
-        (<span class="number">0</span>..<span class="self">self</span>.map._shard_count())
-            .map(<span class="kw">move </span>|shard_i| <span class="kw">unsafe </span>{ <span class="self">self</span>.map._get_read_shard(shard_i) })
+        shard.find(hash, |(k, _v)| key == k.borrow()).map(|b| {
+            <span class="kw">let </span>(k, v) = <span class="kw">unsafe </span>{ b.as_ref() };
+            (k, v.get())
+        })
     }
 
     <span class="doccomment">/// An iterator visiting all key-value pairs in arbitrary order. The iterator element type is `(&amp;'a K, &amp;'a V)`.
     </span><span class="kw">pub fn </span>iter(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = (<span class="kw-2">&amp;</span><span class="lifetime">'a </span>K, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V)&gt; + <span class="lifetime">'a </span>{
-        <span class="self">self</span>.shard_read_iter()
-            .flat_map(|shard| shard.iter())
-            .map(|(k, v)| (k, v.get()))
+        <span class="kw">unsafe </span>{
+            (<span class="number">0</span>..<span class="self">self</span>.map._shard_count())
+                .map(<span class="kw">move </span>|shard_i| <span class="self">self</span>.map._get_read_shard(shard_i))
+                .flat_map(|shard| shard.iter())
+                .map(|b| {
+                    <span class="kw">let </span>(k, v) = b.as_ref();
+                    (k, v.get())
+                })
+        }
     }
 
     <span class="doccomment">/// An iterator visiting all keys in arbitrary order. The iterator element type is `&amp;'a K`.
     </span><span class="kw">pub fn </span>keys(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>K&gt; + <span class="lifetime">'a </span>{
-        <span class="self">self</span>.shard_read_iter().flat_map(|shard| shard.keys())
+        <span class="self">self</span>.iter().map(|(k, _v)| k)
     }
 
     <span class="doccomment">/// An iterator visiting all values in arbitrary order. The iterator element type is `&amp;'a V`.
     </span><span class="kw">pub fn </span>values(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">'a </span>V&gt; + <span class="lifetime">'a </span>{
-        <span class="self">self</span>.shard_read_iter()
-            .flat_map(|shard| shard.values())
-            .map(|v| v.get())
+        <span class="self">self</span>.iter().map(|(_k, v)| v)
     }
 
     <span class="macro">cfg_if!</span> {
@@ -410,12 +392,12 @@
             /// let map = DashMap::&lt;(), ()&gt;::new().into_read_only();
             /// println!("Amount of shards: {}", map.shards().len());
             /// ```
-            </span><span class="kw">pub fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;] {
+            </span><span class="kw">pub fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;] {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.map.shards
             }
         } <span class="kw">else </span>{
             <span class="attr">#[allow(dead_code)]
-            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;] {
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;] {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.map.shards
             }
         }

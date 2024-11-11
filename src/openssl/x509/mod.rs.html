@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.66/src/x509/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/openssl-0.10.67/src/x509/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="openssl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2544,55 +2544,6 @@
 <a href="#2544" id="2544">2544</a>
 <a href="#2545" id="2545">2545</a>
 <a href="#2546" id="2546">2546</a>
-<a href="#2547" id="2547">2547</a>
-<a href="#2548" id="2548">2548</a>
-<a href="#2549" id="2549">2549</a>
-<a href="#2550" id="2550">2550</a>
-<a href="#2551" id="2551">2551</a>
-<a href="#2552" id="2552">2552</a>
-<a href="#2553" id="2553">2553</a>
-<a href="#2554" id="2554">2554</a>
-<a href="#2555" id="2555">2555</a>
-<a href="#2556" id="2556">2556</a>
-<a href="#2557" id="2557">2557</a>
-<a href="#2558" id="2558">2558</a>
-<a href="#2559" id="2559">2559</a>
-<a href="#2560" id="2560">2560</a>
-<a href="#2561" id="2561">2561</a>
-<a href="#2562" id="2562">2562</a>
-<a href="#2563" id="2563">2563</a>
-<a href="#2564" id="2564">2564</a>
-<a href="#2565" id="2565">2565</a>
-<a href="#2566" id="2566">2566</a>
-<a href="#2567" id="2567">2567</a>
-<a href="#2568" id="2568">2568</a>
-<a href="#2569" id="2569">2569</a>
-<a href="#2570" id="2570">2570</a>
-<a href="#2571" id="2571">2571</a>
-<a href="#2572" id="2572">2572</a>
-<a href="#2573" id="2573">2573</a>
-<a href="#2574" id="2574">2574</a>
-<a href="#2575" id="2575">2575</a>
-<a href="#2576" id="2576">2576</a>
-<a href="#2577" id="2577">2577</a>
-<a href="#2578" id="2578">2578</a>
-<a href="#2579" id="2579">2579</a>
-<a href="#2580" id="2580">2580</a>
-<a href="#2581" id="2581">2581</a>
-<a href="#2582" id="2582">2582</a>
-<a href="#2583" id="2583">2583</a>
-<a href="#2584" id="2584">2584</a>
-<a href="#2585" id="2585">2585</a>
-<a href="#2586" id="2586">2586</a>
-<a href="#2587" id="2587">2587</a>
-<a href="#2588" id="2588">2588</a>
-<a href="#2589" id="2589">2589</a>
-<a href="#2590" id="2590">2590</a>
-<a href="#2591" id="2591">2591</a>
-<a href="#2592" id="2592">2592</a>
-<a href="#2593" id="2593">2593</a>
-<a href="#2594" id="2594">2594</a>
-<a href="#2595" id="2595">2595</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! The standard defining the format of public key certificates.
 //!
 //! An `X509` certificate binds an identity to a public key, and is either
@@ -2615,7 +2566,6 @@
 <span class="kw">use </span>std::net::IpAddr;
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::ptr;
-<span class="kw">use </span>std::slice;
 <span class="kw">use </span>std::str;
 
 <span class="kw">use </span><span class="kw">crate</span>::asn1::{
@@ -2632,7 +2582,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::ssl::SslRef;
 <span class="kw">use </span><span class="kw">crate</span>::stack::{Stack, StackRef, Stackable};
 <span class="kw">use </span><span class="kw">crate</span>::string::OpensslString;
-<span class="kw">use </span><span class="kw">crate</span>::util::{ForeignTypeExt, ForeignTypeRefExt};
+<span class="kw">use </span><span class="kw">crate</span>::util::{<span class="self">self</span>, ForeignTypeExt, ForeignTypeRefExt};
 <span class="kw">use crate</span>::{cvt, cvt_n, cvt_p, cvt_p_const};
 <span class="kw">use </span>openssl_macros::corresponds;
 
@@ -2731,7 +2681,7 @@
     {
         <span class="kw">struct </span>Cleanup&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>X509StoreContextRef);
 
-        <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; Drop <span class="kw">for </span>Cleanup&lt;<span class="lifetime">'a</span>&gt; {
+        <span class="kw">impl </span>Drop <span class="kw">for </span>Cleanup&lt;<span class="lifetime">'_</span>&gt; {
             <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
                 <span class="kw">unsafe </span>{
                     ffi::X509_STORE_CTX_cleanup(<span class="self">self</span>.<span class="number">0</span>.as_ptr());
@@ -3257,7 +3207,7 @@
             <span class="kw">if </span>ptr.is_null() {
                 <span class="prelude-val">None
             </span>} <span class="kw">else </span>{
-                <span class="prelude-val">Some</span>(slice::from_raw_parts(ptr, len <span class="kw">as </span>usize))
+                <span class="prelude-val">Some</span>(util::from_raw_parts(ptr, len <span class="kw">as </span>usize))
             }
         }
     }
@@ -3469,7 +3419,7 @@
 <span class="doccomment">/// A context object required to construct certain `X509` extension values.
 </span><span class="kw">pub struct </span>X509v3Context&lt;<span class="lifetime">'a</span>&gt;(ffi::X509V3_CTX, PhantomData&lt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span>X509Ref, <span class="kw-2">&amp;</span><span class="lifetime">'a </span>ConfRef)&gt;);
 
-<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; X509v3Context&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">impl </span>X509v3Context&lt;<span class="lifetime">'_</span>&gt; {
     <span class="kw">pub fn </span>as_ptr(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut </span>ffi::X509V3_CTX {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span><span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_ as </span><span class="kw-2">*mut </span><span class="kw">_
     </span>}
@@ -3681,10 +3631,7 @@
     }
 
     <span class="doccomment">/// Add a field entry by str.
-    ///
-    /// This corresponds to [`X509_NAME_add_entry_by_txt`].
-    ///
-    /// [`X509_NAME_add_entry_by_txt`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_add_entry_by_txt.html
+    </span><span class="attr">#[corresponds(X509_NAME_add_entry_by_txt)]
     </span><span class="kw">pub fn </span>append_entry_by_text(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>field = CString::new(field).unwrap();
@@ -3703,10 +3650,7 @@
     }
 
     <span class="doccomment">/// Add a field entry by str with a specific type.
-    ///
-    /// This corresponds to [`X509_NAME_add_entry_by_txt`].
-    ///
-    /// [`X509_NAME_add_entry_by_txt`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_add_entry_by_txt.html
+    </span><span class="attr">#[corresponds(X509_NAME_add_entry_by_txt)]
     </span><span class="kw">pub fn </span>append_entry_by_text_with_type(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         field: <span class="kw-2">&amp;</span>str,
@@ -3730,10 +3674,7 @@
     }
 
     <span class="doccomment">/// Add a field entry by NID.
-    ///
-    /// This corresponds to [`X509_NAME_add_entry_by_NID`].
-    ///
-    /// [`X509_NAME_add_entry_by_NID`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_add_entry_by_NID.html
+    </span><span class="attr">#[corresponds(X509_NAME_add_entry_by_NID)]
     </span><span class="kw">pub fn </span>append_entry_by_nid(<span class="kw-2">&amp;mut </span><span class="self">self</span>, field: Nid, value: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="macro">assert!</span>(value.len() &lt;= <span class="kw">crate</span>::SLenType::MAX <span class="kw">as </span>usize);
@@ -3751,10 +3692,7 @@
     }
 
     <span class="doccomment">/// Add a field entry by NID with a specific type.
-    ///
-    /// This corresponds to [`X509_NAME_add_entry_by_NID`].
-    ///
-    /// [`X509_NAME_add_entry_by_NID`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_add_entry_by_NID.html
+    </span><span class="attr">#[corresponds(X509_NAME_add_entry_by_NID)]
     </span><span class="kw">pub fn </span>append_entry_by_nid_with_type(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         field: Nid,
@@ -3932,10 +3870,7 @@
 
 <span class="kw">impl </span>X509NameEntryRef {
     <span class="doccomment">/// Returns the field value of an `X509NameEntry`.
-    ///
-    /// This corresponds to [`X509_NAME_ENTRY_get_data`].
-    ///
-    /// [`X509_NAME_ENTRY_get_data`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_ENTRY_get_data.html
+    </span><span class="attr">#[corresponds(X509_NAME_ENTRY_get_data)]
     </span><span class="kw">pub fn </span>data(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Asn1StringRef {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>data = ffi::X509_NAME_ENTRY_get_data(<span class="self">self</span>.as_ptr());
@@ -3945,10 +3880,7 @@
 
     <span class="doccomment">/// Returns the `Asn1Object` value of an `X509NameEntry`.
     /// This is useful for finding out about the actual `Nid` when iterating over all `X509NameEntries`.
-    ///
-    /// This corresponds to [`X509_NAME_ENTRY_get_object`].
-    ///
-    /// [`X509_NAME_ENTRY_get_object`]: https://www.openssl.org/docs/manmaster/crypto/X509_NAME_ENTRY_get_object.html
+    </span><span class="attr">#[corresponds(X509_NAME_ENTRY_get_object)]
     </span><span class="kw">pub fn </span>object(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Asn1ObjectRef {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>object = ffi::X509_NAME_ENTRY_get_object(<span class="self">self</span>.as_ptr());
@@ -3968,10 +3900,7 @@
 
 <span class="kw">impl </span>X509ReqBuilder {
     <span class="doccomment">/// Returns a builder for a certificate request.
-    ///
-    /// This corresponds to [`X509_REQ_new`].
-    ///
-    ///[`X509_REQ_new`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_new.html
+    </span><span class="attr">#[corresponds(X509_REQ_new)]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="prelude-ty">Result</span>&lt;X509ReqBuilder, ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             ffi::init();
@@ -3980,11 +3909,8 @@
     }
 
     <span class="doccomment">/// Set the numerical value of the version field.
-    ///
-    /// This corresponds to [`X509_REQ_set_version`].
-    ///
-    ///[`X509_REQ_set_version`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_set_version.html
-    </span><span class="attr">#[allow(clippy::useless_conversion)]
+    </span><span class="attr">#[corresponds(X509_REQ_set_version)]
+    #[allow(clippy::useless_conversion)]
     </span><span class="kw">pub fn </span>set_version(<span class="kw-2">&amp;mut </span><span class="self">self</span>, version: i32) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             cvt(ffi::X509_REQ_set_version(
@@ -3996,10 +3922,7 @@
     }
 
     <span class="doccomment">/// Set the issuer name.
-    ///
-    /// This corresponds to [`X509_REQ_set_subject_name`].
-    ///
-    /// [`X509_REQ_set_subject_name`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_set_subject_name.html
+    </span><span class="attr">#[corresponds(X509_REQ_set_subject_name)]
     </span><span class="kw">pub fn </span>set_subject_name(<span class="kw-2">&amp;mut </span><span class="self">self</span>, subject_name: <span class="kw-2">&amp;</span>X509NameRef) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             cvt(ffi::X509_REQ_set_subject_name(
@@ -4011,10 +3934,7 @@
     }
 
     <span class="doccomment">/// Set the public key.
-    ///
-    /// This corresponds to [`X509_REQ_set_pubkey`].
-    ///
-    /// [`X509_REQ_set_pubkey`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_set_pubkey.html
+    </span><span class="attr">#[corresponds(X509_REQ_set_pubkey)]
     </span><span class="kw">pub fn </span>set_pubkey&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>PKeyRef&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt;
     <span class="kw">where
         </span>T: HasPublic,
@@ -4061,10 +3981,7 @@
     }
 
     <span class="doccomment">/// Sign the request using a private key.
-    ///
-    /// This corresponds to [`X509_REQ_sign`].
-    ///
-    /// [`X509_REQ_sign`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_sign.html
+    </span><span class="attr">#[corresponds(X509_REQ_sign)]
     </span><span class="kw">pub fn </span>sign&lt;T&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>PKeyRef&lt;T&gt;, hash: MessageDigest) -&gt; <span class="prelude-ty">Result</span>&lt;(), ErrorStack&gt;
     <span class="kw">where
         </span>T: HasPrivate,
@@ -4157,20 +4074,14 @@
     }
 
     <span class="doccomment">/// Returns the numerical value of the version field of the certificate request.
-    ///
-    /// This corresponds to [`X509_REQ_get_version`]
-    ///
-    /// [`X509_REQ_get_version`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_get_version.html
-    </span><span class="attr">#[allow(clippy::unnecessary_cast)]
+    </span><span class="attr">#[corresponds(X509_REQ_get_version)]
+    #[allow(clippy::unnecessary_cast)]
     </span><span class="kw">pub fn </span>version(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; i32 {
         <span class="kw">unsafe </span>{ X509_REQ_get_version(<span class="self">self</span>.as_ptr()) <span class="kw">as </span>i32 }
     }
 
     <span class="doccomment">/// Returns the subject name of the certificate request.
-    ///
-    /// This corresponds to [`X509_REQ_get_subject_name`]
-    ///
-    /// [`X509_REQ_get_subject_name`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_get_subject_name.html
+    </span><span class="attr">#[corresponds(X509_REQ_get_subject_name)]
     </span><span class="kw">pub fn </span>subject_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>X509NameRef {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>name = X509_REQ_get_subject_name(<span class="self">self</span>.as_ptr());
@@ -4179,10 +4090,7 @@
     }
 
     <span class="doccomment">/// Returns the public key of the certificate request.
-    ///
-    /// This corresponds to [`X509_REQ_get_pubkey"]
-    ///
-    /// [`X509_REQ_get_pubkey`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_get_pubkey.html
+    </span><span class="attr">#[corresponds(X509_REQ_get_pubkey)]
     </span><span class="kw">pub fn </span>public_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;PKey&lt;Public&gt;, ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>key = cvt_p(ffi::X509_REQ_get_pubkey(<span class="self">self</span>.as_ptr()))<span class="question-mark">?</span>;
@@ -4193,10 +4101,7 @@
     <span class="doccomment">/// Check if the certificate request is signed using the given public key.
     ///
     /// Returns `true` if verification succeeds.
-    ///
-    /// This corresponds to [`X509_REQ_verify"].
-    ///
-    /// [`X509_REQ_verify`]: https://www.openssl.org/docs/manmaster/crypto/X509_REQ_verify.html
+    </span><span class="attr">#[corresponds(X509_REQ_verify)]
     </span><span class="kw">pub fn </span>verify&lt;T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>PKeyRef&lt;T&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;bool, ErrorStack&gt;
     <span class="kw">where
         </span>T: HasPublic,
@@ -4205,8 +4110,7 @@
     }
 
     <span class="doccomment">/// Returns the extensions of the certificate request.
-    ///
-    /// This corresponds to [`X509_REQ_get_extensions"]
+    </span><span class="attr">#[corresponds(X509_REQ_get_extensions)]
     </span><span class="kw">pub fn </span>extensions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Stack&lt;X509Extension&gt;, ErrorStack&gt; {
         <span class="kw">unsafe </span>{
             <span class="kw">let </span>extensions = cvt_p(ffi::X509_REQ_get_extensions(<span class="self">self</span>.as_ptr()))<span class="question-mark">?</span>;
@@ -4608,11 +4512,8 @@
     </span>}
 
     <span class="doccomment">/// Return a human readable error string from the verification error.
-    ///
-    /// This corresponds to [`X509_verify_cert_error_string`].
-    ///
-    /// [`X509_verify_cert_error_string`]: https://www.openssl.org/docs/manmaster/crypto/X509_verify_cert_error_string.html
-    </span><span class="attr">#[allow(clippy::trivially_copy_pass_by_ref)]
+    </span><span class="attr">#[corresponds(X509_verify_cert_error_string)]
+    #[allow(clippy::trivially_copy_pass_by_ref)]
     </span><span class="kw">pub fn </span>error_string(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
         ffi::init();
 
@@ -4752,7 +4653,7 @@
             <span class="kw">let </span>len = ffi::ASN1_STRING_length(d <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
 
             <span class="attr">#[allow(clippy::unnecessary_cast)]
-            </span><span class="kw">let </span>slice = slice::from_raw_parts(ptr <span class="kw">as </span><span class="kw-2">*const </span>u8, len <span class="kw">as </span>usize);
+            </span><span class="kw">let </span>slice = util::from_raw_parts(ptr <span class="kw">as </span><span class="kw-2">*const </span>u8, len <span class="kw">as </span>usize);
             <span class="comment">// IA5Strings are stated to be ASCII (specifically IA5). Hopefully
             // OpenSSL checks that when loading a certificate but if not we'll
             // use this instead of from_utf8_unchecked just in case.
@@ -4806,7 +4707,7 @@
             <span class="kw">let </span>len = ffi::ASN1_STRING_length(d <span class="kw">as </span><span class="kw-2">*mut </span><span class="kw">_</span>);
 
             <span class="attr">#[allow(clippy::unnecessary_cast)]
-            </span><span class="prelude-val">Some</span>(slice::from_raw_parts(ptr <span class="kw">as </span><span class="kw-2">*const </span>u8, len <span class="kw">as </span>usize))
+            </span><span class="prelude-val">Some</span>(util::from_raw_parts(ptr <span class="kw">as </span><span class="kw-2">*const </span>u8, len <span class="kw">as </span>usize))
         }
     }
 }
@@ -5140,6 +5041,7 @@
     ///  - "any",
     ///  - "ocsphelper",
     ///  - "timestampsign"
+    ///
     /// The index can be used with `X509PurposeRef::from_idx()` to get the purpose.
     </span><span class="attr">#[allow(clippy::unnecessary_cast)]
     </span><span class="kw">pub fn </span>get_by_sname(sname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;c_int, ErrorStack&gt; {

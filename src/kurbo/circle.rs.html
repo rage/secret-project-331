@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/circle.rs`."><title>circle.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/circle.rs`."><title>circle.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -401,6 +401,28 @@
 <a href="#401" id="401">401</a>
 <a href="#402" id="402">402</a>
 <a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2019 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -449,13 +471,17 @@
         }
     }
 
-    <span class="doccomment">/// Is this circle finite?
+    <span class="doccomment">/// Is this circle [finite]?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.center.is_finite() &amp;&amp; <span class="self">self</span>.radius.is_finite()
     }
 
-    <span class="doccomment">/// Is this circle NaN?
+    <span class="doccomment">/// Is this circle [NaN]?
+    ///
+    /// [NaN]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.center.is_nan() || <span class="self">self</span>.radius.is_nan()
@@ -627,7 +653,41 @@
         }
     }
 
-    <span class="doccomment">/// Is this circle segment finite?
+    <span class="doccomment">/// Return an arc representing the outer radius.
+    </span><span class="attr">#[must_use]
+    #[inline]
+    </span><span class="kw">pub fn </span>outer_arc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Arc {
+        Arc {
+            center: <span class="self">self</span>.center,
+            radii: Vec2::new(<span class="self">self</span>.outer_radius, <span class="self">self</span>.outer_radius),
+            start_angle: <span class="self">self</span>.start_angle,
+            sweep_angle: <span class="self">self</span>.sweep_angle,
+            x_rotation: <span class="number">0.0</span>,
+        }
+    }
+
+    <span class="doccomment">/// Return an arc representing the inner radius.
+    ///
+    /// This is [reversed] from the outer arc, so that it is in the
+    /// same direction as the arc that would be drawn (as the path
+    /// elements for this circle segment produce a closed path).
+    ///
+    /// [reversed]: Arc::reversed
+    </span><span class="attr">#[must_use]
+    #[inline]
+    </span><span class="kw">pub fn </span>inner_arc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Arc {
+        Arc {
+            center: <span class="self">self</span>.center,
+            radii: Vec2::new(<span class="self">self</span>.inner_radius, <span class="self">self</span>.inner_radius),
+            start_angle: <span class="self">self</span>.start_angle + <span class="self">self</span>.sweep_angle,
+            sweep_angle: -<span class="self">self</span>.sweep_angle,
+            x_rotation: <span class="number">0.0</span>,
+        }
+    }
+
+    <span class="doccomment">/// Is this circle segment [finite]?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.center.is_finite()
@@ -637,7 +697,9 @@
             &amp;&amp; <span class="self">self</span>.sweep_angle.is_finite()
     }
 
-    <span class="doccomment">/// Is this circle segment NaN?
+    <span class="doccomment">/// Is this circle segment [NaN]?
+    ///
+    /// [NaN]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.center.is_nan()
@@ -696,16 +758,7 @@
             <span class="self">self</span>.start_angle,
         ))))
         <span class="comment">// outer arc
-        </span>.chain(
-            Arc {
-                center: <span class="self">self</span>.center,
-                radii: Vec2::new(<span class="self">self</span>.outer_radius, <span class="self">self</span>.outer_radius),
-                start_angle: <span class="self">self</span>.start_angle,
-                sweep_angle: <span class="self">self</span>.sweep_angle,
-                x_rotation: <span class="number">0.0</span>,
-            }
-            .append_iter(tolerance),
-        )
+        </span>.chain(<span class="self">self</span>.outer_arc().append_iter(tolerance))
         <span class="comment">// second radius
         </span>.chain(iter::once(PathEl::LineTo(point_on_circle(
             <span class="self">self</span>.center,
@@ -713,16 +766,7 @@
             <span class="self">self</span>.start_angle + <span class="self">self</span>.sweep_angle,
         ))))
         <span class="comment">// inner arc
-        </span>.chain(
-            Arc {
-                center: <span class="self">self</span>.center,
-                radii: Vec2::new(<span class="self">self</span>.inner_radius, <span class="self">self</span>.inner_radius),
-                start_angle: <span class="self">self</span>.start_angle + <span class="self">self</span>.sweep_angle,
-                sweep_angle: -<span class="self">self</span>.sweep_angle,
-                x_rotation: <span class="number">0.0</span>,
-            }
-            .append_iter(tolerance),
-        )
+        </span>.chain(<span class="self">self</span>.inner_arc().append_iter(tolerance))
     }
 
     <span class="attr">#[inline]

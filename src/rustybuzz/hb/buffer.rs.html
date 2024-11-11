@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/buffer.rs`."><title>buffer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/buffer.rs`."><title>buffer.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1761,16 +1761,92 @@
 <a href="#1761" id="1761">1761</a>
 <a href="#1762" id="1762">1762</a>
 <a href="#1763" id="1763">1763</a>
+<a href="#1764" id="1764">1764</a>
+<a href="#1765" id="1765">1765</a>
+<a href="#1766" id="1766">1766</a>
+<a href="#1767" id="1767">1767</a>
+<a href="#1768" id="1768">1768</a>
+<a href="#1769" id="1769">1769</a>
+<a href="#1770" id="1770">1770</a>
+<a href="#1771" id="1771">1771</a>
+<a href="#1772" id="1772">1772</a>
+<a href="#1773" id="1773">1773</a>
+<a href="#1774" id="1774">1774</a>
+<a href="#1775" id="1775">1775</a>
+<a href="#1776" id="1776">1776</a>
+<a href="#1777" id="1777">1777</a>
+<a href="#1778" id="1778">1778</a>
+<a href="#1779" id="1779">1779</a>
+<a href="#1780" id="1780">1780</a>
+<a href="#1781" id="1781">1781</a>
+<a href="#1782" id="1782">1782</a>
+<a href="#1783" id="1783">1783</a>
+<a href="#1784" id="1784">1784</a>
+<a href="#1785" id="1785">1785</a>
+<a href="#1786" id="1786">1786</a>
+<a href="#1787" id="1787">1787</a>
+<a href="#1788" id="1788">1788</a>
+<a href="#1789" id="1789">1789</a>
+<a href="#1790" id="1790">1790</a>
+<a href="#1791" id="1791">1791</a>
+<a href="#1792" id="1792">1792</a>
+<a href="#1793" id="1793">1793</a>
+<a href="#1794" id="1794">1794</a>
+<a href="#1795" id="1795">1795</a>
+<a href="#1796" id="1796">1796</a>
+<a href="#1797" id="1797">1797</a>
+<a href="#1798" id="1798">1798</a>
+<a href="#1799" id="1799">1799</a>
+<a href="#1800" id="1800">1800</a>
+<a href="#1801" id="1801">1801</a>
+<a href="#1802" id="1802">1802</a>
+<a href="#1803" id="1803">1803</a>
+<a href="#1804" id="1804">1804</a>
+<a href="#1805" id="1805">1805</a>
+<a href="#1806" id="1806">1806</a>
+<a href="#1807" id="1807">1807</a>
+<a href="#1808" id="1808">1808</a>
+<a href="#1809" id="1809">1809</a>
+<a href="#1810" id="1810">1810</a>
+<a href="#1811" id="1811">1811</a>
+<a href="#1812" id="1812">1812</a>
+<a href="#1813" id="1813">1813</a>
+<a href="#1814" id="1814">1814</a>
+<a href="#1815" id="1815">1815</a>
+<a href="#1816" id="1816">1816</a>
+<a href="#1817" id="1817">1817</a>
+<a href="#1818" id="1818">1818</a>
+<a href="#1819" id="1819">1819</a>
+<a href="#1820" id="1820">1820</a>
+<a href="#1821" id="1821">1821</a>
+<a href="#1822" id="1822">1822</a>
+<a href="#1823" id="1823">1823</a>
+<a href="#1824" id="1824">1824</a>
+<a href="#1825" id="1825">1825</a>
+<a href="#1826" id="1826">1826</a>
+<a href="#1827" id="1827">1827</a>
+<a href="#1828" id="1828">1828</a>
+<a href="#1829" id="1829">1829</a>
+<a href="#1830" id="1830">1830</a>
+<a href="#1831" id="1831">1831</a>
+<a href="#1832" id="1832">1832</a>
+<a href="#1833" id="1833">1833</a>
+<a href="#1834" id="1834">1834</a>
+<a href="#1835" id="1835">1835</a>
+<a href="#1836" id="1836">1836</a>
+<a href="#1837" id="1837">1837</a>
+<a href="#1838" id="1838">1838</a>
+<a href="#1839" id="1839">1839</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::{string::String, vec::Vec};
-<span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>core::cmp::min;
-
+<span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>ttf_parser::GlyphId;
 
-<span class="kw">use </span><span class="kw">super</span>::buffer::glyph_flag::{UNSAFE_TO_BREAK, UNSAFE_TO_CONCAT};
-<span class="kw">use </span><span class="kw">super</span>::face::GlyphExtents;
+<span class="kw">use </span><span class="kw">super</span>::buffer::glyph_flag::{SAFE_TO_INSERT_TATWEEL, UNSAFE_TO_BREAK, UNSAFE_TO_CONCAT};
+<span class="kw">use </span><span class="kw">super</span>::face::hb_glyph_extents_t;
 <span class="kw">use </span><span class="kw">super</span>::unicode::{CharExt, GeneralCategoryExt};
 <span class="kw">use super</span>::{hb_font_t, hb_mask_t};
+<span class="kw">use </span><span class="kw">crate</span>::hb::set_digest::{hb_set_digest_ext, hb_set_digest_t};
 <span class="kw">use crate</span>::{script, BufferClusterLevel, BufferFlags, Direction, Language, Script, SerializeFlags};
 
 <span class="kw">const </span>CONTEXT_LENGTH: usize = <span class="number">5</span>;
@@ -1854,8 +1930,14 @@
     /// the buffer flag will not be reliably produced.
     </span><span class="kw">pub const </span>UNSAFE_TO_CONCAT: u32 = <span class="number">0x00000002</span>;
 
+    <span class="doccomment">/// In scripts that use elongation (Arabic,
+    /// Mongolian, Syriac, etc.), this flag signifies
+    /// that it is safe to insert a U+0640 TATWEEL
+    /// character *before* this cluster for elongation.
+    </span><span class="kw">pub const </span>SAFE_TO_INSERT_TATWEEL: u32 = <span class="number">0x00000004</span>;
+
     <span class="doccomment">/// All the currently defined flags.
-    </span><span class="kw">pub const </span>DEFINED: u32 = <span class="number">0x00000003</span>; <span class="comment">// OR of all defined flags
+    </span><span class="kw">pub const </span>DEFINED: u32 = <span class="number">0x00000007</span>; <span class="comment">// OR of all defined flags
 </span>}
 
 <span class="doccomment">/// Holds the positions of the glyph in both horizontal and vertical directions.
@@ -1876,7 +1958,7 @@
     <span class="doccomment">/// How much the glyph moves on the Y-axis before drawing it, this should
     /// not affect how much the line advances.
     </span><span class="kw">pub </span>y_offset: i32,
-    var: u32,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) var: u32,
 }
 
 <span class="kw">unsafe impl </span>bytemuck::Zeroable <span class="kw">for </span>GlyphPosition {}
@@ -2104,6 +2186,9 @@
     <span class="kw">pub </span>script: <span class="prelude-ty">Option</span>&lt;Script&gt;,
     <span class="kw">pub </span>language: <span class="prelude-ty">Option</span>&lt;Language&gt;,
 
+    <span class="doccomment">/// Shaping failure
+    </span><span class="kw">pub </span>shaping_failed: bool,
+
     <span class="doccomment">/// Allocations successful.
     </span><span class="kw">pub </span>successful: bool,
     <span class="doccomment">/// Whether we have an output buffer going on.
@@ -2157,6 +2242,7 @@
             direction: Direction::Invalid,
             script: <span class="prelude-val">None</span>,
             language: <span class="prelude-val">None</span>,
+            shaping_failed: <span class="bool-val">false</span>,
             successful: <span class="bool-val">true</span>,
             have_output: <span class="bool-val">false</span>,
             have_positions: <span class="bool-val">false</span>,
@@ -2173,11 +2259,6 @@
             ],
             context_len: [<span class="number">0</span>, <span class="number">0</span>],
         }
-    }
-
-    <span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>info_slice(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[hb_glyph_info_t] {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.info[..<span class="self">self</span>.len]
     }
 
     <span class="attr">#[inline]
@@ -2237,6 +2318,12 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>.out_info_mut()[idx]
     }
 
+    <span class="kw">pub fn </span>digest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; hb_set_digest_t {
+        <span class="kw">let </span><span class="kw-2">mut </span>digest = hb_set_digest_t::new();
+        digest.add_array(<span class="self">self</span>.info.iter().map(|i| GlyphId(i.glyph_id <span class="kw">as </span>u16)));
+        digest
+    }
+
     <span class="kw">fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.direction = Direction::Invalid;
         <span class="self">self</span>.script = <span class="prelude-val">None</span>;
@@ -2280,7 +2367,8 @@
 
     <span class="attr">#[inline]
     </span><span class="kw">fn </span>next_serial(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.serial += <span class="number">1</span>;
+        <span class="comment">// A `serial` overflow/wrap-around here is perfectly fine.
+        </span><span class="self">self</span>.serial = <span class="self">self</span>.serial.wrapping_add(<span class="number">1</span>);
 
         <span class="kw">if </span><span class="self">self</span>.serial == <span class="number">0 </span>{
             <span class="self">self</span>.serial += <span class="number">1</span>;
@@ -2400,15 +2488,15 @@
         <span class="comment">// TODO: language must be set
     </span>}
 
-    <span class="kw">pub fn </span>sync(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    <span class="kw">pub fn </span>sync(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
         <span class="macro">assert!</span>(<span class="self">self</span>.have_output);
-
         <span class="macro">assert!</span>(<span class="self">self</span>.idx &lt;= <span class="self">self</span>.len);
+
         <span class="kw">if </span>!<span class="self">self</span>.successful {
             <span class="self">self</span>.have_output = <span class="bool-val">false</span>;
             <span class="self">self</span>.out_len = <span class="number">0</span>;
             <span class="self">self</span>.idx = <span class="number">0</span>;
-            <span class="kw">return</span>;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
         <span class="self">self</span>.next_glyphs(<span class="self">self</span>.len - <span class="self">self</span>.idx);
@@ -2419,6 +2507,7 @@
             <span class="kw">let </span>pos: Vec&lt;hb_glyph_info_t&gt; = bytemuck::cast_vec(core::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.pos));
             <span class="self">self</span>.pos = info;
             <span class="self">self</span>.info = pos;
+            <span class="self">self</span>.have_separate_output = <span class="bool-val">false</span>;
         }
 
         <span class="self">self</span>.len = <span class="self">self</span>.out_len;
@@ -2426,7 +2515,8 @@
         <span class="self">self</span>.have_output = <span class="bool-val">false</span>;
         <span class="self">self</span>.out_len = <span class="number">0</span>;
         <span class="self">self</span>.idx = <span class="number">0</span>;
-    }
+        <span class="bool-val">true
+    </span>}
 
     <span class="kw">pub fn </span>clear_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.have_output = <span class="bool-val">true</span>;
@@ -2584,12 +2674,12 @@
         cluster_start: u32,
         cluster_end: u32,
     ) {
-        <span class="kw">let </span>not_mask = !mask;
-        value &amp;= mask;
-
         <span class="kw">if </span>mask == <span class="number">0 </span>{
             <span class="kw">return</span>;
         }
+
+        <span class="kw">let </span>not_mask = !mask;
+        value &amp;= mask;
 
         <span class="kw">if </span>cluster_start == <span class="number">0 </span>&amp;&amp; cluster_end == core::u32::MAX {
             <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.info[..<span class="self">self</span>.len] {
@@ -2627,17 +2717,21 @@
         }
 
         <span class="comment">// Extend end
-        </span><span class="kw">while </span>end &lt; <span class="self">self</span>.len &amp;&amp; <span class="self">self</span>.info[end - <span class="number">1</span>].cluster == <span class="self">self</span>.info[end].cluster {
-            end += <span class="number">1</span>;
+        </span><span class="kw">if </span>cluster != <span class="self">self</span>.info[end - <span class="number">1</span>].cluster {
+            <span class="kw">while </span>end &lt; <span class="self">self</span>.len &amp;&amp; <span class="self">self</span>.info[end - <span class="number">1</span>].cluster == <span class="self">self</span>.info[end].cluster {
+                end += <span class="number">1</span>;
+            }
         }
 
         <span class="comment">// Extend start
-        </span><span class="kw">while </span>end &lt; start &amp;&amp; <span class="self">self</span>.info[start - <span class="number">1</span>].cluster == <span class="self">self</span>.info[start].cluster {
-            start -= <span class="number">1</span>;
+        </span><span class="kw">if </span>cluster != <span class="self">self</span>.info[start].cluster {
+            <span class="kw">while </span>end &lt; start &amp;&amp; <span class="self">self</span>.info[start - <span class="number">1</span>].cluster == <span class="self">self</span>.info[start].cluster {
+                start -= <span class="number">1</span>;
+            }
         }
 
         <span class="comment">// If we hit the start of buffer, continue in out-buffer.
-        </span><span class="kw">if </span><span class="self">self</span>.idx == start {
+        </span><span class="kw">if </span><span class="self">self</span>.idx == start &amp;&amp; <span class="self">self</span>.info[start].cluster != cluster {
             <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">self</span>.out_len;
             <span class="kw">while </span>i != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.out_info()[i - <span class="number">1</span>].cluster == <span class="self">self</span>.info[start].cluster {
                 <span class="self">Self</span>::set_cluster(<span class="kw-2">&amp;mut </span><span class="self">self</span>.out_info_mut()[i - <span class="number">1</span>], cluster, <span class="number">0</span>);
@@ -2694,7 +2788,9 @@
     </span><span class="kw">pub fn </span>delete_glyph(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let </span>cluster = <span class="self">self</span>.info[<span class="self">self</span>.idx].cluster;
 
-        <span class="kw">if </span><span class="self">self</span>.idx + <span class="number">1 </span>&lt; <span class="self">self</span>.len &amp;&amp; cluster == <span class="self">self</span>.info[<span class="self">self</span>.idx + <span class="number">1</span>].cluster {
+        <span class="kw">if </span>(<span class="self">self</span>.idx + <span class="number">1 </span>&lt; <span class="self">self</span>.len &amp;&amp; cluster == <span class="self">self</span>.info[<span class="self">self</span>.idx + <span class="number">1</span>].cluster)
+            || (<span class="self">self</span>.out_len != <span class="number">0 </span>&amp;&amp; cluster == <span class="self">self</span>.out_info()[<span class="self">self</span>.out_len - <span class="number">1</span>].cluster)
+        {
             <span class="comment">// Cluster survives; do nothing.
             </span><span class="self">self</span>.skip_glyph();
             <span class="kw">return</span>;
@@ -2785,6 +2881,18 @@
         );
     }
 
+    <span class="kw">pub fn </span>safe_to_insert_tatweel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start: <span class="prelude-ty">Option</span>&lt;usize&gt;, end: <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="kw">if </span>!<span class="self">self
+            </span>.flags
+            .contains(BufferFlags::PRODUCE_SAFE_TO_INSERT_TATWEEL)
+        {
+            <span class="self">self</span>.unsafe_to_break(start, end);
+            <span class="kw">return</span>;
+        }
+
+        <span class="self">self</span>._set_glyph_flags(SAFE_TO_INSERT_TATWEEL, start, end, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">None</span>);
+    }
+
     <span class="doccomment">/// Adds glyph flags in mask to infos with clusters between start and end.
     /// The start index will be from out-buffer if from_out_buffer is true.
     /// If interior is true, then the cluster having the minimum value is skipped. */
@@ -2813,10 +2921,8 @@
                     <span class="self">self</span>.info[i].mask |= mask;
                 }
             } <span class="kw">else </span>{
-                <span class="kw">let </span>cluster = <span class="self">Self</span>::_infos_find_min_cluster(<span class="kw-2">&amp;</span><span class="self">self</span>.info, start, end, <span class="prelude-val">None</span>);
-                <span class="kw">if </span><span class="self">Self</span>::_infos_set_glyph_flags(<span class="kw-2">&amp;mut </span><span class="self">self</span>.info, start, end, cluster, mask) {
-                    <span class="self">self</span>.scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
-                }
+                <span class="kw">let </span>cluster = <span class="self">self</span>._infos_find_min_cluster(<span class="kw-2">&amp;</span><span class="self">self</span>.info, start, end, <span class="prelude-val">None</span>);
+                <span class="self">self</span>._infos_set_glyph_flags(<span class="bool-val">false</span>, start, end, cluster, mask);
             }
         } <span class="kw">else </span>{
             <span class="macro">assert!</span>(start &lt;= <span class="self">self</span>.out_len);
@@ -2831,8 +2937,8 @@
                     <span class="self">self</span>.info[i].mask |= mask;
                 }
             } <span class="kw">else </span>{
-                <span class="kw">let </span><span class="kw-2">mut </span>cluster = <span class="self">Self</span>::_infos_find_min_cluster(<span class="kw-2">&amp;</span><span class="self">self</span>.info, <span class="self">self</span>.idx, end, <span class="prelude-val">None</span>);
-                cluster = <span class="self">Self</span>::_infos_find_min_cluster(
+                <span class="kw">let </span><span class="kw-2">mut </span>cluster = <span class="self">self</span>._infos_find_min_cluster(<span class="kw-2">&amp;</span><span class="self">self</span>.info, <span class="self">self</span>.idx, end, <span class="prelude-val">None</span>);
+                cluster = <span class="self">self</span>._infos_find_min_cluster(
                     <span class="kw-2">&amp;</span><span class="self">self</span>.out_info(),
                     start,
                     <span class="self">self</span>.out_len,
@@ -2840,19 +2946,8 @@
                 );
 
                 <span class="kw">let </span>out_len = <span class="self">self</span>.out_len;
-                <span class="kw">let </span>first = <span class="self">Self</span>::_infos_set_glyph_flags(
-                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.out_info_mut(),
-                    start,
-                    out_len,
-                    cluster,
-                    mask,
-                );
-                <span class="kw">let </span>second =
-                    <span class="self">Self</span>::_infos_set_glyph_flags(<span class="kw-2">&amp;mut </span><span class="self">self</span>.info, <span class="self">self</span>.idx, end, cluster, mask);
-
-                <span class="kw">if </span>first || second {
-                    <span class="self">self</span>.scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
-                }
+                <span class="self">self</span>._infos_set_glyph_flags(<span class="bool-val">true</span>, start, out_len, cluster, mask);
+                <span class="self">self</span>._infos_set_glyph_flags(<span class="bool-val">false</span>, <span class="self">self</span>.idx, end, cluster, mask);
             }
         }
     }
@@ -2862,14 +2957,10 @@
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>._set_glyph_flags(UNSAFE_TO_CONCAT, start, end, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="prelude-val">None</span>);
+        <span class="self">self</span>._set_glyph_flags(UNSAFE_TO_CONCAT, start, end, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="prelude-val">None</span>);
     }
 
     <span class="kw">pub fn </span>unsafe_to_break_from_outbuffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start: <span class="prelude-ty">Option</span>&lt;usize&gt;, end: <span class="prelude-ty">Option</span>&lt;usize&gt;) {
-        <span class="kw">if </span>!<span class="self">self</span>.flags.contains(BufferFlags::PRODUCE_UNSAFE_TO_CONCAT) {
-            <span class="kw">return</span>;
-        }
-
         <span class="self">self</span>._set_glyph_flags(
             UNSAFE_TO_BREAK | UNSAFE_TO_CONCAT,
             start,
@@ -2880,6 +2971,10 @@
     }
 
     <span class="kw">pub fn </span>unsafe_to_concat_from_outbuffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, start: <span class="prelude-ty">Option</span>&lt;usize&gt;, end: <span class="prelude-ty">Option</span>&lt;usize&gt;) {
+        <span class="kw">if </span>!<span class="self">self</span>.flags.contains(BufferFlags::PRODUCE_UNSAFE_TO_CONCAT) {
+            <span class="kw">return</span>;
+        }
+
         <span class="self">self</span>._set_glyph_flags(UNSAFE_TO_CONCAT, start, end, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="prelude-val">Some</span>(<span class="bool-val">true</span>));
     }
 
@@ -3038,6 +3133,7 @@
     <span class="comment">// Called around shape()
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>enter(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.serial = <span class="number">0</span>;
+        <span class="self">self</span>.shaping_failed = <span class="bool-val">false</span>;
         <span class="self">self</span>.scratch_flags = HB_BUFFER_SCRATCH_FLAG_DEFAULT;
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(len) = <span class="self">self</span>.len.checked_mul(hb_buffer_t::MAX_LEN_FACTOR) {
@@ -3056,9 +3152,11 @@
         <span class="self">self</span>.max_len = hb_buffer_t::MAX_LEN_DEFAULT;
         <span class="self">self</span>.max_ops = hb_buffer_t::MAX_OPS_DEFAULT;
         <span class="self">self</span>.serial = <span class="number">0</span>;
-    }
+        <span class="comment">// Intentionally not resetting shaping_failed, such that it can be inspected.
+    </span>}
 
     <span class="kw">fn </span>_infos_find_min_cluster(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
         info: <span class="kw-2">&amp;</span>[hb_glyph_info_t],
         start: usize,
         end: usize,
@@ -3066,34 +3164,87 @@
     ) -&gt; u32 {
         <span class="kw">let </span><span class="kw-2">mut </span>cluster = cluster.unwrap_or(core::u32::MAX);
 
-        <span class="kw">for </span>glyph_info <span class="kw">in </span><span class="kw-2">&amp;</span>info[start..end] {
-            cluster = core::cmp::min(cluster, glyph_info.cluster);
+        <span class="kw">if </span>start == end {
+            <span class="kw">return </span>cluster;
         }
 
-        cluster
+        <span class="kw">if </span><span class="self">self</span>.cluster_level == HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS {
+            <span class="kw">for </span>glyph_info <span class="kw">in </span><span class="kw-2">&amp;</span>info[start..end] {
+                cluster = core::cmp::min(cluster, glyph_info.cluster);
+            }
+        }
+
+        cluster.min(info[start].cluster.min(info[end - <span class="number">1</span>].cluster))
     }
 
-    <span class="attr">#[must_use]
-    </span><span class="kw">fn </span>_infos_set_glyph_flags(
-        info: <span class="kw-2">&amp;mut </span>[hb_glyph_info_t],
+    <span class="kw">fn </span>_infos_set_glyph_flags(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        out_info: bool,
         start: usize,
         end: usize,
         cluster: u32,
         mask: hb_mask_t,
-    ) -&gt; bool {
-        <span class="comment">// NOTE: Because of problems with ownership, we don't pass the scratch flags to this
-        // function, unlike in harfbuzz. Because of this, each time you call this function you
-        // the caller needs to set the "BufferScratchFlags::HAS_GLYPH_FLAGS" scratch flag
-        // themselves if the function returns true.
-        </span><span class="kw">let </span><span class="kw-2">mut </span>unsafe_to_break = <span class="bool-val">false</span>;
-        <span class="kw">for </span>glyph_info <span class="kw">in </span><span class="kw-2">&amp;mut </span>info[start..end] {
-            <span class="kw">if </span>glyph_info.cluster != cluster {
-                glyph_info.mask |= mask;
-                unsafe_to_break = <span class="bool-val">true</span>;
+    ) {
+        <span class="kw">let </span><span class="kw-2">mut </span>apply_scratch_flags = <span class="bool-val">false</span>;
+
+        <span class="kw">if </span>start == end {
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let </span>cluster_level = <span class="self">self</span>.cluster_level;
+
+        <span class="kw">let </span>infos = <span class="kw">if </span>out_info {
+            <span class="self">self</span>.out_info_mut()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.info.as_mut_slice()
+        };
+
+        <span class="kw">let </span>cluster_first = infos[start].cluster;
+        <span class="kw">let </span>cluster_last = infos[end - <span class="number">1</span>].cluster;
+
+        <span class="kw">if </span>cluster_level == HB_BUFFER_CLUSTER_LEVEL_CHARACTERS
+            || (cluster != cluster_first &amp;&amp; cluster != cluster_last)
+        {
+            <span class="kw">for </span>i <span class="kw">in </span>start..end {
+                <span class="kw">if </span>infos[i].cluster != cluster {
+                    apply_scratch_flags = <span class="bool-val">true</span>;
+                    infos[i].mask |= mask;
+                }
+            }
+
+            <span class="kw">if </span>apply_scratch_flags {
+                <span class="self">self</span>.scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
+            }
+
+            <span class="kw">return</span>;
+        }
+
+        <span class="comment">// Monotone clusters
+        </span><span class="kw">if </span>cluster == cluster_first {
+            <span class="kw">let </span><span class="kw-2">mut </span>i = end;
+            <span class="kw">while </span>start &lt; i &amp;&amp; infos[i - <span class="number">1</span>].cluster != cluster_first {
+                <span class="kw">if </span>cluster != infos[i - <span class="number">1</span>].cluster {
+                    apply_scratch_flags = <span class="bool-val">true</span>;
+                    infos[i - <span class="number">1</span>].mask |= mask;
+                }
+
+                i -= <span class="number">1</span>;
+            }
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>i = start;
+            <span class="kw">while </span>i &lt; end &amp;&amp; infos[i].cluster != cluster_last {
+                <span class="kw">if </span>cluster != infos[i].cluster {
+                    apply_scratch_flags = <span class="bool-val">true</span>;
+                    infos[i].mask |= mask;
+                }
+
+                i += <span class="number">1</span>;
             }
         }
 
-        unsafe_to_break
+        <span class="kw">if </span>apply_scratch_flags {
+            <span class="self">self</span>.scratch_flags |= HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS;
+        }
     }
 
     <span class="doccomment">/// Checks that buffer contains no elements.
@@ -3236,12 +3387,13 @@
 <span class="kw">pub const </span>HB_BUFFER_SCRATCH_FLAG_HAS_GPOS_ATTACHMENT: u32 = <span class="number">0x00000008</span>;
 <span class="kw">pub const </span>HB_BUFFER_SCRATCH_FLAG_HAS_CGJ: u32 = <span class="number">0x00000010</span>;
 <span class="kw">pub const </span>HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS: u32 = <span class="number">0x00000020</span>;
+<span class="kw">pub const </span>HB_BUFFER_SCRATCH_FLAG_HAS_BROKEN_SYLLABLE: u32 = <span class="number">0x00000040</span>;
 
-<span class="comment">/* Reserved for complex shapers' internal use. */
-</span><span class="kw">pub const </span>HB_BUFFER_SCRATCH_FLAG_COMPLEX0: u32 = <span class="number">0x01000000</span>;
-<span class="comment">// pub const HB_BUFFER_SCRATCH_FLAG_COMPLEX1: u32 = 0x02000000;
-// pub const HB_BUFFER_SCRATCH_FLAG_COMPLEX2: u32 = 0x04000000;
-// pub const HB_BUFFER_SCRATCH_FLAG_COMPLEX3: u32 = 0x08000000;
+<span class="comment">/* Reserved for shapers' internal use. */
+</span><span class="kw">pub const </span>HB_BUFFER_SCRATCH_FLAG_SHAPER0: u32 = <span class="number">0x01000000</span>;
+<span class="comment">// pub const HB_BUFFER_SCRATCH_FLAG_SHAPER1: u32 = 0x02000000;
+// pub const HB_BUFFER_SCRATCH_FLAG_SHAPER2: u32 = 0x04000000;
+// pub const HB_BUFFER_SCRATCH_FLAG_SHAPER3: u32 = 0x08000000;
 
 </span><span class="doccomment">/// A buffer that contains an input string ready for shaping.
 </span><span class="kw">pub struct </span>UnicodeBuffer(<span class="kw">pub</span>(<span class="kw">crate</span>) hb_buffer_t);
@@ -3490,7 +3642,7 @@
             }
 
             <span class="kw">if </span>flags.contains(SerializeFlags::GLYPH_EXTENTS) {
-                <span class="kw">let </span><span class="kw-2">mut </span>extents = GlyphExtents::default();
+                <span class="kw">let </span><span class="kw-2">mut </span>extents = hb_glyph_extents_t::default();
                 face.glyph_extents(info.as_glyph(), <span class="kw-2">&amp;mut </span>extents);
                 <span class="macro">write!</span>(
                     <span class="kw-2">&amp;mut </span>s,

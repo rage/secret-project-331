@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tar-0.4.41/src/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tar-0.4.43/src/builder.rs`."><title>builder.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="tar" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -661,13 +661,669 @@
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
 <a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
+<a href="#1009" id="1009">1009</a>
+<a href="#1010" id="1010">1010</a>
+<a href="#1011" id="1011">1011</a>
+<a href="#1012" id="1012">1012</a>
+<a href="#1013" id="1013">1013</a>
+<a href="#1014" id="1014">1014</a>
+<a href="#1015" id="1015">1015</a>
+<a href="#1016" id="1016">1016</a>
+<a href="#1017" id="1017">1017</a>
+<a href="#1018" id="1018">1018</a>
+<a href="#1019" id="1019">1019</a>
+<a href="#1020" id="1020">1020</a>
+<a href="#1021" id="1021">1021</a>
+<a href="#1022" id="1022">1022</a>
+<a href="#1023" id="1023">1023</a>
+<a href="#1024" id="1024">1024</a>
+<a href="#1025" id="1025">1025</a>
+<a href="#1026" id="1026">1026</a>
+<a href="#1027" id="1027">1027</a>
+<a href="#1028" id="1028">1028</a>
+<a href="#1029" id="1029">1029</a>
+<a href="#1030" id="1030">1030</a>
+<a href="#1031" id="1031">1031</a>
+<a href="#1032" id="1032">1032</a>
+<a href="#1033" id="1033">1033</a>
+<a href="#1034" id="1034">1034</a>
+<a href="#1035" id="1035">1035</a>
+<a href="#1036" id="1036">1036</a>
+<a href="#1037" id="1037">1037</a>
+<a href="#1038" id="1038">1038</a>
+<a href="#1039" id="1039">1039</a>
+<a href="#1040" id="1040">1040</a>
+<a href="#1041" id="1041">1041</a>
+<a href="#1042" id="1042">1042</a>
+<a href="#1043" id="1043">1043</a>
+<a href="#1044" id="1044">1044</a>
+<a href="#1045" id="1045">1045</a>
+<a href="#1046" id="1046">1046</a>
+<a href="#1047" id="1047">1047</a>
+<a href="#1048" id="1048">1048</a>
+<a href="#1049" id="1049">1049</a>
+<a href="#1050" id="1050">1050</a>
+<a href="#1051" id="1051">1051</a>
+<a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
+<a href="#1061" id="1061">1061</a>
+<a href="#1062" id="1062">1062</a>
+<a href="#1063" id="1063">1063</a>
+<a href="#1064" id="1064">1064</a>
+<a href="#1065" id="1065">1065</a>
+<a href="#1066" id="1066">1066</a>
+<a href="#1067" id="1067">1067</a>
+<a href="#1068" id="1068">1068</a>
+<a href="#1069" id="1069">1069</a>
+<a href="#1070" id="1070">1070</a>
+<a href="#1071" id="1071">1071</a>
+<a href="#1072" id="1072">1072</a>
+<a href="#1073" id="1073">1073</a>
+<a href="#1074" id="1074">1074</a>
+<a href="#1075" id="1075">1075</a>
+<a href="#1076" id="1076">1076</a>
+<a href="#1077" id="1077">1077</a>
+<a href="#1078" id="1078">1078</a>
+<a href="#1079" id="1079">1079</a>
+<a href="#1080" id="1080">1080</a>
+<a href="#1081" id="1081">1081</a>
+<a href="#1082" id="1082">1082</a>
+<a href="#1083" id="1083">1083</a>
+<a href="#1084" id="1084">1084</a>
+<a href="#1085" id="1085">1085</a>
+<a href="#1086" id="1086">1086</a>
+<a href="#1087" id="1087">1087</a>
+<a href="#1088" id="1088">1088</a>
+<a href="#1089" id="1089">1089</a>
+<a href="#1090" id="1090">1090</a>
+<a href="#1091" id="1091">1091</a>
+<a href="#1092" id="1092">1092</a>
+<a href="#1093" id="1093">1093</a>
+<a href="#1094" id="1094">1094</a>
+<a href="#1095" id="1095">1095</a>
+<a href="#1096" id="1096">1096</a>
+<a href="#1097" id="1097">1097</a>
+<a href="#1098" id="1098">1098</a>
+<a href="#1099" id="1099">1099</a>
+<a href="#1100" id="1100">1100</a>
+<a href="#1101" id="1101">1101</a>
+<a href="#1102" id="1102">1102</a>
+<a href="#1103" id="1103">1103</a>
+<a href="#1104" id="1104">1104</a>
+<a href="#1105" id="1105">1105</a>
+<a href="#1106" id="1106">1106</a>
+<a href="#1107" id="1107">1107</a>
+<a href="#1108" id="1108">1108</a>
+<a href="#1109" id="1109">1109</a>
+<a href="#1110" id="1110">1110</a>
+<a href="#1111" id="1111">1111</a>
+<a href="#1112" id="1112">1112</a>
+<a href="#1113" id="1113">1113</a>
+<a href="#1114" id="1114">1114</a>
+<a href="#1115" id="1115">1115</a>
+<a href="#1116" id="1116">1116</a>
+<a href="#1117" id="1117">1117</a>
+<a href="#1118" id="1118">1118</a>
+<a href="#1119" id="1119">1119</a>
+<a href="#1120" id="1120">1120</a>
+<a href="#1121" id="1121">1121</a>
+<a href="#1122" id="1122">1122</a>
+<a href="#1123" id="1123">1123</a>
+<a href="#1124" id="1124">1124</a>
+<a href="#1125" id="1125">1125</a>
+<a href="#1126" id="1126">1126</a>
+<a href="#1127" id="1127">1127</a>
+<a href="#1128" id="1128">1128</a>
+<a href="#1129" id="1129">1129</a>
+<a href="#1130" id="1130">1130</a>
+<a href="#1131" id="1131">1131</a>
+<a href="#1132" id="1132">1132</a>
+<a href="#1133" id="1133">1133</a>
+<a href="#1134" id="1134">1134</a>
+<a href="#1135" id="1135">1135</a>
+<a href="#1136" id="1136">1136</a>
+<a href="#1137" id="1137">1137</a>
+<a href="#1138" id="1138">1138</a>
+<a href="#1139" id="1139">1139</a>
+<a href="#1140" id="1140">1140</a>
+<a href="#1141" id="1141">1141</a>
+<a href="#1142" id="1142">1142</a>
+<a href="#1143" id="1143">1143</a>
+<a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
+<a href="#1161" id="1161">1161</a>
+<a href="#1162" id="1162">1162</a>
+<a href="#1163" id="1163">1163</a>
+<a href="#1164" id="1164">1164</a>
+<a href="#1165" id="1165">1165</a>
+<a href="#1166" id="1166">1166</a>
+<a href="#1167" id="1167">1167</a>
+<a href="#1168" id="1168">1168</a>
+<a href="#1169" id="1169">1169</a>
+<a href="#1170" id="1170">1170</a>
+<a href="#1171" id="1171">1171</a>
+<a href="#1172" id="1172">1172</a>
+<a href="#1173" id="1173">1173</a>
+<a href="#1174" id="1174">1174</a>
+<a href="#1175" id="1175">1175</a>
+<a href="#1176" id="1176">1176</a>
+<a href="#1177" id="1177">1177</a>
+<a href="#1178" id="1178">1178</a>
+<a href="#1179" id="1179">1179</a>
+<a href="#1180" id="1180">1180</a>
+<a href="#1181" id="1181">1181</a>
+<a href="#1182" id="1182">1182</a>
+<a href="#1183" id="1183">1183</a>
+<a href="#1184" id="1184">1184</a>
+<a href="#1185" id="1185">1185</a>
+<a href="#1186" id="1186">1186</a>
+<a href="#1187" id="1187">1187</a>
+<a href="#1188" id="1188">1188</a>
+<a href="#1189" id="1189">1189</a>
+<a href="#1190" id="1190">1190</a>
+<a href="#1191" id="1191">1191</a>
+<a href="#1192" id="1192">1192</a>
+<a href="#1193" id="1193">1193</a>
+<a href="#1194" id="1194">1194</a>
+<a href="#1195" id="1195">1195</a>
+<a href="#1196" id="1196">1196</a>
+<a href="#1197" id="1197">1197</a>
+<a href="#1198" id="1198">1198</a>
+<a href="#1199" id="1199">1199</a>
+<a href="#1200" id="1200">1200</a>
+<a href="#1201" id="1201">1201</a>
+<a href="#1202" id="1202">1202</a>
+<a href="#1203" id="1203">1203</a>
+<a href="#1204" id="1204">1204</a>
+<a href="#1205" id="1205">1205</a>
+<a href="#1206" id="1206">1206</a>
+<a href="#1207" id="1207">1207</a>
+<a href="#1208" id="1208">1208</a>
+<a href="#1209" id="1209">1209</a>
+<a href="#1210" id="1210">1210</a>
+<a href="#1211" id="1211">1211</a>
+<a href="#1212" id="1212">1212</a>
+<a href="#1213" id="1213">1213</a>
+<a href="#1214" id="1214">1214</a>
+<a href="#1215" id="1215">1215</a>
+<a href="#1216" id="1216">1216</a>
+<a href="#1217" id="1217">1217</a>
+<a href="#1218" id="1218">1218</a>
+<a href="#1219" id="1219">1219</a>
+<a href="#1220" id="1220">1220</a>
+<a href="#1221" id="1221">1221</a>
+<a href="#1222" id="1222">1222</a>
+<a href="#1223" id="1223">1223</a>
+<a href="#1224" id="1224">1224</a>
+<a href="#1225" id="1225">1225</a>
+<a href="#1226" id="1226">1226</a>
+<a href="#1227" id="1227">1227</a>
+<a href="#1228" id="1228">1228</a>
+<a href="#1229" id="1229">1229</a>
+<a href="#1230" id="1230">1230</a>
+<a href="#1231" id="1231">1231</a>
+<a href="#1232" id="1232">1232</a>
+<a href="#1233" id="1233">1233</a>
+<a href="#1234" id="1234">1234</a>
+<a href="#1235" id="1235">1235</a>
+<a href="#1236" id="1236">1236</a>
+<a href="#1237" id="1237">1237</a>
+<a href="#1238" id="1238">1238</a>
+<a href="#1239" id="1239">1239</a>
+<a href="#1240" id="1240">1240</a>
+<a href="#1241" id="1241">1241</a>
+<a href="#1242" id="1242">1242</a>
+<a href="#1243" id="1243">1243</a>
+<a href="#1244" id="1244">1244</a>
+<a href="#1245" id="1245">1245</a>
+<a href="#1246" id="1246">1246</a>
+<a href="#1247" id="1247">1247</a>
+<a href="#1248" id="1248">1248</a>
+<a href="#1249" id="1249">1249</a>
+<a href="#1250" id="1250">1250</a>
+<a href="#1251" id="1251">1251</a>
+<a href="#1252" id="1252">1252</a>
+<a href="#1253" id="1253">1253</a>
+<a href="#1254" id="1254">1254</a>
+<a href="#1255" id="1255">1255</a>
+<a href="#1256" id="1256">1256</a>
+<a href="#1257" id="1257">1257</a>
+<a href="#1258" id="1258">1258</a>
+<a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
+<a href="#1272" id="1272">1272</a>
+<a href="#1273" id="1273">1273</a>
+<a href="#1274" id="1274">1274</a>
+<a href="#1275" id="1275">1275</a>
+<a href="#1276" id="1276">1276</a>
+<a href="#1277" id="1277">1277</a>
+<a href="#1278" id="1278">1278</a>
+<a href="#1279" id="1279">1279</a>
+<a href="#1280" id="1280">1280</a>
+<a href="#1281" id="1281">1281</a>
+<a href="#1282" id="1282">1282</a>
+<a href="#1283" id="1283">1283</a>
+<a href="#1284" id="1284">1284</a>
+<a href="#1285" id="1285">1285</a>
+<a href="#1286" id="1286">1286</a>
+<a href="#1287" id="1287">1287</a>
+<a href="#1288" id="1288">1288</a>
+<a href="#1289" id="1289">1289</a>
+<a href="#1290" id="1290">1290</a>
+<a href="#1291" id="1291">1291</a>
+<a href="#1292" id="1292">1292</a>
+<a href="#1293" id="1293">1293</a>
+<a href="#1294" id="1294">1294</a>
+<a href="#1295" id="1295">1295</a>
+<a href="#1296" id="1296">1296</a>
+<a href="#1297" id="1297">1297</a>
+<a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fs;
 <span class="kw">use </span>std::io;
 <span class="kw">use </span>std::io::prelude::<span class="kw-2">*</span>;
 <span class="kw">use </span>std::path::Path;
 <span class="kw">use </span>std::str;
 
+<span class="kw">use </span><span class="kw">crate</span>::header::GNU_SPARSE_HEADERS_COUNT;
 <span class="kw">use </span><span class="kw">crate</span>::header::{path2bytes, HeaderMode};
+<span class="kw">use </span><span class="kw">crate</span>::GnuExtSparseHeader;
 <span class="kw">use crate</span>::{other, EntryType, Header};
 
 <span class="doccomment">/// A structure for building archives
@@ -675,10 +1331,16 @@
 /// This structure has methods for building up an archive from scratch into any
 /// arbitrary writer.
 </span><span class="kw">pub struct </span>Builder&lt;W: Write&gt; {
-    mode: HeaderMode,
-    follow: bool,
+    options: BuilderOptions,
     finished: bool,
     obj: <span class="prelude-ty">Option</span>&lt;W&gt;,
+}
+
+<span class="attr">#[derive(Clone, Copy)]
+</span><span class="kw">struct </span>BuilderOptions {
+    mode: HeaderMode,
+    follow: bool,
+    sparse: bool,
 }
 
 <span class="kw">impl</span>&lt;W: Write&gt; Builder&lt;W&gt; {
@@ -687,8 +1349,11 @@
     /// `HeaderMode::Complete` by default.
     </span><span class="kw">pub fn </span>new(obj: W) -&gt; Builder&lt;W&gt; {
         Builder {
-            mode: HeaderMode::Complete,
-            follow: <span class="bool-val">true</span>,
+            options: BuilderOptions {
+                mode: HeaderMode::Complete,
+                follow: <span class="bool-val">true</span>,
+                sparse: <span class="bool-val">true</span>,
+            },
             finished: <span class="bool-val">false</span>,
             obj: <span class="prelude-val">Some</span>(obj),
         }
@@ -698,13 +1363,23 @@
     /// methods that implicitly read metadata for an input Path. Notably, this
     /// does _not_ apply to `append(Header)`.
     </span><span class="kw">pub fn </span>mode(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mode: HeaderMode) {
-        <span class="self">self</span>.mode = mode;
+        <span class="self">self</span>.options.mode = mode;
     }
 
     <span class="doccomment">/// Follow symlinks, archiving the contents of the file they point to rather
     /// than adding a symlink to the archive. Defaults to true.
+    ///
+    /// When true, it exhibits the same behavior as GNU `tar` command's
+    /// `--dereference` or `-h` options &lt;https://man7.org/linux/man-pages/man1/tar.1.html&gt;.
     </span><span class="kw">pub fn </span>follow_symlinks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, follow: bool) {
-        <span class="self">self</span>.follow = follow;
+        <span class="self">self</span>.options.follow = follow;
+    }
+
+    <span class="doccomment">/// Handle sparse files efficiently, if supported by the underlying
+    /// filesystem. When true, sparse file information is read from disk and
+    /// empty segments are omitted from the archive. Defaults to true.
+    </span><span class="kw">pub fn </span>sparse(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sparse: bool) {
+        <span class="self">self</span>.options.sparse = sparse;
     }
 
     <span class="doccomment">/// Gets shared reference to the underlying object.
@@ -825,6 +1500,47 @@
         <span class="self">self</span>.append(<span class="kw-2">&amp;</span>header, data)
     }
 
+    <span class="doccomment">/// Adds a new entry to this archive and returns an [`EntryWriter`] for
+    /// adding its contents.
+    ///
+    /// This function is similar to [`Self::append_data`] but returns a
+    /// [`io::Write`] implementation instead of taking data as a parameter.
+    ///
+    /// Similar constraints around the position of the archive and completion
+    /// apply as with [`Self::append_data`]. It requires the underlying writer
+    /// to implement [`Seek`] to update the header after writing the data.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error for any intermittent I/O error which
+    /// occurs when either reading or writing.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::io::Cursor;
+    /// use std::io::Write as _;
+    /// use tar::{Builder, Header};
+    ///
+    /// let mut header = Header::new_gnu();
+    ///
+    /// let mut ar = Builder::new(Cursor::new(Vec::new()));
+    /// let mut entry = ar.append_writer(&amp;mut header, "hi.txt").unwrap();
+    /// entry.write_all(b"Hello, ").unwrap();
+    /// entry.write_all(b"world!\n").unwrap();
+    /// entry.finish().unwrap();
+    /// ```
+    </span><span class="kw">pub fn </span>append_writer&lt;<span class="lifetime">'a</span>, P: AsRef&lt;Path&gt;&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>,
+        header: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Header,
+        path: P,
+    ) -&gt; io::Result&lt;EntryWriter&lt;<span class="lifetime">'a</span>&gt;&gt;
+    <span class="kw">where
+        </span>W: Seek,
+    {
+        EntryWriter::start(<span class="self">self</span>.get_mut(), header, path.as_ref())
+    }
+
     <span class="doccomment">/// Adds a new link (symbolic or hard) entry to this archive with the specified path and target.
     ///
     /// This function is similar to [`Self::append_data`] which supports long filenames,
@@ -898,9 +1614,8 @@
     /// ar.append_path("foo/bar.txt").unwrap();
     /// ```
     </span><span class="kw">pub fn </span>append_path&lt;P: AsRef&lt;Path&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: P) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
-        <span class="kw">let </span>follow = <span class="self">self</span>.follow;
-        append_path_with_name(<span class="self">self</span>.get_mut(), path.as_ref(), <span class="prelude-val">None</span>, mode, follow)
+        <span class="kw">let </span>options = <span class="self">self</span>.options;
+        append_path_with_name(<span class="self">self</span>.get_mut(), path.as_ref(), <span class="prelude-val">None</span>, options)
     }
 
     <span class="doccomment">/// Adds a file on the local filesystem to this archive under another name.
@@ -936,15 +1651,8 @@
         path: P,
         name: N,
     ) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
-        <span class="kw">let </span>follow = <span class="self">self</span>.follow;
-        append_path_with_name(
-            <span class="self">self</span>.get_mut(),
-            path.as_ref(),
-            <span class="prelude-val">Some</span>(name.as_ref()),
-            mode,
-            follow,
-        )
+        <span class="kw">let </span>options = <span class="self">self</span>.options;
+        append_path_with_name(<span class="self">self</span>.get_mut(), path.as_ref(), <span class="prelude-val">Some</span>(name.as_ref()), options)
     }
 
     <span class="doccomment">/// Adds a file to this archive with the given path as the name of the file
@@ -974,8 +1682,8 @@
     /// ar.append_file("bar/baz.txt", &amp;mut f).unwrap();
     /// ```
     </span><span class="kw">pub fn </span>append_file&lt;P: AsRef&lt;Path&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: P, file: <span class="kw-2">&amp;mut </span>fs::File) -&gt; io::Result&lt;()&gt; {
-        <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
-        append_file(<span class="self">self</span>.get_mut(), path.as_ref(), file, mode)
+        <span class="kw">let </span>options = <span class="self">self</span>.options;
+        append_file(<span class="self">self</span>.get_mut(), path.as_ref(), file, options)
     }
 
     <span class="doccomment">/// Adds a directory to this archive with the given path as the name of the
@@ -1011,8 +1719,8 @@
         </span>P: AsRef&lt;Path&gt;,
         Q: AsRef&lt;Path&gt;,
     {
-        <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
-        append_dir(<span class="self">self</span>.get_mut(), path.as_ref(), src_path.as_ref(), mode)
+        <span class="kw">let </span>options = <span class="self">self</span>.options;
+        append_dir(<span class="self">self</span>.get_mut(), path.as_ref(), src_path.as_ref(), options)
     }
 
     <span class="doccomment">/// Adds a directory and all of its contents (recursively) to this archive
@@ -1023,7 +1731,8 @@
     /// operation then this may corrupt the archive.
     ///
     /// Also note that after all files have been written to an archive the
-    /// `finish` function needs to be called to finish writing the archive.
+    /// `finish` or `into_inner` function needs to be called to finish
+    /// writing the archive.
     ///
     /// # Examples
     ///
@@ -1033,24 +1742,47 @@
     ///
     /// let mut ar = Builder::new(Vec::new());
     ///
-    /// // Use the directory at one location, but insert it into the archive
-    /// // with a different name.
+    /// // Use the directory at one location ("."), but insert it into the archive
+    /// // with a different name ("bardir").
     /// ar.append_dir_all("bardir", ".").unwrap();
+    /// ar.finish().unwrap();
+    /// ```
+    ///
+    /// Use `append_dir_all` with an empty string as the first path argument to
+    /// create an archive from all files in a directory without renaming.
+    ///
+    /// ```
+    /// use std::fs;
+    /// use std::path::PathBuf;
+    /// use tar::{Archive, Builder};
+    ///
+    /// let tmpdir = tempfile::tempdir().unwrap();
+    /// let path = tmpdir.path();
+    /// fs::write(path.join("a.txt"), b"hello").unwrap();
+    /// fs::write(path.join("b.txt"), b"world").unwrap();
+    ///
+    /// // Create a tarball from the files in the directory
+    /// let mut ar = Builder::new(Vec::new());
+    /// ar.append_dir_all("", path).unwrap();
+    ///
+    /// // List files in the archive
+    /// let archive = ar.into_inner().unwrap();
+    /// let archived_files = Archive::new(archive.as_slice())
+    ///     .entries()
+    ///     .unwrap()
+    ///     .map(|entry| entry.unwrap().path().unwrap().into_owned())
+    ///     .collect::&lt;Vec&lt;_&gt;&gt;();
+    ///
+    /// assert!(archived_files.contains(&amp;PathBuf::from("a.txt")));
+    /// assert!(archived_files.contains(&amp;PathBuf::from("b.txt")));
     /// ```
     </span><span class="kw">pub fn </span>append_dir_all&lt;P, Q&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: P, src_path: Q) -&gt; io::Result&lt;()&gt;
     <span class="kw">where
         </span>P: AsRef&lt;Path&gt;,
         Q: AsRef&lt;Path&gt;,
     {
-        <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
-        <span class="kw">let </span>follow = <span class="self">self</span>.follow;
-        append_dir_all(
-            <span class="self">self</span>.get_mut(),
-            path.as_ref(),
-            src_path.as_ref(),
-            mode,
-            follow,
-        )
+        <span class="kw">let </span>options = <span class="self">self</span>.options;
+        append_dir_all(<span class="self">self</span>.get_mut(), path.as_ref(), src_path.as_ref(), options)
     }
 
     <span class="doccomment">/// Finish writing this archive, emitting the termination sections.
@@ -1069,17 +1801,116 @@
     }
 }
 
+<span class="kw">trait </span>SeekWrite: Write + Seek {
+    <span class="kw">fn </span>as_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write;
+}
+
+<span class="kw">impl</span>&lt;T: Write + Seek&gt; SeekWrite <span class="kw">for </span>T {
+    <span class="kw">fn </span>as_write(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write {
+        <span class="self">self
+    </span>}
+}
+
+<span class="doccomment">/// A writer for a single entry in a tar archive.
+///
+/// This struct is returned by [`Builder::append_writer`] and provides a
+/// [`Write`] implementation for adding content to an archive entry.
+///
+/// After writing all data to the entry, it must be finalized either by
+/// explicitly calling [`EntryWriter::finish`] or by letting it drop.
+</span><span class="kw">pub struct </span>EntryWriter&lt;<span class="lifetime">'a</span>&gt; {
+    <span class="comment">// NOTE: Do not add any fields here which require Drop!
+    // See the comment below in finish().
+    </span>obj: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>SeekWrite,
+    header: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Header,
+    written: u64,
+}
+
+<span class="kw">impl </span>EntryWriter&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>start&lt;<span class="lifetime">'a</span>&gt;(
+        obj: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="kw">dyn </span>SeekWrite,
+        header: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Header,
+        path: <span class="kw-2">&amp;</span>Path,
+    ) -&gt; io::Result&lt;EntryWriter&lt;<span class="lifetime">'a</span>&gt;&gt; {
+        prepare_header_path(obj.as_write(), header, path)<span class="question-mark">?</span>;
+
+        <span class="comment">// Reserve space for header, will be overwritten once data is written.
+        </span>obj.write_all([<span class="number">0u8</span>; <span class="number">512</span>].as_ref())<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(EntryWriter {
+            obj,
+            header,
+            written: <span class="number">0</span>,
+        })
+    }
+
+    <span class="doccomment">/// Finish writing the current entry in the archive.
+    </span><span class="kw">pub fn </span>finish(<span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="comment">// NOTE: This is an optimization for "fallible destructuring".
+        // We want finish() to return an error, but we also need to invoke
+        // cleanup in our Drop handler, which will run unconditionally
+        // and try to do the same work.
+        // By using ManuallyDrop, we suppress that drop. However, this would
+        // be a memory leak if we ever had any struct members which required
+        // Drop - which we don't right now.
+        // But if we ever gain one, we will need to change to use e.g. Option&lt;&gt;
+        // around some of the fields or have a `bool finished` etc.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>this = std::mem::ManuallyDrop::new(<span class="self">self</span>);
+        this.do_finish()
+    }
+
+    <span class="kw">fn </span>do_finish(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="comment">// Pad with zeros if necessary.
+        </span><span class="kw">let </span>buf = [<span class="number">0u8</span>; <span class="number">512</span>];
+        <span class="kw">let </span>remaining = u64::wrapping_sub(<span class="number">512</span>, <span class="self">self</span>.written) % <span class="number">512</span>;
+        <span class="self">self</span>.obj.write_all(<span class="kw-2">&amp;</span>buf[..remaining <span class="kw">as </span>usize])<span class="question-mark">?</span>;
+        <span class="kw">let </span>written = (<span class="self">self</span>.written + remaining) <span class="kw">as </span>i64;
+
+        <span class="comment">// Seek back to the header position.
+        </span><span class="self">self</span>.obj.seek(io::SeekFrom::Current(-written - <span class="number">512</span>))<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.header.set_size(<span class="self">self</span>.written);
+        <span class="self">self</span>.header.set_cksum();
+        <span class="self">self</span>.obj.write_all(<span class="self">self</span>.header.as_bytes())<span class="question-mark">?</span>;
+
+        <span class="comment">// Seek forward to restore the position.
+        </span><span class="self">self</span>.obj.seek(io::SeekFrom::Current(written))<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
+    }
+}
+
+<span class="kw">impl </span>Write <span class="kw">for </span>EntryWriter&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>write(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;</span>[u8]) -&gt; io::Result&lt;usize&gt; {
+        <span class="kw">let </span>len = <span class="self">self</span>.obj.write(buf)<span class="question-mark">?</span>;
+        <span class="self">self</span>.written += len <span class="kw">as </span>u64;
+        <span class="prelude-val">Ok</span>(len)
+    }
+
+    <span class="kw">fn </span>flush(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; io::Result&lt;()&gt; {
+        <span class="self">self</span>.obj.flush()
+    }
+}
+
+<span class="kw">impl </span>Drop <span class="kw">for </span>EntryWriter&lt;<span class="lifetime">'_</span>&gt; {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let _ </span>= <span class="self">self</span>.do_finish();
+    }
+}
+
 <span class="kw">fn </span>append(<span class="kw-2">mut </span>dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write, header: <span class="kw-2">&amp;</span>Header, <span class="kw-2">mut </span>data: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Read) -&gt; io::Result&lt;()&gt; {
     dst.write_all(header.as_bytes())<span class="question-mark">?</span>;
     <span class="kw">let </span>len = io::copy(<span class="kw-2">&amp;mut </span>data, <span class="kw-2">&amp;mut </span>dst)<span class="question-mark">?</span>;
+    pad_zeroes(<span class="kw-2">&amp;mut </span>dst, len)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(())
+}
 
-    <span class="comment">// Pad with zeros if necessary.
-    </span><span class="kw">let </span>buf = [<span class="number">0</span>; <span class="number">512</span>];
+<span class="kw">fn </span>pad_zeroes(dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write, len: u64) -&gt; io::Result&lt;()&gt; {
+    <span class="kw">let </span>buf = [<span class="number">0</span>; <span class="number">512</span>];
     <span class="kw">let </span>remaining = <span class="number">512 </span>- (len % <span class="number">512</span>);
     <span class="kw">if </span>remaining &lt; <span class="number">512 </span>{
         dst.write_all(<span class="kw-2">&amp;</span>buf[..remaining <span class="kw">as </span>usize])<span class="question-mark">?</span>;
     }
-
     <span class="prelude-val">Ok</span>(())
 }
 
@@ -1087,10 +1918,9 @@
     dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write,
     path: <span class="kw-2">&amp;</span>Path,
     name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;,
-    mode: HeaderMode,
-    follow: bool,
+    options: BuilderOptions,
 ) -&gt; io::Result&lt;()&gt; {
-    <span class="kw">let </span>stat = <span class="kw">if </span>follow {
+    <span class="kw">let </span>stat = <span class="kw">if </span>options.follow {
         fs::metadata(path).map_err(|err| {
             io::Error::new(
                 err.kind(),
@@ -1107,23 +1937,16 @@
     </span>};
     <span class="kw">let </span>ar_name = name.unwrap_or(path);
     <span class="kw">if </span>stat.is_file() {
-        append_fs(dst, ar_name, <span class="kw-2">&amp;</span>stat, <span class="kw-2">&amp;mut </span>fs::File::open(path)<span class="question-mark">?</span>, mode, <span class="prelude-val">None</span>)
+        append_file(dst, ar_name, <span class="kw-2">&amp;mut </span>fs::File::open(path)<span class="question-mark">?</span>, options)
     } <span class="kw">else if </span>stat.is_dir() {
-        append_fs(dst, ar_name, <span class="kw-2">&amp;</span>stat, <span class="kw-2">&amp;mut </span>io::empty(), mode, <span class="prelude-val">None</span>)
+        append_fs(dst, ar_name, <span class="kw-2">&amp;</span>stat, options.mode, <span class="prelude-val">None</span>)
     } <span class="kw">else if </span>stat.file_type().is_symlink() {
         <span class="kw">let </span>link_name = fs::read_link(path)<span class="question-mark">?</span>;
-        append_fs(
-            dst,
-            ar_name,
-            <span class="kw-2">&amp;</span>stat,
-            <span class="kw-2">&amp;mut </span>io::empty(),
-            mode,
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>link_name),
-        )
+        append_fs(dst, ar_name, <span class="kw-2">&amp;</span>stat, options.mode, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>link_name))
     } <span class="kw">else </span>{
         <span class="attr">#[cfg(unix)]
         </span>{
-            append_special(dst, path, <span class="kw-2">&amp;</span>stat, mode)
+            append_special(dst, path, <span class="kw-2">&amp;</span>stat, options.mode)
         }
         <span class="attr">#[cfg(not(unix))]
         </span>{
@@ -1180,20 +2003,44 @@
     dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write,
     path: <span class="kw-2">&amp;</span>Path,
     file: <span class="kw-2">&amp;mut </span>fs::File,
-    mode: HeaderMode,
+    options: BuilderOptions,
 ) -&gt; io::Result&lt;()&gt; {
     <span class="kw">let </span>stat = file.metadata()<span class="question-mark">?</span>;
-    append_fs(dst, path, <span class="kw-2">&amp;</span>stat, file, mode, <span class="prelude-val">None</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>header = Header::new_gnu();
+
+    prepare_header_path(dst, <span class="kw-2">&amp;mut </span>header, path)<span class="question-mark">?</span>;
+    header.set_metadata_in_mode(<span class="kw-2">&amp;</span>stat, options.mode);
+    <span class="kw">let </span>sparse_entries = <span class="kw">if </span>options.sparse {
+        prepare_header_sparse(file, <span class="kw-2">&amp;</span>stat, <span class="kw-2">&amp;mut </span>header)<span class="question-mark">?
+    </span>} <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
+    header.set_cksum();
+    dst.write_all(header.as_bytes())<span class="question-mark">?</span>;
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(sparse_entries) = sparse_entries {
+        append_extended_sparse_headers(dst, <span class="kw-2">&amp;</span>sparse_entries)<span class="question-mark">?</span>;
+        <span class="kw">for </span>entry <span class="kw">in </span>sparse_entries.entries {
+            file.seek(io::SeekFrom::Start(entry.offset))<span class="question-mark">?</span>;
+            io::copy(<span class="kw-2">&amp;mut </span>file.take(entry.num_bytes), dst)<span class="question-mark">?</span>;
+        }
+        pad_zeroes(dst, sparse_entries.on_disk_size)<span class="question-mark">?</span>;
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>len = io::copy(file, dst)<span class="question-mark">?</span>;
+        pad_zeroes(dst, len)<span class="question-mark">?</span>;
+    }
+
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn </span>append_dir(
     dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write,
     path: <span class="kw-2">&amp;</span>Path,
     src_path: <span class="kw-2">&amp;</span>Path,
-    mode: HeaderMode,
+    options: BuilderOptions,
 ) -&gt; io::Result&lt;()&gt; {
     <span class="kw">let </span>stat = fs::metadata(src_path)<span class="question-mark">?</span>;
-    append_fs(dst, path, <span class="kw-2">&amp;</span>stat, <span class="kw-2">&amp;mut </span>io::empty(), mode, <span class="prelude-val">None</span>)
+    append_fs(dst, path, <span class="kw-2">&amp;</span>stat, options.mode, <span class="prelude-val">None</span>)
 }
 
 <span class="kw">fn </span>prepare_header(size: u64, entry_type: u8) -&gt; Header {
@@ -1261,11 +2108,67 @@
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="kw">fn </span>prepare_header_sparse(
+    file: <span class="kw-2">&amp;mut </span>fs::File,
+    stat: <span class="kw-2">&amp;</span>fs::Metadata,
+    header: <span class="kw-2">&amp;mut </span>Header,
+) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;SparseEntries&gt;&gt; {
+    <span class="kw">let </span>entries = <span class="kw">match </span>find_sparse_entries(file, stat)<span class="question-mark">? </span>{
+        <span class="prelude-val">Some</span>(entries) =&gt; entries,
+        <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+    };
+
+    header.set_entry_type(EntryType::GNUSparse);
+    header.set_size(entries.on_disk_size);
+
+    <span class="comment">// Write the first 4 (GNU_SPARSE_HEADERS_COUNT) entries to the given header.
+    // The remaining entries will be written as subsequent extended headers. See
+    // https://www.gnu.org/software/tar/manual/html_section/Sparse-Formats.html#Old-GNU-Format
+    // for details on the format.
+    </span><span class="kw">let </span>gnu_header = <span class="kw-2">&amp;mut </span>header.as_gnu_mut().unwrap();
+    gnu_header.set_real_size(entries.size());
+
+    <span class="kw">for </span>(entry, header_entry) <span class="kw">in </span>std::iter::zip(<span class="kw-2">&amp;</span>entries.entries, <span class="kw-2">&amp;mut </span>gnu_header.sparse) {
+        header_entry.set_offset(entry.offset);
+        header_entry.set_length(entry.num_bytes);
+    }
+    gnu_header.set_is_extended(entries.entries.len() &gt; gnu_header.sparse.len());
+
+    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entries))
+}
+
+<span class="doccomment">/// Write extra sparse headers into `dst` for those entries that did not fit in the main header.
+</span><span class="kw">fn </span>append_extended_sparse_headers(dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write, entries: <span class="kw-2">&amp;</span>SparseEntries) -&gt; io::Result&lt;()&gt; {
+    <span class="comment">// The first `GNU_SPARSE_HEADERS_COUNT` entries are written to the main header, so skip them.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>it = entries
+        .entries
+        .iter()
+        .skip(GNU_SPARSE_HEADERS_COUNT)
+        .peekable();
+
+    <span class="comment">// Each GnuExtSparseHeader can hold up to fixed number of sparse entries (21).
+    // So we pack entries into multiple headers if necessary.
+    </span><span class="kw">while </span>it.peek().is_some() {
+        <span class="kw">let </span><span class="kw-2">mut </span>ext_header = GnuExtSparseHeader::new();
+        <span class="kw">for </span>header_entry <span class="kw">in </span>ext_header.sparse.iter_mut() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(entry) = it.next() {
+                header_entry.set_offset(entry.offset);
+                header_entry.set_length(entry.num_bytes);
+            } <span class="kw">else </span>{
+                <span class="kw">break</span>;
+            }
+        }
+        ext_header.set_is_extended(it.peek().is_some());
+        dst.write_all(ext_header.as_bytes())<span class="question-mark">?</span>;
+    }
+
+    <span class="prelude-val">Ok</span>(())
+}
+
 <span class="kw">fn </span>append_fs(
     dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write,
     path: <span class="kw-2">&amp;</span>Path,
     meta: <span class="kw-2">&amp;</span>fs::Metadata,
-    read: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Read,
     mode: HeaderMode,
     link_name: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt;,
 ) -&gt; io::Result&lt;()&gt; {
@@ -1277,51 +2180,456 @@
         prepare_header_link(dst, <span class="kw-2">&amp;mut </span>header, link_name)<span class="question-mark">?</span>;
     }
     header.set_cksum();
-    append(dst, <span class="kw-2">&amp;</span>header, read)
+    dst.write_all(header.as_bytes())
 }
 
 <span class="kw">fn </span>append_dir_all(
     dst: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Write,
     path: <span class="kw-2">&amp;</span>Path,
     src_path: <span class="kw-2">&amp;</span>Path,
-    mode: HeaderMode,
-    follow: bool,
+    options: BuilderOptions,
 ) -&gt; io::Result&lt;()&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>stack = <span class="macro">vec!</span>[(src_path.to_path_buf(), <span class="bool-val">true</span>, <span class="bool-val">false</span>)];
     <span class="kw">while let </span><span class="prelude-val">Some</span>((src, is_dir, is_symlink)) = stack.pop() {
         <span class="kw">let </span>dest = path.join(src.strip_prefix(<span class="kw-2">&amp;</span>src_path).unwrap());
         <span class="comment">// In case of a symlink pointing to a directory, is_dir is false, but src.is_dir() will return true
-        </span><span class="kw">if </span>is_dir || (is_symlink &amp;&amp; follow &amp;&amp; src.is_dir()) {
+        </span><span class="kw">if </span>is_dir || (is_symlink &amp;&amp; options.follow &amp;&amp; src.is_dir()) {
             <span class="kw">for </span>entry <span class="kw">in </span>fs::read_dir(<span class="kw-2">&amp;</span>src)<span class="question-mark">? </span>{
                 <span class="kw">let </span>entry = entry<span class="question-mark">?</span>;
                 <span class="kw">let </span>file_type = entry.file_type()<span class="question-mark">?</span>;
                 stack.push((entry.path(), file_type.is_dir(), file_type.is_symlink()));
             }
             <span class="kw">if </span>dest != Path::new(<span class="string">""</span>) {
-                append_dir(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;</span>src, mode)<span class="question-mark">?</span>;
+                append_dir(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;</span>src, options)<span class="question-mark">?</span>;
             }
-        } <span class="kw">else if </span>!follow &amp;&amp; is_symlink {
+        } <span class="kw">else if </span>!options.follow &amp;&amp; is_symlink {
             <span class="kw">let </span>stat = fs::symlink_metadata(<span class="kw-2">&amp;</span>src)<span class="question-mark">?</span>;
             <span class="kw">let </span>link_name = fs::read_link(<span class="kw-2">&amp;</span>src)<span class="question-mark">?</span>;
-            append_fs(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;</span>stat, <span class="kw-2">&amp;mut </span>io::empty(), mode, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>link_name))<span class="question-mark">?</span>;
+            append_fs(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;</span>stat, options.mode, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>link_name))<span class="question-mark">?</span>;
         } <span class="kw">else </span>{
             <span class="attr">#[cfg(unix)]
             </span>{
                 <span class="kw">let </span>stat = fs::metadata(<span class="kw-2">&amp;</span>src)<span class="question-mark">?</span>;
                 <span class="kw">if </span>!stat.is_file() {
-                    append_special(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;</span>stat, mode)<span class="question-mark">?</span>;
+                    append_special(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;</span>stat, options.mode)<span class="question-mark">?</span>;
                     <span class="kw">continue</span>;
                 }
             }
-            append_file(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;mut </span>fs::File::open(src)<span class="question-mark">?</span>, mode)<span class="question-mark">?</span>;
+            append_file(dst, <span class="kw-2">&amp;</span>dest, <span class="kw-2">&amp;mut </span>fs::File::open(src)<span class="question-mark">?</span>, options)<span class="question-mark">?</span>;
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
+<span class="attr">#[derive(Debug, Clone, PartialEq, Eq)]
+</span><span class="kw">struct </span>SparseEntries {
+    entries: Vec&lt;SparseEntry&gt;,
+    on_disk_size: u64,
+}
+
+<span class="kw">impl </span>SparseEntries {
+    <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
+        <span class="self">self</span>.entries.last().map_or(<span class="number">0</span>, |e| e.offset + e.num_bytes)
+    }
+}
+
+<span class="attr">#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+</span><span class="kw">struct </span>SparseEntry {
+    offset: u64,
+    num_bytes: u64,
+}
+
+<span class="doccomment">/// Find sparse entries in a file. Returns:
+/// * `Ok(Some(_))` if the file is sparse.
+/// * `Ok(None)` if the file is not sparse, or if the file system does not
+///    support sparse files.
+/// * `Err(_)` if an error occurred. The lack of support for sparse files is not
+///    considered an error. It might return an error if the file is modified
+///    while reading.
+</span><span class="kw">fn </span>find_sparse_entries(
+    file: <span class="kw-2">&amp;mut </span>fs::File,
+    stat: <span class="kw-2">&amp;</span>fs::Metadata,
+) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;SparseEntries&gt;&gt; {
+    <span class="attr">#[cfg(not(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"linux"</span>)))]
+    </span>{
+        <span class="kw">let _ </span>= file;
+        <span class="kw">let _ </span>= stat;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+    }
+
+    <span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"linux"</span>))]
+    </span>find_sparse_entries_seek(file, stat)
+}
+
+<span class="doccomment">/// Implementation of `find_sparse_entries` using `SEEK_HOLE` and `SEEK_DATA`.
+</span><span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"freebsd"</span>, target_os = <span class="string">"linux"</span>))]
+</span><span class="kw">fn </span>find_sparse_entries_seek(
+    file: <span class="kw-2">&amp;mut </span>fs::File,
+    stat: <span class="kw-2">&amp;</span>fs::Metadata,
+) -&gt; io::Result&lt;<span class="prelude-ty">Option</span>&lt;SparseEntries&gt;&gt; {
+    <span class="kw">use </span>std::os::unix::fs::MetadataExt <span class="kw">as _</span>;
+    <span class="kw">use </span>std::os::unix::io::AsRawFd <span class="kw">as _</span>;
+
+    <span class="kw">fn </span>lseek(file: <span class="kw-2">&amp;</span>fs::File, offset: i64, whence: libc::c_int) -&gt; <span class="prelude-ty">Result</span>&lt;i64, i32&gt; {
+        <span class="attr">#[cfg(any(target_os = <span class="string">"linux"</span>, target_os = <span class="string">"android"</span>))]
+        </span><span class="kw">let </span>lseek = libc::lseek64;
+        <span class="attr">#[cfg(not(any(target_os = <span class="string">"linux"</span>, target_os = <span class="string">"android"</span>)))]
+        </span><span class="kw">let </span>lseek = libc::lseek;
+
+        <span class="kw">match unsafe </span>{ lseek(file.as_raw_fd(), offset, whence) } {
+            -<span class="number">1 </span>=&gt; <span class="prelude-val">Err</span>(io::Error::last_os_error().raw_os_error().unwrap()),
+            off =&gt; <span class="prelude-val">Ok</span>(off),
+        }
+    }
+
+    <span class="kw">if </span>stat.blocks() == <span class="number">0 </span>{
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw">if </span>stat.size() == <span class="number">0 </span>{
+            <span class="comment">// Empty file.
+            </span><span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="comment">// Fully sparse file.
+            </span><span class="prelude-val">Some</span>(SparseEntries {
+                entries: <span class="macro">vec!</span>[SparseEntry {
+                    offset: stat.size(),
+                    num_bytes: <span class="number">0</span>,
+                }],
+                on_disk_size: <span class="number">0</span>,
+            })
+        });
+    }
+
+    <span class="comment">// On most Unices, we need to read `_PC_MIN_HOLE_SIZE` to see if the file
+    // system supports `SEEK_HOLE`.
+    // FreeBSD: https://man.freebsd.org/cgi/man.cgi?query=lseek&amp;sektion=2&amp;manpath=FreeBSD+14.1-STABLE
+    </span><span class="attr">#[cfg(not(any(target_os = <span class="string">"linux"</span>, target_os = <span class="string">"android"</span>)))]
+    </span><span class="kw">if unsafe </span>{ libc::fpathconf(file.as_raw_fd(), libc::_PC_MIN_HOLE_SIZE) } == -<span class="number">1 </span>{
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+    }
+
+    <span class="comment">// Linux is the only UNIX-like without support for `_PC_MIN_HOLE_SIZE`, so
+    // instead we try to call `lseek` and see if it fails.
+    </span><span class="attr">#[cfg(any(target_os = <span class="string">"linux"</span>, target_os = <span class="string">"android"</span>))]
+    </span><span class="kw">match </span>lseek(file, <span class="number">0</span>, libc::SEEK_HOLE) {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; (),
+        <span class="prelude-val">Err</span>(libc::ENXIO) =&gt; {
+            <span class="comment">// The file is empty. Treat it as non-sparse.
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        }
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>entries = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>on_disk_size = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>off_s = <span class="number">0</span>;
+    <span class="kw">loop </span>{
+        <span class="comment">//  off_s=0      │     off_s               │ off_s
+        //    ↓          │       ↓                 │   ↓
+        //    | DATA |…  │  ……………| HOLE | DATA |…  │  …|×EOF×
+        //    ↑          │       ↑      ↑          │
+        //   (a)         │  (b) (c)    (d)         │     (e)
+        </span><span class="kw">match </span>lseek(file, off_s, libc::SEEK_DATA) {
+            <span class="prelude-val">Ok</span>(<span class="number">0</span>) <span class="kw">if </span>off_s == <span class="number">0 </span>=&gt; (), <span class="comment">// (a) The file starts with data.
+            </span><span class="prelude-val">Ok</span>(off) <span class="kw">if </span>off &lt; off_s =&gt; {
+                <span class="comment">// (b) Unlikely.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+                    io::ErrorKind::Other,
+                    <span class="string">"lseek(SEEK_DATA) went backwards"</span>,
+                ));
+            }
+            <span class="prelude-val">Ok</span>(off) <span class="kw">if </span>off == off_s =&gt; {
+                <span class="comment">// (c) The data at the same offset as the hole.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+                    io::ErrorKind::Other,
+                    <span class="string">"lseek(SEEK_DATA) did not advance. \
+                     Did the file change while appending?"</span>,
+                ));
+            }
+            <span class="prelude-val">Ok</span>(off) =&gt; off_s = off,    <span class="comment">// (d) Jump to the next hole.
+            </span><span class="prelude-val">Err</span>(libc::ENXIO) =&gt; <span class="kw">break</span>, <span class="comment">// (e) Reached the end of the file.
+            </span><span class="prelude-val">Err</span>(errno) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::from_raw_os_error(errno)),
+        };
+
+        <span class="comment">// off_s=0          │     off_s               │    off_s
+        //   ↓              │       ↓                 │      ↓
+        //   | DATA |×EOF×  │  ……………| DATA | HOLE |…  │  …|×EOF×
+        //          ↑       │       ↑      ↑          │
+        //         (a)      │  (b) (c)    (d)         │     (e)
+        </span><span class="kw">match </span>lseek(file, off_s, libc::SEEK_HOLE) {
+            <span class="prelude-val">Ok</span>(off_e) <span class="kw">if </span>off_s == <span class="number">0 </span>&amp;&amp; (off_e <span class="kw">as </span>u64) == stat.size() =&gt; {
+                <span class="comment">// (a) The file is not sparse.
+                </span>file.seek(io::SeekFrom::Start(<span class="number">0</span>))<span class="question-mark">?</span>;
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+            }
+            <span class="prelude-val">Ok</span>(off_e) <span class="kw">if </span>off_e &lt; off_s =&gt; {
+                <span class="comment">// (b) Unlikely.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+                    io::ErrorKind::Other,
+                    <span class="string">"lseek(SEEK_HOLE) went backwards"</span>,
+                ));
+            }
+            <span class="prelude-val">Ok</span>(off_e) <span class="kw">if </span>off_e == off_s =&gt; {
+                <span class="comment">// (c) The hole at the same offset as the data.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+                    io::ErrorKind::Other,
+                    <span class="string">"lseek(SEEK_HOLE) did not advance. \
+                     Did the file change while appending?"</span>,
+                ));
+            }
+            <span class="prelude-val">Ok</span>(off_e) =&gt; {
+                <span class="comment">// (d) Found a hole or reached the end of the file (implicit
+                // zero-length hole).
+                </span>entries.push(SparseEntry {
+                    offset: off_s <span class="kw">as </span>u64,
+                    num_bytes: off_e <span class="kw">as </span>u64 - off_s <span class="kw">as </span>u64,
+                });
+                on_disk_size += off_e <span class="kw">as </span>u64 - off_s <span class="kw">as </span>u64;
+                off_s = off_e;
+            }
+            <span class="prelude-val">Err</span>(libc::ENXIO) =&gt; {
+                <span class="comment">// (e) off_s was already beyond the end of the file.
+                </span><span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+                    io::ErrorKind::Other,
+                    <span class="string">"lseek(SEEK_HOLE) returned ENXIO. \
+                     Did the file change while appending?"</span>,
+                ));
+            }
+            <span class="prelude-val">Err</span>(errno) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(io::Error::from_raw_os_error(errno)),
+        };
+    }
+
+    <span class="kw">if </span>off_s <span class="kw">as </span>u64 &gt; stat.size() {
+        <span class="kw">return </span><span class="prelude-val">Err</span>(std::io::Error::new(
+            io::ErrorKind::Other,
+            <span class="string">"lseek(SEEK_DATA) went beyond the end of the file. \
+             Did the file change while appending?"</span>,
+        ));
+    }
+
+    <span class="comment">// Add a final zero-length entry. It is required if the file ends with a
+    // hole, and redundant otherwise. However, we add it unconditionally to
+    // mimic GNU tar behavior.
+    </span>entries.push(SparseEntry {
+        offset: stat.size(),
+        num_bytes: <span class="number">0</span>,
+    });
+
+    file.seek(io::SeekFrom::Start(<span class="number">0</span>))<span class="question-mark">?</span>;
+
+    <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(SparseEntries {
+        entries,
+        on_disk_size,
+    }))
+}
+
 <span class="kw">impl</span>&lt;W: Write&gt; Drop <span class="kw">for </span>Builder&lt;W&gt; {
     <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="kw">let _ </span>= <span class="self">self</span>.finish();
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="doccomment">/// Should be multiple of 4KiB on ext4, multiple of 32KiB on FreeBSD/UFS.
+    </span><span class="kw">const </span>SPARSE_BLOCK_SIZE: u64 = <span class="number">32768</span>;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_find_sparse_entries() {
+        <span class="kw">let </span>cases: <span class="kw-2">&amp;</span>[(<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>[SparseEntry])] = <span class="kw-2">&amp;</span>[
+            (<span class="string">"|"</span>, <span class="kw-2">&amp;</span>[]),
+            (
+                <span class="string">"|    |    |    |    |"</span>,
+                <span class="kw-2">&amp;</span>[SparseEntry {
+                    offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                    num_bytes: <span class="number">0</span>,
+                }],
+            ),
+            (
+                <span class="string">"|####|####|####|####|"</span>,
+                <span class="kw-2">&amp;</span>[
+                    SparseEntry {
+                        offset: <span class="number">0</span>,
+                        num_bytes: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">0</span>,
+                    },
+                ],
+            ),
+            (
+                <span class="string">"|####|####|    |    |"</span>,
+                <span class="kw-2">&amp;</span>[
+                    SparseEntry {
+                        offset: <span class="number">0</span>,
+                        num_bytes: <span class="number">2 </span>* SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">0</span>,
+                    },
+                ],
+            ),
+            (
+                <span class="string">"|    |    |####|####|"</span>,
+                <span class="kw-2">&amp;</span>[
+                    SparseEntry {
+                        offset: <span class="number">2 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">2 </span>* SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">0</span>,
+                    },
+                ],
+            ),
+            (
+                <span class="string">"|####|    |####|    |"</span>,
+                <span class="kw-2">&amp;</span>[
+                    SparseEntry {
+                        offset: <span class="number">0</span>,
+                        num_bytes: SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">2 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">0</span>,
+                    },
+                ],
+            ),
+            (
+                <span class="string">"|####|    |    |####|"</span>,
+                <span class="kw-2">&amp;</span>[
+                    SparseEntry {
+                        offset: <span class="number">0</span>,
+                        num_bytes: SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">3 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">0</span>,
+                    },
+                ],
+            ),
+            (
+                <span class="string">"|    |####|####|    |"</span>,
+                <span class="kw-2">&amp;</span>[
+                    SparseEntry {
+                        offset: <span class="number">1 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">2 </span>* SPARSE_BLOCK_SIZE,
+                    },
+                    SparseEntry {
+                        offset: <span class="number">4 </span>* SPARSE_BLOCK_SIZE,
+                        num_bytes: <span class="number">0</span>,
+                    },
+                ],
+            ),
+        ];
+
+        <span class="kw">let </span><span class="kw-2">mut </span>file = tempfile::tempfile().unwrap();
+
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(description, map) <span class="kw">in </span>cases {
+            file.set_len(<span class="number">0</span>).unwrap();
+            file.set_len(map.last().map_or(<span class="number">0</span>, |e| e.offset + e.num_bytes))
+                .unwrap();
+
+            <span class="kw">for </span>e <span class="kw">in </span>map {
+                file.seek(io::SeekFrom::Start(e.offset)).unwrap();
+                <span class="kw">for _ in </span><span class="number">0</span>..e.num_bytes / SPARSE_BLOCK_SIZE {
+                    file.write_all(<span class="kw-2">&amp;</span>[<span class="number">0xFF</span>; SPARSE_BLOCK_SIZE <span class="kw">as </span>usize]).unwrap();
+                }
+            }
+
+            <span class="kw">let </span>expected = <span class="kw">match </span>map {
+                <span class="comment">// Empty file.
+                </span><span class="kw-2">&amp;</span>[] =&gt; <span class="prelude-val">None</span>,
+
+                <span class="comment">// 100% dense.
+                </span><span class="kw-2">&amp;</span>[SparseEntry {
+                    offset: <span class="number">0</span>,
+                    num_bytes: x1,
+                }, SparseEntry {
+                    offset: x2,
+                    num_bytes: <span class="number">0</span>,
+                }] <span class="kw">if </span>x1 == x2 =&gt; <span class="prelude-val">None</span>,
+
+                <span class="comment">// Sparse.
+                </span>map =&gt; <span class="prelude-val">Some</span>(SparseEntries {
+                    entries: map.to_vec(),
+                    on_disk_size: map.iter().map(|e| e.num_bytes).sum(),
+                }),
+            };
+
+            <span class="kw">let </span>stat = file.metadata().unwrap();
+            <span class="kw">let </span>reported = find_sparse_entries(<span class="kw-2">&amp;mut </span>file, <span class="kw-2">&amp;</span>stat).unwrap();
+
+            <span class="comment">// Loose check: we did not miss any data blocks.
+            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(e) = loose_check_sparse_entries(reported.as_ref(), expected.as_ref()) {
+                <span class="macro">panic!</span>(
+                    <span class="string">"Case: {description}\n\
+                     Reported: {reported:?}\n\
+                     Expected: {expected:?}\n\
+                     Error: {e}"</span>,
+                );
+            }
+
+            <span class="comment">// On Linux, always do a strict check. Skip on FreeBSD, as on UFS
+            // the last block is always dense, even if it's zero-filled.
+            </span><span class="attr">#[cfg(any(target_os = <span class="string">"android"</span>, target_os = <span class="string">"linux"</span>))]
+            </span><span class="macro">assert_eq!</span>(reported, expected, <span class="string">"Case: {description}"</span>);
+        }
+    }
+
+    <span class="kw">fn </span>loose_check_sparse_entries(
+        reported: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>SparseEntries&gt;,
+        expected: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>SparseEntries&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str&gt; {
+        <span class="kw">let </span>reported = <span class="kw">match </span>reported {
+            <span class="prelude-val">Some</span>(entries) =&gt; entries, <span class="comment">// Reported as sparse.
+            // It's not an error to report a sparse file as non-sparse.
+            </span><span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+        };
+        <span class="kw">let </span>expected = <span class="kw">match </span>expected {
+            <span class="prelude-val">Some</span>(entries) =&gt; entries,
+            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Expected dense file, but reported as sparse"</span>),
+        };
+
+        <span class="comment">// Check that we didn't miss any data blocks. However, reporting some
+        // holes as data is not an error during the loose check.
+        </span><span class="kw">if </span>expected.entries.iter().any(|e| {
+            !reported
+                .entries
+                .iter()
+                .any(|r| e.offset &gt;= r.offset &amp;&amp; e.offset + e.num_bytes &lt;= r.offset + r.num_bytes)
+        }) {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Reported is not a superset of expected"</span>);
+        }
+
+        <span class="kw">if </span>reported.entries.last() != expected.entries.last() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Last zero-length entry is not as expected"</span>);
+        }
+
+        <span class="comment">// Check invariants of SparseEntries.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>prev_end = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>e <span class="kw">in </span><span class="kw-2">&amp;</span>reported.entries[..reported.entries.len()] {
+            <span class="kw">if </span>prev_end.map_or(<span class="bool-val">false</span>, |p| e.offset &lt; p) {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Overlapping or unsorted entries"</span>);
+            }
+            prev_end = <span class="prelude-val">Some</span>(e.offset + e.num_bytes);
+        }
+
+        <span class="kw">if </span>reported.on_disk_size != reported.entries.iter().map(|e| e.num_bytes).sum() {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Incorrect on-disk size"</span>);
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div></section></main></body></html>

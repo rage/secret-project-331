@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/client/tls13.rs`."><title>tls13.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/client/tls13.rs`."><title>tls13.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1591,32 +1591,6 @@
 <a href="#1591" id="1591">1591</a>
 <a href="#1592" id="1592">1592</a>
 <a href="#1593" id="1593">1593</a>
-<a href="#1594" id="1594">1594</a>
-<a href="#1595" id="1595">1595</a>
-<a href="#1596" id="1596">1596</a>
-<a href="#1597" id="1597">1597</a>
-<a href="#1598" id="1598">1598</a>
-<a href="#1599" id="1599">1599</a>
-<a href="#1600" id="1600">1600</a>
-<a href="#1601" id="1601">1601</a>
-<a href="#1602" id="1602">1602</a>
-<a href="#1603" id="1603">1603</a>
-<a href="#1604" id="1604">1604</a>
-<a href="#1605" id="1605">1605</a>
-<a href="#1606" id="1606">1606</a>
-<a href="#1607" id="1607">1607</a>
-<a href="#1608" id="1608">1608</a>
-<a href="#1609" id="1609">1609</a>
-<a href="#1610" id="1610">1610</a>
-<a href="#1611" id="1611">1611</a>
-<a href="#1612" id="1612">1612</a>
-<a href="#1613" id="1613">1613</a>
-<a href="#1614" id="1614">1614</a>
-<a href="#1615" id="1615">1615</a>
-<a href="#1616" id="1616">1616</a>
-<a href="#1617" id="1617">1617</a>
-<a href="#1618" id="1618">1618</a>
-<a href="#1619" id="1619">1619</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec;
@@ -1631,7 +1605,9 @@
 <span class="kw">use </span><span class="kw">crate</span>::client::common::{ClientAuthDetails, ClientHelloDetails, ServerCertDetails};
 <span class="kw">use </span><span class="kw">crate</span>::client::ech::{<span class="self">self</span>, EchState, EchStatus};
 <span class="kw">use </span><span class="kw">crate</span>::client::{hs, ClientConfig, ClientSessionStore};
-<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, HandshakeKind, KxState, Protocol, Side, State};
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{
+    CommonState, HandshakeFlightTls13, HandshakeKind, KxState, Protocol, Side, State,
+};
 <span class="kw">use </span><span class="kw">crate</span>::conn::ConnectionRandoms;
 <span class="kw">use </span><span class="kw">crate</span>::crypto::ActiveKeyExchange;
 <span class="kw">use </span><span class="kw">crate</span>::enums::{
@@ -1639,8 +1615,7 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::error::{Error, InvalidMessage, PeerIncompatible, PeerMisbehaved};
 <span class="kw">use </span><span class="kw">crate</span>::hash_hs::{HandshakeHash, HandshakeHashBuffer};
-<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::log::{debug, trace, warn};
+<span class="kw">use </span><span class="kw">crate</span>::log::{debug, trace, warn};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::{Payload, PayloadU8};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::ccs::ChangeCipherSpecPayload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
@@ -1767,7 +1742,12 @@
     };
 
     cx.common.kx_state.complete();
-    <span class="kw">let </span>shared_secret = our_key_share.complete(<span class="kw-2">&amp;</span>their_key_share.payload.<span class="number">0</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>shared_secret = our_key_share
+        .complete(<span class="kw-2">&amp;</span>their_key_share.payload.<span class="number">0</span>)
+        .map_err(|err| {
+            cx.common
+                .send_fatal_alert(AlertDescription::IllegalParameter, err)
+        })<span class="question-mark">?</span>;
 
     <span class="kw">let </span><span class="kw-2">mut </span>key_schedule = key_schedule_pre_handshake.into_handshake(shared_secret);
 
@@ -1854,7 +1834,7 @@
         .resumption
         .store
         .kx_hint(server_name)
-        .and_then(|group_name| config.find_kx_group(group_name))
+        .and_then(|group_name| config.find_kx_group(group_name, ProtocolVersion::TLSv1_3))
         .unwrap_or_else(|| {
             config
                 .provider
@@ -2733,7 +2713,7 @@
             </span>.config
             .verifier
             .verify_tls13_signature(
-                <span class="kw-2">&amp;</span>construct_server_verify_message(<span class="kw-2">&amp;</span>handshake_hash),
+                construct_server_verify_message(<span class="kw-2">&amp;</span>handshake_hash).as_ref(),
                 end_entity,
                 cert_verify,
             )
@@ -2775,12 +2755,11 @@
 }
 
 <span class="kw">fn </span>emit_compressed_certificate_tls13(
-    transcript: <span class="kw-2">&amp;mut </span>HandshakeHash,
+    flight: <span class="kw-2">&amp;mut </span>HandshakeFlightTls13&lt;<span class="lifetime">'_</span>&gt;,
     certkey: <span class="kw-2">&amp;</span>CertifiedKey,
     auth_context: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
     compressor: <span class="kw-2">&amp;</span><span class="kw">dyn </span>compress::CertCompressor,
     config: <span class="kw-2">&amp;</span>ClientConfig,
-    common: <span class="kw-2">&amp;mut </span>CommonState,
 ) {
     <span class="kw">let </span><span class="kw-2">mut </span>cert_payload = CertificatePayloadTls13::new(certkey.cert.iter(), <span class="prelude-val">None</span>);
     cert_payload.context = PayloadU8::new(auth_context.clone().unwrap_or_default());
@@ -2790,25 +2769,19 @@
         .compression_for(compressor, <span class="kw-2">&amp;</span>cert_payload)
     {
         <span class="prelude-val">Ok</span>(compressed) =&gt; compressed,
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>emit_certificate_tls13(transcript, <span class="prelude-val">Some</span>(certkey), auth_context, common),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span>emit_certificate_tls13(flight, <span class="prelude-val">Some</span>(certkey), auth_context),
     };
 
-    <span class="kw">let </span>m = Message {
-        version: ProtocolVersion::TLSv1_3,
-        payload: MessagePayload::handshake(HandshakeMessagePayload {
-            typ: HandshakeType::CompressedCertificate,
-            payload: HandshakePayload::CompressedCertificate(compressed.compressed_cert_payload()),
-        }),
-    };
-    transcript.add_message(<span class="kw-2">&amp;</span>m);
-    common.send_msg(m, <span class="bool-val">true</span>);
+    flight.add(HandshakeMessagePayload {
+        typ: HandshakeType::CompressedCertificate,
+        payload: HandshakePayload::CompressedCertificate(compressed.compressed_cert_payload()),
+    });
 }
 
 <span class="kw">fn </span>emit_certificate_tls13(
-    transcript: <span class="kw-2">&amp;mut </span>HandshakeHash,
+    flight: <span class="kw-2">&amp;mut </span>HandshakeFlightTls13&lt;<span class="lifetime">'_</span>&gt;,
     certkey: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>CertifiedKey&gt;,
     auth_context: <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt;,
-    common: <span class="kw-2">&amp;mut </span>CommonState,
 ) {
     <span class="kw">let </span>certs = certkey
         .map(|ck| ck.cert.as_ref())
@@ -2816,58 +2789,36 @@
     <span class="kw">let </span><span class="kw-2">mut </span>cert_payload = CertificatePayloadTls13::new(certs.iter(), <span class="prelude-val">None</span>);
     cert_payload.context = PayloadU8::new(auth_context.unwrap_or_default());
 
-    <span class="kw">let </span>m = Message {
-        version: ProtocolVersion::TLSv1_3,
-        payload: MessagePayload::handshake(HandshakeMessagePayload {
-            typ: HandshakeType::Certificate,
-            payload: HandshakePayload::CertificateTls13(cert_payload),
-        }),
-    };
-    transcript.add_message(<span class="kw-2">&amp;</span>m);
-    common.send_msg(m, <span class="bool-val">true</span>);
+    flight.add(HandshakeMessagePayload {
+        typ: HandshakeType::Certificate,
+        payload: HandshakePayload::CertificateTls13(cert_payload),
+    });
 }
 
 <span class="kw">fn </span>emit_certverify_tls13(
-    transcript: <span class="kw-2">&amp;mut </span>HandshakeHash,
+    flight: <span class="kw-2">&amp;mut </span>HandshakeFlightTls13&lt;<span class="lifetime">'_</span>&gt;,
     signer: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Signer,
-    common: <span class="kw-2">&amp;mut </span>CommonState,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-    <span class="kw">let </span>message = construct_client_verify_message(<span class="kw-2">&amp;</span>transcript.current_hash());
+    <span class="kw">let </span>message = construct_client_verify_message(<span class="kw-2">&amp;</span>flight.transcript.current_hash());
 
     <span class="kw">let </span>scheme = signer.scheme();
-    <span class="kw">let </span>sig = signer.sign(<span class="kw-2">&amp;</span>message)<span class="question-mark">?</span>;
+    <span class="kw">let </span>sig = signer.sign(message.as_ref())<span class="question-mark">?</span>;
     <span class="kw">let </span>dss = DigitallySignedStruct::new(scheme, sig);
 
-    <span class="kw">let </span>m = Message {
-        version: ProtocolVersion::TLSv1_3,
-        payload: MessagePayload::handshake(HandshakeMessagePayload {
-            typ: HandshakeType::CertificateVerify,
-            payload: HandshakePayload::CertificateVerify(dss),
-        }),
-    };
-
-    transcript.add_message(<span class="kw-2">&amp;</span>m);
-    common.send_msg(m, <span class="bool-val">true</span>);
+    flight.add(HandshakeMessagePayload {
+        typ: HandshakeType::CertificateVerify,
+        payload: HandshakePayload::CertificateVerify(dss),
+    });
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn </span>emit_finished_tls13(
-    transcript: <span class="kw-2">&amp;mut </span>HandshakeHash,
-    verify_data: <span class="kw-2">&amp;</span>crypto::hmac::Tag,
-    common: <span class="kw-2">&amp;mut </span>CommonState,
-) {
+<span class="kw">fn </span>emit_finished_tls13(flight: <span class="kw-2">&amp;mut </span>HandshakeFlightTls13&lt;<span class="lifetime">'_</span>&gt;, verify_data: <span class="kw-2">&amp;</span>crypto::hmac::Tag) {
     <span class="kw">let </span>verify_data_payload = Payload::new(verify_data.as_ref());
 
-    <span class="kw">let </span>m = Message {
-        version: ProtocolVersion::TLSv1_3,
-        payload: MessagePayload::handshake(HandshakeMessagePayload {
-            typ: HandshakeType::Finished,
-            payload: HandshakePayload::Finished(verify_data_payload),
-        }),
-    };
-
-    transcript.add_message(<span class="kw-2">&amp;</span>m);
-    common.send_msg(m, <span class="bool-val">true</span>);
+    flight.add(HandshakeMessagePayload {
+        typ: HandshakeType::Finished,
+        payload: HandshakePayload::Finished(verify_data_payload),
+    });
 }
 
 <span class="kw">fn </span>emit_end_of_early_data_tls13(transcript: <span class="kw-2">&amp;mut </span>HandshakeHash, common: <span class="kw-2">&amp;mut </span>CommonState) {
@@ -2941,6 +2892,8 @@
                 .set_handshake_encrypter(cx.common);
         }
 
+        <span class="kw">let </span><span class="kw-2">mut </span>flight = HandshakeFlightTls13::new(<span class="kw-2">&amp;mut </span>st.transcript);
+
         <span class="comment">/* Send our authentication/finished messages.  These are still encrypted
          * with our handshake keys. */
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(client_auth) = st.client_auth {
@@ -2948,7 +2901,7 @@
                 ClientAuthDetails::Empty {
                     auth_context_tls13: auth_context,
                 } =&gt; {
-                    emit_certificate_tls13(<span class="kw-2">&amp;mut </span>st.transcript, <span class="prelude-val">None</span>, auth_context, cx.common);
+                    emit_certificate_tls13(<span class="kw-2">&amp;mut </span>flight, <span class="prelude-val">None</span>, auth_context);
                 }
                 ClientAuthDetails::Verify {
                     auth_context_tls13: auth_context,
@@ -2956,7 +2909,7 @@
                 } <span class="kw">if </span>cx.data.ech_status == EchStatus::Rejected =&gt; {
                     <span class="comment">// If ECH was offered, and rejected, we MUST respond with
                     // an empty certificate message.
-                    </span>emit_certificate_tls13(<span class="kw-2">&amp;mut </span>st.transcript, <span class="prelude-val">None</span>, auth_context, cx.common);
+                    </span>emit_certificate_tls13(<span class="kw-2">&amp;mut </span>flight, <span class="prelude-val">None</span>, auth_context);
                 }
                 ClientAuthDetails::Verify {
                     certkey,
@@ -2966,22 +2919,16 @@
                 } =&gt; {
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(compressor) = compressor {
                         emit_compressed_certificate_tls13(
-                            <span class="kw-2">&amp;mut </span>st.transcript,
+                            <span class="kw-2">&amp;mut </span>flight,
                             <span class="kw-2">&amp;</span>certkey,
                             auth_context,
                             compressor,
                             <span class="kw-2">&amp;</span>st.config,
-                            cx.common,
                         );
                     } <span class="kw">else </span>{
-                        emit_certificate_tls13(
-                            <span class="kw-2">&amp;mut </span>st.transcript,
-                            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>certkey),
-                            auth_context,
-                            cx.common,
-                        );
+                        emit_certificate_tls13(<span class="kw-2">&amp;mut </span>flight, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>certkey), auth_context);
                     }
-                    emit_certverify_tls13(<span class="kw-2">&amp;mut </span>st.transcript, signer.as_ref(), cx.common)<span class="question-mark">?</span>;
+                    emit_certverify_tls13(<span class="kw-2">&amp;mut </span>flight, signer.as_ref())<span class="question-mark">?</span>;
                 }
             }
         }
@@ -2990,12 +2937,13 @@
             .key_schedule
             .into_pre_finished_client_traffic(
                 hash_after_handshake,
-                st.transcript.current_hash(),
+                flight.transcript.current_hash(),
                 <span class="kw-2">&amp;*</span>st.config.key_log,
                 <span class="kw-2">&amp;</span>st.randoms.client,
             );
 
-        emit_finished_tls13(<span class="kw-2">&amp;mut </span>st.transcript, <span class="kw-2">&amp;</span>verify_data, cx.common);
+        emit_finished_tls13(<span class="kw-2">&amp;mut </span>flight, <span class="kw-2">&amp;</span>verify_data);
+        flight.finish(cx.common);
 
         <span class="comment">/* We're now sure this server supports TLS1.3.  But if we run out of TLS1.3 tickets
          * when connecting to it again, we definitely don't want to attempt a TLS1.2 resumption. */
@@ -3078,7 +3026,7 @@
         <span class="attr">#[allow(unused_mut)]
         </span><span class="kw">let </span><span class="kw-2">mut </span>value = persist::Tls13ClientSessionValue::new(
             <span class="self">self</span>.suite,
-            nst.ticket.<span class="number">0</span>.clone(),
+            Arc::clone(<span class="kw-2">&amp;</span>nst.ticket),
             secret.as_ref(),
             cx.common
                 .peer_certificates

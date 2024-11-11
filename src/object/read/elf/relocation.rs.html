@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/elf/relocation.rs`."><title>relocation.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.5/src/read/elf/relocation.rs`."><title>relocation.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -602,63 +602,6 @@
 <a href="#602" id="602">602</a>
 <a href="#603" id="603">603</a>
 <a href="#604" id="604">604</a>
-<a href="#605" id="605">605</a>
-<a href="#606" id="606">606</a>
-<a href="#607" id="607">607</a>
-<a href="#608" id="608">608</a>
-<a href="#609" id="609">609</a>
-<a href="#610" id="610">610</a>
-<a href="#611" id="611">611</a>
-<a href="#612" id="612">612</a>
-<a href="#613" id="613">613</a>
-<a href="#614" id="614">614</a>
-<a href="#615" id="615">615</a>
-<a href="#616" id="616">616</a>
-<a href="#617" id="617">617</a>
-<a href="#618" id="618">618</a>
-<a href="#619" id="619">619</a>
-<a href="#620" id="620">620</a>
-<a href="#621" id="621">621</a>
-<a href="#622" id="622">622</a>
-<a href="#623" id="623">623</a>
-<a href="#624" id="624">624</a>
-<a href="#625" id="625">625</a>
-<a href="#626" id="626">626</a>
-<a href="#627" id="627">627</a>
-<a href="#628" id="628">628</a>
-<a href="#629" id="629">629</a>
-<a href="#630" id="630">630</a>
-<a href="#631" id="631">631</a>
-<a href="#632" id="632">632</a>
-<a href="#633" id="633">633</a>
-<a href="#634" id="634">634</a>
-<a href="#635" id="635">635</a>
-<a href="#636" id="636">636</a>
-<a href="#637" id="637">637</a>
-<a href="#638" id="638">638</a>
-<a href="#639" id="639">639</a>
-<a href="#640" id="640">640</a>
-<a href="#641" id="641">641</a>
-<a href="#642" id="642">642</a>
-<a href="#643" id="643">643</a>
-<a href="#644" id="644">644</a>
-<a href="#645" id="645">645</a>
-<a href="#646" id="646">646</a>
-<a href="#647" id="647">647</a>
-<a href="#648" id="648">648</a>
-<a href="#649" id="649">649</a>
-<a href="#650" id="650">650</a>
-<a href="#651" id="651">651</a>
-<a href="#652" id="652">652</a>
-<a href="#653" id="653">653</a>
-<a href="#654" id="654">654</a>
-<a href="#655" id="655">655</a>
-<a href="#656" id="656">656</a>
-<a href="#657" id="657">657</a>
-<a href="#658" id="658">658</a>
-<a href="#659" id="659">659</a>
-<a href="#660" id="660">660</a>
-<a href="#661" id="661">661</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::fmt;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::fmt::Debug;
@@ -908,238 +851,181 @@
     reloc: Elf::Rela,
     implicit_addend: bool,
 ) -&gt; Relocation {
-    <span class="kw">let </span><span class="kw-2">mut </span>encoding = RelocationEncoding::Generic;
+    <span class="kw">use </span>RelocationEncoding <span class="kw">as </span>E;
+    <span class="kw">use </span>RelocationKind <span class="kw">as </span>K;
+
     <span class="kw">let </span>is_mips64el = header.is_mips64el(endian);
     <span class="kw">let </span>r_type = reloc.r_type(endian, is_mips64el);
     <span class="kw">let </span>flags = RelocationFlags::Elf { r_type };
-    <span class="kw">let </span>(kind, size) = <span class="kw">match </span>header.e_machine(endian) {
+    <span class="kw">let </span>g = E::Generic;
+    <span class="kw">let </span>unknown = (K::Unknown, E::Generic, <span class="number">0</span>);
+    <span class="kw">let </span>(kind, encoding, size) = <span class="kw">match </span>header.e_machine(endian) {
         elf::EM_AARCH64 =&gt; {
             <span class="kw">if </span>header.is_type_64() {
                 <span class="kw">match </span>r_type {
-                    elf::R_AARCH64_ABS64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-                    elf::R_AARCH64_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-                    elf::R_AARCH64_ABS16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-                    elf::R_AARCH64_PREL64 =&gt; (RelocationKind::Relative, <span class="number">64</span>),
-                    elf::R_AARCH64_PREL32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-                    elf::R_AARCH64_PREL16 =&gt; (RelocationKind::Relative, <span class="number">16</span>),
-                    elf::R_AARCH64_CALL26 =&gt; {
-                        encoding = RelocationEncoding::AArch64Call;
-                        (RelocationKind::PltRelative, <span class="number">26</span>)
-                    }
-                    <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+                    elf::R_AARCH64_ABS64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+                    elf::R_AARCH64_ABS32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+                    elf::R_AARCH64_ABS16 =&gt; (K::Absolute, g, <span class="number">16</span>),
+                    elf::R_AARCH64_PREL64 =&gt; (K::Relative, g, <span class="number">64</span>),
+                    elf::R_AARCH64_PREL32 =&gt; (K::Relative, g, <span class="number">32</span>),
+                    elf::R_AARCH64_PREL16 =&gt; (K::Relative, g, <span class="number">16</span>),
+                    elf::R_AARCH64_CALL26 =&gt; (K::PltRelative, E::AArch64Call, <span class="number">26</span>),
+                    <span class="kw">_ </span>=&gt; unknown,
                 }
             } <span class="kw">else </span>{
                 <span class="kw">match </span>r_type {
-                    elf::R_AARCH64_P32_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-                    <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+                    elf::R_AARCH64_P32_ABS32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+                    <span class="kw">_ </span>=&gt; unknown,
                 }
             }
         }
         elf::EM_ARM =&gt; <span class="kw">match </span>r_type {
-            elf::R_ARM_ABS32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_ARM_ABS32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_AVR =&gt; <span class="kw">match </span>r_type {
-            elf::R_AVR_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_AVR_16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_AVR_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_AVR_16 =&gt; (K::Absolute, g, <span class="number">16</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_BPF =&gt; <span class="kw">match </span>r_type {
-            elf::R_BPF_64_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            elf::R_BPF_64_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_BPF_64_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            elf::R_BPF_64_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_CSKY =&gt; <span class="kw">match </span>r_type {
-            elf::R_CKCORE_ADDR32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_CKCORE_PCREL32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_CKCORE_ADDR32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_CKCORE_PCREL32 =&gt; (K::Relative, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
+        },
+        elf::EM_MCST_ELBRUS =&gt; <span class="kw">match </span>r_type {
+            elf::R_E2K_32_ABS =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_E2K_64_ABS =&gt; (K::Absolute, g, <span class="number">64</span>),
+            elf::R_E2K_64_ABS_LIT =&gt; (K::Absolute, E::E2KLit, <span class="number">64</span>),
+            elf::R_E2K_DISP =&gt; (K::Relative, E::E2KDisp, <span class="number">28</span>),
+            elf::R_E2K_GOT =&gt; (K::Got, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_386 =&gt; <span class="kw">match </span>r_type {
-            elf::R_386_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_386_PC32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            elf::R_386_GOT32 =&gt; (RelocationKind::Got, <span class="number">32</span>),
-            elf::R_386_PLT32 =&gt; (RelocationKind::PltRelative, <span class="number">32</span>),
-            elf::R_386_GOTOFF =&gt; (RelocationKind::GotBaseOffset, <span class="number">32</span>),
-            elf::R_386_GOTPC =&gt; (RelocationKind::GotBaseRelative, <span class="number">32</span>),
-            elf::R_386_16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            elf::R_386_PC16 =&gt; (RelocationKind::Relative, <span class="number">16</span>),
-            elf::R_386_8 =&gt; (RelocationKind::Absolute, <span class="number">8</span>),
-            elf::R_386_PC8 =&gt; (RelocationKind::Relative, <span class="number">8</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_386_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_386_PC32 =&gt; (K::Relative, g, <span class="number">32</span>),
+            elf::R_386_GOT32 =&gt; (K::Got, g, <span class="number">32</span>),
+            elf::R_386_PLT32 =&gt; (K::PltRelative, g, <span class="number">32</span>),
+            elf::R_386_GOTOFF =&gt; (K::GotBaseOffset, g, <span class="number">32</span>),
+            elf::R_386_GOTPC =&gt; (K::GotBaseRelative, g, <span class="number">32</span>),
+            elf::R_386_16 =&gt; (K::Absolute, g, <span class="number">16</span>),
+            elf::R_386_PC16 =&gt; (K::Relative, g, <span class="number">16</span>),
+            elf::R_386_8 =&gt; (K::Absolute, g, <span class="number">8</span>),
+            elf::R_386_PC8 =&gt; (K::Relative, g, <span class="number">8</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_X86_64 =&gt; <span class="kw">match </span>r_type {
-            elf::R_X86_64_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            elf::R_X86_64_PC32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            elf::R_X86_64_GOT32 =&gt; (RelocationKind::Got, <span class="number">32</span>),
-            elf::R_X86_64_PLT32 =&gt; (RelocationKind::PltRelative, <span class="number">32</span>),
-            elf::R_X86_64_GOTPCREL =&gt; (RelocationKind::GotRelative, <span class="number">32</span>),
-            elf::R_X86_64_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_X86_64_32S =&gt; {
-                encoding = RelocationEncoding::X86Signed;
-                (RelocationKind::Absolute, <span class="number">32</span>)
-            }
-            elf::R_X86_64_16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            elf::R_X86_64_PC16 =&gt; (RelocationKind::Relative, <span class="number">16</span>),
-            elf::R_X86_64_8 =&gt; (RelocationKind::Absolute, <span class="number">8</span>),
-            elf::R_X86_64_PC8 =&gt; (RelocationKind::Relative, <span class="number">8</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_X86_64_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            elf::R_X86_64_PC32 =&gt; (K::Relative, g, <span class="number">32</span>),
+            elf::R_X86_64_GOT32 =&gt; (K::Got, g, <span class="number">32</span>),
+            elf::R_X86_64_PLT32 =&gt; (K::PltRelative, g, <span class="number">32</span>),
+            elf::R_X86_64_GOTPCREL =&gt; (K::GotRelative, g, <span class="number">32</span>),
+            elf::R_X86_64_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_X86_64_32S =&gt; (K::Absolute, E::X86Signed, <span class="number">32</span>),
+            elf::R_X86_64_16 =&gt; (K::Absolute, g, <span class="number">16</span>),
+            elf::R_X86_64_PC16 =&gt; (K::Relative, g, <span class="number">16</span>),
+            elf::R_X86_64_8 =&gt; (K::Absolute, g, <span class="number">8</span>),
+            elf::R_X86_64_PC8 =&gt; (K::Relative, g, <span class="number">8</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_HEXAGON =&gt; <span class="kw">match </span>r_type {
-            elf::R_HEX_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_HEX_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_LOONGARCH =&gt; <span class="kw">match </span>r_type {
-            elf::R_LARCH_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_LARCH_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            elf::R_LARCH_32_PCREL =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            elf::R_LARCH_64_PCREL =&gt; (RelocationKind::Relative, <span class="number">64</span>),
-            elf::R_LARCH_B16 =&gt; {
-                encoding = RelocationEncoding::LoongArchBranch;
-                (RelocationKind::Relative, <span class="number">16</span>)
-            }
-            elf::R_LARCH_B21 =&gt; {
-                encoding = RelocationEncoding::LoongArchBranch;
-                (RelocationKind::Relative, <span class="number">21</span>)
-            }
-            elf::R_LARCH_B26 =&gt; {
-                encoding = RelocationEncoding::LoongArchBranch;
-                (RelocationKind::Relative, <span class="number">26</span>)
-            }
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_LARCH_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_LARCH_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            elf::R_LARCH_32_PCREL =&gt; (K::Relative, g, <span class="number">32</span>),
+            elf::R_LARCH_64_PCREL =&gt; (K::Relative, g, <span class="number">64</span>),
+            elf::R_LARCH_B16 =&gt; (K::Relative, E::LoongArchBranch, <span class="number">16</span>),
+            elf::R_LARCH_B21 =&gt; (K::Relative, E::LoongArchBranch, <span class="number">21</span>),
+            elf::R_LARCH_B26 =&gt; (K::Relative, E::LoongArchBranch, <span class="number">26</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_MIPS =&gt; <span class="kw">match </span>r_type {
-            elf::R_MIPS_16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            elf::R_MIPS_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_MIPS_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_MIPS_16 =&gt; (K::Absolute, g, <span class="number">16</span>),
+            elf::R_MIPS_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_MIPS_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_MSP430 =&gt; <span class="kw">match </span>r_type {
-            elf::R_MSP430_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_MSP430_16_BYTE =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_MSP430_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_MSP430_16_BYTE =&gt; (K::Absolute, g, <span class="number">16</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_PPC =&gt; <span class="kw">match </span>r_type {
-            elf::R_PPC_ADDR32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_PPC_ADDR32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_PPC64 =&gt; <span class="kw">match </span>r_type {
-            elf::R_PPC64_ADDR32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_PPC64_ADDR64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_PPC64_ADDR32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_PPC64_ADDR64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_RISCV =&gt; <span class="kw">match </span>r_type {
-            elf::R_RISCV_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_RISCV_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_RISCV_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_RISCV_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_S390 =&gt; <span class="kw">match </span>r_type {
-            elf::R_390_8 =&gt; (RelocationKind::Absolute, <span class="number">8</span>),
-            elf::R_390_16 =&gt; (RelocationKind::Absolute, <span class="number">16</span>),
-            elf::R_390_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_390_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            elf::R_390_PC16 =&gt; (RelocationKind::Relative, <span class="number">16</span>),
-            elf::R_390_PC32 =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            elf::R_390_PC64 =&gt; (RelocationKind::Relative, <span class="number">64</span>),
-            elf::R_390_PC16DBL =&gt; {
-                encoding = RelocationEncoding::S390xDbl;
-                (RelocationKind::Relative, <span class="number">16</span>)
-            }
-            elf::R_390_PC32DBL =&gt; {
-                encoding = RelocationEncoding::S390xDbl;
-                (RelocationKind::Relative, <span class="number">32</span>)
-            }
-            elf::R_390_PLT16DBL =&gt; {
-                encoding = RelocationEncoding::S390xDbl;
-                (RelocationKind::PltRelative, <span class="number">16</span>)
-            }
-            elf::R_390_PLT32DBL =&gt; {
-                encoding = RelocationEncoding::S390xDbl;
-                (RelocationKind::PltRelative, <span class="number">32</span>)
-            }
-            elf::R_390_GOT16 =&gt; (RelocationKind::Got, <span class="number">16</span>),
-            elf::R_390_GOT32 =&gt; (RelocationKind::Got, <span class="number">32</span>),
-            elf::R_390_GOT64 =&gt; (RelocationKind::Got, <span class="number">64</span>),
-            elf::R_390_GOTENT =&gt; {
-                encoding = RelocationEncoding::S390xDbl;
-                (RelocationKind::GotRelative, <span class="number">32</span>)
-            }
-            elf::R_390_GOTOFF16 =&gt; (RelocationKind::GotBaseOffset, <span class="number">16</span>),
-            elf::R_390_GOTOFF32 =&gt; (RelocationKind::GotBaseOffset, <span class="number">32</span>),
-            elf::R_390_GOTOFF64 =&gt; (RelocationKind::GotBaseOffset, <span class="number">64</span>),
-            elf::R_390_GOTPC =&gt; (RelocationKind::GotBaseRelative, <span class="number">64</span>),
-            elf::R_390_GOTPCDBL =&gt; {
-                encoding = RelocationEncoding::S390xDbl;
-                (RelocationKind::GotBaseRelative, <span class="number">32</span>)
-            }
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_390_8 =&gt; (K::Absolute, g, <span class="number">8</span>),
+            elf::R_390_16 =&gt; (K::Absolute, g, <span class="number">16</span>),
+            elf::R_390_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_390_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            elf::R_390_PC16 =&gt; (K::Relative, g, <span class="number">16</span>),
+            elf::R_390_PC32 =&gt; (K::Relative, g, <span class="number">32</span>),
+            elf::R_390_PC64 =&gt; (K::Relative, g, <span class="number">64</span>),
+            elf::R_390_PC16DBL =&gt; (K::Relative, E::S390xDbl, <span class="number">16</span>),
+            elf::R_390_PC32DBL =&gt; (K::Relative, E::S390xDbl, <span class="number">32</span>),
+            elf::R_390_PLT16DBL =&gt; (K::PltRelative, E::S390xDbl, <span class="number">16</span>),
+            elf::R_390_PLT32DBL =&gt; (K::PltRelative, E::S390xDbl, <span class="number">32</span>),
+            elf::R_390_GOT16 =&gt; (K::Got, g, <span class="number">16</span>),
+            elf::R_390_GOT32 =&gt; (K::Got, g, <span class="number">32</span>),
+            elf::R_390_GOT64 =&gt; (K::Got, g, <span class="number">64</span>),
+            elf::R_390_GOTENT =&gt; (K::GotRelative, E::S390xDbl, <span class="number">32</span>),
+            elf::R_390_GOTOFF16 =&gt; (K::GotBaseOffset, g, <span class="number">16</span>),
+            elf::R_390_GOTOFF32 =&gt; (K::GotBaseOffset, g, <span class="number">32</span>),
+            elf::R_390_GOTOFF64 =&gt; (K::GotBaseOffset, g, <span class="number">64</span>),
+            elf::R_390_GOTPC =&gt; (K::GotBaseRelative, g, <span class="number">64</span>),
+            elf::R_390_GOTPCDBL =&gt; (K::GotBaseRelative, E::S390xDbl, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_SBF =&gt; <span class="kw">match </span>r_type {
-            elf::R_SBF_64_64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            elf::R_SBF_64_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_SBF_64_64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            elf::R_SBF_64_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_SHARC =&gt; <span class="kw">match </span>r_type {
-            elf::R_SHARC_ADDR24_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeA;
-                (RelocationKind::Absolute, <span class="number">24</span>)
-            }
-            elf::R_SHARC_ADDR32_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeA;
-                (RelocationKind::Absolute, <span class="number">32</span>)
-            }
-            elf::R_SHARC_ADDR_VAR_V3 =&gt; {
-                encoding = RelocationEncoding::Generic;
-                (RelocationKind::Absolute, <span class="number">32</span>)
-            }
-            elf::R_SHARC_PCRSHORT_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeA;
-                (RelocationKind::Relative, <span class="number">6</span>)
-            }
-            elf::R_SHARC_PCRLONG_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeA;
-                (RelocationKind::Relative, <span class="number">24</span>)
-            }
-            elf::R_SHARC_DATA6_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeA;
-                (RelocationKind::Absolute, <span class="number">6</span>)
-            }
-            elf::R_SHARC_DATA16_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeA;
-                (RelocationKind::Absolute, <span class="number">16</span>)
-            }
-            elf::R_SHARC_DATA6_VISA_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeB;
-                (RelocationKind::Absolute, <span class="number">6</span>)
-            }
-            elf::R_SHARC_DATA7_VISA_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeB;
-                (RelocationKind::Absolute, <span class="number">7</span>)
-            }
-            elf::R_SHARC_DATA16_VISA_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeB;
-                (RelocationKind::Absolute, <span class="number">16</span>)
-            }
-            elf::R_SHARC_PCR6_VISA_V3 =&gt; {
-                encoding = RelocationEncoding::SharcTypeB;
-                (RelocationKind::Relative, <span class="number">16</span>)
-            }
-            elf::R_SHARC_ADDR_VAR16_V3 =&gt; {
-                encoding = RelocationEncoding::Generic;
-                (RelocationKind::Absolute, <span class="number">16</span>)
-            }
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_SHARC_ADDR24_V3 =&gt; (K::Absolute, E::SharcTypeA, <span class="number">24</span>),
+            elf::R_SHARC_ADDR32_V3 =&gt; (K::Absolute, E::SharcTypeA, <span class="number">32</span>),
+            elf::R_SHARC_ADDR_VAR_V3 =&gt; (K::Absolute, E::Generic, <span class="number">32</span>),
+            elf::R_SHARC_PCRSHORT_V3 =&gt; (K::Relative, E::SharcTypeA, <span class="number">6</span>),
+            elf::R_SHARC_PCRLONG_V3 =&gt; (K::Relative, E::SharcTypeA, <span class="number">24</span>),
+            elf::R_SHARC_DATA6_V3 =&gt; (K::Absolute, E::SharcTypeA, <span class="number">6</span>),
+            elf::R_SHARC_DATA16_V3 =&gt; (K::Absolute, E::SharcTypeA, <span class="number">16</span>),
+            elf::R_SHARC_DATA6_VISA_V3 =&gt; (K::Absolute, E::SharcTypeB, <span class="number">6</span>),
+            elf::R_SHARC_DATA7_VISA_V3 =&gt; (K::Absolute, E::SharcTypeB, <span class="number">7</span>),
+            elf::R_SHARC_DATA16_VISA_V3 =&gt; (K::Absolute, E::SharcTypeB, <span class="number">16</span>),
+            elf::R_SHARC_PCR6_VISA_V3 =&gt; (K::Relative, E::SharcTypeB, <span class="number">16</span>),
+            elf::R_SHARC_ADDR_VAR16_V3 =&gt; (K::Absolute, E::Generic, <span class="number">16</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_SPARC | elf::EM_SPARC32PLUS | elf::EM_SPARCV9 =&gt; <span class="kw">match </span>r_type {
-            elf::R_SPARC_32 | elf::R_SPARC_UA32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_SPARC_64 | elf::R_SPARC_UA64 =&gt; (RelocationKind::Absolute, <span class="number">64</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_SPARC_32 | elf::R_SPARC_UA32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_SPARC_64 | elf::R_SPARC_UA64 =&gt; (K::Absolute, g, <span class="number">64</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
         elf::EM_XTENSA =&gt; <span class="kw">match </span>r_type {
-            elf::R_XTENSA_32 =&gt; (RelocationKind::Absolute, <span class="number">32</span>),
-            elf::R_XTENSA_32_PCREL =&gt; (RelocationKind::Relative, <span class="number">32</span>),
-            <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+            elf::R_XTENSA_32 =&gt; (K::Absolute, g, <span class="number">32</span>),
+            elf::R_XTENSA_32_PCREL =&gt; (K::Relative, g, <span class="number">32</span>),
+            <span class="kw">_ </span>=&gt; unknown,
         },
-        <span class="kw">_ </span>=&gt; (RelocationKind::Unknown, <span class="number">0</span>),
+        <span class="kw">_ </span>=&gt; unknown,
     };
     <span class="kw">let </span>target = <span class="kw">match </span>reloc.symbol(endian, is_mips64el) {
         <span class="prelude-val">None </span>=&gt; RelocationTarget::Absolute,

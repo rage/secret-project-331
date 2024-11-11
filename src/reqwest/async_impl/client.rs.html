@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.7/src/async_impl/client.rs`."><title>client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/reqwest-0.12.9/src/async_impl/client.rs`."><title>client.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="reqwest" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2800,6 +2800,73 @@
 <a href="#2800" id="2800">2800</a>
 <a href="#2801" id="2801">2801</a>
 <a href="#2802" id="2802">2802</a>
+<a href="#2803" id="2803">2803</a>
+<a href="#2804" id="2804">2804</a>
+<a href="#2805" id="2805">2805</a>
+<a href="#2806" id="2806">2806</a>
+<a href="#2807" id="2807">2807</a>
+<a href="#2808" id="2808">2808</a>
+<a href="#2809" id="2809">2809</a>
+<a href="#2810" id="2810">2810</a>
+<a href="#2811" id="2811">2811</a>
+<a href="#2812" id="2812">2812</a>
+<a href="#2813" id="2813">2813</a>
+<a href="#2814" id="2814">2814</a>
+<a href="#2815" id="2815">2815</a>
+<a href="#2816" id="2816">2816</a>
+<a href="#2817" id="2817">2817</a>
+<a href="#2818" id="2818">2818</a>
+<a href="#2819" id="2819">2819</a>
+<a href="#2820" id="2820">2820</a>
+<a href="#2821" id="2821">2821</a>
+<a href="#2822" id="2822">2822</a>
+<a href="#2823" id="2823">2823</a>
+<a href="#2824" id="2824">2824</a>
+<a href="#2825" id="2825">2825</a>
+<a href="#2826" id="2826">2826</a>
+<a href="#2827" id="2827">2827</a>
+<a href="#2828" id="2828">2828</a>
+<a href="#2829" id="2829">2829</a>
+<a href="#2830" id="2830">2830</a>
+<a href="#2831" id="2831">2831</a>
+<a href="#2832" id="2832">2832</a>
+<a href="#2833" id="2833">2833</a>
+<a href="#2834" id="2834">2834</a>
+<a href="#2835" id="2835">2835</a>
+<a href="#2836" id="2836">2836</a>
+<a href="#2837" id="2837">2837</a>
+<a href="#2838" id="2838">2838</a>
+<a href="#2839" id="2839">2839</a>
+<a href="#2840" id="2840">2840</a>
+<a href="#2841" id="2841">2841</a>
+<a href="#2842" id="2842">2842</a>
+<a href="#2843" id="2843">2843</a>
+<a href="#2844" id="2844">2844</a>
+<a href="#2845" id="2845">2845</a>
+<a href="#2846" id="2846">2846</a>
+<a href="#2847" id="2847">2847</a>
+<a href="#2848" id="2848">2848</a>
+<a href="#2849" id="2849">2849</a>
+<a href="#2850" id="2850">2850</a>
+<a href="#2851" id="2851">2851</a>
+<a href="#2852" id="2852">2852</a>
+<a href="#2853" id="2853">2853</a>
+<a href="#2854" id="2854">2854</a>
+<a href="#2855" id="2855">2855</a>
+<a href="#2856" id="2856">2856</a>
+<a href="#2857" id="2857">2857</a>
+<a href="#2858" id="2858">2858</a>
+<a href="#2859" id="2859">2859</a>
+<a href="#2860" id="2860">2860</a>
+<a href="#2861" id="2861">2861</a>
+<a href="#2862" id="2862">2862</a>
+<a href="#2863" id="2863">2863</a>
+<a href="#2864" id="2864">2864</a>
+<a href="#2865" id="2865">2865</a>
+<a href="#2866" id="2866">2866</a>
+<a href="#2867" id="2867">2867</a>
+<a href="#2868" id="2868">2868</a>
+<a href="#2869" id="2869">2869</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>,))]
 </span><span class="kw">use </span>std::any::Any;
 <span class="kw">use </span>std::net::IpAddr;
@@ -2841,6 +2908,8 @@
 <span class="kw">use </span><span class="kw">crate</span>::error;
 <span class="kw">use </span><span class="kw">crate</span>::into_url::try_uri;
 <span class="kw">use </span><span class="kw">crate</span>::redirect::{<span class="self">self</span>, remove_sensitive_headers};
+<span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+</span><span class="kw">use </span><span class="kw">crate</span>::tls::CertificateRevocationList;
 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::tls::{<span class="self">self</span>, TlsBackend};
 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
@@ -2916,10 +2985,12 @@
     </span>root_certs: Vec&lt;Certificate&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
     </span>tls_built_in_root_certs: bool,
-    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots-no-provider"</span>)]
     </span>tls_built_in_certs_webpki: bool,
-    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots-no-provider"</span>)]
     </span>tls_built_in_certs_native: bool,
+    <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+    </span>crls: Vec&lt;CertificateRevocationList&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
     </span>min_tls_version: <span class="prelude-ty">Option</span>&lt;tls::Version&gt;,
     <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
@@ -3013,12 +3084,14 @@
                 </span>root_certs: Vec::new(),
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
                 </span>tls_built_in_root_certs: <span class="bool-val">true</span>,
-                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots-no-provider"</span>)]
                 </span>tls_built_in_certs_webpki: <span class="bool-val">true</span>,
-                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+                <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots-no-provider"</span>)]
                 </span>tls_built_in_certs_native: <span class="bool-val">true</span>,
                 <span class="attr">#[cfg(any(feature = <span class="string">"native-tls"</span>, feature = <span class="string">"__rustls"</span>))]
                 </span>identity: <span class="prelude-val">None</span>,
+                <span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+                </span>crls: <span class="macro">vec!</span>[],
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
                 </span>min_tls_version: <span class="prelude-val">None</span>,
                 <span class="attr">#[cfg(feature = <span class="string">"__tls"</span>)]
@@ -3307,18 +3380,18 @@
                         cert.add_to_rustls(<span class="kw-2">&amp;mut </span>root_cert_store)<span class="question-mark">?</span>;
                     }
 
-                    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+                    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots-no-provider"</span>)]
                     </span><span class="kw">if </span>config.tls_built_in_certs_webpki {
                         root_cert_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
                     }
 
-                    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+                    <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots-no-provider"</span>)]
                     </span><span class="kw">if </span>config.tls_built_in_certs_native {
                         <span class="kw">let </span><span class="kw-2">mut </span>valid_count = <span class="number">0</span>;
                         <span class="kw">let </span><span class="kw-2">mut </span>invalid_count = <span class="number">0</span>;
-                        <span class="kw">for </span>cert <span class="kw">in </span>rustls_native_certs::load_native_certs()
-                            .map_err(<span class="kw">crate</span>::error::builder)<span class="question-mark">?
-                        </span>{
+
+                        <span class="kw">let </span>load_results = rustls_native_certs::load_native_certs();
+                        <span class="kw">for </span>cert <span class="kw">in </span>load_results.certs {
                             <span class="comment">// Continue on parsing errors, as native stores often include ancient or syntactically
                             // invalid certificates, like root certificates without any X509 extensions.
                             // Inspiration: https://github.com/rustls/rustls/blob/633bf4ba9d9521a95f68766d04c22e2b01e68318/rustls/src/anchors.rs#L105-L112
@@ -3331,9 +3404,21 @@
                             }
                         }
                         <span class="kw">if </span>valid_count == <span class="number">0 </span>&amp;&amp; invalid_count &gt; <span class="number">0 </span>{
-                            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::builder(
-                                <span class="string">"zero valid certificates found in native root store"</span>,
-                            ));
+                            <span class="kw">let </span>err = <span class="kw">if </span>load_results.errors.is_empty() {
+                                <span class="kw">crate</span>::error::builder(
+                                    <span class="string">"zero valid certificates found in native root store"</span>,
+                                )
+                            } <span class="kw">else </span>{
+                                <span class="kw">use </span>std::fmt::Write <span class="kw">as _</span>;
+                                <span class="kw">let </span><span class="kw-2">mut </span>acc = String::new();
+                                <span class="kw">for </span>err <span class="kw">in </span>load_results.errors {
+                                    <span class="kw">let _ </span>= <span class="macro">writeln!</span>(<span class="kw-2">&amp;mut </span>acc, <span class="string">"{err}"</span>);
+                                }
+
+                                <span class="kw">crate</span>::error::builder(acc)
+                            };
+
+                            <span class="kw">return </span><span class="prelude-val">Err</span>(err);
                         }
                     }
 
@@ -3378,9 +3463,10 @@
 
                     <span class="comment">// Build TLS config
                     </span><span class="kw">let </span>signature_algorithms = provider.signature_verification_algorithms;
-                    <span class="kw">let </span>config_builder = rustls::ClientConfig::builder_with_provider(provider)
-                        .with_protocol_versions(<span class="kw-2">&amp;</span>versions)
-                        .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::error::builder(<span class="string">"invalid TLS versions"</span>))<span class="question-mark">?</span>;
+                    <span class="kw">let </span>config_builder =
+                        rustls::ClientConfig::builder_with_provider(provider.clone())
+                            .with_protocol_versions(<span class="kw-2">&amp;</span>versions)
+                            .map_err(|<span class="kw">_</span>| <span class="kw">crate</span>::error::builder(<span class="string">"invalid TLS versions"</span>))<span class="question-mark">?</span>;
 
                     <span class="kw">let </span>config_builder = <span class="kw">if </span>!config.certs_verification {
                         config_builder
@@ -3394,7 +3480,26 @@
                                 signature_algorithms,
                             )))
                     } <span class="kw">else </span>{
-                        config_builder.with_root_certificates(root_cert_store)
+                        <span class="kw">if </span>config.crls.is_empty() {
+                            config_builder.with_root_certificates(root_cert_store)
+                        } <span class="kw">else </span>{
+                            <span class="kw">let </span>crls = config
+                                .crls
+                                .iter()
+                                .map(|e| e.as_rustls_crl())
+                                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                            <span class="kw">let </span>verifier =
+                                rustls::client::WebPkiServerVerifier::builder_with_provider(
+                                    Arc::new(root_cert_store),
+                                    provider,
+                                )
+                                .with_crls(crls)
+                                .build()
+                                .map_err(|<span class="kw">_</span>| {
+                                    <span class="kw">crate</span>::error::builder(<span class="string">"invalid TLS verification settings"</span>)
+                                })<span class="question-mark">?</span>;
+                            config_builder.with_webpki_verifier(verifier)
+                        }
                     };
 
                     <span class="comment">// Finalize TLS config
@@ -3516,8 +3621,8 @@
             }
         }
 
-        <span class="attr">#[cfg(not(target_arch = <span class="string">"wasm32"</span>))]
-        </span>builder.timer(hyper_util::rt::TokioTimer::new());
+        builder.timer(hyper_util::rt::TokioTimer::new());
+        builder.pool_timer(hyper_util::rt::TokioTimer::new());
         builder.pool_idle_timeout(config.pool_idle_timeout);
         builder.pool_max_idle_per_host(config.pool_max_idle_per_host);
         connector.set_keepalive(config.tcp_keepalive);
@@ -4196,6 +4301,35 @@
         <span class="self">self
     </span>}
 
+    <span class="doccomment">/// Add a certificate revocation list.
+    ///
+    ///
+    /// # Optional
+    ///
+    /// This requires the `rustls-tls(-...)` Cargo feature enabled.
+    </span><span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls"</span>)))]
+    </span><span class="kw">pub fn </span>add_crl(<span class="kw-2">mut </span><span class="self">self</span>, crl: CertificateRevocationList) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.crls.push(crl);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Add multiple certificate revocation lists.
+    ///
+    ///
+    /// # Optional
+    ///
+    /// This requires the `rustls-tls(-...)` Cargo feature enabled.
+    </span><span class="attr">#[cfg(feature = <span class="string">"__rustls"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls"</span>)))]
+    </span><span class="kw">pub fn </span>add_crls(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        crls: <span class="kw">impl </span>IntoIterator&lt;Item = CertificateRevocationList&gt;,
+    ) -&gt; ClientBuilder {
+        <span class="self">self</span>.config.crls.extend(crls);
+        <span class="self">self
+    </span>}
+
     <span class="doccomment">/// Controls the use of built-in/preloaded certificates during certificate validation.
     ///
     /// Defaults to `true` -- built-in system certs will be used.
@@ -4225,12 +4359,12 @@
     </span><span class="kw">pub fn </span>tls_built_in_root_certs(<span class="kw-2">mut </span><span class="self">self</span>, tls_built_in_root_certs: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.tls_built_in_root_certs = tls_built_in_root_certs;
 
-        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots-no-provider"</span>)]
         </span>{
             <span class="self">self</span>.config.tls_built_in_certs_webpki = tls_built_in_root_certs;
         }
 
-        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
+        <span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots-no-provider"</span>)]
         </span>{
             <span class="self">self</span>.config.tls_built_in_certs_native = tls_built_in_root_certs;
         }
@@ -4241,8 +4375,8 @@
     <span class="doccomment">/// Sets whether to load webpki root certs with rustls.
     ///
     /// If the feature is enabled, this value is `true` by default.
-    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls-webpki-roots"</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls-webpki-roots-no-provider"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls-webpki-roots-no-provider"</span>)))]
     </span><span class="kw">pub fn </span>tls_built_in_webpki_certs(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.tls_built_in_certs_webpki = enabled;
         <span class="self">self
@@ -4251,8 +4385,8 @@
     <span class="doccomment">/// Sets whether to load native root certs with rustls.
     ///
     /// If the feature is enabled, this value is `true` by default.
-    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls-native-roots"</span>)))]
+    </span><span class="attr">#[cfg(feature = <span class="string">"rustls-tls-native-roots-no-provider"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"rustls-tls-native-roots-no-provider"</span>)))]
     </span><span class="kw">pub fn </span>tls_built_in_native_certs(<span class="kw-2">mut </span><span class="self">self</span>, enabled: bool) -&gt; ClientBuilder {
         <span class="self">self</span>.config.tls_built_in_certs_native = enabled;
         <span class="self">self

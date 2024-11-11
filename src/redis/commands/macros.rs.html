@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/commands/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/commands/macros.rs`."><title>macros.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -273,6 +273,22 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
+<a href="#285" id="285">285</a>
+<a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
+<a href="#289" id="289">289</a>
+<a href="#290" id="290">290</a>
+<a href="#291" id="291">291</a>
 </pre></div><pre class="rust"><code><span class="macro">macro_rules!</span> implement_commands {
     (
         <span class="macro-nonterminal">$lifetime</span>: lifetime
@@ -295,7 +311,7 @@
         /// # fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
         /// let client = redis::Client::open("redis://127.0.0.1/")?;
         /// let mut con = client.get_connection()?;
-        /// redis::cmd("SET").arg("my_key").arg(42).execute(&amp;mut con);
+        /// redis::cmd("SET").arg("my_key").arg(42).exec(&amp;mut con).unwrap();
         /// assert_eq!(redis::cmd("GET").arg("my_key").query(&amp;mut con), Ok(42));
         /// # Ok(()) }
         /// ```
@@ -307,7 +323,7 @@
         /// use redis::Commands;
         /// let client = redis::Client::open("redis://127.0.0.1/")?;
         /// let mut con = client.get_connection()?;
-        /// con.set("my_key", 42)?;
+        /// let _: () = con.set("my_key", 42)?;
         /// assert_eq!(con.get("my_key"), Ok(42));
         /// # Ok(()) }
         /// ```
@@ -326,6 +342,14 @@
             </span><span class="kw">fn </span>scan&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
                 c.cursor_arg(<span class="number">0</span>);
+                c.iter(<span class="self">self</span>)
+            }
+
+            <span class="doccomment">/// Incrementally iterate the keys space with options.
+            </span><span class="attr">#[inline]
+            </span><span class="kw">fn </span>scan_options&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: ScanOptions) -&gt; RedisResult&lt;Iter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
+                c.cursor_arg(<span class="number">0</span>).arg(opts);
                 c.iter(<span class="self">self</span>)
             }
 
@@ -410,8 +434,8 @@
         /// use redis::AsyncCommands;
         /// # async fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
         /// let client = redis::Client::open("redis://127.0.0.1/")?;
-        /// let mut con = client.get_async_connection().await?;
-        /// redis::cmd("SET").arg("my_key").arg(42i32).query_async(&amp;mut con).await?;
+        /// let mut con = client.get_multiplexed_async_connection().await?;
+        /// redis::cmd("SET").arg("my_key").arg(42i32).exec_async(&amp;mut con).await?;
         /// assert_eq!(redis::cmd("GET").arg("my_key").query_async(&amp;mut con).await, Ok(42i32));
         /// # Ok(()) }
         /// ```
@@ -423,8 +447,8 @@
         /// # async fn do_something() -&gt; redis::RedisResult&lt;()&gt; {
         /// use redis::Commands;
         /// let client = redis::Client::open("redis://127.0.0.1/")?;
-        /// let mut con = client.get_async_connection().await?;
-        /// con.set("my_key", 42i32).await?;
+        /// let mut con = client.get_multiplexed_async_connection().await?;
+        /// let _: () = con.set("my_key", 42i32).await?;
         /// assert_eq!(con.get("my_key").await, Ok(42i32));
         /// # Ok(()) }
         /// ```
@@ -450,6 +474,14 @@
             </span><span class="kw">fn </span>scan&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
                 c.cursor_arg(<span class="number">0</span>);
+                Box::pin(<span class="kw">async move </span>{ c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
+            }
+
+            <span class="doccomment">/// Incrementally iterate the keys space with options.
+            </span><span class="attr">#[inline]
+            </span><span class="kw">fn </span>scan_options&lt;RV: FromRedisValue&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opts: ScanOptions) -&gt; <span class="kw">crate</span>::types::RedisFuture&lt;<span class="kw">crate</span>::cmd::AsyncIter&lt;<span class="lifetime">'_</span>, RV&gt;&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>c = cmd(<span class="string">"SCAN"</span>);
+                c.cursor_arg(<span class="number">0</span>).arg(opts);
                 Box::pin(<span class="kw">async move </span>{ c.iter_async(<span class="self">self</span>).<span class="kw">await </span>})
             }
 

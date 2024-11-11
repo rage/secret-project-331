@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/affine.rs`."><title>affine.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -564,6 +564,30 @@
 <a href="#564" id="564">564</a>
 <a href="#565" id="565">565</a>
 <a href="#566" id="566">566</a>
+<a href="#567" id="567">567</a>
+<a href="#568" id="568">568</a>
+<a href="#569" id="569">569</a>
+<a href="#570" id="570">570</a>
+<a href="#571" id="571">571</a>
+<a href="#572" id="572">572</a>
+<a href="#573" id="573">573</a>
+<a href="#574" id="574">574</a>
+<a href="#575" id="575">575</a>
+<a href="#576" id="576">576</a>
+<a href="#577" id="577">577</a>
+<a href="#578" id="578">578</a>
+<a href="#579" id="579">579</a>
+<a href="#580" id="580">580</a>
+<a href="#581" id="581">581</a>
+<a href="#582" id="582">582</a>
+<a href="#583" id="583">583</a>
+<a href="#584" id="584">584</a>
+<a href="#585" id="585">585</a>
+<a href="#586" id="586">586</a>
+<a href="#587" id="587">587</a>
+<a href="#588" id="588">588</a>
+<a href="#589" id="589">589</a>
+<a href="#590" id="590">590</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -722,81 +746,99 @@
         aff.pre_translate(-point.to_vec2())
     }
 
-    <span class="doccomment">/// A rotation by `th` followed by `self`.
+    <span class="doccomment">/// A [rotation] by `th` followed by `self`.
     ///
     /// Equivalent to `self * Affine::rotate(th)`
+    ///
+    /// [rotation]: Affine::rotate
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>pre_rotate(<span class="self">self</span>, th: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self </span>* Affine::rotate(th)
     }
 
-    <span class="doccomment">/// A rotation by `th` about `center` followed by `self`.
+    <span class="doccomment">/// A [rotation] by `th` about `center` followed by `self`.
     ///
-    /// Equivalent to `self * Affine::rotate_about(th)`
+    /// Equivalent to `self * Affine::rotate_about(th, center)`
+    ///
+    /// [rotation]: Affine::rotate_about
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>pre_rotate_about(<span class="self">self</span>, th: f64, center: Point) -&gt; <span class="self">Self </span>{
         Affine::rotate_about(th, center) * <span class="self">self
     </span>}
 
-    <span class="doccomment">/// A scale by `scale` followed by `self`.
+    <span class="doccomment">/// A [scale] by `scale` followed by `self`.
     ///
     /// Equivalent to `self * Affine::scale(scale)`
+    ///
+    /// [scale]: Affine::scale
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>pre_scale(<span class="self">self</span>, scale: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self </span>* Affine::scale(scale)
     }
 
-    <span class="doccomment">/// A scale by `(scale_x, scale_y)` followed by `self`.
+    <span class="doccomment">/// A [scale] by `(scale_x, scale_y)` followed by `self`.
     ///
     /// Equivalent to `self * Affine::scale_non_uniform(scale_x, scale_y)`
+    ///
+    /// [scale]: Affine::scale_non_uniform
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>pre_scale_non_uniform(<span class="self">self</span>, scale_x: f64, scale_y: f64) -&gt; <span class="self">Self </span>{
         <span class="self">self </span>* Affine::scale_non_uniform(scale_x, scale_y)
     }
 
-    <span class="doccomment">/// A translation of `trans` followed by `self`.
+    <span class="doccomment">/// A [translation] of `trans` followed by `self`.
     ///
     /// Equivalent to `self * Affine::translate(trans)`
+    ///
+    /// [translation]: Affine::translate
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>pre_translate(<span class="self">self</span>, trans: Vec2) -&gt; <span class="self">Self </span>{
         <span class="self">self </span>* Affine::translate(trans)
     }
 
-    <span class="doccomment">/// `self` followed by a rotation of `th`.
+    <span class="doccomment">/// `self` followed by a [rotation] of `th`.
     ///
     /// Equivalent to `Affine::rotate(th) * self`
+    ///
+    /// [rotation]: Affine::rotate
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>then_rotate(<span class="self">self</span>, th: f64) -&gt; <span class="self">Self </span>{
         Affine::rotate(th) * <span class="self">self
     </span>}
 
-    <span class="doccomment">/// `self` followed by a rotation of `th` about `center`.
+    <span class="doccomment">/// `self` followed by a [rotation] of `th` about `center`.
     ///
     /// Equivalent to `Affine::rotate_about(th, center) * self`
+    ///
+    /// [rotation]: Affine::rotate_about
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>then_rotate_about(<span class="self">self</span>, th: f64, center: Point) -&gt; <span class="self">Self </span>{
         Affine::rotate_about(th, center) * <span class="self">self
     </span>}
 
-    <span class="doccomment">/// `self` followed by a scale of `scale`.
+    <span class="doccomment">/// `self` followed by a [scale] of `scale`.
     ///
     /// Equivalent to `Affine::scale(scale) * self`
+    ///
+    /// [scale]: Affine::scale
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>then_scale(<span class="self">self</span>, scale: f64) -&gt; <span class="self">Self </span>{
         Affine::scale(scale) * <span class="self">self
     </span>}
 
-    <span class="doccomment">/// `self` followed by a scale of `(scale_x, scale_y)`.
+    <span class="doccomment">/// `self` followed by a [scale] of `(scale_x, scale_y)`.
     ///
     /// Equivalent to `Affine::scale_non_uniform(scale_x, scale_y) * self`
+    ///
+    /// [scale]: Affine::scale_non_uniform
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>then_scale_non_uniform(<span class="self">self</span>, scale_x: f64, scale_y: f64) -&gt; <span class="self">Self </span>{
@@ -806,6 +848,8 @@
     <span class="doccomment">/// `self` followed by a translation of `trans`.
     ///
     /// Equivalent to `Affine::translate(trans) * self`
+    ///
+    /// [translation]: Affine::translate
     </span><span class="attr">#[inline]
     #[must_use]
     </span><span class="kw">pub fn </span>then_translate(<span class="kw-2">mut </span><span class="self">self</span>, trans: Vec2) -&gt; <span class="self">Self </span>{
@@ -863,7 +907,9 @@
         Rect::from_points(p00, p01).union(Rect::from_points(p10, p11))
     }
 
-    <span class="doccomment">/// Is this map finite?
+    <span class="doccomment">/// Is this map [finite]?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>].is_finite()
@@ -874,7 +920,9 @@
             &amp;&amp; <span class="self">self</span>.<span class="number">0</span>[<span class="number">5</span>].is_finite()
     }
 
-    <span class="doccomment">/// Is this map NaN?
+    <span class="doccomment">/// Is this map [NaN]?
+    ///
+    /// [NaN]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>[<span class="number">0</span>].is_nan()

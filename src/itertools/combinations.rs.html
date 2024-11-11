@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/combinations.rs`."><title>combinations.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/combinations.rs`."><title>combinations.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -191,6 +191,56 @@
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::iter::FusedIterator;
 
@@ -287,6 +337,76 @@
         <span class="kw">let </span>n = pool.count();
         (n, remaining_for(n, first, <span class="kw-2">&amp;</span>indices).unwrap())
     }
+
+    <span class="doccomment">/// Initialises the iterator by filling a buffer with elements from the
+    /// iterator. Returns true if there are no combinations, false otherwise.
+    </span><span class="kw">fn </span>init(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.pool.prefill(<span class="self">self</span>.k());
+        <span class="kw">let </span>done = <span class="self">self</span>.k() &gt; <span class="self">self</span>.n();
+        <span class="kw">if </span>!done {
+            <span class="self">self</span>.first = <span class="bool-val">false</span>;
+        }
+
+        done
+    }
+
+    <span class="doccomment">/// Increments indices representing the combination to advance to the next
+    /// (in lexicographic order by increasing sequence) combination. For example
+    /// if we have n=4 &amp; k=2 then `[0, 1] -&gt; [0, 2] -&gt; [0, 3] -&gt; [1, 2] -&gt; ...`
+    ///
+    /// Returns true if we've run out of combinations, false otherwise.
+    </span><span class="kw">fn </span>increment_indices(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.indices.is_empty() {
+            <span class="kw">return </span><span class="bool-val">true</span>; <span class="comment">// Done
+        </span>}
+
+        <span class="comment">// Scan from the end, looking for an index to increment
+        </span><span class="kw">let </span><span class="kw-2">mut </span>i: usize = <span class="self">self</span>.indices.len() - <span class="number">1</span>;
+
+        <span class="comment">// Check if we need to consume more from the iterator
+        </span><span class="kw">if </span><span class="self">self</span>.indices[i] == <span class="self">self</span>.pool.len() - <span class="number">1 </span>{
+            <span class="self">self</span>.pool.get_next(); <span class="comment">// may change pool size
+        </span>}
+
+        <span class="kw">while </span><span class="self">self</span>.indices[i] == i + <span class="self">self</span>.pool.len() - <span class="self">self</span>.indices.len() {
+            <span class="kw">if </span>i &gt; <span class="number">0 </span>{
+                i -= <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                <span class="comment">// Reached the last combination
+                </span><span class="kw">return </span><span class="bool-val">true</span>;
+            }
+        }
+
+        <span class="comment">// Increment index, and reset the ones to its right
+        </span><span class="self">self</span>.indices[i] += <span class="number">1</span>;
+        <span class="kw">for </span>j <span class="kw">in </span>i + <span class="number">1</span>..<span class="self">self</span>.indices.len() {
+            <span class="self">self</span>.indices[j] = <span class="self">self</span>.indices[j - <span class="number">1</span>] + <span class="number">1</span>;
+        }
+
+        <span class="comment">// If we've made it this far, we haven't run out of combos
+        </span><span class="bool-val">false
+    </span>}
+
+    <span class="doccomment">/// Returns the n-th item or the number of successful steps.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>try_nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; <span class="prelude-ty">Result</span>&lt;&lt;<span class="self">Self </span><span class="kw">as </span>Iterator&gt;::Item, usize&gt;
+    <span class="kw">where
+        </span>I::Item: Clone,
+    {
+        <span class="kw">let </span>done = <span class="kw">if </span><span class="self">self</span>.first {
+            <span class="self">self</span>.init()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.increment_indices()
+        };
+        <span class="kw">if </span>done {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="number">0</span>);
+        }
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..n {
+            <span class="kw">if </span><span class="self">self</span>.increment_indices() {
+                <span class="kw">return </span><span class="prelude-val">Err</span>(i + <span class="number">1</span>);
+            }
+        }
+        <span class="prelude-val">Ok</span>(<span class="self">self</span>.pool.get_at(<span class="kw-2">&amp;</span><span class="self">self</span>.indices))
+    }
 }
 
 <span class="kw">impl</span>&lt;I&gt; Iterator <span class="kw">for </span>Combinations&lt;I&gt;
@@ -296,41 +416,21 @@
 {
     <span class="kw">type </span>Item = Vec&lt;I::Item&gt;;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">if </span><span class="self">self</span>.first {
-            <span class="self">self</span>.pool.prefill(<span class="self">self</span>.k());
-            <span class="kw">if </span><span class="self">self</span>.k() &gt; <span class="self">self</span>.n() {
-                <span class="kw">return </span><span class="prelude-val">None</span>;
-            }
-            <span class="self">self</span>.first = <span class="bool-val">false</span>;
-        } <span class="kw">else if </span><span class="self">self</span>.indices.is_empty() {
-            <span class="kw">return </span><span class="prelude-val">None</span>;
+        <span class="kw">let </span>done = <span class="kw">if </span><span class="self">self</span>.first {
+            <span class="self">self</span>.init()
         } <span class="kw">else </span>{
-            <span class="comment">// Scan from the end, looking for an index to increment
-            </span><span class="kw">let </span><span class="kw-2">mut </span>i: usize = <span class="self">self</span>.indices.len() - <span class="number">1</span>;
+            <span class="self">self</span>.increment_indices()
+        };
 
-            <span class="comment">// Check if we need to consume more from the iterator
-            </span><span class="kw">if </span><span class="self">self</span>.indices[i] == <span class="self">self</span>.pool.len() - <span class="number">1 </span>{
-                <span class="self">self</span>.pool.get_next(); <span class="comment">// may change pool size
-            </span>}
-
-            <span class="kw">while </span><span class="self">self</span>.indices[i] == i + <span class="self">self</span>.pool.len() - <span class="self">self</span>.indices.len() {
-                <span class="kw">if </span>i &gt; <span class="number">0 </span>{
-                    i -= <span class="number">1</span>;
-                } <span class="kw">else </span>{
-                    <span class="comment">// Reached the last combination
-                    </span><span class="kw">return </span><span class="prelude-val">None</span>;
-                }
-            }
-
-            <span class="comment">// Increment index, and reset the ones to its right
-            </span><span class="self">self</span>.indices[i] += <span class="number">1</span>;
-            <span class="kw">for </span>j <span class="kw">in </span>i + <span class="number">1</span>..<span class="self">self</span>.indices.len() {
-                <span class="self">self</span>.indices[j] = <span class="self">self</span>.indices[j - <span class="number">1</span>] + <span class="number">1</span>;
-            }
+        <span class="kw">if </span>done {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="comment">// Create result vector based on the indices
-        </span><span class="prelude-val">Some</span>(<span class="self">self</span>.indices.iter().map(|i| <span class="self">self</span>.pool[<span class="kw-2">*</span>i].clone()).collect())
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.pool.get_at(<span class="kw-2">&amp;</span><span class="self">self</span>.indices))
+    }
+
+    <span class="kw">fn </span>nth(<span class="kw-2">&amp;mut </span><span class="self">self</span>, n: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="self">self</span>.try_nth(n).ok()
     }
 
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {

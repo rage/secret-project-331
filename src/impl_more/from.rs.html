@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/impl-more-0.1.6/src/from.rs`."><title>from.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="impl_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/impl-more-0.1.7/src/from.rs`."><title>from.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="impl_more" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -185,6 +185,42 @@
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
 <a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/// Implement [`From`] for a struct.
 ///
 /// # Examples
@@ -239,6 +275,29 @@
         <span class="kw">impl </span>::core::convert::From&lt;<span class="macro-nonterminal">$from</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$this </span>{
             <span class="kw">fn </span>from(from: <span class="macro-nonterminal">$from</span>) -&gt; <span class="self">Self </span>{
                 <span class="self">Self </span>{ <span class="macro-nonterminal">$field </span>: from }
+            }
+        }
+    };
+}
+
+<span class="doccomment">/// Implement [`From`] for a primitive.
+///
+/// # Examples
+/// With a newtype struct:
+/// ```
+/// use impl_more::impl_from_for_primitive;
+///
+/// struct Checked(bool);
+/// impl_from_for_primitive!(bool; from Checked);
+///
+/// let foo = bool::from(Checked(true));
+/// ```
+</span><span class="attr">#[macro_export]
+</span><span class="macro">macro_rules!</span> impl_from_for_primitive {
+    (<span class="macro-nonterminal">$this</span>:ty; from <span class="macro-nonterminal">$from</span>:ty $(,)<span class="question-mark">?</span>) =&gt; {
+        <span class="kw">impl </span>::core::convert::From&lt;<span class="macro-nonterminal">$from</span>&gt; <span class="kw">for </span><span class="macro-nonterminal">$this </span>{
+            <span class="kw">fn </span>from(from: <span class="macro-nonterminal">$from</span>) -&gt; <span class="macro-nonterminal">$this </span>{
+                &lt;<span class="macro-nonterminal">$this </span><span class="kw">as </span>::core::convert::From&lt;<span class="kw">_</span>&gt;&gt;::from(from.<span class="number">0</span>)
             }
         }
     };
@@ -318,6 +377,19 @@
         <span class="macro">impl_into!</span>(Foo =&gt; usize);
 
         <span class="macro">static_assertions::assert_impl_all!</span>(Foo: From&lt;usize&gt;, Into&lt;usize&gt;);
+
+        <span class="kw">let </span>foo = Foo::from(<span class="number">42</span>);
+        <span class="macro">assert_eq!</span>(foo.<span class="number">0</span>, <span class="number">42</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>newtype_primitive() {
+        <span class="kw">struct </span>Foo(usize);
+        <span class="macro">impl_from!</span>(usize =&gt; Foo);
+        <span class="macro">impl_from_for_primitive!</span>(usize; from Foo);
+
+        <span class="macro">static_assertions::assert_impl_all!</span>(Foo: From&lt;usize&gt;);
+        <span class="macro">static_assertions::assert_impl_all!</span>(usize: From&lt;Foo&gt;);
 
         <span class="kw">let </span>foo = Foo::from(<span class="number">42</span>);
         <span class="macro">assert_eq!</span>(foo.<span class="number">0</span>, <span class="number">42</span>);

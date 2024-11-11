@@ -1,4 +1,9 @@
-(function() {var implementors = {
-"actix":[],
-"headless_lms_server":[["impl <a class=\"trait\" href=\"actix/handler/trait.Message.html\" title=\"trait actix::handler::Message\">Message</a> for <a class=\"enum\" href=\"headless_lms_server/controllers/main_frontend/playground_views/enum.PlaygroundViewsMessage.html\" title=\"enum headless_lms_server::controllers::main_frontend::playground_views::PlaygroundViewsMessage\">PlaygroundViewsMessage</a>"],["impl <a class=\"trait\" href=\"actix/handler/trait.Message.html\" title=\"trait actix::handler::Message\">Message</a> for <a class=\"struct\" href=\"headless_lms_server/controllers/main_frontend/playground_views/struct.PlaygroundSubmissionMessage.html\" title=\"struct headless_lms_server::controllers::main_frontend::playground_views::PlaygroundSubmissionMessage\">PlaygroundSubmissionMessage</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["actix",[]],["headless_lms_server",[["impl <a class=\"trait\" href=\"actix/handler/trait.Message.html\" title=\"trait actix::handler::Message\">Message</a> for <a class=\"enum\" href=\"headless_lms_server/controllers/main_frontend/playground_views/enum.PlaygroundViewsMessage.html\" title=\"enum headless_lms_server::controllers::main_frontend::playground_views::PlaygroundViewsMessage\">PlaygroundViewsMessage</a>"],["impl <a class=\"trait\" href=\"actix/handler/trait.Message.html\" title=\"trait actix::handler::Message\">Message</a> for <a class=\"struct\" href=\"headless_lms_server/controllers/main_frontend/playground_views/struct.PlaygroundSubmissionMessage.html\" title=\"struct headless_lms_server::controllers::main_frontend::playground_views::PlaygroundSubmissionMessage\">PlaygroundSubmissionMessage</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[12,809]}

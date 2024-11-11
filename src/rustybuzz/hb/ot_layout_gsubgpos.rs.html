@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/ot_layout_gsubgpos.rs`."><title>ot_layout_gsubgpos.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/ot_layout_gsubgpos.rs`."><title>ot_layout_gsubgpos.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1257,11 +1257,98 @@
 <a href="#1257" id="1257">1257</a>
 <a href="#1258" id="1258">1258</a>
 <a href="#1259" id="1259">1259</a>
+<a href="#1260" id="1260">1260</a>
+<a href="#1261" id="1261">1261</a>
+<a href="#1262" id="1262">1262</a>
+<a href="#1263" id="1263">1263</a>
+<a href="#1264" id="1264">1264</a>
+<a href="#1265" id="1265">1265</a>
+<a href="#1266" id="1266">1266</a>
+<a href="#1267" id="1267">1267</a>
+<a href="#1268" id="1268">1268</a>
+<a href="#1269" id="1269">1269</a>
+<a href="#1270" id="1270">1270</a>
+<a href="#1271" id="1271">1271</a>
+<a href="#1272" id="1272">1272</a>
+<a href="#1273" id="1273">1273</a>
+<a href="#1274" id="1274">1274</a>
+<a href="#1275" id="1275">1275</a>
+<a href="#1276" id="1276">1276</a>
+<a href="#1277" id="1277">1277</a>
+<a href="#1278" id="1278">1278</a>
+<a href="#1279" id="1279">1279</a>
+<a href="#1280" id="1280">1280</a>
+<a href="#1281" id="1281">1281</a>
+<a href="#1282" id="1282">1282</a>
+<a href="#1283" id="1283">1283</a>
+<a href="#1284" id="1284">1284</a>
+<a href="#1285" id="1285">1285</a>
+<a href="#1286" id="1286">1286</a>
+<a href="#1287" id="1287">1287</a>
+<a href="#1288" id="1288">1288</a>
+<a href="#1289" id="1289">1289</a>
+<a href="#1290" id="1290">1290</a>
+<a href="#1291" id="1291">1291</a>
+<a href="#1292" id="1292">1292</a>
+<a href="#1293" id="1293">1293</a>
+<a href="#1294" id="1294">1294</a>
+<a href="#1295" id="1295">1295</a>
+<a href="#1296" id="1296">1296</a>
+<a href="#1297" id="1297">1297</a>
+<a href="#1298" id="1298">1298</a>
+<a href="#1299" id="1299">1299</a>
+<a href="#1300" id="1300">1300</a>
+<a href="#1301" id="1301">1301</a>
+<a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Matching of glyph patterns.
 
-</span><span class="kw">use </span>core::cmp::max;
-
-<span class="kw">use </span>ttf_parser::opentype_layout::<span class="kw-2">*</span>;
+</span><span class="kw">use </span>ttf_parser::opentype_layout::<span class="kw-2">*</span>;
 <span class="kw">use </span>ttf_parser::{GlyphId, LazyArray16};
 
 <span class="kw">use </span><span class="kw">super</span>::buffer::hb_glyph_info_t;
@@ -1283,7 +1370,7 @@
     input_len: u16,
     match_func: <span class="kw-2">&amp;</span>match_func_t,
     end_position: <span class="kw-2">&amp;mut </span>usize,
-    match_positions: <span class="kw-2">&amp;mut </span>[usize; MAX_CONTEXT_LENGTH],
+    match_positions: <span class="kw-2">&amp;mut </span>smallvec::SmallVec&lt;[usize; <span class="number">4</span>]&gt;,
     p_total_component_count: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>u8&gt;,
 ) -&gt; bool {
     <span class="comment">// This is perhaps the trickiest part of OpenType...  Remarks:
@@ -1320,16 +1407,19 @@
         <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(ctx, ctx.buffer.idx, input_len, <span class="bool-val">false</span>);
+    <span class="kw">if </span>count &gt; match_positions.len() {
+        match_positions.resize(count, <span class="number">0</span>);
+    }
+
+    <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(ctx, ctx.buffer.idx, <span class="bool-val">false</span>);
+    iter.set_glyph_data(<span class="number">0</span>);
     iter.enable_matching(match_func);
 
     <span class="kw">let </span>first = ctx.buffer.cur(<span class="number">0</span>);
     <span class="kw">let </span>first_lig_id = _hb_glyph_info_get_lig_id(first);
     <span class="kw">let </span>first_lig_comp = _hb_glyph_info_get_lig_comp(first);
-    <span class="kw">let </span><span class="kw-2">mut </span>total_component_count = _hb_glyph_info_get_lig_num_comps(first);
+    <span class="kw">let </span><span class="kw-2">mut </span>total_component_count = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>ligbase = Ligbase::NotChecked;
-
-    match_positions[<span class="number">0</span>] = ctx.buffer.idx;
 
     <span class="kw">for </span>position <span class="kw">in </span><span class="kw-2">&amp;mut </span>match_positions[<span class="number">1</span>..count] {
         <span class="kw">let </span><span class="kw-2">mut </span>unsafe_to = <span class="number">0</span>;
@@ -1364,7 +1454,7 @@
                         j -= <span class="number">1</span>;
                     }
 
-                    ligbase = <span class="kw">if </span>found &amp;&amp; iter.may_skip(<span class="kw-2">&amp;</span>out[j]) == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
+                    ligbase = <span class="kw">if </span>found &amp;&amp; iter.may_skip(<span class="kw-2">&amp;</span>out[j]) == may_skip_t::SKIP_YES {
                         Ligbase::MaySkip
                     } <span class="kw">else </span>{
                         Ligbase::MayNotSkip
@@ -1390,8 +1480,11 @@
     <span class="kw-2">*</span>end_position = iter.index() + <span class="number">1</span>;
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(p_total_component_count) = p_total_component_count {
+        total_component_count += _hb_glyph_info_get_lig_num_comps(first);
         <span class="kw-2">*</span>p_total_component_count = total_component_count;
     }
+
+    match_positions[<span class="number">0</span>] = ctx.buffer.idx;
 
     <span class="bool-val">true
 </span>}
@@ -1402,7 +1495,8 @@
     match_func: <span class="kw-2">&amp;</span>match_func_t,
     match_start: <span class="kw-2">&amp;mut </span>usize,
 ) -&gt; bool {
-    <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(ctx, ctx.buffer.backtrack_len(), backtrack_len, <span class="bool-val">true</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(ctx, ctx.buffer.backtrack_len(), <span class="bool-val">true</span>);
+    iter.set_glyph_data(<span class="number">0</span>);
     iter.enable_matching(match_func);
 
     <span class="kw">for _ in </span><span class="number">0</span>..backtrack_len {
@@ -1424,7 +1518,8 @@
     start_index: usize,
     end_index: <span class="kw-2">&amp;mut </span>usize,
 ) -&gt; bool {
-    <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(ctx, start_index - <span class="number">1</span>, lookahead_len, <span class="bool-val">true</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(ctx, start_index - <span class="number">1</span>, <span class="bool-val">true</span>);
+    iter.set_glyph_data(<span class="number">0</span>);
     iter.enable_matching(match_func);
 
     <span class="kw">for _ in </span><span class="number">0</span>..lookahead_len {
@@ -1441,7 +1536,13 @@
 
 <span class="kw">pub type </span>match_func_t&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>Fn(GlyphId, u16) -&gt; bool + <span class="lifetime">'a</span>;
 
-<span class="kw">pub struct </span>skipping_iterator_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
+<span class="comment">// In harfbuzz, skipping iterator works quite differently than it works here. In harfbuzz,
+// hb_ot_apply_context contains a skipping iterator that itself contains another reference to
+// the apply_context, meaning that we have a circular reference. Due to ownership rules in Rust,
+// we cannot copy this approach. Because of this, we basically create a new skipping iterator
+// when needed, and we do not have the `reset` and `init` methods that exist in harfbuzz. This makes
+// backporting related changes very hard, but it seems unavoidable, unfortunately.
+</span><span class="kw">pub struct </span>skipping_iterator_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     ctx: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>hb_ot_apply_context_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt;,
     lookup_props: u32,
     ignore_zwnj: bool,
@@ -1450,15 +1551,35 @@
     syllable: u8,
     matching: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>match_func_t&lt;<span class="lifetime">'a</span>&gt;&gt;,
     buf_len: usize,
-    buf_idx: usize,
-    num_items: u16,
+    glyph_data: u16,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) buf_idx: usize,
+}
+
+<span class="attr">#[derive(PartialEq, Eq, Copy, Clone)]
+</span><span class="kw">pub enum </span>match_t {
+    MATCH,
+    NOT_MATCH,
+    SKIP,
+}
+
+<span class="attr">#[derive(PartialEq, Eq, Copy, Clone)]
+</span><span class="kw">enum </span>may_match_t {
+    MATCH_NO,
+    MATCH_YES,
+    MATCH_MAYBE,
+}
+
+<span class="attr">#[derive(PartialEq, Eq, Copy, Clone)]
+</span><span class="kw">enum </span>may_skip_t {
+    SKIP_NO,
+    SKIP_YES,
+    SKIP_MAYBE,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; skipping_iterator_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
     <span class="kw">pub fn </span>new(
         ctx: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>hb_ot_apply_context_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt;,
         start_buf_index: usize,
-        num_items: u16,
         context_match: bool,
     ) -&gt; <span class="self">Self </span>{
         skipping_iterator_t {
@@ -1471,18 +1592,26 @@
             mask: <span class="kw">if </span>context_match {
                 u32::MAX
             } <span class="kw">else </span>{
-                ctx.lookup_mask
+                ctx.lookup_mask()
             },
             syllable: <span class="kw">if </span>ctx.buffer.idx == start_buf_index &amp;&amp; ctx.per_syllable {
                 ctx.buffer.cur(<span class="number">0</span>).syllable()
             } <span class="kw">else </span>{
                 <span class="number">0
             </span>},
+            glyph_data: <span class="number">0</span>,
             matching: <span class="prelude-val">None</span>,
             buf_len: ctx.buffer.len,
             buf_idx: start_buf_index,
-            num_items,
         }
+    }
+
+    <span class="kw">pub fn </span>set_glyph_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>, glyph_data: u16) {
+        <span class="self">self</span>.glyph_data = glyph_data
+    }
+
+    <span class="kw">fn </span>advance_glyph_data(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.glyph_data += <span class="number">1</span>;
     }
 
     <span class="kw">pub fn </span>set_lookup_props(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lookup_props: u32) {
@@ -1498,28 +1627,25 @@
     }
 
     <span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>, unsafe_to: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>usize&gt;) -&gt; bool {
-        <span class="macro">assert!</span>(<span class="self">self</span>.num_items &gt; <span class="number">0</span>);
-        <span class="kw">while </span><span class="self">self</span>.buf_idx + usize::from(<span class="self">self</span>.num_items) &lt; <span class="self">self</span>.buf_len {
+        <span class="kw">let </span>stop = <span class="self">self</span>.buf_len <span class="kw">as </span>i32 - <span class="number">1</span>;
+
+        <span class="kw">while </span>(<span class="self">self</span>.buf_idx <span class="kw">as </span>i32) &lt; stop {
             <span class="self">self</span>.buf_idx += <span class="number">1</span>;
             <span class="kw">let </span>info = <span class="kw-2">&amp;</span><span class="self">self</span>.ctx.buffer.info[<span class="self">self</span>.buf_idx];
 
-            <span class="kw">let </span>skip = <span class="self">self</span>.may_skip(info);
-            <span class="kw">if </span>skip == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-                <span class="kw">continue</span>;
-            }
-
-            <span class="kw">let </span>matched = <span class="self">self</span>.may_match(info);
-            <span class="kw">if </span>matched == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) || (matched.is_none() &amp;&amp; skip == <span class="prelude-val">Some</span>(<span class="bool-val">false</span>)) {
-                <span class="self">self</span>.num_items -= <span class="number">1</span>;
-                <span class="kw">return </span><span class="bool-val">true</span>;
-            }
-
-            <span class="kw">if </span>skip == <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafe_to) = unsafe_to {
-                    <span class="kw-2">*</span>unsafe_to = <span class="self">self</span>.buf_idx + <span class="number">1</span>;
+            <span class="kw">match </span><span class="self">self</span>.match_(info) {
+                match_t::MATCH =&gt; {
+                    <span class="self">self</span>.advance_glyph_data();
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
+                match_t::NOT_MATCH =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafe_to) = unsafe_to {
+                        <span class="kw-2">*</span>unsafe_to = <span class="self">self</span>.buf_idx + <span class="number">1</span>;
+                    }
 
-                <span class="kw">return </span><span class="bool-val">false</span>;
+                    <span class="kw">return </span><span class="bool-val">false</span>;
+                }
+                match_t::SKIP =&gt; <span class="kw">continue</span>,
             }
         }
 
@@ -1531,28 +1657,27 @@
     </span>}
 
     <span class="kw">pub fn </span>prev(<span class="kw-2">&amp;mut </span><span class="self">self</span>, unsafe_from: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>usize&gt;) -&gt; bool {
-        <span class="macro">assert!</span>(<span class="self">self</span>.num_items &gt; <span class="number">0</span>);
-        <span class="kw">while </span><span class="self">self</span>.buf_idx &gt;= usize::from(<span class="self">self</span>.num_items) {
+        <span class="kw">let </span>stop = <span class="number">0</span>;
+
+        <span class="kw">while </span><span class="self">self</span>.buf_idx &gt; stop <span class="kw">as </span>usize {
             <span class="self">self</span>.buf_idx -= <span class="number">1</span>;
             <span class="kw">let </span>info = <span class="kw-2">&amp;</span><span class="self">self</span>.ctx.buffer.out_info()[<span class="self">self</span>.buf_idx];
 
-            <span class="kw">let </span>skip = <span class="self">self</span>.may_skip(info);
-            <span class="kw">if </span>skip == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-                <span class="kw">continue</span>;
-            }
-
-            <span class="kw">let </span>matched = <span class="self">self</span>.may_match(info);
-            <span class="kw">if </span>matched == <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) || (matched.is_none() &amp;&amp; skip == <span class="prelude-val">Some</span>(<span class="bool-val">false</span>)) {
-                <span class="self">self</span>.num_items -= <span class="number">1</span>;
-                <span class="kw">return </span><span class="bool-val">true</span>;
-            }
-
-            <span class="kw">if </span>skip == <span class="prelude-val">Some</span>(<span class="bool-val">false</span>) {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafe_from) = unsafe_from {
-                    <span class="kw-2">*</span>unsafe_from = max(<span class="number">1</span>, <span class="self">self</span>.buf_idx) - <span class="number">1</span>;
+            <span class="kw">match </span><span class="self">self</span>.match_(info) {
+                match_t::MATCH =&gt; {
+                    <span class="self">self</span>.advance_glyph_data();
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
+                match_t::NOT_MATCH =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(unsafe_from) = unsafe_from {
+                        <span class="kw-2">*</span>unsafe_from = <span class="self">self</span>.buf_idx.max(<span class="number">1</span>) - <span class="number">1</span>;
+                    }
 
-                <span class="kw">return </span><span class="bool-val">false</span>;
+                    <span class="kw">return </span><span class="bool-val">false</span>;
+                }
+                match_t::SKIP =&gt; {
+                    <span class="kw">continue</span>;
+                }
             }
         }
 
@@ -1563,34 +1688,60 @@
         <span class="bool-val">false
     </span>}
 
-    <span class="kw">pub fn </span>reject(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.num_items += <span class="number">1</span>;
-    }
+    <span class="kw">pub fn </span>match_(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>hb_glyph_info_t) -&gt; match_t {
+        <span class="kw">let </span>skip = <span class="self">self</span>.may_skip(info);
 
-    <span class="kw">fn </span>may_match(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>hb_glyph_info_t) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
-        <span class="kw">if </span>(info.mask &amp; <span class="self">self</span>.mask) != <span class="number">0 </span>&amp;&amp; (<span class="self">self</span>.syllable == <span class="number">0 </span>|| <span class="self">self</span>.syllable == info.syllable())
-        {
-            <span class="self">self</span>.matching.map(|f| f(info.as_glyph(), <span class="self">self</span>.num_items))
-        } <span class="kw">else </span>{
-            <span class="prelude-val">Some</span>(<span class="bool-val">false</span>)
+        <span class="kw">if </span>skip == may_skip_t::SKIP_YES {
+            <span class="kw">return </span>match_t::SKIP;
         }
+
+        <span class="kw">let </span>_match = <span class="self">self</span>.may_match(info);
+
+        <span class="kw">if </span>_match == may_match_t::MATCH_YES
+            || (_match == may_match_t::MATCH_MAYBE &amp;&amp; skip == may_skip_t::SKIP_NO)
+        {
+            <span class="kw">return </span>match_t::MATCH;
+        }
+
+        <span class="kw">if </span>skip == may_skip_t::SKIP_NO {
+            <span class="kw">return </span>match_t::NOT_MATCH;
+        }
+
+        match_t::SKIP
     }
 
-    <span class="kw">fn </span>may_skip(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>hb_glyph_info_t) -&gt; <span class="prelude-ty">Option</span>&lt;bool&gt; {
+    <span class="kw">fn </span>may_match(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>hb_glyph_info_t) -&gt; may_match_t {
+        <span class="kw">if </span>(info.mask &amp; <span class="self">self</span>.mask) == <span class="number">0 </span>|| (<span class="self">self</span>.syllable != <span class="number">0 </span>&amp;&amp; <span class="self">self</span>.syllable != info.syllable())
+        {
+            <span class="kw">return </span>may_match_t::MATCH_NO;
+        }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(match_func) = <span class="self">self</span>.matching {
+            <span class="kw">return if </span>match_func(info.as_glyph(), <span class="self">self</span>.glyph_data) {
+                may_match_t::MATCH_YES
+            } <span class="kw">else </span>{
+                may_match_t::MATCH_NO
+            };
+        }
+
+        may_match_t::MATCH_MAYBE
+    }
+
+    <span class="kw">fn </span>may_skip(<span class="kw-2">&amp;</span><span class="self">self</span>, info: <span class="kw-2">&amp;</span>hb_glyph_info_t) -&gt; may_skip_t {
         <span class="kw">if </span>!<span class="self">self</span>.ctx.check_glyph_property(info, <span class="self">self</span>.lookup_props) {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="bool-val">true</span>);
+            <span class="kw">return </span>may_skip_t::SKIP_YES;
         }
 
-        <span class="kw">if </span>!_hb_glyph_info_is_default_ignorable(info)
-            || info.is_hidden()
-            || (!<span class="self">self</span>.ignore_zwnj &amp;&amp; _hb_glyph_info_is_zwnj(info))
-            || (!<span class="self">self</span>.ignore_zwj &amp;&amp; _hb_glyph_info_is_zwj(info))
+        <span class="kw">if </span>_hb_glyph_info_is_default_ignorable(info)
+            &amp;&amp; !info.is_hidden()
+            &amp;&amp; (<span class="self">self</span>.ignore_zwnj || !_hb_glyph_info_is_zwnj(info))
+            &amp;&amp; (<span class="self">self</span>.ignore_zwj || !_hb_glyph_info_is_zwj(info))
         {
-            <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="bool-val">false</span>);
+            <span class="kw">return </span>may_skip_t::SKIP_MAYBE;
         }
 
-        <span class="prelude-val">None
-    </span>}
+        may_skip_t::SKIP_NO
+    }
 }
 
 <span class="kw">impl </span>WouldApply <span class="kw">for </span>ContextLookup&lt;<span class="lifetime">'_</span>&gt; {
@@ -1644,14 +1795,13 @@
                 coverage.get(glyph)<span class="question-mark">?</span>;
                 <span class="kw">let </span>coverages_len = coverages.len();
 
-                <span class="kw">let </span>match_func = |glyph, num_items| {
-                    <span class="kw">let </span>index = coverages_len - num_items;
+                <span class="kw">let </span>match_func = |glyph, index| {
                     <span class="kw">let </span>coverage = coverages.get(index).unwrap();
                     coverage.get(glyph).is_some()
                 };
 
                 <span class="kw">let </span><span class="kw-2">mut </span>match_end = <span class="number">0</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>match_positions = [<span class="number">0</span>; MAX_CONTEXT_LENGTH];
+                <span class="kw">let </span><span class="kw-2">mut </span>match_positions = smallvec::SmallVec::from_elem(<span class="number">0</span>, <span class="number">4</span>);
 
                 <span class="kw">if </span>match_input(
                     ctx,
@@ -1721,7 +1871,9 @@
 
     <span class="kw">fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>hb_ot_apply_context_t, match_func: <span class="kw-2">&amp;</span>match_func_t) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
         apply_context(ctx, <span class="self">self</span>.input, match_func, <span class="self">self</span>.lookups)
-    }
+
+        <span class="comment">// TODO: Port optimized version from https://github.com/harfbuzz/harfbuzz/commit/645fabd10
+    </span>}
 }
 
 <span class="kw">impl </span>WouldApply <span class="kw">for </span>ChainedContextLookup&lt;<span class="lifetime">'_</span>&gt; {
@@ -1797,27 +1949,24 @@
             } =&gt; {
                 coverage.get(glyph)<span class="question-mark">?</span>;
 
-                <span class="kw">let </span>back = |glyph, num_items| {
-                    <span class="kw">let </span>index = backtrack_coverages.len() - num_items;
+                <span class="kw">let </span>back = |glyph, index| {
                     <span class="kw">let </span>coverage = backtrack_coverages.get(index).unwrap();
                     coverage.contains(glyph)
                 };
 
-                <span class="kw">let </span>ahead = |glyph, num_items| {
-                    <span class="kw">let </span>index = lookahead_coverages.len() - num_items;
+                <span class="kw">let </span>ahead = |glyph, index| {
                     <span class="kw">let </span>coverage = lookahead_coverages.get(index).unwrap();
                     coverage.contains(glyph)
                 };
 
-                <span class="kw">let </span>input = |glyph, num_items| {
-                    <span class="kw">let </span>index = input_coverages.len() - num_items;
+                <span class="kw">let </span>input = |glyph, index| {
                     <span class="kw">let </span>coverage = input_coverages.get(index).unwrap();
                     coverage.contains(glyph)
                 };
 
                 <span class="kw">let </span><span class="kw-2">mut </span>end_index = ctx.buffer.idx;
                 <span class="kw">let </span><span class="kw-2">mut </span>match_end = <span class="number">0</span>;
-                <span class="kw">let </span><span class="kw-2">mut </span>match_positions = [<span class="number">0</span>; MAX_CONTEXT_LENGTH];
+                <span class="kw">let </span><span class="kw-2">mut </span>match_positions = smallvec::SmallVec::from_elem(<span class="number">0</span>, <span class="number">4</span>);
 
                 <span class="kw">let </span>input_matches = match_input(
                     ctx,
@@ -1895,7 +2044,9 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
-    }
+
+        <span class="comment">// TODO: Port optimized version from https://github.com/harfbuzz/harfbuzz/commit/77080f86f
+    </span>}
 }
 
 <span class="kw">trait </span>ChainRuleExt {
@@ -1937,14 +2088,13 @@
     match_func: <span class="kw-2">&amp;</span>match_func_t,
     lookups: LazyArray16&lt;SequenceLookupRecord&gt;,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
-    <span class="kw">let </span>match_func = |glyph, num_items| {
-        <span class="kw">let </span>index = input.len() - num_items;
+    <span class="kw">let </span>match_func = |glyph, index| {
         <span class="kw">let </span>value = input.get(index).unwrap();
         match_func(glyph, value)
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>match_end = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>match_positions = [<span class="number">0</span>; MAX_CONTEXT_LENGTH];
+    <span class="kw">let </span><span class="kw-2">mut </span>match_positions = smallvec::SmallVec::from_elem(<span class="number">0</span>, <span class="number">4</span>);
 
     <span class="kw">if </span>match_input(
         ctx,
@@ -1979,27 +2129,24 @@
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
     <span class="comment">// NOTE: Whenever something in this method changes, we also need to
     // change it in the `apply` implementation for ChainedContextLookup.
-    </span><span class="kw">let </span>f1 = |glyph, num_items| {
-        <span class="kw">let </span>index = backtrack.len() - num_items;
+    </span><span class="kw">let </span>f1 = |glyph, index| {
         <span class="kw">let </span>value = backtrack.get(index).unwrap();
         match_funcs[<span class="number">0</span>](glyph, value)
     };
 
-    <span class="kw">let </span>f2 = |glyph, num_items| {
-        <span class="kw">let </span>index = lookahead.len() - num_items;
+    <span class="kw">let </span>f2 = |glyph, index| {
         <span class="kw">let </span>value = lookahead.get(index).unwrap();
         match_funcs[<span class="number">2</span>](glyph, value)
     };
 
-    <span class="kw">let </span>f3 = |glyph, num_items| {
-        <span class="kw">let </span>index = input.len() - num_items;
+    <span class="kw">let </span>f3 = |glyph, index| {
         <span class="kw">let </span>value = input.get(index).unwrap();
         match_funcs[<span class="number">1</span>](glyph, value)
     };
 
     <span class="kw">let </span><span class="kw-2">mut </span>end_index = ctx.buffer.idx;
     <span class="kw">let </span><span class="kw-2">mut </span>match_end = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>match_positions = [<span class="number">0</span>; MAX_CONTEXT_LENGTH];
+    <span class="kw">let </span><span class="kw-2">mut </span>match_positions = smallvec::SmallVec::from_elem(<span class="number">0</span>, <span class="number">4</span>);
 
     <span class="kw">let </span>input_matches = match_input(
         ctx,
@@ -2044,11 +2191,15 @@
 <span class="kw">fn </span>apply_lookup(
     ctx: <span class="kw-2">&amp;mut </span>hb_ot_apply_context_t,
     input_len: usize,
-    match_positions: <span class="kw-2">&amp;mut </span>[usize; MAX_CONTEXT_LENGTH],
+    match_positions: <span class="kw-2">&amp;mut </span>smallvec::SmallVec&lt;[usize; <span class="number">4</span>]&gt;,
     match_end: usize,
     lookups: LazyArray16&lt;SequenceLookupRecord&gt;,
 ) {
     <span class="kw">let </span><span class="kw-2">mut </span>count = input_len + <span class="number">1</span>;
+
+    <span class="kw">if </span>count &gt; match_positions.len() {
+        match_positions.resize(count, <span class="number">0</span>);
+    }
 
     <span class="comment">// All positions are distance from beginning of *output* buffer.
     // Adjust.
@@ -2143,6 +2294,11 @@
             <span class="kw">if </span>delta <span class="kw">as </span>usize + count &gt; MAX_CONTEXT_LENGTH {
                 <span class="kw">break</span>;
             }
+
+            <span class="kw">if </span>delta <span class="kw">as </span>usize + count &gt; match_positions.len() {
+                <span class="kw">let </span>inner_max = (core::cmp::max(<span class="number">4</span>, match_positions.len()) <span class="kw">as </span>f32 * <span class="number">1.5</span>) <span class="kw">as </span>usize;
+                match_positions.resize(core::cmp::max(delta <span class="kw">as </span>usize + count, inner_max), <span class="number">0</span>);
+            }
         } <span class="kw">else </span>{
             <span class="comment">// NOTE: delta is non-positive.
             </span>delta = delta.max(next <span class="kw">as </span>isize - count <span class="kw">as </span>isize);
@@ -2193,12 +2349,13 @@
 
 <span class="kw">pub mod </span>OT {
     <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span><span class="kw">crate</span>::hb::set_digest::{hb_set_digest_ext, hb_set_digest_t};
 
     <span class="kw">pub struct </span>hb_ot_apply_context_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
         <span class="kw">pub </span>table_index: TableIndex,
         <span class="kw">pub </span>face: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>hb_font_t&lt;<span class="lifetime">'b</span>&gt;,
         <span class="kw">pub </span>buffer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>hb_buffer_t,
-        <span class="kw">pub </span>lookup_mask: hb_mask_t,
+        lookup_mask: hb_mask_t,
         <span class="kw">pub </span>per_syllable: bool,
         <span class="kw">pub </span>lookup_index: LookupIndex,
         <span class="kw">pub </span>lookup_props: u32,
@@ -2207,6 +2364,9 @@
         <span class="kw">pub </span>auto_zwj: bool,
         <span class="kw">pub </span>random: bool,
         <span class="kw">pub </span>random_state: u32,
+        <span class="kw">pub </span>last_base: i32,
+        <span class="kw">pub </span>last_base_until: u32,
+        <span class="kw">pub </span>digest: hb_set_digest_t,
     }
 
     <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; hb_ot_apply_context_t&lt;<span class="lifetime">'a</span>, <span class="lifetime">'b</span>&gt; {
@@ -2215,6 +2375,7 @@
             face: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>hb_font_t&lt;<span class="lifetime">'b</span>&gt;,
             buffer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>hb_buffer_t,
         ) -&gt; <span class="self">Self </span>{
+            <span class="kw">let </span>buffer_digest = buffer.digest();
             <span class="self">Self </span>{
                 table_index,
                 face,
@@ -2228,6 +2389,9 @@
                 auto_zwj: <span class="bool-val">true</span>,
                 random: <span class="bool-val">false</span>,
                 random_state: <span class="number">1</span>,
+                last_base: -<span class="number">1</span>,
+                last_base_until: <span class="number">0</span>,
+                digest: buffer_digest,
             }
         }
 
@@ -2237,13 +2401,25 @@
             <span class="self">self</span>.random_state
         }
 
+        <span class="kw">pub fn </span>set_lookup_mask(<span class="kw-2">&amp;mut </span><span class="self">self</span>, mask: hb_mask_t) {
+            <span class="self">self</span>.lookup_mask = mask;
+            <span class="self">self</span>.last_base = -<span class="number">1</span>;
+            <span class="self">self</span>.last_base_until = <span class="number">0</span>;
+        }
+
+        <span class="kw">pub fn </span>lookup_mask(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; hb_mask_t {
+            <span class="self">self</span>.lookup_mask
+        }
+
         <span class="kw">pub fn </span>recurse(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sub_lookup_index: LookupIndex) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
             <span class="kw">if </span><span class="self">self</span>.nesting_level_left == <span class="number">0 </span>{
+                <span class="self">self</span>.buffer.shaping_failed = <span class="bool-val">true</span>;
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
             <span class="self">self</span>.buffer.max_ops -= <span class="number">1</span>;
             <span class="kw">if </span><span class="self">self</span>.buffer.max_ops &lt; <span class="number">0 </span>{
+                <span class="self">self</span>.buffer.shaping_failed = <span class="bool-val">true</span>;
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
@@ -2296,7 +2472,10 @@
                 // match_props has the set index.
                 </span><span class="kw">if </span>lookup_flags &amp; lookup_flags::USE_MARK_FILTERING_SET != <span class="number">0 </span>{
                     <span class="kw">let </span>set_index = (match_props &gt;&gt; <span class="number">16</span>) <span class="kw">as </span>u16;
-                    <span class="kw">if let </span><span class="prelude-val">Some</span>(table) = <span class="self">self</span>.face.tables().gdef {
+                    <span class="comment">// TODO: harfbuzz uses a digest here to speed things up if HB_NO_GDEF_CACHE
+                    // is enabled. But a bit harder to implement for us since it's taken care of by
+                    // ttf-parser
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(table) = <span class="self">self</span>.face.tables().gdef {
                         <span class="kw">return </span>table.is_mark_glyph(info.as_glyph(), <span class="prelude-val">Some</span>(set_index));
                     } <span class="kw">else </span>{
                         <span class="kw">return </span><span class="bool-val">false</span>;
@@ -2322,6 +2501,8 @@
             ligature: bool,
             component: bool,
         ) {
+            <span class="self">self</span>.digest.add(glyph_id);
+
             <span class="kw">let </span>cur = <span class="self">self</span>.buffer.cur_mut(<span class="number">0</span>);
             <span class="kw">let </span><span class="kw-2">mut </span>props = cur.glyph_props();
 
@@ -2349,16 +2530,13 @@
 
             <span class="kw">if </span>has_glyph_classes {
                 props &amp;= GlyphPropsFlags::PRESERVE.bits();
-                props =
-                    (props &amp; !GlyphPropsFlags::CLASS_MASK.bits()) | <span class="self">self</span>.face.glyph_props(glyph_id);
+                cur.set_glyph_props(props | <span class="self">self</span>.face.glyph_props(glyph_id));
             } <span class="kw">else if </span>!class_guess.is_empty() {
                 props &amp;= GlyphPropsFlags::PRESERVE.bits();
-                props = (props &amp; !GlyphPropsFlags::CLASS_MASK.bits()) | class_guess.bits();
+                cur.set_glyph_props(props | class_guess.bits());
             } <span class="kw">else </span>{
-                props = props &amp; !GlyphPropsFlags::CLASS_MASK.bits();
+                cur.set_glyph_props(props);
             }
-
-            cur.set_glyph_props(props);
         }
 
         <span class="kw">pub fn </span>replace_glyph(<span class="kw-2">&amp;mut </span><span class="self">self</span>, glyph_id: GlyphId) {
@@ -2398,7 +2576,7 @@
     <span class="comment">// Including the first glyph
     </span>count: usize,
     <span class="comment">// Including the first glyph
-    </span>match_positions: <span class="kw-2">&amp;</span>[usize; MAX_CONTEXT_LENGTH],
+    </span>match_positions: <span class="kw-2">&amp;</span>smallvec::SmallVec&lt;[usize; <span class="number">4</span>]&gt;,
     match_end: usize,
     total_component_count: u8,
     lig_glyph: GlyphId,

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/svg.rs`."><title>svg.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/svg.rs`."><title>svg.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -660,17 +660,50 @@
 <a href="#660" id="660">660</a>
 <a href="#661" id="661">661</a>
 <a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 </span><span class="doccomment">//! SVG path representation.
 
+</span><span class="kw">use </span>alloc::vec::Vec;
+<span class="kw">use </span>core::f64::consts::PI;
+<span class="kw">use </span>core::fmt::{<span class="self">self</span>, Display, Formatter};
+<span class="comment">// MSRV: Once our MSRV is 1.81, we can switch to `core::error`
+</span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::error::Error;
-<span class="kw">use </span>std::f64::consts::PI;
-<span class="kw">use </span>std::fmt::{<span class="self">self</span>, Display, Formatter};
-<span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">use </span>std::io::{<span class="self">self</span>, Write};
 
 <span class="kw">use crate</span>::{Arc, BezPath, ParamCurve, PathEl, PathSeg, Point, Vec2};
+
+<span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">use </span><span class="kw">crate</span>::common::FloatFuncs;
 
 <span class="comment">// Note: the SVG arc logic is heavily adapted from https://github.com/nical/lyon
 
@@ -722,6 +755,7 @@
     ///
     /// The current implementation doesn't take any special care to produce a
     /// short string (reducing precision, using relative movement).
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>to_svg(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>buffer = Vec::new();
         <span class="self">self</span>.write_to(<span class="kw-2">&amp;mut </span>buffer).unwrap();
@@ -729,6 +763,7 @@
     }
 
     <span class="doccomment">/// Write the SVG representation of this path to the provided buffer.
+    </span><span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">pub fn </span>write_to&lt;W: Write&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>writer: W) -&gt; io::Result&lt;()&gt; {
         <span class="kw">for </span>(i, el) <span class="kw">in </span><span class="self">self</span>.elements().iter().enumerate() {
             <span class="kw">if </span>i &gt; <span class="number">0 </span>{
@@ -926,7 +961,8 @@
     }
 }
 
-<span class="kw">impl </span>Error <span class="kw">for </span>SvgParseError {}
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl </span>Error <span class="kw">for </span>SvgParseError {}
 
 <span class="kw">struct </span>SvgLexer&lt;<span class="lifetime">'a</span>&gt; {
     data: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>str,
@@ -1002,13 +1038,13 @@
             <span class="kw">if </span>c == <span class="string">b'e' </span>|| c == <span class="string">b'E' </span>{
                 <span class="kw">let </span><span class="kw-2">mut </span>c = <span class="self">self</span>.get_byte().ok_or(SvgParseError::Wrong)<span class="question-mark">?</span>;
                 <span class="kw">if </span>c == <span class="string">b'-' </span>|| c == <span class="string">b'+' </span>{
-                    c = <span class="self">self</span>.get_byte().ok_or(SvgParseError::Wrong)<span class="question-mark">?
-                </span>}
-                <span class="kw">if </span>c.is_ascii_digit() {
+                    c = <span class="self">self</span>.get_byte().ok_or(SvgParseError::Wrong)<span class="question-mark">?</span>;
+                }
+                <span class="kw">if </span>!c.is_ascii_digit() {
                     <span class="kw">return </span><span class="prelude-val">Err</span>(SvgParseError::Wrong);
                 }
                 <span class="kw">while let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.get_byte() {
-                    <span class="kw">if </span>c.is_ascii_digit() {
+                    <span class="kw">if </span>!c.is_ascii_digit() {
                         <span class="self">self</span>.unget();
                         <span class="kw">break</span>;
                     }
@@ -1158,7 +1194,7 @@
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
-    <span class="kw">use crate</span>::{BezPath, CubicBez, Line, ParamCurve, PathSeg, Point, QuadBez, Shape};
+    <span class="kw">use crate</span>::{BezPath, CubicBez, Line, ParamCurve, PathEl, PathSeg, Point, QuadBez, Shape};
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_parse_svg() {
@@ -1193,6 +1229,22 @@
     </span><span class="kw">fn </span>test_parse_svg_uninitialized() {
         <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"L10 10 100 0 0 100"</span>);
         <span class="macro">assert!</span>(path.is_err());
+    }
+
+    <span class="attr">#[test]
+    #[allow(clippy::float_cmp)]
+    </span><span class="kw">fn </span>test_parse_scientific_notation() {
+        <span class="kw">let </span>path = BezPath::from_svg(<span class="string">"M 0 0 L 1e-123 -4E+5"</span>).unwrap();
+        <span class="macro">assert_eq!</span>(
+            path.elements(),
+            <span class="kw-2">&amp;</span>[
+                PathEl::MoveTo(Point { x: <span class="number">0.0</span>, y: <span class="number">0.0 </span>}),
+                PathEl::LineTo(Point {
+                    x: <span class="number">1e-123</span>,
+                    y: -<span class="number">4E+5
+                </span>})
+            ]
+        );
     }
 
     <span class="attr">#[test]
@@ -1271,7 +1323,7 @@
 
         <span class="kw">let </span>length = rng.gen_range(<span class="number">0</span>..MAX_LENGTH);
         <span class="kw">for _ in </span><span class="number">0</span>..length {
-            <span class="kw">let </span>should_follow: bool = rand::random();
+            <span class="kw">let </span>should_follow: bool = random();
             <span class="kw">let </span>kind = rng.gen_range(<span class="number">0</span>..<span class="number">3</span>);
 
             <span class="kw">let </span>first = position
@@ -1309,7 +1361,7 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_serialize_deserialize() {
         <span class="kw">const </span>N_TESTS: u32 = <span class="number">100</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>rng = rand::thread_rng();
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = thread_rng();
 
         <span class="kw">for _ in </span><span class="number">0</span>..N_TESTS {
             <span class="kw">let </span>vec = gen_random_path_sequence(<span class="kw-2">&amp;mut </span>rng);

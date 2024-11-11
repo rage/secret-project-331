@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.2/src/error.rs`."><title>error.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.7.2/src/error.rs`."><title>error.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -97,6 +97,24 @@
 <a href="#97" id="97">97</a>
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Error and Result module
 
 </span><span class="kw">use </span>actix_web::{
@@ -109,78 +127,96 @@
 <span class="doccomment">/// A set of errors that can occur during parsing multipart streams.
 </span><span class="attr">#[derive(Debug, Display, From, Error)]
 #[non_exhaustive]
-</span><span class="kw">pub enum </span>MultipartError {
-    <span class="doccomment">/// Content-Disposition header is not found or is not equal to "form-data".
+</span><span class="kw">pub enum </span>Error {
+    <span class="doccomment">/// Could not find Content-Type header.
+    </span><span class="attr">#[display(fmt = <span class="string">"Could not find Content-Type header"</span>)]
+    </span>ContentTypeMissing,
+
+    <span class="doccomment">/// Could not parse Content-Type header.
+    </span><span class="attr">#[display(fmt = <span class="string">"Could not parse Content-Type header"</span>)]
+    </span>ContentTypeParse,
+
+    <span class="doccomment">/// Parsed Content-Type did not have "multipart" top-level media type.
     ///
-    /// According to [RFC 7578 §4.2](https://datatracker.ietf.org/doc/html/rfc7578#section-4.2) a
-    /// Content-Disposition header must always be present and equal to "form-data".
-    </span><span class="attr">#[display(fmt = <span class="string">"No Content-Disposition `form-data` header"</span>)]
-    </span>NoContentDisposition,
+    /// Also raised when extracting a [`MultipartForm`] from a request that does not have the
+    /// "multipart/form-data" media type.
+    ///
+    /// [`MultipartForm`]: struct@crate::form::MultipartForm
+    </span><span class="attr">#[display(fmt = <span class="string">"Parsed Content-Type did not have "multipart" top-level media type"</span>)]
+    </span>ContentTypeIncompatible,
 
-    <span class="doccomment">/// Content-Type header is not found
-    </span><span class="attr">#[display(fmt = <span class="string">"No Content-Type header found"</span>)]
-    </span>NoContentType,
-
-    <span class="doccomment">/// Can not parse Content-Type header
-    </span><span class="attr">#[display(fmt = <span class="string">"Can not parse Content-Type header"</span>)]
-    </span>ParseContentType,
-
-    <span class="doccomment">/// Multipart boundary is not found
+    <span class="doccomment">/// Multipart boundary is not found.
     </span><span class="attr">#[display(fmt = <span class="string">"Multipart boundary is not found"</span>)]
-    </span>Boundary,
+    </span>BoundaryMissing,
 
-    <span class="doccomment">/// Nested multipart is not supported
+    <span class="doccomment">/// Content-Disposition header was not found or not of disposition type "form-data" when parsing
+    /// a "form-data" field.
+    ///
+    /// As per [RFC 7578 §4.2], a "multipart/form-data" field's Content-Disposition header must
+    /// always be present and have a disposition type of "form-data".
+    ///
+    /// [RFC 7578 §4.2]: https://datatracker.ietf.org/doc/html/rfc7578#section-4.2
+    </span><span class="attr">#[display(fmt = <span class="string">"Content-Disposition header was not found when parsing a \"form-data\" field"</span>)]
+    </span>ContentDispositionMissing,
+
+    <span class="doccomment">/// Content-Disposition name parameter was not found when parsing a "form-data" field.
+    ///
+    /// As per [RFC 7578 §4.2], a "multipart/form-data" field's Content-Disposition header must
+    /// always include a "name" parameter.
+    ///
+    /// [RFC 7578 §4.2]: https://datatracker.ietf.org/doc/html/rfc7578#section-4.2
+    </span><span class="attr">#[display(fmt = <span class="string">"Content-Disposition header was not found when parsing a \"form-data\" field"</span>)]
+    </span>ContentDispositionNameMissing,
+
+    <span class="doccomment">/// Nested multipart is not supported.
     </span><span class="attr">#[display(fmt = <span class="string">"Nested multipart is not supported"</span>)]
     </span>Nested,
 
-    <span class="doccomment">/// Multipart stream is incomplete
+    <span class="doccomment">/// Multipart stream is incomplete.
     </span><span class="attr">#[display(fmt = <span class="string">"Multipart stream is incomplete"</span>)]
     </span>Incomplete,
 
-    <span class="doccomment">/// Error during field parsing
-    </span><span class="attr">#[display(fmt = <span class="string">"{}"</span>, _0)]
+    <span class="doccomment">/// Field parsing failed.
+    </span><span class="attr">#[display(fmt = <span class="string">"Error during field parsing"</span>)]
     </span>Parse(ParseError),
 
-    <span class="doccomment">/// Payload error
-    </span><span class="attr">#[display(fmt = <span class="string">"{}"</span>, _0)]
+    <span class="doccomment">/// HTTP payload error.
+    </span><span class="attr">#[display(fmt = <span class="string">"Payload error"</span>)]
     </span>Payload(PayloadError),
 
-    <span class="doccomment">/// Not consumed
-    </span><span class="attr">#[display(fmt = <span class="string">"Multipart stream is not consumed"</span>)]
+    <span class="doccomment">/// Stream is not consumed.
+    </span><span class="attr">#[display(fmt = <span class="string">"Stream is not consumed"</span>)]
     </span>NotConsumed,
 
-    <span class="doccomment">/// An error from a field handler in a form
-    </span><span class="attr">#[display(
-        fmt = <span class="string">"An error occurred processing field `{}`: {}"</span>,
-        field_name,
-        source
-    )]
+    <span class="doccomment">/// Form field handler raised error.
+    </span><span class="attr">#[display(fmt = <span class="string">"An error occurred processing field: {name}"</span>)]
     </span>Field {
-        field_name: String,
+        name: String,
         source: actix_web::Error,
     },
 
-    <span class="doccomment">/// Duplicate field
-    </span><span class="attr">#[display(fmt = <span class="string">"Duplicate field found for: `{}`"</span>, _0)]
+    <span class="doccomment">/// Duplicate field found (for structure that opted-in to denying duplicate fields).
+    </span><span class="attr">#[display(fmt = <span class="string">"Duplicate field found: {_0}"</span>)]
     #[from(ignore)]
     </span>DuplicateField(<span class="attr">#[error(not(source))] </span>String),
 
-    <span class="doccomment">/// Missing field
-    </span><span class="attr">#[display(fmt = <span class="string">"Field with name `{}` is required"</span>, _0)]
+    <span class="doccomment">/// Required field is missing.
+    </span><span class="attr">#[display(fmt = <span class="string">"Required field is missing: {_0}"</span>)]
     #[from(ignore)]
     </span>MissingField(<span class="attr">#[error(not(source))] </span>String),
 
-    <span class="doccomment">/// Unknown field
-    </span><span class="attr">#[display(fmt = <span class="string">"Unsupported field `{}`"</span>, _0)]
+    <span class="doccomment">/// Unknown field (for structure that opted-in to denying unknown fields).
+    </span><span class="attr">#[display(fmt = <span class="string">"Unknown field: {_0}"</span>)]
     #[from(ignore)]
-    </span>UnsupportedField(<span class="attr">#[error(not(source))] </span>String),
+    </span>UnknownField(<span class="attr">#[error(not(source))] </span>String),
 }
 
-<span class="doccomment">/// Return `BadRequest` for `MultipartError`
-</span><span class="kw">impl </span>ResponseError <span class="kw">for </span>MultipartError {
+<span class="doccomment">/// Return `BadRequest` for `MultipartError`.
+</span><span class="kw">impl </span>ResponseError <span class="kw">for </span>Error {
     <span class="kw">fn </span>status_code(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; StatusCode {
         <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
-            MultipartError::Field { source, .. } =&gt; source.as_response_error().status_code(),
+            Error::Field { source, .. } =&gt; source.as_response_error().status_code(),
+            Error::ContentTypeIncompatible =&gt; StatusCode::UNSUPPORTED_MEDIA_TYPE,
             <span class="kw">_ </span>=&gt; StatusCode::BAD_REQUEST,
         }
     }
@@ -192,7 +228,7 @@
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_multipart_error() {
-        <span class="kw">let </span>resp = MultipartError::Boundary.error_response();
+        <span class="kw">let </span>resp = Error::BoundaryMissing.error_response();
         <span class="macro">assert_eq!</span>(resp.status(), StatusCode::BAD_REQUEST);
     }
 }

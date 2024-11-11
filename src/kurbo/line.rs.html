@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -332,6 +332,65 @@
 <a href="#332" id="332">332</a>
 <a href="#333" id="333">333</a>
 <a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -368,10 +427,31 @@
         }
     }
 
+    <span class="doccomment">/// Returns a copy of this `Line` with the end points swapped so that it
+    /// points in the opposite direction.
+    </span><span class="attr">#[must_use]
+    #[inline]
+    </span><span class="kw">pub fn </span>reversed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Line {
+        <span class="self">Self </span>{
+            p0: <span class="self">self</span>.p1,
+            p1: <span class="self">self</span>.p0,
+        }
+    }
+
     <span class="doccomment">/// The length of the line.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>length(<span class="self">self</span>) -&gt; f64 {
         <span class="self">self</span>.arclen(DEFAULT_ACCURACY)
+    }
+
+    <span class="doccomment">/// The midpoint of the line.
+    ///
+    /// This is the same as calling [`Point::midpoint`] with
+    /// the endpoints of this line.
+    </span><span class="attr">#[must_use]
+    #[inline]
+    </span><span class="kw">pub fn </span>midpoint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Point {
+        <span class="self">self</span>.p0.midpoint(<span class="self">self</span>.p1)
     }
 
     <span class="doccomment">/// Computes the point where two lines, if extended to infinity, would cross.
@@ -386,16 +466,32 @@
         <span class="prelude-val">Some</span>(other.p0 + cd * h)
     }
 
-    <span class="doccomment">/// Is this line finite?
+    <span class="doccomment">/// Is this line `finite`?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.p0.is_finite() &amp;&amp; <span class="self">self</span>.p1.is_finite()
     }
 
-    <span class="doccomment">/// Is this line NaN?
+    <span class="doccomment">/// Is this line `NaN`?
+    ///
+    /// [NaN]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.p0.is_nan() || <span class="self">self</span>.p1.is_nan()
+    }
+}
+
+<span class="kw">impl </span>From&lt;(Point, Point)&gt; <span class="kw">for </span>Line {
+    <span class="kw">fn </span>from((from, to): (Point, Point)) -&gt; <span class="self">Self </span>{
+        Line::new(from, to)
+    }
+}
+
+<span class="kw">impl </span>From&lt;(Point, Vec2)&gt; <span class="kw">for </span>Line {
+    <span class="kw">fn </span>from((origin, displacement): (Point, Vec2)) -&gt; <span class="self">Self </span>{
+        Line::new(origin, origin + displacement)
     }
 }
 
@@ -491,13 +587,17 @@
 </span><span class="kw">pub struct </span>ConstPoint(Point);
 
 <span class="kw">impl </span>ConstPoint {
-    <span class="doccomment">/// Is this point finite?
+    <span class="doccomment">/// Is this point [finite]?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.is_finite()
     }
 
-    <span class="doccomment">/// Is this point NaN?
+    <span class="doccomment">/// Is this point [NaN]?
+    ///
+    /// [NaN]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.<span class="number">0</span>.is_nan()
@@ -629,6 +729,18 @@
     <span class="kw">use crate</span>::{Line, ParamCurveArclen, Point};
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>line_reversed() {
+        <span class="kw">let </span>l = Line::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
+        <span class="kw">let </span>f = l.reversed();
+
+        <span class="macro">assert_eq!</span>(l.p0, f.p1);
+        <span class="macro">assert_eq!</span>(l.p1, f.p0);
+
+        <span class="comment">// Reversing it again should result in the original line
+        </span><span class="macro">assert_eq!</span>(l, f.reversed());
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>line_arclen() {
         <span class="kw">let </span>l = Line::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">1.0</span>, <span class="number">1.0</span>));
         <span class="kw">let </span>true_len = <span class="number">2.0f64</span>.sqrt();
@@ -637,6 +749,12 @@
 
         <span class="kw">let </span>t = l.inv_arclen(true_len / <span class="number">3.0</span>, epsilon);
         <span class="macro">assert!</span>((t - <span class="number">1.0 </span>/ <span class="number">3.0</span>).abs() &lt; epsilon);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>line_midpoint() {
+        <span class="kw">let </span>l = Line::new((<span class="number">0.0</span>, <span class="number">0.0</span>), (<span class="number">2.0</span>, <span class="number">4.0</span>));
+        <span class="macro">assert_eq!</span>(l.midpoint(), Point::new(<span class="number">1.0</span>, <span class="number">2.0</span>));
     }
 
     <span class="attr">#[test]

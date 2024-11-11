@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/ot_shape.rs`."><title>ot_shape.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/ot_shape.rs`."><title>ot_shape.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -881,17 +881,88 @@
 <a href="#881" id="881">881</a>
 <a href="#882" id="882">882</a>
 <a href="#883" id="883">883</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::aat_map;
-<span class="kw">use </span><span class="kw">super</span>::buffer::<span class="kw-2">*</span>;
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::buffer::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">super</span>::ot_layout::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">super</span>::ot_layout_gpos_table::GPOS;
 <span class="kw">use </span><span class="kw">super</span>::ot_map::<span class="kw-2">*</span>;
-<span class="kw">use </span><span class="kw">super</span>::ot_shape_complex::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">super</span>::ot_shape_plan::hb_ot_shape_plan_t;
+<span class="kw">use </span><span class="kw">super</span>::ot_shaper::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">super</span>::unicode::{hb_unicode_general_category_t, CharExt, GeneralCategoryExt};
 <span class="kw">use super</span>::<span class="kw-2">*</span>;
 <span class="kw">use super</span>::{hb_font_t, hb_tag_t};
 <span class="kw">use </span><span class="kw">crate</span>::hb::aat_layout::hb_aat_layout_remove_deleted_glyphs;
+<span class="kw">use </span><span class="kw">crate</span>::hb::algs::{rb_flag, rb_flag_unsafe};
+<span class="kw">use </span><span class="kw">crate</span>::hb::buffer::glyph_flag::{SAFE_TO_INSERT_TATWEEL, UNSAFE_TO_BREAK, UNSAFE_TO_CONCAT};
+<span class="kw">use </span><span class="kw">crate</span>::hb::unicode::hb_gc::{
+    RB_UNICODE_GENERAL_CATEGORY_LOWERCASE_LETTER, RB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER,
+    RB_UNICODE_GENERAL_CATEGORY_SPACE_SEPARATOR, RB_UNICODE_GENERAL_CATEGORY_TITLECASE_LETTER,
+    RB_UNICODE_GENERAL_CATEGORY_UPPERCASE_LETTER,
+};
 <span class="kw">use </span><span class="kw">crate</span>::BufferFlags;
 <span class="kw">use crate</span>::{Direction, Feature, Language, Script};
 
@@ -900,11 +971,10 @@
     <span class="kw">pub </span>direction: Direction,
     <span class="kw">pub </span>script: <span class="prelude-ty">Option</span>&lt;Script&gt;,
     <span class="kw">pub </span>ot_map: hb_ot_map_builder_t&lt;<span class="lifetime">'a</span>&gt;,
-    <span class="kw">pub </span>aat_map: aat_map::hb_aat_map_builder_t,
     <span class="kw">pub </span>apply_morx: bool,
     <span class="kw">pub </span>script_zero_marks: bool,
     <span class="kw">pub </span>script_fallback_mark_positioning: bool,
-    <span class="kw">pub </span>shaper: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>hb_ot_complex_shaper_t,
+    <span class="kw">pub </span>shaper: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>hb_ot_shaper_t,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>&gt; hb_ot_shape_planner_t&lt;<span class="lifetime">'a</span>&gt; {
@@ -915,7 +985,6 @@
         language: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Language&gt;,
     ) -&gt; <span class="self">Self </span>{
         <span class="kw">let </span>ot_map = hb_ot_map_builder_t::new(face, script, language);
-        <span class="kw">let </span>aat_map = aat_map::hb_aat_map_builder_t::default();
 
         <span class="kw">let </span><span class="kw-2">mut </span>shaper = <span class="kw">match </span>script {
             <span class="prelude-val">Some</span>(script) =&gt; hb_ot_shape_complex_categorize(
@@ -943,7 +1012,6 @@
             direction,
             script,
             ot_map,
-            aat_map,
             apply_morx,
             script_zero_marks,
             script_fallback_mark_positioning,
@@ -973,6 +1041,8 @@
         ];
 
         <span class="kw">let </span>empty = F_NONE;
+
+        <span class="self">self</span>.ot_map.is_simple = <span class="bool-val">true</span>;
 
         <span class="self">self</span>.ot_map
             .enable_feature(hb_tag_t::from_bytes(<span class="string">b"rvrn"</span>), empty, <span class="number">1</span>);
@@ -1021,6 +1091,7 @@
             .enable_feature(hb_tag_t::from_bytes(<span class="string">b"HARF"</span>), empty, <span class="number">1</span>); <span class="comment">// Considered discretionary.
 
         </span><span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.shaper.collect_features {
+            <span class="self">self</span>.ot_map.is_simple = <span class="bool-val">false</span>;
             func(<span class="self">self</span>);
         }
 
@@ -1050,16 +1121,13 @@
                 .enable_feature(hb_tag_t::from_bytes(<span class="string">b"vert"</span>), F_GLOBAL_SEARCH, <span class="number">1</span>);
         }
 
+        <span class="kw">if </span>user_features.len() != <span class="number">0 </span>{
+            <span class="self">self</span>.ot_map.is_simple = <span class="bool-val">false</span>;
+        }
+
         <span class="kw">for </span>feature <span class="kw">in </span>user_features {
             <span class="kw">let </span>flags = <span class="kw">if </span>feature.is_global() { F_GLOBAL } <span class="kw">else </span>{ empty };
             <span class="self">self</span>.ot_map.add_feature(feature.tag, flags, feature.value);
-        }
-
-        <span class="kw">if </span><span class="self">self</span>.apply_morx {
-            <span class="kw">for </span>feature <span class="kw">in </span>user_features {
-                <span class="self">self</span>.aat_map
-                    .add_feature(<span class="self">self</span>.face, feature.tag, feature.value);
-            }
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = <span class="self">self</span>.shaper.override_features {
@@ -1069,12 +1137,6 @@
 
     <span class="kw">pub fn </span>compile(<span class="kw-2">mut </span><span class="self">self</span>, user_features: <span class="kw-2">&amp;</span>[Feature]) -&gt; hb_ot_shape_plan_t {
         <span class="kw">let </span>ot_map = <span class="self">self</span>.ot_map.compile();
-
-        <span class="kw">let </span>aat_map = <span class="kw">if </span><span class="self">self</span>.apply_morx {
-            <span class="self">self</span>.aat_map.compile(<span class="self">self</span>.face)
-        } <span class="kw">else </span>{
-            aat_map::hb_aat_map_t::default()
-        };
 
         <span class="kw">let </span>frac_mask = ot_map.get_1_mask(hb_tag_t::from_bytes(<span class="string">b"frac"</span>));
         <span class="kw">let </span>numr_mask = ot_map.get_1_mask(hb_tag_t::from_bytes(<span class="string">b"numr"</span>));
@@ -1113,7 +1175,7 @@
 
         <span class="comment">// Decide who does positioning. GPOS, kerx, kern, or fallback.
         </span><span class="kw">let </span>has_kerx = <span class="self">self</span>.face.tables().kerx.is_some();
-        <span class="kw">let </span>has_gsub = <span class="self">self</span>.face.tables().gsub.is_some();
+        <span class="kw">let </span>has_gsub = !apply_morx &amp;&amp; <span class="self">self</span>.face.tables().gsub.is_some();
         <span class="kw">let </span>has_gpos = !disable_gpos &amp;&amp; <span class="self">self</span>.face.tables().gpos.is_some();
 
         <span class="comment">// Prefer GPOS over kerx if GSUB is present;
@@ -1161,7 +1223,6 @@
             script: <span class="self">self</span>.script,
             shaper: <span class="self">self</span>.shaper,
             ot_map,
-            aat_map,
             data: <span class="prelude-val">None</span>,
             frac_mask,
             numr_mask,
@@ -1194,7 +1255,7 @@
     }
 }
 
-<span class="kw">pub struct </span>ShapeContext&lt;<span class="lifetime">'a</span>&gt; {
+<span class="kw">pub struct </span>hb_ot_shape_context_t&lt;<span class="lifetime">'a</span>&gt; {
     <span class="kw">pub </span>plan: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>hb_ot_shape_plan_t,
     <span class="kw">pub </span>face: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>hb_font_t&lt;<span class="lifetime">'a</span>&gt;,
     <span class="kw">pub </span>buffer: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>hb_buffer_t,
@@ -1203,7 +1264,7 @@
 }
 
 <span class="comment">// Pull it all together!
-</span><span class="kw">pub fn </span>shape_internal(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+</span><span class="kw">pub fn </span>shape_internal(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     ctx.buffer.enter();
 
     initialize_masks(ctx);
@@ -1228,17 +1289,17 @@
     ctx.buffer.leave();
 }
 
-<span class="kw">fn </span>substitute_pre(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>substitute_pre(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     hb_ot_substitute_default(ctx);
-    hb_ot_substitute_complex(ctx);
+    hb_ot_substitute_plan(ctx);
 
-    <span class="kw">if </span>ctx.plan.apply_morx &amp;&amp; !ctx.plan.apply_gpos {
+    <span class="kw">if </span>ctx.plan.apply_morx &amp;&amp; ctx.plan.apply_gpos {
         hb_aat_layout_remove_deleted_glyphs(<span class="kw-2">&amp;mut </span>ctx.buffer);
     }
 }
 
-<span class="kw">fn </span>substitute_post(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
-    <span class="kw">if </span>ctx.plan.apply_morx &amp;&amp; ctx.plan.apply_gpos {
+<span class="kw">fn </span>substitute_post(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
+    <span class="kw">if </span>ctx.plan.apply_morx &amp;&amp; !ctx.plan.apply_gpos {
         aat_layout::hb_aat_layout_remove_deleted_glyphs(ctx.buffer);
     }
 
@@ -1249,7 +1310,7 @@
     }
 }
 
-<span class="kw">fn </span>hb_ot_substitute_default(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>hb_ot_substitute_default(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     rotate_chars(ctx);
 
     ot_shape_normalize::_hb_ot_shape_normalize(ctx.plan, ctx.buffer, ctx.face);
@@ -1266,25 +1327,21 @@
     map_glyphs_fast(ctx.buffer);
 }
 
-<span class="kw">fn </span>hb_ot_substitute_complex(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>hb_ot_substitute_plan(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     hb_ot_layout_substitute_start(ctx.face, ctx.buffer);
 
     <span class="kw">if </span>ctx.plan.fallback_glyph_classes {
         hb_synthesize_glyph_classes(ctx.buffer);
     }
 
-    substitute_by_plan(ctx.plan, ctx.face, ctx.buffer);
-}
-
-<span class="kw">fn </span>substitute_by_plan(plan: <span class="kw-2">&amp;</span>hb_ot_shape_plan_t, face: <span class="kw-2">&amp;</span>hb_font_t, buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t) {
-    <span class="kw">if </span>plan.apply_morx {
-        aat_layout::hb_aat_layout_substitute(plan, face, buffer);
+    <span class="kw">if </span>ctx.plan.apply_morx {
+        aat_layout::hb_aat_layout_substitute(ctx.plan, ctx.face, ctx.buffer);
     } <span class="kw">else </span>{
-        <span class="kw">super</span>::ot_layout_gsub_table::substitute(plan, face, buffer);
+        <span class="kw">super</span>::ot_layout_gsub_table::substitute(ctx.plan, ctx.face, ctx.buffer);
     }
 }
 
-<span class="kw">fn </span>position(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>position(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     ctx.buffer.clear_positions();
 
     position_default(ctx);
@@ -1296,7 +1353,7 @@
     }
 }
 
-<span class="kw">fn </span>position_default(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>position_default(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     <span class="kw">let </span>len = ctx.buffer.len;
 
     <span class="kw">if </span>ctx.buffer.direction.is_horizontal() {
@@ -1323,7 +1380,7 @@
     }
 }
 
-<span class="kw">fn </span>position_complex(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>position_complex(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     <span class="comment">// If the font has no GPOS and direction is forward, then when
     // zeroing mark widths, we shift the mark with it, such that the
     // mark is positioned hanging over the previous glyph.  When
@@ -1380,7 +1437,7 @@
         aat_layout::hb_aat_layout_position(plan, face, buffer);
     }
     <span class="kw">if </span>plan.apply_kern {
-        <span class="kw">super</span>::kerning::kern(plan, face, buffer);
+        <span class="kw">super</span>::kerning::hb_ot_layout_kern(plan, face, buffer);
     } <span class="kw">else if </span>plan.apply_fallback_kern {
         ot_shape_fallback::_hb_ot_shape_fallback_kern(plan, face, buffer);
     }
@@ -1390,12 +1447,12 @@
     }
 }
 
-<span class="kw">fn </span>initialize_masks(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>initialize_masks(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     <span class="kw">let </span>global_mask = ctx.plan.ot_map.get_global_mask();
     ctx.buffer.reset_masks(global_mask);
 }
 
-<span class="kw">fn </span>setup_masks(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>setup_masks(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     setup_masks_fraction(ctx);
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = ctx.plan.shaper.setup_masks {
@@ -1411,7 +1468,7 @@
     }
 }
 
-<span class="kw">fn </span>setup_masks_fraction(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>setup_masks_fraction(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     <span class="kw">let </span>buffer = <span class="kw-2">&amp;mut </span>ctx.buffer;
     <span class="kw">if </span>buffer.scratch_flags &amp; HB_BUFFER_SCRATCH_FLAG_HAS_NON_ASCII == <span class="number">0 </span>|| !ctx.plan.has_frac {
         <span class="kw">return</span>;
@@ -1448,6 +1505,19 @@
                     == hb_unicode_general_category_t::DecimalNumber
             {
                 end += <span class="number">1</span>;
+            }
+
+            <span class="kw">if </span>start == i || end == i + <span class="number">1 </span>{
+                <span class="kw">if </span>start == i {
+                    buffer.unsafe_to_concat(<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(start + <span class="number">1</span>));
+                }
+
+                <span class="kw">if </span>end == i + <span class="number">1 </span>{
+                    buffer.unsafe_to_concat(<span class="prelude-val">Some</span>(end - <span class="number">1</span>), <span class="prelude-val">Some</span>(end));
+                }
+
+                i += <span class="number">1</span>;
+                <span class="kw">continue</span>;
             }
 
             buffer.unsafe_to_break(<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(end));
@@ -1489,10 +1559,23 @@
         <span class="kw">let </span>info = <span class="kw-2">&amp;mut </span>later[<span class="number">0</span>];
         info.init_unicode_props(<span class="kw-2">&amp;mut </span>buffer.scratch_flags);
 
+        <span class="kw">let </span>gen_cat = _hb_glyph_info_get_general_category(<span class="kw-2">&amp;</span>info);
+
+        <span class="kw">if </span>(rb_flag_unsafe(gen_cat.to_rb())
+            &amp; (rb_flag(RB_UNICODE_GENERAL_CATEGORY_LOWERCASE_LETTER)
+                | rb_flag(RB_UNICODE_GENERAL_CATEGORY_UPPERCASE_LETTER)
+                | rb_flag(RB_UNICODE_GENERAL_CATEGORY_TITLECASE_LETTER)
+                | rb_flag(RB_UNICODE_GENERAL_CATEGORY_OTHER_LETTER)
+                | rb_flag(RB_UNICODE_GENERAL_CATEGORY_SPACE_SEPARATOR)))
+            != <span class="number">0
+        </span>{
+            i += <span class="number">1</span>;
+            <span class="kw">continue</span>;
+        }
+
         <span class="comment">// Marks are already set as continuation by the above line.
         // Handle Emoji_Modifier and ZWJ-continuation.
-        </span><span class="kw">if </span>_hb_glyph_info_get_general_category(info)
-            == hb_unicode_general_category_t::ModifierSymbol
+        </span><span class="kw">if </span>gen_cat == hb_unicode_general_category_t::ModifierSymbol
             &amp;&amp; <span class="macro">matches!</span>(info.glyph_id, <span class="number">0x1F3FB</span>..=<span class="number">0x1F3FF</span>)
         {
             _hb_glyph_info_set_continuation(info);
@@ -1512,24 +1595,38 @@
                     i += <span class="number">1</span>;
                 }
             }
-        } <span class="kw">else if </span><span class="macro">matches!</span>(info.glyph_id, <span class="number">0xE0020</span>..=<span class="number">0xE007F</span>) {
+        } <span class="kw">else if </span><span class="macro">matches!</span>(info.glyph_id, <span class="number">0xFF9E</span>..=<span class="number">0xFF9F </span>| <span class="number">0xE0020</span>..=<span class="number">0xE007F</span>) {
             <span class="comment">// Or part of the Other_Grapheme_Extend that is not marks.
-            // As of Unicode 11 that is just:
+            // As of Unicode 15 that is just:
             //
             // 200C          ; Other_Grapheme_Extend # Cf       ZERO WIDTH NON-JOINER
             // FF9E..FF9F    ; Other_Grapheme_Extend # Lm   [2] HALFWIDTH KATAKANA VOICED SOUND MARK..HALFWIDTH KATAKANA
             // SEMI-VOICED SOUND MARK E0020..E007F  ; Other_Grapheme_Extend # Cf  [96] TAG SPACE..CANCEL TAG
             //
             // ZWNJ is special, we don't want to merge it as there's no need, and keeping
-            // it separate results in more granular clusters.  Ignore Katakana for now.
+            // it separate results in more granular clusters.
             // Tags are used for Emoji sub-region flag sequences:
             // https://github.com/harfbuzz/harfbuzz/issues/1556
+            // Katakana ones were requested:
+            // https://github.com/harfbuzz/harfbuzz/issues/3844
             </span>_hb_glyph_info_set_continuation(info);
         }
 
         i += <span class="number">1</span>;
     }
 }
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>syllabic_clear_var(
+    <span class="kw">_</span>: <span class="kw-2">&amp;</span>hb_ot_shape_plan_t,
+    <span class="kw">_</span>: <span class="kw-2">&amp;</span>hb_font_t,
+    buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t,
+) -&gt; bool {
+    <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info {
+        info.set_syllable(<span class="number">0</span>);
+    }
+
+    <span class="bool-val">false
+</span>}
 
 <span class="kw">fn </span>insert_dotted_circle(buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t, face: <span class="kw-2">&amp;</span>hb_font_t) {
     <span class="kw">if </span>!buffer
@@ -1622,7 +1719,7 @@
     }
 }
 
-<span class="kw">fn </span>rotate_chars(ctx: <span class="kw-2">&amp;mut </span>ShapeContext) {
+<span class="kw">fn </span>rotate_chars(ctx: <span class="kw-2">&amp;mut </span>hb_ot_shape_context_t) {
     <span class="kw">let </span>len = ctx.buffer.len;
 
     <span class="kw">if </span>ctx.target_direction.is_backward() {
@@ -1654,6 +1751,10 @@
     <span class="comment">// Normalization process sets up glyph_index(), we just copy it.
     </span><span class="kw">let </span>len = buffer.len;
     <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[..len] {
+        info.glyph_id = info.glyph_index();
+    }
+
+    <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.out_info_mut()[..len] {
         info.glyph_id = info.glyph_index();
     }
 }
@@ -1749,19 +1850,48 @@
 <span class="kw">fn </span>propagate_flags(buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t) {
     <span class="comment">// Propagate cluster-level glyph flags to be the same on all cluster glyphs.
     // Simplifies using them.
-    </span><span class="kw">if </span>buffer.scratch_flags &amp; HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS != <span class="number">0 </span>{
-        <span class="macro">foreach_cluster!</span>(buffer, start, end, {
-            <span class="kw">let </span><span class="kw-2">mut </span>mask = <span class="number">0</span>;
-            <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>buffer.info[start..end] {
-                mask |= info.mask * glyph_flag::DEFINED;
+
+    </span><span class="kw">if </span>buffer.scratch_flags &amp; HB_BUFFER_SCRATCH_FLAG_HAS_GLYPH_FLAGS == <span class="number">0 </span>{
+        <span class="kw">return</span>;
+    }
+
+    <span class="comment">/* If we are producing SAFE_TO_INSERT_TATWEEL, then do two things:
+     *
+     * - If the places that the Arabic shaper marked as SAFE_TO_INSERT_TATWEEL,
+     *   are UNSAFE_TO_BREAK, then clear the SAFE_TO_INSERT_TATWEEL,
+     * - Any place that is SAFE_TO_INSERT_TATWEEL, is also now UNSAFE_TO_BREAK.
+     *
+     * We couldn't make this interaction earlier. It has to be done here.
+     */
+    </span><span class="kw">let </span>flip_tatweel = buffer
+        .flags
+        .contains(BufferFlags::PRODUCE_SAFE_TO_INSERT_TATWEEL);
+
+    <span class="kw">let </span>clear_concat = !buffer.flags.contains(BufferFlags::PRODUCE_UNSAFE_TO_CONCAT);
+
+    <span class="macro">foreach_cluster!</span>(buffer, start, end, {
+        <span class="kw">let </span><span class="kw-2">mut </span>mask = <span class="number">0</span>;
+        <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;</span>buffer.info[start..end] {
+            mask |= info.mask &amp; glyph_flag::DEFINED;
+        }
+
+        <span class="kw">if </span>flip_tatweel {
+            <span class="kw">if </span>mask &amp; UNSAFE_TO_BREAK != <span class="number">0 </span>{
+                mask &amp;= !SAFE_TO_INSERT_TATWEEL;
             }
 
-            <span class="kw">if </span>mask != <span class="number">0 </span>{
-                <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[start..end] {
-                    info.mask |= mask;
-                }
+            <span class="kw">if </span>mask &amp; SAFE_TO_INSERT_TATWEEL != <span class="number">0 </span>{
+                mask |= UNSAFE_TO_BREAK | UNSAFE_TO_CONCAT;
             }
-        });
-    }
+        }
+
+        <span class="kw">if </span>clear_concat {
+            mask &amp;= !UNSAFE_TO_CONCAT;
+
+            <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[start..end] {
+                info.mask = mask;
+            }
+        }
+    });
 }
 </code></pre></div></section></main></body></html>

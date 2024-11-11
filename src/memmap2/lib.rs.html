@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memmap2-0.9.4/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="memmap2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/memmap2-0.9.5/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="memmap2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -2177,6 +2177,39 @@
 <a href="#2177" id="2177">2177</a>
 <a href="#2178" id="2178">2178</a>
 <a href="#2179" id="2179">2179</a>
+<a href="#2180" id="2180">2180</a>
+<a href="#2181" id="2181">2181</a>
+<a href="#2182" id="2182">2182</a>
+<a href="#2183" id="2183">2183</a>
+<a href="#2184" id="2184">2184</a>
+<a href="#2185" id="2185">2185</a>
+<a href="#2186" id="2186">2186</a>
+<a href="#2187" id="2187">2187</a>
+<a href="#2188" id="2188">2188</a>
+<a href="#2189" id="2189">2189</a>
+<a href="#2190" id="2190">2190</a>
+<a href="#2191" id="2191">2191</a>
+<a href="#2192" id="2192">2192</a>
+<a href="#2193" id="2193">2193</a>
+<a href="#2194" id="2194">2194</a>
+<a href="#2195" id="2195">2195</a>
+<a href="#2196" id="2196">2196</a>
+<a href="#2197" id="2197">2197</a>
+<a href="#2198" id="2198">2198</a>
+<a href="#2199" id="2199">2199</a>
+<a href="#2200" id="2200">2200</a>
+<a href="#2201" id="2201">2201</a>
+<a href="#2202" id="2202">2202</a>
+<a href="#2203" id="2203">2203</a>
+<a href="#2204" id="2204">2204</a>
+<a href="#2205" id="2205">2205</a>
+<a href="#2206" id="2206">2206</a>
+<a href="#2207" id="2207">2207</a>
+<a href="#2208" id="2208">2208</a>
+<a href="#2209" id="2209">2209</a>
+<a href="#2210" id="2210">2210</a>
+<a href="#2211" id="2211">2211</a>
+<a href="#2212" id="2212">2212</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A cross-platform Rust API for memory mapped buffers.
 //!
 //! The core functionality is provided by either [`Mmap`] or [`MmapMut`],
@@ -2481,6 +2514,8 @@
     /// # Ok(())
     /// # }
     /// ```
+    ///
+    /// The number 21 corresponds to `MAP_HUGE_2MB`. See mmap(2) for more details.
     </span><span class="kw">pub fn </span>huge(<span class="kw-2">&amp;mut </span><span class="self">self</span>, page_bits: <span class="prelude-ty">Option</span>&lt;u8&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
         <span class="self">self</span>.huge = <span class="prelude-val">Some</span>(page_bits.unwrap_or(<span class="number">0</span>));
         <span class="self">self
@@ -2514,6 +2549,10 @@
     </span>}
 
     <span class="doccomment">/// Creates a read-only memory map backed by a file.
+    ///
+    /// # Safety
+    ///
+    /// See the [type-level][MmapOptions] docs for why this function is unsafe.
     ///
     /// # Errors
     ///
@@ -2550,6 +2589,10 @@
 
     <span class="doccomment">/// Creates a readable and executable memory map backed by a file.
     ///
+    /// # Safety
+    ///
+    /// See the [type-level][MmapOptions] docs for why this function is unsafe.
+    ///
     /// # Errors
     ///
     /// This method returns an error when the underlying system call fails, which can happen for a
@@ -2562,6 +2605,10 @@
     }
 
     <span class="doccomment">/// Creates a writeable memory map backed by a file.
+    ///
+    /// # Safety
+    ///
+    /// See the [type-level][MmapOptions] docs for why this function is unsafe.
     ///
     /// # Errors
     ///
@@ -2606,6 +2653,10 @@
     /// Data written to the memory map will not be visible by other processes,
     /// and will not be carried through to the underlying file.
     ///
+    /// # Safety
+    ///
+    /// See the [type-level][MmapOptions] docs for why this function is unsafe.
+    ///
     /// # Errors
     ///
     /// This method returns an error when the underlying system call fails, which can happen for a
@@ -2633,6 +2684,10 @@
     }
 
     <span class="doccomment">/// Creates a copy-on-write read-only memory map backed by a file.
+    ///
+    /// # Safety
+    ///
+    /// See the [type-level][MmapOptions] docs for why this function is unsafe.
     ///
     /// # Errors
     ///
@@ -2738,6 +2793,8 @@
 ///
 /// `Mmap` is [`Sync`] and [`Send`].
 ///
+/// See [`MmapMut`] for the mutable version.
+///
 /// ## Safety
 ///
 /// All file-backed memory map constructors are marked `unsafe` because of the potential for
@@ -2761,8 +2818,6 @@
 /// # }
 /// ```
 ///
-/// See [`MmapMut`] for the mutable version.
-///
 /// [`map()`]: Mmap::map()
 </span><span class="kw">pub struct </span>Mmap {
     inner: MmapInner,
@@ -2772,6 +2827,10 @@
     <span class="doccomment">/// Creates a read-only memory map backed by a file.
     ///
     /// This is equivalent to calling `MmapOptions::new().map(file)`.
+    ///
+    /// # Safety
+    ///
+    /// See the [type-level][Mmap] docs for why this function is unsafe.
     ///
     /// # Errors
     ///
@@ -2966,6 +3025,9 @@
 ///
 /// This struct never hands out references to its interior, only raw pointers.
 /// This can be helpful when creating shared memory maps between untrusted processes.
+///
+/// For the safety concerns that arise when converting these raw pointers to references,
+/// see the [`Mmap`] safety documentation.
 </span><span class="kw">pub struct </span>MmapRaw {
     inner: MmapInner,
 }
@@ -3215,7 +3277,7 @@
 /// Dereferencing and accessing the bytes of the buffer may result in page faults (e.g. swapping
 /// the mapped pages into physical memory) though the details of this are platform specific.
 ///
-/// `Mmap` is [`Sync`] and [`Send`].
+/// `MmapMut` is [`Sync`] and [`Send`].
 ///
 /// See [`Mmap`] for the immutable version.
 ///
@@ -3234,6 +3296,10 @@
     <span class="doccomment">/// Creates a writeable memory map backed by a file.
     ///
     /// This is equivalent to calling `MmapOptions::new().map_mut(file)`.
+    ///
+    /// # Safety
+    ///
+    /// See the [type-level][MmapMut] docs for why this function is unsafe.
     ///
     /// # Errors
     ///

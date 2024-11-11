@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/ot_layout.rs`."><title>ot_layout.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/ot_layout.rs`."><title>ot_layout.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -721,12 +721,15 @@
 <a href="#721" id="721">721</a>
 <a href="#722" id="722">722</a>
 <a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! OpenType layout.
 
 </span><span class="kw">use </span>core::ops::{Index, IndexMut};
-
-<span class="kw">use </span>ttf_parser::opentype_layout::{FeatureIndex, LanguageIndex, LookupIndex, ScriptIndex};
-<span class="kw">use </span>ttf_parser::GlyphId;
 
 <span class="kw">use </span><span class="kw">super</span>::buffer::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">super</span>::common::TagExt;
@@ -734,6 +737,8 @@
 <span class="kw">use </span><span class="kw">super</span>::ot_shape_plan::hb_ot_shape_plan_t;
 <span class="kw">use </span><span class="kw">super</span>::unicode::{hb_unicode_funcs_t, hb_unicode_general_category_t, GeneralCategoryExt};
 <span class="kw">use super</span>::{hb_font_t, hb_glyph_info_t, hb_tag_t};
+<span class="kw">use </span><span class="kw">crate</span>::hb::set_digest::{hb_set_digest_ext, hb_set_digest_t};
+<span class="kw">use </span>ttf_parser::opentype_layout::{FeatureIndex, LanguageIndex, LookupIndex, ScriptIndex};
 
 <span class="kw">pub const </span>MAX_NESTING_LEVEL: usize = <span class="number">64</span>;
 <span class="kw">pub const </span>MAX_CONTEXT_LENGTH: usize = <span class="number">64</span>;
@@ -765,7 +770,6 @@
     <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[..len] {
         info.set_glyph_props(face.glyph_props(info.as_glyph()));
         info.set_lig_props(<span class="number">0</span>);
-        info.set_syllable(<span class="number">0</span>);
     }
 }
 
@@ -826,8 +830,8 @@
     <span class="doccomment">/// Whether the lookup has to be applied backwards.
     </span><span class="kw">fn </span>is_reverse(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
-    <span class="doccomment">/// Whether any subtable of the lookup could apply at a specific glyph.
-    </span><span class="kw">fn </span>covers(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph: GlyphId) -&gt; bool;
+    <span class="doccomment">/// The digest of the lookup.
+    </span><span class="kw">fn </span>digest(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>hb_set_digest_t;
 }
 
 <span class="kw">pub trait </span>LayoutTableExt {
@@ -963,30 +967,36 @@
     <span class="kw">let </span><span class="kw-2">mut </span>ctx = OT::hb_ot_apply_context_t::new(T::INDEX, face, buffer);
 
     <span class="kw">for </span>(stage_index, stage) <span class="kw">in </span>plan.ot_map.stages(T::INDEX).iter().enumerate() {
-        <span class="kw">for </span>lookup <span class="kw">in </span>plan.ot_map.stage_lookups(T::INDEX, stage_index) {
-            ctx.lookup_index = lookup.index;
-            ctx.lookup_mask = lookup.mask;
-            ctx.auto_zwj = lookup.auto_zwj;
-            ctx.auto_zwnj = lookup.auto_zwnj;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(table) = table {
+            <span class="kw">for </span>lookup_map <span class="kw">in </span>plan.ot_map.stage_lookups(T::INDEX, stage_index) {
+                <span class="kw">let </span><span class="prelude-val">Some</span>(lookup) = table.get_lookup(lookup_map.index) <span class="kw">else </span>{
+                    <span class="kw">continue</span>;
+                };
 
-            ctx.random = lookup.random;
-            ctx.per_syllable = lookup.per_syllable;
+                <span class="kw">if </span>lookup.digest().may_have(<span class="kw-2">&amp;</span>ctx.digest) {
+                    ctx.lookup_index = lookup_map.index;
+                    ctx.set_lookup_mask(lookup_map.mask);
+                    ctx.auto_zwj = lookup_map.auto_zwj;
+                    ctx.auto_zwnj = lookup_map.auto_zwnj;
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(table) = <span class="kw-2">&amp;</span>table {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(lookup) = table.get_lookup(lookup.index) {
+                    ctx.random = lookup_map.random;
+                    ctx.per_syllable = lookup_map.per_syllable;
+
                     apply_string::&lt;T&gt;(<span class="kw-2">&amp;mut </span>ctx, lookup);
                 }
             }
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(func) = stage.pause_func {
-            func(plan, face, ctx.buffer);
+            <span class="kw">if </span>func(plan, face, ctx.buffer) {
+                ctx.digest = ctx.buffer.digest();
+            }
         }
     }
 }
 
 <span class="kw">fn </span>apply_string&lt;T: LayoutTable&gt;(ctx: <span class="kw-2">&amp;mut </span>OT::hb_ot_apply_context_t, lookup: <span class="kw-2">&amp;</span>T::Lookup) {
-    <span class="kw">if </span>ctx.buffer.is_empty() || ctx.lookup_mask == <span class="number">0 </span>{
+    <span class="kw">if </span>ctx.buffer.is_empty() || ctx.lookup_mask() == <span class="number">0 </span>{
         <span class="kw">return</span>;
     }
 
@@ -1016,7 +1026,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="bool-val">false</span>;
     <span class="kw">while </span>ctx.buffer.idx &lt; ctx.buffer.len &amp;&amp; ctx.buffer.successful {
         <span class="kw">let </span>cur = ctx.buffer.cur(<span class="number">0</span>);
-        <span class="kw">if </span>(cur.mask &amp; ctx.lookup_mask) != <span class="number">0
+        <span class="kw">if </span>(cur.mask &amp; ctx.lookup_mask()) != <span class="number">0
             </span>&amp;&amp; ctx.check_glyph_property(cur, ctx.lookup_props)
             &amp;&amp; lookup.apply(ctx).is_some()
         {
@@ -1032,7 +1042,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>ret = <span class="bool-val">false</span>;
     <span class="kw">loop </span>{
         <span class="kw">let </span>cur = ctx.buffer.cur(<span class="number">0</span>);
-        ret |= (cur.mask &amp; ctx.lookup_mask) != <span class="number">0
+        ret |= (cur.mask &amp; ctx.lookup_mask()) != <span class="number">0
             </span>&amp;&amp; ctx.check_glyph_property(cur, ctx.lookup_props)
             &amp;&amp; lookup.apply(ctx).is_some();
 
@@ -1438,10 +1448,12 @@
     <span class="kw">_</span>: <span class="kw-2">&amp;</span>hb_ot_shape_plan_t,
     <span class="kw">_</span>: <span class="kw-2">&amp;</span>hb_font_t,
     buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t,
-) {
+) -&gt; bool {
     <span class="kw">let </span>len = buffer.len;
     <span class="kw">for </span>info <span class="kw">in </span><span class="kw-2">&amp;mut </span>buffer.info[..len] {
         _hb_glyph_info_clear_substituted(info);
     }
-}
+
+    <span class="bool-val">false
+</span>}
 </code></pre></div></section></main></body></html>

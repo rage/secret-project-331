@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.3/src/repo.rs`."><title>repo.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.19.0/src/repo.rs`."><title>repo.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -4303,6 +4303,8 @@
 <a href="#4303" id="4303">4303</a>
 <a href="#4304" id="4304">4304</a>
 <a href="#4305" id="4305">4305</a>
+<a href="#4306" id="4306">4306</a>
+<a href="#4307" id="4307">4307</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libc::{c_char, c_int, c_uint, c_void, size_t};
 <span class="kw">use </span>std::env;
 <span class="kw">use </span>std::ffi::{CStr, CString, OsStr};
@@ -5595,9 +5597,9 @@
         parents: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Oid, Error&gt; {
         <span class="kw">let </span>update_ref = <span class="kw">crate</span>::opt_cstr(update_ref)<span class="question-mark">?</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>parent_ptrs = parents
+        <span class="kw">let </span>parent_ptrs = parents
             .iter()
-            .map(|p| p.raw() <span class="kw">as </span><span class="kw-2">*const </span>raw::git_commit)
+            .map(|p| p.raw() <span class="kw">as </span><span class="kw-2">*mut </span>raw::git_commit)
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>message = CString::new(message)<span class="question-mark">?</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>raw = raw::git_oid {
@@ -5614,7 +5616,7 @@
                 message,
                 tree.raw(),
                 parents.len() <span class="kw">as </span>size_t,
-                parent_ptrs.as_mut_ptr()
+                parent_ptrs.as_ptr()
             ));
             <span class="prelude-val">Ok</span>(Binding::from_raw(<span class="kw-2">&amp;</span>raw <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>))
         }
@@ -5633,9 +5635,9 @@
         tree: <span class="kw-2">&amp;</span>Tree&lt;<span class="lifetime">'_</span>&gt;,
         parents: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>Commit&lt;<span class="lifetime">'_</span>&gt;],
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Buf, Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>parent_ptrs = parents
+        <span class="kw">let </span>parent_ptrs = parents
             .iter()
-            .map(|p| p.raw() <span class="kw">as </span><span class="kw-2">*const </span>raw::git_commit)
+            .map(|p| p.raw() <span class="kw">as </span><span class="kw-2">*mut </span>raw::git_commit)
             .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
         <span class="kw">let </span>message = CString::new(message)<span class="question-mark">?</span>;
         <span class="kw">let </span>buf = Buf::new();
@@ -5649,7 +5651,7 @@
                 message,
                 tree.raw(),
                 parents.len() <span class="kw">as </span>size_t,
-                parent_ptrs.as_mut_ptr()
+                parent_ptrs.as_ptr()
             ));
             <span class="prelude-val">Ok</span>(buf)
         }
@@ -7365,6 +7367,8 @@
     }
 
     <span class="doccomment">/// Retrieve the name of the upstream remote of a local branch.
+    ///
+    /// `refname` must be in the form `refs/heads/{branch_name}`
     </span><span class="kw">pub fn </span>branch_upstream_remote(<span class="kw-2">&amp;</span><span class="self">self</span>, refname: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Buf, Error&gt; {
         <span class="kw">let </span>refname = CString::new(refname)<span class="question-mark">?</span>;
         <span class="kw">unsafe </span>{

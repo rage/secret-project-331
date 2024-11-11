@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/cmd.rs`."><title>cmd.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/cmd.rs`."><title>cmd.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -627,6 +627,43 @@
 <a href="#627" id="627">627</a>
 <a href="#628" id="628">628</a>
 <a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
 </span><span class="kw">use </span>futures_util::{
     future::BoxFuture,
@@ -639,7 +676,7 @@
 
 <span class="kw">use </span><span class="kw">crate</span>::connection::ConnectionLike;
 <span class="kw">use </span><span class="kw">crate</span>::pipeline::Pipeline;
-<span class="kw">use </span><span class="kw">crate</span>::types::{from_redis_value, FromRedisValue, RedisResult, RedisWrite, ToRedisArgs};
+<span class="kw">use </span><span class="kw">crate</span>::types::{from_owned_redis_value, FromRedisValue, RedisResult, RedisWrite, ToRedisArgs};
 
 <span class="doccomment">/// An argument to a redis command
 </span><span class="attr">#[derive(Clone)]
@@ -657,6 +694,8 @@
     <span class="comment">// Arg::Simple contains the offset that marks the end of the argument
     </span>args: Vec&lt;Arg&lt;usize&gt;&gt;,
     cursor: <span class="prelude-ty">Option</span>&lt;u64&gt;,
+    <span class="comment">// If it's true command's response won't be read from socket. Useful for Pub/Sub.
+    </span>no_response: bool,
 }
 
 <span class="doccomment">/// Represents a redis iterator.
@@ -684,12 +723,9 @@
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
-            <span class="kw">let </span>pcmd = <span class="macro">unwrap_or!</span>(
-                <span class="self">self</span>.cmd.get_packed_command_with_cursor(<span class="self">self</span>.cursor),
-                <span class="kw">return </span><span class="prelude-val">None
-            </span>);
-            <span class="kw">let </span>rv = <span class="macro">unwrap_or!</span>(<span class="self">self</span>.con.req_packed_command(<span class="kw-2">&amp;</span>pcmd).ok(), <span class="kw">return </span><span class="prelude-val">None</span>);
-            <span class="kw">let </span>(cur, batch): (u64, Vec&lt;T&gt;) = <span class="macro">unwrap_or!</span>(from_redis_value(<span class="kw-2">&amp;</span>rv).ok(), <span class="kw">return </span><span class="prelude-val">None</span>);
+            <span class="kw">let </span>pcmd = <span class="self">self</span>.cmd.get_packed_command_with_cursor(<span class="self">self</span>.cursor)<span class="question-mark">?</span>;
+            <span class="kw">let </span>rv = <span class="self">self</span>.con.req_packed_command(<span class="kw-2">&amp;</span>pcmd).ok()<span class="question-mark">?</span>;
+            <span class="kw">let </span>(cur, batch): (u64, Vec&lt;T&gt;) = from_owned_redis_value(rv).ok()<span class="question-mark">?</span>;
 
             <span class="self">self</span>.cursor = cur;
             <span class="self">self</span>.batch = batch.into_iter();
@@ -742,11 +778,8 @@
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
-            <span class="kw">let </span>rv = <span class="macro">unwrap_or!</span>(
-                <span class="self">self</span>.con.req_packed_command(<span class="kw-2">&amp;</span><span class="self">self</span>.cmd).<span class="kw">await</span>.ok(),
-                <span class="kw">return </span><span class="prelude-val">None
-            </span>);
-            <span class="kw">let </span>(cur, batch): (u64, Vec&lt;T&gt;) = <span class="macro">unwrap_or!</span>(from_redis_value(<span class="kw-2">&amp;</span>rv).ok(), <span class="kw">return </span><span class="prelude-val">None</span>);
+            <span class="kw">let </span>rv = <span class="self">self</span>.con.req_packed_command(<span class="kw-2">&amp;</span><span class="self">self</span>.cmd).<span class="kw">await</span>.ok()<span class="question-mark">?</span>;
+            <span class="kw">let </span>(cur, batch): (u64, Vec&lt;T&gt;) = from_owned_redis_value(rv).ok()<span class="question-mark">?</span>;
 
             <span class="self">self</span>.cmd.cursor = <span class="prelude-val">Some</span>(cur);
             <span class="self">self</span>.batch = batch.into_iter();
@@ -760,9 +793,9 @@
     /// # use redis::AsyncCommands;
     /// # async fn scan_set() -&gt; redis::RedisResult&lt;()&gt; {
     /// # let client = redis::Client::open("redis://127.0.0.1/")?;
-    /// # let mut con = client.get_async_connection().await?;
-    /// con.sadd("my_set", 42i32).await?;
-    /// con.sadd("my_set", 43i32).await?;
+    /// # let mut con = client.get_multiplexed_async_connection().await?;
+    /// let _: () = con.sadd("my_set", 42i32).await?;
+    /// let _: () = con.sadd("my_set", 43i32).await?;
     /// let mut iter: redis::AsyncIter&lt;i32&gt; = con.sscan("my_set").await?;
     /// while let Some(element) = iter.next_item().await {
     ///     assert!(element == 42 || element == 43);
@@ -920,7 +953,7 @@
 }
 
 <span class="doccomment">/// A command acts as a builder interface to creating encoded redis
-/// requests.  This allows you to easiy assemble a packed command
+/// requests.  This allows you to easily assemble a packed command
 /// by chaining arguments together.
 ///
 /// Basic example:
@@ -953,16 +986,25 @@
             data: <span class="macro">vec!</span>[],
             args: <span class="macro">vec!</span>[],
             cursor: <span class="prelude-val">None</span>,
+            no_response: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="doccomment">/// Creates a new empty command, with at least the requested capcity.
+    <span class="doccomment">/// Creates a new empty command, with at least the requested capacity.
     </span><span class="kw">pub fn </span>with_capacity(arg_count: usize, size_of_data: usize) -&gt; Cmd {
         Cmd {
             data: Vec::with_capacity(size_of_data),
             args: Vec::with_capacity(arg_count),
             cursor: <span class="prelude-val">None</span>,
+            no_response: <span class="bool-val">false</span>,
         }
+    }
+
+    <span class="doccomment">/// Get the capacities for the internal buffers.
+    </span><span class="attr">#[cfg(test)]
+    #[allow(dead_code)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>capacity(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, usize) {
+        (<span class="self">self</span>.args.capacity(), <span class="self">self</span>.data.capacity())
     }
 
     <span class="doccomment">/// Appends an argument to the command.  The argument passed must
@@ -1047,7 +1089,7 @@
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>query&lt;T: FromRedisValue&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ConnectionLike) -&gt; RedisResult&lt;T&gt; {
         <span class="kw">match </span>con.req_command(<span class="self">self</span>) {
-            <span class="prelude-val">Ok</span>(val) =&gt; from_redis_value(<span class="kw-2">&amp;</span>val),
+            <span class="prelude-val">Ok</span>(val) =&gt; from_owned_redis_value(val.extract_error()<span class="question-mark">?</span>),
             <span class="prelude-val">Err</span>(e) =&gt; <span class="prelude-val">Err</span>(e),
         }
     }
@@ -1055,12 +1097,12 @@
     <span class="doccomment">/// Async version of `query`.
     </span><span class="attr">#[inline]
     #[cfg(feature = <span class="string">"aio"</span>)]
-    </span><span class="kw">pub async fn </span>query_async&lt;C, T: FromRedisValue&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;T&gt;
-    <span class="kw">where
-        </span>C: <span class="kw">crate</span>::aio::ConnectionLike,
-    {
+    </span><span class="kw">pub async fn </span>query_async&lt;T: FromRedisValue&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        con: <span class="kw-2">&amp;mut </span><span class="kw">impl </span><span class="kw">crate</span>::aio::ConnectionLike,
+    ) -&gt; RedisResult&lt;T&gt; {
         <span class="kw">let </span>val = con.req_packed_command(<span class="self">self</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        from_redis_value(<span class="kw-2">&amp;</span>val)
+        from_owned_redis_value(val.extract_error()<span class="question-mark">?</span>)
     }
 
     <span class="doccomment">/// Similar to `query()` but returns an iterator over the items of the
@@ -1082,9 +1124,9 @@
         <span class="kw">let </span>rv = con.req_command(<span class="kw-2">&amp;</span><span class="self">self</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let </span>(cursor, batch) = <span class="kw">if </span>rv.looks_like_cursor() {
-            from_redis_value::&lt;(u64, Vec&lt;T&gt;)&gt;(<span class="kw-2">&amp;</span>rv)<span class="question-mark">?
+            from_owned_redis_value::&lt;(u64, Vec&lt;T&gt;)&gt;(rv)<span class="question-mark">?
         </span>} <span class="kw">else </span>{
-            (<span class="number">0</span>, from_redis_value(<span class="kw-2">&amp;</span>rv)<span class="question-mark">?</span>)
+            (<span class="number">0</span>, from_owned_redis_value(rv)<span class="question-mark">?</span>)
         };
 
         <span class="prelude-val">Ok</span>(Iter {
@@ -1119,9 +1161,9 @@
         <span class="kw">let </span>rv = con.req_packed_command(<span class="kw-2">&amp;</span><span class="self">self</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let </span>(cursor, batch) = <span class="kw">if </span>rv.looks_like_cursor() {
-            from_redis_value::&lt;(u64, Vec&lt;T&gt;)&gt;(<span class="kw-2">&amp;</span>rv)<span class="question-mark">?
+            from_owned_redis_value::&lt;(u64, Vec&lt;T&gt;)&gt;(rv)<span class="question-mark">?
         </span>} <span class="kw">else </span>{
-            (<span class="number">0</span>, from_redis_value(<span class="kw-2">&amp;</span>rv)<span class="question-mark">?</span>)
+            (<span class="number">0</span>, from_owned_redis_value(rv)<span class="question-mark">?</span>)
         };
         <span class="kw">if </span>cursor == <span class="number">0 </span>{
             <span class="self">self</span>.cursor = <span class="prelude-val">None</span>;
@@ -1148,15 +1190,34 @@
     /// ```rust,no_run
     /// # let client = redis::Client::open("redis://127.0.0.1/").unwrap();
     /// # let mut con = client.get_connection().unwrap();
-    /// let _ : () = redis::cmd("PING").query(&amp;mut con).unwrap();
+    /// redis::cmd("PING").query::&lt;()&gt;(&amp;mut con).unwrap();
     /// ```
     </span><span class="attr">#[inline]
+    #[deprecated(note = <span class="string">"Use Cmd::exec + unwrap, instead"</span>)]
     </span><span class="kw">pub fn </span>execute(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ConnectionLike) {
-        <span class="self">self</span>.query::&lt;()&gt;(con).unwrap();
+        <span class="self">self</span>.exec(con).unwrap();
     }
 
+    <span class="doccomment">/// This is an alternative to `query`` that can be used if you want to be able to handle a
+    /// command's success or failure but don't care about the command's response. For example,
+    /// this is useful for "SET" commands for which the response's content is not important.
+    /// It avoids the need to define generic bounds for ().
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>exec(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ConnectionLike) -&gt; RedisResult&lt;()&gt; {
+        <span class="self">self</span>.query::&lt;()&gt;(con)
+    }
+
+    <span class="doccomment">/// This is an alternative to `query_async` that can be used if you want to be able to handle a
+    /// command's success or failure but don't care about the command's response. For example,
+    /// this is useful for "SET" commands for which the response's content is not important.
+    /// It avoids the need to define generic bounds for ().
+    </span><span class="attr">#[cfg(feature = <span class="string">"aio"</span>)]
+    </span><span class="kw">pub async fn </span>exec_async(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span><span class="kw">impl </span><span class="kw">crate</span>::aio::ConnectionLike) -&gt; RedisResult&lt;()&gt; {
+        <span class="self">self</span>.query_async::&lt;()&gt;(con).<span class="kw">await
+    </span>}
+
     <span class="doccomment">/// Returns an iterator over the arguments in this command (including the command name itself)
-    </span><span class="kw">pub fn </span>args_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span>[u8]&gt;&gt; + Clone + ExactSizeIterator {
+    </span><span class="kw">pub fn </span>args_iter(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Clone + ExactSizeIterator&lt;Item = Arg&lt;<span class="kw-2">&amp;</span>[u8]&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>prev = <span class="number">0</span>;
         <span class="self">self</span>.args.iter().map(<span class="kw">move </span>|arg| <span class="kw">match </span><span class="kw-2">*</span>arg {
             Arg::Simple(i) =&gt; {
@@ -1192,6 +1253,19 @@
             <span class="kw">return </span><span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.data[start..end])
+    }
+
+    <span class="doccomment">/// Client won't read and wait for results. Currently only used for Pub/Sub commands in RESP3.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>set_no_response(<span class="kw-2">&amp;mut </span><span class="self">self</span>, nr: bool) -&gt; <span class="kw-2">&amp;mut </span>Cmd {
+        <span class="self">self</span>.no_response = nr;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Check whether command's result will be waited for.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>is_no_response(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.no_response
     }
 }
 

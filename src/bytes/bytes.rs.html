@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytes-1.7.1/src/bytes.rs`."><title>bytes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/bytes-1.8.0/src/bytes.rs`."><title>bytes.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="bytes" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1478,6 +1478,31 @@
 <a href="#1478" id="1478">1478</a>
 <a href="#1479" id="1479">1479</a>
 <a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::iter::FromIterator;
 <span class="kw">use </span>core::mem::{<span class="self">self</span>, ManuallyDrop};
 <span class="kw">use </span>core::ops::{Deref, RangeBounds};
@@ -1622,7 +1647,8 @@
         Bytes::from_static(EMPTY)
     }
 
-    <span class="attr">#[cfg(all(loom, test))]
+    <span class="doccomment">/// Creates a new empty `Bytes`.
+    </span><span class="attr">#[cfg(all(loom, test))]
     </span><span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="kw">const </span>EMPTY: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[];
         Bytes::from_static(EMPTY)
@@ -1652,11 +1678,28 @@
         }
     }
 
-    <span class="attr">#[cfg(all(loom, test))]
+    <span class="doccomment">/// Creates a new `Bytes` from a static slice.
+    </span><span class="attr">#[cfg(all(loom, test))]
     </span><span class="kw">pub fn </span>from_static(bytes: <span class="kw-2">&amp;</span><span class="lifetime">'static </span>[u8]) -&gt; <span class="self">Self </span>{
         Bytes {
             ptr: bytes.as_ptr(),
             len: bytes.len(),
+            data: AtomicPtr::new(ptr::null_mut()),
+            vtable: <span class="kw-2">&amp;</span>STATIC_VTABLE,
+        }
+    }
+
+    <span class="doccomment">/// Creates a new `Bytes` with length zero and the given pointer as the address.
+    </span><span class="kw">fn </span>new_empty_with_ptr(ptr: <span class="kw-2">*const </span>u8) -&gt; <span class="self">Self </span>{
+        <span class="macro">debug_assert!</span>(!ptr.is_null());
+
+        <span class="comment">// Detach this pointer's provenance from whichever allocation it came from, and reattach it
+        // to the provenance of the fake ZST [u8;0] at the same address.
+        </span><span class="kw">let </span>ptr = without_provenance(ptr <span class="kw">as </span>usize);
+
+        Bytes {
+            ptr,
+            len: <span class="number">0</span>,
             data: AtomicPtr::new(ptr::null_mut()),
             vtable: <span class="kw-2">&amp;</span>STATIC_VTABLE,
         }
@@ -1844,7 +1887,9 @@
     <span class="doccomment">/// Splits the bytes into two at the given index.
     ///
     /// Afterwards `self` contains elements `[0, at)`, and the returned `Bytes`
-    /// contains elements `[at, len)`.
+    /// contains elements `[at, len)`. It's guaranteed that the memory does not
+    /// move, that is, the address of `self` does not change, and the address of
+    /// the returned slice is `at` bytes after that.
     ///
     /// This is an `O(1)` operation that just increases the reference count and
     /// sets a few indices.
@@ -1867,11 +1912,11 @@
     </span><span class="attr">#[must_use = <span class="string">"consider Bytes::truncate if you don't need the other half"</span>]
     </span><span class="kw">pub fn </span>split_off(<span class="kw-2">&amp;mut </span><span class="self">self</span>, at: usize) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>at == <span class="self">self</span>.len() {
-            <span class="kw">return </span>Bytes::new();
+            <span class="kw">return </span>Bytes::new_empty_with_ptr(<span class="self">self</span>.ptr.wrapping_add(at));
         }
 
         <span class="kw">if </span>at == <span class="number">0 </span>{
-            <span class="kw">return </span>mem::replace(<span class="self">self</span>, Bytes::new());
+            <span class="kw">return </span>mem::replace(<span class="self">self</span>, Bytes::new_empty_with_ptr(<span class="self">self</span>.ptr));
         }
 
         <span class="macro">assert!</span>(
@@ -1916,11 +1961,12 @@
     </span><span class="attr">#[must_use = <span class="string">"consider Bytes::advance if you don't need the other half"</span>]
     </span><span class="kw">pub fn </span>split_to(<span class="kw-2">&amp;mut </span><span class="self">self</span>, at: usize) -&gt; <span class="self">Self </span>{
         <span class="kw">if </span>at == <span class="self">self</span>.len() {
-            <span class="kw">return </span>mem::replace(<span class="self">self</span>, Bytes::new());
+            <span class="kw">let </span>end_ptr = <span class="self">self</span>.ptr.wrapping_add(at);
+            <span class="kw">return </span>mem::replace(<span class="self">self</span>, Bytes::new_empty_with_ptr(end_ptr));
         }
 
         <span class="kw">if </span>at == <span class="number">0 </span>{
-            <span class="kw">return </span>Bytes::new();
+            <span class="kw">return </span>Bytes::new_empty_with_ptr(<span class="self">self</span>.ptr);
         }
 
         <span class="macro">assert!</span>(
@@ -2781,7 +2827,7 @@
     offset: <span class="kw-2">*const </span>u8,
     len: usize,
 ) -&gt; Bytes {
-    <span class="comment">// If  the buffer is still tracked in a `Vec&lt;u8&gt;`. It is time to
+    <span class="comment">// If the buffer is still tracked in a `Vec&lt;u8&gt;`. It is time to
     // promote the vec to an `Arc`. This could potentially be called
     // concurrently, so some care must be taken.
 
@@ -2902,6 +2948,10 @@
     <span class="kw">let </span>old_addr = ptr <span class="kw">as </span>usize;
     <span class="kw">let </span>new_addr = f(old_addr);
     new_addr <span class="kw">as </span><span class="kw-2">*mut </span>u8
+}
+
+<span class="kw">fn </span>without_provenance(ptr: usize) -&gt; <span class="kw-2">*const </span>u8 {
+    core::ptr::null::&lt;u8&gt;().wrapping_add(ptr)
 }
 
 <span class="comment">// compile-fails

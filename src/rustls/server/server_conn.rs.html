@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/server/server_conn.rs`."><title>server_conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/server/server_conn.rs`."><title>server_conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1142,6 +1142,22 @@
 <a href="#1142" id="1142">1142</a>
 <a href="#1143" id="1143">1143</a>
 <a href="#1144" id="1144">1144</a>
+<a href="#1145" id="1145">1145</a>
+<a href="#1146" id="1146">1146</a>
+<a href="#1147" id="1147">1147</a>
+<a href="#1148" id="1148">1148</a>
+<a href="#1149" id="1149">1149</a>
+<a href="#1150" id="1150">1150</a>
+<a href="#1151" id="1151">1151</a>
+<a href="#1152" id="1152">1152</a>
+<a href="#1153" id="1153">1153</a>
+<a href="#1154" id="1154">1154</a>
+<a href="#1155" id="1155">1155</a>
+<a href="#1156" id="1156">1156</a>
+<a href="#1157" id="1157">1157</a>
+<a href="#1158" id="1158">1158</a>
+<a href="#1159" id="1159">1159</a>
+<a href="#1160" id="1160">1160</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::sync::Arc;
 <span class="kw">use </span>alloc::vec::Vec;
@@ -1156,17 +1172,16 @@
 
 <span class="kw">use </span><span class="kw">super</span>::hs;
 <span class="kw">use </span><span class="kw">crate</span>::builder::ConfigBuilder;
+<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Side};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::common_state::Protocol;
-<span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Side, State};
+</span><span class="kw">use </span><span class="kw">crate</span>::common_state::{Protocol, State};
 <span class="kw">use </span><span class="kw">crate</span>::conn::{ConnectionCommon, ConnectionCore, UnbufferedConnectionCommon};
 <span class="attr">#[cfg(doc)]
 </span><span class="kw">use </span><span class="kw">crate</span>::crypto;
 <span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
 <span class="kw">use </span><span class="kw">crate</span>::enums::{CipherSuite, ProtocolVersion, SignatureScheme};
 <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-<span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
-</span><span class="kw">use </span><span class="kw">crate</span>::log::trace;
+<span class="kw">use </span><span class="kw">crate</span>::log::trace;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::base::Payload;
 <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientHelloPayload, ProtocolName, ServerExtension};
 <span class="kw">use </span><span class="kw">crate</span>::msgs::message::Message;
@@ -1392,7 +1407,7 @@
     </span><span class="kw">pub </span>max_fragment_size: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 
     <span class="doccomment">/// How to store client sessions.
-    </span><span class="kw">pub </span>session_storage: Arc&lt;<span class="kw">dyn </span>StoresServerSessions + Send + Sync&gt;,
+    </span><span class="kw">pub </span>session_storage: Arc&lt;<span class="kw">dyn </span>StoresServerSessions&gt;,
 
     <span class="doccomment">/// How to produce tickets.
     </span><span class="kw">pub </span>ticketer: Arc&lt;<span class="kw">dyn </span>ProducesTickets&gt;,
@@ -1708,9 +1723,6 @@
         <span class="doccomment">/// Make a new ServerConnection.  `config` controls how
         /// we behave in the TLS protocol.
         </span><span class="kw">pub fn </span>new(config: Arc&lt;ServerConfig&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-            <span class="kw">let </span><span class="kw-2">mut </span>common = CommonState::new(Side::Server);
-            common.set_max_fragment_size(config.max_fragment_size)<span class="question-mark">?</span>;
-            common.enable_secret_extraction = config.enable_secret_extraction;
             <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
                 inner: ConnectionCommon::from(ConnectionCore::for_server(config, Vec::new())<span class="question-mark">?</span>),
             })
@@ -2008,9 +2020,6 @@
 <span class="kw">impl </span>UnbufferedServerConnection {
     <span class="doccomment">/// Make a new ServerConnection. `config` controls how we behave in the TLS protocol.
     </span><span class="kw">pub fn </span>new(config: Arc&lt;ServerConfig&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
-        <span class="kw">let </span><span class="kw-2">mut </span>common = CommonState::new(Side::Server);
-        common.set_max_fragment_size(config.max_fragment_size)<span class="question-mark">?</span>;
-        common.enable_secret_extraction = config.enable_secret_extraction;
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             inner: UnbufferedConnectionCommon::from(ConnectionCore::for_server(
                 config,
@@ -2115,9 +2124,11 @@
     }
 }
 
-<span class="kw">struct </span>Accepting;
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">struct </span>Accepting;
 
-<span class="kw">impl </span>State&lt;ServerConnectionData&gt; <span class="kw">for </span>Accepting {
+<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
+</span><span class="kw">impl </span>State&lt;ServerConnectionData&gt; <span class="kw">for </span>Accepting {
     <span class="kw">fn </span>handle&lt;<span class="lifetime">'m</span>&gt;(
         <span class="self">self</span>: Box&lt;<span class="self">Self</span>&gt;,
         _cx: <span class="kw-2">&amp;mut </span>hs::ServerContext&lt;<span class="lifetime">'_</span>&gt;,
@@ -2136,7 +2147,10 @@
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">enum </span>EarlyDataState {
     New,
-    Accepted(ChunkVecBuffer),
+    Accepted {
+        received: ChunkVecBuffer,
+        left: usize,
+    },
     Rejected,
 }
 
@@ -2152,12 +2166,15 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>accept(<span class="kw-2">&amp;mut </span><span class="self">self</span>, max_size: usize) {
-        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">Self</span>::Accepted(ChunkVecBuffer::new(<span class="prelude-val">Some</span>(max_size)));
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="self">Self</span>::Accepted {
+            received: ChunkVecBuffer::new(<span class="prelude-val">Some</span>(max_size)),
+            left: max_size,
+        };
     }
 
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>was_accepted(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Accepted(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="self">Self</span>::Accepted { .. })
     }
 
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>was_rejected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
@@ -2166,7 +2183,9 @@
 
     <span class="kw">fn </span>pop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;u8&gt;&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Accepted(<span class="kw-2">ref mut </span>received) =&gt; received.pop(),
+            <span class="self">Self</span>::Accepted {
+                <span class="kw-2">ref mut </span>received, ..
+            } =&gt; received.pop(),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
@@ -2174,7 +2193,9 @@
     <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
     </span><span class="kw">fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, buf: <span class="kw-2">&amp;mut </span>[u8]) -&gt; io::Result&lt;usize&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Accepted(<span class="kw-2">ref mut </span>received) =&gt; received.read(buf),
+            <span class="self">Self</span>::Accepted {
+                <span class="kw-2">ref mut </span>received, ..
+            } =&gt; received.read(buf),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(io::Error::from(io::ErrorKind::BrokenPipe)),
         }
     }
@@ -2182,7 +2203,9 @@
     <span class="attr">#[cfg(read_buf)]
     </span><span class="kw">fn </span>read_buf(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cursor: core::io::BorrowedCursor&lt;<span class="lifetime">'_</span>&gt;) -&gt; io::Result&lt;()&gt; {
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Accepted(<span class="kw-2">ref mut </span>received) =&gt; received.read_buf(cursor),
+            <span class="self">Self</span>::Accepted {
+                <span class="kw-2">ref mut </span>received, ..
+            } =&gt; received.read_buf(cursor),
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(io::Error::from(io::ErrorKind::BrokenPipe)),
         }
     }
@@ -2190,8 +2213,12 @@
     <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>take_received_plaintext(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bytes: Payload&lt;<span class="lifetime">'_</span>&gt;) -&gt; bool {
         <span class="kw">let </span>available = bytes.bytes().len();
         <span class="kw">match </span><span class="self">self </span>{
-            <span class="self">Self</span>::Accepted(<span class="kw-2">ref mut </span>received) <span class="kw">if </span>received.apply_limit(available) == available =&gt; {
+            <span class="self">Self</span>::Accepted {
+                <span class="kw-2">ref mut </span>received,
+                <span class="kw-2">ref mut </span>left,
+            } <span class="kw">if </span>received.apply_limit(available) == available &amp;&amp; available &lt;= <span class="kw-2">*</span>left =&gt; {
                 received.append(bytes.into_vec());
+                <span class="kw-2">*</span>left -= available;
                 <span class="bool-val">true
             </span>}
             <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
@@ -2203,7 +2230,12 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
             <span class="self">Self</span>::New =&gt; <span class="macro">write!</span>(f, <span class="string">"EarlyDataState::New"</span>),
-            <span class="self">Self</span>::Accepted(buf) =&gt; <span class="macro">write!</span>(f, <span class="string">"EarlyDataState::Accepted({})"</span>, buf.len()),
+            <span class="self">Self</span>::Accepted { received, left } =&gt; <span class="macro">write!</span>(
+                f,
+                <span class="string">"EarlyDataState::Accepted {{ received: {}, left: {} }}"</span>,
+                received.len(),
+                left
+            ),
             <span class="self">Self</span>::Rejected =&gt; <span class="macro">write!</span>(f, <span class="string">"EarlyDataState::Rejected"</span>),
         }
     }

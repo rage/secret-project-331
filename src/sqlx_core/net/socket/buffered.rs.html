@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.1/src/net/socket/buffered.rs`."><title>buffered.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sqlx-core-0.8.2/src/net/socket/buffered.rs`."><title>buffered.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="sqlx_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -300,11 +300,38 @@
 <a href="#300" id="300">300</a>
 <a href="#301" id="301">301</a>
 <a href="#302" id="302">302</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::net::Socket;
+<a href="#303" id="303">303</a>
+<a href="#304" id="304">304</a>
+<a href="#305" id="305">305</a>
+<a href="#306" id="306">306</a>
+<a href="#307" id="307">307</a>
+<a href="#308" id="308">308</a>
+<a href="#309" id="309">309</a>
+<a href="#310" id="310">310</a>
+<a href="#311" id="311">311</a>
+<a href="#312" id="312">312</a>
+<a href="#313" id="313">313</a>
+<a href="#314" id="314">314</a>
+<a href="#315" id="315">315</a>
+<a href="#316" id="316">316</a>
+<a href="#317" id="317">317</a>
+<a href="#318" id="318">318</a>
+<a href="#319" id="319">319</a>
+<a href="#320" id="320">320</a>
+<a href="#321" id="321">321</a>
+<a href="#322" id="322">322</a>
+<a href="#323" id="323">323</a>
+<a href="#324" id="324">324</a>
+<a href="#325" id="325">325</a>
+<a href="#326" id="326">326</a>
+<a href="#327" id="327">327</a>
+<a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::Error;
+<span class="kw">use </span><span class="kw">crate</span>::net::Socket;
 <span class="kw">use </span>bytes::BytesMut;
+<span class="kw">use </span>std::ops::ControlFlow;
 <span class="kw">use </span>std::{cmp, io};
-
-<span class="kw">use </span><span class="kw">crate</span>::error::Error;
 
 <span class="kw">use </span><span class="kw">crate</span>::io::{AsyncRead, AsyncReadExt, ProtocolDecode, ProtocolEncode};
 
@@ -347,9 +374,40 @@
         }
     }
 
-    <span class="kw">pub async fn </span>read_buffered(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; io::Result&lt;BytesMut&gt; {
-        <span class="self">self</span>.read_buf.read(len, <span class="kw-2">&amp;mut </span><span class="self">self</span>.socket).<span class="kw">await
+    <span class="kw">pub async fn </span>read_buffered(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize) -&gt; <span class="prelude-ty">Result</span>&lt;BytesMut, Error&gt; {
+        <span class="self">self</span>.try_read(|buf| {
+            <span class="prelude-val">Ok</span>(<span class="kw">if </span>buf.len() &lt; len {
+                ControlFlow::Continue(len)
+            } <span class="kw">else </span>{
+                ControlFlow::Break(buf.split_to(len))
+            })
+        })
+        .<span class="kw">await
     </span>}
+
+    <span class="doccomment">/// Retryable read operation.
+    ///
+    /// The callback should check the contents of the buffer passed to it and either:
+    ///
+    /// * Remove a full message from the buffer and return [`ControlFlow::Break`], or:
+    /// * Return [`ControlFlow::Continue`] with the expected _total_ length of the buffer,
+    ///   _without_ modifying it.
+    ///
+    /// Cancel-safe as long as the callback does not modify the passed `BytesMut`
+    /// before returning [`ControlFlow::Continue`].
+    </span><span class="kw">pub async fn </span>try_read&lt;F, R&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>try_read: F) -&gt; <span class="prelude-ty">Result</span>&lt;R, Error&gt;
+    <span class="kw">where
+        </span>F: FnMut(<span class="kw-2">&amp;mut </span>BytesMut) -&gt; <span class="prelude-ty">Result</span>&lt;ControlFlow&lt;R, usize&gt;, Error&gt;,
+    {
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>read_len = <span class="kw">match </span>try_read(<span class="kw-2">&amp;mut </span><span class="self">self</span>.read_buf.read)<span class="question-mark">? </span>{
+                ControlFlow::Continue(read_len) =&gt; read_len,
+                ControlFlow::Break(ret) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(ret),
+            };
+
+            <span class="self">self</span>.read_buf.read(read_len, <span class="kw-2">&amp;mut </span><span class="self">self</span>.socket).<span class="kw">await</span><span class="question-mark">?</span>;
+        }
+    }
 
     <span class="kw">pub fn </span>write_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>WriteBuffer {
         <span class="kw-2">&amp;</span><span class="self">self</span>.write_buf
@@ -546,7 +604,7 @@
 }
 
 <span class="kw">impl </span>ReadBuffer {
-    <span class="kw">async fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize, socket: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Socket) -&gt; io::Result&lt;BytesMut&gt; {
+    <span class="kw">async fn </span>read(<span class="kw-2">&amp;mut </span><span class="self">self</span>, len: usize, socket: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Socket) -&gt; io::Result&lt;()&gt; {
         <span class="comment">// Because of how `BytesMut` works, we should only be shifting capacity back and forth
         // between `read` and `available` unless we have to read an oversize message.
         </span><span class="kw">while </span><span class="self">self</span>.read.len() &lt; len {
@@ -568,7 +626,7 @@
             <span class="self">self</span>.advance(read);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">self</span>.drain(len))
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>reserve(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amt: usize) {
@@ -579,10 +637,6 @@
 
     <span class="kw">fn </span>advance(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amt: usize) {
         <span class="self">self</span>.read.unsplit(<span class="self">self</span>.available.split_to(amt));
-    }
-
-    <span class="kw">fn </span>drain(<span class="kw-2">&amp;mut </span><span class="self">self</span>, amt: usize) -&gt; BytesMut {
-        <span class="self">self</span>.read.split_to(amt)
     }
 
     <span class="kw">fn </span>shrink(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {

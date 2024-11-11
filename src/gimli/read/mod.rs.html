@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.31.1/src/read/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -832,6 +832,22 @@
 <a href="#832" id="832">832</a>
 <a href="#833" id="833">833</a>
 <a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Read DWARF debugging information.
 //!
 //! * [Example Usage](#example-usage)
@@ -898,22 +914,22 @@
 //! * Basic familiarity with DWARF is assumed.
 //!
 //! * The [`Dwarf`](./struct.Dwarf.html) type contains the commonly used DWARF
-//! sections. It has methods that simplify access to debugging data that spans
-//! multiple sections. Use of this type is optional, but recommended.
+//!   sections. It has methods that simplify access to debugging data that spans
+//!   multiple sections. Use of this type is optional, but recommended.
 //!
 //! * The [`DwarfPackage`](./struct.Dwarf.html) type contains the DWARF
-//! package (DWP) sections. It has methods to find a DWARF object (DWO)
-//! within the package.
+//!   package (DWP) sections. It has methods to find a DWARF object (DWO)
+//!   within the package.
 //!
 //! * Each section gets its own type. Consider these types the entry points to
-//! the library:
+//!   the library:
 //!
 //!   * [`DebugAbbrev`](./struct.DebugAbbrev.html): The `.debug_abbrev` section.
 //!
 //!   * [`DebugAddr`](./struct.DebugAddr.html): The `.debug_addr` section.
 //!
 //!   * [`DebugAranges`](./struct.DebugAranges.html): The `.debug_aranges`
-//!   section.
+//!     section.
 //!
 //!   * [`DebugFrame`](./struct.DebugFrame.html): The `.debug_frame` section.
 //!
@@ -928,10 +944,10 @@
 //!   * [`DebugLocLists`](./struct.DebugLocLists.html): The `.debug_loclists` section.
 //!
 //!   * [`DebugPubNames`](./struct.DebugPubNames.html): The `.debug_pubnames`
-//!   section.
+//!     section.
 //!
 //!   * [`DebugPubTypes`](./struct.DebugPubTypes.html): The `.debug_pubtypes`
-//!   section.
+//!     section.
 //!
 //!   * [`DebugRanges`](./struct.DebugRanges.html): The `.debug_ranges` section.
 //!
@@ -952,15 +968,15 @@
 //!   * [`EhFrameHdr`](./struct.EhFrameHdr.html): The `.eh_frame_hdr` section.
 //!
 //! * Each section type exposes methods for accessing the debugging data encoded
-//! in that section. For example, the [`DebugInfo`](./struct.DebugInfo.html)
-//! struct has the [`units`](./struct.DebugInfo.html#method.units) method for
-//! iterating over the compilation units defined within it.
+//!   in that section. For example, the [`DebugInfo`](./struct.DebugInfo.html)
+//!   struct has the [`units`](./struct.DebugInfo.html#method.units) method for
+//!   iterating over the compilation units defined within it.
 //!
 //! * Offsets into a section are strongly typed: an offset into `.debug_info` is
-//! the [`DebugInfoOffset`](./struct.DebugInfoOffset.html) type. It cannot be
-//! used to index into the [`DebugLine`](./struct.DebugLine.html) type because
-//! `DebugLine` represents the `.debug_line` section. There are similar types
-//! for offsets relative to a compilation unit rather than a section.
+//!   the [`DebugInfoOffset`](./struct.DebugInfoOffset.html) type. It cannot be
+//!   used to index into the [`DebugLine`](./struct.DebugLine.html) type because
+//!   `DebugLine` represents the `.debug_line` section. There are similar types
+//!   for offsets relative to a compilation unit rather than a section.
 //!
 //! ## Using with `FallibleIterator`
 //!
@@ -1109,6 +1125,7 @@
 
 <span class="doccomment">/// An error that occurred when parsing.
 </span><span class="attr">#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 </span><span class="kw">pub enum </span>Error {
     <span class="doccomment">/// An I/O error occurred while reading.
     </span>Io,
@@ -1139,7 +1156,7 @@
     <span class="doccomment">/// The specified length is impossible.
     </span>BadLength,
     <span class="doccomment">/// Found an unknown `DW_FORM_*` type.
-    </span>UnknownForm,
+    </span>UnknownForm(constants::DwForm),
     <span class="doccomment">/// Expected a zero, found something else.
     </span>ExpectedZero,
     <span class="doccomment">/// Found an abbreviation code that has already been used.
@@ -1151,7 +1168,7 @@
     <span class="doccomment">/// Found an unknown DWARF version.
     </span>UnknownVersion(u64),
     <span class="doccomment">/// Found a record with an unknown abbreviation code.
-    </span>UnknownAbbreviation,
+    </span>UnknownAbbreviation(u64),
     <span class="doccomment">/// Hit the end of input before it was expected.
     </span>UnexpectedEof(ReaderOffsetId),
     <span class="doccomment">/// Read a null entry before it was expected.
@@ -1160,6 +1177,10 @@
     </span>UnknownStandardOpcode(constants::DwLns),
     <span class="doccomment">/// Found an unknown extended opcode.
     </span>UnknownExtendedOpcode(constants::DwLne),
+    <span class="doccomment">/// Found an unknown location-lists format.
+    </span>UnknownLocListsEntry(constants::DwLle),
+    <span class="doccomment">/// Found an unknown range-lists format.
+    </span>UnknownRangeListsEntry(constants::DwRle),
     <span class="doccomment">/// The specified address size is not supported.
     </span>UnsupportedAddressSize(u8),
     <span class="doccomment">/// The specified offset size is not supported.
@@ -1212,12 +1233,17 @@
     </span>UnsupportedTypeOperation,
     <span class="doccomment">/// The shift value in an expression must be a non-negative integer.
     </span>InvalidShiftExpression,
+    <span class="doccomment">/// The size of a deref expression must not be larger than the size of an address.
+    </span>InvalidDerefSize(u8),
     <span class="doccomment">/// An unknown DW_CFA_* instruction.
     </span>UnknownCallFrameInstruction(constants::DwCfa),
     <span class="doccomment">/// The end of an address range was before the beginning.
     </span>InvalidAddressRange,
-    <span class="doccomment">/// The end offset of a loc list entry was before the beginning.
-    </span>InvalidLocationAddressRange,
+    <span class="doccomment">/// An address calculation overflowed.
+    ///
+    /// This is returned in cases where the address is expected to be
+    /// larger than a previous address, but the calculation overflowed.
+    </span>AddressOverflow,
     <span class="doccomment">/// Encountered a call frame instruction in a context in which it is not
     /// valid.
     </span>CfiInstructionInInvalidContext,
@@ -1229,7 +1255,7 @@
     <span class="doccomment">/// An offset value was larger than the maximum supported value.
     </span>UnsupportedOffset,
     <span class="doccomment">/// The given pointer encoding is either unknown or invalid.
-    </span>UnknownPointerEncoding,
+    </span>UnknownPointerEncoding(constants::DwEhPe),
     <span class="doccomment">/// Did not find an entry at the given offset.
     </span>NoEntryAtGivenOffset,
     <span class="doccomment">/// The given offset is out of bounds.
@@ -1271,12 +1297,14 @@
     <span class="doccomment">/// Invalid hash row in `.dwp` index.
     </span>InvalidIndexRow,
     <span class="doccomment">/// Unknown section type in `.dwp` index.
-    </span>UnknownIndexSection,
+    </span>UnknownIndexSection(constants::DwSect),
+    <span class="doccomment">/// Unknown section type in version 2 `.dwp` index.
+    </span>UnknownIndexSectionV2(constants::DwSectV2),
 }
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>Error {
     <span class="attr">#[inline]
-    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; ::core::result::Result&lt;(), fmt::Error&gt; {
+    </span><span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; ::core::result::Result&lt;(), fmt::Error&gt; {
         <span class="macro">write!</span>(f, <span class="string">"{}"</span>, <span class="self">self</span>.description())
     }
 }
@@ -1316,7 +1344,7 @@
                  `DW_CHILDREN_{yes,no}`"
             </span>}
             Error::BadLength =&gt; <span class="string">"The specified length is impossible"</span>,
-            Error::UnknownForm =&gt; <span class="string">"Found an unknown `DW_FORM_*` type"</span>,
+            Error::UnknownForm(<span class="kw">_</span>) =&gt; <span class="string">"Found an unknown `DW_FORM_*` type"</span>,
             Error::ExpectedZero =&gt; <span class="string">"Expected a zero, found something else"</span>,
             Error::DuplicateAbbreviationCode =&gt; {
                 <span class="string">"Found an abbreviation code that has already been used"
@@ -1324,11 +1352,13 @@
             Error::DuplicateArange =&gt; <span class="string">"Found a duplicate arange"</span>,
             Error::UnknownReservedLength =&gt; <span class="string">"Found an unknown reserved length value"</span>,
             Error::UnknownVersion(<span class="kw">_</span>) =&gt; <span class="string">"Found an unknown DWARF version"</span>,
-            Error::UnknownAbbreviation =&gt; <span class="string">"Found a record with an unknown abbreviation code"</span>,
+            Error::UnknownAbbreviation(<span class="kw">_</span>) =&gt; <span class="string">"Found a record with an unknown abbreviation code"</span>,
             Error::UnexpectedEof(<span class="kw">_</span>) =&gt; <span class="string">"Hit the end of input before it was expected"</span>,
             Error::UnexpectedNull =&gt; <span class="string">"Read a null entry before it was expected."</span>,
             Error::UnknownStandardOpcode(<span class="kw">_</span>) =&gt; <span class="string">"Found an unknown standard opcode"</span>,
             Error::UnknownExtendedOpcode(<span class="kw">_</span>) =&gt; <span class="string">"Found an unknown extended opcode"</span>,
+            Error::UnknownLocListsEntry(<span class="kw">_</span>) =&gt; <span class="string">"Found an unknown location lists entry"</span>,
+            Error::UnknownRangeListsEntry(<span class="kw">_</span>) =&gt; <span class="string">"Found an unknown range lists entry"</span>,
             Error::UnsupportedAddressSize(<span class="kw">_</span>) =&gt; <span class="string">"The specified address size is not supported"</span>,
             Error::UnsupportedOffsetSize(<span class="kw">_</span>) =&gt; <span class="string">"The specified offset size is not supported"</span>,
             Error::UnsupportedFieldSize(<span class="kw">_</span>) =&gt; <span class="string">"The specified field size is not supported"</span>,
@@ -1367,13 +1397,14 @@
             Error::InvalidShiftExpression =&gt; {
                 <span class="string">"The shift value in an expression must be a non-negative integer."
             </span>}
+            Error::InvalidDerefSize(<span class="kw">_</span>) =&gt; {
+                <span class="string">"The size of a deref expression must not be larger than the size of an address."
+            </span>}
             Error::UnknownCallFrameInstruction(<span class="kw">_</span>) =&gt; <span class="string">"An unknown DW_CFA_* instructiion"</span>,
             Error::InvalidAddressRange =&gt; {
                 <span class="string">"The end of an address range must not be before the beginning."
             </span>}
-            Error::InvalidLocationAddressRange =&gt; {
-                <span class="string">"The end offset of a location list entry must not be before the beginning."
-            </span>}
+            Error::AddressOverflow =&gt; <span class="string">"An address calculation overflowed."</span>,
             Error::CfiInstructionInInvalidContext =&gt; {
                 <span class="string">"Encountered a call frame instruction in a context in which it is not valid."
             </span>}
@@ -1385,7 +1416,7 @@
             Error::UnsupportedOffset =&gt; {
                 <span class="string">"An offset value was larger than the maximum supported value."
             </span>}
-            Error::UnknownPointerEncoding =&gt; {
+            Error::UnknownPointerEncoding(<span class="kw">_</span>) =&gt; {
                 <span class="string">"The given pointer encoding is either unknown or invalid."
             </span>}
             Error::NoEntryAtGivenOffset =&gt; <span class="string">"Did not find an entry at the given offset."</span>,
@@ -1420,7 +1451,8 @@
             Error::InvalidIndexSectionCount =&gt; <span class="string">"Invalid section count in `.dwp` index."</span>,
             Error::InvalidIndexSlotCount =&gt; <span class="string">"Invalid slot count in `.dwp` index."</span>,
             Error::InvalidIndexRow =&gt; <span class="string">"Invalid hash row in `.dwp` index."</span>,
-            Error::UnknownIndexSection =&gt; <span class="string">"Unknown section type in `.dwp` index."</span>,
+            Error::UnknownIndexSection(<span class="kw">_</span>) =&gt; <span class="string">"Unknown section type in `.dwp` index."</span>,
+            Error::UnknownIndexSectionV2(<span class="kw">_</span>) =&gt; <span class="string">"Unknown section type in version 2 `.dwp` index."</span>,
         }
     }
 }

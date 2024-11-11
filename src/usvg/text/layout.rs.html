@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.42.0/src/text/layout.rs`."><title>layout.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.44.0/src/text/layout.rs`."><title>layout.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1732,21 +1732,6 @@
 <a href="#1732" id="1732">1732</a>
 <a href="#1733" id="1733">1733</a>
 <a href="#1734" id="1734">1734</a>
-<a href="#1735" id="1735">1735</a>
-<a href="#1736" id="1736">1736</a>
-<a href="#1737" id="1737">1737</a>
-<a href="#1738" id="1738">1738</a>
-<a href="#1739" id="1739">1739</a>
-<a href="#1740" id="1740">1740</a>
-<a href="#1741" id="1741">1741</a>
-<a href="#1742" id="1742">1742</a>
-<a href="#1743" id="1743">1743</a>
-<a href="#1744" id="1744">1744</a>
-<a href="#1745" id="1745">1745</a>
-<a href="#1746" id="1746">1746</a>
-<a href="#1747" id="1747">1747</a>
-<a href="#1748" id="1748">1748</a>
-<a href="#1749" id="1749">1749</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -1798,34 +1783,31 @@
 }
 
 <span class="kw">impl </span>PositionedGlyph {
+    <span class="doccomment">/// Returns the transform of glyph.
+    </span><span class="kw">pub fn </span>transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform {
+        <span class="kw">let </span>sx = <span class="self">self</span>.font_size / <span class="self">self</span>.units_per_em <span class="kw">as </span>f32;
+
+        <span class="self">self</span>.span_ts
+            .pre_concat(<span class="self">self</span>.cluster_ts)
+            .pre_concat(Transform::from_scale(sx, sx))
+            .pre_concat(<span class="self">self</span>.glyph_ts)
+    }
+
     <span class="doccomment">/// Returns the transform of glyph, assuming that an outline
     /// glyph is being used (i.e. from the `glyf` or `CFF/CFF2` table).
     </span><span class="kw">pub fn </span>outline_transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform {
-        <span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::identity();
-
         <span class="comment">// Outlines are mirrored by default.
-        </span>ts = ts.pre_scale(<span class="number">1.0</span>, -<span class="number">1.0</span>);
-
-        <span class="kw">let </span>sx = <span class="self">self</span>.font_size / <span class="self">self</span>.units_per_em <span class="kw">as </span>f32;
-
-        ts = ts.pre_scale(sx, sx);
-        ts = ts
-            .pre_concat(<span class="self">self</span>.glyph_ts)
-            .post_concat(<span class="self">self</span>.cluster_ts)
-            .post_concat(<span class="self">self</span>.span_ts);
-
-        ts
+        </span><span class="self">self</span>.transform()
+            .pre_concat(Transform::from_scale(<span class="number">1.0</span>, -<span class="number">1.0</span>))
     }
 
     <span class="doccomment">/// Returns the transform for the glyph, assuming that a CBTD-based raster glyph
     /// is being used.
     </span><span class="kw">pub fn </span>cbdt_transform(<span class="kw-2">&amp;</span><span class="self">self</span>, x: f32, y: f32, pixels_per_em: f32, height: f32) -&gt; Transform {
-        <span class="self">self</span>.span_ts
-            .pre_concat(<span class="self">self</span>.cluster_ts)
-            .pre_concat(<span class="self">self</span>.glyph_ts)
+        <span class="self">self</span>.transform()
             .pre_concat(Transform::from_scale(
-                <span class="self">self</span>.font_size / pixels_per_em,
-                <span class="self">self</span>.font_size / pixels_per_em,
+                <span class="self">self</span>.units_per_em <span class="kw">as </span>f32 / pixels_per_em,
+                <span class="self">self</span>.units_per_em <span class="kw">as </span>f32 / pixels_per_em,
             ))
             <span class="comment">// Right now, the top-left corner of the image would be placed in
             // on the "text cursor", but we want the bottom-left corner to be there,
@@ -1845,7 +1827,7 @@
         height: f32,
     ) -&gt; Transform {
         <span class="comment">// In contrast to CBDT, we also need to look at the outline bbox of the glyph and add a shift if necessary.
-        </span><span class="kw">let </span>bbox_x_shift = <span class="self">self</span>.font_size * (-x_min / <span class="self">self</span>.units_per_em <span class="kw">as </span>f32);
+        </span><span class="kw">let </span>bbox_x_shift = -x_min;
 
         <span class="kw">let </span>bbox_y_shift = <span class="kw">if </span>y_min.approx_zero_ulps(<span class="number">4</span>) {
             <span class="comment">// For unknown reasons, using Apple Color Emoji will lead to a vertical shift on MacOS, but this shift
@@ -1858,18 +1840,16 @@
             // We can still remove this if it turns out to be a problem, but Apple Color Emoji is pretty
             // much the only `sbix` font out there and they all seem to have a y-shift of 0, so it
             // makes sense to keep it.
-            </span><span class="number">0.128 </span>* <span class="self">self</span>.font_size
+            </span><span class="number">0.128 </span>* <span class="self">self</span>.units_per_em <span class="kw">as </span>f32
         } <span class="kw">else </span>{
-            <span class="self">self</span>.font_size * (-y_min / <span class="self">self</span>.units_per_em <span class="kw">as </span>f32)
+            -y_min
         };
 
-        <span class="self">self</span>.span_ts
-            .pre_concat(<span class="self">self</span>.cluster_ts)
-            .pre_concat(<span class="self">self</span>.glyph_ts)
+        <span class="self">self</span>.transform()
             .pre_concat(Transform::from_translate(bbox_x_shift, bbox_y_shift))
             .pre_concat(Transform::from_scale(
-                <span class="self">self</span>.font_size / pixels_per_em,
-                <span class="self">self</span>.font_size / pixels_per_em,
+                <span class="self">self</span>.units_per_em <span class="kw">as </span>f32 / pixels_per_em,
+                <span class="self">self</span>.units_per_em <span class="kw">as </span>f32 / pixels_per_em,
             ))
             <span class="comment">// Right now, the top-left corner of the image would be placed in
             // on the "text cursor", but we want the bottom-left corner to be there,
@@ -1880,17 +1860,7 @@
     <span class="doccomment">/// Returns the transform for the glyph, assuming that an SVG glyph is
     /// being used.
     </span><span class="kw">pub fn </span>svg_transform(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Transform {
-        <span class="kw">let </span><span class="kw-2">mut </span>ts = Transform::identity();
-
-        <span class="kw">let </span>sx = <span class="self">self</span>.font_size / <span class="self">self</span>.units_per_em <span class="kw">as </span>f32;
-
-        ts = ts.pre_scale(sx, sx);
-        ts = ts
-            .pre_concat(<span class="self">self</span>.glyph_ts)
-            .post_concat(<span class="self">self</span>.cluster_ts)
-            .post_concat(<span class="self">self</span>.span_ts);
-
-        ts
+        <span class="self">self</span>.transform()
     }
 
     <span class="doccomment">/// Returns the transform for the glyph, assuming that a COLR glyph is
@@ -2896,7 +2866,7 @@
         // but the later one will have an offset from the "current position".
         // So we have to keep an advance.
         // TODO: should be done only inside a single text span
-        </span><span class="kw">let </span>ts = Transform::from_translate(x + glyph.dx <span class="kw">as </span>f32, glyph.dy <span class="kw">as </span>f32);
+        </span><span class="kw">let </span>ts = Transform::from_translate(x + glyph.dx <span class="kw">as </span>f32, -glyph.dy <span class="kw">as </span>f32);
 
         positioned_glyphs.push(PositionedGlyph {
             glyph_ts: ts,

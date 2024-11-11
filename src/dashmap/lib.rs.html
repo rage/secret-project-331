@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dashmap-5.5.3/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="dashmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/dashmap-6.1.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="dashmap" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1463,6 +1463,88 @@
 <a href="#1463" id="1463">1463</a>
 <a href="#1464" id="1464">1464</a>
 <a href="#1465" id="1465">1465</a>
+<a href="#1466" id="1466">1466</a>
+<a href="#1467" id="1467">1467</a>
+<a href="#1468" id="1468">1468</a>
+<a href="#1469" id="1469">1469</a>
+<a href="#1470" id="1470">1470</a>
+<a href="#1471" id="1471">1471</a>
+<a href="#1472" id="1472">1472</a>
+<a href="#1473" id="1473">1473</a>
+<a href="#1474" id="1474">1474</a>
+<a href="#1475" id="1475">1475</a>
+<a href="#1476" id="1476">1476</a>
+<a href="#1477" id="1477">1477</a>
+<a href="#1478" id="1478">1478</a>
+<a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(clippy::type_complexity)]
 
 #[cfg(feature = <span class="string">"arbitrary"</span>)]
@@ -1499,8 +1581,9 @@
 <span class="kw">use </span>core::hash::{BuildHasher, Hash, Hasher};
 <span class="kw">use </span>core::iter::FromIterator;
 <span class="kw">use </span>core::ops::{BitAnd, BitOr, Shl, Shr, Sub};
+<span class="kw">use </span>crossbeam_utils::CachePadded;
 <span class="kw">use </span>iter::{Iter, IterMut, OwningIter};
-<span class="kw">use </span>mapref::entry::{Entry, OccupiedEntry, VacantEntry};
+<span class="kw">pub use </span>mapref::entry::{Entry, OccupiedEntry, VacantEntry};
 <span class="kw">use </span>mapref::multiple::RefMulti;
 <span class="kw">use </span>mapref::one::{Ref, RefMut};
 <span class="kw">use </span>once_cell::sync::OnceCell;
@@ -1518,7 +1601,7 @@
     }
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>HashMap&lt;K, V, S&gt; = hashbrown::HashMap&lt;K, SharedValue&lt;V&gt;, S&gt;;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">type </span>HashMap&lt;K, V&gt; = hashbrown::raw::RawTable&lt;(K, SharedValue&lt;V&gt;)&gt;;
 
 <span class="comment">// Temporary reimplementation of [`std::collections::TryReserveError`]
 // util [`std::collections::TryReserveError`] stabilises.
@@ -1544,7 +1627,7 @@
 /// DashMap tries to implement an easy to use API similar to `std::collections::HashMap`
 /// with some slight changes to handle concurrency.
 ///
-/// DashMap tries to be very simple to use and to be a direct replacement for `RwLock&lt;HashMap&lt;K, V, S&gt;&gt;`.
+/// DashMap tries to be very simple to use and to be a direct replacement for `RwLock&lt;HashMap&lt;K, V&gt;&gt;`.
 /// To accomplish this, all methods take `&amp;self` instead of modifying methods taking `&amp;mut self`.
 /// This allows you to put a DashMap in an `Arc&lt;T&gt;` and share it between threads while being able to modify it.
 ///
@@ -1552,7 +1635,7 @@
 /// This means that it is safe to ignore it across multiple threads.
 </span><span class="kw">pub struct </span>DashMap&lt;K, V, S = RandomState&gt; {
     shift: usize,
-    shards: Box&lt;[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;]&gt;,
+    shards: Box&lt;[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;]&gt;,
     hasher: S,
 }
 
@@ -1563,7 +1646,7 @@
         <span class="kw">for </span>shard <span class="kw">in </span><span class="self">self</span>.shards.iter() {
             <span class="kw">let </span>shard = shard.read();
 
-            inner_shards.push(RwLock::new((<span class="kw-2">*</span>shard).clone()));
+            inner_shards.push(CachePadded::new(RwLock::new((<span class="kw-2">*</span>shard).clone())));
         }
 
         <span class="self">Self </span>{
@@ -1747,7 +1830,7 @@
         <span class="kw">let </span>cps = capacity / shard_amount;
 
         <span class="kw">let </span>shards = (<span class="number">0</span>..shard_amount)
-            .map(|<span class="kw">_</span>| RwLock::new(HashMap::with_capacity_and_hasher(cps, hasher.clone())))
+            .map(|<span class="kw">_</span>| CachePadded::new(RwLock::new(HashMap::with_capacity(cps))))
             .collect();
 
         <span class="self">Self </span>{
@@ -1760,11 +1843,15 @@
     <span class="doccomment">/// Hash a given item to produce a usize.
     /// Uses the provided or default HashBuilder.
     </span><span class="kw">pub fn </span>hash_usize&lt;T: Hash&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; usize {
+        <span class="self">self</span>.hash_u64(item) <span class="kw">as </span>usize
+    }
+
+    <span class="kw">fn </span>hash_u64&lt;T: Hash&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, item: <span class="kw-2">&amp;</span>T) -&gt; u64 {
         <span class="kw">let </span><span class="kw-2">mut </span>hasher = <span class="self">self</span>.hasher.build_hasher();
 
         item.hash(<span class="kw-2">&amp;mut </span>hasher);
 
-        hasher.finish() <span class="kw">as </span>usize
+        hasher.finish()
     }
 
     <span class="macro">cfg_if!</span> {
@@ -1782,7 +1869,7 @@
             /// let map = DashMap::&lt;(), ()&gt;::new();
             /// println!("Amount of shards: {}", map.shards().len());
             /// ```
-            </span><span class="kw">pub fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;] {
+            </span><span class="kw">pub fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;] {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.shards
             }
 
@@ -1796,13 +1883,22 @@
             /// ```
             /// use dashmap::DashMap;
             /// use dashmap::SharedValue;
+            /// use std::hash::{Hash, Hasher, BuildHasher};
             ///
             /// let mut map = DashMap::&lt;i32, &amp;'static str&gt;::new();
             /// let shard_ind = map.determine_map(&amp;42);
-            /// map.shards_mut()[shard_ind].get_mut().insert(42, SharedValue::new("forty two"));
+            /// let mut factory = map.hasher().clone();
+            /// let hasher = |tuple: &amp;(i32, SharedValue&lt;&amp;'static str&gt;)| {
+            ///     let mut hasher = factory.build_hasher();
+            ///     tuple.0.hash(&amp;mut hasher);
+            ///     hasher.finish()
+            /// };
+            /// let data = (42, SharedValue::new("forty two"));
+            /// let hash = hasher(&amp;data);
+            /// map.shards_mut()[shard_ind].get_mut().insert(hash, data, hasher);
             /// assert_eq!(*map.get(&amp;42).unwrap(), "forty two");
             /// ```
-            </span><span class="kw">pub fn </span>shards_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;] {
+            </span><span class="kw">pub fn </span>shards_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;] {
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.shards
             }
 
@@ -1812,22 +1908,22 @@
             /// Requires the `raw-api` feature to be enabled.
             ///
             /// See [`DashMap::shards()`] and [`DashMap::shards_mut()`] for more information.
-            </span><span class="kw">pub fn </span>into_shards(<span class="self">self</span>) -&gt; Box&lt;[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;]&gt; {
+            </span><span class="kw">pub fn </span>into_shards(<span class="self">self</span>) -&gt; Box&lt;[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;]&gt; {
                 <span class="self">self</span>.shards
             }
         } <span class="kw">else </span>{
             <span class="attr">#[allow(dead_code)]
-            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;] {
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shards(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;] {
                 <span class="kw-2">&amp;</span><span class="self">self</span>.shards
             }
 
             <span class="attr">#[allow(dead_code)]
-            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shards_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;] {
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shards_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;] {
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.shards
             }
 
             <span class="attr">#[allow(dead_code)]
-            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_shards(<span class="self">self</span>) -&gt; Box&lt;[RwLock&lt;HashMap&lt;K, V, S&gt;&gt;]&gt; {
+            </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_shards(<span class="self">self</span>) -&gt; Box&lt;[CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;]&gt; {
                 <span class="self">self</span>.shards
             }
         }
@@ -2030,7 +2126,7 @@
     /// youtubers.insert("Bosnian Bill", 457000);
     /// assert_eq!(*youtubers.get("Bosnian Bill").unwrap(), 457000);
     /// ```
-    </span><span class="kw">pub fn </span>get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    </span><span class="kw">pub fn </span>get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -2052,7 +2148,7 @@
     /// *class.get_mut("Albin").unwrap() -= 1;
     /// assert_eq!(*class.get("Albin").unwrap(), 14);
     /// ```
-    </span><span class="kw">pub fn </span>get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    </span><span class="kw">pub fn </span>get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -2079,7 +2175,7 @@
     /// let result2 = map.try_get("Johnny");
     /// assert!(result2.is_locked());
     /// ```
-    </span><span class="kw">pub fn </span>try_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;Ref&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    </span><span class="kw">pub fn </span>try_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;Ref&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -2107,7 +2203,7 @@
     /// let result2 = map.try_get_mut("Johnny");
     /// assert!(result2.is_locked());
     /// ```
-    </span><span class="kw">pub fn </span>try_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    </span><span class="kw">pub fn </span>try_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
@@ -2118,6 +2214,19 @@
     <span class="doccomment">/// Remove excess capacity to reduce memory usage.
     ///
     /// **Locking behaviour:** May deadlock if called when holding any sort of reference into the map.
+    /// # Examples
+    ///
+    /// ```
+    /// use dashmap::DashMap;
+    /// use dashmap::try_result::TryResult;
+    ///
+    /// let map = DashMap::new();
+    /// map.insert("Johnny", 21);
+    /// assert!(map.capacity() &gt; 0);
+    /// map.remove("Johnny");
+    /// map.shrink_to_fit();
+    /// assert_eq!(map.capacity(), 0);
+    /// ```
     </span><span class="kw">pub fn </span>shrink_to_fit(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="self">self</span>._shrink_to_fit();
     }
@@ -2306,7 +2415,7 @@
     /// See the documentation on `dashmap::mapref::entry` for more details.
     ///
     /// **Locking behaviour:** May deadlock if called when holding any sort of reference into the map.
-    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
+    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">'a</span>, K, V&gt; {
         <span class="self">self</span>._entry(key)
     }
 
@@ -2314,7 +2423,7 @@
     /// See the documentation on `dashmap::mapref::entry` for more details.
     ///
     /// Returns None if the shard is currently locked.
-    </span><span class="kw">pub fn </span>try_entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; <span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt; {
+    </span><span class="kw">pub fn </span>try_entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; <span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; {
         <span class="self">self</span>._try_entry(key)
     }
 
@@ -2330,7 +2439,11 @@
         <span class="kw">for </span>shard <span class="kw">in </span><span class="self">self</span>.shards.iter() {
             shard
                 .write()
-                .try_reserve(additional)
+                .try_reserve(additional, |(k, _v)| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>hasher = <span class="self">self</span>.hasher.build_hasher();
+                    k.hash(<span class="kw-2">&amp;mut </span>hasher);
+                    hasher.finish()
+                })
                 .map_err(|<span class="kw">_</span>| TryReserveError {})<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
@@ -2344,19 +2457,19 @@
         <span class="self">self</span>.shards.len()
     }
 
-    <span class="kw">unsafe fn </span>_get_read_shard(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, i: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>HashMap&lt;K, V, S&gt; {
+    <span class="kw">unsafe fn </span>_get_read_shard(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, i: usize) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'a </span>HashMap&lt;K, V&gt; {
         <span class="macro">debug_assert!</span>(i &lt; <span class="self">self</span>.shards.len());
 
         <span class="kw-2">&amp;*</span><span class="self">self</span>.shards.get_unchecked(i).data_ptr()
     }
 
-    <span class="kw">unsafe fn </span>_yield_read_shard(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, i: usize) -&gt; RwLockReadGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt; {
+    <span class="kw">unsafe fn </span>_yield_read_shard(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, i: usize) -&gt; RwLockReadGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt; {
         <span class="macro">debug_assert!</span>(i &lt; <span class="self">self</span>.shards.len());
 
         <span class="self">self</span>.shards.get_unchecked(i).read()
     }
 
-    <span class="kw">unsafe fn </span>_yield_write_shard(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, i: usize) -&gt; RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt; {
+    <span class="kw">unsafe fn </span>_yield_write_shard(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, i: usize) -&gt; RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt; {
         <span class="macro">debug_assert!</span>(i &lt; <span class="self">self</span>.shards.len());
 
         <span class="self">self</span>.shards.get_unchecked(i).write()
@@ -2365,7 +2478,7 @@
     <span class="kw">unsafe fn </span>_try_yield_read_shard(
         <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         i: usize,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;RwLockReadGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;RwLockReadGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt;&gt; {
         <span class="macro">debug_assert!</span>(i &lt; <span class="self">self</span>.shards.len());
 
         <span class="self">self</span>.shards.get_unchecked(i).try_read()
@@ -2374,22 +2487,20 @@
     <span class="kw">unsafe fn </span>_try_yield_write_shard(
         <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>,
         i: usize,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V, S&gt;&gt;&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;RwLockWriteGuard&lt;<span class="lifetime">'a</span>, HashMap&lt;K, V&gt;&gt;&gt; {
         <span class="macro">debug_assert!</span>(i &lt; <span class="self">self</span>.shards.len());
 
         <span class="self">self</span>.shards.get_unchecked(i).try_write()
     }
 
     <span class="kw">fn </span>_insert(<span class="kw-2">&amp;</span><span class="self">self</span>, key: K, value: V) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
-
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
-
-        <span class="kw">let </span><span class="kw-2">mut </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
-
-        shard
-            .insert(key, SharedValue::new(value))
-            .map(|v| v.into_inner())
+        <span class="kw">match </span><span class="self">self</span>.entry(key) {
+            Entry::Occupied(<span class="kw-2">mut </span>o) =&gt; <span class="prelude-val">Some</span>(o.insert(value)),
+            Entry::Vacant(v) =&gt; {
+                v.insert(value);
+                <span class="prelude-val">None
+            </span>}
+        }
     }
 
     <span class="kw">fn </span>_remove&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt;
@@ -2397,13 +2508,18 @@
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span><span class="kw-2">mut </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
 
-        shard.remove_entry(key).map(|(k, v)| (k, v.into_inner()))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
+            <span class="kw">let </span>((k, v), <span class="kw">_</span>) = <span class="kw">unsafe </span>{ shard.remove(bucket) };
+            <span class="prelude-val">Some</span>((k, v.into_inner()))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
     <span class="kw">fn </span>_remove_if&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V) -&gt; bool) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt;
@@ -2411,23 +2527,20 @@
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span><span class="kw-2">mut </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(key) {
-            <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = vptr.as_ptr();
-
-                <span class="kw">if </span>f(<span class="kw-2">&amp;*</span>kptr, <span class="kw-2">&amp;mut *</span>vptr) {
-                    shard.remove_entry(key).map(|(k, v)| (k, v.into_inner()))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>}
-            }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
+            <span class="kw">let </span>(k, v) = <span class="kw">unsafe </span>{ bucket.as_ref() };
+            <span class="kw">if </span>f(k, v.get()) {
+                <span class="kw">let </span>((k, v), <span class="kw">_</span>) = <span class="kw">unsafe </span>{ shard.remove(bucket) };
+                <span class="prelude-val">Some</span>((k, v.into_inner()))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
@@ -2438,23 +2551,20 @@
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span><span class="kw-2">mut </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(key) {
-            <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = vptr.as_ptr();
-
-                <span class="kw">if </span>f(<span class="kw-2">&amp;*</span>kptr, <span class="kw-2">&amp;mut *</span>vptr) {
-                    shard.remove_entry(key).map(|(k, v)| (k, v.into_inner()))
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>}
-            }
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
+            <span class="kw">let </span>(k, v) = <span class="kw">unsafe </span>{ bucket.as_mut() };
+            <span class="kw">if </span>f(k, v.get_mut()) {
+                <span class="kw">let </span>((k, v), <span class="kw">_</span>) = <span class="kw">unsafe </span>{ shard.remove(bucket) };
+                <span class="prelude-val">Some</span>((k, v.into_inner()))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
@@ -2468,94 +2578,90 @@
         IterMut::new(<span class="self">self</span>)
     }
 
-    <span class="kw">fn </span>_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    <span class="kw">fn </span>_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;Ref&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_read_shard(idx) };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(key) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
             <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*const </span>V = vptr.get();
-                <span class="prelude-val">Some</span>(Ref::new(shard, kptr, vptr))
+                <span class="kw">let </span>(k, v) = bucket.as_ref();
+                <span class="prelude-val">Some</span>(Ref::new(shard, k, v.as_ptr()))
             }
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
     }
 
-    <span class="kw">fn </span>_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    <span class="kw">fn </span>_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="prelude-ty">Option</span>&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(key) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
             <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = vptr.as_ptr();
-                <span class="prelude-val">Some</span>(RefMut::new(shard, kptr, vptr))
+                <span class="kw">let </span>(k, v) = bucket.as_ref();
+                <span class="prelude-val">Some</span>(RefMut::new(shard, k, v.as_ptr()))
             }
         } <span class="kw">else </span>{
             <span class="prelude-val">None
         </span>}
     }
 
-    <span class="kw">fn </span>_try_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;Ref&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    <span class="kw">fn </span>_try_get&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;Ref&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span>shard = <span class="kw">match unsafe </span>{ <span class="self">self</span>._try_yield_read_shard(idx) } {
             <span class="prelude-val">Some</span>(shard) =&gt; shard,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>TryResult::Locked,
         };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(key) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
             <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*const </span>V = vptr.get();
-                TryResult::Present(Ref::new(shard, kptr, vptr))
+                <span class="kw">let </span>(k, v) = bucket.as_ref();
+                TryResult::Present(Ref::new(shard, k, v.as_ptr()))
             }
         } <span class="kw">else </span>{
             TryResult::Absent
         }
     }
 
-    <span class="kw">fn </span>_try_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt;
+    <span class="kw">fn </span>_try_get_mut&lt;Q&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; TryResult&lt;RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;&gt;
     <span class="kw">where
         </span>K: Borrow&lt;Q&gt;,
         Q: Hash + Eq + <span class="question-mark">?</span>Sized,
     {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
         <span class="kw">let </span>shard = <span class="kw">match unsafe </span>{ <span class="self">self</span>._try_yield_write_shard(idx) } {
             <span class="prelude-val">Some</span>(shard) =&gt; shard,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>TryResult::Locked,
         };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(key) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bucket) = shard.find(hash, |(k, _v)| key == k.borrow()) {
             <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = vptr.as_ptr();
-                TryResult::Present(RefMut::new(shard, kptr, vptr))
+                <span class="kw">let </span>(k, v) = bucket.as_ref();
+                TryResult::Present(RefMut::new(shard, k, v.as_ptr()))
             }
         } <span class="kw">else </span>{
             TryResult::Absent
@@ -2563,13 +2669,30 @@
     }
 
     <span class="kw">fn </span>_shrink_to_fit(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.shards.iter().for_each(|s| s.write().shrink_to_fit());
+        <span class="self">self</span>.shards.iter().for_each(|s| {
+            <span class="kw">let </span><span class="kw-2">mut </span>shard = s.write();
+            <span class="kw">let </span>size = shard.len();
+            shard.shrink_to(size, |(k, _v)| {
+                <span class="kw">let </span><span class="kw-2">mut </span>hasher = <span class="self">self</span>.hasher.build_hasher();
+                k.hash(<span class="kw-2">&amp;mut </span>hasher);
+                hasher.finish()
+            })
+        });
     }
 
     <span class="kw">fn </span>_retain(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;mut </span>V) -&gt; bool) {
-        <span class="self">self</span>.shards
-            .iter()
-            .for_each(|s| s.write().retain(|k, v| f(k, v.get_mut())));
+        <span class="self">self</span>.shards.iter().for_each(|s| {
+            <span class="kw">unsafe </span>{
+                <span class="kw">let </span><span class="kw-2">mut </span>shard = s.write();
+                <span class="comment">// Here we only use `iter` as a temporary, preventing use-after-free
+                </span><span class="kw">for </span>bucket <span class="kw">in </span>shard.iter() {
+                    <span class="kw">let </span>(k, v) = bucket.as_mut();
+                    <span class="kw">if </span>!f(<span class="kw-2">&amp;*</span>k, v.get_mut()) {
+                        shard.erase(bucket);
+                    }
+                }
+            }
+        });
     }
 
     <span class="kw">fn </span>_len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
@@ -2591,11 +2714,8 @@
     }
 
     <span class="kw">fn </span>_alter_all(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>f: <span class="kw">impl </span>FnMut(<span class="kw-2">&amp;</span>K, V) -&gt; V) {
-        <span class="self">self</span>.shards.iter().for_each(|s| {
-            s.write()
-                .iter_mut()
-                .for_each(|(k, v)| util::map_in_place_2((k, v.get_mut()), <span class="kw-2">&amp;mut </span>f));
-        });
+        <span class="self">self</span>.iter_mut()
+            .for_each(|<span class="kw-2">mut </span>m| util::map_in_place_2(m.pair_mut(), <span class="kw-2">&amp;mut </span>f));
     }
 
     <span class="kw">fn </span>_view&lt;Q, R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q, f: <span class="kw">impl </span>FnOnce(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V) -&gt; R) -&gt; <span class="prelude-ty">Option</span>&lt;R&gt;
@@ -2609,47 +2729,52 @@
         })
     }
 
-    <span class="kw">fn </span>_entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt; {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+    <span class="kw">fn </span>_entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; Entry&lt;<span class="lifetime">'a</span>, K, V&gt; {
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
-        <span class="kw">let </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
+        <span class="kw">let </span><span class="kw-2">mut </span>shard = <span class="kw">unsafe </span>{ <span class="self">self</span>._yield_write_shard(idx) };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(<span class="kw-2">&amp;</span>key) {
-            <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = vptr.as_ptr();
-                Entry::Occupied(OccupiedEntry::new(shard, key, (kptr, vptr)))
-            }
-        } <span class="kw">else </span>{
-            <span class="kw">unsafe </span>{ Entry::Vacant(VacantEntry::new(shard, key)) }
+        <span class="kw">match </span>shard.find_or_find_insert_slot(
+            hash,
+            |(k, _v)| k == <span class="kw-2">&amp;</span>key,
+            |(k, _v)| {
+                <span class="kw">let </span><span class="kw-2">mut </span>hasher = <span class="self">self</span>.hasher.build_hasher();
+                k.hash(<span class="kw-2">&amp;mut </span>hasher);
+                hasher.finish()
+            },
+        ) {
+            <span class="prelude-val">Ok</span>(elem) =&gt; Entry::Occupied(<span class="kw">unsafe </span>{ OccupiedEntry::new(shard, key, elem) }),
+            <span class="prelude-val">Err</span>(slot) =&gt; Entry::Vacant(<span class="kw">unsafe </span>{ VacantEntry::new(shard, key, hash, slot) }),
         }
     }
 
-    <span class="kw">fn </span>_try_entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; <span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">'a</span>, K, V, S&gt;&gt; {
-        <span class="kw">let </span>hash = <span class="self">self</span>.hash_usize(<span class="kw-2">&amp;</span>key);
+    <span class="kw">fn </span>_try_entry(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, key: K) -&gt; <span class="prelude-ty">Option</span>&lt;Entry&lt;<span class="lifetime">'a</span>, K, V&gt;&gt; {
+        <span class="kw">let </span>hash = <span class="self">self</span>.hash_u64(<span class="kw-2">&amp;</span>key);
 
-        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash);
+        <span class="kw">let </span>idx = <span class="self">self</span>.determine_shard(hash <span class="kw">as </span>usize);
 
-        <span class="kw">let </span>shard = <span class="kw">match unsafe </span>{ <span class="self">self</span>._try_yield_write_shard(idx) } {
+        <span class="kw">let </span><span class="kw-2">mut </span>shard = <span class="kw">match unsafe </span>{ <span class="self">self</span>._try_yield_write_shard(idx) } {
             <span class="prelude-val">Some</span>(shard) =&gt; shard,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         };
 
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((kptr, vptr)) = shard.get_key_value(<span class="kw-2">&amp;</span>key) {
-            <span class="kw">unsafe </span>{
-                <span class="kw">let </span>kptr: <span class="kw-2">*const </span>K = kptr;
-                <span class="kw">let </span>vptr: <span class="kw-2">*mut </span>V = vptr.as_ptr();
-
-                <span class="prelude-val">Some</span>(Entry::Occupied(OccupiedEntry::new(
-                    shard,
-                    key,
-                    (kptr, vptr),
-                )))
-            }
-        } <span class="kw">else </span>{
-            <span class="kw">unsafe </span>{ <span class="prelude-val">Some</span>(Entry::Vacant(VacantEntry::new(shard, key))) }
+        <span class="kw">match </span>shard.find_or_find_insert_slot(
+            hash,
+            |(k, _v)| k == <span class="kw-2">&amp;</span>key,
+            |(k, _v)| {
+                <span class="kw">let </span><span class="kw-2">mut </span>hasher = <span class="self">self</span>.hasher.build_hasher();
+                k.hash(<span class="kw-2">&amp;mut </span>hasher);
+                hasher.finish()
+            },
+        ) {
+            <span class="prelude-val">Ok</span>(elem) =&gt; <span class="prelude-val">Some</span>(Entry::Occupied(<span class="kw">unsafe </span>{
+                OccupiedEntry::new(shard, key, elem)
+            })),
+            <span class="prelude-val">Err</span>(slot) =&gt; <span class="prelude-val">Some</span>(Entry::Vacant(<span class="kw">unsafe </span>{
+                VacantEntry::new(shard, key, hash, slot)
+            })),
         }
     }
 
@@ -2687,7 +2812,7 @@
     </span>K: Borrow&lt;Q&gt;,
     Q: Hash + Eq + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">type </span>Output = Ref&lt;<span class="lifetime">'a</span>, K, V, S&gt;;
+    <span class="kw">type </span>Output = Ref&lt;<span class="lifetime">'a</span>, K, V&gt;;
 
     <span class="kw">fn </span>shr(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.get(key).unwrap()
@@ -2699,7 +2824,7 @@
     </span>K: Borrow&lt;Q&gt;,
     Q: Hash + Eq + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">type </span>Output = RefMut&lt;<span class="lifetime">'a</span>, K, V, S&gt;;
+    <span class="kw">type </span>Output = RefMut&lt;<span class="lifetime">'a</span>, K, V&gt;;
 
     <span class="kw">fn </span>bitor(<span class="self">self</span>, key: <span class="kw-2">&amp;</span>Q) -&gt; <span class="self">Self</span>::Output {
         <span class="self">self</span>.get_mut(key).unwrap()
@@ -2741,7 +2866,7 @@
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, K: Eq + Hash, V, S: BuildHasher + Clone&gt; IntoIterator <span class="kw">for </span><span class="kw-2">&amp;</span><span class="lifetime">'a </span>DashMap&lt;K, V, S&gt; {
-    <span class="kw">type </span>Item = RefMulti&lt;<span class="lifetime">'a</span>, K, V, S&gt;;
+    <span class="kw">type </span>Item = RefMulti&lt;<span class="lifetime">'a</span>, K, V&gt;;
 
     <span class="kw">type </span>IntoIter = Iter&lt;<span class="lifetime">'a</span>, K, V, S, DashMap&lt;K, V, S&gt;&gt;;
 
@@ -2765,6 +2890,45 @@
         map.extend(intoiter);
 
         map
+    }
+}
+
+<span class="attr">#[cfg(feature = <span class="string">"typesize"</span>)]
+</span><span class="kw">impl</span>&lt;K, V, S&gt; typesize::TypeSize <span class="kw">for </span>DashMap&lt;K, V, S&gt;
+<span class="kw">where
+    </span>K: typesize::TypeSize + Eq + Hash,
+    V: typesize::TypeSize,
+    S: typesize::TypeSize + Clone + BuildHasher,
+{
+    <span class="kw">fn </span>extra_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">let </span>shards_extra_size: usize = <span class="self">self
+            </span>.shards
+            .iter()
+            .map(|shard_lock| {
+                <span class="kw">let </span>shard = shard_lock.read();
+                <span class="kw">let </span>hashtable_size = shard.allocation_info().<span class="number">1</span>.size();
+
+                <span class="comment">// Safety: The iterator is dropped before the HashTable
+                </span><span class="kw">let </span>iter = <span class="kw">unsafe </span>{ shard.iter() };
+                <span class="kw">let </span>entry_size_iter = iter.map(|bucket| {
+                    <span class="comment">// Safety: The iterator returns buckets with valid pointers to entries
+                    </span><span class="kw">let </span>(key, value) = <span class="kw">unsafe </span>{ bucket.as_ref() };
+                    key.extra_size() + value.get().extra_size()
+                });
+
+                core::mem::size_of::&lt;CachePadded&lt;RwLock&lt;HashMap&lt;K, V&gt;&gt;&gt;&gt;()
+                    + hashtable_size
+                    + entry_size_iter.sum::&lt;usize&gt;()
+            })
+            .sum();
+
+        <span class="self">self</span>.hasher.extra_size() + shards_extra_size
+    }
+
+    <span class="macro">typesize::if_typesize_details!</span> {
+        <span class="kw">fn </span>get_collection_item_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.len())
+        }
     }
 }
 

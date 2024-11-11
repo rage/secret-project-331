@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.6.2/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix-multipart-0.7.2/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_multipart" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -59,12 +59,23 @@
 <a href="#59" id="59">59</a>
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
+<a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+<a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Multipart form support for Actix Web.
+//!
 //! # Examples
+//!
 //! ```no_run
 //! use actix_web::{post, App, HttpServer, Responder};
 //!
-//! use actix_multipart::form::{json::Json as MPJson, tempfile::TempFile, MultipartForm};
+//! use actix_multipart::form::{json::Json as MpJson, tempfile::TempFile, MultipartForm};
 //! use serde::Deserialize;
 //!
 //! #[derive(Debug, Deserialize)]
@@ -76,7 +87,7 @@
 //! struct UploadForm {
 //!     #[multipart(limit = "100MB")]
 //!     file: TempFile,
-//!     json: MPJson&lt;Metadata&gt;,
+//!     json: MpJson&lt;Metadata&gt;,
 //! }
 //!
 //! #[post("/videos")]
@@ -95,11 +106,17 @@
 //!         .await
 //! }
 //! ```
+//!
+//! cURL request:
+//!
+//! ```sh
+//! curl -v --request POST \
+//!   --url http://localhost:8080/videos \
+//!   -F 'json={"name": "Cargo.lock"};type=application/json' \
+//!   -F file=@./Cargo.lock
+//! ```
 
-</span><span class="attr">#![deny(rust_2018_idioms, nonstandard_style)]
-#![warn(future_incompatible)]
-#![allow(clippy::borrow_interior_mutable_const)]
-#![doc(html_logo_url = <span class="string">"https://actix.rs/img/logo.png"</span>)]
+</span><span class="attr">#![doc(html_logo_url = <span class="string">"https://actix.rs/img/logo.png"</span>)]
 #![doc(html_favicon_url = <span class="string">"https://actix.rs/favicon.ico"</span>)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
@@ -109,15 +126,16 @@
 
 <span class="kw">mod </span>error;
 <span class="kw">mod </span>extractor;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>field;
 <span class="kw">pub mod </span>form;
-<span class="kw">mod </span>server;
+<span class="kw">mod </span>multipart;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>payload;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>safety;
 <span class="kw">pub mod </span>test;
 
 <span class="kw">pub use </span><span class="self">self</span>::{
-    error::MultipartError,
-    server::{Field, Multipart},
-    test::{
-        create_form_data_payload_and_headers, create_form_data_payload_and_headers_with_boundary,
-    },
+    error::Error <span class="kw">as </span>MultipartError,
+    field::{Field, LimitExceeded},
+    multipart::Multipart,
 };
 </code></pre></div></section></main></body></html>

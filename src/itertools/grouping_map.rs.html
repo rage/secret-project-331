@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/grouping_map.rs`."><title>grouping_map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/grouping_map.rs`."><title>grouping_map.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -600,39 +600,54 @@
 <a href="#600" id="600">600</a>
 <a href="#601" id="601">601</a>
 <a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg(feature = <span class="string">"use_std"</span>)]
 
-</span><span class="kw">use </span><span class="kw">crate</span>::MinMaxResult;
+</span><span class="kw">use crate</span>::{
+    adaptors::map::{MapSpecialCase, MapSpecialCaseFn},
+    MinMaxResult,
+};
 <span class="kw">use </span>std::cmp::Ordering;
 <span class="kw">use </span>std::collections::HashMap;
-<span class="kw">use </span>std::fmt;
 <span class="kw">use </span>std::hash::Hash;
 <span class="kw">use </span>std::iter::Iterator;
 <span class="kw">use </span>std::ops::{Add, Mul};
 
 <span class="doccomment">/// A wrapper to allow for an easy [`into_grouping_map_by`](crate::Itertools::into_grouping_map_by)
-</span><span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>MapForGrouping&lt;I, F&gt;(I, F);
+</span><span class="kw">pub type </span>MapForGrouping&lt;I, F&gt; = MapSpecialCase&lt;I, GroupingMapFn&lt;F&gt;&gt;;
 
-<span class="kw">impl</span>&lt;I: fmt::Debug, F&gt; fmt::Debug <span class="kw">for </span>MapForGrouping&lt;I, F&gt; {
-    <span class="macro">debug_fmt_fields!</span>(MapForGrouping, <span class="number">0</span>);
+<span class="attr">#[derive(Clone)]
+</span><span class="kw">pub struct </span>GroupingMapFn&lt;F&gt;(F);
+
+<span class="kw">impl</span>&lt;F&gt; std::fmt::Debug <span class="kw">for </span>GroupingMapFn&lt;F&gt; {
+    <span class="macro">debug_fmt_fields!</span>(GroupingMapFn,);
 }
 
-<span class="kw">impl</span>&lt;I, F&gt; MapForGrouping&lt;I, F&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(iter: I, key_mapper: F) -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>(iter, key_mapper)
+<span class="kw">impl</span>&lt;V, K, F: FnMut(<span class="kw-2">&amp;</span>V) -&gt; K&gt; MapSpecialCaseFn&lt;V&gt; <span class="kw">for </span>GroupingMapFn&lt;F&gt; {
+    <span class="kw">type </span>Out = (K, V);
+    <span class="kw">fn </span>call(<span class="kw-2">&amp;mut </span><span class="self">self</span>, v: V) -&gt; <span class="self">Self</span>::Out {
+        ((<span class="self">self</span>.<span class="number">0</span>)(<span class="kw-2">&amp;</span>v), v)
     }
 }
 
-<span class="kw">impl</span>&lt;K, V, I, F&gt; Iterator <span class="kw">for </span>MapForGrouping&lt;I, F&gt;
-<span class="kw">where
-    </span>I: Iterator&lt;Item = V&gt;,
-    K: Hash + Eq,
-    F: FnMut(<span class="kw-2">&amp;</span>V) -&gt; K,
-{
-    <span class="kw">type </span>Item = (K, V);
-    <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="self">self</span>.<span class="number">0</span>.next().map(|val| ((<span class="self">self</span>.<span class="number">1</span>)(<span class="kw-2">&amp;</span>val), val))
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_map_for_grouping&lt;K, I: Iterator, F: FnMut(<span class="kw-2">&amp;</span>I::Item) -&gt; K&gt;(
+    iter: I,
+    key_mapper: F,
+) -&gt; MapForGrouping&lt;I, F&gt; {
+    MapSpecialCase {
+        iter,
+        f: GroupingMapFn(key_mapper),
     }
 }
 
@@ -819,14 +834,14 @@
     ///
     /// let lookup = (1..=7)
     ///     .into_grouping_map_by(|&amp;n| n % 3)
-    ///     .fold_first(|acc, _key, val| acc + val);
+    ///     .reduce(|acc, _key, val| acc + val);
     ///
     /// assert_eq!(lookup[&amp;0], 3 + 6);
     /// assert_eq!(lookup[&amp;1], 1 + 4 + 7);
     /// assert_eq!(lookup[&amp;2], 2 + 5);
     /// assert_eq!(lookup.len(), 3);
     /// ```
-    </span><span class="kw">pub fn </span>fold_first&lt;FO&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>operation: FO) -&gt; HashMap&lt;K, V&gt;
+    </span><span class="kw">pub fn </span>reduce&lt;FO&gt;(<span class="self">self</span>, <span class="kw-2">mut </span>operation: FO) -&gt; HashMap&lt;K, V&gt;
     <span class="kw">where
         </span>FO: FnMut(V, <span class="kw-2">&amp;</span>K, V) -&gt; V,
     {
@@ -836,6 +851,15 @@
                 <span class="prelude-val">None </span>=&gt; val,
             })
         })
+    }
+
+    <span class="doccomment">/// See [`.reduce()`](GroupingMap::reduce).
+    </span><span class="attr">#[deprecated(note = <span class="string">"Use .reduce() instead"</span>, since = <span class="string">"0.13.0"</span>)]
+    </span><span class="kw">pub fn </span>fold_first&lt;FO&gt;(<span class="self">self</span>, operation: FO) -&gt; HashMap&lt;K, V&gt;
+    <span class="kw">where
+        </span>FO: FnMut(V, <span class="kw-2">&amp;</span>K, V) -&gt; V,
+    {
+        <span class="self">self</span>.reduce(operation)
     }
 
     <span class="doccomment">/// Groups elements from the `GroupingMap` source by key and collects the elements of each group in
@@ -920,7 +944,7 @@
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V, <span class="kw-2">&amp;</span>V) -&gt; Ordering,
     {
-        <span class="self">self</span>.fold_first(|acc, key, val| <span class="kw">match </span>compare(key, <span class="kw-2">&amp;</span>acc, <span class="kw-2">&amp;</span>val) {
+        <span class="self">self</span>.reduce(|acc, key, val| <span class="kw">match </span>compare(key, <span class="kw-2">&amp;</span>acc, <span class="kw-2">&amp;</span>val) {
             Ordering::Less | Ordering::Equal =&gt; val,
             Ordering::Greater =&gt; acc,
         })
@@ -1001,7 +1025,7 @@
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span>K, <span class="kw-2">&amp;</span>V, <span class="kw-2">&amp;</span>V) -&gt; Ordering,
     {
-        <span class="self">self</span>.fold_first(|acc, key, val| <span class="kw">match </span>compare(key, <span class="kw-2">&amp;</span>acc, <span class="kw-2">&amp;</span>val) {
+        <span class="self">self</span>.reduce(|acc, key, val| <span class="kw">match </span>compare(key, <span class="kw-2">&amp;</span>acc, <span class="kw-2">&amp;</span>val) {
             Ordering::Less | Ordering::Equal =&gt; acc,
             Ordering::Greater =&gt; val,
         })
@@ -1040,7 +1064,7 @@
     /// If several elements are equally maximum, the last element is picked.
     /// If several elements are equally minimum, the first element is picked.
     ///
-    /// See [.minmax()](crate::Itertools::minmax) for the non-grouping version.
+    /// See [`Itertools::minmax`](crate::Itertools::minmax) for the non-grouping version.
     ///
     /// Differences from the non grouping version:
     /// - It never produces a `MinMaxResult::NoElements`
@@ -1152,7 +1176,7 @@
 
     <span class="doccomment">/// Groups elements from the `GroupingMap` source by key and sums them.
     ///
-    /// This is just a shorthand for `self.fold_first(|acc, _, val| acc + val)`.
+    /// This is just a shorthand for `self.reduce(|acc, _, val| acc + val)`.
     /// It is more limited than `Iterator::sum` since it doesn't use the `Sum` trait.
     ///
     /// Returns a `HashMap` associating the key of each group with the sum of that group's elements.
@@ -1173,12 +1197,12 @@
     <span class="kw">where
         </span>V: Add&lt;V, Output = V&gt;,
     {
-        <span class="self">self</span>.fold_first(|acc, <span class="kw">_</span>, val| acc + val)
+        <span class="self">self</span>.reduce(|acc, <span class="kw">_</span>, val| acc + val)
     }
 
     <span class="doccomment">/// Groups elements from the `GroupingMap` source by key and multiply them.
     ///
-    /// This is just a shorthand for `self.fold_first(|acc, _, val| acc * val)`.
+    /// This is just a shorthand for `self.reduce(|acc, _, val| acc * val)`.
     /// It is more limited than `Iterator::product` since it doesn't use the `Product` trait.
     ///
     /// Returns a `HashMap` associating the key of each group with the product of that group's elements.
@@ -1199,7 +1223,7 @@
     <span class="kw">where
         </span>V: Mul&lt;V, Output = V&gt;,
     {
-        <span class="self">self</span>.fold_first(|acc, <span class="kw">_</span>, val| acc * val)
+        <span class="self">self</span>.reduce(|acc, <span class="kw">_</span>, val| acc * val)
     }
 }
 </code></pre></div></section></main></body></html>

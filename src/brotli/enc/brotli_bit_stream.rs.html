@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/brotli_bit_stream.rs`."><title>brotli_bit_stream.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/brotli_bit_stream.rs`."><title>brotli_bit_stream.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3015,30 +3015,123 @@
 <a href="#3015" id="3015">3015</a>
 <a href="#3016" id="3016">3016</a>
 <a href="#3017" id="3017">3017</a>
+<a href="#3018" id="3018">3018</a>
+<a href="#3019" id="3019">3019</a>
+<a href="#3020" id="3020">3020</a>
+<a href="#3021" id="3021">3021</a>
+<a href="#3022" id="3022">3022</a>
+<a href="#3023" id="3023">3023</a>
+<a href="#3024" id="3024">3024</a>
+<a href="#3025" id="3025">3025</a>
+<a href="#3026" id="3026">3026</a>
+<a href="#3027" id="3027">3027</a>
+<a href="#3028" id="3028">3028</a>
+<a href="#3029" id="3029">3029</a>
+<a href="#3030" id="3030">3030</a>
+<a href="#3031" id="3031">3031</a>
+<a href="#3032" id="3032">3032</a>
+<a href="#3033" id="3033">3033</a>
+<a href="#3034" id="3034">3034</a>
+<a href="#3035" id="3035">3035</a>
+<a href="#3036" id="3036">3036</a>
+<a href="#3037" id="3037">3037</a>
+<a href="#3038" id="3038">3038</a>
+<a href="#3039" id="3039">3039</a>
+<a href="#3040" id="3040">3040</a>
+<a href="#3041" id="3041">3041</a>
+<a href="#3042" id="3042">3042</a>
+<a href="#3043" id="3043">3043</a>
+<a href="#3044" id="3044">3044</a>
+<a href="#3045" id="3045">3045</a>
+<a href="#3046" id="3046">3046</a>
+<a href="#3047" id="3047">3047</a>
+<a href="#3048" id="3048">3048</a>
+<a href="#3049" id="3049">3049</a>
+<a href="#3050" id="3050">3050</a>
+<a href="#3051" id="3051">3051</a>
+<a href="#3052" id="3052">3052</a>
+<a href="#3053" id="3053">3053</a>
+<a href="#3054" id="3054">3054</a>
+<a href="#3055" id="3055">3055</a>
+<a href="#3056" id="3056">3056</a>
+<a href="#3057" id="3057">3057</a>
+<a href="#3058" id="3058">3058</a>
+<a href="#3059" id="3059">3059</a>
+<a href="#3060" id="3060">3060</a>
+<a href="#3061" id="3061">3061</a>
+<a href="#3062" id="3062">3062</a>
+<a href="#3063" id="3063">3063</a>
+<a href="#3064" id="3064">3064</a>
+<a href="#3065" id="3065">3065</a>
+<a href="#3066" id="3066">3066</a>
+<a href="#3067" id="3067">3067</a>
+<a href="#3068" id="3068">3068</a>
+<a href="#3069" id="3069">3069</a>
+<a href="#3070" id="3070">3070</a>
+<a href="#3071" id="3071">3071</a>
+<a href="#3072" id="3072">3072</a>
+<a href="#3073" id="3073">3073</a>
+<a href="#3074" id="3074">3074</a>
+<a href="#3075" id="3075">3075</a>
+<a href="#3076" id="3076">3076</a>
+<a href="#3077" id="3077">3077</a>
+<a href="#3078" id="3078">3078</a>
+<a href="#3079" id="3079">3079</a>
+<a href="#3080" id="3080">3080</a>
+<a href="#3081" id="3081">3081</a>
+<a href="#3082" id="3082">3082</a>
+<a href="#3083" id="3083">3083</a>
+<a href="#3084" id="3084">3084</a>
+<a href="#3085" id="3085">3085</a>
+<a href="#3086" id="3086">3086</a>
+<a href="#3087" id="3087">3087</a>
+<a href="#3088" id="3088">3088</a>
+<a href="#3089" id="3089">3089</a>
+<a href="#3090" id="3090">3090</a>
+<a href="#3091" id="3091">3091</a>
+<a href="#3092" id="3092">3092</a>
+<a href="#3093" id="3093">3093</a>
+<a href="#3094" id="3094">3094</a>
+<a href="#3095" id="3095">3095</a>
+<a href="#3096" id="3096">3096</a>
+<a href="#3097" id="3097">3097</a>
+<a href="#3098" id="3098">3098</a>
+<a href="#3099" id="3099">3099</a>
+<a href="#3100" id="3100">3100</a>
+<a href="#3101" id="3101">3101</a>
+<a href="#3102" id="3102">3102</a>
+<a href="#3103" id="3103">3103</a>
+<a href="#3104" id="3104">3104</a>
+<a href="#3105" id="3105">3105</a>
+<a href="#3106" id="3106">3106</a>
+<a href="#3107" id="3107">3107</a>
+<a href="#3108" id="3108">3108</a>
+<a href="#3109" id="3109">3109</a>
+<a href="#3110" id="3110">3110</a>
+<a href="#3111" id="3111">3111</a>
+<a href="#3112" id="3112">3112</a>
+<a href="#3113" id="3113">3113</a>
+<a href="#3114" id="3114">3114</a>
+<a href="#3115" id="3115">3115</a>
+<a href="#3116" id="3116">3116</a>
+<a href="#3117" id="3117">3117</a>
+<a href="#3118" id="3118">3118</a>
+<a href="#3119" id="3119">3119</a>
 </pre></div><pre class="rust"><code><span class="attr">#![allow(unknown_lints)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
 #![allow(unused_macros)]
-</span><span class="kw">use </span><span class="kw">super</span>::combined_alloc::BrotliAlloc;
-<span class="kw">use </span><span class="kw">super</span>::prior_eval;
-<span class="kw">use </span><span class="kw">super</span>::stride_eval;
-<span class="kw">use </span><span class="kw">super</span>::util::floatX;
-<span class="kw">use super</span>::{s16, v8};
+
+</span><span class="kw">use </span>core::cmp::{max, min};
 <span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
 </span><span class="kw">use </span>std::io::Write;
-<span class="kw">use </span>VERSION;
 
-<span class="kw">use </span><span class="kw">super</span>::block_split::BlockSplit;
-<span class="kw">use </span><span class="kw">super</span>::input_pair::{InputPair, InputReference, InputReferenceMut};
-<span class="kw">use </span>enc::backward_references::BrotliEncoderParams;
-
-<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{Allocator, SliceWrapper, SliceWrapperMut};
-<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::core;
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::dictionary::{
     kBrotliDictionary, kBrotliDictionaryOffsetsByLength, kBrotliDictionarySizeBitsByLength,
 };
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::transform::TransformDictionaryWord;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::{alloc, core};
+<span class="kw">use </span><span class="kw">super</span>::block_split::BlockSplit;
+<span class="kw">use </span><span class="kw">super</span>::combined_alloc::BrotliAlloc;
 <span class="kw">use </span><span class="kw">super</span>::command::{Command, GetCopyLengthCode, GetInsertLengthCode};
 <span class="kw">use </span><span class="kw">super</span>::constants::{
     kCodeLengthBits, kCodeLengthDepth, kCopyBase, kCopyExtra, kInsBase, kInsExtra,
@@ -3052,16 +3145,18 @@
     BrotliConvertBitDepthsToSymbols, BrotliCreateHuffmanTree, BrotliSetDepth,
     BrotliWriteHuffmanTree, HuffmanComparator, HuffmanTree, SortHuffmanTreeItems,
 };
-<span class="kw">use </span><span class="kw">super</span>::find_stride;
 <span class="kw">use </span><span class="kw">super</span>::histogram::{
     ContextType, HistogramAddItem, HistogramCommand, HistogramDistance, HistogramLiteral,
 };
-<span class="kw">use </span><span class="kw">super</span>::interface;
-<span class="kw">use </span><span class="kw">super</span>::interface::{CommandProcessor, StaticCommand};
-<span class="kw">use </span><span class="kw">super</span>::pdf::PDF;
+<span class="kw">use </span><span class="kw">super</span>::input_pair::{InputPair, InputReference, InputReferenceMut};
+<span class="kw">use </span><span class="kw">super</span>::interface::StaticCommand;
 <span class="kw">use </span><span class="kw">super</span>::static_dict::kNumDistanceCacheEntries;
-<span class="kw">use </span><span class="kw">super</span>::vectorization::Mem256f;
-<span class="kw">use </span>core::cmp::{max, min};
+<span class="kw">use </span><span class="kw">super</span>::util::floatX;
+<span class="kw">use super</span>::{find_stride, interface, prior_eval, stride_eval};
+<span class="kw">use </span><span class="kw">crate</span>::enc::backward_references::BrotliEncoderParams;
+<span class="kw">use </span><span class="kw">crate</span>::enc::combined_alloc::{alloc_default, alloc_or_default, allocate};
+<span class="kw">use </span><span class="kw">crate</span>::VERSION;
+
 <span class="kw">pub struct </span>PrefixCodeRange {
     <span class="kw">pub </span>offset: u32,
     <span class="kw">pub </span>nbits: u32,
@@ -3072,49 +3167,11 @@
     (<span class="number">1 </span>&lt;&lt; lgwin) - <span class="number">16usize
 </span>}
 
-<span class="kw">fn </span>context_type_str(context_type: ContextType) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
-    <span class="kw">match </span>context_type {
-        ContextType::CONTEXT_LSB6 =&gt; <span class="string">"lsb6"</span>,
-        ContextType::CONTEXT_MSB6 =&gt; <span class="string">"msb6"</span>,
-        ContextType::CONTEXT_UTF8 =&gt; <span class="string">"utf8"</span>,
-        ContextType::CONTEXT_SIGNED =&gt; <span class="string">"sign"</span>,
-    }
-}
-
-<span class="kw">fn </span>prediction_mode_str(
-    prediction_mode_nibble: interface::LiteralPredictionModeNibble,
-) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
-    <span class="kw">match </span>prediction_mode_nibble.prediction_mode() {
-        interface::LITERAL_PREDICTION_MODE_SIGN =&gt; <span class="string">"sign"</span>,
-        interface::LITERAL_PREDICTION_MODE_LSB6 =&gt; <span class="string">"lsb6"</span>,
-        interface::LITERAL_PREDICTION_MODE_MSB6 =&gt; <span class="string">"msb6"</span>,
-        interface::LITERAL_PREDICTION_MODE_UTF8 =&gt; <span class="string">"utf8"</span>,
-        <span class="kw">_ </span>=&gt; <span class="string">"unknown"</span>,
-    }
-}
-
-<span class="kw">fn </span>is_long_enough_to_be_random(len: usize, high_entropy_detection_quality: u8) -&gt; bool {
-    <span class="kw">match </span>high_entropy_detection_quality {
-        <span class="number">0 </span>=&gt; <span class="bool-val">false</span>,
-        <span class="number">1 </span>=&gt; <span class="bool-val">false</span>,
-        <span class="number">2 </span>=&gt; len &gt;= <span class="number">128</span>,
-        <span class="number">3 </span>=&gt; len &gt;= <span class="number">96</span>,
-        <span class="number">4 </span>=&gt; len &gt;= <span class="number">64</span>,
-        <span class="number">5 </span>=&gt; len &gt;= <span class="number">48</span>,
-        <span class="number">6 </span>=&gt; len &gt;= <span class="number">32</span>,
-        <span class="number">7 </span>=&gt; len &gt;= <span class="number">24</span>,
-        <span class="number">8 </span>=&gt; len &gt;= <span class="number">16</span>,
-        <span class="number">9 </span>=&gt; len &gt;= <span class="number">8</span>,
-        <span class="number">10 </span>=&gt; len &gt;= <span class="number">4</span>,
-        <span class="number">11 </span>=&gt; len &gt;= <span class="number">1</span>,
-        <span class="kw">_ </span>=&gt; len &gt;= <span class="number">8</span>,
-    }
-}
-<span class="kw">const </span>COMMAND_BUFFER_SIZE: usize = <span class="number">4096</span>;
-
 <span class="kw">struct </span>CommandQueue&lt;<span class="lifetime">'a</span>, Alloc: BrotliAlloc + <span class="lifetime">'a</span>&gt; {
     mb: InputPair&lt;<span class="lifetime">'a</span>&gt;,
-    mb_byte_offset: usize,
+    <span class="comment">// TODO: delete unused fields
+    </span><span class="attr">#[allow(dead_code)]
+    </span>mb_byte_offset: usize,
     mc: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span>Alloc,
     queue: &lt;Alloc <span class="kw">as </span>Allocator&lt;StaticCommand&gt;&gt;::AllocatedMemory,
     pred_mode: interface::PredictionModeContextMap&lt;InputReferenceMut&lt;<span class="lifetime">'a</span>&gt;&gt;,
@@ -3123,10 +3180,13 @@
     best_strides_per_block_type: &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory,
     entropy_pyramid: find_stride::EntropyPyramid&lt;Alloc&gt;,
     context_map_entropy: ContextMapEntropy&lt;<span class="lifetime">'a</span>, Alloc&gt;,
-    stride_detection_quality: u8,
-    high_entropy_detection_quality: u8,
+    <span class="attr">#[allow(dead_code)]
+    </span>stride_detection_quality: u8,
+    <span class="attr">#[allow(dead_code)]
+    </span>high_entropy_detection_quality: u8,
     block_type_literal: u8,
-    best_stride_index: usize,
+    <span class="attr">#[allow(dead_code)]
+    </span>best_stride_index: usize,
     overfull: bool,
 }
 
@@ -3145,8 +3205,7 @@
     ) -&gt; CommandQueue&lt;<span class="lifetime">'a</span>, Alloc&gt; {
         <span class="comment">// assume no more than 1/16 of the stream is block_types which may chop up literals
         // also there's the first btypel and a potential wrap around the ring buffer
-        </span><span class="kw">let </span>queue =
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;StaticCommand&gt;&gt;::alloc_cell(alloc, num_commands * <span class="number">17 </span>/ <span class="number">16 </span>+ <span class="number">4</span>);
+        </span><span class="kw">let </span>queue = allocate::&lt;StaticCommand, <span class="kw">_</span>&gt;(alloc, num_commands * <span class="number">17 </span>/ <span class="number">16 </span>+ <span class="number">4</span>);
         CommandQueue {
             mc: alloc,
             queue, <span class="comment">// always need a spare command in case the ring buffer splits a literal into two
@@ -3172,9 +3231,6 @@
         <span class="kw">if </span><span class="self">self</span>.full() {
             <span class="self">self</span>.overfull = <span class="bool-val">true</span>;
         }
-    }
-    <span class="kw">fn </span>size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
-        <span class="self">self</span>.loc
     }
     <span class="kw">fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.loc = <span class="number">0</span>;
@@ -3214,10 +3270,7 @@
 <span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, Alloc: BrotliAlloc&gt; interface::CommandProcessor&lt;<span class="lifetime">'a</span>&gt; <span class="kw">for </span>CommandQueue&lt;<span class="lifetime">'a</span>, Alloc&gt; {
     <span class="kw">fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: interface::Command&lt;InputReference&lt;<span class="lifetime">'a</span>&gt;&gt;) {
         <span class="kw">if </span><span class="self">self</span>.full() {
-            <span class="kw">let </span><span class="kw-2">mut </span>tmp = &lt;Alloc <span class="kw">as </span>Allocator&lt;StaticCommand&gt;&gt;::alloc_cell(
-                <span class="self">self</span>.mc,
-                <span class="self">self</span>.queue.slice().len() * <span class="number">2</span>,
-            );
+            <span class="kw">let </span><span class="kw-2">mut </span>tmp = allocate::&lt;StaticCommand, <span class="kw">_</span>&gt;(<span class="self">self</span>.mc, <span class="self">self</span>.queue.slice().len() * <span class="number">2</span>);
             tmp.slice_mut()
                 .split_at_mut(<span class="self">self</span>.queue.slice().len())
                 .<span class="number">0
@@ -3273,7 +3326,7 @@
 </span><span class="kw">fn </span>best_speed_log(name: <span class="kw-2">&amp;</span>str, data: <span class="kw-2">&amp;</span>[SpeedAndMax; <span class="number">2</span>], cost: <span class="kw-2">&amp;</span>[floatX; <span class="number">2</span>]) {
     <span class="kw">for </span>high <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
         <span class="macro">println!</span>(
-            <span class="string">"{} Speed [ inc: {}, max: {}, algo: 0 ] cost: {}"</span>,
+            <span class="string">"{} Speed [ inc: {}, max: {}, algo: {} ] cost: {}"</span>,
             name,
             <span class="kw">if </span>high != <span class="number">0 </span>{ <span class="string">"hi" </span>} <span class="kw">else </span>{ <span class="string">"lo" </span>},
             data[high].<span class="number">0</span>,
@@ -3581,7 +3634,7 @@
             orig_offset: input0.len(),
         },
     );
-    <span class="kw">let </span><span class="kw-2">mut </span>best_strides = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>best_strides = alloc_default::&lt;u8, Alloc&gt;();
     <span class="kw">if </span>params.stride_detection_quality &gt; <span class="number">2 </span>{
         <span class="kw">let </span><span class="kw-2">mut </span>stride_selector =
             stride_eval::StrideEval::&lt;Alloc&gt;::new(alloc, input, <span class="kw-2">&amp;</span>prediction_mode, params);
@@ -3596,7 +3649,7 @@
             context_type,
         );
         <span class="kw">let </span>ntypes = stride_selector.num_types();
-        best_strides = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(stride_selector.alloc(), ntypes);
+        best_strides = allocate::&lt;u8, <span class="kw">_</span>&gt;(stride_selector.alloc(), ntypes);
         stride_selector.choose_stride(best_strides.slice_mut());
     }
     <span class="kw">let </span><span class="kw-2">mut </span>context_map_entropy = ContextMapEntropy::&lt;Alloc&gt;::new(
@@ -4023,16 +4076,11 @@
         <span class="kw-2">*</span>depth_elem = <span class="number">0</span>; <span class="comment">// memset
     </span>}
     {
-        <span class="kw">let </span>max_tree_size: u64 = (<span class="number">2u64</span>).wrapping_mul(length).wrapping_add(<span class="number">1</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>tree = <span class="kw">if </span>max_tree_size != <span class="number">0 </span>{
-            m.alloc_cell(max_tree_size <span class="kw">as </span>usize)
-        } <span class="kw">else </span>{
-            AllocHT::AllocatedMemory::default() <span class="comment">// null
-        </span>};
+        <span class="comment">// FIXME: computation in u64, followed by allocation which might be less than u64
+        </span><span class="kw">let </span>max_tree_size: u64 = (<span class="number">2u64</span>).wrapping_mul(length).wrapping_add(<span class="number">1</span>);
+        <span class="comment">// FIXME: makes little sense to test if N+1 &gt; 0 -- always true unless wrapping. Perhaps use allocate() instead?
+        </span><span class="kw">let </span><span class="kw-2">mut </span>tree = alloc_or_default::&lt;HuffmanTree, <span class="kw">_</span>&gt;(m, max_tree_size <span class="kw">as </span>usize);
         <span class="kw">let </span><span class="kw-2">mut </span>count_limit: u32;
-        <span class="kw">if </span>!(<span class="number">0i32 </span>== <span class="number">0</span>) {
-            <span class="kw">return</span>;
-        }
         count_limit = <span class="number">1u32</span>;
         <span class="lifetime">'break11</span>: <span class="kw">loop </span>{
             {
@@ -4233,19 +4281,18 @@
 {
     <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            literal_split: BlockSplit::&lt;Alloc&gt;::new(),
-            command_split: BlockSplit::&lt;Alloc&gt;::new(),
-            distance_split: BlockSplit::&lt;Alloc&gt;::new(),
-            literal_context_map: &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default(),
+            literal_split: BlockSplit::default(),
+            command_split: BlockSplit::default(),
+            distance_split: BlockSplit::default(),
+            literal_context_map: alloc_default::&lt;u32, Alloc&gt;(),
             literal_context_map_size: <span class="number">0</span>,
-            distance_context_map: &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default(),
+            distance_context_map: alloc_default::&lt;u32, Alloc&gt;(),
             distance_context_map_size: <span class="number">0</span>,
-            literal_histograms: &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramLiteral&gt;&gt;::AllocatedMemory::default(),
+            literal_histograms: alloc_default::&lt;HistogramLiteral, Alloc&gt;(),
             literal_histograms_size: <span class="number">0</span>,
-            command_histograms: &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramCommand&gt;&gt;::AllocatedMemory::default(),
+            command_histograms: alloc_default::&lt;HistogramCommand, Alloc&gt;(),
             command_histograms_size: <span class="number">0</span>,
-            distance_histograms: &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramDistance&gt;&gt;::AllocatedMemory::default(
-            ),
+            distance_histograms: alloc_default::&lt;HistogramDistance, Alloc&gt;(),
             distance_histograms_size: <span class="number">0</span>,
         }
     }
@@ -4362,7 +4409,7 @@
 }
 
 <span class="kw">fn </span>StoreCompressedMetaBlockHeader(
-    is_final_block: i32,
+    is_final_block: bool,
     length: usize,
     storage_ix: <span class="kw-2">&amp;mut </span>usize,
     storage: <span class="kw-2">&amp;mut </span>[u8],
@@ -4370,14 +4417,14 @@
     <span class="kw">let </span><span class="kw-2">mut </span>lenbits: u64 = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>nlenbits: u32 = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>nibblesbits: u32 = <span class="number">0</span>;
-    BrotliWriteBits(<span class="number">1</span>, is_final_block <span class="kw">as </span>(u64), storage_ix, storage);
-    <span class="kw">if </span>is_final_block != <span class="number">0 </span>{
+    BrotliWriteBits(<span class="number">1</span>, is_final_block.into(), storage_ix, storage);
+    <span class="kw">if </span>is_final_block {
         BrotliWriteBits(<span class="number">1</span>, <span class="number">0</span>, storage_ix, storage);
     }
     BrotliEncodeMlen(length <span class="kw">as </span>u32, <span class="kw-2">&amp;mut </span>lenbits, <span class="kw-2">&amp;mut </span>nlenbits, <span class="kw-2">&amp;mut </span>nibblesbits);
     BrotliWriteBits(<span class="number">2</span>, nibblesbits <span class="kw">as </span>u64, storage_ix, storage);
     BrotliWriteBits(nlenbits <span class="kw">as </span>u8, lenbits, storage_ix, storage);
-    <span class="kw">if </span>is_final_block == <span class="number">0 </span>{
+    <span class="kw">if </span>!is_final_block {
         BrotliWriteBits(<span class="number">1</span>, <span class="number">0</span>, storage_ix, storage);
     }
 }
@@ -4420,8 +4467,8 @@
             block_ix_: <span class="number">0</span>,
             block_len_: block_len,
             entropy_ix_: <span class="number">0</span>,
-            depths_: &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default(),
-            bits_: &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory::default(),
+            depths_: alloc_default::&lt;u8, Alloc&gt;(),
+            bits_: alloc_default::&lt;u16, Alloc&gt;(),
         }
     }
 }
@@ -4579,7 +4626,7 @@
     code: <span class="kw-2">&amp;mut </span>BlockSplitCode,
     block_len: u32,
     block_type: u8,
-    is_first_block: i32,
+    is_first_block: bool,
     storage_ix: <span class="kw-2">&amp;mut </span>usize,
     storage: <span class="kw-2">&amp;mut </span>[u8],
 ) {
@@ -4587,7 +4634,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>lencode: usize = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>len_nextra: u32 = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>len_extra: u32 = <span class="number">0</span>;
-    <span class="kw">if </span>is_first_block == <span class="number">0 </span>{
+    <span class="kw">if </span>!is_first_block {
         BrotliWriteBits(
             code.type_depths[typecode] <span class="kw">as </span>u8,
             code.type_bits[typecode] <span class="kw">as </span>(u64),
@@ -4658,7 +4705,7 @@
             storage_ix,
             storage,
         );
-        StoreBlockSwitch(code, lengths[<span class="number">0</span>], types[<span class="number">0</span>], <span class="number">1i32</span>, storage_ix, storage);
+        StoreBlockSwitch(code, lengths[<span class="number">0</span>], types[<span class="number">0</span>], <span class="bool-val">true</span>, storage_ix, storage);
     }
 }
 
@@ -4871,11 +4918,7 @@
     <span class="kw">if </span>num_clusters == <span class="number">1 </span>{
         <span class="kw">return</span>;
     }
-    rle_symbols = <span class="kw">if </span>context_map_size != <span class="number">0 </span>{
-        m.alloc_cell(context_map_size)
-    } <span class="kw">else </span>{
-        AllocU32::AllocatedMemory::default()
-    };
+    rle_symbols = alloc_or_default::&lt;u32, <span class="kw">_</span>&gt;(m, context_map_size);
     MoveToFrontTransform(context_map, context_map_size, rle_symbols.slice_mut());
     RunLengthCodeZeros(
         context_map_size,
@@ -4945,16 +4988,8 @@
         storage: <span class="kw-2">&amp;mut </span>[u8],
     ) {
         <span class="kw">let </span>table_size: usize = histograms_size.wrapping_mul(<span class="self">self</span>.histogram_length_);
-        <span class="self">self</span>.depths_ = <span class="kw">if </span>table_size != <span class="number">0 </span>{
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(m, table_size)
-        } <span class="kw">else </span>{
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::AllocatedMemory::default()
-        };
-        <span class="self">self</span>.bits_ = <span class="kw">if </span>table_size != <span class="number">0 </span>{
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::alloc_cell(m, table_size)
-        } <span class="kw">else </span>{
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::AllocatedMemory::default()
-        };
+        <span class="self">self</span>.depths_ = alloc_or_default::&lt;u8, <span class="kw">_</span>&gt;(m, table_size);
+        <span class="self">self</span>.bits_ = alloc_or_default::&lt;u16, <span class="kw">_</span>&gt;(m, table_size);
         {
             <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..histograms_size {
                 <span class="kw">let </span>ix: usize = i.wrapping_mul(<span class="self">self</span>.histogram_length_);
@@ -4986,7 +5021,7 @@
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.block_split_code_,
                 block_len,
                 block_type,
-                <span class="number">0i32</span>,
+                <span class="bool-val">false</span>,
                 storage_ix,
                 storage,
             );
@@ -5083,7 +5118,7 @@
                 <span class="kw-2">&amp;mut </span><span class="self">self</span>.block_split_code_,
                 block_len,
                 block_type,
-                <span class="number">0</span>,
+                <span class="bool-val">false</span>,
                 storage_ix,
                 storage,
             );
@@ -5116,7 +5151,57 @@
     storage[(<span class="kw-2">*</span>storage_ix &gt;&gt; <span class="number">3</span>)] = <span class="number">0u8</span>;
 }
 
-<span class="kw">pub fn </span>BrotliStoreMetaBlock&lt;Alloc: BrotliAlloc, Cb&gt;(
+<span class="attr">#[deprecated(note = <span class="string">"use store_meta_block instead"</span>)]
+</span><span class="kw">pub fn </span>BrotliStoreMetaBlock&lt;Alloc: BrotliAlloc, Cb&gt;(
+    alloc: <span class="kw-2">&amp;mut </span>Alloc,
+    input: <span class="kw-2">&amp;</span>[u8],
+    start_pos: usize,
+    length: usize,
+    mask: usize,
+    prev_byte: u8,
+    prev_byte2: u8,
+    is_last: i32,
+    params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
+    literal_context_mode: ContextType,
+    distance_cache: <span class="kw-2">&amp;</span>[i32; kNumDistanceCacheEntries],
+    commands: <span class="kw-2">&amp;</span>[Command],
+    n_commands: usize,
+    mb: <span class="kw-2">&amp;mut </span>MetaBlockSplit&lt;Alloc&gt;,
+    recoder_state: <span class="kw-2">&amp;mut </span>RecoderState,
+    storage_ix: <span class="kw-2">&amp;mut </span>usize,
+    storage: <span class="kw-2">&amp;mut </span>[u8],
+    callback: <span class="kw-2">&amp;mut </span>Cb,
+) <span class="kw">where
+    </span>Cb: FnMut(
+        <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&gt;,
+        <span class="kw-2">&amp;mut </span>[StaticCommand],
+        InputPair,
+        <span class="kw-2">&amp;mut </span>Alloc,
+    ),
+{
+    store_meta_block(
+        alloc,
+        input,
+        start_pos,
+        length,
+        mask,
+        prev_byte,
+        prev_byte2,
+        is_last != <span class="number">0</span>,
+        params,
+        literal_context_mode,
+        distance_cache,
+        commands,
+        n_commands,
+        mb,
+        recoder_state,
+        storage_ix,
+        storage,
+        callback,
+    )
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>store_meta_block&lt;Alloc: BrotliAlloc, Cb&gt;(
     alloc: <span class="kw-2">&amp;mut </span>Alloc,
     input: <span class="kw-2">&amp;</span>[u8],
     start_pos: usize,
@@ -5124,7 +5209,7 @@
     mask: usize,
     <span class="kw-2">mut </span>prev_byte: u8,
     <span class="kw-2">mut </span>prev_byte2: u8,
-    is_last: i32,
+    is_last: bool,
     params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
     literal_context_mode: ContextType,
     distance_cache: <span class="kw-2">&amp;</span>[i32; kNumDistanceCacheEntries],
@@ -5161,7 +5246,6 @@
     <span class="kw">let </span><span class="kw-2">mut </span>pos: usize = start_pos;
     <span class="kw">let </span>num_distance_symbols = params.dist.alphabet_size;
     <span class="kw">let </span><span class="kw-2">mut </span>num_effective_distance_symbols = num_distance_symbols <span class="kw">as </span>usize;
-    <span class="kw">let </span><span class="kw-2">mut </span>tree: &lt;Alloc <span class="kw">as </span>Allocator&lt;HuffmanTree&gt;&gt;::AllocatedMemory;
     <span class="kw">let </span>_literal_context_lut = BROTLI_CONTEXT_LUT(literal_context_mode);
     <span class="kw">let </span><span class="kw-2">mut </span>literal_enc: BlockEncoder&lt;Alloc&gt;;
     <span class="kw">let </span><span class="kw-2">mut </span>command_enc: BlockEncoder&lt;Alloc&gt;;
@@ -5172,11 +5256,7 @@
         num_effective_distance_symbols = BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS;
     }
     StoreCompressedMetaBlockHeader(is_last, length, storage_ix, storage);
-    tree = <span class="kw">if </span><span class="number">2i32 </span>* <span class="number">704i32 </span>+ <span class="number">1i32 </span>!= <span class="number">0 </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HuffmanTree&gt;&gt;::alloc_cell(alloc, (<span class="number">2i32 </span>* <span class="number">704i32 </span>+ <span class="number">1i32</span>) <span class="kw">as </span>usize)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HuffmanTree&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="kw">let </span><span class="kw-2">mut </span>tree = allocate::&lt;HuffmanTree, <span class="kw">_</span>&gt;(alloc, <span class="number">2 </span>* <span class="number">704 </span>+ <span class="number">1</span>);
     literal_enc = BlockEncoder::new(
         BROTLI_NUM_LITERAL_SYMBOLS,
         mb.literal_split.num_types,
@@ -5344,7 +5424,7 @@
     distance_enc.cleanup(alloc);
     command_enc.cleanup(alloc);
     literal_enc.cleanup(alloc);
-    <span class="kw">if </span>is_last != <span class="number">0 </span>{
+    <span class="kw">if </span>is_last {
         JumpToByteBoundary(storage_ix, storage);
     }
 }
@@ -5435,14 +5515,55 @@
     }
 }
 
-<span class="kw">fn </span>nop&lt;<span class="lifetime">'a</span>&gt;(_data: <span class="kw-2">&amp;</span>[interface::Command&lt;InputReference&gt;]) {}
-<span class="kw">pub fn </span>BrotliStoreMetaBlockTrivial&lt;Alloc: BrotliAlloc, Cb&gt;(
+<span class="attr">#[deprecated(note = <span class="string">"use store_meta_block_trivial instead"</span>)]
+</span><span class="kw">pub fn </span>BrotliStoreMetaBlockTrivial&lt;Alloc: BrotliAlloc, Cb&gt;(
     alloc: <span class="kw-2">&amp;mut </span>Alloc,
     input: <span class="kw-2">&amp;</span>[u8],
     start_pos: usize,
     length: usize,
     mask: usize,
     is_last: i32,
+    params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
+    distance_cache: <span class="kw-2">&amp;</span>[i32; kNumDistanceCacheEntries],
+    commands: <span class="kw-2">&amp;</span>[Command],
+    n_commands: usize,
+    recoder_state: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::enc::brotli_bit_stream::RecoderState,
+    storage_ix: <span class="kw-2">&amp;mut </span>usize,
+    storage: <span class="kw-2">&amp;mut </span>[u8],
+    f: <span class="kw-2">&amp;mut </span>Cb,
+) <span class="kw">where
+    </span>Cb: FnMut(
+        <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&gt;,
+        <span class="kw-2">&amp;mut </span>[StaticCommand],
+        InputPair,
+        <span class="kw-2">&amp;mut </span>Alloc,
+    ),
+{
+    store_meta_block_trivial(
+        alloc,
+        input,
+        start_pos,
+        length,
+        mask,
+        is_last != <span class="number">0</span>,
+        params,
+        distance_cache,
+        commands,
+        n_commands,
+        recoder_state,
+        storage_ix,
+        storage,
+        f,
+    )
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>store_meta_block_trivial&lt;Alloc: BrotliAlloc, Cb&gt;(
+    alloc: <span class="kw-2">&amp;mut </span>Alloc,
+    input: <span class="kw-2">&amp;</span>[u8],
+    start_pos: usize,
+    length: usize,
+    mask: usize,
+    is_last: bool,
     params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
     distance_cache: <span class="kw-2">&amp;</span>[i32; kNumDistanceCacheEntries],
     commands: <span class="kw-2">&amp;</span>[Command],
@@ -5549,7 +5670,7 @@
         storage_ix,
         storage,
     );
-    <span class="kw">if </span>is_last != <span class="number">0 </span>{
+    <span class="kw">if </span>is_last {
         JumpToByteBoundary(storage_ix, storage);
     }
 }
@@ -5665,7 +5786,8 @@
     }
 }
 
-<span class="kw">pub fn </span>BrotliStoreMetaBlockFast&lt;Cb, Alloc: BrotliAlloc&gt;(
+<span class="attr">#[deprecated(note = <span class="string">"use store_meta_block_fast instead"</span>)]
+</span><span class="kw">pub fn </span>BrotliStoreMetaBlockFast&lt;Cb, Alloc: BrotliAlloc&gt;(
     m: <span class="kw-2">&amp;mut </span>Alloc,
     input: <span class="kw-2">&amp;</span>[u8],
     start_pos: usize,
@@ -5683,7 +5805,48 @@
 ) <span class="kw">where
     </span>Cb: FnMut(
         <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&gt;,
-        <span class="kw-2">&amp;mut </span>[interface::StaticCommand],
+        <span class="kw-2">&amp;mut </span>[StaticCommand],
+        InputPair,
+        <span class="kw-2">&amp;mut </span>Alloc,
+    ),
+{
+    store_meta_block_fast(
+        m,
+        input,
+        start_pos,
+        length,
+        mask,
+        is_last != <span class="number">0</span>,
+        params,
+        dist_cache,
+        commands,
+        n_commands,
+        recoder_state,
+        storage_ix,
+        storage,
+        cb,
+    );
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>store_meta_block_fast&lt;Cb, Alloc: BrotliAlloc&gt;(
+    m: <span class="kw-2">&amp;mut </span>Alloc,
+    input: <span class="kw-2">&amp;</span>[u8],
+    start_pos: usize,
+    length: usize,
+    mask: usize,
+    is_last: bool,
+    params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
+    dist_cache: <span class="kw-2">&amp;</span>[i32; kNumDistanceCacheEntries],
+    commands: <span class="kw-2">&amp;</span>[Command],
+    n_commands: usize,
+    recoder_state: <span class="kw-2">&amp;mut </span>RecoderState,
+    storage_ix: <span class="kw-2">&amp;mut </span>usize,
+    storage: <span class="kw-2">&amp;mut </span>[u8],
+    cb: <span class="kw-2">&amp;mut </span>Cb,
+) <span class="kw">where
+    </span>Cb: FnMut(
+        <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&gt;,
+        <span class="kw-2">&amp;mut </span>[StaticCommand],
         InputPair,
         <span class="kw-2">&amp;mut </span>Alloc,
     ),
@@ -5826,7 +5989,7 @@
             storage,
         );
     }
-    <span class="kw">if </span>is_last != <span class="number">0 </span>{
+    <span class="kw">if </span>is_last {
         JumpToByteBoundary(storage_ix, storage);
     }
 }
@@ -5861,7 +6024,9 @@
     }
     (<span class="kw-2">&amp;</span>input[masked_pos..masked_pos + len], <span class="kw-2">&amp;</span>[])
 }
-<span class="kw">pub fn </span>BrotliStoreUncompressedMetaBlock&lt;Cb, Alloc: BrotliAlloc&gt;(
+
+<span class="attr">#[deprecated(note = <span class="string">"use store_uncompressed_meta_block instead"</span>)]
+</span><span class="kw">pub fn </span>BrotliStoreUncompressedMetaBlock&lt;Cb, Alloc: BrotliAlloc&gt;(
     alloc: <span class="kw-2">&amp;mut </span>Alloc,
     is_final_block: i32,
     input: <span class="kw-2">&amp;</span>[u8],
@@ -5877,7 +6042,44 @@
 ) <span class="kw">where
     </span>Cb: FnMut(
         <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&gt;,
-        <span class="kw-2">&amp;mut </span>[interface::StaticCommand],
+        <span class="kw-2">&amp;mut </span>[StaticCommand],
+        InputPair,
+        <span class="kw-2">&amp;mut </span>Alloc,
+    ),
+{
+    store_uncompressed_meta_block(
+        alloc,
+        is_final_block != <span class="number">0</span>,
+        input,
+        position,
+        mask,
+        params,
+        len,
+        recoder_state,
+        storage_ix,
+        storage,
+        suppress_meta_block_logging,
+        cb,
+    )
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>store_uncompressed_meta_block&lt;Cb, Alloc: BrotliAlloc&gt;(
+    alloc: <span class="kw-2">&amp;mut </span>Alloc,
+    is_final_block: bool,
+    input: <span class="kw-2">&amp;</span>[u8],
+    position: usize,
+    mask: usize,
+    params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
+    len: usize,
+    recoder_state: <span class="kw-2">&amp;mut </span>RecoderState,
+    storage_ix: <span class="kw-2">&amp;mut </span>usize,
+    storage: <span class="kw-2">&amp;mut </span>[u8],
+    suppress_meta_block_logging: bool,
+    cb: <span class="kw-2">&amp;mut </span>Cb,
+) <span class="kw">where
+    </span>Cb: FnMut(
+        <span class="kw-2">&amp;mut </span>interface::PredictionModeContextMap&lt;InputReferenceMut&gt;,
+        <span class="kw-2">&amp;mut </span>[StaticCommand],
         InputPair,
         <span class="kw-2">&amp;mut </span>Alloc,
     ),
@@ -5914,7 +6116,7 @@
             cb,
         );
     }
-    <span class="kw">if </span>is_final_block != <span class="number">0 </span>{
+    <span class="kw">if </span>is_final_block {
         BrotliWriteBits(<span class="number">1u8</span>, <span class="number">1u64</span>, storage_ix, storage);
         BrotliWriteBits(<span class="number">1u8</span>, <span class="number">1u64</span>, storage_ix, storage);
         JumpToByteBoundary(storage_ix, storage);
@@ -5977,8 +6179,10 @@
     }
 }
 
-<span class="kw">mod </span>test {
-    <span class="kw">use super</span>::{encode_base_128, MAX_SIZE_ENCODING};
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>test {
+    <span class="kw">use </span><span class="kw">crate</span>::enc::brotli_bit_stream::{encode_base_128, MAX_SIZE_ENCODING};
+
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_encode_base_128() {
         <span class="macro">assert_eq!</span>(encode_base_128(<span class="number">0</span>), (<span class="number">1</span>, [<span class="number">0u8</span>; MAX_SIZE_ENCODING]));

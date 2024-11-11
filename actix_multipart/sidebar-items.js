@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["MultipartError"],"mod":["form","test"],"struct":["Field","Multipart"]};
+window.SIDEBAR_ITEMS = {"enum":["MultipartError"],"mod":["form","test"],"struct":["Field","LimitExceeded","Multipart"]};

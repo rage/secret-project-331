@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.31.1/src/read/line.rs`."><title>line.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3119,10 +3119,72 @@
 <a href="#3119" id="3119">3119</a>
 <a href="#3120" id="3120">3120</a>
 <a href="#3121" id="3121">3121</a>
+<a href="#3122" id="3122">3122</a>
+<a href="#3123" id="3123">3123</a>
+<a href="#3124" id="3124">3124</a>
+<a href="#3125" id="3125">3125</a>
+<a href="#3126" id="3126">3126</a>
+<a href="#3127" id="3127">3127</a>
+<a href="#3128" id="3128">3128</a>
+<a href="#3129" id="3129">3129</a>
+<a href="#3130" id="3130">3130</a>
+<a href="#3131" id="3131">3131</a>
+<a href="#3132" id="3132">3132</a>
+<a href="#3133" id="3133">3133</a>
+<a href="#3134" id="3134">3134</a>
+<a href="#3135" id="3135">3135</a>
+<a href="#3136" id="3136">3136</a>
+<a href="#3137" id="3137">3137</a>
+<a href="#3138" id="3138">3138</a>
+<a href="#3139" id="3139">3139</a>
+<a href="#3140" id="3140">3140</a>
+<a href="#3141" id="3141">3141</a>
+<a href="#3142" id="3142">3142</a>
+<a href="#3143" id="3143">3143</a>
+<a href="#3144" id="3144">3144</a>
+<a href="#3145" id="3145">3145</a>
+<a href="#3146" id="3146">3146</a>
+<a href="#3147" id="3147">3147</a>
+<a href="#3148" id="3148">3148</a>
+<a href="#3149" id="3149">3149</a>
+<a href="#3150" id="3150">3150</a>
+<a href="#3151" id="3151">3151</a>
+<a href="#3152" id="3152">3152</a>
+<a href="#3153" id="3153">3153</a>
+<a href="#3154" id="3154">3154</a>
+<a href="#3155" id="3155">3155</a>
+<a href="#3156" id="3156">3156</a>
+<a href="#3157" id="3157">3157</a>
+<a href="#3158" id="3158">3158</a>
+<a href="#3159" id="3159">3159</a>
+<a href="#3160" id="3160">3160</a>
+<a href="#3161" id="3161">3161</a>
+<a href="#3162" id="3162">3162</a>
+<a href="#3163" id="3163">3163</a>
+<a href="#3164" id="3164">3164</a>
+<a href="#3165" id="3165">3165</a>
+<a href="#3166" id="3166">3166</a>
+<a href="#3167" id="3167">3167</a>
+<a href="#3168" id="3168">3168</a>
+<a href="#3169" id="3169">3169</a>
+<a href="#3170" id="3170">3170</a>
+<a href="#3171" id="3171">3171</a>
+<a href="#3172" id="3172">3172</a>
+<a href="#3173" id="3173">3173</a>
+<a href="#3174" id="3174">3174</a>
+<a href="#3175" id="3175">3175</a>
+<a href="#3176" id="3176">3176</a>
+<a href="#3177" id="3177">3177</a>
+<a href="#3178" id="3178">3178</a>
+<a href="#3179" id="3179">3179</a>
+<a href="#3180" id="3180">3180</a>
+<a href="#3181" id="3181">3181</a>
+<a href="#3182" id="3182">3182</a>
+<a href="#3183" id="3183">3183</a>
+<a href="#3184" id="3184">3184</a>
+<a href="#3185" id="3185">3185</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::vec::Vec;
-<span class="kw">use </span>core::fmt;
 <span class="kw">use </span>core::num::{NonZeroU64, Wrapping};
-<span class="kw">use </span>core::result;
 
 <span class="kw">use </span><span class="kw">crate</span>::common::{
     DebugLineOffset, DebugLineStrOffset, DebugStrOffset, DebugStrOffsetsIndex, Encoding, Format,
@@ -3130,7 +3192,9 @@
 };
 <span class="kw">use </span><span class="kw">crate</span>::constants;
 <span class="kw">use </span><span class="kw">crate</span>::endianity::Endianity;
-<span class="kw">use </span><span class="kw">crate</span>::read::{AttributeValue, EndianSlice, Error, Reader, ReaderOffset, <span class="prelude-ty">Result</span>, Section};
+<span class="kw">use </span><span class="kw">crate</span>::read::{
+    AttributeValue, EndianSlice, Error, Reader, ReaderAddress, ReaderOffset, <span class="prelude-ty">Result</span>, Section,
+};
 
 <span class="doccomment">/// The `DebugLine` struct contains the source location to instruction mapping
 /// found in the `.debug_line` section.
@@ -3361,7 +3425,7 @@
                 <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(instruction)) =&gt; {
-                    <span class="kw">if </span><span class="self">self</span>.row.execute(instruction, <span class="kw-2">&amp;mut </span><span class="self">self</span>.program) {
+                    <span class="kw">if </span><span class="self">self</span>.row.execute(instruction, <span class="kw-2">&amp;mut </span><span class="self">self</span>.program)<span class="question-mark">? </span>{
                         <span class="kw">if </span><span class="self">self</span>.row.tombstone {
                             <span class="comment">// Perform any reset that was required for the tombstone row.
                             // Normally this is done when `next_row` is called again, but for
@@ -3397,10 +3461,10 @@
     /// &gt;   1. Add a signed integer to the line register.
     /// &gt;
     /// &gt;   2. Modify the operation pointer by incrementing the address and
-    /// &gt;   op_index registers as described below.
+    /// &gt;      op_index registers as described below.
     /// &gt;
     /// &gt;   3. Append a row to the matrix using the current values of the state
-    /// &gt;   machine registers.
+    /// &gt;      machine registers.
     /// &gt;
     /// &gt;   4. Set the basic_block register to “false.”
     /// &gt;
@@ -3637,58 +3701,6 @@
     }
 }
 
-<span class="kw">impl</span>&lt;R, Offset&gt; fmt::Display <span class="kw">for </span>LineInstruction&lt;R, Offset&gt;
-<span class="kw">where
-    </span>R: Reader&lt;Offset = Offset&gt;,
-    Offset: ReaderOffset,
-{
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; result::Result&lt;(), fmt::Error&gt; {
-        <span class="kw">match </span><span class="kw-2">*</span><span class="self">self </span>{
-            LineInstruction::Special(opcode) =&gt; <span class="macro">write!</span>(f, <span class="string">"Special opcode {}"</span>, opcode),
-            LineInstruction::Copy =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_copy),
-            LineInstruction::AdvancePc(advance) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} by {}"</span>, constants::DW_LNS_advance_pc, advance)
-            }
-            LineInstruction::AdvanceLine(increment) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} by {}"</span>, constants::DW_LNS_advance_line, increment)
-            }
-            LineInstruction::SetFile(file) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNS_set_file, file)
-            }
-            LineInstruction::SetColumn(column) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNS_set_column, column)
-            }
-            LineInstruction::NegateStatement =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_negate_stmt),
-            LineInstruction::SetBasicBlock =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_set_basic_block),
-            LineInstruction::ConstAddPc =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_const_add_pc),
-            LineInstruction::FixedAddPc(advance) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} by {}"</span>, constants::DW_LNS_fixed_advance_pc, advance)
-            }
-            LineInstruction::SetPrologueEnd =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_set_prologue_end),
-            LineInstruction::SetEpilogueBegin =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNS_set_epilogue_begin)
-            }
-            LineInstruction::SetIsa(isa) =&gt; <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNS_set_isa, isa),
-            LineInstruction::UnknownStandard0(opcode) =&gt; <span class="macro">write!</span>(f, <span class="string">"Unknown {}"</span>, opcode),
-            LineInstruction::UnknownStandard1(opcode, arg) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"Unknown {} with operand {}"</span>, opcode, arg)
-            }
-            LineInstruction::UnknownStandardN(opcode, <span class="kw-2">ref </span>args) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"Unknown {} with operands {:?}"</span>, opcode, args)
-            }
-            LineInstruction::EndSequence =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNE_end_sequence),
-            LineInstruction::SetAddress(address) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNE_set_address, address)
-            }
-            LineInstruction::DefineFile(<span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"{}"</span>, constants::DW_LNE_define_file),
-            LineInstruction::SetDiscriminator(discr) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">"{} to {}"</span>, constants::DW_LNE_set_discriminator, discr)
-            }
-            LineInstruction::UnknownExtended(opcode, <span class="kw">_</span>) =&gt; <span class="macro">write!</span>(f, <span class="string">"Unknown {}"</span>, opcode),
-        }
-    }
-}
-
 <span class="doccomment">/// Deprecated. `OpcodesIter` has been renamed to `LineInstructions`.
 </span><span class="attr">#[deprecated(note = <span class="string">"OpcodesIter has been renamed to LineInstructions, use that instead."</span>)]
 </span><span class="kw">pub type </span>OpcodesIter&lt;R&gt; = LineInstructions&lt;R&gt;;
@@ -3752,7 +3764,7 @@
 </span><span class="attr">#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 </span><span class="kw">pub struct </span>LineRow {
     tombstone: bool,
-    address: Wrapping&lt;u64&gt;,
+    address: u64,
     op_index: Wrapping&lt;u64&gt;,
     file: u64,
     line: Wrapping&lt;u64&gt;,
@@ -3773,7 +3785,7 @@
             <span class="comment">// "At the beginning of each sequence within a line number program, the
             // state of the registers is:" -- Section 6.2.2
             </span>tombstone: <span class="bool-val">false</span>,
-            address: Wrapping(<span class="number">0</span>),
+            address: <span class="number">0</span>,
             op_index: Wrapping(<span class="number">0</span>),
             file: <span class="number">1</span>,
             line: Wrapping(<span class="number">1</span>),
@@ -3797,8 +3809,8 @@
     /// generated by the compiler."
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        <span class="self">self</span>.address.<span class="number">0
-    </span>}
+        <span class="self">self</span>.address
+    }
 
     <span class="doccomment">/// &gt; An unsigned integer representing the index of an operation within a VLIW
     /// &gt; instruction. The index of the first operation is 0. For non-VLIW
@@ -3921,21 +3933,21 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         instruction: LineInstruction&lt;R&gt;,
         program: <span class="kw-2">&amp;mut </span>Program,
-    ) -&gt; bool
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;bool&gt;
     <span class="kw">where
         </span>Program: LineProgram&lt;R&gt;,
         R: Reader,
     {
-        <span class="kw">match </span>instruction {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span>instruction {
             LineInstruction::Special(opcode) =&gt; {
-                <span class="self">self</span>.exec_special_opcode(opcode, program.header());
+                <span class="self">self</span>.exec_special_opcode(opcode, program.header())<span class="question-mark">?</span>;
                 <span class="bool-val">true
             </span>}
 
             LineInstruction::Copy =&gt; <span class="bool-val">true</span>,
 
             LineInstruction::AdvancePc(operation_advance) =&gt; {
-                <span class="self">self</span>.apply_operation_advance(operation_advance, program.header());
+                <span class="self">self</span>.apply_operation_advance(operation_advance, program.header())<span class="question-mark">?</span>;
                 <span class="bool-val">false
             </span>}
 
@@ -3967,13 +3979,16 @@
             LineInstruction::ConstAddPc =&gt; {
                 <span class="kw">let </span>adjusted = <span class="self">self</span>.adjust_opcode(<span class="number">255</span>, program.header());
                 <span class="kw">let </span>operation_advance = adjusted / program.header().line_encoding.line_range;
-                <span class="self">self</span>.apply_operation_advance(u64::from(operation_advance), program.header());
+                <span class="self">self</span>.apply_operation_advance(u64::from(operation_advance), program.header())<span class="question-mark">?</span>;
                 <span class="bool-val">false
             </span>}
 
             LineInstruction::FixedAddPc(operand) =&gt; {
-                <span class="self">self</span>.address += Wrapping(u64::from(operand));
-                <span class="self">self</span>.op_index.<span class="number">0 </span>= <span class="number">0</span>;
+                <span class="kw">if </span>!<span class="self">self</span>.tombstone {
+                    <span class="kw">let </span>address_size = program.header().address_size();
+                    <span class="self">self</span>.address = <span class="self">self</span>.address.add_sized(u64::from(operand), address_size)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.op_index.<span class="number">0 </span>= <span class="number">0</span>;
+                }
                 <span class="bool-val">false
             </span>}
 
@@ -3998,10 +4013,19 @@
             </span>}
 
             LineInstruction::SetAddress(address) =&gt; {
-                <span class="kw">let </span>tombstone_address = !<span class="number">0 </span>&gt;&gt; (<span class="number">64 </span>- program.header().encoding.address_size * <span class="number">8</span>);
-                <span class="self">self</span>.tombstone = address == tombstone_address;
-                <span class="self">self</span>.address.<span class="number">0 </span>= address;
-                <span class="self">self</span>.op_index.<span class="number">0 </span>= <span class="number">0</span>;
+                <span class="comment">// If the address is a tombstone, then skip instructions until the next address.
+                // DWARF specifies a tombstone value of -1, but many linkers use 0.
+                // However, 0 may be a valid address, so we only skip that if we have previously
+                // seen a higher address. Additionally, gold may keep the relocation addend,
+                // so we treat all lower addresses as tombstones instead of just 0.
+                // This works because DWARF specifies that addresses are monotonically increasing
+                // within a sequence; the alternative is to return an error.
+                </span><span class="kw">let </span>tombstone_address = !<span class="number">0 </span>&gt;&gt; (<span class="number">64 </span>- program.header().encoding.address_size * <span class="number">8</span>);
+                <span class="self">self</span>.tombstone = address &lt; <span class="self">self</span>.address || address == tombstone_address;
+                <span class="kw">if </span>!<span class="self">self</span>.tombstone {
+                    <span class="self">self</span>.address = address;
+                    <span class="self">self</span>.op_index.<span class="number">0 </span>= <span class="number">0</span>;
+                }
                 <span class="bool-val">false
             </span>}
 
@@ -4020,7 +4044,7 @@
             | LineInstruction::UnknownStandard1(<span class="kw">_</span>, <span class="kw">_</span>)
             | LineInstruction::UnknownStandardN(<span class="kw">_</span>, <span class="kw">_</span>)
             | LineInstruction::UnknownExtended(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
-        }
+        })
     }
 
     <span class="doccomment">/// Perform any reset that was required after copying the previous row.
@@ -4061,7 +4085,11 @@
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         operation_advance: u64,
         header: <span class="kw-2">&amp;</span>LineProgramHeader&lt;R&gt;,
-    ) {
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.tombstone {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
+        }
+
         <span class="kw">let </span>operation_advance = Wrapping(operation_advance);
 
         <span class="kw">let </span>minimum_instruction_length = u64::from(header.line_encoding.minimum_instruction_length);
@@ -4071,15 +4099,19 @@
             u64::from(header.line_encoding.maximum_operations_per_instruction);
         <span class="kw">let </span>maximum_operations_per_instruction = Wrapping(maximum_operations_per_instruction);
 
-        <span class="kw">if </span>maximum_operations_per_instruction.<span class="number">0 </span>== <span class="number">1 </span>{
-            <span class="self">self</span>.address += minimum_instruction_length * operation_advance;
+        <span class="kw">let </span>address_advance = <span class="kw">if </span>maximum_operations_per_instruction.<span class="number">0 </span>== <span class="number">1 </span>{
             <span class="self">self</span>.op_index.<span class="number">0 </span>= <span class="number">0</span>;
+            minimum_instruction_length * operation_advance
         } <span class="kw">else </span>{
             <span class="kw">let </span>op_index_with_advance = <span class="self">self</span>.op_index + operation_advance;
-            <span class="self">self</span>.address += minimum_instruction_length
-                * (op_index_with_advance / maximum_operations_per_instruction);
             <span class="self">self</span>.op_index = op_index_with_advance % maximum_operations_per_instruction;
-        }
+            minimum_instruction_length
+                * (op_index_with_advance / maximum_operations_per_instruction)
+        };
+        <span class="self">self</span>.address = <span class="self">self
+            </span>.address
+            .add_sized(address_advance.<span class="number">0</span>, header.address_size())<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="attr">#[inline]
@@ -4088,7 +4120,11 @@
     }
 
     <span class="doccomment">/// Section 6.2.5.1
-    </span><span class="kw">fn </span>exec_special_opcode&lt;R: Reader&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, opcode: u8, header: <span class="kw-2">&amp;</span>LineProgramHeader&lt;R&gt;) {
+    </span><span class="kw">fn </span>exec_special_opcode&lt;R: Reader&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        opcode: u8,
+        header: <span class="kw-2">&amp;</span>LineProgramHeader&lt;R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>adjusted_opcode = <span class="self">self</span>.adjust_opcode(opcode, header);
 
         <span class="kw">let </span>line_range = header.line_encoding.line_range;
@@ -4100,7 +4136,8 @@
         <span class="self">self</span>.apply_line_advance(line_base + i64::from(line_advance));
 
         <span class="comment">// Step 2
-        </span><span class="self">self</span>.apply_operation_advance(u64::from(operation_advance), header);
+        </span><span class="self">self</span>.apply_operation_advance(u64::from(operation_advance), header)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -4345,6 +4382,13 @@
             .any(|x| x.content_type == constants::DW_LNCT_MD5)
     }
 
+    <span class="doccomment">/// Return true if the file name entry format contains a source field.
+    </span><span class="kw">pub fn </span>file_has_source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.file_name_entry_format
+            .iter()
+            .any(|x| x.content_type == constants::DW_LNCT_LLVM_source)
+    }
+
     <span class="doccomment">/// Get the list of source files that appear in this header's line program.
     </span><span class="kw">pub fn </span>file_names(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[FileEntry&lt;R, Offset&gt;] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.file_names[..]
@@ -4414,7 +4458,7 @@
         }
 
         <span class="kw">if </span>version &gt;= <span class="number">5 </span>{
-            address_size = rest.read_u8()<span class="question-mark">?</span>;
+            address_size = rest.read_address_size()<span class="question-mark">?</span>;
             <span class="kw">let </span>segment_selector_size = rest.read_u8()<span class="question-mark">?</span>;
             <span class="kw">if </span>segment_selector_size != <span class="number">0 </span>{
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedSegmentSize);
@@ -4501,6 +4545,7 @@
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
                 md5: [<span class="number">0</span>; <span class="number">16</span>],
+                source: <span class="prelude-val">None</span>,
             });
 
             file_name_entry_format = Vec::new();
@@ -4700,6 +4745,7 @@
     timestamp: u64,
     size: u64,
     md5: [u8; <span class="number">16</span>],
+    source: <span class="prelude-ty">Option</span>&lt;AttributeValue&lt;R, Offset&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;R, Offset&gt; FileEntry&lt;R, Offset&gt;
@@ -4719,6 +4765,7 @@
             timestamp,
             size,
             md5: [<span class="number">0</span>; <span class="number">16</span>],
+            source: <span class="prelude-val">None</span>,
         };
 
         <span class="prelude-val">Ok</span>(entry)
@@ -4788,6 +4835,16 @@
     </span><span class="kw">pub fn </span>md5(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>[u8; <span class="number">16</span>] {
         <span class="kw-2">&amp;</span><span class="self">self</span>.md5
     }
+
+    <span class="doccomment">/// The source code of this file. (UTF-8 source text string with "\n" line
+    /// endings).
+    ///
+    /// Note: For DWARF v5 files this may return an empty attribute that
+    /// indicates that no source code is available, which this function
+    /// represents as `Some(&lt;zero-length attr&gt;)`.
+    </span><span class="kw">pub fn </span>source(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;AttributeValue&lt;R, Offset&gt;&gt; {
+        <span class="self">self</span>.source.clone()
+    }
 }
 
 <span class="doccomment">/// The format of a component of an include directory or file name entry.
@@ -4807,8 +4864,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>path_count = <span class="number">0</span>;
         <span class="kw">for _ in </span><span class="number">0</span>..format_count {
             <span class="kw">let </span>content_type = input.read_uleb128()<span class="question-mark">?</span>;
-            <span class="kw">let </span>content_type = <span class="kw">if </span>content_type &gt; u64::from(u16::max_value()) {
-                constants::DwLnct(u16::max_value())
+            <span class="kw">let </span>content_type = <span class="kw">if </span>content_type &gt; u64::from(u16::MAX) {
+                constants::DwLnct(u16::MAX)
             } <span class="kw">else </span>{
                 constants::DwLnct(content_type <span class="kw">as </span>u16)
             };
@@ -4854,6 +4911,7 @@
     <span class="kw">let </span><span class="kw-2">mut </span>timestamp = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>size = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>md5 = [<span class="number">0</span>; <span class="number">16</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>source = <span class="prelude-val">None</span>;
 
     <span class="kw">for </span>format <span class="kw">in </span>formats {
         <span class="kw">let </span>value = parse_attribute(input, encoding, format.form)<span class="question-mark">?</span>;
@@ -4881,6 +4939,9 @@
                     }
                 }
             }
+            constants::DW_LNCT_LLVM_source =&gt; {
+                source = <span class="prelude-val">Some</span>(value);
+            }
             <span class="comment">// Ignore unknown content types.
             </span><span class="kw">_ </span>=&gt; {}
         }
@@ -4892,6 +4953,7 @@
         timestamp,
         size,
         md5,
+        source,
     })
 }
 
@@ -4995,7 +5057,7 @@
             AttributeValue::DebugStrOffsetsIndex(DebugStrOffsetsIndex(index))
         }
         <span class="kw">_ </span>=&gt; {
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownForm);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownForm(form));
         }
     })
 }
@@ -5007,8 +5069,6 @@
     <span class="kw">use </span><span class="kw">crate</span>::endianity::LittleEndian;
     <span class="kw">use </span><span class="kw">crate</span>::read::{EndianSlice, Error};
     <span class="kw">use </span><span class="kw">crate</span>::test_util::GimliSectionMethods;
-    <span class="kw">use </span>core::u64;
-    <span class="kw">use </span>core::u8;
     <span class="kw">use </span>test_assembler::{Endian, Label, LabelMaker, Section};
 
     <span class="attr">#[test]
@@ -5107,6 +5167,7 @@
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
                 md5: [<span class="number">0</span>; <span class="number">16</span>],
+                source: <span class="prelude-val">None</span>,
             },
             FileEntry {
                 path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"bar.h"</span>, LittleEndian)),
@@ -5114,6 +5175,7 @@
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
                 md5: [<span class="number">0</span>; <span class="number">16</span>],
+                source: <span class="prelude-val">None</span>,
             },
         ];
         <span class="macro">assert_eq!</span>(header.file_names(), <span class="kw-2">&amp;</span>expected_file_names);
@@ -5245,8 +5307,8 @@
     <span class="kw">const </span>STANDARD_OPCODE_LENGTHS: <span class="kw-2">&amp;</span>[u8] = <span class="kw-2">&amp;</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>];
 
     <span class="kw">fn </span>make_test_header(
-        buf: EndianSlice&lt;LittleEndian&gt;,
-    ) -&gt; LineProgramHeader&lt;EndianSlice&lt;LittleEndian&gt;&gt; {
+        buf: EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;,
+    ) -&gt; LineProgramHeader&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt; {
         <span class="kw">let </span>encoding = Encoding {
             format: Format::Dwarf32,
             version: <span class="number">4</span>,
@@ -5272,6 +5334,7 @@
                     timestamp: <span class="number">0</span>,
                     size: <span class="number">0</span>,
                     md5: [<span class="number">0</span>; <span class="number">16</span>],
+                    source: <span class="prelude-val">None</span>,
                 },
                 FileEntry {
                     path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"bar.rs"</span>, LittleEndian)),
@@ -5279,6 +5342,7 @@
                     timestamp: <span class="number">0</span>,
                     size: <span class="number">0</span>,
                     md5: [<span class="number">0</span>; <span class="number">16</span>],
+                    source: <span class="prelude-val">None</span>,
                 },
             ],
             include_directories: <span class="macro">vec!</span>[],
@@ -5291,8 +5355,8 @@
     }
 
     <span class="kw">fn </span>make_test_program(
-        buf: EndianSlice&lt;LittleEndian&gt;,
-    ) -&gt; IncompleteLineProgram&lt;EndianSlice&lt;LittleEndian&gt;&gt; {
+        buf: EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;,
+    ) -&gt; IncompleteLineProgram&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt; {
         IncompleteLineProgram {
             header: make_test_header(buf),
         }
@@ -5319,7 +5383,7 @@
         <span class="kw">fn </span>test&lt;Operands&gt;(
             raw: constants::DwLns,
             operands: Operands,
-            expected: LineInstruction&lt;EndianSlice&lt;LittleEndian&gt;&gt;,
+            expected: LineInstruction&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt;,
         ) <span class="kw">where
             </span>Operands: AsRef&lt;[u8]&gt;,
         {
@@ -5462,7 +5526,7 @@
         <span class="kw">fn </span>test&lt;Operands&gt;(
             raw: constants::DwLne,
             operands: Operands,
-            expected: LineInstruction&lt;EndianSlice&lt;LittleEndian&gt;&gt;,
+            expected: LineInstruction&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt;,
         ) <span class="kw">where
             </span>Operands: AsRef&lt;[u8]&gt;,
         {
@@ -5525,6 +5589,7 @@
                 timestamp: <span class="number">1</span>,
                 size: <span class="number">2</span>,
                 md5: [<span class="number">0</span>; <span class="number">16</span>],
+                source: <span class="prelude-val">None</span>,
             }),
         );
 
@@ -5548,6 +5613,7 @@
             timestamp: <span class="number">0</span>,
             size: <span class="number">0</span>,
             md5: [<span class="number">0</span>; <span class="number">16</span>],
+            source: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let </span><span class="kw-2">mut </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
@@ -5572,7 +5638,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>program = IncompleteLineProgram { header };
         <span class="kw">let </span>is_new_row = registers.execute(opcode, <span class="kw-2">&amp;mut </span>program);
 
-        <span class="macro">assert_eq!</span>(is_new_row, expect_new_row);
+        <span class="macro">assert_eq!</span>(is_new_row, <span class="prelude-val">Ok</span>(expect_new_row));
         <span class="macro">assert_eq!</span>(registers, expected_registers);
     }
 
@@ -5625,7 +5691,7 @@
         <span class="kw">let </span>opcode = LineInstruction::Special(<span class="number">52</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>+= <span class="number">3</span>;
+        expected_registers.address += <span class="number">3</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">true</span>);
     }
@@ -5639,7 +5705,7 @@
         <span class="kw">let </span>opcode = LineInstruction::Special(<span class="number">55</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>+= <span class="number">3</span>;
+        expected_registers.address += <span class="number">3</span>;
         expected_registers.line.<span class="number">0 </span>+= <span class="number">3</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">true</span>);
@@ -5655,7 +5721,7 @@
         <span class="kw">let </span>opcode = LineInstruction::Special(<span class="number">49</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>+= <span class="number">3</span>;
+        expected_registers.address += <span class="number">3</span>;
         expected_registers.line.<span class="number">0 </span>-= <span class="number">3</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">true</span>);
@@ -5684,7 +5750,7 @@
         <span class="kw">let </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
 
         <span class="kw">let </span><span class="kw-2">mut </span>initial_registers = LineRow::new(<span class="kw-2">&amp;</span>header);
-        initial_registers.address.<span class="number">0 </span>= <span class="number">1337</span>;
+        initial_registers.address = <span class="number">1337</span>;
         initial_registers.line.<span class="number">0 </span>= <span class="number">42</span>;
 
         <span class="kw">let </span>opcode = LineInstruction::Copy;
@@ -5701,23 +5767,33 @@
         <span class="kw">let </span>opcode = LineInstruction::AdvancePc(<span class="number">42</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>+= <span class="number">42</span>;
+        expected_registers.address += <span class="number">42</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
     }
 
     <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_exec_advance_pc_overflow() {
-        <span class="kw">let </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
+    </span><span class="kw">fn </span>test_exec_advance_pc_overflow_32() {
+        <span class="kw">let </span><span class="kw-2">mut </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
+        header.encoding.address_size = <span class="number">4</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>registers = LineRow::new(<span class="kw-2">&amp;</span>header);
+        registers.address = u32::MAX.into();
         <span class="kw">let </span>opcode = LineInstruction::AdvancePc(<span class="number">42</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>program = IncompleteLineProgram { header };
+        <span class="kw">let </span>result = registers.execute(opcode, <span class="kw-2">&amp;mut </span>program);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(Error::AddressOverflow));
+    }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>initial_registers = LineRow::new(<span class="kw-2">&amp;</span>header);
-        initial_registers.address.<span class="number">0 </span>= u64::MAX;
-
-        <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>= <span class="number">41</span>;
-
-        assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_exec_advance_pc_overflow_64() {
+        <span class="kw">let </span><span class="kw-2">mut </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
+        header.encoding.address_size = <span class="number">8</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>registers = LineRow::new(<span class="kw-2">&amp;</span>header);
+        registers.address = u64::MAX;
+        <span class="kw">let </span>opcode = LineInstruction::AdvancePc(<span class="number">42</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>program = IncompleteLineProgram { header };
+        <span class="kw">let </span>result = registers.execute(opcode, <span class="kw-2">&amp;mut </span>program);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(Error::AddressOverflow));
     }
 
     <span class="attr">#[test]
@@ -5850,9 +5926,20 @@
         <span class="kw">let </span>opcode = LineInstruction::ConstAddPc;
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>+= <span class="number">20</span>;
+        expected_registers.address += <span class="number">20</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_exec_const_add_pc_overflow() {
+        <span class="kw">let </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
+        <span class="kw">let </span><span class="kw-2">mut </span>registers = LineRow::new(<span class="kw-2">&amp;</span>header);
+        registers.address = u64::MAX;
+        <span class="kw">let </span>opcode = LineInstruction::ConstAddPc;
+        <span class="kw">let </span><span class="kw-2">mut </span>program = IncompleteLineProgram { header };
+        <span class="kw">let </span>result = registers.execute(opcode, <span class="kw-2">&amp;mut </span>program);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(Error::AddressOverflow));
     }
 
     <span class="attr">#[test]
@@ -5865,10 +5952,22 @@
         <span class="kw">let </span>opcode = LineInstruction::FixedAddPc(<span class="number">10</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>+= <span class="number">10</span>;
+        expected_registers.address += <span class="number">10</span>;
         expected_registers.op_index.<span class="number">0 </span>= <span class="number">0</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_exec_fixed_add_pc_overflow() {
+        <span class="kw">let </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
+        <span class="kw">let </span><span class="kw-2">mut </span>registers = LineRow::new(<span class="kw-2">&amp;</span>header);
+        registers.address = u64::MAX;
+        registers.op_index.<span class="number">0 </span>= <span class="number">1</span>;
+        <span class="kw">let </span>opcode = LineInstruction::FixedAddPc(<span class="number">10</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>program = IncompleteLineProgram { header };
+        <span class="kw">let </span>result = registers.execute(opcode, <span class="kw-2">&amp;mut </span>program);
+        <span class="macro">assert_eq!</span>(result, <span class="prelude-val">Err</span>(Error::AddressOverflow));
     }
 
     <span class="attr">#[test]
@@ -5947,7 +6046,7 @@
         <span class="kw">let </span>opcode = LineInstruction::SetAddress(<span class="number">3030</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
-        expected_registers.address.<span class="number">0 </span>= <span class="number">3030</span>;
+        expected_registers.address = <span class="number">3030</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
     }
@@ -5960,7 +6059,19 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
         expected_registers.tombstone = <span class="bool-val">true</span>;
-        expected_registers.address.<span class="number">0 </span>= !<span class="number">0</span>;
+
+        assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_exec_set_address_backwards() {
+        <span class="kw">let </span>header = make_test_header(EndianSlice::new(<span class="kw-2">&amp;</span>[], LittleEndian));
+        <span class="kw">let </span><span class="kw-2">mut </span>initial_registers = LineRow::new(<span class="kw-2">&amp;</span>header);
+        initial_registers.address = <span class="number">1</span>;
+        <span class="kw">let </span>opcode = LineInstruction::SetAddress(<span class="number">0</span>);
+
+        <span class="kw">let </span><span class="kw-2">mut </span>expected_registers = initial_registers;
+        expected_registers.tombstone = <span class="bool-val">true</span>;
 
         assert_exec_opcode(header, initial_registers, opcode, expected_registers, <span class="bool-val">false</span>);
     }
@@ -5976,10 +6087,11 @@
             timestamp: <span class="number">0</span>,
             size: <span class="number">0</span>,
             md5: [<span class="number">0</span>; <span class="number">16</span>],
+            source: <span class="prelude-val">None</span>,
         };
 
         <span class="kw">let </span>opcode = LineInstruction::DefineFile(file);
-        <span class="kw">let </span>is_new_row = row.execute(opcode, <span class="kw-2">&amp;mut </span>program);
+        <span class="kw">let </span>is_new_row = row.execute(opcode, <span class="kw-2">&amp;mut </span>program).unwrap();
 
         <span class="macro">assert!</span>(!is_new_row);
         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>file), program.header().file_names.last());
@@ -6037,6 +6149,10 @@
                 timestamp: <span class="number">0</span>,
                 size: <span class="number">0</span>,
                 md5: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>],
+                source: <span class="prelude-val">Some</span>(AttributeValue::String(EndianSlice::new(
+                    <span class="string">b"foobar"</span>,
+                    LittleEndian,
+                ))),
             },
             FileEntry {
                 path_name: AttributeValue::String(EndianSlice::new(<span class="string">b"file2"</span>, LittleEndian)),
@@ -6046,6 +6162,10 @@
                 md5: [
                     <span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>, <span class="number">14</span>, <span class="number">15</span>, <span class="number">16</span>, <span class="number">17</span>, <span class="number">18</span>, <span class="number">19</span>, <span class="number">20</span>, <span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>, <span class="number">24</span>, <span class="number">25</span>, <span class="number">26</span>,
                 ],
+                source: <span class="prelude-val">Some</span>(AttributeValue::String(EndianSlice::new(
+                    <span class="string">b"quux"</span>,
+                    LittleEndian,
+                ))),
             },
         ];
 
@@ -6088,21 +6208,25 @@
                 .append_bytes(<span class="string">b"dir1\0"</span>)
                 .append_bytes(<span class="string">b"dir2\0"</span>)
                 <span class="comment">// File entry format count.
-                </span>.D8(<span class="number">3</span>)
+                </span>.D8(<span class="number">4</span>)
                 .uleb(constants::DW_LNCT_path.<span class="number">0 </span><span class="kw">as </span>u64)
                 .uleb(constants::DW_FORM_string.<span class="number">0 </span><span class="kw">as </span>u64)
                 .uleb(constants::DW_LNCT_directory_index.<span class="number">0 </span><span class="kw">as </span>u64)
                 .uleb(constants::DW_FORM_data1.<span class="number">0 </span><span class="kw">as </span>u64)
                 .uleb(constants::DW_LNCT_MD5.<span class="number">0 </span><span class="kw">as </span>u64)
                 .uleb(constants::DW_FORM_data16.<span class="number">0 </span><span class="kw">as </span>u64)
+                .uleb(constants::DW_LNCT_LLVM_source.<span class="number">0 </span><span class="kw">as </span>u64)
+                .uleb(constants::DW_FORM_string.<span class="number">0 </span><span class="kw">as </span>u64)
                 <span class="comment">// File count.
                 </span>.D8(<span class="number">2</span>)
                 .append_bytes(<span class="string">b"file1\0"</span>)
                 .D8(<span class="number">0</span>)
                 .append_bytes(<span class="kw-2">&amp;</span>expected_file_names[<span class="number">0</span>].md5)
+                .append_bytes(<span class="string">b"foobar\0"</span>)
                 .append_bytes(<span class="string">b"file2\0"</span>)
                 .D8(<span class="number">1</span>)
                 .append_bytes(<span class="kw-2">&amp;</span>expected_file_names[<span class="number">1</span>].md5)
+                .append_bytes(<span class="string">b"quux\0"</span>)
                 .mark(<span class="kw-2">&amp;</span>header_end)
                 <span class="comment">// Dummy line program data.
                 </span>.append_bytes(expected_program)
@@ -6154,6 +6278,10 @@
                     FileEntryFormat {
                         content_type: constants::DW_LNCT_MD5,
                         form: constants::DW_FORM_data16,
+                    },
+                    FileEntryFormat {
+                        content_type: constants::DW_LNCT_LLVM_source,
+                        form: constants::DW_FORM_string,
                     }
                 ]
             );

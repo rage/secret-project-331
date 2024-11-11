@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/aat_layout_kerx_table.rs`."><title>aat_layout_kerx_table.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/aat_layout_kerx_table.rs`."><title>aat_layout_kerx_table.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -461,12 +461,6 @@
 <a href="#461" id="461">461</a>
 <a href="#462" id="462">462</a>
 <a href="#463" id="463">463</a>
-<a href="#464" id="464">464</a>
-<a href="#465" id="465">465</a>
-<a href="#466" id="466">466</a>
-<a href="#467" id="467">467</a>
-<a href="#468" id="468">468</a>
-<a href="#469" id="469">469</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::convert::TryFrom;
 
 <span class="kw">use </span>ttf_parser::{ankr, apple_layout, kerx, FromData, GlyphId};
@@ -479,7 +473,9 @@
 <span class="kw">use </span><span class="kw">super</span>::ot_layout_gsubgpos::{skipping_iterator_t, OT::hb_ot_apply_context_t};
 <span class="kw">use </span><span class="kw">super</span>::ot_shape_plan::hb_ot_shape_plan_t;
 
-<span class="kw">trait </span>ExtendedStateTableExt&lt;T: FromData + Copy&gt; {
+<span class="comment">// TODO: Use set_digest, similarly to how it's used in harfbuzz.
+
+</span><span class="kw">trait </span>ExtendedStateTableExt&lt;T: FromData + Copy&gt; {
     <span class="kw">fn </span>class(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt;;
     <span class="kw">fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>, state: u16, class: u16) -&gt; <span class="prelude-ty">Option</span>&lt;apple_layout::GenericStateEntry&lt;T&gt;&gt;;
 }
@@ -517,6 +513,8 @@
     face: <span class="kw-2">&amp;</span>hb_font_t,
     buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t,
 ) -&gt; <span class="prelude-ty">Option</span>&lt;()&gt; {
+    buffer.unsafe_to_concat(<span class="prelude-val">None</span>, <span class="prelude-val">None</span>);
+
     <span class="kw">let </span><span class="kw-2">mut </span>seen_cross_stream = <span class="bool-val">false</span>;
     <span class="kw">for </span>subtable <span class="kw">in </span>face.tables().kerx<span class="question-mark">?</span>.subtables {
         <span class="kw">if </span>subtable.variable {
@@ -604,7 +602,7 @@
     buffer: <span class="kw-2">&amp;mut </span>hb_buffer_t,
 ) {
     <span class="kw">let </span><span class="kw-2">mut </span>ctx = hb_ot_apply_context_t::new(TableIndex::GPOS, face, buffer);
-    ctx.lookup_mask = plan.kern_mask;
+    ctx.set_lookup_mask(plan.kern_mask);
     ctx.lookup_props = u32::from(lookup_flags::IGNORE_FLAGS);
 
     <span class="kw">let </span>horizontal = ctx.buffer.direction.is_horizontal();
@@ -616,7 +614,7 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(<span class="kw-2">&amp;</span>ctx, i, <span class="number">1</span>, <span class="bool-val">false</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = skipping_iterator_t::new(<span class="kw-2">&amp;</span>ctx, i, <span class="bool-val">false</span>);
 
         <span class="kw">let </span><span class="kw-2">mut </span>unsafe_to = <span class="number">0</span>;
         <span class="kw">if </span>!iter.next(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;mut </span>unsafe_to)) {
@@ -759,7 +757,6 @@
 }
 
 <span class="kw">trait </span>StateTableDriver&lt;Table, E: FromData&gt; {
-    <span class="kw">fn </span>is_actionable(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: apple_layout::GenericStateEntry&lt;E&gt;) -&gt; bool;
     <span class="kw">fn </span>transition(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         aat: <span class="kw-2">&amp;</span>Table,
@@ -777,10 +774,6 @@
 }
 
 <span class="kw">impl </span>StateTableDriver&lt;kerx::Subtable1&lt;<span class="lifetime">'_</span>&gt;, kerx::EntryData&gt; <span class="kw">for </span>Driver1 {
-    <span class="kw">fn </span>is_actionable(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: apple_layout::GenericStateEntry&lt;kerx::EntryData&gt;) -&gt; bool {
-        entry.is_actionable()
-    }
-
     <span class="kw">fn </span>transition(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         aat: <span class="kw-2">&amp;</span>kerx::Subtable1,
@@ -885,11 +878,6 @@
 }
 
 <span class="kw">impl </span>StateTableDriver&lt;kerx::Subtable4&lt;<span class="lifetime">'_</span>&gt;, kerx::EntryData&gt; <span class="kw">for </span>Driver4&lt;<span class="lifetime">'_</span>&gt; {
-    <span class="comment">// TODO: remove
-    </span><span class="kw">fn </span>is_actionable(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: apple_layout::GenericStateEntry&lt;kerx::EntryData&gt;) -&gt; bool {
-        entry.is_actionable()
-    }
-
     <span class="kw">fn </span>transition(
         <span class="kw-2">&amp;mut </span><span class="self">self</span>,
         aat: <span class="kw-2">&amp;</span>kerx::Subtable4,

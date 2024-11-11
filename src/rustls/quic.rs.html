@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/quic.rs`."><title>quic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/quic.rs`."><title>quic.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -977,6 +977,23 @@
 <a href="#977" id="977">977</a>
 <a href="#978" id="978">978</a>
 <a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::collections::VecDeque;
 <span class="kw">use </span>alloc::vec::Vec;
@@ -1008,10 +1025,11 @@
     <span class="kw">use </span><span class="kw">crate</span>::client::{ClientConfig, ClientConnectionData};
     <span class="kw">use </span><span class="kw">crate</span>::common_state::{CommonState, Protocol, DEFAULT_BUFFER_LIMIT};
     <span class="kw">use </span><span class="kw">crate</span>::conn::{ConnectionCore, SideData};
-    <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, ProtocolVersion};
+    <span class="kw">use </span><span class="kw">crate</span>::enums::{AlertDescription, ContentType, ProtocolVersion};
     <span class="kw">use </span><span class="kw">crate</span>::error::Error;
-    <span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::DeframerVecBuffer;
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::deframer::buffers::{DeframerVecBuffer, Locator};
     <span class="kw">use </span><span class="kw">crate</span>::msgs::handshake::{ClientExtension, ServerExtension};
+    <span class="kw">use </span><span class="kw">crate</span>::msgs::message::InboundPlainMessage;
     <span class="kw">use </span><span class="kw">crate</span>::server::{ServerConfig, ServerConnectionData};
     <span class="kw">use </span><span class="kw">crate</span>::vecbuf::ChunkVecBuffer;
 
@@ -1350,13 +1368,29 @@
         ///
         /// Handshake data obtained from separate encryption levels should be supplied in separate calls.
         </span><span class="kw">pub fn </span>read_hs(<span class="kw-2">&amp;mut </span><span class="self">self</span>, plaintext: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
-            <span class="self">self</span>.core.message_deframer.push(
-                ProtocolVersion::TLSv1_3,
-                plaintext,
-                <span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer,
-            )<span class="question-mark">?</span>;
+            <span class="kw">let </span>range = <span class="self">self</span>.deframer_buffer.extend(plaintext);
+
+            <span class="self">self</span>.core.hs_deframer.input_message(
+                InboundPlainMessage {
+                    typ: ContentType::Handshake,
+                    version: ProtocolVersion::TLSv1_3,
+                    payload: <span class="kw-2">&amp;</span><span class="self">self</span>.deframer_buffer.filled()[range.clone()],
+                },
+                <span class="kw-2">&amp;</span>Locator::new(<span class="self">self</span>.deframer_buffer.filled()),
+                range.end,
+            );
+
+            <span class="comment">// `core.process_new_packets` should not process any data in `deframer_buffer`;
+            // it is already ready in `hs_deframer`.
+            </span><span class="self">self</span>.deframer_buffer.processed = range.end;
+
+            <span class="self">self</span>.core
+                .hs_deframer
+                .coalesce(<span class="self">self</span>.deframer_buffer.filled_mut())<span class="question-mark">?</span>;
+
             <span class="self">self</span>.core
                 .process_new_packets(<span class="kw-2">&amp;mut </span><span class="self">self</span>.deframer_buffer, <span class="kw-2">&amp;mut </span><span class="self">self</span>.sendable_plaintext)<span class="question-mark">?</span>;
+
             <span class="prelude-val">Ok</span>(())
         }
 

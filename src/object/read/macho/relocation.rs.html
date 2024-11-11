@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/read/macho/relocation.rs`."><title>relocation.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.5/src/read/macho/relocation.rs`."><title>relocation.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -142,11 +142,6 @@
 <a href="#142" id="142">142</a>
 <a href="#143" id="143">143</a>
 <a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>core::{fmt, slice};
 
 <span class="kw">use </span><span class="kw">crate</span>::endian::Endianness;
@@ -183,6 +178,9 @@
     <span class="kw">type </span>Item = (u64, Relocation);
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
+        <span class="kw">use </span>RelocationEncoding <span class="kw">as </span>E;
+        <span class="kw">use </span>RelocationKind <span class="kw">as </span>K;
+
         <span class="kw">let </span><span class="kw-2">mut </span>paired_addend = <span class="number">0</span>;
         <span class="kw">loop </span>{
             <span class="kw">let </span>reloc = <span class="self">self</span>.relocations.next()<span class="question-mark">?</span>;
@@ -199,46 +197,38 @@
                 r_pcrel: reloc.r_pcrel,
                 r_length: reloc.r_length,
             };
-            <span class="kw">let </span><span class="kw-2">mut </span>encoding = RelocationEncoding::Generic;
-            <span class="kw">let </span>kind = <span class="kw">match </span>cputype {
+            <span class="kw">let </span>g = E::Generic;
+            <span class="kw">let </span>unknown = (K::Unknown, E::Generic);
+            <span class="kw">let </span>(kind, encoding) = <span class="kw">match </span>cputype {
                 macho::CPU_TYPE_ARM =&gt; <span class="kw">match </span>(reloc.r_type, reloc.r_pcrel) {
-                    (macho::ARM_RELOC_VANILLA, <span class="bool-val">false</span>) =&gt; RelocationKind::Absolute,
-                    <span class="kw">_ </span>=&gt; RelocationKind::Unknown,
+                    (macho::ARM_RELOC_VANILLA, <span class="bool-val">false</span>) =&gt; (K::Absolute, g),
+                    <span class="kw">_ </span>=&gt; unknown,
                 },
                 macho::CPU_TYPE_ARM64 | macho::CPU_TYPE_ARM64_32 =&gt; {
                     <span class="kw">match </span>(reloc.r_type, reloc.r_pcrel) {
-                        (macho::ARM64_RELOC_UNSIGNED, <span class="bool-val">false</span>) =&gt; RelocationKind::Absolute,
+                        (macho::ARM64_RELOC_UNSIGNED, <span class="bool-val">false</span>) =&gt; (K::Absolute, g),
                         (macho::ARM64_RELOC_ADDEND, <span class="kw">_</span>) =&gt; {
                             paired_addend = i64::from(reloc.r_symbolnum)
                                 .wrapping_shl(<span class="number">64 </span>- <span class="number">24</span>)
                                 .wrapping_shr(<span class="number">64 </span>- <span class="number">24</span>);
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">_ </span>=&gt; RelocationKind::Unknown,
+                        <span class="kw">_ </span>=&gt; unknown,
                     }
                 }
                 macho::CPU_TYPE_X86 =&gt; <span class="kw">match </span>(reloc.r_type, reloc.r_pcrel) {
-                    (macho::GENERIC_RELOC_VANILLA, <span class="bool-val">false</span>) =&gt; RelocationKind::Absolute,
-                    <span class="kw">_ </span>=&gt; RelocationKind::Unknown,
+                    (macho::GENERIC_RELOC_VANILLA, <span class="bool-val">false</span>) =&gt; (K::Absolute, g),
+                    <span class="kw">_ </span>=&gt; unknown,
                 },
                 macho::CPU_TYPE_X86_64 =&gt; <span class="kw">match </span>(reloc.r_type, reloc.r_pcrel) {
-                    (macho::X86_64_RELOC_UNSIGNED, <span class="bool-val">false</span>) =&gt; RelocationKind::Absolute,
-                    (macho::X86_64_RELOC_SIGNED, <span class="bool-val">true</span>) =&gt; {
-                        encoding = RelocationEncoding::X86RipRelative;
-                        RelocationKind::Relative
-                    }
-                    (macho::X86_64_RELOC_BRANCH, <span class="bool-val">true</span>) =&gt; {
-                        encoding = RelocationEncoding::X86Branch;
-                        RelocationKind::Relative
-                    }
-                    (macho::X86_64_RELOC_GOT, <span class="bool-val">true</span>) =&gt; RelocationKind::GotRelative,
-                    (macho::X86_64_RELOC_GOT_LOAD, <span class="bool-val">true</span>) =&gt; {
-                        encoding = RelocationEncoding::X86RipRelativeMovq;
-                        RelocationKind::GotRelative
-                    }
-                    <span class="kw">_ </span>=&gt; RelocationKind::Unknown,
+                    (macho::X86_64_RELOC_UNSIGNED, <span class="bool-val">false</span>) =&gt; (K::Absolute, g),
+                    (macho::X86_64_RELOC_SIGNED, <span class="bool-val">true</span>) =&gt; (K::Relative, E::X86RipRelative),
+                    (macho::X86_64_RELOC_BRANCH, <span class="bool-val">true</span>) =&gt; (K::Relative, E::X86Branch),
+                    (macho::X86_64_RELOC_GOT, <span class="bool-val">true</span>) =&gt; (K::GotRelative, g),
+                    (macho::X86_64_RELOC_GOT_LOAD, <span class="bool-val">true</span>) =&gt; (K::GotRelative, E::X86RipRelativeMovq),
+                    <span class="kw">_ </span>=&gt; unknown,
                 },
-                <span class="kw">_ </span>=&gt; RelocationKind::Unknown,
+                <span class="kw">_ </span>=&gt; unknown,
             };
             <span class="kw">let </span>size = <span class="number">8 </span>&lt;&lt; reloc.r_length;
             <span class="kw">let </span>target = <span class="kw">if </span>reloc.r_extern {

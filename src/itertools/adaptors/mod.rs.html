@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/adaptors/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/adaptors/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1206,71 +1206,6 @@
 <a href="#1206" id="1206">1206</a>
 <a href="#1207" id="1207">1207</a>
 <a href="#1208" id="1208">1208</a>
-<a href="#1209" id="1209">1209</a>
-<a href="#1210" id="1210">1210</a>
-<a href="#1211" id="1211">1211</a>
-<a href="#1212" id="1212">1212</a>
-<a href="#1213" id="1213">1213</a>
-<a href="#1214" id="1214">1214</a>
-<a href="#1215" id="1215">1215</a>
-<a href="#1216" id="1216">1216</a>
-<a href="#1217" id="1217">1217</a>
-<a href="#1218" id="1218">1218</a>
-<a href="#1219" id="1219">1219</a>
-<a href="#1220" id="1220">1220</a>
-<a href="#1221" id="1221">1221</a>
-<a href="#1222" id="1222">1222</a>
-<a href="#1223" id="1223">1223</a>
-<a href="#1224" id="1224">1224</a>
-<a href="#1225" id="1225">1225</a>
-<a href="#1226" id="1226">1226</a>
-<a href="#1227" id="1227">1227</a>
-<a href="#1228" id="1228">1228</a>
-<a href="#1229" id="1229">1229</a>
-<a href="#1230" id="1230">1230</a>
-<a href="#1231" id="1231">1231</a>
-<a href="#1232" id="1232">1232</a>
-<a href="#1233" id="1233">1233</a>
-<a href="#1234" id="1234">1234</a>
-<a href="#1235" id="1235">1235</a>
-<a href="#1236" id="1236">1236</a>
-<a href="#1237" id="1237">1237</a>
-<a href="#1238" id="1238">1238</a>
-<a href="#1239" id="1239">1239</a>
-<a href="#1240" id="1240">1240</a>
-<a href="#1241" id="1241">1241</a>
-<a href="#1242" id="1242">1242</a>
-<a href="#1243" id="1243">1243</a>
-<a href="#1244" id="1244">1244</a>
-<a href="#1245" id="1245">1245</a>
-<a href="#1246" id="1246">1246</a>
-<a href="#1247" id="1247">1247</a>
-<a href="#1248" id="1248">1248</a>
-<a href="#1249" id="1249">1249</a>
-<a href="#1250" id="1250">1250</a>
-<a href="#1251" id="1251">1251</a>
-<a href="#1252" id="1252">1252</a>
-<a href="#1253" id="1253">1253</a>
-<a href="#1254" id="1254">1254</a>
-<a href="#1255" id="1255">1255</a>
-<a href="#1256" id="1256">1256</a>
-<a href="#1257" id="1257">1257</a>
-<a href="#1258" id="1258">1258</a>
-<a href="#1259" id="1259">1259</a>
-<a href="#1260" id="1260">1260</a>
-<a href="#1261" id="1261">1261</a>
-<a href="#1262" id="1262">1262</a>
-<a href="#1263" id="1263">1263</a>
-<a href="#1264" id="1264">1264</a>
-<a href="#1265" id="1265">1265</a>
-<a href="#1266" id="1266">1266</a>
-<a href="#1267" id="1267">1267</a>
-<a href="#1268" id="1268">1268</a>
-<a href="#1269" id="1269">1269</a>
-<a href="#1270" id="1270">1270</a>
-<a href="#1271" id="1271">1271</a>
-<a href="#1272" id="1272">1272</a>
-<a href="#1273" id="1273">1273</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Licensed under the Apache License, Version 2.0
 //! &lt;https://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license
 //! &lt;https://opensource.org/licenses/MIT&gt;, at your
@@ -1278,11 +1213,9 @@
 //! except according to those terms.
 
 </span><span class="kw">mod </span>coalesce;
-<span class="kw">mod </span>map;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>map;
 <span class="kw">mod </span>multi_product;
 <span class="kw">pub use </span><span class="self">self</span>::coalesce::<span class="kw-2">*</span>;
-<span class="attr">#[allow(deprecated)]
-</span><span class="kw">pub use </span><span class="self">self</span>::map::MapResults;
 <span class="kw">pub use </span><span class="self">self</span>::map::{map_into, map_ok, MapInto, MapOk};
 <span class="attr">#[cfg(feature = <span class="string">"use_alloc"</span>)]
 </span><span class="kw">pub use </span><span class="self">self</span>::multi_product::<span class="kw-2">*</span>;
@@ -1308,7 +1241,7 @@
 
 <span class="doccomment">/// Create an iterator that interleaves elements in `i` and `j`.
 ///
-/// [`IntoIterator`] enabled version of `[Itertools::interleave]`.
+/// [`IntoIterator`] enabled version of [`Itertools::interleave`](crate::Itertools::interleave).
 </span><span class="kw">pub fn </span>interleave&lt;I, J&gt;(
     i: I,
     j: J,
@@ -1553,10 +1486,10 @@
 
     <span class="doccomment">/// Put back a single value to the front of the iterator.
     ///
-    /// If a value is already in the put back slot, it is overwritten.
+    /// If a value is already in the put back slot, it is returned.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>put_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: I::Item) {
-        <span class="self">self</span>.top = <span class="prelude-val">Some</span>(x);
+    </span><span class="kw">pub fn </span>put_back(<span class="kw-2">&amp;mut </span><span class="self">self</span>, x: I::Item) -&gt; <span class="prelude-ty">Option</span>&lt;I::Item&gt; {
+        <span class="self">self</span>.top.replace(x)
     }
 }
 
@@ -1746,7 +1679,7 @@
 <span class="doccomment">/// A “meta iterator adaptor”. Its closure receives a reference to the iterator
 /// and may pick off as many elements as it likes, to produce the next iterator element.
 ///
-/// Iterator element type is *X*, if the return type of `F` is *Option\&lt;X\&gt;*.
+/// Iterator element type is `X` if the return type of `F` is `Option&lt;X&gt;`.
 ///
 /// See [`.batching()`](crate::Itertools::batching) for more information.
 </span><span class="attr">#[derive(Clone)]
@@ -1779,69 +1712,6 @@
         (<span class="self">self</span>.f)(<span class="kw-2">&amp;mut </span><span class="self">self</span>.iter)
     }
 }
-
-<span class="doccomment">/// An iterator adaptor that steps a number elements in the base iterator
-/// for each iteration.
-///
-/// The iterator steps by yielding the next element from the base iterator,
-/// then skipping forward *n-1* elements.
-///
-/// See [`.step()`](crate::Itertools::step) for more information.
-</span><span class="attr">#[deprecated(note = <span class="string">"Use std .step_by() instead"</span>, since = <span class="string">"0.8.0"</span>)]
-#[allow(deprecated)]
-#[derive(Clone, Debug)]
-#[must_use = <span class="string">"iterator adaptors are lazy and do nothing unless consumed"</span>]
-</span><span class="kw">pub struct </span>Step&lt;I&gt; {
-    iter: Fuse&lt;I&gt;,
-    skip: usize,
-}
-
-<span class="doccomment">/// Create a `Step` iterator.
-///
-/// **Panics** if the step is 0.
-</span><span class="attr">#[allow(deprecated)]
-</span><span class="kw">pub fn </span>step&lt;I&gt;(iter: I, step: usize) -&gt; Step&lt;I&gt;
-<span class="kw">where
-    </span>I: Iterator,
-{
-    <span class="macro">assert!</span>(step != <span class="number">0</span>);
-    Step {
-        iter: iter.fuse(),
-        skip: step - <span class="number">1</span>,
-    }
-}
-
-<span class="attr">#[allow(deprecated)]
-</span><span class="kw">impl</span>&lt;I&gt; Iterator <span class="kw">for </span>Step&lt;I&gt;
-<span class="kw">where
-    </span>I: Iterator,
-{
-    <span class="kw">type </span>Item = I::Item;
-    <span class="attr">#[inline]
-    </span><span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">let </span>elt = <span class="self">self</span>.iter.next();
-        <span class="kw">if </span><span class="self">self</span>.skip &gt; <span class="number">0 </span>{
-            <span class="self">self</span>.iter.nth(<span class="self">self</span>.skip - <span class="number">1</span>);
-        }
-        elt
-    }
-
-    <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
-        <span class="kw">let </span>(low, high) = <span class="self">self</span>.iter.size_hint();
-        <span class="kw">let </span>div = |x: usize| {
-            <span class="kw">if </span>x == <span class="number">0 </span>{
-                <span class="number">0
-            </span>} <span class="kw">else </span>{
-                <span class="number">1 </span>+ (x - <span class="number">1</span>) / (<span class="self">self</span>.skip + <span class="number">1</span>)
-            }
-        };
-        (div(low), high.map(div))
-    }
-}
-
-<span class="comment">// known size
-</span><span class="attr">#[allow(deprecated)]
-</span><span class="kw">impl</span>&lt;I&gt; ExactSizeIterator <span class="kw">for </span>Step&lt;I&gt; <span class="kw">where </span>I: ExactSizeIterator {}
 
 <span class="doccomment">/// An iterator adaptor that borrows from a `Clone`-able iterator
 /// to only pick off elements while the predicate returns `true`.
@@ -1950,7 +1820,7 @@
 /// See [`.tuple_combinations()`](crate::Itertools::tuple_combinations) for more
 /// information.
 </span><span class="attr">#[derive(Clone, Debug)]
-#[must_use = <span class="string">"iterator adaptors are lazy and do nothing unless consumed"</span>]
+#[must_use = <span class="string">"this iterator adaptor is not lazy but does nearly nothing unless consumed"</span>]
 </span><span class="kw">pub struct </span>TupleCombinations&lt;I, T&gt;
 <span class="kw">where
     </span>I: Iterator,

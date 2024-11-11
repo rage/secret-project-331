@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["CodingProcess","ColorTransform","Error","PixelFormat","UnsupportedFeature"],"struct":["Decoder","ImageInfo"]};

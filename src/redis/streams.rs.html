@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/streams.rs`."><title>streams.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/streams.rs`."><title>streams.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -668,6 +668,299 @@
 <a href="#668" id="668">668</a>
 <a href="#669" id="669">669</a>
 <a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
+<a href="#811" id="811">811</a>
+<a href="#812" id="812">812</a>
+<a href="#813" id="813">813</a>
+<a href="#814" id="814">814</a>
+<a href="#815" id="815">815</a>
+<a href="#816" id="816">816</a>
+<a href="#817" id="817">817</a>
+<a href="#818" id="818">818</a>
+<a href="#819" id="819">819</a>
+<a href="#820" id="820">820</a>
+<a href="#821" id="821">821</a>
+<a href="#822" id="822">822</a>
+<a href="#823" id="823">823</a>
+<a href="#824" id="824">824</a>
+<a href="#825" id="825">825</a>
+<a href="#826" id="826">826</a>
+<a href="#827" id="827">827</a>
+<a href="#828" id="828">828</a>
+<a href="#829" id="829">829</a>
+<a href="#830" id="830">830</a>
+<a href="#831" id="831">831</a>
+<a href="#832" id="832">832</a>
+<a href="#833" id="833">833</a>
+<a href="#834" id="834">834</a>
+<a href="#835" id="835">835</a>
+<a href="#836" id="836">836</a>
+<a href="#837" id="837">837</a>
+<a href="#838" id="838">838</a>
+<a href="#839" id="839">839</a>
+<a href="#840" id="840">840</a>
+<a href="#841" id="841">841</a>
+<a href="#842" id="842">842</a>
+<a href="#843" id="843">843</a>
+<a href="#844" id="844">844</a>
+<a href="#845" id="845">845</a>
+<a href="#846" id="846">846</a>
+<a href="#847" id="847">847</a>
+<a href="#848" id="848">848</a>
+<a href="#849" id="849">849</a>
+<a href="#850" id="850">850</a>
+<a href="#851" id="851">851</a>
+<a href="#852" id="852">852</a>
+<a href="#853" id="853">853</a>
+<a href="#854" id="854">854</a>
+<a href="#855" id="855">855</a>
+<a href="#856" id="856">856</a>
+<a href="#857" id="857">857</a>
+<a href="#858" id="858">858</a>
+<a href="#859" id="859">859</a>
+<a href="#860" id="860">860</a>
+<a href="#861" id="861">861</a>
+<a href="#862" id="862">862</a>
+<a href="#863" id="863">863</a>
+<a href="#864" id="864">864</a>
+<a href="#865" id="865">865</a>
+<a href="#866" id="866">866</a>
+<a href="#867" id="867">867</a>
+<a href="#868" id="868">868</a>
+<a href="#869" id="869">869</a>
+<a href="#870" id="870">870</a>
+<a href="#871" id="871">871</a>
+<a href="#872" id="872">872</a>
+<a href="#873" id="873">873</a>
+<a href="#874" id="874">874</a>
+<a href="#875" id="875">875</a>
+<a href="#876" id="876">876</a>
+<a href="#877" id="877">877</a>
+<a href="#878" id="878">878</a>
+<a href="#879" id="879">879</a>
+<a href="#880" id="880">880</a>
+<a href="#881" id="881">881</a>
+<a href="#882" id="882">882</a>
+<a href="#883" id="883">883</a>
+<a href="#884" id="884">884</a>
+<a href="#885" id="885">885</a>
+<a href="#886" id="886">886</a>
+<a href="#887" id="887">887</a>
+<a href="#888" id="888">888</a>
+<a href="#889" id="889">889</a>
+<a href="#890" id="890">890</a>
+<a href="#891" id="891">891</a>
+<a href="#892" id="892">892</a>
+<a href="#893" id="893">893</a>
+<a href="#894" id="894">894</a>
+<a href="#895" id="895">895</a>
+<a href="#896" id="896">896</a>
+<a href="#897" id="897">897</a>
+<a href="#898" id="898">898</a>
+<a href="#899" id="899">899</a>
+<a href="#900" id="900">900</a>
+<a href="#901" id="901">901</a>
+<a href="#902" id="902">902</a>
+<a href="#903" id="903">903</a>
+<a href="#904" id="904">904</a>
+<a href="#905" id="905">905</a>
+<a href="#906" id="906">906</a>
+<a href="#907" id="907">907</a>
+<a href="#908" id="908">908</a>
+<a href="#909" id="909">909</a>
+<a href="#910" id="910">910</a>
+<a href="#911" id="911">911</a>
+<a href="#912" id="912">912</a>
+<a href="#913" id="913">913</a>
+<a href="#914" id="914">914</a>
+<a href="#915" id="915">915</a>
+<a href="#916" id="916">916</a>
+<a href="#917" id="917">917</a>
+<a href="#918" id="918">918</a>
+<a href="#919" id="919">919</a>
+<a href="#920" id="920">920</a>
+<a href="#921" id="921">921</a>
+<a href="#922" id="922">922</a>
+<a href="#923" id="923">923</a>
+<a href="#924" id="924">924</a>
+<a href="#925" id="925">925</a>
+<a href="#926" id="926">926</a>
+<a href="#927" id="927">927</a>
+<a href="#928" id="928">928</a>
+<a href="#929" id="929">929</a>
+<a href="#930" id="930">930</a>
+<a href="#931" id="931">931</a>
+<a href="#932" id="932">932</a>
+<a href="#933" id="933">933</a>
+<a href="#934" id="934">934</a>
+<a href="#935" id="935">935</a>
+<a href="#936" id="936">936</a>
+<a href="#937" id="937">937</a>
+<a href="#938" id="938">938</a>
+<a href="#939" id="939">939</a>
+<a href="#940" id="940">940</a>
+<a href="#941" id="941">941</a>
+<a href="#942" id="942">942</a>
+<a href="#943" id="943">943</a>
+<a href="#944" id="944">944</a>
+<a href="#945" id="945">945</a>
+<a href="#946" id="946">946</a>
+<a href="#947" id="947">947</a>
+<a href="#948" id="948">948</a>
+<a href="#949" id="949">949</a>
+<a href="#950" id="950">950</a>
+<a href="#951" id="951">951</a>
+<a href="#952" id="952">952</a>
+<a href="#953" id="953">953</a>
+<a href="#954" id="954">954</a>
+<a href="#955" id="955">955</a>
+<a href="#956" id="956">956</a>
+<a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Defines types to use with the streams commands.
 
 </span><span class="kw">use crate</span>::{
@@ -675,6 +968,16 @@
 };
 
 <span class="kw">use </span>std::io::{Error, ErrorKind};
+
+<span class="macro">macro_rules!</span> invalid_type_error {
+    (<span class="macro-nonterminal">$v</span>:expr, <span class="macro-nonterminal">$det</span>:expr) =&gt; {{
+        <span class="macro">fail!</span>((
+            <span class="macro-nonterminal">$crate::ErrorKind::TypeError</span>,
+            <span class="string">"Response was of incompatible type"</span>,
+            <span class="macro">format!</span>(<span class="string">"{:?} (response was {:?})"</span>, <span class="macro-nonterminal">$det</span>, <span class="macro-nonterminal">$v</span>)
+        ));
+    }};
+}
 
 <span class="comment">// Stream Maxlen Enum
 
@@ -701,6 +1004,46 @@
         out.write_arg(<span class="string">b"MAXLEN"</span>);
         out.write_arg(ch.as_bytes());
         val.write_redis_args(out);
+    }
+}
+
+<span class="doccomment">/// Builder options for [`xautoclaim_options`] command.
+///
+/// [`xautoclaim_options`]: ../trait.Commands.html#method.xautoclaim_options
+///
+</span><span class="attr">#[derive(Default, Debug)]
+</span><span class="kw">pub struct </span>StreamAutoClaimOptions {
+    count: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+    justid: bool,
+}
+
+<span class="kw">impl </span>StreamAutoClaimOptions {
+    <span class="doccomment">/// Sets the maximum number of elements to claim per stream.
+    </span><span class="kw">pub fn </span>count(<span class="kw-2">mut </span><span class="self">self</span>, n: usize) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.count = <span class="prelude-val">Some</span>(n);
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Set `JUSTID` cmd arg to true. Be advised: the response
+    /// type changes with this option.
+    </span><span class="kw">pub fn </span>with_justid(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.justid = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
+}
+
+<span class="kw">impl </span>ToRedisArgs <span class="kw">for </span>StreamAutoClaimOptions {
+    <span class="kw">fn </span>write_redis_args&lt;W&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, out: <span class="kw-2">&amp;mut </span>W)
+    <span class="kw">where
+        </span>W: <span class="question-mark">?</span>Sized + RedisWrite,
+    {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>count) = <span class="self">self</span>.count {
+            out.write_arg(<span class="string">b"COUNT"</span>);
+            out.write_arg(<span class="macro">format!</span>(<span class="string">"{count}"</span>).as_bytes());
+        }
+        <span class="kw">if </span><span class="self">self</span>.justid {
+            out.write_arg(<span class="string">b"JUSTID"</span>);
+        }
     }
 }
 
@@ -876,6 +1219,20 @@
             }
         }
     }
+}
+
+<span class="doccomment">/// Reply type used with the [`xautoclaim_options`] command.
+///
+/// [`xautoclaim_options`]: ../trait.Commands.html#method.xautoclaim_options
+///
+</span><span class="attr">#[derive(Default, Debug, Clone)]
+</span><span class="kw">pub struct </span>StreamAutoClaimReply {
+    <span class="doccomment">/// The next stream id to use as the start argument for the next xautoclaim
+    </span><span class="kw">pub </span>next_stream_id: String,
+    <span class="doccomment">/// The entries claimed for the consumer. When JUSTID is enabled the map in each entry is blank
+    </span><span class="kw">pub </span>claimed: Vec&lt;StreamId&gt;,
+    <span class="doccomment">/// The list of stream ids that were removed due to no longer being in the stream
+    </span><span class="kw">pub </span>deleted_ids: Vec&lt;String&gt;,
 }
 
 <span class="doccomment">/// Reply type used with [`xread`] or [`xread_options`] commands.
@@ -1095,11 +1452,11 @@
 }
 
 <span class="kw">impl </span>StreamId {
-    <span class="doccomment">/// Converts a `Value::Bulk` into a `StreamId`.
-    </span><span class="kw">fn </span>from_bulk_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+    <span class="doccomment">/// Converts a `Value::Array` into a `StreamId`.
+    </span><span class="kw">fn </span>from_array_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>stream_id = StreamId::default();
-        <span class="kw">if let </span>Value::Bulk(<span class="kw-2">ref </span>values) = <span class="kw-2">*</span>v {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = values.get(<span class="number">0</span>) {
+        <span class="kw">if let </span>Value::Array(<span class="kw-2">ref </span>values) = <span class="kw-2">*</span>v {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = values.first() {
                 stream_id.id = from_redis_value(v)<span class="question-mark">?</span>;
             }
             <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = values.get(<span class="number">1</span>) {
@@ -1121,7 +1478,7 @@
 
     <span class="doccomment">/// Does the message contain a particular field?
     </span><span class="kw">pub fn </span>contains_key(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; bool {
-        <span class="self">self</span>.map.get(key).is_some()
+        <span class="self">self</span>.map.contains_key(key)
     }
 
     <span class="doccomment">/// Returns how many field/value pairs exist in this message.
@@ -1133,6 +1490,60 @@
     </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.len() == <span class="number">0
     </span>}
+}
+
+<span class="kw">type </span>SACRows = Vec&lt;HashMap&lt;String, HashMap&lt;String, Value&gt;&gt;&gt;;
+
+<span class="kw">impl </span>FromRedisValue <span class="kw">for </span>StreamAutoClaimReply {
+    <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">match </span><span class="kw-2">*</span>v {
+            Value::Array(<span class="kw-2">ref </span>items) =&gt; {
+                <span class="kw">if let </span><span class="number">2</span>..=<span class="number">3 </span>= items.len() {
+                    <span class="kw">let </span>deleted_ids = <span class="kw">if let </span><span class="prelude-val">Some</span>(o) = items.get(<span class="number">2</span>) {
+                        from_redis_value(o)<span class="question-mark">?
+                    </span>} <span class="kw">else </span>{
+                        Vec::new()
+                    };
+
+                    <span class="kw">let </span>claimed: Vec&lt;StreamId&gt; = <span class="kw">match </span><span class="kw-2">&amp;</span>items[<span class="number">1</span>] {
+                        <span class="comment">// JUSTID response
+                        </span>Value::Array(x)
+                            <span class="kw">if </span><span class="macro">matches!</span>(x.first(), <span class="prelude-val">None </span>| <span class="prelude-val">Some</span>(Value::BulkString(<span class="kw">_</span>))) =&gt;
+                        {
+                            <span class="kw">let </span>ids: Vec&lt;String&gt; = from_redis_value(<span class="kw-2">&amp;</span>items[<span class="number">1</span>])<span class="question-mark">?</span>;
+
+                            ids.into_iter()
+                                .map(|id| StreamId {
+                                    id,
+                                    ..Default::default()
+                                })
+                                .collect()
+                        }
+                        <span class="comment">// full response
+                        </span>Value::Array(x) <span class="kw">if </span><span class="macro">matches!</span>(x.first(), <span class="prelude-val">Some</span>(Value::Array(<span class="kw">_</span>))) =&gt; {
+                            <span class="kw">let </span>rows: SACRows = from_redis_value(<span class="kw-2">&amp;</span>items[<span class="number">1</span>])<span class="question-mark">?</span>;
+
+                            rows.into_iter()
+                                .flat_map(|id_row| {
+                                    id_row.into_iter().map(|(id, map)| StreamId { id, map })
+                                })
+                                .collect()
+                        }
+                        <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(<span class="string">"Incorrect type"</span>, <span class="kw-2">&amp;</span>items[<span class="number">1</span>]),
+                    };
+
+                    <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+                        next_stream_id: from_redis_value(<span class="kw-2">&amp;</span>items[<span class="number">0</span>])<span class="question-mark">?</span>,
+                        claimed,
+                        deleted_ids,
+                    })
+                } <span class="kw">else </span>{
+                    <span class="macro">invalid_type_error!</span>(<span class="string">"Wrong number of entries in array response"</span>, v)
+                }
+            }
+            <span class="kw">_ </span>=&gt; <span class="macro">invalid_type_error!</span>(<span class="string">"Not a array response"</span>, v),
+        }
+    }
 }
 
 <span class="kw">type </span>SRRows = Vec&lt;HashMap&lt;String, Vec&lt;HashMap&lt;String, HashMap&lt;String, Value&gt;&gt;&gt;&gt;&gt;;
@@ -1229,11 +1640,11 @@
     <span class="kw">fn </span>from_redis_value(v: <span class="kw-2">&amp;</span>Value) -&gt; RedisResult&lt;<span class="self">Self</span>&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>reply = StreamPendingCountReply::default();
         <span class="kw">match </span>v {
-            Value::Bulk(outer_tuple) =&gt; {
+            Value::Array(outer_tuple) =&gt; {
                 <span class="kw">for </span>outer <span class="kw">in </span>outer_tuple {
                     <span class="kw">match </span>outer {
-                        Value::Bulk(inner_tuple) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>inner_tuple[..] {
-                            [Value::Data(id_bytes), Value::Data(consumer_bytes), Value::Int(last_delivered_ms_u64), Value::Int(times_delivered_u64)] =&gt;
+                        Value::Array(inner_tuple) =&gt; <span class="kw">match </span><span class="kw-2">&amp;</span>inner_tuple[..] {
+                            [Value::BulkString(id_bytes), Value::BulkString(consumer_bytes), Value::Int(last_delivered_ms_u64), Value::Int(times_delivered_u64)] =&gt;
                             {
                                 <span class="kw">let </span>id = String::from_utf8(id_bytes.to_vec())<span class="question-mark">?</span>;
                                 <span class="kw">let </span>consumer = String::from_utf8(consumer_bytes.to_vec())<span class="question-mark">?</span>;
@@ -1284,10 +1695,10 @@
             reply.length = from_redis_value(v)<span class="question-mark">?</span>;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"first-entry"</span>) {
-            reply.first_entry = StreamId::from_bulk_value(v)<span class="question-mark">?</span>;
+            reply.first_entry = StreamId::from_array_value(v)<span class="question-mark">?</span>;
         }
         <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="kw-2">&amp;</span>map.get(<span class="string">"last-entry"</span>) {
-            reply.last_entry = StreamId::from_bulk_value(v)<span class="question-mark">?</span>;
+            reply.last_entry = StreamId::from_array_value(v)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(reply)
     }
@@ -1336,6 +1747,181 @@
             reply.groups.push(g);
         }
         <span class="prelude-val">Ok</span>(reply)
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">mod </span>stream_auto_claim_options {
+        <span class="kw">use super</span>::<span class="kw-2">*</span>;
+        <span class="kw">use </span><span class="kw">crate</span>::Value;
+
+        <span class="attr">#[test]
+        </span><span class="kw">fn </span>short_response() {
+            <span class="kw">let </span>value = Value::Array(<span class="macro">vec!</span>[Value::BulkString(<span class="string">"1713465536578-0"</span>.into())]);
+
+            <span class="kw">let </span>reply: RedisResult&lt;StreamAutoClaimReply&gt; = FromRedisValue::from_redis_value(<span class="kw-2">&amp;</span>value);
+
+            <span class="macro">assert!</span>(reply.is_err());
+        }
+
+        <span class="attr">#[test]
+        </span><span class="kw">fn </span>parses_none_claimed_response() {
+            <span class="kw">let </span>value = Value::Array(<span class="macro">vec!</span>[
+                Value::BulkString(<span class="string">"0-0"</span>.into()),
+                Value::Array(<span class="macro">vec!</span>[]),
+                Value::Array(<span class="macro">vec!</span>[]),
+            ]);
+
+            <span class="kw">let </span>reply: RedisResult&lt;StreamAutoClaimReply&gt; = FromRedisValue::from_redis_value(<span class="kw-2">&amp;</span>value);
+
+            <span class="macro">assert!</span>(reply.is_ok());
+
+            <span class="kw">let </span>reply = reply.unwrap();
+
+            <span class="macro">assert_eq!</span>(reply.next_stream_id.as_str(), <span class="string">"0-0"</span>);
+            <span class="macro">assert_eq!</span>(reply.claimed.len(), <span class="number">0</span>);
+            <span class="macro">assert_eq!</span>(reply.deleted_ids.len(), <span class="number">0</span>);
+        }
+
+        <span class="attr">#[test]
+        </span><span class="kw">fn </span>parses_response() {
+            <span class="kw">let </span>value = Value::Array(<span class="macro">vec!</span>[
+                Value::BulkString(<span class="string">"1713465536578-0"</span>.into()),
+                Value::Array(<span class="macro">vec!</span>[
+                    Value::Array(<span class="macro">vec!</span>[
+                        Value::BulkString(<span class="string">"1713465533411-0"</span>.into()),
+                        <span class="comment">// Both RESP2 and RESP3 expose this map as an array of key/values
+                        </span>Value::Array(<span class="macro">vec!</span>[
+                            Value::BulkString(<span class="string">"name"</span>.into()),
+                            Value::BulkString(<span class="string">"test"</span>.into()),
+                            Value::BulkString(<span class="string">"other"</span>.into()),
+                            Value::BulkString(<span class="string">"whaterver"</span>.into()),
+                        ]),
+                    ]),
+                    Value::Array(<span class="macro">vec!</span>[
+                        Value::BulkString(<span class="string">"1713465536069-0"</span>.into()),
+                        Value::Array(<span class="macro">vec!</span>[
+                            Value::BulkString(<span class="string">"name"</span>.into()),
+                            Value::BulkString(<span class="string">"another test"</span>.into()),
+                            Value::BulkString(<span class="string">"other"</span>.into()),
+                            Value::BulkString(<span class="string">"something"</span>.into()),
+                        ]),
+                    ]),
+                ]),
+                Value::Array(<span class="macro">vec!</span>[Value::BulkString(<span class="string">"123456789-0"</span>.into())]),
+            ]);
+
+            <span class="kw">let </span>reply: RedisResult&lt;StreamAutoClaimReply&gt; = FromRedisValue::from_redis_value(<span class="kw-2">&amp;</span>value);
+
+            <span class="macro">assert!</span>(reply.is_ok());
+
+            <span class="kw">let </span>reply = reply.unwrap();
+
+            <span class="macro">assert_eq!</span>(reply.next_stream_id.as_str(), <span class="string">"1713465536578-0"</span>);
+            <span class="macro">assert_eq!</span>(reply.claimed.len(), <span class="number">2</span>);
+            <span class="macro">assert_eq!</span>(reply.claimed[<span class="number">0</span>].id.as_str(), <span class="string">"1713465533411-0"</span>);
+            <span class="macro">assert!</span>(
+                <span class="macro">matches!</span>(reply.claimed[<span class="number">0</span>].map.get(<span class="string">"name"</span>), <span class="prelude-val">Some</span>(Value::BulkString(v)) <span class="kw">if </span>v == <span class="string">"test"</span>.as_bytes())
+            );
+            <span class="macro">assert_eq!</span>(reply.claimed[<span class="number">1</span>].id.as_str(), <span class="string">"1713465536069-0"</span>);
+            <span class="macro">assert_eq!</span>(reply.deleted_ids.len(), <span class="number">1</span>);
+            <span class="macro">assert!</span>(reply.deleted_ids.contains(<span class="kw-2">&amp;</span><span class="string">"123456789-0"</span>.to_string()))
+        }
+
+        <span class="attr">#[test]
+        </span><span class="kw">fn </span>parses_v6_response() {
+            <span class="kw">let </span>value = Value::Array(<span class="macro">vec!</span>[
+                Value::BulkString(<span class="string">"1713465536578-0"</span>.into()),
+                Value::Array(<span class="macro">vec!</span>[
+                    Value::Array(<span class="macro">vec!</span>[
+                        Value::BulkString(<span class="string">"1713465533411-0"</span>.into()),
+                        Value::Array(<span class="macro">vec!</span>[
+                            Value::BulkString(<span class="string">"name"</span>.into()),
+                            Value::BulkString(<span class="string">"test"</span>.into()),
+                            Value::BulkString(<span class="string">"other"</span>.into()),
+                            Value::BulkString(<span class="string">"whaterver"</span>.into()),
+                        ]),
+                    ]),
+                    Value::Array(<span class="macro">vec!</span>[
+                        Value::BulkString(<span class="string">"1713465536069-0"</span>.into()),
+                        Value::Array(<span class="macro">vec!</span>[
+                            Value::BulkString(<span class="string">"name"</span>.into()),
+                            Value::BulkString(<span class="string">"another test"</span>.into()),
+                            Value::BulkString(<span class="string">"other"</span>.into()),
+                            Value::BulkString(<span class="string">"something"</span>.into()),
+                        ]),
+                    ]),
+                ]),
+                <span class="comment">// V6 and lower lack the deleted_ids array
+            </span>]);
+
+            <span class="kw">let </span>reply: RedisResult&lt;StreamAutoClaimReply&gt; = FromRedisValue::from_redis_value(<span class="kw-2">&amp;</span>value);
+
+            <span class="macro">assert!</span>(reply.is_ok());
+
+            <span class="kw">let </span>reply = reply.unwrap();
+
+            <span class="macro">assert_eq!</span>(reply.next_stream_id.as_str(), <span class="string">"1713465536578-0"</span>);
+            <span class="macro">assert_eq!</span>(reply.claimed.len(), <span class="number">2</span>);
+            <span class="kw">let </span>ids: Vec&lt;<span class="kw">_</span>&gt; = reply.claimed.iter().map(|e| e.id.as_str()).collect();
+            <span class="macro">assert!</span>(ids.contains(<span class="kw-2">&amp;</span><span class="string">"1713465533411-0"</span>));
+            <span class="macro">assert!</span>(ids.contains(<span class="kw-2">&amp;</span><span class="string">"1713465536069-0"</span>));
+            <span class="macro">assert_eq!</span>(reply.deleted_ids.len(), <span class="number">0</span>);
+        }
+
+        <span class="attr">#[test]
+        </span><span class="kw">fn </span>parses_justid_response() {
+            <span class="kw">let </span>value = Value::Array(<span class="macro">vec!</span>[
+                Value::BulkString(<span class="string">"1713465536578-0"</span>.into()),
+                Value::Array(<span class="macro">vec!</span>[
+                    Value::BulkString(<span class="string">"1713465533411-0"</span>.into()),
+                    Value::BulkString(<span class="string">"1713465536069-0"</span>.into()),
+                ]),
+                Value::Array(<span class="macro">vec!</span>[Value::BulkString(<span class="string">"123456789-0"</span>.into())]),
+            ]);
+
+            <span class="kw">let </span>reply: RedisResult&lt;StreamAutoClaimReply&gt; = FromRedisValue::from_redis_value(<span class="kw-2">&amp;</span>value);
+
+            <span class="macro">assert!</span>(reply.is_ok());
+
+            <span class="kw">let </span>reply = reply.unwrap();
+
+            <span class="macro">assert_eq!</span>(reply.next_stream_id.as_str(), <span class="string">"1713465536578-0"</span>);
+            <span class="macro">assert_eq!</span>(reply.claimed.len(), <span class="number">2</span>);
+            <span class="kw">let </span>ids: Vec&lt;<span class="kw">_</span>&gt; = reply.claimed.iter().map(|e| e.id.as_str()).collect();
+            <span class="macro">assert!</span>(ids.contains(<span class="kw-2">&amp;</span><span class="string">"1713465533411-0"</span>));
+            <span class="macro">assert!</span>(ids.contains(<span class="kw-2">&amp;</span><span class="string">"1713465536069-0"</span>));
+            <span class="macro">assert_eq!</span>(reply.deleted_ids.len(), <span class="number">1</span>);
+            <span class="macro">assert!</span>(reply.deleted_ids.contains(<span class="kw-2">&amp;</span><span class="string">"123456789-0"</span>.to_string()))
+        }
+
+        <span class="attr">#[test]
+        </span><span class="kw">fn </span>parses_v6_justid_response() {
+            <span class="kw">let </span>value = Value::Array(<span class="macro">vec!</span>[
+                Value::BulkString(<span class="string">"1713465536578-0"</span>.into()),
+                Value::Array(<span class="macro">vec!</span>[
+                    Value::BulkString(<span class="string">"1713465533411-0"</span>.into()),
+                    Value::BulkString(<span class="string">"1713465536069-0"</span>.into()),
+                ]),
+                <span class="comment">// V6 and lower lack the deleted_ids array
+            </span>]);
+
+            <span class="kw">let </span>reply: RedisResult&lt;StreamAutoClaimReply&gt; = FromRedisValue::from_redis_value(<span class="kw-2">&amp;</span>value);
+
+            <span class="macro">assert!</span>(reply.is_ok());
+
+            <span class="kw">let </span>reply = reply.unwrap();
+
+            <span class="macro">assert_eq!</span>(reply.next_stream_id.as_str(), <span class="string">"1713465536578-0"</span>);
+            <span class="macro">assert_eq!</span>(reply.claimed.len(), <span class="number">2</span>);
+            <span class="kw">let </span>ids: Vec&lt;<span class="kw">_</span>&gt; = reply.claimed.iter().map(|e| e.id.as_str()).collect();
+            <span class="macro">assert!</span>(ids.contains(<span class="kw-2">&amp;</span><span class="string">"1713465533411-0"</span>));
+            <span class="macro">assert!</span>(ids.contains(<span class="kw-2">&amp;</span><span class="string">"1713465536069-0"</span>));
+            <span class="macro">assert_eq!</span>(reply.deleted_ids.len(), <span class="number">0</span>);
+        }
     }
 }
 </code></pre></div></section></main></body></html>

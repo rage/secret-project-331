@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/script.rs`."><title>script.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/script.rs`."><title>script.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -221,6 +221,39 @@
 <a href="#221" id="221">221</a>
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
+<a href="#237" id="237">237</a>
+<a href="#238" id="238">238</a>
+<a href="#239" id="239">239</a>
+<a href="#240" id="240">240</a>
+<a href="#241" id="241">241</a>
+<a href="#242" id="242">242</a>
+<a href="#243" id="243">243</a>
+<a href="#244" id="244">244</a>
+<a href="#245" id="245">245</a>
+<a href="#246" id="246">246</a>
+<a href="#247" id="247">247</a>
+<a href="#248" id="248">248</a>
+<a href="#249" id="249">249</a>
+<a href="#250" id="250">250</a>
+<a href="#251" id="251">251</a>
+<a href="#252" id="252">252</a>
+<a href="#253" id="253">253</a>
+<a href="#254" id="254">254</a>
+<a href="#255" id="255">255</a>
+<a href="#256" id="256">256</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg(feature = <span class="string">"script"</span>)]
 </span><span class="kw">use </span>sha1_smol::Sha1;
 
@@ -370,7 +403,7 @@
             <span class="prelude-val">Ok</span>(val) =&gt; <span class="prelude-val">Ok</span>(val),
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="kw">if </span>err.kind() == ErrorKind::NoScriptError {
-                    <span class="self">self</span>.load_cmd().query(con)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.load_cmd().exec(con)<span class="question-mark">?</span>;
                     eval_cmd.query(con)
                 } <span class="kw">else </span>{
                     <span class="prelude-val">Err</span>(err)
@@ -382,11 +415,10 @@
     <span class="doccomment">/// Asynchronously invokes the script and returns the result.
     </span><span class="attr">#[inline]
     #[cfg(feature = <span class="string">"aio"</span>)]
-    </span><span class="kw">pub async fn </span>invoke_async&lt;C, T&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, con: <span class="kw-2">&amp;mut </span>C) -&gt; RedisResult&lt;T&gt;
-    <span class="kw">where
-        </span>C: <span class="kw">crate</span>::aio::ConnectionLike,
-        T: FromRedisValue,
-    {
+    </span><span class="kw">pub async fn </span>invoke_async&lt;T: FromRedisValue&gt;(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        con: <span class="kw-2">&amp;mut </span><span class="kw">impl </span><span class="kw">crate</span>::aio::ConnectionLike,
+    ) -&gt; RedisResult&lt;T&gt; {
         <span class="kw">let </span>eval_cmd = <span class="self">self</span>.eval_cmd();
         <span class="kw">match </span>eval_cmd.query_async(con).<span class="kw">await </span>{
             <span class="prelude-val">Ok</span>(val) =&gt; {
@@ -396,7 +428,7 @@
             <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="comment">// Load the script into Redis if the script hash wasn't there already
                 </span><span class="kw">if </span>err.kind() == ErrorKind::NoScriptError {
-                    <span class="self">self</span>.load_cmd().query_async(con).<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="self">self</span>.load_cmd().exec_async(con).<span class="kw">await</span><span class="question-mark">?</span>;
                     eval_cmd.query_async(con).<span class="kw">await
                 </span>} <span class="kw">else </span>{
                     <span class="prelude-val">Err</span>(err)
@@ -429,19 +461,53 @@
         <span class="prelude-val">Ok</span>(hash)
     }
 
-    <span class="kw">fn </span>load_cmd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cmd {
+    <span class="doccomment">/// Returns a command to load the script.
+    </span><span class="kw">fn </span>load_cmd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cmd {
         <span class="kw">let </span><span class="kw-2">mut </span>cmd = cmd(<span class="string">"SCRIPT"</span>);
         cmd.arg(<span class="string">"LOAD"</span>).arg(<span class="self">self</span>.script.code.as_bytes());
         cmd
     }
 
-    <span class="kw">fn </span>eval_cmd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cmd {
-        <span class="kw">let </span><span class="kw-2">mut </span>cmd = cmd(<span class="string">"EVALSHA"</span>);
-        cmd.arg(<span class="self">self</span>.script.hash.as_bytes())
+    <span class="kw">fn </span>estimate_buflen(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self
+            </span>.keys
+            .iter()
+            .chain(<span class="self">self</span>.args.iter())
+            .fold(<span class="number">0</span>, |acc, e| acc + e.len())
+            + <span class="number">7 </span><span class="comment">/* "EVALSHA".len() */
+            </span>+ <span class="self">self</span>.script.hash.len()
+            + <span class="number">4 </span><span class="comment">/* Slots reserved for the length of keys. */
+    </span>}
+
+    <span class="doccomment">/// Returns a command to evaluate the command.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>eval_cmd(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Cmd {
+        <span class="kw">let </span>args_len = <span class="number">3 </span>+ <span class="self">self</span>.keys.len() + <span class="self">self</span>.args.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>cmd = Cmd::with_capacity(args_len, <span class="self">self</span>.estimate_buflen());
+        cmd.arg(<span class="string">"EVALSHA"</span>)
+            .arg(<span class="self">self</span>.script.hash.as_bytes())
             .arg(<span class="self">self</span>.keys.len())
             .arg(<span class="kw-2">&amp;*</span><span class="self">self</span>.keys)
             .arg(<span class="kw-2">&amp;*</span><span class="self">self</span>.args);
         cmd
+    }
+}
+
+<span class="attr">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use </span><span class="kw">super</span>::Script;
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>script_eval_should_work() {
+        <span class="kw">let </span>script = Script::new(<span class="string">"return KEYS[1]"</span>);
+        <span class="kw">let </span>invocation = script.key(<span class="string">"dummy"</span>);
+        <span class="kw">let </span>estimated_buflen = invocation.estimate_buflen();
+        <span class="kw">let </span>cmd = invocation.eval_cmd();
+        <span class="macro">assert!</span>(estimated_buflen &gt;= cmd.capacity().<span class="number">1</span>);
+        <span class="kw">let </span>expected = <span class="string">"*4\r\n$7\r\nEVALSHA\r\n$40\r\n4a2267357833227dd98abdedb8cf24b15a986445\r\n$1\r\n1\r\n$5\r\ndummy\r\n"</span>;
+        <span class="macro">assert_eq!</span>(
+            expected,
+            std::str::from_utf8(cmd.get_packed_command().as_slice()).unwrap()
+        );
     }
 }
 </code></pre></div></section></main></body></html>

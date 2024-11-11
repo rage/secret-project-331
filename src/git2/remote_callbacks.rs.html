@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.3/src/remote_callbacks.rs`."><title>remote_callbacks.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.19.0/src/remote_callbacks.rs`."><title>remote_callbacks.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -516,8 +516,16 @@
 <a href="#516" id="516">516</a>
 <a href="#517" id="517">517</a>
 <a href="#518" id="518">518</a>
+<a href="#519" id="519">519</a>
+<a href="#520" id="520">520</a>
+<a href="#521" id="521">521</a>
+<a href="#522" id="522">522</a>
+<a href="#523" id="523">523</a>
+<a href="#524" id="524">524</a>
+<a href="#525" id="525">525</a>
+<a href="#526" id="526">526</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>libc::{c_char, c_int, c_uint, c_void, size_t};
-<span class="kw">use </span>std::ffi::{CStr, CString};
+<span class="kw">use </span>std::ffi::CStr;
 <span class="kw">use </span>std::mem;
 <span class="kw">use </span>std::ptr;
 <span class="kw">use </span>std::slice;
@@ -594,20 +602,23 @@
 <span class="doccomment">/// Callback for push transfer progress
 ///
 /// Parameters:
-///     * current
-///     * total
-///     * bytes
+/// * current
+/// * total
+/// * bytes
 </span><span class="kw">pub type </span>PushTransferProgress&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(usize, usize, usize) + <span class="lifetime">'a</span>;
 
 <span class="doccomment">/// Callback for pack progress
 ///
+/// Be aware that this is called inline with pack building operations,
+/// so performance may be affected.
+///
 /// Parameters:
-///     * stage
-///     * current
-///     * total
+/// * stage
+/// * current
+/// * total
 </span><span class="kw">pub type </span>PackProgress&lt;<span class="lifetime">'a</span>&gt; = <span class="kw">dyn </span>FnMut(PackBuilderStage, usize, usize) + <span class="lifetime">'a</span>;
 
-<span class="doccomment">/// Callback used to inform of upcoming updates.
+<span class="doccomment">/// The callback is called once between the negotiation step and the upload.
 ///
 /// The argument is a slice containing the updates which will be sent as
 /// commands to the destination.
@@ -722,6 +733,11 @@
     </span>}
 
     <span class="doccomment">/// The callback through which progress of push transfer is monitored
+    ///
+    /// Parameters:
+    /// * current
+    /// * total
+    /// * bytes
     </span><span class="kw">pub fn </span>push_transfer_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
         </span>F: FnMut(usize, usize, usize) + <span class="lifetime">'a</span>,
@@ -731,8 +747,14 @@
     </span>}
 
     <span class="doccomment">/// Function to call with progress information during pack building.
+    ///
     /// Be aware that this is called inline with pack building operations,
     /// so performance may be affected.
+    ///
+    /// Parameters:
+    /// * stage
+    /// * current
+    /// * total
     </span><span class="kw">pub fn </span>pack_progress&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
         </span>F: FnMut(PackBuilderStage, usize, usize) + <span class="lifetime">'a</span>,
@@ -742,7 +764,11 @@
     </span>}
 
     <span class="doccomment">/// The callback is called once between the negotiation step and the upload.
-    /// It provides information about what updates will be performed.
+    ///
+    /// The argument to the callback is a slice containing the updates which
+    /// will be sent as commands to the destination.
+    ///
+    /// The push is cancelled if the callback returns an error.
     </span><span class="kw">pub fn </span>push_negotiation&lt;F&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cb: F) -&gt; <span class="kw-2">&amp;mut </span>RemoteCallbacks&lt;<span class="lifetime">'a</span>&gt;
     <span class="kw">where
         </span>F: FnMut(<span class="kw-2">&amp;</span>[PushUpdate&lt;<span class="lifetime">'_</span>&gt;]) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; + <span class="lifetime">'a</span>,
@@ -830,11 +856,7 @@
 
             <span class="kw">let </span>cred_type = CredentialType::from_bits_truncate(allowed_types <span class="kw">as </span>u32);
 
-            callback(url, username_from_url, cred_type).map_err(|e| {
-                <span class="kw">let </span>s = CString::new(e.to_string()).unwrap();
-                raw::git_error_set_str(e.class() <span class="kw">as </span>c_int, s.as_ptr());
-                e.raw_code() <span class="kw">as </span>c_int
-            })
+            callback(url, username_from_url, cred_type).map_err(|e| e.raw_set_git_error())
         });
         <span class="kw">match </span>ok {
             <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(cred)) =&gt; {
@@ -933,13 +955,7 @@
     <span class="kw">match </span>ok {
         <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(CertificateCheckStatus::CertificateOk)) =&gt; <span class="number">0</span>,
         <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(CertificateCheckStatus::CertificatePassthrough)) =&gt; raw::GIT_PASSTHROUGH <span class="kw">as </span>c_int,
-        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; {
-            <span class="kw">let </span>s = CString::new(e.message()).unwrap();
-            <span class="kw">unsafe </span>{
-                raw::git_error_set_str(e.class() <span class="kw">as </span>c_int, s.as_ptr());
-            }
-            e.raw_code() <span class="kw">as </span>c_int
-        }
+        <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(e)) =&gt; <span class="kw">unsafe </span>{ e.raw_set_git_error() },
         <span class="prelude-val">None </span>=&gt; {
             <span class="comment">// Panic. The *should* get resumed by some future call to check().
             </span>-<span class="number">1
@@ -966,7 +982,7 @@
         };
         <span class="kw">match </span>callback(refname, status) {
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="number">0</span>,
-            <span class="prelude-val">Err</span>(e) =&gt; e.raw_code(),
+            <span class="prelude-val">Err</span>(e) =&gt; e.raw_set_git_error(),
         }
     })
     .unwrap_or(-<span class="number">1</span>)
@@ -1029,7 +1045,7 @@
         <span class="kw">let </span>updates = slice::from_raw_parts(updates <span class="kw">as </span><span class="kw-2">*mut </span>PushUpdate&lt;<span class="lifetime">'_</span>&gt;, len);
         <span class="kw">match </span>callback(updates) {
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="number">0</span>,
-            <span class="prelude-val">Err</span>(e) =&gt; e.raw_code(),
+            <span class="prelude-val">Err</span>(e) =&gt; e.raw_set_git_error(),
         }
     })
     .unwrap_or(-<span class="number">1</span>)

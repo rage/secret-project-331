@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/unicode_norm.rs`."><title>unicode_norm.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/unicode_norm.rs`."><title>unicode_norm.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3021,87 +3021,6 @@
 <a href="#3021" id="3021">3021</a>
 <a href="#3022" id="3022">3022</a>
 <a href="#3023" id="3023">3023</a>
-<a href="#3024" id="3024">3024</a>
-<a href="#3025" id="3025">3025</a>
-<a href="#3026" id="3026">3026</a>
-<a href="#3027" id="3027">3027</a>
-<a href="#3028" id="3028">3028</a>
-<a href="#3029" id="3029">3029</a>
-<a href="#3030" id="3030">3030</a>
-<a href="#3031" id="3031">3031</a>
-<a href="#3032" id="3032">3032</a>
-<a href="#3033" id="3033">3033</a>
-<a href="#3034" id="3034">3034</a>
-<a href="#3035" id="3035">3035</a>
-<a href="#3036" id="3036">3036</a>
-<a href="#3037" id="3037">3037</a>
-<a href="#3038" id="3038">3038</a>
-<a href="#3039" id="3039">3039</a>
-<a href="#3040" id="3040">3040</a>
-<a href="#3041" id="3041">3041</a>
-<a href="#3042" id="3042">3042</a>
-<a href="#3043" id="3043">3043</a>
-<a href="#3044" id="3044">3044</a>
-<a href="#3045" id="3045">3045</a>
-<a href="#3046" id="3046">3046</a>
-<a href="#3047" id="3047">3047</a>
-<a href="#3048" id="3048">3048</a>
-<a href="#3049" id="3049">3049</a>
-<a href="#3050" id="3050">3050</a>
-<a href="#3051" id="3051">3051</a>
-<a href="#3052" id="3052">3052</a>
-<a href="#3053" id="3053">3053</a>
-<a href="#3054" id="3054">3054</a>
-<a href="#3055" id="3055">3055</a>
-<a href="#3056" id="3056">3056</a>
-<a href="#3057" id="3057">3057</a>
-<a href="#3058" id="3058">3058</a>
-<a href="#3059" id="3059">3059</a>
-<a href="#3060" id="3060">3060</a>
-<a href="#3061" id="3061">3061</a>
-<a href="#3062" id="3062">3062</a>
-<a href="#3063" id="3063">3063</a>
-<a href="#3064" id="3064">3064</a>
-<a href="#3065" id="3065">3065</a>
-<a href="#3066" id="3066">3066</a>
-<a href="#3067" id="3067">3067</a>
-<a href="#3068" id="3068">3068</a>
-<a href="#3069" id="3069">3069</a>
-<a href="#3070" id="3070">3070</a>
-<a href="#3071" id="3071">3071</a>
-<a href="#3072" id="3072">3072</a>
-<a href="#3073" id="3073">3073</a>
-<a href="#3074" id="3074">3074</a>
-<a href="#3075" id="3075">3075</a>
-<a href="#3076" id="3076">3076</a>
-<a href="#3077" id="3077">3077</a>
-<a href="#3078" id="3078">3078</a>
-<a href="#3079" id="3079">3079</a>
-<a href="#3080" id="3080">3080</a>
-<a href="#3081" id="3081">3081</a>
-<a href="#3082" id="3082">3082</a>
-<a href="#3083" id="3083">3083</a>
-<a href="#3084" id="3084">3084</a>
-<a href="#3085" id="3085">3085</a>
-<a href="#3086" id="3086">3086</a>
-<a href="#3087" id="3087">3087</a>
-<a href="#3088" id="3088">3088</a>
-<a href="#3089" id="3089">3089</a>
-<a href="#3090" id="3090">3090</a>
-<a href="#3091" id="3091">3091</a>
-<a href="#3092" id="3092">3092</a>
-<a href="#3093" id="3093">3093</a>
-<a href="#3094" id="3094">3094</a>
-<a href="#3095" id="3095">3095</a>
-<a href="#3096" id="3096">3096</a>
-<a href="#3097" id="3097">3097</a>
-<a href="#3098" id="3098">3098</a>
-<a href="#3099" id="3099">3099</a>
-<a href="#3100" id="3100">3100</a>
-<a href="#3101" id="3101">3101</a>
-<a href="#3102" id="3102">3102</a>
-<a href="#3103" id="3103">3103</a>
-<a href="#3104" id="3104">3104</a>
 </pre></div><pre class="rust"><code><span class="comment">// WARNING: this file was generated by ../scripts/gen-unicode-norm-table.py
 
 </span><span class="doccomment">//! This module provides Unicode tables for canonical (de)composition.
@@ -3109,7 +3028,7 @@
 //! The current implementation is not the fastest one. Just good enough.
 
 </span><span class="attr">#[allow(dead_code)]
-</span><span class="kw">pub const </span>UNICODE_VERSION: (u8, u8, u8) = (<span class="number">14</span>, <span class="number">0</span>, <span class="number">0</span>);
+</span><span class="kw">pub const </span>UNICODE_VERSION: (u8, u8, u8) = (<span class="number">15</span>, <span class="number">0</span>, <span class="number">0</span>);
 
 <span class="comment">// Rust support `Option&lt;char&gt;` layout optimization, so it will take only 4 bytes.
 </span><span class="kw">pub const </span>DECOMPOSITION_TABLE: <span class="kw-2">&amp;</span>[(char, char, <span class="prelude-ty">Option</span>&lt;char&gt;)] = <span class="kw-2">&amp;</span>[
@@ -5817,38 +5736,6 @@
     (<span class="number">5330054415112</span>, <span class="string">'\u{04DB}'</span>),
     (<span class="number">5394478924552</span>, <span class="string">'\u{04EA}'</span>),
     (<span class="number">5398773891848</span>, <span class="string">'\u{04EB}'</span>),
-    (<span class="number">6390911337911</span>, <span class="string">'\u{FB2E}'</span>),
-    (<span class="number">6390911337912</span>, <span class="string">'\u{FB2F}'</span>),
-    (<span class="number">6390911337916</span>, <span class="string">'\u{FB30}'</span>),
-    (<span class="number">6395206305212</span>, <span class="string">'\u{FB31}'</span>),
-    (<span class="number">6395206305215</span>, <span class="string">'\u{FB4C}'</span>),
-    (<span class="number">6399501272508</span>, <span class="string">'\u{FB32}'</span>),
-    (<span class="number">6403796239804</span>, <span class="string">'\u{FB33}'</span>),
-    (<span class="number">6408091207100</span>, <span class="string">'\u{FB34}'</span>),
-    (<span class="number">6412386174393</span>, <span class="string">'\u{FB4B}'</span>),
-    (<span class="number">6412386174396</span>, <span class="string">'\u{FB35}'</span>),
-    (<span class="number">6416681141692</span>, <span class="string">'\u{FB36}'</span>),
-    (<span class="number">6425271076284</span>, <span class="string">'\u{FB38}'</span>),
-    (<span class="number">6429566043572</span>, <span class="string">'\u{FB1D}'</span>),
-    (<span class="number">6429566043580</span>, <span class="string">'\u{FB39}'</span>),
-    (<span class="number">6433861010876</span>, <span class="string">'\u{FB3A}'</span>),
-    (<span class="number">6438155978172</span>, <span class="string">'\u{FB3B}'</span>),
-    (<span class="number">6438155978175</span>, <span class="string">'\u{FB4D}'</span>),
-    (<span class="number">6442450945468</span>, <span class="string">'\u{FB3C}'</span>),
-    (<span class="number">6451040880060</span>, <span class="string">'\u{FB3E}'</span>),
-    (<span class="number">6459630814652</span>, <span class="string">'\u{FB40}'</span>),
-    (<span class="number">6463925781948</span>, <span class="string">'\u{FB41}'</span>),
-    (<span class="number">6472515716540</span>, <span class="string">'\u{FB43}'</span>),
-    (<span class="number">6476810683836</span>, <span class="string">'\u{FB44}'</span>),
-    (<span class="number">6476810683839</span>, <span class="string">'\u{FB4E}'</span>),
-    (<span class="number">6485400618428</span>, <span class="string">'\u{FB46}'</span>),
-    (<span class="number">6489695585724</span>, <span class="string">'\u{FB47}'</span>),
-    (<span class="number">6493990553020</span>, <span class="string">'\u{FB48}'</span>),
-    (<span class="number">6498285520316</span>, <span class="string">'\u{FB49}'</span>),
-    (<span class="number">6498285520321</span>, <span class="string">'\u{FB2A}'</span>),
-    (<span class="number">6498285520322</span>, <span class="string">'\u{FB2B}'</span>),
-    (<span class="number">6502580487612</span>, <span class="string">'\u{FB4A}'</span>),
-    (<span class="number">6536940225975</span>, <span class="string">'\u{FB1F}'</span>),
     (<span class="number">6764573492819</span>, <span class="string">'\u{0622}'</span>),
     (<span class="number">6764573492820</span>, <span class="string">'\u{0623}'</span>),
     (<span class="number">6764573492821</span>, <span class="string">'\u{0625}'</span>),
@@ -5857,30 +5744,11 @@
     (<span class="number">7425998456404</span>, <span class="string">'\u{06C2}'</span>),
     (<span class="number">7499012900436</span>, <span class="string">'\u{06D3}'</span>),
     (<span class="number">7511897802324</span>, <span class="string">'\u{06C0}'</span>),
-    (<span class="number">9985798965564</span>, <span class="string">'\u{0958}'</span>),
-    (<span class="number">9990093932860</span>, <span class="string">'\u{0959}'</span>),
-    (<span class="number">9994388900156</span>, <span class="string">'\u{095A}'</span>),
-    (<span class="number">10015863736636</span>, <span class="string">'\u{095B}'</span>),
-    (<span class="number">10037338573116</span>, <span class="string">'\u{095C}'</span>),
-    (<span class="number">10041633540412</span>, <span class="string">'\u{095D}'</span>),
     (<span class="number">10067403344188</span>, <span class="string">'\u{0929}'</span>),
-    (<span class="number">10080288246076</span>, <span class="string">'\u{095E}'</span>),
-    (<span class="number">10097468115260</span>, <span class="string">'\u{095F}'</span>),
     (<span class="number">10101763082556</span>, <span class="string">'\u{0931}'</span>),
     (<span class="number">10114647984444</span>, <span class="string">'\u{0934}'</span>),
-    (<span class="number">10587094387132</span>, <span class="string">'\u{09DC}'</span>),
-    (<span class="number">10591389354428</span>, <span class="string">'\u{09DD}'</span>),
-    (<span class="number">10647223929276</span>, <span class="string">'\u{09DF}'</span>),
     (<span class="number">10750303144382</span>, <span class="string">'\u{09CB}'</span>),
     (<span class="number">10750303144407</span>, <span class="string">'\u{09CC}'</span>),
-    (<span class="number">11089605560892</span>, <span class="string">'\u{0A59}'</span>),
-    (<span class="number">11093900528188</span>, <span class="string">'\u{0A5A}'</span>),
-    (<span class="number">11115375364668</span>, <span class="string">'\u{0A5B}'</span>),
-    (<span class="number">11179799874108</span>, <span class="string">'\u{0A5E}'</span>),
-    (<span class="number">11209864645180</span>, <span class="string">'\u{0A33}'</span>),
-    (<span class="number">11235634448956</span>, <span class="string">'\u{0A36}'</span>),
-    (<span class="number">12236361829180</span>, <span class="string">'\u{0B5C}'</span>),
-    (<span class="number">12240656796476</span>, <span class="string">'\u{0B5D}'</span>),
     (<span class="number">12399570586430</span>, <span class="string">'\u{0B4B}'</span>),
     (<span class="number">12399570586454</span>, <span class="string">'\u{0B48}'</span>),
     (<span class="number">12399570586455</span>, <span class="string">'\u{0B4C}'</span>),
@@ -5901,23 +5769,9 @@
     (<span class="number">15225659067855</span>, <span class="string">'\u{0DDC}'</span>),
     (<span class="number">15225659067871</span>, <span class="string">'\u{0DDE}'</span>),
     (<span class="number">15238543969738</span>, <span class="string">'\u{0DDD}'</span>),
-    (<span class="number">16767552327605</span>, <span class="string">'\u{0F69}'</span>),
-    (<span class="number">16776142262199</span>, <span class="string">'\u{0F43}'</span>),
-    (<span class="number">16819091935159</span>, <span class="string">'\u{0F4D}'</span>),
-    (<span class="number">16840566771639</span>, <span class="string">'\u{0F52}'</span>),
-    (<span class="number">16862041608119</span>, <span class="string">'\u{0F57}'</span>),
-    (<span class="number">16883516444599</span>, <span class="string">'\u{0F5C}'</span>),
     (<span class="number">16978005725042</span>, <span class="string">'\u{0F73}'</span>),
     (<span class="number">16978005725044</span>, <span class="string">'\u{0F75}'</span>),
     (<span class="number">16978005725056</span>, <span class="string">'\u{0F81}'</span>),
-    (<span class="number">17111149711285</span>, <span class="string">'\u{0FB9}'</span>),
-    (<span class="number">17119739645879</span>, <span class="string">'\u{0F93}'</span>),
-    (<span class="number">17162689318839</span>, <span class="string">'\u{0F9D}'</span>),
-    (<span class="number">17184164155319</span>, <span class="string">'\u{0FA2}'</span>),
-    (<span class="number">17205638991799</span>, <span class="string">'\u{0FA7}'</span>),
-    (<span class="number">17227113828279</span>, <span class="string">'\u{0FAC}'</span>),
-    (<span class="number">17257178599296</span>, <span class="string">'\u{0F76}'</span>),
-    (<span class="number">17261473566592</span>, <span class="string">'\u{0F78}'</span>),
     (<span class="number">17751099838510</span>, <span class="string">'\u{1026}'</span>),
     (<span class="number">29708288793397</span>, <span class="string">'\u{1B06}'</span>),
     (<span class="number">29716878727989</span>, <span class="string">'\u{1B08}'</span>),
@@ -6118,7 +5972,6 @@
     (<span class="number">38152194491192</span>, <span class="string">'\u{22EB}'</span>),
     (<span class="number">38156489458488</span>, <span class="string">'\u{22EC}'</span>),
     (<span class="number">38160784425784</span>, <span class="string">'\u{22ED}'</span>),
-    (<span class="number">47128676139832</span>, <span class="string">'\u{2ADC}'</span>),
     (<span class="number">53077205856409</span>, <span class="string">'\u{3094}'</span>),
     (<span class="number">53098680692889</span>, <span class="string">'\u{304C}'</span>),
     (<span class="number">53107270627481</span>, <span class="string">'\u{304E}'</span>),
@@ -6177,8 +6030,6 @@
     (<span class="number">53811645264025</span>, <span class="string">'\u{30F9}'</span>),
     (<span class="number">53815940231321</span>, <span class="string">'\u{30FA}'</span>),
     (<span class="number">53863184871577</span>, <span class="string">'\u{30FE}'</span>),
-    (<span class="number">276290951185857</span>, <span class="string">'\u{FB2C}'</span>),
-    (<span class="number">276290951185858</span>, <span class="string">'\u{FB2D}'</span>),
     (<span class="number">299724292821178</span>, <span class="string">'\u{1109A}'</span>),
     (<span class="number">299732882755770</span>, <span class="string">'\u{1109C}'</span>),
     (<span class="number">299775832428730</span>, <span class="string">'\u{110AB}'</span>),
@@ -6192,18 +6043,5 @@
     (<span class="number">305354994947503</span>, <span class="string">'\u{115BA}'</span>),
     (<span class="number">305359289914799</span>, <span class="string">'\u{115BB}'</span>),
     (<span class="number">309190400743728</span>, <span class="string">'\u{11938}'</span>),
-    (<span class="number">511646569189733</span>, <span class="string">'\u{1D15E}'</span>),
-    (<span class="number">511650864157029</span>, <span class="string">'\u{1D15F}'</span>),
-    (<span class="number">511680928928110</span>, <span class="string">'\u{1D160}'</span>),
-    (<span class="number">511680928928111</span>, <span class="string">'\u{1D161}'</span>),
-    (<span class="number">511680928928112</span>, <span class="string">'\u{1D162}'</span>),
-    (<span class="number">511680928928113</span>, <span class="string">'\u{1D163}'</span>),
-    (<span class="number">511680928928114</span>, <span class="string">'\u{1D164}'</span>),
-    (<span class="number">512067475984741</span>, <span class="string">'\u{1D1BB}'</span>),
-    (<span class="number">512071770952037</span>, <span class="string">'\u{1D1BC}'</span>),
-    (<span class="number">512076065919342</span>, <span class="string">'\u{1D1BD}'</span>),
-    (<span class="number">512076065919343</span>, <span class="string">'\u{1D1BF}'</span>),
-    (<span class="number">512080360886638</span>, <span class="string">'\u{1D1BE}'</span>),
-    (<span class="number">512080360886639</span>, <span class="string">'\u{1D1C0}'</span>),
 ];
 </code></pre></div></section></main></body></html>

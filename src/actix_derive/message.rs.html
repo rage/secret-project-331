@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix_derive-0.6.1/src/message.rs`."><title>message.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/actix_derive-0.6.2/src/message.rs`."><title>message.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="actix_derive" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://actix.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -137,6 +137,15 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Span, TokenStream};
 <span class="kw">use </span>quote::{quote, ToTokens};
 <span class="kw">use </span>syn::parse::Parser <span class="kw">as _</span>;
@@ -184,18 +193,20 @@
     ast: <span class="kw-2">&amp;</span>syn::DeriveInput,
     name: <span class="kw-2">&amp;</span>str,
 ) -&gt; syn::Result&lt;Vec&lt;<span class="prelude-ty">Option</span>&lt;syn::Type&gt;&gt;&gt; {
-    <span class="kw">let </span>attr = ast
-        .attrs
-        .iter()
-        .find_map(|attr| {
-            <span class="kw">if </span>attr.path().is_ident(name) {
-                attr.parse_args().ok()
-            } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>}
-        })
+    <span class="kw">let </span><span class="kw-2">mut </span>target_attrs = ast.attrs.iter().filter(|attr| attr.path().is_ident(name));
+
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(typ)) = target_attrs
+        .clone()
+        .find_map(|attr| attr.parse_args::&lt;syn::LitStr&gt;().ok())
+        .map(|lit_str| lit_str.parse::&lt;syn::Type&gt;())
+    {
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="prelude-val">Some</span>(typ)]);
+    }
+
+    <span class="kw">let </span>attr = target_attrs
+        .find_map(|attr| attr.parse_args().ok())
         .ok_or_else(|| {
-            syn::Error::new(Span::call_site(), <span class="macro">format!</span>(<span class="string">"Expect an attribute `{name}`"</span>))
+            syn::Error::new(Span::call_site(), <span class="macro">format!</span>(<span class="string">"Expected an attribute `{name}`"</span>))
         })<span class="question-mark">?</span>;
 
     <span class="kw">match </span>attr {
@@ -225,19 +236,26 @@
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="prelude-val">Some</span>(ty)]);
                     }
                 }
-                <span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="kw-2">&amp;</span>nv.value, <span class="string">"Expect type"</span>))
+
+                <span class="kw">if let </span>syn::Expr::Path(path) = nv.value.clone() {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(ty) = syn::parse2::&lt;syn::Type&gt;(path.into_token_stream()) {
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="macro">vec!</span>[<span class="prelude-val">Some</span>(ty)]);
+                    }
+                }
+
+                <span class="prelude-val">Err</span>(syn::Error::new_spanned(<span class="kw-2">&amp;</span>nv.value, <span class="string">"expected type"</span>))
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(
                 <span class="kw-2">&amp;</span>nv.value,
-                <span class="string">r#"Expect `result = "TYPE"`"#</span>,
+                <span class="string">r#"expected `result = TYPE`"#</span>,
             )),
         },
 
         syn::Meta::Path(path) =&gt; <span class="kw">match </span>path.get_ident() {
             <span class="prelude-val">Some</span>(ident) =&gt; syn::parse_str::&lt;syn::Type&gt;(<span class="kw-2">&amp;</span>ident.to_string())
                 .map(|ty| <span class="macro">vec!</span>[<span class="prelude-val">Some</span>(ty)])
-                .map_err(|<span class="kw">_</span>| syn::Error::new_spanned(ident, <span class="string">"Expect type"</span>)),
-            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(path, <span class="string">"Expect type"</span>)),
+                .map_err(|<span class="kw">_</span>| syn::Error::new_spanned(ident, <span class="string">"expected type"</span>)),
+            <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(syn::Error::new_spanned(path, <span class="string">"expected type"</span>)),
         },
     }
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.76/src/gen/visit_mut.rs`."><title>visit_mut.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="syn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/src/gen/visit_mut.rs`."><title>visit_mut.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="syn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3758,101 +3758,6 @@
 <a href="#3758" id="3758">3758</a>
 <a href="#3759" id="3759">3759</a>
 <a href="#3760" id="3760">3760</a>
-<a href="#3761" id="3761">3761</a>
-<a href="#3762" id="3762">3762</a>
-<a href="#3763" id="3763">3763</a>
-<a href="#3764" id="3764">3764</a>
-<a href="#3765" id="3765">3765</a>
-<a href="#3766" id="3766">3766</a>
-<a href="#3767" id="3767">3767</a>
-<a href="#3768" id="3768">3768</a>
-<a href="#3769" id="3769">3769</a>
-<a href="#3770" id="3770">3770</a>
-<a href="#3771" id="3771">3771</a>
-<a href="#3772" id="3772">3772</a>
-<a href="#3773" id="3773">3773</a>
-<a href="#3774" id="3774">3774</a>
-<a href="#3775" id="3775">3775</a>
-<a href="#3776" id="3776">3776</a>
-<a href="#3777" id="3777">3777</a>
-<a href="#3778" id="3778">3778</a>
-<a href="#3779" id="3779">3779</a>
-<a href="#3780" id="3780">3780</a>
-<a href="#3781" id="3781">3781</a>
-<a href="#3782" id="3782">3782</a>
-<a href="#3783" id="3783">3783</a>
-<a href="#3784" id="3784">3784</a>
-<a href="#3785" id="3785">3785</a>
-<a href="#3786" id="3786">3786</a>
-<a href="#3787" id="3787">3787</a>
-<a href="#3788" id="3788">3788</a>
-<a href="#3789" id="3789">3789</a>
-<a href="#3790" id="3790">3790</a>
-<a href="#3791" id="3791">3791</a>
-<a href="#3792" id="3792">3792</a>
-<a href="#3793" id="3793">3793</a>
-<a href="#3794" id="3794">3794</a>
-<a href="#3795" id="3795">3795</a>
-<a href="#3796" id="3796">3796</a>
-<a href="#3797" id="3797">3797</a>
-<a href="#3798" id="3798">3798</a>
-<a href="#3799" id="3799">3799</a>
-<a href="#3800" id="3800">3800</a>
-<a href="#3801" id="3801">3801</a>
-<a href="#3802" id="3802">3802</a>
-<a href="#3803" id="3803">3803</a>
-<a href="#3804" id="3804">3804</a>
-<a href="#3805" id="3805">3805</a>
-<a href="#3806" id="3806">3806</a>
-<a href="#3807" id="3807">3807</a>
-<a href="#3808" id="3808">3808</a>
-<a href="#3809" id="3809">3809</a>
-<a href="#3810" id="3810">3810</a>
-<a href="#3811" id="3811">3811</a>
-<a href="#3812" id="3812">3812</a>
-<a href="#3813" id="3813">3813</a>
-<a href="#3814" id="3814">3814</a>
-<a href="#3815" id="3815">3815</a>
-<a href="#3816" id="3816">3816</a>
-<a href="#3817" id="3817">3817</a>
-<a href="#3818" id="3818">3818</a>
-<a href="#3819" id="3819">3819</a>
-<a href="#3820" id="3820">3820</a>
-<a href="#3821" id="3821">3821</a>
-<a href="#3822" id="3822">3822</a>
-<a href="#3823" id="3823">3823</a>
-<a href="#3824" id="3824">3824</a>
-<a href="#3825" id="3825">3825</a>
-<a href="#3826" id="3826">3826</a>
-<a href="#3827" id="3827">3827</a>
-<a href="#3828" id="3828">3828</a>
-<a href="#3829" id="3829">3829</a>
-<a href="#3830" id="3830">3830</a>
-<a href="#3831" id="3831">3831</a>
-<a href="#3832" id="3832">3832</a>
-<a href="#3833" id="3833">3833</a>
-<a href="#3834" id="3834">3834</a>
-<a href="#3835" id="3835">3835</a>
-<a href="#3836" id="3836">3836</a>
-<a href="#3837" id="3837">3837</a>
-<a href="#3838" id="3838">3838</a>
-<a href="#3839" id="3839">3839</a>
-<a href="#3840" id="3840">3840</a>
-<a href="#3841" id="3841">3841</a>
-<a href="#3842" id="3842">3842</a>
-<a href="#3843" id="3843">3843</a>
-<a href="#3844" id="3844">3844</a>
-<a href="#3845" id="3845">3845</a>
-<a href="#3846" id="3846">3846</a>
-<a href="#3847" id="3847">3847</a>
-<a href="#3848" id="3848">3848</a>
-<a href="#3849" id="3849">3849</a>
-<a href="#3850" id="3850">3850</a>
-<a href="#3851" id="3851">3851</a>
-<a href="#3852" id="3852">3852</a>
-<a href="#3853" id="3853">3853</a>
-<a href="#3854" id="3854">3854</a>
-<a href="#3855" id="3855">3855</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is @generated by syn-internal-codegen.
 // It is not intended for manual editing.
 
@@ -3922,6 +3827,13 @@
     }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
+    </span><span class="kw">fn </span>visit_attributes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span>Vec&lt;<span class="kw">crate</span>::Attribute&gt;) {
+        <span class="kw">for </span>attr <span class="kw">in </span>i {
+            <span class="self">self</span>.visit_attribute_mut(attr);
+        }
+    }
+    <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>visit_bare_fn_arg_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::BareFnArg) {
         visit_bare_fn_arg_mut(<span class="self">self</span>, i);
     }
@@ -3944,6 +3856,11 @@
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>visit_bound_lifetimes_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::BoundLifetimes) {
         visit_bound_lifetimes_mut(<span class="self">self</span>, i);
+    }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>visit_captured_param_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::CapturedParam) {
+        visit_captured_param_mut(<span class="self">self</span>, i);
     }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
@@ -4120,6 +4037,11 @@
     </span><span class="kw">fn </span>visit_expr_range_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprRange) {
         visit_expr_range_mut(<span class="self">self</span>, i);
     }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>visit_expr_raw_addr_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprRawAddr) {
+        visit_expr_raw_addr_mut(<span class="self">self</span>, i);
+    }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>visit_expr_reference_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprReference) {
@@ -4150,8 +4072,8 @@
     </span><span class="kw">fn </span>visit_expr_try_block_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprTryBlock) {
         visit_expr_try_block_mut(<span class="self">self</span>, i);
     }
-    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>visit_expr_tuple_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprTuple) {
         visit_expr_tuple_mut(<span class="self">self</span>, i);
     }
@@ -4541,6 +4463,16 @@
     </span><span class="kw">fn </span>visit_path_segment_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::PathSegment) {
         visit_path_segment_mut(<span class="self">self</span>, i);
     }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>visit_pointer_mutability_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::PointerMutability) {
+        visit_pointer_mutability_mut(<span class="self">self</span>, i);
+    }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>visit_precise_capture_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::PreciseCapture) {
+        visit_precise_capture_mut(<span class="self">self</span>, i);
+    }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>visit_predicate_lifetime_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::PredicateLifetime) {
@@ -4814,9 +4746,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_pat_mut(<span class="kw-2">&amp;mut </span>node.pat);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.guard {
         <span class="macro">skip!</span>((it).<span class="number">0</span>);
@@ -4882,9 +4812,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.name {
         v.visit_ident_mut(<span class="kw-2">&amp;mut </span>(it).<span class="number">0</span>);
         <span class="macro">skip!</span>((it).<span class="number">1</span>);
@@ -4897,9 +4825,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.name {
         v.visit_ident_mut(<span class="kw-2">&amp;mut </span>(it).<span class="number">0</span>);
         <span class="macro">skip!</span>((it).<span class="number">1</span>);
@@ -5025,15 +4951,28 @@
     }
     <span class="macro">skip!</span>(node.gt_token);
 }
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>visit_captured_param_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::CapturedParam)
+<span class="kw">where
+    </span>V: VisitMut + <span class="question-mark">?</span>Sized,
+{
+    <span class="kw">match </span>node {
+        <span class="kw">crate</span>::CapturedParam::Lifetime(_binding_0) =&gt; {
+            v.visit_lifetime_mut(_binding_0);
+        }
+        <span class="kw">crate</span>::CapturedParam::Ident(_binding_0) =&gt; {
+            v.visit_ident_mut(_binding_0);
+        }
+    }
+}
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
 #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
 </span><span class="kw">pub fn </span>visit_const_param_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ConstParam)
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.const_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     <span class="macro">skip!</span>(node.colon_token);
@@ -5115,9 +5054,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     v.visit_generics_mut(<span class="kw-2">&amp;mut </span>node.generics);
@@ -5211,6 +5148,9 @@
         <span class="kw">crate</span>::Expr::Range(_binding_0) =&gt; {
             <span class="macro">full!</span>(v.visit_expr_range_mut(_binding_0));
         }
+        <span class="kw">crate</span>::Expr::RawAddr(_binding_0) =&gt; {
+            <span class="macro">full!</span>(v.visit_expr_raw_addr_mut(_binding_0));
+        }
         <span class="kw">crate</span>::Expr::Reference(_binding_0) =&gt; {
             v.visit_expr_reference_mut(_binding_0);
         }
@@ -5230,7 +5170,7 @@
             <span class="macro">full!</span>(v.visit_expr_try_block_mut(_binding_0));
         }
         <span class="kw">crate</span>::Expr::Tuple(_binding_0) =&gt; {
-            <span class="macro">full!</span>(v.visit_expr_tuple_mut(_binding_0));
+            v.visit_expr_tuple_mut(_binding_0);
         }
         <span class="kw">crate</span>::Expr::Unary(_binding_0) =&gt; {
             v.visit_expr_unary_mut(_binding_0);
@@ -5255,9 +5195,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.bracket_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.elems) {
         <span class="kw">let </span>it = el.value_mut();
@@ -5270,9 +5208,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.left);
     <span class="macro">skip!</span>(node.eq_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.right);
@@ -5283,9 +5219,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.async_token);
     <span class="macro">skip!</span>(node.capture);
     v.visit_block_mut(<span class="kw-2">&amp;mut </span>node.block);
@@ -5296,9 +5230,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.base);
     <span class="macro">skip!</span>(node.dot_token);
     <span class="macro">skip!</span>(node.await_token);
@@ -5309,9 +5241,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.left);
     v.visit_bin_op_mut(<span class="kw-2">&amp;mut </span>node.op);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.right);
@@ -5322,9 +5252,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.label {
         v.visit_label_mut(it);
     }
@@ -5336,9 +5264,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.break_token);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.label {
         v.visit_lifetime_mut(it);
@@ -5353,9 +5279,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.func);
     <span class="macro">skip!</span>(node.paren_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.args) {
@@ -5369,9 +5293,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
     <span class="macro">skip!</span>(node.as_token);
     v.visit_type_mut(<span class="kw-2">&amp;mut *</span>node.ty);
@@ -5382,9 +5304,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.lifetimes {
         v.visit_bound_lifetimes_mut(it);
     }
@@ -5407,9 +5327,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.const_token);
     v.visit_block_mut(<span class="kw-2">&amp;mut </span>node.block);
 }
@@ -5419,9 +5337,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.continue_token);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.label {
         v.visit_lifetime_mut(it);
@@ -5433,9 +5349,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.base);
     <span class="macro">skip!</span>(node.dot_token);
     v.visit_member_mut(<span class="kw-2">&amp;mut </span>node.member);
@@ -5446,9 +5360,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.label {
         v.visit_label_mut(it);
     }
@@ -5464,9 +5376,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.group_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
 }
@@ -5476,9 +5386,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.if_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.cond);
     v.visit_block_mut(<span class="kw-2">&amp;mut </span>node.then_branch);
@@ -5493,9 +5401,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
     <span class="macro">skip!</span>(node.bracket_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.index);
@@ -5506,9 +5412,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.underscore_token);
 }
 <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
@@ -5517,9 +5421,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.let_token);
     v.visit_pat_mut(<span class="kw-2">&amp;mut *</span>node.pat);
     <span class="macro">skip!</span>(node.eq_token);
@@ -5531,9 +5433,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_lit_mut(<span class="kw-2">&amp;mut </span>node.lit);
 }
 <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
@@ -5542,9 +5442,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.label {
         v.visit_label_mut(it);
     }
@@ -5557,9 +5455,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_macro_mut(<span class="kw-2">&amp;mut </span>node.mac);
 }
 <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
@@ -5568,9 +5464,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.match_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
     <span class="macro">skip!</span>(node.brace_token);
@@ -5584,9 +5478,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.receiver);
     <span class="macro">skip!</span>(node.dot_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.method);
@@ -5605,9 +5497,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.paren_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
 }
@@ -5617,9 +5507,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.qself {
         v.visit_qself_mut(it);
     }
@@ -5631,9 +5519,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.start {
         v.visit_expr_mut(<span class="kw-2">&amp;mut **</span>it);
     }
@@ -5642,15 +5528,25 @@
         v.visit_expr_mut(<span class="kw-2">&amp;mut **</span>it);
     }
 }
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>visit_expr_raw_addr_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprRawAddr)
+<span class="kw">where
+    </span>V: VisitMut + <span class="question-mark">?</span>Sized,
+{
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
+    <span class="macro">skip!</span>(node.and_token);
+    <span class="macro">skip!</span>(node.raw);
+    v.visit_pointer_mutability_mut(<span class="kw-2">&amp;mut </span>node.mutability);
+    v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
+}
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
 #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
 </span><span class="kw">pub fn </span>visit_expr_reference_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprReference)
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.and_token);
     <span class="macro">skip!</span>(node.mutability);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
@@ -5661,9 +5557,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.bracket_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
     <span class="macro">skip!</span>(node.semi_token);
@@ -5675,9 +5569,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.return_token);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.expr {
         v.visit_expr_mut(<span class="kw-2">&amp;mut **</span>it);
@@ -5689,9 +5581,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.qself {
         v.visit_qself_mut(it);
     }
@@ -5712,9 +5602,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
     <span class="macro">skip!</span>(node.question_token);
 }
@@ -5724,21 +5612,17 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.try_token);
     v.visit_block_mut(<span class="kw-2">&amp;mut </span>node.block);
 }
-<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+<span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
 </span><span class="kw">pub fn </span>visit_expr_tuple_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::ExprTuple)
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.paren_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.elems) {
         <span class="kw">let </span>it = el.value_mut();
@@ -5751,9 +5635,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_un_op_mut(<span class="kw-2">&amp;mut </span>node.op);
     v.visit_expr_mut(<span class="kw-2">&amp;mut *</span>node.expr);
 }
@@ -5763,9 +5645,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.unsafe_token);
     v.visit_block_mut(<span class="kw-2">&amp;mut </span>node.block);
 }
@@ -5775,9 +5655,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.label {
         v.visit_label_mut(it);
     }
@@ -5791,9 +5669,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.yield_token);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.expr {
         v.visit_expr_mut(<span class="kw-2">&amp;mut **</span>it);
@@ -5805,9 +5681,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     v.visit_field_mutability_mut(<span class="kw-2">&amp;mut </span>node.mutability);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.ident {
@@ -5832,9 +5706,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_member_mut(<span class="kw-2">&amp;mut </span>node.member);
     <span class="macro">skip!</span>(node.colon_token);
     v.visit_pat_mut(<span class="kw-2">&amp;mut *</span>node.pat);
@@ -5845,9 +5717,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_member_mut(<span class="kw-2">&amp;mut </span>node.member);
     <span class="macro">skip!</span>(node.colon_token);
     v.visit_expr_mut(<span class="kw-2">&amp;mut </span>node.expr);
@@ -5899,9 +5769,7 @@
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
     <span class="macro">skip!</span>(node.shebang);
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.items {
         v.visit_item_mut(it);
     }
@@ -5951,9 +5819,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     v.visit_signature_mut(<span class="kw-2">&amp;mut </span>node.sig);
     <span class="macro">skip!</span>(node.semi_token);
@@ -5964,9 +5830,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_macro_mut(<span class="kw-2">&amp;mut </span>node.mac);
     <span class="macro">skip!</span>(node.semi_token);
 }
@@ -5976,9 +5840,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.static_token);
     v.visit_static_mutability_mut(<span class="kw-2">&amp;mut </span>node.mutability);
@@ -5993,9 +5855,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.type_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6101,9 +5961,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.defaultness);
     <span class="macro">skip!</span>(node.const_token);
@@ -6121,9 +5979,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.defaultness);
     v.visit_signature_mut(<span class="kw-2">&amp;mut </span>node.sig);
@@ -6135,9 +5991,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_macro_mut(<span class="kw-2">&amp;mut </span>node.mac);
     <span class="macro">skip!</span>(node.semi_token);
 }
@@ -6147,9 +6001,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.defaultness);
     <span class="macro">skip!</span>(node.type_token);
@@ -6239,9 +6091,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.const_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6258,9 +6108,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.enum_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6277,9 +6125,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.extern_token);
     <span class="macro">skip!</span>(node.crate_token);
@@ -6296,9 +6142,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     v.visit_signature_mut(<span class="kw-2">&amp;mut </span>node.sig);
     v.visit_block_mut(<span class="kw-2">&amp;mut *</span>node.block);
@@ -6309,9 +6153,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.unsafety);
     v.visit_abi_mut(<span class="kw-2">&amp;mut </span>node.abi);
     <span class="macro">skip!</span>(node.brace_token);
@@ -6325,9 +6167,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.defaultness);
     <span class="macro">skip!</span>(node.unsafety);
     <span class="macro">skip!</span>(node.impl_token);
@@ -6349,9 +6189,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.ident {
         v.visit_ident_mut(it);
     }
@@ -6364,9 +6202,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.unsafety);
     <span class="macro">skip!</span>(node.mod_token);
@@ -6385,9 +6221,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.static_token);
     v.visit_static_mutability_mut(<span class="kw-2">&amp;mut </span>node.mutability);
@@ -6404,9 +6238,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.struct_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6420,9 +6252,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.unsafety);
     <span class="macro">skip!</span>(node.auto_token);
@@ -6448,9 +6278,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.trait_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6468,9 +6296,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.type_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6485,9 +6311,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.union_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6500,9 +6324,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_visibility_mut(<span class="kw-2">&amp;mut </span>node.vis);
     <span class="macro">skip!</span>(node.use_token);
     <span class="macro">skip!</span>(node.leading_colon);
@@ -6531,9 +6353,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_lifetime_mut(<span class="kw-2">&amp;mut </span>node.lifetime);
     <span class="macro">skip!</span>(node.colon_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.bounds) {
@@ -6616,9 +6436,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.let_token);
     v.visit_pat_mut(<span class="kw-2">&amp;mut </span>node.pat);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.init {
@@ -6803,9 +6621,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.by_ref);
     <span class="macro">skip!</span>(node.mutability);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
@@ -6820,9 +6636,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.leading_vert);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.cases) {
         <span class="kw">let </span>it = el.value_mut();
@@ -6835,9 +6649,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.paren_token);
     v.visit_pat_mut(<span class="kw-2">&amp;mut *</span>node.pat);
 }
@@ -6847,9 +6659,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.and_token);
     <span class="macro">skip!</span>(node.mutability);
     v.visit_pat_mut(<span class="kw-2">&amp;mut *</span>node.pat);
@@ -6860,9 +6670,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.dot2_token);
 }
 <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
@@ -6871,9 +6679,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.bracket_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.elems) {
         <span class="kw">let </span>it = el.value_mut();
@@ -6886,9 +6692,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.qself {
         v.visit_qself_mut(it);
     }
@@ -6908,9 +6712,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.paren_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.elems) {
         <span class="kw">let </span>it = el.value_mut();
@@ -6923,9 +6725,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.qself {
         v.visit_qself_mut(it);
     }
@@ -6942,9 +6742,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_pat_mut(<span class="kw-2">&amp;mut *</span>node.pat);
     <span class="macro">skip!</span>(node.colon_token);
     v.visit_type_mut(<span class="kw-2">&amp;mut *</span>node.ty);
@@ -6955,9 +6753,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.underscore_token);
 }
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
@@ -6996,6 +6792,35 @@
 {
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     v.visit_path_arguments_mut(<span class="kw-2">&amp;mut </span>node.arguments);
+}
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>visit_pointer_mutability_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::PointerMutability)
+<span class="kw">where
+    </span>V: VisitMut + <span class="question-mark">?</span>Sized,
+{
+    <span class="kw">match </span>node {
+        <span class="kw">crate</span>::PointerMutability::Const(_binding_0) =&gt; {
+            <span class="macro">skip!</span>(_binding_0);
+        }
+        <span class="kw">crate</span>::PointerMutability::Mut(_binding_0) =&gt; {
+            <span class="macro">skip!</span>(_binding_0);
+        }
+    }
+}
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>visit_precise_capture_mut&lt;V&gt;(v: <span class="kw-2">&amp;mut </span>V, node: <span class="kw-2">&amp;mut </span><span class="kw">crate</span>::PreciseCapture)
+<span class="kw">where
+    </span>V: VisitMut + <span class="question-mark">?</span>Sized,
+{
+    <span class="macro">skip!</span>(node.use_token);
+    <span class="macro">skip!</span>(node.lt_token);
+    <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.params) {
+        <span class="kw">let </span>it = el.value_mut();
+        v.visit_captured_param_mut(it);
+    }
+    <span class="macro">skip!</span>(node.gt_token);
 }
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
 #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
@@ -7059,9 +6884,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.reference {
         <span class="macro">skip!</span>((it).<span class="number">0</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>(it).<span class="number">1 </span>{
@@ -7157,9 +6980,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_macro_mut(<span class="kw-2">&amp;mut </span>node.mac);
     <span class="macro">skip!</span>(node.semi_token);
 }
@@ -7219,9 +7040,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.const_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     v.visit_generics_mut(<span class="kw-2">&amp;mut </span>node.generics);
@@ -7239,9 +7058,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_signature_mut(<span class="kw-2">&amp;mut </span>node.sig);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.default {
         v.visit_block_mut(it);
@@ -7254,9 +7071,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_macro_mut(<span class="kw-2">&amp;mut </span>node.mac);
     <span class="macro">skip!</span>(node.semi_token);
 }
@@ -7266,9 +7081,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="macro">skip!</span>(node.type_token);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     v.visit_generics_mut(<span class="kw-2">&amp;mut </span>node.generics);
@@ -7423,9 +7236,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     <span class="macro">skip!</span>(node.colon_token);
     <span class="kw">for </span><span class="kw-2">mut </span>el <span class="kw">in </span>Punctuated::pairs_mut(<span class="kw-2">&amp;mut </span>node.bounds) {
@@ -7449,6 +7260,9 @@
         }
         <span class="kw">crate</span>::TypeParamBound::Lifetime(_binding_0) =&gt; {
             v.visit_lifetime_mut(_binding_0);
+        }
+        <span class="kw">crate</span>::TypeParamBound::PreciseCapture(_binding_0) =&gt; {
+            <span class="macro">full!</span>(v.visit_precise_capture_mut(_binding_0));
         }
         <span class="kw">crate</span>::TypeParamBound::Verbatim(_binding_0) =&gt; {
             <span class="macro">skip!</span>(_binding_0);
@@ -7628,9 +7442,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.pat {
         v.visit_pat_mut(<span class="kw-2">&amp;mut *</span>(it).<span class="number">0</span>);
         <span class="macro">skip!</span>((it).<span class="number">1</span>);
@@ -7644,9 +7456,7 @@
 <span class="kw">where
     </span>V: VisitMut + <span class="question-mark">?</span>Sized,
 {
-    <span class="kw">for </span>it <span class="kw">in </span><span class="kw-2">&amp;mut </span>node.attrs {
-        v.visit_attribute_mut(it);
-    }
+    v.visit_attributes_mut(<span class="kw-2">&amp;mut </span>node.attrs);
     v.visit_ident_mut(<span class="kw-2">&amp;mut </span>node.ident);
     v.visit_fields_mut(<span class="kw-2">&amp;mut </span>node.fields);
     <span class="kw">if let </span><span class="prelude-val">Some</span>(it) = <span class="kw-2">&amp;mut </span>node.discriminant {

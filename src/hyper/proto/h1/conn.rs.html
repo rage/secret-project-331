@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.4.1/src/proto/h1/conn.rs`."><title>conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.5.0/src/proto/h1/conn.rs`."><title>conn.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1507,6 +1507,20 @@
 <a href="#1507" id="1507">1507</a>
 <a href="#1508" id="1508">1508</a>
 <a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::fmt;
 <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
 </span><span class="kw">use </span>std::future::Future;
@@ -1530,7 +1544,7 @@
 <span class="kw">use </span><span class="kw">crate</span>::body::DecodedLength;
 <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::common::time::Time;
-<span class="kw">use </span><span class="kw">crate</span>::headers::connection_keep_alive;
+<span class="kw">use </span><span class="kw">crate</span>::headers;
 <span class="kw">use </span><span class="kw">crate</span>::proto::{BodyLength, MessageHead};
 <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
 </span><span class="kw">use </span><span class="kw">crate</span>::rt::Sleep;
@@ -1659,6 +1673,11 @@
     <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>set_allow_half_close(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="self">self</span>.state.allow_half_close = <span class="bool-val">true</span>;
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">"server"</span>)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>disable_date_header(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.state.date_header = <span class="bool-val">false</span>;
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>into_inner(<span class="self">self</span>) -&gt; (I, Bytes) {
@@ -2161,7 +2180,7 @@
         <span class="kw">let </span>outgoing_is_keep_alive = head
             .headers
             .get(CONNECTION)
-            .map_or(<span class="bool-val">false</span>, connection_keep_alive);
+            .map_or(<span class="bool-val">false</span>, headers::connection_keep_alive);
 
         <span class="kw">if </span>!outgoing_is_keep_alive {
             <span class="kw">match </span>head.version {
@@ -2184,12 +2203,21 @@
     <span class="comment">// If we know the remote speaks an older version, we try to fix up any messages
     // to work with our older peer.
     </span><span class="kw">fn </span>enforce_version(<span class="kw-2">&amp;mut </span><span class="self">self</span>, head: <span class="kw-2">&amp;mut </span>MessageHead&lt;T::Outgoing&gt;) {
-        <span class="kw">if let </span>Version::HTTP_10 = <span class="self">self</span>.state.version {
-            <span class="comment">// Fixes response or connection when keep-alive header is not present
-            </span><span class="self">self</span>.fix_keep_alive(head);
-            <span class="comment">// If the remote only knows HTTP/1.0, we should force ourselves
-            // to do only speak HTTP/1.0 as well.
-            </span>head.version = Version::HTTP_10;
+        <span class="kw">match </span><span class="self">self</span>.state.version {
+            Version::HTTP_10 =&gt; {
+                <span class="comment">// Fixes response or connection when keep-alive header is not present
+                </span><span class="self">self</span>.fix_keep_alive(head);
+                <span class="comment">// If the remote only knows HTTP/1.0, we should force ourselves
+                // to do only speak HTTP/1.0 as well.
+                </span>head.version = Version::HTTP_10;
+            }
+            Version::HTTP_11 =&gt; {
+                <span class="kw">if let </span>KA::Disabled = <span class="self">self</span>.state.keep_alive.status() {
+                    head.headers
+                        .insert(CONNECTION, HeaderValue::from_static(<span class="string">"close"</span>));
+                }
+            }
+            <span class="kw">_ </span>=&gt; (),
         }
         <span class="comment">// If the remote speaks HTTP/1.1, then it *should* be fine with
         // both HTTP/1.0 and HTTP/1.1 from us. So again, we just let

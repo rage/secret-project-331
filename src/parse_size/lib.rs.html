@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/parse-size-1.0.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="parse_size" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/parse-size-1.1.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="parse_size" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -597,6 +597,60 @@
 <a href="#597" id="597">597</a>
 <a href="#598" id="598">598</a>
 <a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! `parse-size` is an accurate, customizable, allocation-free library for
 //! parsing byte size into integer.
 //!
@@ -674,25 +728,26 @@
 //!
 //! # Integration examples
 //!
-//! Use with `structopt` v0.3:
+//! Use with `clap` v4:
 //!
-//! ```rust,ignore
-//! use structopt::StructOpt;
+//! ```rust
+//! use clap::Parser;
 //! use parse_size::parse_size;
 //!
-//! #[derive(StructOpt)]
+//! #[derive(Parser)]
 //! pub struct Opt {
-//!     #[structopt(long, parse(try_from_str = parse_size))]
+</span><span class="comment">//      // FIXME: we need a closure because of https://github.com/clap-rs/clap/issues/4939
+</span><span class="doccomment">//!     #[arg(long, value_parser = |s: &amp;str| parse_size(s))]
 //!     pub size: u64,
 //! }
 //!
-//! let opt = Opt::from_iter(&amp;["./app", "--size", "2.5 K"]);
+//! let opt = Opt::parse_from(&amp;["./app", "--size", "2.5 K"]);
 //! assert_eq!(opt.size, 2500);
 //! ```
 
-</span><span class="attr">#![cfg_attr(not(feature = <span class="string">"std"</span>), no_std)]
+</span><span class="attr">#![no_std]
 
-</span><span class="kw">use </span>core::{convert::TryFrom, fmt};
+</span><span class="kw">use </span>core::{convert::TryFrom, fmt, num::IntErrorKind};
 
 <span class="doccomment">/// The system to use when parsing prefixes like "KB" and "GB".
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -712,18 +767,18 @@
     /// Y exceed the `u64` range and thus considered invalid.
     </span><span class="kw">fn </span>factor(<span class="self">self</span>, prefix: u8) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
         <span class="prelude-val">Some</span>(<span class="kw">match </span>(<span class="self">self</span>, prefix) {
-            (<span class="self">Self</span>::Decimal, <span class="string">b'k'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'K'</span>) =&gt; <span class="number">1_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b'm'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'M'</span>) =&gt; <span class="number">1_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b'g'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'G'</span>) =&gt; <span class="number">1_000_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b't'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'T'</span>) =&gt; <span class="number">1_000_000_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b'p'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'P'</span>) =&gt; <span class="number">1_000_000_000_000_000</span>,
-            (<span class="self">Self</span>::Decimal, <span class="string">b'e'</span>) | (<span class="self">Self</span>::Decimal, <span class="string">b'E'</span>) =&gt; <span class="number">1_000_000_000_000_000_000</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b'k'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'K'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">10</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b'm'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'M'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">20</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b'g'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'G'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">30</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b't'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'T'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">40</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b'p'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'P'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">50</span>,
-            (<span class="self">Self</span>::Binary, <span class="string">b'e'</span>) | (<span class="self">Self</span>::Binary, <span class="string">b'E'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">60</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'k' </span>| <span class="string">b'K'</span>) =&gt; <span class="number">1_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'm' </span>| <span class="string">b'M'</span>) =&gt; <span class="number">1_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'g' </span>| <span class="string">b'G'</span>) =&gt; <span class="number">1_000_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b't' </span>| <span class="string">b'T'</span>) =&gt; <span class="number">1_000_000_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'p' </span>| <span class="string">b'P'</span>) =&gt; <span class="number">1_000_000_000_000_000</span>,
+            (<span class="self">Self</span>::Decimal, <span class="string">b'e' </span>| <span class="string">b'E'</span>) =&gt; <span class="number">1_000_000_000_000_000_000</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'k' </span>| <span class="string">b'K'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">10</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'm' </span>| <span class="string">b'M'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">20</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'g' </span>| <span class="string">b'G'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">30</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b't' </span>| <span class="string">b'T'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">40</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'p' </span>| <span class="string">b'P'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">50</span>,
+            (<span class="self">Self</span>::Binary, <span class="string">b'e' </span>| <span class="string">b'E'</span>) =&gt; <span class="number">1_u64 </span>&lt;&lt; <span class="number">60</span>,
             <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
         })
     }
@@ -752,6 +807,7 @@
 
 <span class="kw">impl </span>Config {
     <span class="doccomment">/// Creates a new parser configuration.
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>new() -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
             unit_system: UnitSystem::Decimal,
@@ -763,6 +819,7 @@
     <span class="doccomment">/// Changes the configuration's unit system.
     ///
     /// The default system is decimal (powers of 1000).
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_unit_system(<span class="kw-2">mut </span><span class="self">self</span>, unit_system: UnitSystem) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.unit_system = unit_system;
         <span class="self">self
@@ -782,6 +839,7 @@
     /// assert_eq!(cfg.parse_size("1 MB"), Ok(1048576));
     /// assert_eq!(cfg.parse_size("1 MiB"), Ok(1048576));
     /// ```
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_binary(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.with_unit_system(UnitSystem::Binary)
     }
@@ -800,6 +858,7 @@
     /// assert_eq!(cfg.parse_size("1 MB"), Ok(1000000));
     /// assert_eq!(cfg.parse_size("1 MiB"), Ok(1048576));
     /// ```
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_decimal(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.with_unit_system(UnitSystem::Decimal)
     }
@@ -824,6 +883,7 @@
     /// assert_eq!(cfg.parse_size("128 B"), Ok(128)); // explicit units overrides the default
     /// assert_eq!(cfg.parse_size("16 KiB"), Ok(16384));
     /// ```
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_default_factor(<span class="kw-2">mut </span><span class="self">self</span>, factor: u64) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.default_factor = factor;
         <span class="self">self
@@ -861,6 +921,7 @@
     /// assert_eq!(cfg.parse_size("123B"), Ok(123));
     /// assert_eq!(cfg.parse_size("123KB"), Ok(123000));
     /// ```
+    </span><span class="attr">#[must_use]
     </span><span class="kw">pub const fn </span>with_byte_suffix(<span class="kw-2">mut </span><span class="self">self</span>, byte_suffix: ByteSuffix) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.byte_suffix = byte_suffix;
         <span class="self">self
@@ -878,8 +939,13 @@
     /// assert_eq!(cfg.parse_size("20000"), Ok(20000));
     /// assert_eq!(cfg.parse_size("^_^"), Err(Error::InvalidDigit));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`Error`] if the input has invalid digits or the result
+    /// exceeded 2&lt;sup&gt;64&lt;/sup&gt;−1.
     </span><span class="kw">pub fn </span>parse_size&lt;T: AsRef&lt;[u8]&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, src: T) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
-        parse_size_inner(<span class="self">self</span>, src.as_ref())
+        <span class="self">self</span>.parse_size_inner(src.as_ref())
     }
 }
 
@@ -889,8 +955,7 @@
     }
 }
 
-<span class="comment">// TODO: Switch to IntErrorKind once it is stable.
-</span><span class="doccomment">/// The error returned when parse failed.
+<span class="doccomment">/// The error returned when parse failed.
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 #[non_exhaustive]
 </span><span class="kw">pub enum </span>Error {
@@ -912,8 +977,17 @@
     }
 }
 
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">impl </span>std::error::Error <span class="kw">for </span>Error {}
+<span class="kw">impl </span>core::error::Error <span class="kw">for </span>Error {}
+
+<span class="kw">impl </span>From&lt;Error&gt; <span class="kw">for </span>IntErrorKind {
+    <span class="kw">fn </span>from(e: Error) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>e {
+            Error::Empty =&gt; <span class="self">Self</span>::Empty,
+            Error::InvalidDigit =&gt; <span class="self">Self</span>::InvalidDigit,
+            Error::PosOverflow =&gt; <span class="self">Self</span>::PosOverflow,
+        }
+    }
+}
 
 <span class="doccomment">/// Parses the string input into the number of bytes it represents using the
 /// default configuration.
@@ -931,45 +1005,51 @@
 /// assert_eq!(parse_size("0.2 MiB"), Ok(209715));
 /// assert_eq!(parse_size("^_^"), Err(Error::InvalidDigit));
 /// ```
+///
+/// # Errors
+///
+/// Returns an [`Error`] if the input has invalid digits or the result exceeded
+/// 2&lt;sup&gt;64&lt;/sup&gt;−1.
 </span><span class="kw">pub fn </span>parse_size&lt;T: AsRef&lt;[u8]&gt;&gt;(src: T) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
-    parse_size_inner(<span class="kw-2">&amp;</span>Config::new(), src.as_ref())
+    Config::new().parse_size(src)
 }
 
-<span class="kw">fn </span>parse_size_inner(cfg: <span class="kw-2">&amp;</span>Config, <span class="kw-2">mut </span>src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
-    <span class="comment">// if it ends with 'B' the default factor is always 1.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>multiply = cfg.default_factor;
-    <span class="kw">match </span>src {
-        [init @ .., <span class="string">b'b'</span>] | [init @ .., <span class="string">b'B'</span>] =&gt; {
-            <span class="kw">if </span>cfg.byte_suffix == ByteSuffix::Deny {
+<span class="kw">impl </span>Config {
+    <span class="kw">fn </span>parse_size_inner(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>src: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
+        <span class="comment">// if it ends with 'B' the default factor is always 1.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>multiply = <span class="kw">if let </span>[init @ .., <span class="string">b'b' </span>| <span class="string">b'B'</span>] = src {
+            <span class="kw">if </span><span class="self">self</span>.byte_suffix == ByteSuffix::Deny {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidDigit);
             }
             src = init;
-            multiply = <span class="number">1</span>;
-        }
-        <span class="kw">_ </span>=&gt; {
-            <span class="kw">if </span>cfg.byte_suffix == ByteSuffix::Require {
+            <span class="number">1
+        </span>} <span class="kw">else </span>{
+            <span class="kw">if </span><span class="self">self</span>.byte_suffix == ByteSuffix::Require {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidDigit);
             }
-        }
-    }
+            <span class="self">self</span>.default_factor
+        };
 
-    <span class="comment">// if it ends with an 'i' we always use binary prefix.
-    </span><span class="kw">let </span><span class="kw-2">mut </span>unit_system = cfg.unit_system;
-    <span class="kw">match </span>src {
-        [init @ .., <span class="string">b'i'</span>] | [init @ .., <span class="string">b'I'</span>] =&gt; {
+        <span class="comment">// if it ends with an 'i' we always use binary prefix.
+        </span><span class="kw">let </span>unit_system = <span class="kw">if let </span>[init @ .., <span class="string">b'i' </span>| <span class="string">b'I'</span>] = src {
             src = init;
-            unit_system = UnitSystem::Binary;
-        }
-        <span class="kw">_ </span>=&gt; {}
-    }
+            UnitSystem::Binary
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.unit_system
+        };
 
-    <span class="kw">if let </span>[init @ .., prefix] = src {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = unit_system.factor(<span class="kw-2">*</span>prefix) {
-            multiply = f;
-            src = init;
+        <span class="kw">if let </span>[init @ .., prefix] = src {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(f) = unit_system.factor(<span class="kw-2">*</span>prefix) {
+                multiply = f;
+                src = init;
+            }
         }
-    }
 
+        parse_size_with_multiple(src, multiply)
+    }
+}
+
+<span class="kw">fn </span>parse_size_with_multiple(src: <span class="kw-2">&amp;</span>[u8], multiply: u64) -&gt; <span class="prelude-ty">Result</span>&lt;u64, Error&gt; {
     <span class="attr">#[derive(Copy, Clone, PartialEq)]
     </span><span class="kw">enum </span>Ps {
         Empty,
@@ -996,7 +1076,7 @@
 
     <span class="kw">for </span>b <span class="kw">in </span>src {
         <span class="kw">match </span>(state, <span class="kw-2">*</span>b) {
-            (Ps::Integer, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) | (Ps::Empty, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
+            (Ps::Integer | Ps::Empty, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(m) = <span class="macro">append_digit!</span>(mantissa, checked_add, <span class="kw-2">*</span>b) {
                     mantissa = m;
                     state = Ps::Integer;
@@ -1022,7 +1102,6 @@
                     state = Ps::FractionOverflow;
                 }
             }
-            (Ps::FractionOverflow, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {}
             (Ps::PosExponent, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(e) = <span class="macro">append_digit!</span>(exponent, checked_add, <span class="kw-2">*</span>b) {
                     exponent = e;
@@ -1036,15 +1115,11 @@
                 }
             }
 
-            (<span class="kw">_</span>, <span class="string">b'_'</span>) | (<span class="kw">_</span>, <span class="string">b' '</span>) | (Ps::PosExponent, <span class="string">b'+'</span>) =&gt; {}
-            (Ps::Integer, <span class="string">b'e'</span>)
-            | (Ps::Integer, <span class="string">b'E'</span>)
-            | (Ps::Fraction, <span class="string">b'e'</span>)
-            | (Ps::Fraction, <span class="string">b'E'</span>)
-            | (Ps::IntegerOverflow, <span class="string">b'e'</span>)
-            | (Ps::IntegerOverflow, <span class="string">b'E'</span>)
-            | (Ps::FractionOverflow, <span class="string">b'e'</span>)
-            | (Ps::FractionOverflow, <span class="string">b'E'</span>) =&gt; state = Ps::PosExponent,
+            (<span class="kw">_</span>, <span class="string">b'_' </span>| <span class="string">b' '</span>) | (Ps::PosExponent, <span class="string">b'+'</span>) | (Ps::FractionOverflow, <span class="string">b'0'</span>..=<span class="string">b'9'</span>) =&gt; {}
+            (
+                Ps::Integer | Ps::Fraction | Ps::IntegerOverflow | Ps::FractionOverflow,
+                <span class="string">b'e' </span>| <span class="string">b'E'</span>,
+            ) =&gt; state = Ps::PosExponent,
             (Ps::PosExponent, <span class="string">b'-'</span>) =&gt; state = Ps::NegExponent,
             (Ps::Integer, <span class="string">b'.'</span>) =&gt; state = Ps::Fraction,
             (Ps::IntegerOverflow, <span class="string">b'.'</span>) =&gt; state = Ps::FractionOverflow,
@@ -1057,14 +1132,13 @@
     }
 
     <span class="kw">let </span>exponent = exponent.saturating_add(fractional_exponent);
+    <span class="kw">let </span>abs_exponent = exponent.unsigned_abs();
     <span class="kw">if </span>exponent &gt;= <span class="number">0 </span>{
-        <span class="kw">let </span>power = <span class="number">10_u64
-            </span>.checked_pow(exponent <span class="kw">as </span>u32)
-            .ok_or(Error::PosOverflow)<span class="question-mark">?</span>;
+        <span class="kw">let </span>power = <span class="number">10_u64</span>.checked_pow(abs_exponent).ok_or(Error::PosOverflow)<span class="question-mark">?</span>;
         <span class="kw">let </span>multiply = multiply.checked_mul(power).ok_or(Error::PosOverflow)<span class="question-mark">?</span>;
         mantissa.checked_mul(multiply).ok_or(Error::PosOverflow)
     } <span class="kw">else if </span>exponent &gt;= -<span class="number">38 </span>{
-        <span class="kw">let </span>power = <span class="number">10_u128</span>.pow(-exponent <span class="kw">as </span>u32);
+        <span class="kw">let </span>power = <span class="number">10_u128</span>.pow(abs_exponent);
         <span class="kw">let </span>result = (u128::from(mantissa) * u128::from(multiply) + power / <span class="number">2</span>) / power;
         u64::try_from(result).map_err(|<span class="kw">_</span>| Error::PosOverflow)
     } <span class="kw">else </span>{
@@ -1191,9 +1265,43 @@
 <span class="attr">#[test]
 </span><span class="kw">fn </span>test_config() {
     <span class="kw">let </span>cfg = Config::new().with_binary().with_default_factor(<span class="number">1_048_576</span>);
-
     <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"3.5"</span>), <span class="prelude-val">Ok</span>(<span class="number">3_670_016</span>));
     <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"35 B"</span>), <span class="prelude-val">Ok</span>(<span class="number">35</span>));
     <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"5K"</span>), <span class="prelude-val">Ok</span>(<span class="number">5120</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"1.7e13"</span>), <span class="prelude-val">Ok</span>(<span class="number">17_825_792_000_000_000_000</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"1.8e13"</span>), <span class="prelude-val">Err</span>(Error::PosOverflow));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"1.8e18"</span>), <span class="prelude-val">Err</span>(Error::PosOverflow));
+
+    <span class="kw">let </span>cfg = Config::new()
+        .with_decimal()
+        .with_byte_suffix(ByteSuffix::Require);
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"3.5MB"</span>), <span class="prelude-val">Ok</span>(<span class="number">3_500_000</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"2.5KiB"</span>), <span class="prelude-val">Ok</span>(<span class="number">2560</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"7"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"9b"</span>), <span class="prelude-val">Ok</span>(<span class="number">9</span>));
+
+    <span class="kw">let </span>cfg = Config::default().with_byte_suffix(ByteSuffix::Deny);
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"3.5MB"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"3.5M"</span>), <span class="prelude-val">Ok</span>(<span class="number">3_500_000</span>));
+    <span class="macro">assert_eq!</span>(cfg.parse_size(<span class="string">"7b"</span>), <span class="prelude-val">Err</span>(Error::InvalidDigit));
+}
+
+<span class="attr">#[test]
+</span><span class="kw">fn </span>test_int_error_kind() {
+    <span class="kw">extern crate </span>alloc;
+    <span class="kw">use </span>alloc::string::ToString <span class="kw">as _</span>;
+
+    <span class="kw">let </span>test_cases = [
+        (Error::Empty, <span class="string">""</span>),
+        (Error::InvalidDigit, <span class="string">"?"</span>),
+        (Error::PosOverflow, <span class="string">"99999999999999999999"</span>),
+    ];
+    <span class="kw">for </span>(expected_error, parse_from) <span class="kw">in </span>test_cases {
+        <span class="kw">let </span>std_error = parse_from.parse::&lt;u64&gt;().unwrap_err();
+        <span class="kw">let </span>local_error = parse_size(parse_from).unwrap_err();
+        <span class="macro">assert_eq!</span>(local_error, expected_error);
+        <span class="macro">assert_eq!</span>(local_error.to_string(), std_error.to_string());
+        <span class="macro">assert_eq!</span>(<span class="kw-2">&amp;</span>IntErrorKind::from(local_error), std_error.kind());
+    }
 }
 </code></pre></div></section></main></body></html>

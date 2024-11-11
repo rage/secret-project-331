@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.7/src/message/header/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/lettre-0.11.9/src/message/header/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="lettre" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="icon" href="https://lettre.rs/favicon.ico"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -718,6 +718,40 @@
 <a href="#718" id="718">718</a>
 <a href="#719" id="719">719</a>
 <a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Headers widely used in email messages
 
 </span><span class="kw">use </span>std::{
@@ -844,22 +878,18 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>find_header(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>HeaderValue&gt; {
-        <span class="self">self</span>.headers
-            .iter()
-            .find(|value| name.eq_ignore_ascii_case(<span class="kw-2">&amp;</span>value.name))
+        <span class="self">self</span>.headers.iter().find(|value| name == value.name)
     }
 
     <span class="kw">fn </span>find_header_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>HeaderValue&gt; {
-        <span class="self">self</span>.headers
-            .iter_mut()
-            .find(|value| name.eq_ignore_ascii_case(<span class="kw-2">&amp;</span>value.name))
+        <span class="self">self</span>.headers.iter_mut().find(|value| name == value.name)
     }
 
     <span class="kw">fn </span>find_header_index(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
         <span class="self">self</span>.headers
             .iter()
             .enumerate()
-            .find(|(_i, value)| name.eq_ignore_ascii_case(<span class="kw-2">&amp;</span>value.name))
+            .find(|(_i, value)| name == value.name)
             .map(|(i, <span class="kw">_</span>)| i)
     }
 }
@@ -881,18 +911,9 @@
 <span class="doccomment">/// A possible error when converting a `HeaderName` from another type.
 </span><span class="comment">// comes from `http` crate
 </span><span class="attr">#[allow(missing_copy_implementations)]
-#[derive(Clone)]
-</span><span class="kw">pub struct </span>InvalidHeaderName {
-    _priv: (),
-}
-
-<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>InvalidHeaderName {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
-        f.debug_struct(<span class="string">"InvalidHeaderName"</span>)
-            <span class="comment">// skip _priv noise
-            </span>.finish()
-    }
-}
+#[derive(Debug, Clone)]
+#[non_exhaustive]
+</span><span class="kw">pub struct </span>InvalidHeaderName;
 
 <span class="kw">impl </span>fmt::Display <span class="kw">for </span>InvalidHeaderName {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">'_</span>&gt;) -&gt; fmt::Result {
@@ -909,14 +930,11 @@
 <span class="kw">impl </span>HeaderName {
     <span class="doccomment">/// Creates a new header name
     </span><span class="kw">pub fn </span>new_from_ascii(ascii: String) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, InvalidHeaderName&gt; {
-        <span class="kw">if </span>!ascii.is_empty()
-            &amp;&amp; ascii.len() &lt;= <span class="number">76
-            </span>&amp;&amp; ascii.is_ascii()
-            &amp;&amp; !ascii.contains(|c| c == <span class="string">':' </span>|| c == <span class="string">' '</span>)
+        <span class="kw">if </span>!ascii.is_empty() &amp;&amp; ascii.len() &lt;= <span class="number">76 </span>&amp;&amp; ascii.is_ascii() &amp;&amp; !ascii.contains([<span class="string">':'</span>, <span class="string">' '</span>])
         {
             <span class="prelude-val">Ok</span>(<span class="self">Self</span>(Cow::Owned(ascii)))
         } <span class="kw">else </span>{
-            <span class="prelude-val">Err</span>(InvalidHeaderName { _priv: () })
+            <span class="prelude-val">Err</span>(InvalidHeaderName)
         }
     }
 
@@ -977,23 +995,19 @@
 
 <span class="kw">impl </span>PartialEq&lt;HeaderName&gt; <span class="kw">for </span>HeaderName {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>HeaderName) -&gt; bool {
-        <span class="kw">let </span>s1: <span class="kw-2">&amp;</span>str = <span class="self">self</span>.as_ref();
-        <span class="kw">let </span>s2: <span class="kw-2">&amp;</span>str = other.as_ref();
-        s1 == s2
+        <span class="self">self</span>.eq_ignore_ascii_case(other)
     }
 }
 
 <span class="kw">impl </span>PartialEq&lt;<span class="kw-2">&amp;</span>str&gt; <span class="kw">for </span>HeaderName {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: &amp;&amp;str) -&gt; bool {
-        <span class="kw">let </span>s: <span class="kw-2">&amp;</span>str = <span class="self">self</span>.as_ref();
-        s == <span class="kw-2">*</span>other
+        <span class="self">self</span>.eq_ignore_ascii_case(other)
     }
 }
 
 <span class="kw">impl </span>PartialEq&lt;HeaderName&gt; <span class="kw">for </span><span class="kw-2">&amp;</span>str {
     <span class="kw">fn </span>eq(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>HeaderName) -&gt; bool {
-        <span class="kw">let </span>s: <span class="kw-2">&amp;</span>str = other.as_ref();
-        <span class="kw-2">*</span><span class="self">self </span>== s
+        <span class="self">self</span>.eq_ignore_ascii_case(other)
     }
 }
 
@@ -1185,6 +1199,60 @@
     #[should_panic]
     </span><span class="kw">fn </span>const_empty_headername() {
         <span class="kw">let _ </span>= HeaderName::new_from_ascii_str(<span class="string">""</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>headername_headername_eq() {
+        <span class="macro">assert_eq!</span>(
+            HeaderName::new_from_ascii_str(<span class="string">"From"</span>),
+            HeaderName::new_from_ascii_str(<span class="string">"From"</span>)
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>headername_str_eq() {
+        <span class="macro">assert_eq!</span>(HeaderName::new_from_ascii_str(<span class="string">"From"</span>), <span class="string">"From"</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>str_headername_eq() {
+        <span class="macro">assert_eq!</span>(<span class="string">"From"</span>, HeaderName::new_from_ascii_str(<span class="string">"From"</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>headername_headername_eq_case_insensitive() {
+        <span class="macro">assert_eq!</span>(
+            HeaderName::new_from_ascii_str(<span class="string">"From"</span>),
+            HeaderName::new_from_ascii_str(<span class="string">"from"</span>)
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>headername_str_eq_case_insensitive() {
+        <span class="macro">assert_eq!</span>(HeaderName::new_from_ascii_str(<span class="string">"From"</span>), <span class="string">"from"</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>str_headername_eq_case_insensitive() {
+        <span class="macro">assert_eq!</span>(<span class="string">"from"</span>, HeaderName::new_from_ascii_str(<span class="string">"From"</span>));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>headername_headername_ne() {
+        <span class="macro">assert_ne!</span>(
+            HeaderName::new_from_ascii_str(<span class="string">"From"</span>),
+            HeaderName::new_from_ascii_str(<span class="string">"To"</span>)
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>headername_str_ne() {
+        <span class="macro">assert_ne!</span>(HeaderName::new_from_ascii_str(<span class="string">"From"</span>), <span class="string">"To"</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>str_headername_ne() {
+        <span class="macro">assert_ne!</span>(<span class="string">"From"</span>, HeaderName::new_from_ascii_str(<span class="string">"To"</span>));
     }
 
     <span class="comment">// names taken randomly from https://it.wikipedia.org/wiki/Pinco_Pallino

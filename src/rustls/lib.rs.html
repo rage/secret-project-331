@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.12/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustls-0.23.14/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="rustls" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -665,6 +665,12 @@
 <a href="#665" id="665">665</a>
 <a href="#666" id="666">666</a>
 <a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # Rustls - a modern TLS library
 //!
 //! Rustls is a TLS library that aims to provide a good level of cryptographic security,
@@ -730,6 +736,7 @@
 //!     from [`RustCrypto`] for cryptography.
 //!   * [`rustls-post-quantum`]: an experimental provider that adds support for post-quantum
 //!     key exchange to the default aws-lc-rs provider.
+//!   * [`rustls-wolfcrypt-provider`] - a work-in-progress provider that uses [`wolfCrypt`] for cryptography.
 //!
 //! [`rustls-mbedtls-provider`]: https://github.com/fortanix/rustls-mbedtls-provider
 //! [`mbedtls`]: https://github.com/Mbed-TLS/mbedtls
@@ -738,6 +745,8 @@
 //! [`rustls-rustcrypto`]: https://github.com/RustCrypto/rustls-rustcrypto
 //! [`RustCrypto`]: https://github.com/RustCrypto
 //! [`rustls-post-quantum`]: https://crates.io/crates/rustls-post-quantum
+//! [`rustls-wolfcrypt-provider`]: https://github.com/wolfSSL/rustls-wolfcrypt-provider
+//! [`wolfCrypt`]: https://www.wolfssl.com/products/wolfcrypt
 //!
 //! #### Custom provider
 //!
@@ -951,6 +960,9 @@
 //!
 //!   See [manual::_06_fips] for more details.
 //!
+//! - `custom-provider`: disables implicit use of built-in providers (`aws-lc-rs` or `ring`). This forces
+//!    applications to manually install one, for instance, when using a custom `CryptoProvider`.
+//!
 //! - `tls12` (enabled by default): enable support for TLS version 1.2. Note that, due to the
 //!   additive nature of Cargo features and because it is enabled by default, other crates
 //!   in your dependency graph could re-enable it for your application. If you want to disable
@@ -1030,6 +1042,9 @@
 </span><span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, test))]
 </span><span class="kw">extern crate </span>std;
 
+<span class="attr">#[cfg(doc)]
+</span><span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
+
 <span class="comment">// Import `test` sysroot crate for `Bencher` definitions.
 </span><span class="attr">#[cfg(bench)]
 #[allow(unused_extern_crates)]
@@ -1039,16 +1054,13 @@
 </span><span class="attr">#[cfg(feature = <span class="string">"logging"</span>)]
 </span><span class="kw">use </span>log;
 
-<span class="attr">#[cfg(doc)]
-</span><span class="kw">use </span><span class="kw">crate</span>::crypto::CryptoProvider;
-
 <span class="attr">#[cfg(not(feature = <span class="string">"logging"</span>))]
-#[macro_use]
 </span><span class="kw">mod </span>log {
     <span class="macro">macro_rules!</span> trace    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
     <span class="macro">macro_rules!</span> debug    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
-    <span class="macro">macro_rules!</span> warn     ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
     <span class="macro">macro_rules!</span> error    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
+    <span class="macro">macro_rules!</span> _warn    ( ($(<span class="macro-nonterminal">$tt</span>:tt)<span class="kw-2">*</span>) =&gt; {{}} );
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>{_warn <span class="kw">as </span>warn, debug, error, trace};
 }
 
 <span class="attr">#[macro_use]
@@ -1103,9 +1115,6 @@
         <span class="kw">pub mod </span>codec {
             <span class="kw">pub use </span><span class="kw">crate</span>::msgs::codec::{Codec, Reader};
         }
-        <span class="kw">pub mod </span>deframer {
-            <span class="kw">pub use </span><span class="kw">crate</span>::msgs::deframer::{DeframerVecBuffer, MessageDeframer};
-        }
         <span class="kw">pub mod </span>enums {
             <span class="kw">pub use </span><span class="kw">crate</span>::msgs::enums::{
                 AlertLevel, Compression, EchVersion, HpkeAead, HpkeKdf, HpkeKem, NamedGroup,
@@ -1132,8 +1141,8 @@
         }
     }
 
-    <span class="kw">pub mod </span>record_layer {
-        <span class="kw">pub use </span><span class="kw">crate</span>::record_layer::RecordLayer;
+    <span class="kw">pub mod </span>fuzzing {
+        <span class="kw">pub use </span><span class="kw">crate</span>::msgs::deframer::fuzz_deframer;
     }
 }
 
@@ -1319,6 +1328,9 @@
 
 <span class="doccomment">/// APIs abstracting over locking primitives.
 </span><span class="kw">pub mod </span>lock;
+
+<span class="doccomment">/// Polyfills for features that are not yet stabilized or available with current MSRV.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>polyfill;
 
 <span class="attr">#[cfg(any(feature = <span class="string">"std"</span>, feature = <span class="string">"hashbrown"</span>))]
 </span><span class="kw">mod </span>hash_map {

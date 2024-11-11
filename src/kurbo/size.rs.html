@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/size.rs`."><title>size.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/size.rs`."><title>size.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -372,6 +372,28 @@
 <a href="#372" id="372">372</a>
 <a href="#373" id="373">373</a>
 <a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2019 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -440,12 +462,20 @@
     }
 
     <span class="doccomment">/// Whether this size has zero area.
+    </span><span class="attr">#[doc(alias = <span class="string">"is_empty"</span>)]
+    #[inline]
+    </span><span class="kw">pub fn </span>is_zero_area(<span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.area() == <span class="number">0.0
+    </span>}
+
+    <span class="doccomment">/// Whether this size has zero area.
     ///
     /// Note: a size with negative area is not considered empty.
     </span><span class="attr">#[inline]
+    #[deprecated(since = <span class="string">"0.11.1"</span>, note = <span class="string">"use is_zero_area instead"</span>)]
     </span><span class="kw">pub fn </span>is_empty(<span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.area() == <span class="number">0.0
-    </span>}
+        <span class="self">self</span>.is_zero_area()
+    }
 
     <span class="doccomment">/// Returns a new size bounded by `min` and `max.`
     ///
@@ -473,7 +503,7 @@
     }
 
     <span class="doccomment">/// Returns a new `Size`,
-    /// with `width` and `height` rounded to the nearest integer.
+    /// with `width` and `height` [rounded] to the nearest integer.
     ///
     /// # Examples
     ///
@@ -486,13 +516,15 @@
     /// assert_eq!(size_neg.width, -3.0);
     /// assert_eq!(size_neg.height, -4.0);
     /// ```
+    ///
+    /// [rounded]: f64::round
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>round(<span class="self">self</span>) -&gt; Size {
         Size::new(<span class="self">self</span>.width.round(), <span class="self">self</span>.height.round())
     }
 
     <span class="doccomment">/// Returns a new `Size`,
-    /// with `width` and `height` rounded up to the nearest integer,
+    /// with `width` and `height` [rounded up] to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -506,13 +538,15 @@
     /// assert_eq!(size_neg.width, -3.0);
     /// assert_eq!(size_neg.height, -3.0);
     /// ```
+    ///
+    /// [rounded up]: f64::ceil
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>ceil(<span class="self">self</span>) -&gt; Size {
         Size::new(<span class="self">self</span>.width.ceil(), <span class="self">self</span>.height.ceil())
     }
 
     <span class="doccomment">/// Returns a new `Size`,
-    /// with `width` and `height` rounded down to the nearest integer,
+    /// with `width` and `height` [rounded down] to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -526,13 +560,15 @@
     /// assert_eq!(size_neg.width, -4.0);
     /// assert_eq!(size_neg.height, -4.0);
     /// ```
+    ///
+    /// [rounded down]: f64::floor
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>floor(<span class="self">self</span>) -&gt; Size {
         Size::new(<span class="self">self</span>.width.floor(), <span class="self">self</span>.height.floor())
     }
 
     <span class="doccomment">/// Returns a new `Size`,
-    /// with `width` and `height` rounded away from zero to the nearest integer,
+    /// with `width` and `height` [rounded away] from zero to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -546,13 +582,15 @@
     /// assert_eq!(size_neg.width, -4.0);
     /// assert_eq!(size_neg.height, -4.0);
     /// ```
+    ///
+    /// [rounded away]: FloatExt::expand
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>expand(<span class="self">self</span>) -&gt; Size {
         Size::new(<span class="self">self</span>.width.expand(), <span class="self">self</span>.height.expand())
     }
 
     <span class="doccomment">/// Returns a new `Size`,
-    /// with `width` and `height` rounded down towards zero the nearest integer,
+    /// with `width` and `height` [rounded towards] zero to the nearest integer,
     /// unless they are already an integer.
     ///
     /// # Examples
@@ -566,6 +604,8 @@
     /// assert_eq!(size_neg.width, -3.0);
     /// assert_eq!(size_neg.height, -3.0);
     /// ```
+    ///
+    /// [rounded towards]: f64::trunc
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>trunc(<span class="self">self</span>) -&gt; Size {
         Size::new(<span class="self">self</span>.width.trunc(), <span class="self">self</span>.height.trunc())
@@ -592,13 +632,17 @@
         <span class="self">self</span>.to_rect().to_rounded_rect(radii)
     }
 
-    <span class="doccomment">/// Is this size finite?
+    <span class="doccomment">/// Is this size [finite]?
+    ///
+    /// [finite]: f64::is_finite
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_finite(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.width.is_finite() &amp;&amp; <span class="self">self</span>.height.is_finite()
     }
 
-    <span class="doccomment">/// Is this size NaN?
+    <span class="doccomment">/// Is this size [NaN]?
+    ///
+    /// [NaN]: f64::is_nan
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>is_nan(<span class="self">self</span>) -&gt; bool {
         <span class="self">self</span>.width.is_nan() || <span class="self">self</span>.height.is_nan()

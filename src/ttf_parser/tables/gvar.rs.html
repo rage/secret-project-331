@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.21.1/src/tables/gvar.rs`."><title>gvar.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.24.1/src/tables/gvar.rs`."><title>gvar.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1915,6 +1915,29 @@
 <a href="#1915" id="1915">1915</a>
 <a href="#1916" id="1916">1916</a>
 <a href="#1917" id="1917">1917</a>
+<a href="#1918" id="1918">1918</a>
+<a href="#1919" id="1919">1919</a>
+<a href="#1920" id="1920">1920</a>
+<a href="#1921" id="1921">1921</a>
+<a href="#1922" id="1922">1922</a>
+<a href="#1923" id="1923">1923</a>
+<a href="#1924" id="1924">1924</a>
+<a href="#1925" id="1925">1925</a>
+<a href="#1926" id="1926">1926</a>
+<a href="#1927" id="1927">1927</a>
+<a href="#1928" id="1928">1928</a>
+<a href="#1929" id="1929">1929</a>
+<a href="#1930" id="1930">1930</a>
+<a href="#1931" id="1931">1931</a>
+<a href="#1932" id="1932">1932</a>
+<a href="#1933" id="1933">1933</a>
+<a href="#1934" id="1934">1934</a>
+<a href="#1935" id="1935">1935</a>
+<a href="#1936" id="1936">1936</a>
+<a href="#1937" id="1937">1937</a>
+<a href="#1938" id="1938">1938</a>
+<a href="#1939" id="1939">1939</a>
+<a href="#1940" id="1940">1940</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A [Glyph Variations Table](
 //! https://docs.microsoft.com/en-us/typography/opentype/spec/gvar) implementation.
 
@@ -1928,8 +1951,8 @@
 <span class="kw">use </span>core::convert::TryFrom;
 <span class="kw">use </span>core::num::NonZeroU16;
 
-<span class="kw">use </span><span class="kw">crate</span>::glyf;
 <span class="kw">use </span><span class="kw">crate</span>::parser::{LazyArray16, Offset, Offset16, Offset32, Stream, F2DOT14};
+<span class="kw">use crate</span>::{glyf, PhantomPoints, PointF};
 <span class="kw">use crate</span>::{GlyphId, NormalizedCoordinate, OutlineBuilder, Rect, RectF, Transform};
 
 <span class="doccomment">/// 'The TrueType rasterizer dynamically generates 'phantom' points for each glyph
@@ -2096,7 +2119,7 @@
         all_points: glyf::GlyphPointsIter,
         points: glyf::GlyphPointsIter,
         point: glyf::GlyphPoint,
-    ) -&gt; <span class="prelude-ty">Option</span>&lt;(f32, f32)&gt; {
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;PointF&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>x = f32::from(point.x);
         <span class="kw">let </span><span class="kw-2">mut </span>y = f32::from(point.y);
 
@@ -2149,13 +2172,13 @@
             }
         }
 
-        <span class="prelude-val">Some</span>((x, y))
+        <span class="prelude-val">Some</span>(PointF { x, y })
     }
 
     <span class="comment">// This is just like `apply()`, but without `infer_deltas`,
     // since we use it only for component points and not a contour.
     // And since there are no contour and no points, `infer_deltas()` will do nothing.
-    </span><span class="kw">fn </span>apply_null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(f32, f32)&gt; {
+    </span><span class="kw">fn </span>apply_null(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PointF&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0.0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>y = <span class="number">0.0</span>;
 
@@ -2175,7 +2198,7 @@
             }
         }
 
-        <span class="prelude-val">Some</span>((x, y))
+        <span class="prelude-val">Some</span>(PointF { x, y })
     }
 }
 
@@ -2442,7 +2465,7 @@
             <span class="comment">// Check that points data size is smaller than the storage type
             // used by the iterator.
             </span><span class="kw">let </span>data_len = s.offset() - start;
-            <span class="kw">if </span>data_len &gt; usize::from(core::u16::MAX) {
+            <span class="kw">if </span>data_len &gt; usize::from(u16::MAX) {
                 <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
@@ -2719,7 +2742,6 @@
             <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">50 </span>{
                 data.push(<span class="number">2</span>);
             }
-
             <span class="kw">let </span>points_iter = PackedPointsIter::new(<span class="kw-2">&amp;mut </span>Stream::new(<span class="kw-2">&amp;</span>data))
                 .unwrap()
                 .unwrap();
@@ -3674,6 +3696,29 @@
         );
         b.bbox.to_rect()
     }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>phantom_points(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        glyf_table: glyf::Table,
+        coordinates: <span class="kw-2">&amp;</span>[NormalizedCoordinate],
+        glyph_id: GlyphId,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;PhantomPoints&gt; {
+        <span class="kw">let </span>outline_points = glyf_table.outline_points(glyph_id);
+        <span class="kw">let </span><span class="kw-2">mut </span>tuples = VariationTuples::default();
+        <span class="self">self</span>.parse_variation_data(glyph_id, coordinates, outline_points, <span class="kw-2">&amp;mut </span>tuples)<span class="question-mark">?</span>;
+
+        <span class="comment">// Skip all outline deltas.
+        </span><span class="kw">for _ in </span><span class="number">0</span>..outline_points {
+            tuples.apply_null()<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Some</span>(PhantomPoints {
+            left: tuples.apply_null()<span class="question-mark">?</span>,
+            right: tuples.apply_null()<span class="question-mark">?</span>,
+            top: tuples.apply_null()<span class="question-mark">?</span>,
+            bottom: tuples.apply_null()<span class="question-mark">?</span>,
+        })
+    }
 }
 
 <span class="kw">impl </span>core::fmt::Debug <span class="kw">for </span>Table&lt;<span class="lifetime">'_</span>&gt; {
@@ -3720,8 +3765,8 @@
         gvar_table.parse_variation_data(glyph_id, coordinates, points_len, <span class="kw-2">&amp;mut </span>tuples)<span class="question-mark">?</span>;
 
         <span class="kw">while let </span><span class="prelude-val">Some</span>(point) = glyph_points.next() {
-            <span class="kw">let </span>(x, y) = tuples.apply(all_glyph_points.clone(), glyph_points.clone(), point)<span class="question-mark">?</span>;
-            builder.push_point(x, y, point.on_curve_point, point.last_point);
+            <span class="kw">let </span>p = tuples.apply(all_glyph_points.clone(), glyph_points.clone(), point)<span class="question-mark">?</span>;
+            builder.push_point(p.x, p.y, point.on_curve_point, point.last_point);
         }
 
         <span class="prelude-val">Some</span>(())
@@ -3741,32 +3786,33 @@
         gvar_table.parse_variation_data(glyph_id, coordinates, components_count, <span class="kw-2">&amp;mut </span>tuples)<span class="question-mark">?</span>;
 
         <span class="kw">for </span>component <span class="kw">in </span>components {
-            <span class="kw">let </span>(tx, ty) = tuples.apply_null()<span class="question-mark">?</span>;
+            <span class="kw">let </span>t = tuples.apply_null()<span class="question-mark">?</span>;
 
             <span class="kw">let </span><span class="kw-2">mut </span>transform = builder.transform;
 
             <span class="comment">// Variation component offset should be applied only when
             // the ARGS_ARE_XY_VALUES flag is set.
             </span><span class="kw">if </span>component.flags.args_are_xy_values() {
-                transform = Transform::combine(transform, Transform::new_translate(tx, ty));
+                transform = Transform::combine(transform, Transform::new_translate(t.x, t.y));
             }
 
             transform = Transform::combine(transform, component.transform);
 
             <span class="kw">let </span><span class="kw-2">mut </span>b = glyf::Builder::new(transform, builder.bbox, builder.builder);
-            <span class="kw">let </span>glyph_data = glyf_table.get(component.glyph_id)<span class="question-mark">?</span>;
-            outline_var_impl(
-                glyf_table,
-                gvar_table,
-                component.glyph_id,
-                glyph_data,
-                coordinates,
-                depth + <span class="number">1</span>,
-                <span class="kw-2">&amp;mut </span>b,
-            )<span class="question-mark">?</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(glyph_data) = glyf_table.get(component.glyph_id) {
+                outline_var_impl(
+                    glyf_table,
+                    gvar_table,
+                    component.glyph_id,
+                    glyph_data,
+                    coordinates,
+                    depth + <span class="number">1</span>,
+                    <span class="kw-2">&amp;mut </span>b,
+                )<span class="question-mark">?</span>;
 
-            <span class="comment">// Take updated bbox.
-            </span>builder.bbox = b.bbox;
+                <span class="comment">// Take updated bbox.
+                </span>builder.bbox = b.bbox;
+            }
         }
 
         <span class="prelude-val">Some</span>(())

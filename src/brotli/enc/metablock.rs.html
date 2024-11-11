@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/metablock.rs`."><title>metablock.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/metablock.rs`."><title>metablock.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1106,16 +1106,11 @@
 <a href="#1106" id="1106">1106</a>
 <a href="#1107" id="1107">1107</a>
 <a href="#1108" id="1108">1108</a>
-<a href="#1109" id="1109">1109</a>
-<a href="#1110" id="1110">1110</a>
-<a href="#1111" id="1111">1111</a>
-<a href="#1112" id="1112">1112</a>
-<a href="#1113" id="1113">1113</a>
-<a href="#1114" id="1114">1114</a>
-<a href="#1115" id="1115">1115</a>
-<a href="#1116" id="1116">1116</a>
-</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
-</span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{Allocator, SliceWrapper, SliceWrapperMut};
+</pre></div><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">use </span>core::cmp::{max, min};
+
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{Allocator, SliceWrapper, SliceWrapperMut};
 <span class="kw">use </span><span class="kw">super</span>::backward_references::BrotliEncoderParams;
 <span class="kw">use </span><span class="kw">super</span>::bit_cost::{BitsEntropy, BrotliPopulationCost};
 <span class="kw">use </span><span class="kw">super</span>::block_split::BlockSplit;
@@ -1135,7 +1130,8 @@
     HistogramAddHistogram, HistogramAddItem, HistogramClear, HistogramCommand, HistogramDistance,
     HistogramLiteral,
 };
-<span class="kw">use </span>core::cmp::{max, min};
+<span class="kw">use </span><span class="kw">crate</span>::enc::combined_alloc::{alloc_default, allocate};
+<span class="kw">use </span><span class="kw">crate</span>::enc::floatX;
 
 <span class="kw">pub fn </span>BrotliInitDistanceParams(params: <span class="kw-2">&amp;mut </span>BrotliEncoderParams, npostfix: u32, ndirect: u32) {
     <span class="kw">let </span>dist_params = <span class="kw-2">&amp;mut </span>params.dist;
@@ -1261,8 +1257,7 @@
     <span class="kw">static </span>kMaxNumberOfHistograms: usize = <span class="number">256usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>distance_histograms: &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramDistance&gt;&gt;::AllocatedMemory;
     <span class="kw">let </span><span class="kw-2">mut </span>literal_histograms: &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramLiteral&gt;&gt;::AllocatedMemory;
-    <span class="kw">let </span><span class="kw-2">mut </span>literal_context_modes: &lt;Alloc <span class="kw">as </span>Allocator&lt;ContextType&gt;&gt;::AllocatedMemory =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;ContextType&gt;&gt;::AllocatedMemory::default();
+    <span class="kw">let </span><span class="kw-2">mut </span>literal_context_modes = alloc_default::&lt;ContextType, Alloc&gt;();
 
     <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
     <span class="kw">let </span><span class="kw-2">mut </span>literal_context_multiplier: usize = <span class="number">1</span>;
@@ -1336,8 +1331,7 @@
     );
     <span class="kw">if </span>params.disable_literal_context_modeling == <span class="number">0 </span>{
         literal_context_multiplier = (<span class="number">1i32 </span>&lt;&lt; <span class="number">6</span>) <span class="kw">as </span>usize;
-        literal_context_modes =
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;ContextType&gt;&gt;::alloc_cell(alloc, mb.literal_split.num_types);
+        literal_context_modes = allocate::&lt;ContextType, <span class="kw">_</span>&gt;(alloc, mb.literal_split.num_types);
         <span class="kw">for </span>item <span class="kw">in </span>literal_context_modes.slice_mut().iter_mut() {
             <span class="kw-2">*</span>item = literal_context_mode;
         }
@@ -1346,14 +1340,11 @@
         .literal_split
         .num_types
         .wrapping_mul(literal_context_multiplier);
-    literal_histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramLiteral&gt;&gt;::alloc_cell(alloc, literal_histograms_size);
+    literal_histograms = allocate::&lt;HistogramLiteral, <span class="kw">_</span>&gt;(alloc, literal_histograms_size);
     <span class="kw">let </span>distance_histograms_size: usize = mb.distance_split.num_types &lt;&lt; <span class="number">2</span>;
-    distance_histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramDistance&gt;&gt;::alloc_cell(alloc, distance_histograms_size);
+    distance_histograms = allocate::&lt;HistogramDistance, <span class="kw">_</span>&gt;(alloc, distance_histograms_size);
     mb.command_histograms_size = mb.command_split.num_types;
-    mb.command_histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramCommand&gt;&gt;::alloc_cell(alloc, mb.command_histograms_size);
+    mb.command_histograms = allocate::&lt;HistogramCommand, <span class="kw">_</span>&gt;(alloc, mb.command_histograms_size);
     BrotliBuildHistogramsWithContext(
         cmds,
         num_commands,
@@ -1372,11 +1363,9 @@
     );
     &lt;Alloc <span class="kw">as </span>Allocator&lt;ContextType&gt;&gt;::free_cell(alloc, literal_context_modes);
     mb.literal_context_map_size = mb.literal_split.num_types &lt;&lt; <span class="number">6</span>;
-    mb.literal_context_map =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, mb.literal_context_map_size);
+    mb.literal_context_map = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, mb.literal_context_map_size);
     mb.literal_histograms_size = mb.literal_context_map_size;
-    mb.literal_histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramLiteral&gt;&gt;::alloc_cell(alloc, mb.literal_histograms_size);
+    mb.literal_histograms = allocate::&lt;HistogramLiteral, <span class="kw">_</span>&gt;(alloc, mb.literal_histograms_size);
     BrotliClusterHistograms(
         alloc,
         literal_histograms.slice(),
@@ -1403,11 +1392,9 @@
         }
     }
     mb.distance_context_map_size = mb.distance_split.num_types &lt;&lt; <span class="number">2</span>;
-    mb.distance_context_map =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, mb.distance_context_map_size);
+    mb.distance_context_map = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, mb.distance_context_map_size);
     mb.distance_histograms_size = mb.distance_context_map_size;
-    mb.distance_histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramDistance&gt;&gt;::alloc_cell(alloc, mb.distance_histograms_size);
+    mb.distance_histograms = allocate::&lt;HistogramDistance, <span class="kw">_</span>&gt;(alloc, mb.distance_histograms_size);
     BrotliClusterHistograms(
         alloc,
         distance_histograms.slice(),
@@ -1430,7 +1417,7 @@ pub struct BlockSplitter&lt;'a, HistogramType:SliceWrapper&lt;u32&gt;+SliceWrapp
 </span><span class="kw">pub struct </span>BlockSplitter {
     <span class="kw">pub </span>alphabet_size_: usize,
     <span class="kw">pub </span>min_block_size_: usize,
-    <span class="kw">pub </span>split_threshold_: <span class="kw">super</span>::util::floatX,
+    <span class="kw">pub </span>split_threshold_: floatX,
     <span class="kw">pub </span>num_blocks_: usize,
     <span class="comment">//  pub split_: &amp;'a mut BlockSplit&lt;AllocU8, AllocU32&gt;,
     //  pub histograms_: AllocHT::AllocatedMemory, // FIXME: pull this one out at the end
@@ -1439,7 +1426,7 @@ pub struct BlockSplitter&lt;'a, HistogramType:SliceWrapper&lt;u32&gt;+SliceWrapp
     <span class="kw">pub </span>block_size_: usize,
     <span class="kw">pub </span>curr_histogram_ix_: usize,
     <span class="kw">pub </span>last_histogram_ix_: [usize; <span class="number">2</span>],
-    <span class="kw">pub </span>last_entropy_: [<span class="kw">super</span>::util::floatX; <span class="number">2</span>],
+    <span class="kw">pub </span>last_entropy_: [floatX; <span class="number">2</span>],
     <span class="kw">pub </span>merge_last_count_: usize,
 }
 
@@ -1448,7 +1435,7 @@ pub struct BlockSplitter&lt;'a, HistogramType:SliceWrapper&lt;u32&gt;+SliceWrapp
     <span class="kw">pub </span>num_contexts_: usize,
     <span class="kw">pub </span>max_block_types_: usize,
     <span class="kw">pub </span>min_block_size_: usize,
-    <span class="kw">pub </span>split_threshold_: <span class="kw">super</span>::util::floatX,
+    <span class="kw">pub </span>split_threshold_: floatX,
     <span class="kw">pub </span>num_blocks_: usize,
     <span class="comment">//  pub split_: &amp;'a mut BlockSplit&lt;AllocU8, AllocU32&gt;,
     //  pub histograms_: AllocHL::AllocatedMemory,
@@ -1457,7 +1444,7 @@ pub struct BlockSplitter&lt;'a, HistogramType:SliceWrapper&lt;u32&gt;+SliceWrapp
     <span class="kw">pub </span>block_size_: usize,
     <span class="kw">pub </span>curr_histogram_ix_: usize,
     <span class="kw">pub </span>last_histogram_ix_: [usize; <span class="number">2</span>],
-    <span class="kw">pub </span>last_entropy_: [<span class="kw">super</span>::util::floatX; <span class="number">2 </span>* BROTLI_MAX_STATIC_CONTEXTS],
+    <span class="kw">pub </span>last_entropy_: [floatX; <span class="number">2 </span>* BROTLI_MAX_STATIC_CONTEXTS],
     <span class="kw">pub </span>merge_last_count_: usize,
 }
 
@@ -1471,7 +1458,7 @@ pub struct BlockSplitter&lt;'a, HistogramType:SliceWrapper&lt;u32&gt;+SliceWrapp
 pub struct BlockSplitterCommand {
   pub alphabet_size_: usize,
   pub min_block_size_: usize,
-  pub split_threshold_: super::util::floatX,
+  pub split_threshold_: floatX,
   pub num_blocks_: usize,
   pub split_: *mut BlockSplit,
   pub histograms_: *mut HistogramCommand,
@@ -1480,7 +1467,7 @@ pub struct BlockSplitterCommand {
   pub block_size_: usize,
   pub curr_histogram_ix_: usize,
   pub last_histogram_ix_: [usize; 2],
-  pub last_entropy_: [super::util::floatX; 2],
+  pub last_entropy_: [floatX; 2],
   pub merge_last_count_: usize,
 }
 
@@ -1489,7 +1476,7 @@ pub struct BlockSplitterCommand {
 pub struct BlockSplitterDistance {
   pub alphabet_size_: usize,
   pub min_block_size_: usize,
-  pub split_threshold_: super::util::floatX,
+  pub split_threshold_: floatX,
   pub num_blocks_: usize,
   pub split_: *mut BlockSplit,
   pub histograms_: *mut HistogramDistance,
@@ -1498,7 +1485,7 @@ pub struct BlockSplitterDistance {
   pub block_size_: usize,
   pub curr_histogram_ix_: usize,
   pub last_histogram_ix_: [usize; 2],
-  pub last_entropy_: [super::util::floatX; 2],
+  pub last_entropy_: [floatX; 2],
   pub merge_last_count_: usize,
 }
 */
@@ -1510,7 +1497,7 @@ pub struct BlockSplitterDistance {
     alloc: <span class="kw-2">&amp;mut </span>Alloc,
     alphabet_size: usize,
     min_block_size: usize,
-    split_threshold: <span class="kw">super</span>::util::floatX,
+    split_threshold: floatX,
     num_symbols: usize,
     split: <span class="kw-2">&amp;mut </span>BlockSplit&lt;Alloc&gt;,
     histograms: <span class="kw-2">&amp;mut </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::AllocatedMemory,
@@ -1519,7 +1506,7 @@ pub struct BlockSplitterDistance {
     <span class="kw">let </span>max_num_blocks: usize = num_symbols.wrapping_div(min_block_size).wrapping_add(<span class="number">1</span>);
     <span class="kw">let </span>max_num_types: usize = min(max_num_blocks, (<span class="number">256i32 </span>+ <span class="number">1i32</span>) <span class="kw">as </span>usize);
     <span class="kw">let </span><span class="kw-2">mut </span>xself = BlockSplitter {
-        last_entropy_: [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX; <span class="number">2</span>],
+        last_entropy_: [<span class="number">0.0</span>; <span class="number">2</span>],
         alphabet_size_: alphabet_size,
         min_block_size_: min_block_size,
         split_threshold_: split_threshold,
@@ -1543,7 +1530,7 @@ pub struct BlockSplitterDistance {
             <span class="kw">while </span>_new_size &lt; max_num_blocks {
                 _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
             }
-            new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, _new_size);
+            new_array = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, _new_size);
             <span class="kw">if </span>(!split.types.slice().is_empty()) {
                 new_array.slice_mut()[..split.types.slice().len()]
                     .clone_from_slice(split.types.slice());
@@ -1564,7 +1551,7 @@ pub struct BlockSplitterDistance {
             <span class="kw">while </span>_new_size &lt; max_num_blocks {
                 _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, _new_size);
+            <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, _new_size);
             new_array.slice_mut()[..split.lengths.slice().len()]
                 .clone_from_slice(split.lengths.slice());
             &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(
@@ -1575,7 +1562,7 @@ pub struct BlockSplitterDistance {
     }
     split.num_blocks = max_num_blocks;
     <span class="kw-2">*</span>histograms_size = max_num_types;
-    <span class="kw">let </span>hlocal = &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::alloc_cell(alloc, <span class="kw-2">*</span>histograms_size);
+    <span class="kw">let </span>hlocal = allocate::&lt;HistogramType, <span class="kw">_</span>&gt;(alloc, <span class="kw-2">*</span>histograms_size);
     &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::free_cell(
         alloc,
         core::mem::replace(<span class="kw-2">&amp;mut *</span>histograms, hlocal),
@@ -1592,7 +1579,7 @@ pub struct BlockSplitterDistance {
     alphabet_size: usize,
     num_contexts: usize,
     min_block_size: usize,
-    split_threshold: <span class="kw">super</span>::util::floatX,
+    split_threshold: floatX,
     num_symbols: usize,
     split: <span class="kw-2">&amp;mut </span>BlockSplit&lt;Alloc&gt;,
     histograms: <span class="kw-2">&amp;mut </span>&lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramLiteral&gt;&gt;::AllocatedMemory,
@@ -1614,7 +1601,7 @@ pub struct BlockSplitterDistance {
         curr_histogram_ix_: <span class="number">0usize</span>,
         merge_last_count_: <span class="number">0usize</span>,
         last_histogram_ix_: [<span class="number">0</span>; <span class="number">2</span>],
-        last_entropy_: [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX; <span class="number">2 </span>* BROTLI_MAX_STATIC_CONTEXTS],
+        last_entropy_: [<span class="number">0.0</span>; <span class="number">2 </span>* BROTLI_MAX_STATIC_CONTEXTS],
     };
     <span class="kw">let </span>max_num_types: usize = min(max_num_blocks, xself.max_block_types_.wrapping_add(<span class="number">1</span>));
     {
@@ -1627,7 +1614,7 @@ pub struct BlockSplitterDistance {
             <span class="kw">while </span>_new_size &lt; max_num_blocks {
                 _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, _new_size);
+            <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, _new_size);
             <span class="kw">if </span>(!split.types.slice().is_empty()) {
                 new_array.slice_mut()[..split.types.slice().len()]
                     .clone_from_slice(split.types.slice());
@@ -1648,7 +1635,7 @@ pub struct BlockSplitterDistance {
             <span class="kw">while </span>_new_size &lt; max_num_blocks {
                 _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, _new_size);
+            <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, _new_size);
             <span class="kw">if </span>(!split.lengths.slice().is_empty()) {
                 new_array.slice_mut()[..split.lengths.slice().len()]
                     .clone_from_slice(split.lengths.slice());
@@ -1661,7 +1648,7 @@ pub struct BlockSplitterDistance {
     }
     split.num_blocks = max_num_blocks;
     <span class="kw-2">*</span>histograms_size = max_num_types.wrapping_mul(num_contexts);
-    <span class="kw-2">*</span>histograms = &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramLiteral&gt;&gt;::alloc_cell(alloc, <span class="kw-2">*</span>histograms_size);
+    <span class="kw-2">*</span>histograms = allocate::&lt;HistogramLiteral, <span class="kw">_</span>&gt;(alloc, <span class="kw-2">*</span>histograms_size);
     <span class="comment">//xself.histograms_ = *histograms;
     </span>ClearHistograms(<span class="kw-2">&amp;mut </span>histograms.slice_mut()[<span class="number">0</span>..], num_contexts);
     xself.last_histogram_ix_[<span class="number">0</span>] = <span class="number">0</span>;
@@ -1677,7 +1664,7 @@ pub struct BlockSplitterDistance {
     split: <span class="kw-2">&amp;mut </span>BlockSplit&lt;Alloc&gt;,
     histograms: <span class="kw-2">&amp;mut </span>[HistogramType],
     histograms_size: <span class="kw-2">&amp;mut </span>usize,
-    is_final: i32,
+    is_final: bool,
 ) {
     xself.block_size_ = max(xself.block_size_, xself.min_block_size_);
     <span class="kw">if </span>xself.num_blocks_ == <span class="number">0usize </span>{
@@ -1693,7 +1680,7 @@ pub struct BlockSplitterDistance {
         }
         xself.block_size_ = <span class="number">0usize</span>;
     } <span class="kw">else if </span>xself.block_size_ &gt; <span class="number">0usize </span>{
-        <span class="kw">let </span>entropy: <span class="kw">super</span>::util::floatX = BitsEntropy(
+        <span class="kw">let </span>entropy = BitsEntropy(
             (histograms[xself.curr_histogram_ix_]).slice(),
             xself.alphabet_size_,
         );
@@ -1702,10 +1689,8 @@ pub struct BlockSplitterDistance {
             histograms[xself.curr_histogram_ix_].clone(),
         ];
 
-        <span class="kw">let </span><span class="kw-2">mut </span>combined_entropy: [<span class="kw">super</span>::util::floatX; <span class="number">2</span>] =
-            [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX, <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX];
-        <span class="kw">let </span><span class="kw-2">mut </span>diff: [<span class="kw">super</span>::util::floatX; <span class="number">2</span>] =
-            [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX, <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX];
+        <span class="kw">let </span><span class="kw-2">mut </span>combined_entropy: [floatX; <span class="number">2</span>] = [<span class="number">0.0</span>, <span class="number">0.0</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>diff: [floatX; <span class="number">2</span>] = [<span class="number">0.0</span>, <span class="number">0.0</span>];
         <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..<span class="number">2 </span>{
             <span class="kw">let </span>last_histogram_ix: usize = xself.last_histogram_ix_[j];
             HistogramAddHistogram(<span class="kw-2">&amp;mut </span>combined_histo[j], <span class="kw-2">&amp;</span>histograms[last_histogram_ix]);
@@ -1734,7 +1719,7 @@ pub struct BlockSplitterDistance {
             xself.block_size_ = <span class="number">0usize</span>;
             xself.merge_last_count_ = <span class="number">0usize</span>;
             xself.target_block_size_ = xself.min_block_size_;
-        } <span class="kw">else if </span>diff[<span class="number">1</span>] &lt; diff[<span class="number">0</span>] - <span class="number">20.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX {
+        } <span class="kw">else if </span>diff[<span class="number">1</span>] &lt; diff[<span class="number">0</span>] - <span class="number">20.0 </span>{
             split.lengths.slice_mut()[xself.num_blocks_] = xself.block_size_ <span class="kw">as </span>u32;
             split.types.slice_mut()[xself.num_blocks_] =
                 split.types.slice()[xself.num_blocks_.wrapping_sub(<span class="number">2</span>)]; <span class="comment">//FIXME: investigate copy?
@@ -1772,7 +1757,7 @@ pub struct BlockSplitterDistance {
             }
         }
     }
-    <span class="kw">if </span>is_final != <span class="number">0 </span>{
+    <span class="kw">if </span>is_final {
         <span class="kw-2">*</span>histograms_size = split.num_types;
         split.num_blocks = xself.num_blocks_;
     }
@@ -1788,7 +1773,7 @@ pub struct BlockSplitterDistance {
     split: <span class="kw-2">&amp;mut </span>BlockSplit&lt;Alloc&gt;,
     histograms: <span class="kw-2">&amp;mut </span>[HistogramLiteral],
     histograms_size: <span class="kw-2">&amp;mut </span>usize,
-    is_final: i32,
+    is_final: bool,
 ) {
     <span class="kw">let </span>num_contexts: usize = xself.num_contexts_;
     <span class="kw">if </span>xself.block_size_ &lt; xself.min_block_size_ {
@@ -1812,10 +1797,10 @@ pub struct BlockSplitterDistance {
         }
         xself.block_size_ = <span class="number">0usize</span>;
     } <span class="kw">else if </span>xself.block_size_ &gt; <span class="number">0usize </span>{
-        <span class="kw">let </span><span class="kw-2">mut </span>entropy = [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX; BROTLI_MAX_STATIC_CONTEXTS];
+        <span class="kw">let </span><span class="kw-2">mut </span>entropy = [<span class="number">0.0</span>; BROTLI_MAX_STATIC_CONTEXTS];
         <span class="kw">let </span><span class="kw-2">mut </span>combined_histo = m.alloc_cell(<span class="number">2 </span>* num_contexts);
-        <span class="kw">let </span><span class="kw-2">mut </span>combined_entropy = [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX; <span class="number">2 </span>* BROTLI_MAX_STATIC_CONTEXTS];
-        <span class="kw">let </span><span class="kw-2">mut </span>diff: [<span class="kw">super</span>::util::floatX; <span class="number">2</span>] = [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX; <span class="number">2</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>combined_entropy = [<span class="number">0.0</span>; <span class="number">2 </span>* BROTLI_MAX_STATIC_CONTEXTS];
+        <span class="kw">let </span><span class="kw-2">mut </span>diff = [<span class="number">0.0</span>; <span class="number">2</span>];
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..num_contexts {
             <span class="kw">let </span>curr_histo_ix: usize = xself.curr_histogram_ix_.wrapping_add(i);
             <span class="kw">let </span><span class="kw-2">mut </span>j: usize;
@@ -1861,7 +1846,7 @@ pub struct BlockSplitterDistance {
             xself.block_size_ = <span class="number">0usize</span>;
             xself.merge_last_count_ = <span class="number">0usize</span>;
             xself.target_block_size_ = xself.min_block_size_;
-        } <span class="kw">else if </span>diff[<span class="number">1</span>] &lt; diff[<span class="number">0</span>] - <span class="number">20.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX {
+        } <span class="kw">else if </span>diff[<span class="number">1</span>] &lt; diff[<span class="number">0</span>] - <span class="number">20.0 </span>{
             split.lengths.slice_mut()[xself.num_blocks_] = xself.block_size_ <span class="kw">as </span>u32;
             <span class="kw">let </span>nbm2 = split.types.slice()[xself.num_blocks_.wrapping_sub(<span class="number">2</span>)];
             split.types.slice_mut()[xself.num_blocks_] = nbm2;
@@ -1908,7 +1893,7 @@ pub struct BlockSplitterDistance {
         }
         m.free_cell(combined_histo);
     }
-    <span class="kw">if </span>is_final != <span class="number">0 </span>{
+    <span class="kw">if </span>is_final {
         <span class="kw-2">*</span>histograms_size = split.num_types.wrapping_mul(num_contexts);
         split.num_blocks = xself.num_blocks_;
     }
@@ -1927,7 +1912,7 @@ pub struct BlockSplitterDistance {
     HistogramAddItem(<span class="kw-2">&amp;mut </span>histograms[xself.curr_histogram_ix_], symbol);
     xself.block_size_ = xself.block_size_.wrapping_add(<span class="number">1</span>);
     <span class="kw">if </span>xself.block_size_ == xself.target_block_size_ {
-        BlockSplitterFinishBlock(xself, split, histograms, histograms_size, <span class="number">0i32</span>);
+        BlockSplitterFinishBlock(xself, split, histograms, histograms_size, <span class="bool-val">false</span>);
     }
 }
 
@@ -1948,7 +1933,7 @@ pub struct BlockSplitterDistance {
     );
     xself.block_size_ = xself.block_size_.wrapping_add(<span class="number">1</span>);
     <span class="kw">if </span>xself.block_size_ == xself.target_block_size_ {
-        ContextBlockSplitterFinishBlock(xself, m, split, histograms, histograms_size, <span class="number">0i32</span>);
+        ContextBlockSplitterFinishBlock(xself, m, split, histograms, histograms_size, <span class="bool-val">false</span>);
     }
 }
 
@@ -1965,8 +1950,7 @@ pub struct BlockSplitterDistance {
     mb: <span class="kw-2">&amp;mut </span>MetaBlockSplit&lt;Alloc&gt;,
 ) {
     mb.literal_context_map_size = mb.literal_split.num_types &lt;&lt; <span class="number">6</span>;
-    <span class="kw">let </span>new_literal_context_map =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(m32, mb.literal_context_map_size);
+    <span class="kw">let </span>new_literal_context_map = allocate::&lt;u32, <span class="kw">_</span>&gt;(m32, mb.literal_context_map_size);
     &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(
         m32,
         core::mem::replace(<span class="kw-2">&amp;mut </span>mb.literal_context_map, new_literal_context_map),
@@ -2011,7 +1995,7 @@ pub struct BlockSplitterDistance {
             alloc,
             <span class="number">256usize</span>,
             <span class="number">512usize</span>,
-            <span class="number">400.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+            <span class="number">400.0</span>,
             num_literals,
             <span class="kw-2">&amp;mut </span>mb.literal_split,
             <span class="kw-2">&amp;mut </span>mb.literal_histograms,
@@ -2023,7 +2007,7 @@ pub struct BlockSplitterDistance {
             <span class="number">256usize</span>,
             num_contexts,
             <span class="number">512usize</span>,
-            <span class="number">400.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+            <span class="number">400.0</span>,
             num_literals,
             <span class="kw-2">&amp;mut </span>mb.literal_split,
             <span class="kw-2">&amp;mut </span>mb.literal_histograms,
@@ -2034,7 +2018,7 @@ pub struct BlockSplitterDistance {
         alloc,
         <span class="number">704usize</span>,
         <span class="number">1024usize</span>,
-        <span class="number">500.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+        <span class="number">500.0</span>,
         n_commands,
         <span class="kw-2">&amp;mut </span>mb.command_split,
         <span class="kw-2">&amp;mut </span>mb.command_histograms,
@@ -2044,7 +2028,7 @@ pub struct BlockSplitterDistance {
         alloc,
         <span class="number">64usize</span>,
         <span class="number">512usize</span>,
-        <span class="number">100.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+        <span class="number">100.0</span>,
         n_commands,
         <span class="kw-2">&amp;mut </span>mb.distance_split,
         <span class="kw-2">&amp;mut </span>mb.distance_histograms,
@@ -2114,7 +2098,7 @@ pub struct BlockSplitterDistance {
             <span class="kw-2">&amp;mut </span>mb.literal_split,
             mb.literal_histograms.slice_mut(),
             <span class="kw-2">&amp;mut </span>mb.literal_histograms_size,
-            <span class="number">1i32</span>,
+            <span class="bool-val">true</span>,
         ),
         <span class="kw-2">&amp;mut </span>LitBlocks::ctx(<span class="kw-2">ref mut </span>lit_blocks_ctx) =&gt; ContextBlockSplitterFinishBlock(
             lit_blocks_ctx,
@@ -2122,7 +2106,7 @@ pub struct BlockSplitterDistance {
             <span class="kw-2">&amp;mut </span>mb.literal_split,
             mb.literal_histograms.slice_mut(),
             <span class="kw-2">&amp;mut </span>mb.literal_histograms_size,
-            <span class="number">1i32</span>,
+            <span class="bool-val">true</span>,
         ),
     }
     BlockSplitterFinishBlock(
@@ -2130,14 +2114,14 @@ pub struct BlockSplitterDistance {
         <span class="kw-2">&amp;mut </span>mb.command_split,
         mb.command_histograms.slice_mut(),
         <span class="kw-2">&amp;mut </span>mb.command_histograms_size,
-        <span class="number">1i32</span>,
+        <span class="bool-val">true</span>,
     );
     BlockSplitterFinishBlock(
         <span class="kw-2">&amp;mut </span>dist_blocks,
         <span class="kw-2">&amp;mut </span>mb.distance_split,
         mb.distance_histograms.slice_mut(),
         <span class="kw-2">&amp;mut </span>mb.distance_histograms_size,
-        <span class="number">1i32</span>,
+        <span class="bool-val">true</span>,
     );
     <span class="kw">if </span>num_contexts &gt; <span class="number">1 </span>{
         MapStaticContexts(alloc, num_contexts, static_context_map, mb);

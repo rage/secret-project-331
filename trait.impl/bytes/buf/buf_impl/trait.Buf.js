@@ -1,6 +1,9 @@
-(function() {var implementors = {
-"actix_web":[],
-"bytes":[],
-"headless_lms_server":[],
-"hyper":[]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {
+    var implementors = Object.fromEntries([["actix_web",[]],["bytes",[]],["headless_lms_server",[]],["hyper",[]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[16,13,27,13]}

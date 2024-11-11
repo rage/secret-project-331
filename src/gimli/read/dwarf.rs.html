@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/dwarf.rs`."><title>dwarf.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.31.1/src/read/dwarf.rs`."><title>dwarf.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1477,6 +1477,208 @@
 <a href="#1477" id="1477">1477</a>
 <a href="#1478" id="1478">1478</a>
 <a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+<a href="#1542" id="1542">1542</a>
+<a href="#1543" id="1543">1543</a>
+<a href="#1544" id="1544">1544</a>
+<a href="#1545" id="1545">1545</a>
+<a href="#1546" id="1546">1546</a>
+<a href="#1547" id="1547">1547</a>
+<a href="#1548" id="1548">1548</a>
+<a href="#1549" id="1549">1549</a>
+<a href="#1550" id="1550">1550</a>
+<a href="#1551" id="1551">1551</a>
+<a href="#1552" id="1552">1552</a>
+<a href="#1553" id="1553">1553</a>
+<a href="#1554" id="1554">1554</a>
+<a href="#1555" id="1555">1555</a>
+<a href="#1556" id="1556">1556</a>
+<a href="#1557" id="1557">1557</a>
+<a href="#1558" id="1558">1558</a>
+<a href="#1559" id="1559">1559</a>
+<a href="#1560" id="1560">1560</a>
+<a href="#1561" id="1561">1561</a>
+<a href="#1562" id="1562">1562</a>
+<a href="#1563" id="1563">1563</a>
+<a href="#1564" id="1564">1564</a>
+<a href="#1565" id="1565">1565</a>
+<a href="#1566" id="1566">1566</a>
+<a href="#1567" id="1567">1567</a>
+<a href="#1568" id="1568">1568</a>
+<a href="#1569" id="1569">1569</a>
+<a href="#1570" id="1570">1570</a>
+<a href="#1571" id="1571">1571</a>
+<a href="#1572" id="1572">1572</a>
+<a href="#1573" id="1573">1573</a>
+<a href="#1574" id="1574">1574</a>
+<a href="#1575" id="1575">1575</a>
+<a href="#1576" id="1576">1576</a>
+<a href="#1577" id="1577">1577</a>
+<a href="#1578" id="1578">1578</a>
+<a href="#1579" id="1579">1579</a>
+<a href="#1580" id="1580">1580</a>
+<a href="#1581" id="1581">1581</a>
+<a href="#1582" id="1582">1582</a>
+<a href="#1583" id="1583">1583</a>
+<a href="#1584" id="1584">1584</a>
+<a href="#1585" id="1585">1585</a>
+<a href="#1586" id="1586">1586</a>
+<a href="#1587" id="1587">1587</a>
+<a href="#1588" id="1588">1588</a>
+<a href="#1589" id="1589">1589</a>
+<a href="#1590" id="1590">1590</a>
+<a href="#1591" id="1591">1591</a>
+<a href="#1592" id="1592">1592</a>
+<a href="#1593" id="1593">1593</a>
+<a href="#1594" id="1594">1594</a>
+<a href="#1595" id="1595">1595</a>
+<a href="#1596" id="1596">1596</a>
+<a href="#1597" id="1597">1597</a>
+<a href="#1598" id="1598">1598</a>
+<a href="#1599" id="1599">1599</a>
+<a href="#1600" id="1600">1600</a>
+<a href="#1601" id="1601">1601</a>
+<a href="#1602" id="1602">1602</a>
+<a href="#1603" id="1603">1603</a>
+<a href="#1604" id="1604">1604</a>
+<a href="#1605" id="1605">1605</a>
+<a href="#1606" id="1606">1606</a>
+<a href="#1607" id="1607">1607</a>
+<a href="#1608" id="1608">1608</a>
+<a href="#1609" id="1609">1609</a>
+<a href="#1610" id="1610">1610</a>
+<a href="#1611" id="1611">1611</a>
+<a href="#1612" id="1612">1612</a>
+<a href="#1613" id="1613">1613</a>
+<a href="#1614" id="1614">1614</a>
+<a href="#1615" id="1615">1615</a>
+<a href="#1616" id="1616">1616</a>
+<a href="#1617" id="1617">1617</a>
+<a href="#1618" id="1618">1618</a>
+<a href="#1619" id="1619">1619</a>
+<a href="#1620" id="1620">1620</a>
+<a href="#1621" id="1621">1621</a>
+<a href="#1622" id="1622">1622</a>
+<a href="#1623" id="1623">1623</a>
+<a href="#1624" id="1624">1624</a>
+<a href="#1625" id="1625">1625</a>
+<a href="#1626" id="1626">1626</a>
+<a href="#1627" id="1627">1627</a>
+<a href="#1628" id="1628">1628</a>
+<a href="#1629" id="1629">1629</a>
+<a href="#1630" id="1630">1630</a>
+<a href="#1631" id="1631">1631</a>
+<a href="#1632" id="1632">1632</a>
+<a href="#1633" id="1633">1633</a>
+<a href="#1634" id="1634">1634</a>
+<a href="#1635" id="1635">1635</a>
+<a href="#1636" id="1636">1636</a>
+<a href="#1637" id="1637">1637</a>
+<a href="#1638" id="1638">1638</a>
+<a href="#1639" id="1639">1639</a>
+<a href="#1640" id="1640">1640</a>
+<a href="#1641" id="1641">1641</a>
+<a href="#1642" id="1642">1642</a>
+<a href="#1643" id="1643">1643</a>
+<a href="#1644" id="1644">1644</a>
+<a href="#1645" id="1645">1645</a>
+<a href="#1646" id="1646">1646</a>
+<a href="#1647" id="1647">1647</a>
+<a href="#1648" id="1648">1648</a>
+<a href="#1649" id="1649">1649</a>
+<a href="#1650" id="1650">1650</a>
+<a href="#1651" id="1651">1651</a>
+<a href="#1652" id="1652">1652</a>
+<a href="#1653" id="1653">1653</a>
+<a href="#1654" id="1654">1654</a>
+<a href="#1655" id="1655">1655</a>
+<a href="#1656" id="1656">1656</a>
+<a href="#1657" id="1657">1657</a>
+<a href="#1658" id="1658">1658</a>
+<a href="#1659" id="1659">1659</a>
+<a href="#1660" id="1660">1660</a>
+<a href="#1661" id="1661">1661</a>
+<a href="#1662" id="1662">1662</a>
+<a href="#1663" id="1663">1663</a>
+<a href="#1664" id="1664">1664</a>
+<a href="#1665" id="1665">1665</a>
+<a href="#1666" id="1666">1666</a>
+<a href="#1667" id="1667">1667</a>
+<a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::string::String;
 <span class="kw">use </span>alloc::sync::Arc;
 
@@ -1492,9 +1694,10 @@
     DebugAddr, DebugAranges, DebugCuIndex, DebugInfo, DebugInfoUnitHeadersIter, DebugLine,
     DebugLineStr, DebugLoc, DebugLocLists, DebugRanges, DebugRngLists, DebugStr, DebugStrOffsets,
     DebugTuIndex, DebugTypes, DebugTypesUnitHeadersIter, DebuggingInformationEntry, EntriesCursor,
-    EntriesRaw, EntriesTree, Error, IncompleteLineProgram, LocListIter, LocationLists, Range,
-    RangeLists, RawLocListIter, RawRngListIter, Reader, ReaderOffset, ReaderOffsetId, <span class="prelude-ty">Result</span>,
-    RngListIter, Section, UnitHeader, UnitIndex, UnitIndexSectionIterator, UnitOffset, UnitType,
+    EntriesRaw, EntriesTree, Error, IncompleteLineProgram, IndexSectionId, LocListIter,
+    LocationLists, Range, RangeLists, RawLocListIter, RawRngListIter, Reader, ReaderOffset,
+    ReaderOffsetId, <span class="prelude-ty">Result</span>, RngListIter, Section, UnitHeader, UnitIndex, UnitIndexSectionIterator,
+    UnitOffset, UnitType,
 };
 
 <span class="doccomment">/// All of the commonly used DWARF sections.
@@ -1524,7 +1727,7 @@
 /// # unreachable!()
 /// # }
 /// ```
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>DwarfSections&lt;T&gt; {
     <span class="doccomment">/// The `.debug_abbrev` section.
     </span><span class="kw">pub </span>debug_abbrev: DebugAbbrev&lt;T&gt;,
@@ -1859,6 +2062,17 @@
         <span class="self">self</span>.debug_line_str.get_str(offset)
     }
 
+    <span class="doccomment">/// Return the string at the given offset in the `.debug_str`
+    /// in the supplementary object file.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>sup_string(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: DebugStrOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(sup) = <span class="self">self</span>.sup() {
+            sup.debug_str.get_str(offset)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(Error::ExpectedStringAttributeValue)
+        }
+    }
+
     <span class="doccomment">/// Return an attribute value as a string slice.
     ///
     /// If the attribute value is one of:
@@ -1866,9 +2080,9 @@
     /// - an inline `DW_FORM_string` string
     /// - a `DW_FORM_strp` reference to an offset into the `.debug_str` section
     /// - a `DW_FORM_strp_sup` reference to an offset into a supplementary
-    /// object file
+    ///   object file
     /// - a `DW_FORM_line_strp` reference to an offset into the `.debug_line_str`
-    /// section
+    ///   section
     /// - a `DW_FORM_strx` index into the `.debug_str_offsets` entries for the unit
     ///
     /// then return the attribute's string value. Returns an error if the attribute
@@ -1876,22 +2090,12 @@
     </span><span class="kw">pub fn </span>attr_string(<span class="kw-2">&amp;</span><span class="self">self</span>, unit: <span class="kw-2">&amp;</span>Unit&lt;R&gt;, attr: AttributeValue&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
         <span class="kw">match </span>attr {
             AttributeValue::String(string) =&gt; <span class="prelude-val">Ok</span>(string),
-            AttributeValue::DebugStrRef(offset) =&gt; <span class="self">self</span>.debug_str.get_str(offset),
-            AttributeValue::DebugStrRefSup(offset) =&gt; {
-                <span class="kw">if let </span><span class="prelude-val">Some</span>(sup) = <span class="self">self</span>.sup() {
-                    sup.debug_str.get_str(offset)
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">Err</span>(Error::ExpectedStringAttributeValue)
-                }
-            }
-            AttributeValue::DebugLineStrRef(offset) =&gt; <span class="self">self</span>.debug_line_str.get_str(offset),
+            AttributeValue::DebugStrRef(offset) =&gt; <span class="self">self</span>.string(offset),
+            AttributeValue::DebugStrRefSup(offset) =&gt; <span class="self">self</span>.sup_string(offset),
+            AttributeValue::DebugLineStrRef(offset) =&gt; <span class="self">self</span>.line_string(offset),
             AttributeValue::DebugStrOffsetsIndex(index) =&gt; {
-                <span class="kw">let </span>offset = <span class="self">self</span>.debug_str_offsets.get_str_offset(
-                    unit.header.format(),
-                    unit.str_offsets_base,
-                    index,
-                )<span class="question-mark">?</span>;
-                <span class="self">self</span>.debug_str.get_str(offset)
+                <span class="kw">let </span>offset = <span class="self">self</span>.string_offset(unit, index)<span class="question-mark">?</span>;
+                <span class="self">self</span>.string(offset)
             }
             <span class="kw">_ </span>=&gt; <span class="prelude-val">Err</span>(Error::ExpectedStringAttributeValue),
         }
@@ -2018,7 +2222,7 @@
     </span><span class="kw">pub fn </span>die_ranges(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         unit: <span class="kw-2">&amp;</span>Unit&lt;R&gt;,
-        entry: <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;R&gt;,
+        entry: <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;RangeIter&lt;R&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>low_pc = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>high_pc = <span class="prelude-val">None</span>;
@@ -2216,7 +2420,7 @@
         // parent file.
         </span><span class="self">self</span>.ranges
             .set_debug_ranges(parent.ranges.debug_ranges().clone());
-        <span class="self">self</span>.sup = parent.sup.clone();
+        <span class="self">self</span>.sup.clone_from(<span class="kw-2">&amp;</span>parent.sup);
     }
 }
 
@@ -2248,7 +2452,7 @@
 /// # unreachable!()
 /// # }
 /// ```
-</span><span class="attr">#[derive(Debug)]
+</span><span class="attr">#[derive(Debug, Default)]
 </span><span class="kw">pub struct </span>DwarfPackageSections&lt;T&gt; {
     <span class="doccomment">/// The `.debug_cu_index` section.
     </span><span class="kw">pub </span>cu_index: DebugCuIndex&lt;T&gt;,
@@ -2470,7 +2674,7 @@
     /// This function should only be needed by low level parsers.
     </span><span class="kw">pub fn </span>sections(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        sections: UnitIndexSectionIterator&lt;R&gt;,
+        sections: UnitIndexSectionIterator&lt;<span class="lifetime">'_</span>, R&gt;,
         parent: <span class="kw-2">&amp;</span>Dwarf&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;Dwarf&lt;R&gt;&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>abbrev_offset = <span class="number">0</span>;
@@ -2491,42 +2695,41 @@
         <span class="kw">let </span><span class="kw-2">mut </span>types_size = <span class="number">0</span>;
         <span class="kw">for </span>section <span class="kw">in </span>sections {
             <span class="kw">match </span>section.section {
-                SectionId::DebugAbbrev =&gt; {
+                IndexSectionId::DebugAbbrev =&gt; {
                     abbrev_offset = section.offset;
                     abbrev_size = section.size;
                 }
-                SectionId::DebugInfo =&gt; {
+                IndexSectionId::DebugInfo =&gt; {
                     info_offset = section.offset;
                     info_size = section.size;
                 }
-                SectionId::DebugLine =&gt; {
+                IndexSectionId::DebugLine =&gt; {
                     line_offset = section.offset;
                     line_size = section.size;
                 }
-                SectionId::DebugLoc =&gt; {
+                IndexSectionId::DebugLoc =&gt; {
                     loc_offset = section.offset;
                     loc_size = section.size;
                 }
-                SectionId::DebugLocLists =&gt; {
+                IndexSectionId::DebugLocLists =&gt; {
                     loclists_offset = section.offset;
                     loclists_size = section.size;
                 }
-                SectionId::DebugStrOffsets =&gt; {
+                IndexSectionId::DebugStrOffsets =&gt; {
                     str_offsets_offset = section.offset;
                     str_offsets_size = section.size;
                 }
-                SectionId::DebugRngLists =&gt; {
+                IndexSectionId::DebugRngLists =&gt; {
                     rnglists_offset = section.offset;
                     rnglists_size = section.size;
                 }
-                SectionId::DebugTypes =&gt; {
+                IndexSectionId::DebugTypes =&gt; {
                     types_offset = section.offset;
                     types_size = section.size;
                 }
-                SectionId::DebugMacro | SectionId::DebugMacinfo =&gt; {
+                IndexSectionId::DebugMacro | IndexSectionId::DebugMacinfo =&gt; {
                     <span class="comment">// These are valid but we can't parse these yet.
                 </span>}
-                <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnknownIndexSection),
             }
         }
 
@@ -2742,6 +2945,11 @@
         <span class="prelude-val">Ok</span>(unit)
     }
 
+    <span class="doccomment">/// Return a reference to this unit and its associated `Dwarf`.
+    </span><span class="kw">pub fn </span>unit_ref&lt;<span class="lifetime">'a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="self">self</span>, dwarf: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Dwarf&lt;R&gt;) -&gt; UnitRef&lt;<span class="lifetime">'a</span>, R&gt; {
+        UnitRef::new(dwarf, <span class="self">self</span>)
+    }
+
     <span class="doccomment">/// Return the encoding parameters for this unit.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>encoding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Encoding {
@@ -2749,33 +2957,45 @@
     }
 
     <span class="doccomment">/// Read the `DebuggingInformationEntry` at the given offset.
-    </span><span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: UnitOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;DebuggingInformationEntry&lt;R&gt;&gt; {
+    </span><span class="kw">pub fn </span>entry(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        offset: UnitOffset&lt;R::Offset&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DebuggingInformationEntry&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="self">self</span>.header.entry(<span class="kw-2">&amp;</span><span class="self">self</span>.abbreviations, offset)
     }
 
     <span class="doccomment">/// Navigate this unit's `DebuggingInformationEntry`s.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; EntriesCursor&lt;R&gt; {
+    </span><span class="kw">pub fn </span>entries(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt; {
         <span class="self">self</span>.header.entries(<span class="kw-2">&amp;</span><span class="self">self</span>.abbreviations)
     }
 
     <span class="doccomment">/// Navigate this unit's `DebuggingInformationEntry`s
     /// starting at the given offset.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>entries_at_offset(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: UnitOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesCursor&lt;R&gt;&gt; {
+    </span><span class="kw">pub fn </span>entries_at_offset(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        offset: UnitOffset&lt;R::Offset&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesCursor&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="self">self</span>.header.entries_at_offset(<span class="kw-2">&amp;</span><span class="self">self</span>.abbreviations, offset)
     }
 
     <span class="doccomment">/// Navigate this unit's `DebuggingInformationEntry`s as a tree
     /// starting at the given offset.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>entries_tree(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;R::Offset&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesTree&lt;R&gt;&gt; {
+    </span><span class="kw">pub fn </span>entries_tree(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        offset: <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;R::Offset&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesTree&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="self">self</span>.header.entries_tree(<span class="kw-2">&amp;</span><span class="self">self</span>.abbreviations, offset)
     }
 
     <span class="doccomment">/// Read the raw data that defines the Debugging Information Entries.
     </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>entries_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;R::Offset&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesRaw&lt;R&gt;&gt; {
+    </span><span class="kw">pub fn </span>entries_raw(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        offset: <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;R::Offset&gt;&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;EntriesRaw&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;&gt; {
         <span class="self">self</span>.header.entries_raw(<span class="kw-2">&amp;</span><span class="self">self</span>.abbreviations, offset)
     }
 
@@ -2807,9 +3027,193 @@
     }
 }
 
+<span class="doccomment">/// A reference to a `Unit` and its associated `Dwarf`.
+///
+/// These often need to be passed around together, so this struct makes that easier.
+///
+/// It implements `Deref` to `Unit`, so you can use it as if it were a `Unit`.
+/// It also implements methods that correspond to methods on `Dwarf` that take a `Unit`.
+</span><span class="attr">#[derive(Debug)]
+</span><span class="kw">pub struct </span>UnitRef&lt;<span class="lifetime">'a</span>, R: Reader&gt; {
+    <span class="doccomment">/// The `Dwarf` that contains the unit.
+    </span><span class="kw">pub </span>dwarf: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Dwarf&lt;R&gt;,
+
+    <span class="doccomment">/// The `Unit` being referenced.
+    </span><span class="kw">pub </span>unit: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Unit&lt;R&gt;,
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: Reader&gt; Clone <span class="kw">for </span>UnitRef&lt;<span class="lifetime">'a</span>, R&gt; {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw-2">*</span><span class="self">self
+    </span>}
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: Reader&gt; Copy <span class="kw">for </span>UnitRef&lt;<span class="lifetime">'a</span>, R&gt; {}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: Reader&gt; core::ops::Deref <span class="kw">for </span>UnitRef&lt;<span class="lifetime">'a</span>, R&gt; {
+    <span class="kw">type </span>Target = Unit&lt;R&gt;;
+
+    <span class="kw">fn </span>deref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Target {
+        <span class="self">self</span>.unit
+    }
+}
+
+<span class="kw">impl</span>&lt;<span class="lifetime">'a</span>, R: Reader&gt; UnitRef&lt;<span class="lifetime">'a</span>, R&gt; {
+    <span class="doccomment">/// Construct a new `UnitRef` from a `Dwarf` and a `Unit`.
+    </span><span class="kw">pub fn </span>new(dwarf: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Dwarf&lt;R&gt;, unit: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Unit&lt;R&gt;) -&gt; <span class="self">Self </span>{
+        UnitRef { dwarf, unit }
+    }
+
+    <span class="doccomment">/// Return the string offset at the given index.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>string_offset(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        index: DebugStrOffsetsIndex&lt;R::Offset&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;DebugStrOffset&lt;R::Offset&gt;&gt; {
+        <span class="self">self</span>.dwarf.string_offset(<span class="self">self</span>.unit, index)
+    }
+
+    <span class="doccomment">/// Return the string at the given offset in `.debug_str`.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>string(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: DebugStrOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
+        <span class="self">self</span>.dwarf.string(offset)
+    }
+
+    <span class="doccomment">/// Return the string at the given offset in `.debug_line_str`.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>line_string(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: DebugLineStrOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
+        <span class="self">self</span>.dwarf.line_string(offset)
+    }
+
+    <span class="doccomment">/// Return the string at the given offset in the `.debug_str`
+    /// in the supplementary object file.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>sup_string(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: DebugStrOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
+        <span class="self">self</span>.dwarf.sup_string(offset)
+    }
+
+    <span class="doccomment">/// Return an attribute value as a string slice.
+    ///
+    /// See [`Dwarf::attr_string`] for more information.
+    </span><span class="kw">pub fn </span>attr_string(<span class="kw-2">&amp;</span><span class="self">self</span>, attr: AttributeValue&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;R&gt; {
+        <span class="self">self</span>.dwarf.attr_string(<span class="self">self</span>.unit, attr)
+    }
+
+    <span class="doccomment">/// Return the address at the given index.
+    </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>, index: DebugAddrIndex&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;u64&gt; {
+        <span class="self">self</span>.dwarf.address(<span class="self">self</span>.unit, index)
+    }
+
+    <span class="doccomment">/// Try to return an attribute value as an address.
+    ///
+    /// See [`Dwarf::attr_address`] for more information.
+    </span><span class="kw">pub fn </span>attr_address(<span class="kw-2">&amp;</span><span class="self">self</span>, attr: AttributeValue&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;u64&gt;&gt; {
+        <span class="self">self</span>.dwarf.attr_address(<span class="self">self</span>.unit, attr)
+    }
+
+    <span class="doccomment">/// Return the range list offset for the given raw offset.
+    ///
+    /// This handles adding `DW_AT_GNU_ranges_base` if required.
+    </span><span class="kw">pub fn </span>ranges_offset_from_raw(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        offset: RawRangeListsOffset&lt;R::Offset&gt;,
+    ) -&gt; RangeListsOffset&lt;R::Offset&gt; {
+        <span class="self">self</span>.dwarf.ranges_offset_from_raw(<span class="self">self</span>.unit, offset)
+    }
+
+    <span class="doccomment">/// Return the range list offset at the given index.
+    </span><span class="kw">pub fn </span>ranges_offset(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        index: DebugRngListsIndex&lt;R::Offset&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;RangeListsOffset&lt;R::Offset&gt;&gt; {
+        <span class="self">self</span>.dwarf.ranges_offset(<span class="self">self</span>.unit, index)
+    }
+
+    <span class="doccomment">/// Iterate over the `RangeListEntry`s starting at the given offset.
+    </span><span class="kw">pub fn </span>ranges(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: RangeListsOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;RngListIter&lt;R&gt;&gt; {
+        <span class="self">self</span>.dwarf.ranges(<span class="self">self</span>.unit, offset)
+    }
+
+    <span class="doccomment">/// Iterate over the `RawRngListEntry`ies starting at the given offset.
+    </span><span class="kw">pub fn </span>raw_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: RangeListsOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;RawRngListIter&lt;R&gt;&gt; {
+        <span class="self">self</span>.dwarf.raw_ranges(<span class="self">self</span>.unit, offset)
+    }
+
+    <span class="doccomment">/// Try to return an attribute value as a range list offset.
+    ///
+    /// See [`Dwarf::attr_ranges_offset`] for more information.
+    </span><span class="kw">pub fn </span>attr_ranges_offset(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        attr: AttributeValue&lt;R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RangeListsOffset&lt;R::Offset&gt;&gt;&gt; {
+        <span class="self">self</span>.dwarf.attr_ranges_offset(<span class="self">self</span>.unit, attr)
+    }
+
+    <span class="doccomment">/// Try to return an attribute value as a range list entry iterator.
+    ///
+    /// See [`Dwarf::attr_ranges`] for more information.
+    </span><span class="kw">pub fn </span>attr_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>, attr: AttributeValue&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;RngListIter&lt;R&gt;&gt;&gt; {
+        <span class="self">self</span>.dwarf.attr_ranges(<span class="self">self</span>.unit, attr)
+    }
+
+    <span class="doccomment">/// Return an iterator for the address ranges of a `DebuggingInformationEntry`.
+    ///
+    /// This uses `DW_AT_low_pc`, `DW_AT_high_pc` and `DW_AT_ranges`.
+    </span><span class="kw">pub fn </span>die_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>, entry: <span class="kw-2">&amp;</span>DebuggingInformationEntry&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;RangeIter&lt;R&gt;&gt; {
+        <span class="self">self</span>.dwarf.die_ranges(<span class="self">self</span>.unit, entry)
+    }
+
+    <span class="doccomment">/// Return an iterator for the address ranges of the `Unit`.
+    ///
+    /// This uses `DW_AT_low_pc`, `DW_AT_high_pc` and `DW_AT_ranges` of the
+    /// root `DebuggingInformationEntry`.
+    </span><span class="kw">pub fn </span>unit_ranges(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;RangeIter&lt;R&gt;&gt; {
+        <span class="self">self</span>.dwarf.unit_ranges(<span class="self">self</span>.unit)
+    }
+
+    <span class="doccomment">/// Return the location list offset at the given index.
+    </span><span class="kw">pub fn </span>locations_offset(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        index: DebugLocListsIndex&lt;R::Offset&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;LocationListsOffset&lt;R::Offset&gt;&gt; {
+        <span class="self">self</span>.dwarf.locations_offset(<span class="self">self</span>.unit, index)
+    }
+
+    <span class="doccomment">/// Iterate over the `LocationListEntry`s starting at the given offset.
+    </span><span class="kw">pub fn </span>locations(<span class="kw-2">&amp;</span><span class="self">self</span>, offset: LocationListsOffset&lt;R::Offset&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;LocListIter&lt;R&gt;&gt; {
+        <span class="self">self</span>.dwarf.locations(<span class="self">self</span>.unit, offset)
+    }
+
+    <span class="doccomment">/// Iterate over the raw `LocationListEntry`s starting at the given offset.
+    </span><span class="kw">pub fn </span>raw_locations(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        offset: LocationListsOffset&lt;R::Offset&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;RawLocListIter&lt;R&gt;&gt; {
+        <span class="self">self</span>.dwarf.raw_locations(<span class="self">self</span>.unit, offset)
+    }
+
+    <span class="doccomment">/// Try to return an attribute value as a location list offset.
+    ///
+    /// See [`Dwarf::attr_locations_offset`] for more information.
+    </span><span class="kw">pub fn </span>attr_locations_offset(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        attr: AttributeValue&lt;R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;LocationListsOffset&lt;R::Offset&gt;&gt;&gt; {
+        <span class="self">self</span>.dwarf.attr_locations_offset(<span class="self">self</span>.unit, attr)
+    }
+
+    <span class="doccomment">/// Try to return an attribute value as a location list entry iterator.
+    ///
+    /// See [`Dwarf::attr_locations`] for more information.
+    </span><span class="kw">pub fn </span>attr_locations(<span class="kw-2">&amp;</span><span class="self">self</span>, attr: AttributeValue&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;LocListIter&lt;R&gt;&gt;&gt; {
+        <span class="self">self</span>.dwarf.attr_locations(<span class="self">self</span>.unit, attr)
+    }
+}
+
 <span class="kw">impl</span>&lt;T: ReaderOffset&gt; UnitSectionOffset&lt;T&gt; {
     <span class="doccomment">/// Convert an offset to be relative to the start of the given unit,
     /// instead of relative to the start of the section.
+    ///
     /// Returns `None` if the offset is not within the unit entries.
     </span><span class="kw">pub fn </span>to_unit_offset&lt;R&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, unit: <span class="kw-2">&amp;</span>Unit&lt;R&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;UnitOffset&lt;T&gt;&gt;
     <span class="kw">where
@@ -2923,8 +3327,8 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_send() {
         <span class="kw">fn </span>assert_is_send&lt;T: Send&gt;() {}
-        assert_is_send::&lt;Dwarf&lt;EndianSlice&lt;LittleEndian&gt;&gt;&gt;();
-        assert_is_send::&lt;Unit&lt;EndianSlice&lt;LittleEndian&gt;&gt;&gt;();
+        assert_is_send::&lt;Dwarf&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt;&gt;();
+        assert_is_send::&lt;Unit&lt;EndianSlice&lt;<span class="lifetime">'_</span>, LittleEndian&gt;&gt;&gt;();
     }
 
     <span class="attr">#[test]

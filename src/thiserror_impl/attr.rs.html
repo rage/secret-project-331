@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thiserror-impl-1.0.63/src/attr.rs`."><title>attr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="thiserror_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thiserror-impl-1.0.67/src/attr.rs`."><title>attr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="thiserror_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -273,11 +273,20 @@
 <a href="#273" id="273">273</a>
 <a href="#274" id="274">274</a>
 <a href="#275" id="275">275</a>
+<a href="#276" id="276">276</a>
+<a href="#277" id="277">277</a>
+<a href="#278" id="278">278</a>
+<a href="#279" id="279">279</a>
+<a href="#280" id="280">280</a>
+<a href="#281" id="281">281</a>
+<a href="#282" id="282">282</a>
+<a href="#283" id="283">283</a>
+<a href="#284" id="284">284</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>proc_macro2::{Delimiter, Group, Literal, Punct, Spacing, Span, TokenStream, TokenTree};
 <span class="kw">use </span>quote::{format_ident, quote, ToTokens};
 <span class="kw">use </span>std::collections::BTreeSet <span class="kw">as </span>Set;
 <span class="kw">use </span>syn::parse::discouraged::Speculative;
-<span class="kw">use </span>syn::parse::ParseStream;
+<span class="kw">use </span>syn::parse::{End, ParseStream};
 <span class="kw">use </span>syn::{
     braced, bracketed, parenthesized, token, Attribute, Error, Ident, Index, LitFloat, LitInt,
     LitStr, Meta, <span class="prelude-ty">Result</span>, Token,
@@ -366,7 +375,11 @@
     <span class="macro">syn::custom_keyword!</span>(transparent);
 
     attr.parse_args_with(|input: ParseStream| {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(kw) = input.parse::&lt;<span class="prelude-ty">Option</span>&lt;transparent&gt;&gt;()<span class="question-mark">? </span>{
+        <span class="kw">let </span>lookahead = input.lookahead1();
+        <span class="kw">let </span>fmt = <span class="kw">if </span>lookahead.peek(LitStr) {
+            input.parse::&lt;LitStr&gt;()<span class="question-mark">?
+        </span>} <span class="kw">else if </span>lookahead.peek(transparent) {
+            <span class="kw">let </span>kw: transparent = input.parse()<span class="question-mark">?</span>;
             <span class="kw">if </span>attrs.transparent.is_some() {
                 <span class="kw">return </span><span class="prelude-val">Err</span>(Error::new_spanned(
                     attr,
@@ -378,14 +391,12 @@
                 span: kw.span,
             });
             <span class="kw">return </span><span class="prelude-val">Ok</span>(());
-        }
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(lookahead.error());
+        };
 
-        <span class="kw">let </span>fmt: LitStr = input.parse()<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>ahead = input.fork();
-        ahead.parse::&lt;<span class="prelude-ty">Option</span>&lt;<span class="macro">Token!</span>[,]&gt;&gt;()<span class="question-mark">?</span>;
-        <span class="kw">let </span>args = <span class="kw">if </span>ahead.is_empty() {
-            input.advance_to(<span class="kw-2">&amp;</span>ahead);
+        <span class="kw">let </span>args = <span class="kw">if </span>input.is_empty() || input.peek(<span class="macro">Token!</span>[,]) &amp;&amp; input.peek2(End) {
+            input.parse::&lt;<span class="prelude-ty">Option</span>&lt;<span class="macro">Token!</span>[,]&gt;&gt;()<span class="question-mark">?</span>;
             TokenStream::new()
         } <span class="kw">else </span>{
             parse_token_expr(input, <span class="bool-val">false</span>)<span class="question-mark">?
@@ -415,6 +426,13 @@
 <span class="kw">fn </span>parse_token_expr(input: ParseStream, <span class="kw-2">mut </span>begin_expr: bool) -&gt; <span class="prelude-ty">Result</span>&lt;TokenStream&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>tokens = Vec::new();
     <span class="kw">while </span>!input.is_empty() {
+        <span class="kw">if </span>input.peek(token::Group) {
+            <span class="kw">let </span>group: TokenTree = input.parse()<span class="question-mark">?</span>;
+            tokens.push(group);
+            begin_expr = <span class="bool-val">false</span>;
+            <span class="kw">continue</span>;
+        }
+
         <span class="kw">if </span>begin_expr &amp;&amp; input.peek(<span class="macro">Token!</span>[.]) {
             <span class="kw">if </span>input.peek2(Ident) {
                 input.parse::&lt;<span class="macro">Token!</span>[.]&gt;()<span class="question-mark">?</span>;

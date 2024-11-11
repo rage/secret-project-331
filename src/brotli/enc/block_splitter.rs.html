@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/block_splitter.rs`."><title>block_splitter.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/block_splitter.rs`."><title>block_splitter.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -927,20 +927,13 @@
 <a href="#927" id="927">927</a>
 <a href="#928" id="928">928</a>
 <a href="#929" id="929">929</a>
-<a href="#930" id="930">930</a>
-<a href="#931" id="931">931</a>
-<a href="#932" id="932">932</a>
-<a href="#933" id="933">933</a>
-<a href="#934" id="934">934</a>
-<a href="#935" id="935">935</a>
-<a href="#936" id="936">936</a>
-<a href="#937" id="937">937</a>
-<a href="#938" id="938">938</a>
-</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
-</span><span class="kw">use </span><span class="kw">super</span>::backward_references::BrotliEncoderParams;
-<span class="kw">use </span><span class="kw">super</span>::vectorization::{sum8i, v256, v256i, Mem256f};
+</pre></div><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">use </span>core::cmp::{max, min};
+<span class="attr">#[cfg(feature = <span class="string">"simd"</span>)]
+</span><span class="kw">use </span>core::simd::prelude::{SimdFloat, SimdPartialOrd};
 
 <span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{Allocator, SliceWrapper, SliceWrapperMut};
+<span class="kw">use </span><span class="kw">super</span>::backward_references::BrotliEncoderParams;
 <span class="kw">use </span><span class="kw">super</span>::bit_cost::BrotliPopulationCost;
 <span class="kw">use </span><span class="kw">super</span>::block_split::BlockSplit;
 <span class="kw">use </span><span class="kw">super</span>::cluster::{BrotliHistogramBitCostDistance, BrotliHistogramCombine, HistogramPair};
@@ -950,19 +943,19 @@
     HistogramClear, HistogramCommand, HistogramDistance, HistogramLiteral,
 };
 <span class="kw">use </span><span class="kw">super</span>::util::FastLog2;
-<span class="kw">use </span>core::cmp::{max, min};
-<span class="attr">#[cfg(feature = <span class="string">"simd"</span>)]
-</span><span class="kw">use </span>core::simd::prelude::{SimdFloat, SimdPartialOrd};
+<span class="kw">use </span><span class="kw">super</span>::vectorization::{sum8i, v256, v256i, Mem256f};
+<span class="kw">use </span><span class="kw">crate</span>::enc::combined_alloc::allocate;
+<span class="kw">use </span><span class="kw">crate</span>::enc::floatX;
 
 <span class="kw">static </span>kMaxLiteralHistograms: usize = <span class="number">100usize</span>;
 
 <span class="kw">static </span>kMaxCommandHistograms: usize = <span class="number">50usize</span>;
 
-<span class="kw">static </span>kLiteralBlockSwitchCost: <span class="kw">super</span>::util::floatX = <span class="number">28.1 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+<span class="kw">static </span>kLiteralBlockSwitchCost: floatX = <span class="number">28.1</span>;
 
-<span class="kw">static </span>kCommandBlockSwitchCost: <span class="kw">super</span>::util::floatX = <span class="number">13.5 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+<span class="kw">static </span>kCommandBlockSwitchCost: floatX = <span class="number">13.5</span>;
 
-<span class="kw">static </span>kDistanceBlockSwitchCost: <span class="kw">super</span>::util::floatX = <span class="number">14.6 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+<span class="kw">static </span>kDistanceBlockSwitchCost: floatX = <span class="number">14.6</span>;
 
 <span class="kw">static </span>kLiteralStrideLength: usize = <span class="number">70usize</span>;
 
@@ -984,8 +977,8 @@
 </span><span class="kw">fn </span>update_cost_and_signal(
     num_histograms32: u32,
     ix: usize,
-    min_cost: <span class="kw">super</span>::util::floatX,
-    block_switch_cost: <span class="kw">super</span>::util::floatX,
+    min_cost: floatX,
+    block_switch_cost: floatX,
     cost: <span class="kw-2">&amp;mut </span>[Mem256f],
     switch_signal: <span class="kw-2">&amp;mut </span>[u8],
 ) {
@@ -1148,10 +1141,10 @@
     }
 }
 
-<span class="kw">fn </span>BitCost(count: usize) -&gt; <span class="kw">super</span>::util::floatX {
+<span class="kw">fn </span>BitCost(count: usize) -&gt; floatX {
     <span class="kw">if </span>count == <span class="number">0usize </span>{
-        -<span class="number">2.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX
-    } <span class="kw">else </span>{
+        -<span class="number">2.0
+    </span>} <span class="kw">else </span>{
         FastLog2(count <span class="kw">as </span>u64)
     }
 }
@@ -1162,10 +1155,10 @@
 &gt;(
     data: <span class="kw-2">&amp;</span>[IntegerType],
     length: usize,
-    block_switch_bitcost: <span class="kw">super</span>::util::floatX,
+    block_switch_bitcost: floatX,
     num_histograms: usize,
     histograms: <span class="kw-2">&amp;</span>[HistogramType],
-    insert_cost: <span class="kw-2">&amp;mut </span>[<span class="kw">super</span>::util::floatX],
+    insert_cost: <span class="kw-2">&amp;mut </span>[floatX],
     cost: <span class="kw-2">&amp;mut </span>[Mem256f],
     switch_signal: <span class="kw-2">&amp;mut </span>[u8],
     block_id: <span class="kw-2">&amp;mut </span>[u8],
@@ -1187,7 +1180,7 @@
         <span class="kw">return </span><span class="number">1</span>;
     }
     <span class="kw">for </span>item <span class="kw">in </span>insert_cost[..(data_size * num_histograms)].iter_mut() {
-        <span class="kw-2">*</span>item = <span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
+        <span class="kw-2">*</span>item = <span class="number">0.0</span>;
     }
     <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..num_histograms {
         insert_cost[i] = FastLog2((histograms[i]).total_count() <span class="kw">as </span>u32 <span class="kw">as </span>(u64));
@@ -1211,8 +1204,8 @@
         <span class="kw">let </span>ix: usize = byte_ix.wrapping_mul(bitmaplen);
         <span class="kw">let </span>insert_cost_ix: usize =
             u64::from(data_byte_ix.clone()).wrapping_mul(num_histograms <span class="kw">as </span>u64) <span class="kw">as </span>usize;
-        <span class="kw">let </span><span class="kw-2">mut </span>min_cost: <span class="kw">super</span>::util::floatX = <span class="number">1e38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX;
-        <span class="kw">let </span><span class="kw-2">mut </span>block_switch_cost: <span class="kw">super</span>::util::floatX = block_switch_bitcost;
+        <span class="kw">let </span><span class="kw-2">mut </span>min_cost: floatX = <span class="number">1e38</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>block_switch_cost: floatX = block_switch_bitcost;
         <span class="comment">// main (vectorized) loop
         </span><span class="kw">let </span>insert_cost_slice = insert_cost.split_at(insert_cost_ix).<span class="number">1</span>;
         <span class="kw">for </span>(v_index, cost_iter) <span class="kw">in </span>cost
@@ -1222,7 +1215,7 @@
             .enumerate()
         {
             <span class="kw">let </span>base_index = v_index &lt;&lt; <span class="number">3</span>;
-            <span class="kw">let </span><span class="kw-2">mut </span>local_insert_cost = [<span class="number">0.0 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX; <span class="number">8</span>];
+            <span class="kw">let </span><span class="kw-2">mut </span>local_insert_cost = [<span class="number">0.0</span>; <span class="number">8</span>];
             local_insert_cost
                 .clone_from_slice(insert_cost_slice.split_at(base_index).<span class="number">1</span>.split_at(<span class="number">8</span>).<span class="number">0</span>);
             <span class="kw">for </span>sub_index <span class="kw">in </span><span class="number">0usize</span>..<span class="number">8usize </span>{
@@ -1253,9 +1246,7 @@
             k += <span class="number">1</span>;
         }
         <span class="kw">if </span>byte_ix &lt; <span class="number">2000usize </span>{
-            block_switch_cost <span class="kw-2">*</span>= (<span class="number">0.77 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX
-                + <span class="number">0.07 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX * byte_ix <span class="kw">as </span>(<span class="kw">super</span>::util::floatX)
-                    / <span class="number">2000i32 </span><span class="kw">as </span>(<span class="kw">super</span>::util::floatX));
+            block_switch_cost <span class="kw-2">*</span>= (<span class="number">0.77 </span>+ <span class="number">0.07 </span>* (byte_ix <span class="kw">as </span>floatX) / <span class="number">2000.0</span>);
         }
         update_cost_and_signal(
             num_histograms <span class="kw">as </span>u32,
@@ -1352,28 +1343,26 @@
 ) <span class="kw">where
     </span>u64: core::convert::From&lt;IntegerType&gt;,
 {
-    <span class="kw">let </span><span class="kw-2">mut </span>histogram_symbols = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, num_blocks);
-    <span class="kw">let </span><span class="kw-2">mut </span>block_lengths = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, num_blocks);
+    <span class="kw">let </span><span class="kw-2">mut </span>histogram_symbols = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, num_blocks);
+    <span class="kw">let </span><span class="kw-2">mut </span>block_lengths = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, num_blocks);
     <span class="kw">let </span>expected_num_clusters: usize = (<span class="number">16usize</span>)
         .wrapping_mul(num_blocks.wrapping_add(<span class="number">64</span>).wrapping_sub(<span class="number">1</span>))
         .wrapping_div(<span class="number">64</span>);
     <span class="kw">let </span><span class="kw-2">mut </span>all_histograms_size: usize = <span class="number">0usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>all_histograms_capacity: usize = expected_num_clusters;
-    <span class="kw">let </span><span class="kw-2">mut </span>all_histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::alloc_cell(alloc, all_histograms_capacity);
+    <span class="kw">let </span><span class="kw-2">mut </span>all_histograms = allocate::&lt;HistogramType, <span class="kw">_</span>&gt;(alloc, all_histograms_capacity);
     <span class="kw">let </span><span class="kw-2">mut </span>cluster_size_size: usize = <span class="number">0usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>cluster_size_capacity: usize = expected_num_clusters;
-    <span class="kw">let </span><span class="kw-2">mut </span>cluster_size = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, cluster_size_capacity);
+    <span class="kw">let </span><span class="kw-2">mut </span>cluster_size = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, cluster_size_capacity);
     <span class="kw">let </span><span class="kw-2">mut </span>num_clusters: usize = <span class="number">0usize</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>histograms =
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::alloc_cell(alloc, min(num_blocks, <span class="number">64</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>histograms = allocate::&lt;HistogramType, <span class="kw">_</span>&gt;(alloc, min(num_blocks, <span class="number">64</span>));
     <span class="kw">let </span><span class="kw-2">mut </span>max_num_pairs: usize = (<span class="number">64i32 </span>* <span class="number">64i32 </span>/ <span class="number">2i32</span>) <span class="kw">as </span>usize;
     <span class="kw">let </span>pairs_capacity: usize = max_num_pairs.wrapping_add(<span class="number">1</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>pairs = &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::alloc_cell(alloc, pairs_capacity);
+    <span class="kw">let </span><span class="kw-2">mut </span>pairs = allocate::&lt;HistogramPair, <span class="kw">_</span>&gt;(alloc, pairs_capacity);
     <span class="kw">let </span><span class="kw-2">mut </span>pos: usize = <span class="number">0usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>clusters: &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory;
 
-    <span class="kw">static </span>kInvalidIndex: u32 = !(<span class="number">0u32</span>);
+    <span class="kw">static </span>kInvalidIndex: u32 = u32::MAX;
     <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
     <span class="kw">let </span><span class="kw-2">mut </span>sizes: [u32; <span class="number">64</span>] = [<span class="number">0</span>; <span class="number">64</span>];
     <span class="kw">let </span><span class="kw-2">mut </span>new_clusters: [u32; <span class="number">64</span>] = [<span class="number">0</span>; <span class="number">64</span>];
@@ -1441,8 +1430,7 @@
                     <span class="kw">while </span>_new_size &lt; all_histograms_size.wrapping_add(num_new_clusters) {
                         _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
                     }
-                    <span class="kw">let </span><span class="kw-2">mut </span>new_array =
-                        &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::alloc_cell(alloc, _new_size);
+                    <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;HistogramType, <span class="kw">_</span>&gt;(alloc, _new_size);
                     new_array.slice_mut()[..all_histograms_capacity]
                         .clone_from_slice(<span class="kw-2">&amp;</span>all_histograms.slice()[..all_histograms_capacity]);
                     &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::free_cell(
@@ -1462,7 +1450,7 @@
                     <span class="kw">while </span>_new_size &lt; cluster_size_size.wrapping_add(num_new_clusters) {
                         _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
                     }
-                    <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, _new_size);
+                    <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, _new_size);
                     new_array.slice_mut()[..cluster_size_capacity]
                         .clone_from_slice(<span class="kw-2">&amp;</span>cluster_size.slice()[..cluster_size_capacity]);
                     &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(
@@ -1494,14 +1482,13 @@
         num_clusters.wrapping_div(<span class="number">2</span>).wrapping_mul(num_clusters),
     );
     <span class="kw">if </span>pairs_capacity &lt; max_num_pairs.wrapping_add(<span class="number">1</span>) {
-        <span class="kw">let </span>new_cell =
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::alloc_cell(alloc, max_num_pairs.wrapping_add(<span class="number">1</span>));
+        <span class="kw">let </span>new_cell = allocate::&lt;HistogramPair, <span class="kw">_</span>&gt;(alloc, max_num_pairs.wrapping_add(<span class="number">1</span>));
         &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::free_cell(
             alloc,
             core::mem::replace(<span class="kw-2">&amp;mut </span>pairs, new_cell),
         );
     }
-    clusters = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, num_clusters);
+    clusters = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, num_clusters);
     i = <span class="number">0usize</span>;
     <span class="kw">for </span>item <span class="kw">in </span>clusters.slice_mut()[..num_clusters].iter_mut() {
         <span class="kw-2">*</span>item = i <span class="kw">as </span>u32;
@@ -1522,7 +1509,7 @@
     &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramPair&gt;&gt;::free_cell(alloc, core::mem::take(<span class="kw-2">&amp;mut </span>pairs));
     &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(alloc, core::mem::take(<span class="kw-2">&amp;mut </span>cluster_size));
 
-    <span class="kw">let </span><span class="kw-2">mut </span>new_index = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, num_clusters);
+    <span class="kw">let </span><span class="kw-2">mut </span>new_index = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, num_clusters);
     <span class="kw">for </span>item <span class="kw">in </span>new_index.slice_mut().iter_mut() {
         <span class="kw-2">*</span>item = kInvalidIndex;
     }
@@ -1532,7 +1519,7 @@
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..num_blocks {
             <span class="kw">let </span><span class="kw-2">mut </span>histo: HistogramType = HistogramType::default();
             <span class="kw">let </span><span class="kw-2">mut </span>best_out: u32;
-            <span class="kw">let </span><span class="kw-2">mut </span>best_bits: <span class="kw">super</span>::util::floatX;
+            <span class="kw">let </span><span class="kw-2">mut </span>best_bits: floatX;
             HistogramClear(<span class="kw-2">&amp;mut </span>histo);
             <span class="kw">for </span>_j <span class="kw">in </span><span class="number">0usize</span>..block_lengths.slice()[i] <span class="kw">as </span>usize {
                 HistogramAddItem(<span class="kw-2">&amp;mut </span>histo, u64::from(data[pos].clone()) <span class="kw">as </span>usize);
@@ -1549,7 +1536,7 @@
                 scratch_space,
             );
             <span class="kw">for </span>j <span class="kw">in </span><span class="number">0usize</span>..num_final_clusters {
-                <span class="kw">let </span>cur_bits: <span class="kw">super</span>::util::floatX = BrotliHistogramBitCostDistance(
+                <span class="kw">let </span>cur_bits: floatX = BrotliHistogramBitCostDistance(
                     <span class="kw-2">&amp;mut </span>histo,
                     <span class="kw-2">&amp;mut </span>all_histograms.slice_mut()[(clusters.slice()[j] <span class="kw">as </span>usize)],
                     scratch_space,
@@ -1578,7 +1565,7 @@
             <span class="kw">while </span>_new_size &lt; num_blocks {
                 _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, _new_size);
+            <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, _new_size);
             new_array.slice_mut()[..split.types_alloc_size()]
                 .clone_from_slice(<span class="kw-2">&amp;</span>split.types.slice()[..split.types_alloc_size()]);
             &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(
@@ -1597,7 +1584,7 @@
             <span class="kw">while </span>_new_size &lt; num_blocks {
                 _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, _new_size);
+            <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, _new_size);
             new_array.slice_mut()[..split.lengths_alloc_size()]
                 .clone_from_slice(split.lengths.slice());
             &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(
@@ -1636,7 +1623,7 @@
     Alloc: alloc::Allocator&lt;u8&gt;
         + alloc::Allocator&lt;u16&gt;
         + alloc::Allocator&lt;u32&gt;
-        + alloc::Allocator&lt;<span class="kw">super</span>::util::floatX&gt;
+        + alloc::Allocator&lt;floatX&gt;
         + alloc::Allocator&lt;Mem256f&gt;
         + alloc::Allocator&lt;HistogramType&gt;
         + alloc::Allocator&lt;HistogramPair&gt;,
@@ -1648,7 +1635,7 @@
     literals_per_histogram: usize,
     max_histograms: usize,
     sampling_stride_length: usize,
-    block_switch_cost: <span class="kw">super</span>::util::floatX,
+    block_switch_cost: floatX,
     params: <span class="kw-2">&amp;</span>BrotliEncoderParams,
     scratch_space: <span class="kw-2">&amp;mut </span>HistogramType::i32vec,
     split: <span class="kw-2">&amp;mut </span>BlockSplit&lt;Alloc&gt;,
@@ -1675,7 +1662,7 @@
                 <span class="kw">while </span>_new_size &lt; split.num_blocks.wrapping_add(<span class="number">1</span>) {
                     _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
                 }
-                <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, _new_size);
+                <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, _new_size);
                 new_array.slice_mut()[..split.types_alloc_size()]
                     .clone_from_slice(<span class="kw-2">&amp;</span>split.types.slice()[..split.types_alloc_size()]);
                 &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(
@@ -1694,7 +1681,7 @@
                 <span class="kw">while </span>_new_size &lt; split.num_blocks.wrapping_add(<span class="number">1</span>) {
                     _new_size = _new_size.wrapping_mul(<span class="number">2</span>);
                 }
-                <span class="kw">let </span><span class="kw-2">mut </span>new_array = &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, _new_size);
+                <span class="kw">let </span><span class="kw-2">mut </span>new_array = allocate::&lt;u32, <span class="kw">_</span>&gt;(alloc, _new_size);
                 new_array.slice_mut()[..split.lengths_alloc_size()]
                     .clone_from_slice(<span class="kw-2">&amp;</span>split.lengths.slice()[..split.lengths_alloc_size()]);
                 &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::free_cell(
@@ -1709,7 +1696,7 @@
         split.num_blocks = split.num_blocks.wrapping_add(<span class="number">1</span>);
         <span class="kw">return</span>;
     }
-    <span class="kw">let </span><span class="kw-2">mut </span>histograms = &lt;Alloc <span class="kw">as </span>Allocator&lt;HistogramType&gt;&gt;::alloc_cell(alloc, num_histograms);
+    <span class="kw">let </span><span class="kw-2">mut </span>histograms = allocate::&lt;HistogramType, <span class="kw">_</span>&gt;(alloc, num_histograms);
 
     InitialEntropyCodes(
         data,
@@ -1726,18 +1713,13 @@
         histograms.slice_mut(),
     );
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>block_ids = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, length);
+        <span class="kw">let </span><span class="kw-2">mut </span>block_ids = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, length);
         <span class="kw">let </span><span class="kw-2">mut </span>num_blocks: usize = <span class="number">0usize</span>;
         <span class="kw">let </span>bitmaplen: usize = num_histograms.wrapping_add(<span class="number">7</span>) &gt;&gt; <span class="number">3</span>;
-        <span class="kw">let </span><span class="kw-2">mut </span>insert_cost = &lt;Alloc <span class="kw">as </span>Allocator&lt;<span class="kw">super</span>::util::floatX&gt;&gt;::alloc_cell(
-            alloc,
-            data_size.wrapping_mul(num_histograms),
-        );
-        <span class="kw">let </span><span class="kw-2">mut </span>cost =
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;Mem256f&gt;&gt;::alloc_cell(alloc, ((num_histograms + <span class="number">7</span>) &gt;&gt; <span class="number">3</span>));
-        <span class="kw">let </span><span class="kw-2">mut </span>switch_signal =
-            &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, length.wrapping_mul(bitmaplen));
-        <span class="kw">let </span><span class="kw-2">mut </span>new_id = &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::alloc_cell(alloc, num_histograms);
+        <span class="kw">let </span><span class="kw-2">mut </span>insert_cost = allocate::&lt;floatX, <span class="kw">_</span>&gt;(alloc, data_size.wrapping_mul(num_histograms));
+        <span class="kw">let </span><span class="kw-2">mut </span>cost = allocate::&lt;Mem256f, <span class="kw">_</span>&gt;(alloc, ((num_histograms + <span class="number">7</span>) &gt;&gt; <span class="number">3</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>switch_signal = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, length.wrapping_mul(bitmaplen));
+        <span class="kw">let </span><span class="kw-2">mut </span>new_id = allocate::&lt;u16, <span class="kw">_</span>&gt;(alloc, num_histograms);
         <span class="kw">let </span>iters: usize = (<span class="kw">if </span>params.quality &lt;= <span class="number">11 </span>{ <span class="number">3i32 </span>} <span class="kw">else </span>{ <span class="number">10i32 </span>}) <span class="kw">as </span>usize;
         <span class="kw">for </span>_i <span class="kw">in </span><span class="number">0usize</span>..iters {
             num_blocks = FindBlocks(
@@ -1765,7 +1747,7 @@
                 histograms.slice_mut(),
             );
         }
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;<span class="kw">super</span>::util::floatX&gt;&gt;::free_cell(alloc, insert_cost);
+        &lt;Alloc <span class="kw">as </span>Allocator&lt;floatX&gt;&gt;::free_cell(alloc, insert_cost);
         &lt;Alloc <span class="kw">as </span>Allocator&lt;Mem256f&gt;&gt;::free_cell(alloc, cost);
         &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(alloc, switch_signal);
         &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::free_cell(alloc, new_id);
@@ -1787,7 +1769,7 @@
     Alloc: alloc::Allocator&lt;u8&gt;
         + alloc::Allocator&lt;u16&gt;
         + alloc::Allocator&lt;u32&gt;
-        + alloc::Allocator&lt;<span class="kw">super</span>::util::floatX&gt;
+        + alloc::Allocator&lt;floatX&gt;
         + alloc::Allocator&lt;Mem256f&gt;
         + alloc::Allocator&lt;HistogramLiteral&gt;
         + alloc::Allocator&lt;HistogramCommand&gt;
@@ -1814,7 +1796,7 @@
                             i, cmd.insert_len_, cmd.copy_len_, cmd.dist_extra_, cmd.cmd_prefix_, cmd.dist_prefix_);
         }*/
         </span><span class="kw">let </span>literals_count: usize = CountLiterals(cmds, num_commands);
-        <span class="kw">let </span><span class="kw-2">mut </span>literals = &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::alloc_cell(alloc, literals_count);
+        <span class="kw">let </span><span class="kw-2">mut </span>literals = allocate::&lt;u8, <span class="kw">_</span>&gt;(alloc, literals_count);
         CopyLiteralsToByteArray(cmds, num_commands, data, pos, mask, literals.slice_mut());
         SplitByteVector::&lt;HistogramLiteral, Alloc, u8&gt;(
             alloc,
@@ -1831,7 +1813,7 @@
         &lt;Alloc <span class="kw">as </span>Allocator&lt;u8&gt;&gt;::free_cell(alloc, literals);
     }
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>insert_and_copy_codes = &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::alloc_cell(alloc, num_commands);
+        <span class="kw">let </span><span class="kw-2">mut </span>insert_and_copy_codes = allocate::&lt;u16, <span class="kw">_</span>&gt;(alloc, num_commands);
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..min(num_commands, cmds.len()) {
             insert_and_copy_codes.slice_mut()[i] = (cmds[i]).cmd_prefix_;
         }
@@ -1850,7 +1832,7 @@
         &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::free_cell(alloc, insert_and_copy_codes);
     }
     {
-        <span class="kw">let </span><span class="kw-2">mut </span>distance_prefixes = &lt;Alloc <span class="kw">as </span>Allocator&lt;u16&gt;&gt;::alloc_cell(alloc, num_commands);
+        <span class="kw">let </span><span class="kw-2">mut </span>distance_prefixes = allocate::&lt;u16, <span class="kw">_</span>&gt;(alloc, num_commands);
         <span class="kw">let </span><span class="kw-2">mut </span>j: usize = <span class="number">0usize</span>;
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..num_commands {
             <span class="kw">let </span>cmd = <span class="kw-2">&amp;</span>cmds[i];

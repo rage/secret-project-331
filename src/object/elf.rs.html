@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.3/src/elf.rs`."><title>elf.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/object-0.36.5/src/elf.rs`."><title>elf.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="object" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -6301,6 +6301,177 @@
 <a href="#6301" id="6301">6301</a>
 <a href="#6302" id="6302">6302</a>
 <a href="#6303" id="6303">6303</a>
+<a href="#6304" id="6304">6304</a>
+<a href="#6305" id="6305">6305</a>
+<a href="#6306" id="6306">6306</a>
+<a href="#6307" id="6307">6307</a>
+<a href="#6308" id="6308">6308</a>
+<a href="#6309" id="6309">6309</a>
+<a href="#6310" id="6310">6310</a>
+<a href="#6311" id="6311">6311</a>
+<a href="#6312" id="6312">6312</a>
+<a href="#6313" id="6313">6313</a>
+<a href="#6314" id="6314">6314</a>
+<a href="#6315" id="6315">6315</a>
+<a href="#6316" id="6316">6316</a>
+<a href="#6317" id="6317">6317</a>
+<a href="#6318" id="6318">6318</a>
+<a href="#6319" id="6319">6319</a>
+<a href="#6320" id="6320">6320</a>
+<a href="#6321" id="6321">6321</a>
+<a href="#6322" id="6322">6322</a>
+<a href="#6323" id="6323">6323</a>
+<a href="#6324" id="6324">6324</a>
+<a href="#6325" id="6325">6325</a>
+<a href="#6326" id="6326">6326</a>
+<a href="#6327" id="6327">6327</a>
+<a href="#6328" id="6328">6328</a>
+<a href="#6329" id="6329">6329</a>
+<a href="#6330" id="6330">6330</a>
+<a href="#6331" id="6331">6331</a>
+<a href="#6332" id="6332">6332</a>
+<a href="#6333" id="6333">6333</a>
+<a href="#6334" id="6334">6334</a>
+<a href="#6335" id="6335">6335</a>
+<a href="#6336" id="6336">6336</a>
+<a href="#6337" id="6337">6337</a>
+<a href="#6338" id="6338">6338</a>
+<a href="#6339" id="6339">6339</a>
+<a href="#6340" id="6340">6340</a>
+<a href="#6341" id="6341">6341</a>
+<a href="#6342" id="6342">6342</a>
+<a href="#6343" id="6343">6343</a>
+<a href="#6344" id="6344">6344</a>
+<a href="#6345" id="6345">6345</a>
+<a href="#6346" id="6346">6346</a>
+<a href="#6347" id="6347">6347</a>
+<a href="#6348" id="6348">6348</a>
+<a href="#6349" id="6349">6349</a>
+<a href="#6350" id="6350">6350</a>
+<a href="#6351" id="6351">6351</a>
+<a href="#6352" id="6352">6352</a>
+<a href="#6353" id="6353">6353</a>
+<a href="#6354" id="6354">6354</a>
+<a href="#6355" id="6355">6355</a>
+<a href="#6356" id="6356">6356</a>
+<a href="#6357" id="6357">6357</a>
+<a href="#6358" id="6358">6358</a>
+<a href="#6359" id="6359">6359</a>
+<a href="#6360" id="6360">6360</a>
+<a href="#6361" id="6361">6361</a>
+<a href="#6362" id="6362">6362</a>
+<a href="#6363" id="6363">6363</a>
+<a href="#6364" id="6364">6364</a>
+<a href="#6365" id="6365">6365</a>
+<a href="#6366" id="6366">6366</a>
+<a href="#6367" id="6367">6367</a>
+<a href="#6368" id="6368">6368</a>
+<a href="#6369" id="6369">6369</a>
+<a href="#6370" id="6370">6370</a>
+<a href="#6371" id="6371">6371</a>
+<a href="#6372" id="6372">6372</a>
+<a href="#6373" id="6373">6373</a>
+<a href="#6374" id="6374">6374</a>
+<a href="#6375" id="6375">6375</a>
+<a href="#6376" id="6376">6376</a>
+<a href="#6377" id="6377">6377</a>
+<a href="#6378" id="6378">6378</a>
+<a href="#6379" id="6379">6379</a>
+<a href="#6380" id="6380">6380</a>
+<a href="#6381" id="6381">6381</a>
+<a href="#6382" id="6382">6382</a>
+<a href="#6383" id="6383">6383</a>
+<a href="#6384" id="6384">6384</a>
+<a href="#6385" id="6385">6385</a>
+<a href="#6386" id="6386">6386</a>
+<a href="#6387" id="6387">6387</a>
+<a href="#6388" id="6388">6388</a>
+<a href="#6389" id="6389">6389</a>
+<a href="#6390" id="6390">6390</a>
+<a href="#6391" id="6391">6391</a>
+<a href="#6392" id="6392">6392</a>
+<a href="#6393" id="6393">6393</a>
+<a href="#6394" id="6394">6394</a>
+<a href="#6395" id="6395">6395</a>
+<a href="#6396" id="6396">6396</a>
+<a href="#6397" id="6397">6397</a>
+<a href="#6398" id="6398">6398</a>
+<a href="#6399" id="6399">6399</a>
+<a href="#6400" id="6400">6400</a>
+<a href="#6401" id="6401">6401</a>
+<a href="#6402" id="6402">6402</a>
+<a href="#6403" id="6403">6403</a>
+<a href="#6404" id="6404">6404</a>
+<a href="#6405" id="6405">6405</a>
+<a href="#6406" id="6406">6406</a>
+<a href="#6407" id="6407">6407</a>
+<a href="#6408" id="6408">6408</a>
+<a href="#6409" id="6409">6409</a>
+<a href="#6410" id="6410">6410</a>
+<a href="#6411" id="6411">6411</a>
+<a href="#6412" id="6412">6412</a>
+<a href="#6413" id="6413">6413</a>
+<a href="#6414" id="6414">6414</a>
+<a href="#6415" id="6415">6415</a>
+<a href="#6416" id="6416">6416</a>
+<a href="#6417" id="6417">6417</a>
+<a href="#6418" id="6418">6418</a>
+<a href="#6419" id="6419">6419</a>
+<a href="#6420" id="6420">6420</a>
+<a href="#6421" id="6421">6421</a>
+<a href="#6422" id="6422">6422</a>
+<a href="#6423" id="6423">6423</a>
+<a href="#6424" id="6424">6424</a>
+<a href="#6425" id="6425">6425</a>
+<a href="#6426" id="6426">6426</a>
+<a href="#6427" id="6427">6427</a>
+<a href="#6428" id="6428">6428</a>
+<a href="#6429" id="6429">6429</a>
+<a href="#6430" id="6430">6430</a>
+<a href="#6431" id="6431">6431</a>
+<a href="#6432" id="6432">6432</a>
+<a href="#6433" id="6433">6433</a>
+<a href="#6434" id="6434">6434</a>
+<a href="#6435" id="6435">6435</a>
+<a href="#6436" id="6436">6436</a>
+<a href="#6437" id="6437">6437</a>
+<a href="#6438" id="6438">6438</a>
+<a href="#6439" id="6439">6439</a>
+<a href="#6440" id="6440">6440</a>
+<a href="#6441" id="6441">6441</a>
+<a href="#6442" id="6442">6442</a>
+<a href="#6443" id="6443">6443</a>
+<a href="#6444" id="6444">6444</a>
+<a href="#6445" id="6445">6445</a>
+<a href="#6446" id="6446">6446</a>
+<a href="#6447" id="6447">6447</a>
+<a href="#6448" id="6448">6448</a>
+<a href="#6449" id="6449">6449</a>
+<a href="#6450" id="6450">6450</a>
+<a href="#6451" id="6451">6451</a>
+<a href="#6452" id="6452">6452</a>
+<a href="#6453" id="6453">6453</a>
+<a href="#6454" id="6454">6454</a>
+<a href="#6455" id="6455">6455</a>
+<a href="#6456" id="6456">6456</a>
+<a href="#6457" id="6457">6457</a>
+<a href="#6458" id="6458">6458</a>
+<a href="#6459" id="6459">6459</a>
+<a href="#6460" id="6460">6460</a>
+<a href="#6461" id="6461">6461</a>
+<a href="#6462" id="6462">6462</a>
+<a href="#6463" id="6463">6463</a>
+<a href="#6464" id="6464">6464</a>
+<a href="#6465" id="6465">6465</a>
+<a href="#6466" id="6466">6466</a>
+<a href="#6467" id="6467">6467</a>
+<a href="#6468" id="6468">6468</a>
+<a href="#6469" id="6469">6469</a>
+<a href="#6470" id="6470">6470</a>
+<a href="#6471" id="6471">6471</a>
+<a href="#6472" id="6472">6472</a>
+<a href="#6473" id="6473">6473</a>
+<a href="#6474" id="6474">6474</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! ELF definitions.
 //!
 //! These definitions are independent of read/write support, although we do implement
@@ -7079,6 +7250,10 @@
 </span><span class="kw">pub const </span>SHF_COMPRESSED: u32 = <span class="number">1 </span>&lt;&lt; <span class="number">11</span>;
 <span class="doccomment">/// OS-specific section flags.
 </span><span class="kw">pub const </span>SHF_MASKOS: u32 = <span class="number">0x0ff0_0000</span>;
+<span class="doccomment">/// Section should not be garbage collected by the linker.
+</span><span class="kw">pub const </span>SHF_GNU_RETAIN: u32 = <span class="number">1 </span>&lt;&lt; <span class="number">21</span>;
+<span class="doccomment">/// Mbind section.
+</span><span class="kw">pub const </span>SHF_GNU_MBIND: u32 = <span class="number">1 </span>&lt;&lt; <span class="number">24</span>;
 <span class="doccomment">/// Processor-specific section flags.
 </span><span class="kw">pub const </span>SHF_MASKPROC: u32 = <span class="number">0xf000_0000</span>;
 <span class="doccomment">/// This section is excluded from the final executable or shared library.
@@ -8167,6 +8342,7 @@
 /// The descriptor begins with two words:
 /// - word 0: number of entries
 /// - word 1: bitmask of enabled entries
+///
 /// Then follow variable-length entries, one byte followed by a
 /// '\0'-terminated hwcap name string.  The byte gives the bit
 /// number to test if enabled, (1U &lt;&lt; bit) &amp; bitmask.  */
@@ -12567,6 +12743,172 @@
 <span class="kw">pub const </span>R_XTENSA_NDIFF8: u32 = <span class="number">60</span>;
 <span class="kw">pub const </span>R_XTENSA_NDIFF16: u32 = <span class="number">61</span>;
 <span class="kw">pub const </span>R_XTENSA_NDIFF32: u32 = <span class="number">62</span>;
+
+<span class="comment">// E2K values for `FileHeader*::e_flags`.
+</span><span class="kw">pub const </span>EF_E2K_IPD: u32 = <span class="number">3</span>;
+<span class="kw">pub const </span>EF_E2K_X86APP: u32 = <span class="number">4</span>;
+<span class="kw">pub const </span>EF_E2K_4MB_PAGES: u32 = <span class="number">8</span>;
+<span class="kw">pub const </span>EF_E2K_INCOMPAT: u32 = <span class="number">16</span>;
+<span class="kw">pub const </span>EF_E2K_PM: u32 = <span class="number">32</span>;
+<span class="kw">pub const </span>EF_E2K_PACK_SEGMENTS: u32 = <span class="number">64</span>;
+
+<span class="doccomment">/// Encode `E_E2K_MACH_*` into `FileHeader*::e_flags`.
+</span><span class="kw">pub const fn </span>ef_e2k_mach_to_flag(e_flags: u32, x: u32) -&gt; u32 {
+    (e_flags &amp; <span class="number">0xffffff</span>) | (x &lt;&lt; <span class="number">24</span>)
+}
+
+<span class="doccomment">/// Decode `E_E2K_MACH_*` from `FileHeader*::e_flags`.
+</span><span class="kw">pub const fn </span>ef_e2k_flag_to_mach(e_flags: u32) -&gt; u32 {
+    e_flags &gt;&gt; <span class="number">24
+</span>}
+
+<span class="comment">// Codes of supported E2K machines.
+
+</span><span class="doccomment">/// -march=generic code.
+///
+/// Legacy. Shouldn't be created nowadays.
+</span><span class="kw">pub const </span>E_E2K_MACH_BASE: u32 = <span class="number">0</span>;
+<span class="doccomment">/// -march=elbrus-v1 code.
+///
+/// Legacy. Shouldn't be created nowadays.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV1: u32 = <span class="number">1</span>;
+<span class="doccomment">/// -march=elbrus-v2 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV2: u32 = <span class="number">2</span>;
+<span class="doccomment">/// -march=elbrus-v3 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV3: u32 = <span class="number">3</span>;
+<span class="doccomment">/// -march=elbrus-v4 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV4: u32 = <span class="number">4</span>;
+<span class="doccomment">/// -march=elbrus-v5 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV5: u32 = <span class="number">5</span>;
+<span class="doccomment">/// -march=elbrus-v6 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV6: u32 = <span class="number">6</span>;
+<span class="doccomment">/// -march=elbrus-v7 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_EV7: u32 = <span class="number">7</span>;
+<span class="doccomment">/// -mtune=elbrus-8c code.
+</span><span class="kw">pub const </span>E_E2K_MACH_8C: u32 = <span class="number">19</span>;
+<span class="doccomment">/// -mtune=elbrus-1c+ code.
+</span><span class="kw">pub const </span>E_E2K_MACH_1CPLUS: u32 = <span class="number">20</span>;
+<span class="doccomment">/// -mtune=elbrus-12c code.
+</span><span class="kw">pub const </span>E_E2K_MACH_12C: u32 = <span class="number">21</span>;
+<span class="doccomment">/// -mtune=elbrus-16c code.
+</span><span class="kw">pub const </span>E_E2K_MACH_16C: u32 = <span class="number">22</span>;
+<span class="doccomment">/// -mtune=elbrus-2c3 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_2C3: u32 = <span class="number">23</span>;
+<span class="doccomment">/// -mtune=elbrus-48c code.
+</span><span class="kw">pub const </span>E_E2K_MACH_48C: u32 = <span class="number">24</span>;
+<span class="doccomment">/// -mtune=elbrus-8v7 code.
+</span><span class="kw">pub const </span>E_E2K_MACH_8V7: u32 = <span class="number">25</span>;
+
+<span class="comment">// E2K values `Rel*::r_type`.
+
+</span><span class="doccomment">/// Direct 32 bit.
+</span><span class="kw">pub const </span>R_E2K_32_ABS: u32 = <span class="number">0</span>;
+<span class="doccomment">/// PC relative 32 bit.
+</span><span class="kw">pub const </span>R_E2K_32_PC: u32 = <span class="number">2</span>;
+<span class="doccomment">/// 32-bit offset of AP GOT entry.
+</span><span class="kw">pub const </span>R_E2K_AP_GOT: u32 = <span class="number">3</span>;
+<span class="doccomment">/// 32-bit offset of PL GOT entry.
+</span><span class="kw">pub const </span>R_E2K_PL_GOT: u32 = <span class="number">4</span>;
+<span class="doccomment">/// Create PLT entry.
+</span><span class="kw">pub const </span>R_E2K_32_JMP_SLOT: u32 = <span class="number">8</span>;
+<span class="doccomment">/// Copy relocation, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_32_COPY: u32 = <span class="number">9</span>;
+<span class="doccomment">/// Adjust by program base, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_32_RELATIVE: u32 = <span class="number">10</span>;
+<span class="doccomment">/// Adjust indirectly by program base, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_32_IRELATIVE: u32 = <span class="number">11</span>;
+<span class="doccomment">/// Size of symbol plus 32-bit addend.
+</span><span class="kw">pub const </span>R_E2K_32_SIZE: u32 = <span class="number">12</span>;
+<span class="doccomment">/// Symbol value if resolved by the definition in the same
+/// compilation unit or NULL otherwise, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_32_DYNOPT: u32 = <span class="number">13</span>;
+<span class="doccomment">/// Direct 64 bit.
+</span><span class="kw">pub const </span>R_E2K_64_ABS: u32 = <span class="number">50</span>;
+<span class="doccomment">/// Direct 64 bit for literal.
+</span><span class="kw">pub const </span>R_E2K_64_ABS_LIT: u32 = <span class="number">51</span>;
+<span class="doccomment">/// PC relative 64 bit for literal.
+</span><span class="kw">pub const </span>R_E2K_64_PC_LIT: u32 = <span class="number">54</span>;
+<span class="doccomment">/// Create PLT entry, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_JMP_SLOT: u32 = <span class="number">63</span>;
+<span class="doccomment">/// Copy relocation, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_COPY: u32 = <span class="number">64</span>;
+<span class="doccomment">/// Adjust by program base, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_RELATIVE: u32 = <span class="number">65</span>;
+<span class="doccomment">/// Adjust by program base for literal, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_RELATIVE_LIT: u32 = <span class="number">66</span>;
+<span class="doccomment">/// Adjust indirectly by program base, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_IRELATIVE: u32 = <span class="number">67</span>;
+<span class="doccomment">/// Size of symbol plus 64-bit addend.
+</span><span class="kw">pub const </span>R_E2K_64_SIZE: u32 = <span class="number">68</span>;
+<span class="doccomment">/// 64-bit offset of the symbol from GOT.
+</span><span class="kw">pub const </span>R_E2K_64_GOTOFF: u32 = <span class="number">69</span>;
+
+<span class="doccomment">/// GOT entry for ID of module containing symbol.
+</span><span class="kw">pub const </span>R_E2K_TLS_GDMOD: u32 = <span class="number">70</span>;
+<span class="doccomment">/// GOT entry for offset in module TLS block.
+</span><span class="kw">pub const </span>R_E2K_TLS_GDREL: u32 = <span class="number">71</span>;
+<span class="doccomment">/// Static TLS block offset GOT entry.
+</span><span class="kw">pub const </span>R_E2K_TLS_IE: u32 = <span class="number">74</span>;
+<span class="doccomment">/// Offset relative to static TLS block, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_32_TLS_LE: u32 = <span class="number">75</span>;
+<span class="doccomment">/// Offset relative to static TLS block, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_TLS_LE: u32 = <span class="number">76</span>;
+<span class="doccomment">/// ID of module containing symbol, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_TLS_32_DTPMOD: u32 = <span class="number">80</span>;
+<span class="doccomment">/// Offset in module TLS block, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_TLS_32_DTPREL: u32 = <span class="number">81</span>;
+<span class="doccomment">/// ID of module containing symbol, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_TLS_64_DTPMOD: u32 = <span class="number">82</span>;
+<span class="doccomment">/// Offset in module TLS block, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_TLS_64_DTPREL: u32 = <span class="number">83</span>;
+<span class="doccomment">/// Offset in static TLS block, 32-bit case.
+</span><span class="kw">pub const </span>R_E2K_TLS_32_TPREL: u32 = <span class="number">84</span>;
+<span class="doccomment">/// Offset in static TLS block, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_TLS_64_TPREL: u32 = <span class="number">85</span>;
+
+<span class="doccomment">/// Direct AP.
+</span><span class="kw">pub const </span>R_E2K_AP: u32 = <span class="number">100</span>;
+<span class="doccomment">/// Direct PL.
+</span><span class="kw">pub const </span>R_E2K_PL: u32 = <span class="number">101</span>;
+
+<span class="doccomment">/// 32-bit offset of the symbol's entry in GOT.
+</span><span class="kw">pub const </span>R_E2K_GOT: u32 = <span class="number">108</span>;
+<span class="doccomment">/// 32-bit offset of the symbol from GOT.
+</span><span class="kw">pub const </span>R_E2K_GOTOFF: u32 = <span class="number">109</span>;
+<span class="doccomment">/// PC relative 28 bit for DISP.
+</span><span class="kw">pub const </span>R_E2K_DISP: u32 = <span class="number">110</span>;
+<span class="doccomment">/// Prefetch insn line containing the label (symbol).
+</span><span class="kw">pub const </span>R_E2K_PREF: u32 = <span class="number">111</span>;
+<span class="doccomment">/// No reloc.
+</span><span class="kw">pub const </span>R_E2K_NONE: u32 = <span class="number">112</span>;
+<span class="doccomment">/// 32-bit offset of the symbol's entry in .got.plt.
+</span><span class="kw">pub const </span>R_E2K_GOTPLT: u32 = <span class="number">114</span>;
+<span class="doccomment">/// Is symbol resolved locally during the link.
+/// The result is encoded in 5-bit ALS.src1.
+</span><span class="kw">pub const </span>R_E2K_ISLOCAL: u32 = <span class="number">115</span>;
+<span class="doccomment">/// Is symbol resloved locally during the link.
+/// The result is encoded in a long 32-bit LTS.
+</span><span class="kw">pub const </span>R_E2K_ISLOCAL32: u32 = <span class="number">118</span>;
+<span class="doccomment">/// The symbol's offset from GOT encoded within a 64-bit literal.
+</span><span class="kw">pub const </span>R_E2K_64_GOTOFF_LIT: u32 = <span class="number">256</span>;
+<span class="doccomment">/// Symbol value if resolved by the definition in the same
+/// compilation unit or NULL otherwise, 64-bit case.
+</span><span class="kw">pub const </span>R_E2K_64_DYNOPT: u32 = <span class="number">257</span>;
+<span class="doccomment">/// PC relative 64 bit in data.
+</span><span class="kw">pub const </span>R_E2K_64_PC: u32 = <span class="number">258</span>;
+
+<span class="comment">// E2K values for `Dyn32::d_tag`.
+
+</span><span class="kw">pub const </span>DT_E2K_LAZY: u32 = DT_LOPROC + <span class="number">1</span>;
+<span class="kw">pub const </span>DT_E2K_LAZY_GOT: u32 = DT_LOPROC + <span class="number">3</span>;
+
+<span class="kw">pub const </span>DT_E2K_INIT_GOT: u32 = DT_LOPROC + <span class="number">0x101c</span>;
+<span class="kw">pub const </span>DT_E2K_EXPORT_PL: u32 = DT_LOPROC + <span class="number">0x101d</span>;
+<span class="kw">pub const </span>DT_E2K_EXPORT_PLSZ: u32 = DT_LOPROC + <span class="number">0x101e</span>;
+<span class="kw">pub const </span>DT_E2K_REAL_PLTGOT: u32 = DT_LOPROC + <span class="number">0x101f</span>;
+<span class="kw">pub const </span>DT_E2K_NO_SELFINIT: u32 = DT_LOPROC + <span class="number">0x1020</span>;
+
+<span class="kw">pub const </span>DT_E2K_NUM: u32 = <span class="number">0x1021</span>;
 
 <span class="attr">#[allow(non_upper_case_globals)]
 </span><span class="kw">pub const </span>Tag_File: u8 = <span class="number">1</span>;

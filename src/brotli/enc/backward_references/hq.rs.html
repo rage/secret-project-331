@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/backward_references/hq.rs`."><title>hq.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/backward_references/hq.rs`."><title>hq.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1411,130 +1411,29 @@
 <a href="#1411" id="1411">1411</a>
 <a href="#1412" id="1412">1412</a>
 <a href="#1413" id="1413">1413</a>
-<a href="#1414" id="1414">1414</a>
-<a href="#1415" id="1415">1415</a>
-<a href="#1416" id="1416">1416</a>
-<a href="#1417" id="1417">1417</a>
-<a href="#1418" id="1418">1418</a>
-<a href="#1419" id="1419">1419</a>
-<a href="#1420" id="1420">1420</a>
-<a href="#1421" id="1421">1421</a>
-<a href="#1422" id="1422">1422</a>
-<a href="#1423" id="1423">1423</a>
-<a href="#1424" id="1424">1424</a>
-<a href="#1425" id="1425">1425</a>
-<a href="#1426" id="1426">1426</a>
-<a href="#1427" id="1427">1427</a>
-<a href="#1428" id="1428">1428</a>
-<a href="#1429" id="1429">1429</a>
-<a href="#1430" id="1430">1430</a>
-<a href="#1431" id="1431">1431</a>
-<a href="#1432" id="1432">1432</a>
-<a href="#1433" id="1433">1433</a>
-<a href="#1434" id="1434">1434</a>
-<a href="#1435" id="1435">1435</a>
-<a href="#1436" id="1436">1436</a>
-<a href="#1437" id="1437">1437</a>
-<a href="#1438" id="1438">1438</a>
-<a href="#1439" id="1439">1439</a>
-<a href="#1440" id="1440">1440</a>
-<a href="#1441" id="1441">1441</a>
-<a href="#1442" id="1442">1442</a>
-<a href="#1443" id="1443">1443</a>
-<a href="#1444" id="1444">1444</a>
-<a href="#1445" id="1445">1445</a>
-<a href="#1446" id="1446">1446</a>
-<a href="#1447" id="1447">1447</a>
-<a href="#1448" id="1448">1448</a>
-<a href="#1449" id="1449">1449</a>
-<a href="#1450" id="1450">1450</a>
-<a href="#1451" id="1451">1451</a>
-<a href="#1452" id="1452">1452</a>
-<a href="#1453" id="1453">1453</a>
-<a href="#1454" id="1454">1454</a>
-<a href="#1455" id="1455">1455</a>
-<a href="#1456" id="1456">1456</a>
-<a href="#1457" id="1457">1457</a>
-<a href="#1458" id="1458">1458</a>
-<a href="#1459" id="1459">1459</a>
-<a href="#1460" id="1460">1460</a>
-<a href="#1461" id="1461">1461</a>
-<a href="#1462" id="1462">1462</a>
-<a href="#1463" id="1463">1463</a>
-<a href="#1464" id="1464">1464</a>
-<a href="#1465" id="1465">1465</a>
-<a href="#1466" id="1466">1466</a>
-<a href="#1467" id="1467">1467</a>
-<a href="#1468" id="1468">1468</a>
-<a href="#1469" id="1469">1469</a>
-<a href="#1470" id="1470">1470</a>
-<a href="#1471" id="1471">1471</a>
-<a href="#1472" id="1472">1472</a>
-<a href="#1473" id="1473">1473</a>
-<a href="#1474" id="1474">1474</a>
-<a href="#1475" id="1475">1475</a>
-<a href="#1476" id="1476">1476</a>
-<a href="#1477" id="1477">1477</a>
-<a href="#1478" id="1478">1478</a>
-<a href="#1479" id="1479">1479</a>
-<a href="#1480" id="1480">1480</a>
-<a href="#1481" id="1481">1481</a>
-<a href="#1482" id="1482">1482</a>
-<a href="#1483" id="1483">1483</a>
-<a href="#1484" id="1484">1484</a>
-<a href="#1485" id="1485">1485</a>
-<a href="#1486" id="1486">1486</a>
-<a href="#1487" id="1487">1487</a>
-<a href="#1488" id="1488">1488</a>
-<a href="#1489" id="1489">1489</a>
-<a href="#1490" id="1490">1490</a>
-<a href="#1491" id="1491">1491</a>
-<a href="#1492" id="1492">1492</a>
-<a href="#1493" id="1493">1493</a>
-<a href="#1494" id="1494">1494</a>
-<a href="#1495" id="1495">1495</a>
-<a href="#1496" id="1496">1496</a>
-<a href="#1497" id="1497">1497</a>
-<a href="#1498" id="1498">1498</a>
-<a href="#1499" id="1499">1499</a>
-<a href="#1500" id="1500">1500</a>
-<a href="#1501" id="1501">1501</a>
-<a href="#1502" id="1502">1502</a>
-<a href="#1503" id="1503">1503</a>
-<a href="#1504" id="1504">1504</a>
-<a href="#1505" id="1505">1505</a>
-<a href="#1506" id="1506">1506</a>
-<a href="#1507" id="1507">1507</a>
-<a href="#1508" id="1508">1508</a>
-<a href="#1509" id="1509">1509</a>
-</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code, unused_imports)]
-</span><span class="kw">use </span><span class="kw">super</span>::hash_to_binary_tree::{
+</pre></div><pre class="rust"><code><span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
+<span class="kw">use </span>core;
+<span class="kw">use </span>core::cmp::{max, min};
+
+<span class="kw">use </span><span class="kw">super</span>::hash_to_binary_tree::{
     kInfinity, Allocable, BackwardMatch, BackwardMatchMut, H10Params, StoreAndFindMatchesH10,
     Union1, ZopfliNode, H10,
 };
 <span class="kw">use super</span>::{
-    kDistanceCacheIndex, kDistanceCacheOffset, kHashMul32, kHashMul64, kHashMul64Long,
-    kInvalidMatch, AnyHasher, BrotliEncoderParams, BrotliHasherParams,
+    kDistanceCacheIndex, kDistanceCacheOffset, kInvalidMatch, AnyHasher, BrotliEncoderParams,
 };
-<span class="kw">use </span>alloc;
-<span class="kw">use </span>alloc::{Allocator, SliceWrapper, SliceWrapperMut};
-<span class="kw">use </span>core;
-<span class="kw">use </span>core::cmp::{max, min};
-<span class="kw">use </span>enc::command::{
-    BrotliDistanceParams, CombineLengthCodes, Command, ComputeDistanceCode, GetCopyLengthCode,
-    GetInsertLengthCode, PrefixEncodeCopyDistance,
+<span class="kw">use </span><span class="kw">crate</span>::enc::combined_alloc::{alloc_if, alloc_or_default};
+<span class="kw">use </span><span class="kw">crate</span>::enc::command::{
+    combine_length_codes, BrotliDistanceParams, Command, GetCopyLengthCode, GetInsertLengthCode,
+    PrefixEncodeCopyDistance,
 };
-<span class="kw">use </span>enc::constants::{kCopyExtra, kInsExtra};
-<span class="kw">use </span>enc::dictionary_hash::kStaticDictionaryHash;
-<span class="kw">use </span>enc::encode;
-<span class="kw">use </span>enc::literal_cost::BrotliEstimateBitCostsForLiterals;
-<span class="kw">use </span>enc::static_dict::{
-    kBrotliEncDictionary, BrotliDictionary, BrotliFindAllStaticDictionaryMatches,
+<span class="kw">use </span><span class="kw">crate</span>::enc::constants::{kCopyExtra, kInsExtra};
+<span class="kw">use </span><span class="kw">crate</span>::enc::encode;
+<span class="kw">use </span><span class="kw">crate</span>::enc::literal_cost::BrotliEstimateBitCostsForLiterals;
+<span class="kw">use </span><span class="kw">crate</span>::enc::static_dict::{
+    BrotliDictionary, BrotliFindAllStaticDictionaryMatches, FindMatchLengthWithLimit,
 };
-<span class="kw">use </span>enc::static_dict::{
-    FindMatchLengthWithLimit, BROTLI_UNALIGNED_LOAD32, BROTLI_UNALIGNED_LOAD64,
-};
-<span class="kw">use </span>enc::util::{floatX, FastLog2, FastLog2f64, Log2FloorNonZero};
+<span class="kw">use </span><span class="kw">crate</span>::enc::util::{floatX, FastLog2, FastLog2f64};
 
 <span class="kw">const </span>BROTLI_WINDOW_GAP: usize = <span class="number">16</span>;
 <span class="kw">const </span>BROTLI_MAX_STATIC_DICTIONARY_MATCH_LEN: usize = <span class="number">37</span>;
@@ -1720,16 +1619,14 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
             num_bytes_: num_bytes,
             cost_cmd_: [<span class="number">0.0</span>; <span class="number">704</span>],
             min_cost_cmd_: <span class="number">0.0</span>,
-            literal_costs_: <span class="kw">if </span>num_bytes.wrapping_add(<span class="number">2</span>) &gt; <span class="number">0usize </span>{
-                m.alloc_cell(num_bytes.wrapping_add(<span class="number">2</span>))
-            } <span class="kw">else </span>{
-                AllocF::AllocatedMemory::default()
-            },
-            cost_dist_: <span class="kw">if </span>dist.alphabet_size &gt; <span class="number">0u32 </span>{
-                m.alloc_cell(num_bytes.wrapping_add(dist.alphabet_size <span class="kw">as </span>usize))
-            } <span class="kw">else </span>{
-                AllocF::AllocatedMemory::default()
-            },
+            <span class="comment">// FIXME: makes little sense to test if N+2 &gt; 0 -- always true unless wrapping. Perhaps use allocate() instead?
+            </span>literal_costs_: alloc_or_default::&lt;floatX, <span class="kw">_</span>&gt;(m, num_bytes + <span class="number">2</span>),
+            <span class="comment">// FIXME: possible bug because allocation size is different from the condition
+            </span>cost_dist_: alloc_if::&lt;floatX, <span class="kw">_</span>&gt;(
+                dist.alphabet_size &gt; <span class="number">0</span>,
+                m,
+                num_bytes + dist.alphabet_size <span class="kw">as </span>usize,
+            ),
             distance_histogram_size: min(dist.alphabet_size, <span class="number">544</span>),
         }
     }
@@ -1754,11 +1651,9 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
         );
         literal_costs[<span class="number">0</span>] = <span class="number">0.0 </span><span class="kw">as </span>(floatX);
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..num_bytes {
-            literal_carry = literal_carry <span class="kw">as </span>floatX + literal_costs[i.wrapping_add(<span class="number">1</span>)] <span class="kw">as </span>floatX;
-            literal_costs[i.wrapping_add(<span class="number">1</span>)] =
-                (literal_costs[i] <span class="kw">as </span>floatX + literal_carry) <span class="kw">as </span>floatX;
-            literal_carry -=
-                (literal_costs[i.wrapping_add(<span class="number">1</span>)] <span class="kw">as </span>floatX - literal_costs[i] <span class="kw">as </span>floatX);
+            literal_carry = literal_carry + literal_costs[i.wrapping_add(<span class="number">1</span>)];
+            literal_costs[i.wrapping_add(<span class="number">1</span>)] = literal_costs[i] + literal_carry;
+            literal_carry -= literal_costs[i.wrapping_add(<span class="number">1</span>)] - literal_costs[i];
         }
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..BROTLI_NUM_COMMAND_SYMBOLS {
             cost_cmd[i] = FastLog2(<span class="number">11 </span>+ i <span class="kw">as </span>u64);
@@ -1768,12 +1663,6 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
         }
         <span class="self">self</span>.min_cost_cmd_ = FastLog2(<span class="number">11</span>) <span class="kw">as </span>(floatX);
     }
-}
-
-<span class="attr">#[inline(always)]
-</span><span class="kw">fn </span>HashBytesH10(data: <span class="kw-2">&amp;</span>[u8]) -&gt; u32 {
-    <span class="kw">let </span>h: u32 = BROTLI_UNALIGNED_LOAD32(data).wrapping_mul(kHashMul32);
-    h &gt;&gt; (<span class="number">32i32 </span>- <span class="number">17i32</span>)
 }
 
 <span class="kw">pub fn </span>StitchToPreviousBlockH10&lt;
@@ -1854,35 +1743,23 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
         stop = <span class="number">0usize</span>;
     }
     i = cur_ix.wrapping_sub(<span class="number">1</span>);
-    <span class="lifetime">'break14</span>: <span class="kw">while </span>i &gt; stop &amp;&amp; (best_len &lt;= <span class="number">2usize</span>) {
-        <span class="lifetime">'continue15</span>: <span class="kw">loop </span>{
-            {
-                <span class="kw">let </span><span class="kw-2">mut </span>prev_ix: usize = i;
-                <span class="kw">let </span>backward: usize = cur_ix.wrapping_sub(prev_ix);
-                <span class="kw">if </span>backward &gt; max_backward {
-                    <span class="kw">break </span><span class="lifetime">'break14</span>;
-                }
-                prev_ix &amp;= ring_buffer_mask;
-                <span class="kw">if </span>data[cur_ix_masked] <span class="kw">as </span>i32 != data[prev_ix] <span class="kw">as </span>i32
-                    || data[cur_ix_masked.wrapping_add(<span class="number">1</span>)] <span class="kw">as </span>i32
-                        != data[prev_ix.wrapping_add(<span class="number">1</span>)] <span class="kw">as </span>i32
-                {
-                    <span class="kw">break </span><span class="lifetime">'continue15</span>;
-                }
-                {
-                    <span class="kw">let </span>len: usize = FindMatchLengthWithLimit(
-                        <span class="kw-2">&amp;</span>data[prev_ix..],
-                        <span class="kw-2">&amp;</span>data[cur_ix_masked..],
-                        max_length,
-                    );
-                    <span class="kw">if </span>len &gt; best_len {
-                        best_len = len;
-                        BackwardMatchMut(<span class="kw-2">&amp;mut </span>matches[matches_offset]).init(backward, len);
-                        matches_offset += <span class="number">1</span>;
-                    }
-                }
-            }
+    <span class="kw">while </span>i &gt; stop &amp;&amp; best_len &lt;= <span class="number">2 </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>prev_ix: usize = i;
+        <span class="kw">let </span>backward: usize = cur_ix.wrapping_sub(prev_ix);
+        <span class="kw">if </span>backward &gt; max_backward {
             <span class="kw">break</span>;
+        }
+        prev_ix &amp;= ring_buffer_mask;
+        <span class="kw">if </span>data[cur_ix_masked] == data[prev_ix]
+            &amp;&amp; data[cur_ix_masked.wrapping_add(<span class="number">1</span>)] == data[prev_ix.wrapping_add(<span class="number">1</span>)]
+        {
+            <span class="kw">let </span>len =
+                FindMatchLengthWithLimit(<span class="kw-2">&amp;</span>data[prev_ix..], <span class="kw-2">&amp;</span>data[cur_ix_masked..], max_length);
+            <span class="kw">if </span>len &gt; best_len {
+                best_len = len;
+                BackwardMatchMut(<span class="kw-2">&amp;mut </span>matches[matches_offset]).init(backward, len);
+                matches_offset += <span class="number">1</span>;
+            }
         }
         i = i.wrapping_sub(<span class="number">1</span>);
     }
@@ -2111,7 +1988,7 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
     {
         len = len.wrapping_add(<span class="number">1</span>);
         <span class="kw">if </span>len == next_len_offset {
-            min_cost += <span class="number">1.0 </span><span class="kw">as </span>floatX;
+            min_cost += <span class="number">1.0</span>;
             next_len_offset = next_len_offset.wrapping_add(next_len_bucket);
             next_len_bucket = next_len_bucket.wrapping_mul(<span class="number">2</span>);
         }
@@ -2192,10 +2069,8 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
     <span class="kw">let </span>max_distance: usize = min(cur_ix, max_backward_limit);
     <span class="kw">let </span>max_len: usize = num_bytes.wrapping_sub(pos);
     <span class="kw">let </span>max_zopfli_len: usize = MaxZopfliLen(params);
-    <span class="kw">let </span>max_iters: usize = MaxZopfliCandidates(params);
     <span class="kw">let </span>min_len: usize;
     <span class="kw">let </span><span class="kw-2">mut </span>result: usize = <span class="number">0usize</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>k: usize;
     <span class="kw">let </span>gap: usize = <span class="number">0usize</span>;
     EvaluateNode(
         block_start,
@@ -2213,156 +2088,122 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
             posdata.cost + model.get_min_cost_cmd() + model.get_literal_costs(posdata.pos, pos);
         min_len = ComputeMinimumCopyLength(min_cost, nodes, num_bytes, pos);
     }
-    k = <span class="number">0usize</span>;
-    <span class="kw">while </span>k &lt; max_iters &amp;&amp; k &lt; queue.size() {
-        <span class="lifetime">'continue28</span>: <span class="kw">loop </span>{
-            {
-                <span class="kw">let </span>posdata = queue.at(k);
-                <span class="kw">let </span>start: usize = posdata.pos;
-                <span class="kw">let </span>inscode: u16 = GetInsertLengthCode(pos.wrapping_sub(start));
-                <span class="kw">let </span>start_costdiff: floatX = posdata.costdiff;
-                <span class="kw">let </span>base_cost: floatX = start_costdiff
-                    + GetInsertExtra(inscode) <span class="kw">as </span>(floatX)
-                    + model.get_literal_costs(<span class="number">0</span>, pos);
-                <span class="kw">let </span><span class="kw-2">mut </span>best_len: usize = min_len.wrapping_sub(<span class="number">1</span>);
-                <span class="kw">let </span><span class="kw-2">mut </span>j: usize = <span class="number">0usize</span>;
-                <span class="lifetime">'break29</span>: <span class="kw">while </span>j &lt; <span class="number">16usize </span>&amp;&amp; (best_len &lt; max_len) {
-                    <span class="lifetime">'continue30</span>: <span class="kw">loop </span>{
-                        {
-                            <span class="kw">let </span>idx: usize = kDistanceCacheIndex[j] <span class="kw">as </span>usize;
-                            <span class="kw">let </span>distance_cache_len_minus_1 = <span class="number">3</span>;
-                            <span class="macro">debug_assert_eq!</span>(
-                                distance_cache_len_minus_1 + <span class="number">1</span>,
-                                posdata.distance_cache.len()
-                            );
-                            <span class="kw">let </span>backward: usize = (posdata.distance_cache
-                                [(idx &amp; distance_cache_len_minus_1)]
-                                + i32::from(kDistanceCacheOffset[j]))
-                                <span class="kw">as </span>usize;
-                            <span class="kw">let </span><span class="kw-2">mut </span>prev_ix: usize = cur_ix.wrapping_sub(backward);
-                            <span class="kw">let </span>len: usize;
-                            <span class="kw">let </span>continuation: u8 = ringbuffer[cur_ix_masked.wrapping_add(best_len)];
-                            <span class="kw">if </span>cur_ix_masked.wrapping_add(best_len) &gt; ringbuffer_mask {
-                                <span class="kw">break </span><span class="lifetime">'break29</span>;
-                            }
-                            <span class="kw">if </span>backward &gt; max_distance.wrapping_add(gap) {
-                                <span class="kw">break </span><span class="lifetime">'continue30</span>;
-                            }
-                            <span class="kw">if </span>backward &lt;= max_distance {
-                                <span class="kw">if </span>prev_ix &gt;= cur_ix {
-                                    <span class="kw">break </span><span class="lifetime">'continue30</span>;
-                                }
-                                prev_ix &amp;= ringbuffer_mask;
-                                <span class="kw">if </span>prev_ix.wrapping_add(best_len) &gt; ringbuffer_mask
-                                    || continuation <span class="kw">as </span>i32
-                                        != ringbuffer[(prev_ix.wrapping_add(best_len) <span class="kw">as </span>usize)]
-                                            <span class="kw">as </span>i32
-                                {
-                                    <span class="kw">break </span><span class="lifetime">'continue30</span>;
-                                }
-                                len = FindMatchLengthWithLimit(
-                                    <span class="kw-2">&amp;</span>ringbuffer[(prev_ix <span class="kw">as </span>usize)..],
-                                    <span class="kw-2">&amp;</span>ringbuffer[cur_ix_masked..],
-                                    max_len,
-                                );
-                            } <span class="kw">else </span>{
-                                <span class="kw">break </span><span class="lifetime">'continue30</span>;
-                            }
-                            {
-                                <span class="kw">let </span>dist_cost = base_cost + model.get_distance_cost(j);
-                                <span class="kw">for </span>l <span class="kw">in </span>best_len.wrapping_add(<span class="number">1</span>)..=len {
-                                    <span class="kw">let </span>copycode: u16 = GetCopyLengthCode(l);
-                                    <span class="kw">let </span>cmdcode: u16 =
-                                        CombineLengthCodes(inscode, copycode, (j == <span class="number">0usize</span>) <span class="kw">as </span>i32);
-                                    <span class="kw">let </span>cost: floatX =
-                                        (<span class="kw">if </span>cmdcode &lt; <span class="number">128 </span>{ base_cost } <span class="kw">else </span>{ dist_cost })
-                                            + (GetCopyExtra(copycode) <span class="kw">as </span>floatX)
-                                            + model.get_command_cost(cmdcode);
-                                    <span class="kw">if </span>cost
-                                        &lt; <span class="kw">match </span>(nodes[pos.wrapping_add(l)]).u {
-                                            Union1::cost(cost) =&gt; cost,
-                                            <span class="kw">_ </span>=&gt; <span class="number">0.0</span>,
-                                        }
-                                    {
-                                        UpdateZopfliNode(
-                                            nodes,
-                                            pos,
-                                            start,
-                                            l,
-                                            l,
-                                            backward,
-                                            j.wrapping_add(<span class="number">1</span>),
-                                            cost,
-                                        );
-                                        result = max(result, l);
-                                    }
-                                    best_len = l;
-                                }
-                            }
-                        }
-                        <span class="kw">break</span>;
-                    }
-                    j = j.wrapping_add(<span class="number">1</span>);
-                }
-                <span class="kw">if </span>k &gt;= <span class="number">2usize </span>{
-                    <span class="kw">break </span><span class="lifetime">'continue28</span>;
-                }
-                {
-                    <span class="kw">let </span><span class="kw-2">mut </span>len: usize = min_len;
-                    <span class="kw">for </span>j <span class="kw">in </span><span class="number">0usize</span>..num_matches {
-                        <span class="kw">let </span>match_ = BackwardMatch(matches[j]);
-                        <span class="kw">let </span>dist: usize = match_.distance() <span class="kw">as </span>usize;
-                        <span class="kw">let </span>is_dictionary_match = dist &gt; max_distance.wrapping_add(gap);
-                        <span class="kw">let </span>dist_code: usize = dist.wrapping_add(<span class="number">16</span>).wrapping_sub(<span class="number">1</span>);
-                        <span class="kw">let </span><span class="kw-2">mut </span>dist_symbol: u16 = <span class="number">0</span>;
-                        <span class="kw">let </span><span class="kw-2">mut </span>distextra: u32 = <span class="number">0</span>;
 
-                        PrefixEncodeCopyDistance(
-                            dist_code,
-                            params.dist.num_direct_distance_codes <span class="kw">as </span>usize,
-                            u64::from(params.dist.distance_postfix_bits),
-                            <span class="kw-2">&amp;mut </span>dist_symbol,
-                            <span class="kw-2">&amp;mut </span>distextra,
-                        );
-                        <span class="kw">let </span>distnumextra: u32 = u32::from(dist_symbol) &gt;&gt; <span class="number">10</span>;
-                        <span class="kw">let </span>dist_cost = base_cost
-                            + (distnumextra <span class="kw">as </span>floatX)
-                            + model.get_distance_cost((dist_symbol <span class="kw">as </span>i32 &amp; <span class="number">0x03ff</span>) <span class="kw">as </span>usize);
-                        <span class="kw">let </span>max_match_len = match_.length();
-                        <span class="kw">if </span>len &lt; max_match_len
-                            &amp;&amp; (is_dictionary_match || max_match_len &gt; max_zopfli_len)
-                        {
-                            len = max_match_len;
-                        }
-                        <span class="kw">while </span>len &lt;= max_match_len {
-                            {
-                                <span class="kw">let </span>len_code: usize = <span class="kw">if </span>is_dictionary_match {
-                                    match_.length_code()
-                                } <span class="kw">else </span>{
-                                    len
-                                };
-                                <span class="kw">let </span>copycode: u16 = GetCopyLengthCode(len_code);
-                                <span class="kw">let </span>cmdcode: u16 = CombineLengthCodes(inscode, copycode, <span class="number">0i32</span>);
-                                <span class="kw">let </span>cost: floatX = dist_cost
-                                    + GetCopyExtra(copycode) <span class="kw">as </span>(floatX)
-                                    + model.get_command_cost(cmdcode);
-                                <span class="kw">if let </span>Union1::cost(nodeCost) = (nodes[pos.wrapping_add(len)]).u {
-                                    <span class="kw">if </span>cost &lt; nodeCost {
-                                        UpdateZopfliNode(
-                                            nodes, pos, start, len, len_code, dist, <span class="number">0usize</span>, cost,
-                                        );
-                                        result = max(result, len);
-                                    }
-                                }
-                            }
-                            len = len.wrapping_add(<span class="number">1</span>);
+    <span class="kw">for </span>k <span class="kw">in </span><span class="number">0</span>..min(MaxZopfliCandidates(params), queue.size()) {
+        <span class="kw">let </span>posdata = queue.at(k);
+        <span class="kw">let </span>start: usize = posdata.pos;
+        <span class="kw">let </span>inscode: u16 = GetInsertLengthCode(pos.wrapping_sub(start));
+        <span class="kw">let </span>start_costdiff: floatX = posdata.costdiff;
+        <span class="kw">let </span>base_cost: floatX =
+            start_costdiff + GetInsertExtra(inscode) <span class="kw">as </span>(floatX) + model.get_literal_costs(<span class="number">0</span>, pos);
+        <span class="kw">let </span><span class="kw-2">mut </span>best_len: usize = min_len.wrapping_sub(<span class="number">1</span>);
+        <span class="kw">for </span>j <span class="kw">in </span><span class="number">0</span>..<span class="number">16 </span>{
+            <span class="kw">if </span>best_len &gt;= max_len {
+                <span class="kw">break</span>;
+            }
+
+            <span class="kw">let </span>idx: usize = kDistanceCacheIndex[j] <span class="kw">as </span>usize;
+            <span class="kw">let </span>distance_cache_len_minus_1 = <span class="number">3</span>;
+            <span class="macro">debug_assert_eq!</span>(distance_cache_len_minus_1 + <span class="number">1</span>, posdata.distance_cache.len());
+            <span class="kw">let </span>backward: usize = (posdata.distance_cache[(idx &amp; distance_cache_len_minus_1)]
+                + i32::from(kDistanceCacheOffset[j])) <span class="kw">as </span>usize;
+            <span class="kw">let </span><span class="kw-2">mut </span>prev_ix: usize = cur_ix.wrapping_sub(backward);
+            <span class="kw">let </span>len: usize;
+            <span class="kw">let </span>continuation: u8 = ringbuffer[cur_ix_masked.wrapping_add(best_len)];
+            <span class="kw">if </span>cur_ix_masked.wrapping_add(best_len) &gt; ringbuffer_mask {
+                <span class="kw">break</span>;
+            }
+            <span class="kw">if </span>backward &gt; max_distance.wrapping_add(gap) {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">if </span>backward &gt; max_distance {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">if </span>prev_ix &gt;= cur_ix {
+                <span class="kw">continue</span>;
+            }
+            prev_ix &amp;= ringbuffer_mask;
+            <span class="kw">if </span>prev_ix.wrapping_add(best_len) &gt; ringbuffer_mask
+                || continuation != ringbuffer[prev_ix.wrapping_add(best_len)]
+            {
+                <span class="kw">continue</span>;
+            }
+            len = FindMatchLengthWithLimit(
+                <span class="kw-2">&amp;</span>ringbuffer[prev_ix..],
+                <span class="kw-2">&amp;</span>ringbuffer[cur_ix_masked..],
+                max_len,
+            );
+
+            <span class="kw">let </span>dist_cost = base_cost + model.get_distance_cost(j);
+            <span class="kw">for </span>l <span class="kw">in </span>best_len.wrapping_add(<span class="number">1</span>)..=len {
+                <span class="kw">let </span>copycode: u16 = GetCopyLengthCode(l);
+                <span class="kw">let </span>cmdcode = combine_length_codes(inscode, copycode, j == <span class="number">0</span>);
+                <span class="kw">let </span>cost: floatX = (<span class="kw">if </span>cmdcode &lt; <span class="number">128 </span>{ base_cost } <span class="kw">else </span>{ dist_cost })
+                    + (GetCopyExtra(copycode) <span class="kw">as </span>floatX)
+                    + model.get_command_cost(cmdcode);
+                <span class="kw">if </span>cost
+                    &lt; <span class="kw">match </span>nodes[pos.wrapping_add(l)].u {
+                        Union1::cost(cost) =&gt; cost,
+                        <span class="kw">_ </span>=&gt; <span class="number">0.0</span>,
+                    }
+                {
+                    UpdateZopfliNode(nodes, pos, start, l, l, backward, j.wrapping_add(<span class="number">1</span>), cost);
+                    result = max(result, l);
+                }
+                best_len = l;
+            }
+        }
+
+        <span class="kw">if </span>k &gt;= <span class="number">2 </span>{
+            <span class="kw">continue</span>;
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>len: usize = min_len;
+        <span class="kw">for </span>j <span class="kw">in </span><span class="number">0usize</span>..num_matches {
+            <span class="kw">let </span>match_ = BackwardMatch(matches[j]);
+            <span class="kw">let </span>dist: usize = match_.distance() <span class="kw">as </span>usize;
+            <span class="kw">let </span>is_dictionary_match = dist &gt; max_distance.wrapping_add(gap);
+            <span class="kw">let </span>dist_code: usize = dist.wrapping_add(<span class="number">16</span>).wrapping_sub(<span class="number">1</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>dist_symbol: u16 = <span class="number">0</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>distextra: u32 = <span class="number">0</span>;
+
+            PrefixEncodeCopyDistance(
+                dist_code,
+                params.dist.num_direct_distance_codes <span class="kw">as </span>usize,
+                u64::from(params.dist.distance_postfix_bits),
+                <span class="kw-2">&amp;mut </span>dist_symbol,
+                <span class="kw-2">&amp;mut </span>distextra,
+            );
+            <span class="kw">let </span>distnumextra: u32 = u32::from(dist_symbol) &gt;&gt; <span class="number">10</span>;
+            <span class="kw">let </span>dist_cost = base_cost
+                + (distnumextra <span class="kw">as </span>floatX)
+                + model.get_distance_cost((dist_symbol <span class="kw">as </span>i32 &amp; <span class="number">0x03ff</span>) <span class="kw">as </span>usize);
+            <span class="kw">let </span>max_match_len = match_.length();
+            <span class="kw">if </span>len &lt; max_match_len &amp;&amp; (is_dictionary_match || max_match_len &gt; max_zopfli_len) {
+                len = max_match_len;
+            }
+            <span class="kw">while </span>len &lt;= max_match_len {
+                {
+                    <span class="kw">let </span>len_code: usize = <span class="kw">if </span>is_dictionary_match {
+                        match_.length_code()
+                    } <span class="kw">else </span>{
+                        len
+                    };
+                    <span class="kw">let </span>copycode: u16 = GetCopyLengthCode(len_code);
+                    <span class="kw">let </span>cmdcode = combine_length_codes(inscode, copycode, <span class="bool-val">false</span>);
+                    <span class="kw">let </span>cost: floatX = dist_cost
+                        + GetCopyExtra(copycode) <span class="kw">as </span>(floatX)
+                        + model.get_command_cost(cmdcode);
+                    <span class="kw">if let </span>Union1::cost(nodeCost) = (nodes[pos.wrapping_add(len)]).u {
+                        <span class="kw">if </span>cost &lt; nodeCost {
+                            UpdateZopfliNode(nodes, pos, start, len, len_code, dist, <span class="number">0usize</span>, cost);
+                            result = max(result, len);
                         }
                     }
                 }
+                len = len.wrapping_add(<span class="number">1</span>);
             }
-            <span class="kw">break</span>;
         }
-        k = k.wrapping_add(<span class="number">1</span>);
     }
     result
 }
@@ -2547,12 +2388,8 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
     </span>Buckets: PartialEq&lt;Buckets&gt;,
 {
     <span class="kw">let </span>max_backward_limit: usize = (<span class="number">1usize </span>&lt;&lt; params.lgwin).wrapping_sub(<span class="number">16</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>nodes: &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::AllocatedMemory;
-    nodes = <span class="kw">if </span>num_bytes.wrapping_add(<span class="number">1</span>) &gt; <span class="number">0usize </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::alloc_cell(alloc, num_bytes.wrapping_add(<span class="number">1</span>))
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="comment">// FIXME: makes little sense to test if N+1 &gt; 0 -- always true unless wrapping. Perhaps use allocate() instead?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>nodes = alloc_or_default::&lt;ZopfliNode, <span class="kw">_</span>&gt;(alloc, num_bytes + <span class="number">1</span>);
     <span class="kw">if </span>!(<span class="number">0i32 </span>== <span class="number">0</span>) {
         <span class="kw">return</span>;
     }
@@ -2589,41 +2426,32 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
     }
 }
 
-<span class="kw">fn </span>SetCost(histogram: <span class="kw-2">&amp;</span>[u32], histogram_size: usize, literal_histogram: i32, cost: <span class="kw-2">&amp;mut </span>[floatX]) {
+<span class="kw">fn </span>SetCost(histogram: <span class="kw-2">&amp;</span>[u32], histogram_size: usize, literal_histogram: bool, cost: <span class="kw-2">&amp;mut </span>[floatX]) {
     <span class="kw">let </span><span class="kw-2">mut </span>sum: u64 = <span class="number">0</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>missing_symbol_sum: u64;
-
-    <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
-    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..histogram_size {
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..histogram_size {
         sum = sum.wrapping_add(u64::from(histogram[i]));
     }
-    <span class="kw">let </span>log2sum: floatX = FastLog2(sum) <span class="kw">as </span>(floatX);
-    missing_symbol_sum = sum;
-    <span class="kw">if </span>literal_histogram == <span class="number">0 </span>{
-        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..histogram_size {
-            <span class="kw">if </span>histogram[i] == <span class="number">0u32 </span>{
+    <span class="kw">let </span>log2sum = FastLog2(sum);
+
+    <span class="kw">let </span><span class="kw-2">mut </span>missing_symbol_sum = sum;
+    <span class="kw">if </span>!literal_histogram {
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..histogram_size {
+            <span class="kw">if </span>histogram[i] == <span class="number">0 </span>{
                 missing_symbol_sum = missing_symbol_sum.wrapping_add(<span class="number">1</span>);
             }
         }
     }
-    <span class="kw">let </span>missing_symbol_cost: floatX =
-        FastLog2f64(missing_symbol_sum) <span class="kw">as </span>(floatX) + <span class="number">2i32 </span><span class="kw">as </span>(floatX);
-    i = <span class="number">0usize</span>;
-    <span class="kw">while </span>i &lt; histogram_size {
-        <span class="lifetime">'continue56</span>: <span class="kw">loop </span>{
-            {
-                <span class="kw">if </span>histogram[i] == <span class="number">0u32 </span>{
-                    cost[i] = missing_symbol_cost;
-                    <span class="kw">break </span><span class="lifetime">'continue56</span>;
-                }
-                cost[i] = log2sum - FastLog2(u64::from(histogram[i])) <span class="kw">as </span>(floatX);
-                <span class="kw">if </span>cost[i] &lt; <span class="number">1i32 </span><span class="kw">as </span>(floatX) {
-                    cost[i] = <span class="number">1i32 </span><span class="kw">as </span>(floatX);
-                }
+
+    <span class="kw">let </span>missing_symbol_cost = FastLog2f64(missing_symbol_sum) + <span class="number">2.0</span>;
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..histogram_size {
+        <span class="kw">if </span>histogram[i] == <span class="number">0 </span>{
+            cost[i] = missing_symbol_cost;
+        } <span class="kw">else </span>{
+            cost[i] = log2sum - FastLog2(u64::from(histogram[i]));
+            <span class="kw">if </span>cost[i] &lt; <span class="number">1.0 </span>{
+                cost[i] = <span class="number">1.0</span>;
             }
-            <span class="kw">break</span>;
         }
-        i = i.wrapping_add(<span class="number">1</span>);
     }
 }
 
@@ -2640,7 +2468,7 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
         <span class="kw">let </span><span class="kw-2">mut </span>histogram_literal = [<span class="number">0u32</span>; BROTLI_NUM_LITERAL_SYMBOLS];
         <span class="kw">let </span><span class="kw-2">mut </span>histogram_cmd = [<span class="number">0u32</span>; BROTLI_NUM_COMMAND_SYMBOLS];
         <span class="kw">let </span><span class="kw-2">mut </span>histogram_dist = [<span class="number">0u32</span>; BROTLI_SIMPLE_DISTANCE_ALPHABET_SIZE];
-        <span class="kw">let </span><span class="kw-2">mut </span>cost_literal = [<span class="number">0.0 </span><span class="kw">as </span>floatX; BROTLI_NUM_LITERAL_SYMBOLS];
+        <span class="kw">let </span><span class="kw-2">mut </span>cost_literal = [<span class="number">0.0</span>; BROTLI_NUM_LITERAL_SYMBOLS];
         <span class="kw">let </span><span class="kw-2">mut </span>pos: usize = position.wrapping_sub(last_insert_len);
         <span class="kw">let </span><span class="kw-2">mut </span>min_cost_cmd: floatX = kInfinity;
         <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
@@ -2675,19 +2503,19 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
         SetCost(
             <span class="kw-2">&amp;</span>histogram_literal[..],
             BROTLI_NUM_LITERAL_SYMBOLS,
-            <span class="number">1i32</span>,
+            <span class="bool-val">true</span>,
             <span class="kw-2">&amp;mut </span>cost_literal,
         );
         SetCost(
             <span class="kw-2">&amp;</span>histogram_cmd[..],
             BROTLI_NUM_COMMAND_SYMBOLS,
-            <span class="number">0i32</span>,
+            <span class="bool-val">false</span>,
             <span class="kw-2">&amp;mut </span>cost_cmd[..],
         );
         SetCost(
             <span class="kw-2">&amp;</span>histogram_dist[..],
             <span class="self">self</span>.distance_histogram_size <span class="kw">as </span>usize,
-            <span class="number">0i32</span>,
+            <span class="bool-val">false</span>,
             <span class="self">self</span>.cost_dist_.slice_mut(),
         );
         <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..<span class="number">704usize </span>{
@@ -2700,13 +2528,10 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
             <span class="kw">let </span>num_bytes: usize = <span class="self">self</span>.num_bytes_;
             literal_costs[<span class="number">0</span>] = <span class="number">0.0 </span><span class="kw">as </span>(floatX);
             <span class="kw">for </span>i <span class="kw">in </span><span class="number">0usize</span>..num_bytes {
-                literal_carry += cost_literal
-                    [(ringbuffer[(position.wrapping_add(i) &amp; ringbuffer_mask)] <span class="kw">as </span>usize)]
-                    <span class="kw">as </span>floatX;
-                literal_costs[i.wrapping_add(<span class="number">1</span>)] =
-                    (literal_costs[i] <span class="kw">as </span>floatX + literal_carry) <span class="kw">as </span>floatX;
-                literal_carry -=
-                    (literal_costs[i.wrapping_add(<span class="number">1</span>)] <span class="kw">as </span>floatX - literal_costs[i] <span class="kw">as </span>floatX);
+                literal_carry +=
+                    cost_literal[ringbuffer[position.wrapping_add(i) &amp; ringbuffer_mask] <span class="kw">as </span>usize];
+                literal_costs[i.wrapping_add(<span class="number">1</span>)] = literal_costs[i] + literal_carry;
+                literal_carry -= literal_costs[i.wrapping_add(<span class="number">1</span>)] - literal_costs[i];
             }
         }
     }
@@ -2812,11 +2637,7 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
     </span>Buckets: PartialEq&lt;Buckets&gt;,
 {
     <span class="kw">let </span>max_backward_limit: usize = (<span class="number">1usize </span>&lt;&lt; params.lgwin).wrapping_sub(<span class="number">16</span>);
-    <span class="kw">let </span><span class="kw-2">mut </span>num_matches: &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory = <span class="kw">if </span>num_bytes &gt; <span class="number">0usize </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::alloc_cell(alloc, num_bytes)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u32&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="kw">let </span><span class="kw-2">mut </span>num_matches = alloc_or_default::&lt;u32, <span class="kw">_</span>&gt;(alloc, num_bytes);
     <span class="kw">let </span><span class="kw-2">mut </span>matches_size: usize = (<span class="number">4usize</span>).wrapping_mul(num_bytes);
     <span class="kw">let </span>store_end: usize = <span class="kw">if </span>num_bytes &gt;= STORE_LOOKAHEAD_H_10 {
         position
@@ -2832,12 +2653,7 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
     <span class="kw">let </span><span class="kw-2">mut </span>orig_dist_cache = [<span class="number">0i32</span>; <span class="number">4</span>];
 
     <span class="kw">let </span><span class="kw-2">mut </span>model: ZopfliCostModel&lt;Alloc&gt;;
-    <span class="kw">let </span><span class="kw-2">mut </span>nodes: &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::AllocatedMemory;
-    <span class="kw">let </span><span class="kw-2">mut </span>matches: &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::AllocatedMemory = <span class="kw">if </span>matches_size &gt; <span class="number">0usize </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::alloc_cell(alloc, matches_size)
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="kw">let </span><span class="kw-2">mut </span>matches = alloc_or_default::&lt;u64, <span class="kw">_</span>&gt;(alloc, matches_size);
     <span class="kw">let </span>gap: usize = <span class="number">0usize</span>;
     <span class="kw">let </span>shadow_matches: usize = <span class="number">0usize</span>;
     i = <span class="number">0usize</span>;
@@ -2855,15 +2671,10 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
                     } <span class="kw">else </span>{
                         matches_size
                     };
-                    <span class="kw">let </span><span class="kw-2">mut </span>new_array: &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::AllocatedMemory;
                     <span class="kw">while </span>new_size &lt; cur_match_pos.wrapping_add(<span class="number">128</span>).wrapping_add(shadow_matches) {
                         new_size = new_size.wrapping_mul(<span class="number">2</span>);
                     }
-                    new_array = <span class="kw">if </span>new_size &gt; <span class="number">0usize </span>{
-                        &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::alloc_cell(alloc, new_size)
-                    } <span class="kw">else </span>{
-                        &lt;Alloc <span class="kw">as </span>Allocator&lt;u64&gt;&gt;::AllocatedMemory::default()
-                    };
+                    <span class="kw">let </span><span class="kw-2">mut </span>new_array = alloc_or_default::&lt;u64, <span class="kw">_</span>&gt;(alloc, new_size);
                     <span class="kw">if </span>matches_size != <span class="number">0 </span>{
                         <span class="kw">for </span>(dst, src) <span class="kw">in </span>new_array
                             .slice_mut()
@@ -2948,11 +2759,8 @@ pub static kHashMul64Long: u64 = 0x1fe35a7bu32 as (u64) &lt;&lt; 32 | 0xd3579bd3
         <span class="kw-2">*</span>i = <span class="kw-2">*</span>j;
     }
     <span class="kw">let </span>orig_num_commands: usize = <span class="kw-2">*</span>num_commands;
-    nodes = <span class="kw">if </span>num_bytes.wrapping_add(<span class="number">1</span>) &gt; <span class="number">0usize </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::alloc_cell(alloc, num_bytes.wrapping_add(<span class="number">1</span>))
-    } <span class="kw">else </span>{
-        &lt;Alloc <span class="kw">as </span>Allocator&lt;ZopfliNode&gt;&gt;::AllocatedMemory::default()
-    };
+    <span class="comment">// FIXME: makes little sense to test if N+1 &gt; 0 -- always true unless wrapping. Perhaps use allocate() instead?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>nodes = alloc_or_default::&lt;ZopfliNode, <span class="kw">_</span>&gt;(alloc, num_bytes + <span class="number">1</span>);
     <span class="kw">if </span>!(<span class="number">0i32 </span>== <span class="number">0</span>) {
         <span class="kw">return</span>;
     }

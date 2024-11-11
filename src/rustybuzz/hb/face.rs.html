@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.14.1/src/hb/face.rs`."><title>face.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rustybuzz-0.18.0/src/hb/face.rs`."><title>face.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="rustybuzz" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -352,9 +352,107 @@
 <a href="#352" id="352">352</a>
 <a href="#353" id="353">353</a>
 <a href="#354" id="354">354</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>ttf_parser::gdef::GlyphClass;
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+<a href="#368" id="368">368</a>
+<a href="#369" id="369">369</a>
+<a href="#370" id="370">370</a>
+<a href="#371" id="371">371</a>
+<a href="#372" id="372">372</a>
+<a href="#373" id="373">373</a>
+<a href="#374" id="374">374</a>
+<a href="#375" id="375">375</a>
+<a href="#376" id="376">376</a>
+<a href="#377" id="377">377</a>
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+</pre></div><pre class="rust"><code><span class="attr">#[cfg(not(feature = <span class="string">"std"</span>))]
+</span><span class="kw">use </span>core_maths::CoreFloat;
+
+<span class="kw">use </span><span class="kw">crate</span>::hb::paint_extents::hb_paint_extents_context_t;
+<span class="kw">use </span>ttf_parser::gdef::GlyphClass;
 <span class="kw">use </span>ttf_parser::opentype_layout::LayoutTable;
-<span class="kw">use </span>ttf_parser::GlyphId;
+<span class="kw">use </span>ttf_parser::{GlyphId, RgbaColor};
 
 <span class="kw">use </span><span class="kw">super</span>::buffer::GlyphPropsFlags;
 <span class="kw">use </span><span class="kw">super</span>::ot_layout::TableIndex;
@@ -484,9 +582,14 @@
         <span class="self">self</span>.get_nominal_glyph(c).is_some()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_nominal_glyph(<span class="kw-2">&amp;</span><span class="self">self</span>, c: u32) -&gt; <span class="prelude-ty">Option</span>&lt;GlyphId&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_nominal_glyph(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>c: u32) -&gt; <span class="prelude-ty">Option</span>&lt;GlyphId&gt; {
         <span class="kw">let </span>subtable_idx = <span class="self">self</span>.prefered_cmap_encoding_subtable<span class="question-mark">?</span>;
         <span class="kw">let </span>subtable = <span class="self">self</span>.tables().cmap<span class="question-mark">?</span>.subtables.get(subtable_idx)<span class="question-mark">?</span>;
+
+        <span class="kw">if </span>subtable.platform_id == ttf_parser::PlatformId::Macintosh &amp;&amp; c &gt; <span class="number">0x7F </span>{
+            c = unicode_to_macroman(c);
+        }
+
         <span class="kw">match </span>subtable.glyph_index(c) {
             <span class="prelude-val">Some</span>(gid) =&gt; <span class="prelude-val">Some</span>(gid),
             <span class="prelude-val">None </span>=&gt; {
@@ -524,6 +627,7 @@
             &amp;&amp; face.has_non_default_variation_coordinates()
             &amp;&amp; face.tables().hvar.is_none()
             &amp;&amp; face.tables().vvar.is_none()
+            &amp;&amp; face.glyph_phantom_points(glyph).is_none()
         {
             <span class="kw">return match </span>face.glyph_bounding_box(glyph) {
                 <span class="prelude-val">Some</span>(bbox) =&gt; {
@@ -559,7 +663,7 @@
         <span class="kw">match </span><span class="self">self</span>.ttfp_face.glyph_y_origin(glyph) {
             <span class="prelude-val">Some</span>(y) =&gt; i32::from(y),
             <span class="prelude-val">None </span>=&gt; {
-                <span class="kw">let </span><span class="kw-2">mut </span>extents = GlyphExtents::default();
+                <span class="kw">let </span><span class="kw-2">mut </span>extents = hb_glyph_extents_t::default();
                 <span class="kw">if </span><span class="self">self</span>.glyph_extents(glyph, <span class="kw-2">&amp;mut </span>extents) {
                     <span class="kw">if </span><span class="self">self</span>.ttfp_face.tables().vmtx.is_some() {
                         extents.y_bearing + <span class="self">self</span>.glyph_side_bearing(glyph, <span class="bool-val">true</span>)
@@ -592,7 +696,11 @@
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>glyph_extents(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph: GlyphId, glyph_extents: <span class="kw-2">&amp;mut </span>GlyphExtents) -&gt; bool {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>glyph_extents(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        glyph: GlyphId,
+        glyph_extents: <span class="kw-2">&amp;mut </span>hb_glyph_extents_t,
+    ) -&gt; bool {
         <span class="kw">let </span>pixels_per_em = <span class="kw">match </span><span class="self">self</span>.pixels_per_em {
             <span class="prelude-val">Some</span>(ppem) =&gt; ppem.<span class="number">0</span>,
             <span class="prelude-val">None </span>=&gt; core::u16::MAX,
@@ -602,16 +710,62 @@
             <span class="comment">// HarfBuzz also supports only PNG.
             </span><span class="kw">if </span>img.format == ttf_parser::RasterImageFormat::PNG {
                 <span class="kw">let </span>scale = <span class="self">self</span>.units_per_em <span class="kw">as </span>f32 / img.pixels_per_em <span class="kw">as </span>f32;
-                glyph_extents.x_bearing = <span class="kw">super</span>::round(f32::from(img.x) * scale) <span class="kw">as </span>i32;
+                glyph_extents.x_bearing = (f32::from(img.x) * scale).round() <span class="kw">as </span>i32;
                 glyph_extents.y_bearing =
-                    <span class="kw">super</span>::round((f32::from(img.y) + f32::from(img.height)) * scale) <span class="kw">as </span>i32;
-                glyph_extents.width = <span class="kw">super</span>::round(f32::from(img.width) * scale) <span class="kw">as </span>i32;
-                glyph_extents.height = <span class="kw">super</span>::round(-f32::from(img.height) * scale) <span class="kw">as </span>i32;
+                    ((f32::from(img.y) + f32::from(img.height)) * scale).round() <span class="kw">as </span>i32;
+                glyph_extents.width = (f32::from(img.width) * scale).round() <span class="kw">as </span>i32;
+                glyph_extents.height = (-f32::from(img.height) * scale).round() <span class="kw">as </span>i32;
                 <span class="kw">return </span><span class="bool-val">true</span>;
             }
+        <span class="comment">// TODO: Add tests for this. We should use all glyphs from
+        // https://github.com/googlefonts/color-fonts/blob/main/fonts/test_glyphs-glyf_colr_1_no_cliplist.ttf
+        // and test their output against harfbuzz.
+        </span>} <span class="kw">else if let </span><span class="prelude-val">Some</span>(colr) = <span class="self">self</span>.ttfp_face.tables().colr {
+            <span class="kw">if </span>colr.is_simple() {
+                <span class="kw">return </span><span class="bool-val">false</span>;
+            }
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(clip_box) = colr.clip_box(glyph, <span class="self">self</span>.variation_coordinates()) {
+                <span class="comment">// Floor
+                </span>glyph_extents.x_bearing = (clip_box.x_min).round() <span class="kw">as </span>i32;
+                glyph_extents.y_bearing = (clip_box.y_max).round() <span class="kw">as </span>i32;
+                glyph_extents.width = (clip_box.x_max - clip_box.x_min).round() <span class="kw">as </span>i32;
+                glyph_extents.height = (clip_box.y_min - clip_box.y_max).round() <span class="kw">as </span>i32;
+                <span class="kw">return </span><span class="bool-val">true</span>;
+            }
+
+            <span class="kw">let </span><span class="kw-2">mut </span>extents_data = hb_paint_extents_context_t::new(<span class="kw-2">&amp;</span><span class="self">self</span>.ttfp_face);
+            <span class="kw">let </span>ret = colr
+                .paint(
+                    glyph,
+                    <span class="number">0</span>,
+                    <span class="kw-2">&amp;mut </span>extents_data,
+                    <span class="self">self</span>.variation_coordinates(),
+                    RgbaColor::new(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),
+                )
+                .is_some();
+
+            <span class="kw">let </span>e = extents_data.get_extents();
+            <span class="kw">if </span>e.is_void() {
+                glyph_extents.x_bearing = <span class="number">0</span>;
+                glyph_extents.y_bearing = <span class="number">0</span>;
+                glyph_extents.width = <span class="number">0</span>;
+                glyph_extents.height = <span class="number">0</span>;
+            } <span class="kw">else </span>{
+                glyph_extents.x_bearing = e.x_min <span class="kw">as </span>i32;
+                glyph_extents.y_bearing = e.y_max <span class="kw">as </span>i32;
+                glyph_extents.width = (e.x_max - e.x_min) <span class="kw">as </span>i32;
+                glyph_extents.height = (e.y_min - e.y_max) <span class="kw">as </span>i32;
+            }
+
+            <span class="kw">return </span>ret;
         }
 
-        <span class="kw">let </span>bbox = <span class="self">self</span>.ttfp_face.glyph_bounding_box(glyph);
+        <span class="kw">let </span><span class="kw-2">mut </span>bbox = <span class="prelude-val">None</span>;
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(glyf) = <span class="self">self</span>.ttfp_face.tables().glyf {
+            bbox = glyf.bbox(glyph);
+        }
 
         <span class="comment">// See https://github.com/RazrFalcon/rustybuzz/pull/98#issuecomment-1948430785
         </span><span class="kw">if </span><span class="self">self</span>.ttfp_face.tables().glyf.is_some() &amp;&amp; bbox.is_none() {
@@ -667,12 +821,16 @@
 }
 
 <span class="attr">#[derive(Clone, Copy, Default)]
-</span><span class="kw">pub struct </span>GlyphExtents {
+#[repr(C)]
+</span><span class="kw">pub struct </span>hb_glyph_extents_t {
     <span class="kw">pub </span>x_bearing: i32,
     <span class="kw">pub </span>y_bearing: i32,
     <span class="kw">pub </span>width: i32,
     <span class="kw">pub </span>height: i32,
 }
+
+<span class="kw">unsafe impl </span>bytemuck::Zeroable <span class="kw">for </span>hb_glyph_extents_t {}
+<span class="kw">unsafe impl </span>bytemuck::Pod <span class="kw">for </span>hb_glyph_extents_t {}
 
 <span class="kw">fn </span>find_best_cmap_subtable(face: <span class="kw-2">&amp;</span>ttf_parser::Face) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
     <span class="kw">use </span>ttf_parser::PlatformId;
@@ -691,6 +849,8 @@
         .or_else(|| find_cmap_subtable(face, PlatformId::Unicode, UNICODE_ISO_ENCODING))
         .or_else(|| find_cmap_subtable(face, PlatformId::Unicode, UNICODE_1_1_ENCODING))
         .or_else(|| find_cmap_subtable(face, PlatformId::Unicode, UNICODE_1_0_ENCODING))
+        <span class="comment">// MacRoman subtable:
+        </span>.or_else(|| find_cmap_subtable(face, PlatformId::Macintosh, <span class="number">0</span>))
 }
 
 <span class="kw">fn </span>find_cmap_subtable(
@@ -706,4 +866,32 @@
 
     <span class="prelude-val">None
 </span>}
+
+<span class="attr">#[rustfmt::skip]
+</span><span class="kw">static </span>UNICODE_TO_MACROMAN: <span class="kw-2">&amp;</span>[u16] = <span class="kw-2">&amp;</span>[
+    <span class="number">0x00C4</span>, <span class="number">0x00C5</span>, <span class="number">0x00C7</span>, <span class="number">0x00C9</span>, <span class="number">0x00D1</span>, <span class="number">0x00D6</span>, <span class="number">0x00DC</span>, <span class="number">0x00E1</span>,
+    <span class="number">0x00E0</span>, <span class="number">0x00E2</span>, <span class="number">0x00E4</span>, <span class="number">0x00E3</span>, <span class="number">0x00E5</span>, <span class="number">0x00E7</span>, <span class="number">0x00E9</span>, <span class="number">0x00E8</span>,
+    <span class="number">0x00EA</span>, <span class="number">0x00EB</span>, <span class="number">0x00ED</span>, <span class="number">0x00EC</span>, <span class="number">0x00EE</span>, <span class="number">0x00EF</span>, <span class="number">0x00F1</span>, <span class="number">0x00F3</span>,
+    <span class="number">0x00F2</span>, <span class="number">0x00F4</span>, <span class="number">0x00F6</span>, <span class="number">0x00F5</span>, <span class="number">0x00FA</span>, <span class="number">0x00F9</span>, <span class="number">0x00FB</span>, <span class="number">0x00FC</span>,
+    <span class="number">0x2020</span>, <span class="number">0x00B0</span>, <span class="number">0x00A2</span>, <span class="number">0x00A3</span>, <span class="number">0x00A7</span>, <span class="number">0x2022</span>, <span class="number">0x00B6</span>, <span class="number">0x00DF</span>,
+    <span class="number">0x00AE</span>, <span class="number">0x00A9</span>, <span class="number">0x2122</span>, <span class="number">0x00B4</span>, <span class="number">0x00A8</span>, <span class="number">0x2260</span>, <span class="number">0x00C6</span>, <span class="number">0x00D8</span>,
+    <span class="number">0x221E</span>, <span class="number">0x00B1</span>, <span class="number">0x2264</span>, <span class="number">0x2265</span>, <span class="number">0x00A5</span>, <span class="number">0x00B5</span>, <span class="number">0x2202</span>, <span class="number">0x2211</span>,
+    <span class="number">0x220F</span>, <span class="number">0x03C0</span>, <span class="number">0x222B</span>, <span class="number">0x00AA</span>, <span class="number">0x00BA</span>, <span class="number">0x03A9</span>, <span class="number">0x00E6</span>, <span class="number">0x00F8</span>,
+    <span class="number">0x00BF</span>, <span class="number">0x00A1</span>, <span class="number">0x00AC</span>, <span class="number">0x221A</span>, <span class="number">0x0192</span>, <span class="number">0x2248</span>, <span class="number">0x2206</span>, <span class="number">0x00AB</span>,
+    <span class="number">0x00BB</span>, <span class="number">0x2026</span>, <span class="number">0x00A0</span>, <span class="number">0x00C0</span>, <span class="number">0x00C3</span>, <span class="number">0x00D5</span>, <span class="number">0x0152</span>, <span class="number">0x0153</span>,
+    <span class="number">0x2013</span>, <span class="number">0x2014</span>, <span class="number">0x201C</span>, <span class="number">0x201D</span>, <span class="number">0x2018</span>, <span class="number">0x2019</span>, <span class="number">0x00F7</span>, <span class="number">0x25CA</span>,
+    <span class="number">0x00FF</span>, <span class="number">0x0178</span>, <span class="number">0x2044</span>, <span class="number">0x20AC</span>, <span class="number">0x2039</span>, <span class="number">0x203A</span>, <span class="number">0xFB01</span>, <span class="number">0xFB02</span>,
+    <span class="number">0x2021</span>, <span class="number">0x00B7</span>, <span class="number">0x201A</span>, <span class="number">0x201E</span>, <span class="number">0x2030</span>, <span class="number">0x00C2</span>, <span class="number">0x00CA</span>, <span class="number">0x00C1</span>,
+    <span class="number">0x00CB</span>, <span class="number">0x00C8</span>, <span class="number">0x00CD</span>, <span class="number">0x00CE</span>, <span class="number">0x00CF</span>, <span class="number">0x00CC</span>, <span class="number">0x00D3</span>, <span class="number">0x00D4</span>,
+    <span class="number">0xF8FF</span>, <span class="number">0x00D2</span>, <span class="number">0x00DA</span>, <span class="number">0x00DB</span>, <span class="number">0x00D9</span>, <span class="number">0x0131</span>, <span class="number">0x02C6</span>, <span class="number">0x02DC</span>,
+    <span class="number">0x00AF</span>, <span class="number">0x02D8</span>, <span class="number">0x02D9</span>, <span class="number">0x02DA</span>, <span class="number">0x00B8</span>, <span class="number">0x02DD</span>, <span class="number">0x02DB</span>, <span class="number">0x02C7</span>,
+];
+
+<span class="kw">fn </span>unicode_to_macroman(c: u32) -&gt; u32 {
+    <span class="kw">let </span>u = c <span class="kw">as </span>u16;
+    <span class="kw">let </span><span class="prelude-val">Some</span>(index) = UNICODE_TO_MACROMAN.iter().position(|m| <span class="kw-2">*</span>m == u) <span class="kw">else </span>{
+        <span class="kw">return </span><span class="number">0</span>;
+    };
+    (<span class="number">0x7F </span>+ index) <span class="kw">as </span>u32
+}
 </code></pre></div></section></main></body></html>

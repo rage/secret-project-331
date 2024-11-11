@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.76/src/gen/fold.rs`."><title>fold.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="syn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/syn-2.0.87/src/gen/fold.rs`."><title>fold.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="syn" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3777,6 +3777,111 @@
 <a href="#3777" id="3777">3777</a>
 <a href="#3778" id="3778">3778</a>
 <a href="#3779" id="3779">3779</a>
+<a href="#3780" id="3780">3780</a>
+<a href="#3781" id="3781">3781</a>
+<a href="#3782" id="3782">3782</a>
+<a href="#3783" id="3783">3783</a>
+<a href="#3784" id="3784">3784</a>
+<a href="#3785" id="3785">3785</a>
+<a href="#3786" id="3786">3786</a>
+<a href="#3787" id="3787">3787</a>
+<a href="#3788" id="3788">3788</a>
+<a href="#3789" id="3789">3789</a>
+<a href="#3790" id="3790">3790</a>
+<a href="#3791" id="3791">3791</a>
+<a href="#3792" id="3792">3792</a>
+<a href="#3793" id="3793">3793</a>
+<a href="#3794" id="3794">3794</a>
+<a href="#3795" id="3795">3795</a>
+<a href="#3796" id="3796">3796</a>
+<a href="#3797" id="3797">3797</a>
+<a href="#3798" id="3798">3798</a>
+<a href="#3799" id="3799">3799</a>
+<a href="#3800" id="3800">3800</a>
+<a href="#3801" id="3801">3801</a>
+<a href="#3802" id="3802">3802</a>
+<a href="#3803" id="3803">3803</a>
+<a href="#3804" id="3804">3804</a>
+<a href="#3805" id="3805">3805</a>
+<a href="#3806" id="3806">3806</a>
+<a href="#3807" id="3807">3807</a>
+<a href="#3808" id="3808">3808</a>
+<a href="#3809" id="3809">3809</a>
+<a href="#3810" id="3810">3810</a>
+<a href="#3811" id="3811">3811</a>
+<a href="#3812" id="3812">3812</a>
+<a href="#3813" id="3813">3813</a>
+<a href="#3814" id="3814">3814</a>
+<a href="#3815" id="3815">3815</a>
+<a href="#3816" id="3816">3816</a>
+<a href="#3817" id="3817">3817</a>
+<a href="#3818" id="3818">3818</a>
+<a href="#3819" id="3819">3819</a>
+<a href="#3820" id="3820">3820</a>
+<a href="#3821" id="3821">3821</a>
+<a href="#3822" id="3822">3822</a>
+<a href="#3823" id="3823">3823</a>
+<a href="#3824" id="3824">3824</a>
+<a href="#3825" id="3825">3825</a>
+<a href="#3826" id="3826">3826</a>
+<a href="#3827" id="3827">3827</a>
+<a href="#3828" id="3828">3828</a>
+<a href="#3829" id="3829">3829</a>
+<a href="#3830" id="3830">3830</a>
+<a href="#3831" id="3831">3831</a>
+<a href="#3832" id="3832">3832</a>
+<a href="#3833" id="3833">3833</a>
+<a href="#3834" id="3834">3834</a>
+<a href="#3835" id="3835">3835</a>
+<a href="#3836" id="3836">3836</a>
+<a href="#3837" id="3837">3837</a>
+<a href="#3838" id="3838">3838</a>
+<a href="#3839" id="3839">3839</a>
+<a href="#3840" id="3840">3840</a>
+<a href="#3841" id="3841">3841</a>
+<a href="#3842" id="3842">3842</a>
+<a href="#3843" id="3843">3843</a>
+<a href="#3844" id="3844">3844</a>
+<a href="#3845" id="3845">3845</a>
+<a href="#3846" id="3846">3846</a>
+<a href="#3847" id="3847">3847</a>
+<a href="#3848" id="3848">3848</a>
+<a href="#3849" id="3849">3849</a>
+<a href="#3850" id="3850">3850</a>
+<a href="#3851" id="3851">3851</a>
+<a href="#3852" id="3852">3852</a>
+<a href="#3853" id="3853">3853</a>
+<a href="#3854" id="3854">3854</a>
+<a href="#3855" id="3855">3855</a>
+<a href="#3856" id="3856">3856</a>
+<a href="#3857" id="3857">3857</a>
+<a href="#3858" id="3858">3858</a>
+<a href="#3859" id="3859">3859</a>
+<a href="#3860" id="3860">3860</a>
+<a href="#3861" id="3861">3861</a>
+<a href="#3862" id="3862">3862</a>
+<a href="#3863" id="3863">3863</a>
+<a href="#3864" id="3864">3864</a>
+<a href="#3865" id="3865">3865</a>
+<a href="#3866" id="3866">3866</a>
+<a href="#3867" id="3867">3867</a>
+<a href="#3868" id="3868">3868</a>
+<a href="#3869" id="3869">3869</a>
+<a href="#3870" id="3870">3870</a>
+<a href="#3871" id="3871">3871</a>
+<a href="#3872" id="3872">3872</a>
+<a href="#3873" id="3873">3873</a>
+<a href="#3874" id="3874">3874</a>
+<a href="#3875" id="3875">3875</a>
+<a href="#3876" id="3876">3876</a>
+<a href="#3877" id="3877">3877</a>
+<a href="#3878" id="3878">3878</a>
+<a href="#3879" id="3879">3879</a>
+<a href="#3880" id="3880">3880</a>
+<a href="#3881" id="3881">3881</a>
+<a href="#3882" id="3882">3882</a>
+<a href="#3883" id="3883">3883</a>
+<a href="#3884" id="3884">3884</a>
 </pre></div><pre class="rust"><code><span class="comment">// This file is @generated by syn-internal-codegen.
 // It is not intended for manual editing.
 
@@ -3844,6 +3949,11 @@
     }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
+    </span><span class="kw">fn </span>fold_attributes(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: Vec&lt;<span class="kw">crate</span>::Attribute&gt;) -&gt; Vec&lt;<span class="kw">crate</span>::Attribute&gt; {
+        fold_vec(i, <span class="self">self</span>, <span class="self">Self</span>::fold_attribute)
+    }
+    <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>fold_bare_fn_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::BareFnArg) -&gt; <span class="kw">crate</span>::BareFnArg {
         fold_bare_fn_arg(<span class="self">self</span>, i)
     }
@@ -3869,6 +3979,11 @@
         i: <span class="kw">crate</span>::BoundLifetimes,
     ) -&gt; <span class="kw">crate</span>::BoundLifetimes {
         fold_bound_lifetimes(<span class="self">self</span>, i)
+    }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>fold_captured_param(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::CapturedParam) -&gt; <span class="kw">crate</span>::CapturedParam {
+        fold_captured_param(<span class="self">self</span>, i)
     }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
@@ -4048,6 +4163,11 @@
     </span><span class="kw">fn </span>fold_expr_range(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::ExprRange) -&gt; <span class="kw">crate</span>::ExprRange {
         fold_expr_range(<span class="self">self</span>, i)
     }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>fold_expr_raw_addr(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::ExprRawAddr) -&gt; <span class="kw">crate</span>::ExprRawAddr {
+        fold_expr_raw_addr(<span class="self">self</span>, i)
+    }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>fold_expr_reference(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::ExprReference) -&gt; <span class="kw">crate</span>::ExprReference {
@@ -4078,8 +4198,8 @@
     </span><span class="kw">fn </span>fold_expr_try_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::ExprTryBlock) -&gt; <span class="kw">crate</span>::ExprTryBlock {
         fold_expr_try_block(<span class="self">self</span>, i)
     }
-    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
-    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>fold_expr_tuple(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::ExprTuple) -&gt; <span class="kw">crate</span>::ExprTuple {
         fold_expr_tuple(<span class="self">self</span>, i)
     }
@@ -4502,6 +4622,22 @@
     </span><span class="kw">fn </span>fold_path_segment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, i: <span class="kw">crate</span>::PathSegment) -&gt; <span class="kw">crate</span>::PathSegment {
         fold_path_segment(<span class="self">self</span>, i)
     }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>fold_pointer_mutability(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        i: <span class="kw">crate</span>::PointerMutability,
+    ) -&gt; <span class="kw">crate</span>::PointerMutability {
+        fold_pointer_mutability(<span class="self">self</span>, i)
+    }
+    <span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+    #[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+    </span><span class="kw">fn </span>fold_precise_capture(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        i: <span class="kw">crate</span>::PreciseCapture,
+    ) -&gt; <span class="kw">crate</span>::PreciseCapture {
+        fold_precise_capture(<span class="self">self</span>, i)
+    }
     <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
     #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
     </span><span class="kw">fn </span>fold_predicate_lifetime(
@@ -4799,7 +4935,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::Arm {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         pat: f.fold_pat(node.pat),
         guard: (node.guard).map(|it| ((it).<span class="number">0</span>, Box::new(f.fold_expr(<span class="kw-2">*</span>(it).<span class="number">1</span>)))),
         fat_arrow_token: node.fat_arrow_token,
@@ -4864,7 +5000,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::BareFnArg {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         name: (node.name).map(|it| (f.fold_ident((it).<span class="number">0</span>), (it).<span class="number">1</span>)),
         ty: f.fold_type(node.ty),
     }
@@ -4876,7 +5012,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::BareVariadic {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         name: (node.name).map(|it| (f.fold_ident((it).<span class="number">0</span>), (it).<span class="number">1</span>)),
         dots: node.dots,
         comma: node.comma,
@@ -4946,6 +5082,24 @@
         gt_token: node.gt_token,
     }
 }
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>fold_captured_param&lt;F&gt;(
+    f: <span class="kw-2">&amp;mut </span>F,
+    node: <span class="kw">crate</span>::CapturedParam,
+) -&gt; <span class="kw">crate</span>::CapturedParam
+<span class="kw">where
+    </span>F: Fold + <span class="question-mark">?</span>Sized,
+{
+    <span class="kw">match </span>node {
+        <span class="kw">crate</span>::CapturedParam::Lifetime(_binding_0) =&gt; {
+            <span class="kw">crate</span>::CapturedParam::Lifetime(f.fold_lifetime(_binding_0))
+        }
+        <span class="kw">crate</span>::CapturedParam::Ident(_binding_0) =&gt; {
+            <span class="kw">crate</span>::CapturedParam::Ident(f.fold_ident(_binding_0))
+        }
+    }
+}
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
 #[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
 </span><span class="kw">pub fn </span>fold_const_param&lt;F&gt;(f: <span class="kw-2">&amp;mut </span>F, node: <span class="kw">crate</span>::ConstParam) -&gt; <span class="kw">crate</span>::ConstParam
@@ -4953,7 +5107,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ConstParam {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         const_token: node.const_token,
         ident: f.fold_ident(node.ident),
         colon_token: node.colon_token,
@@ -5033,7 +5187,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::DeriveInput {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         ident: f.fold_ident(node.ident),
         generics: f.fold_generics(node.generics),
@@ -5118,6 +5272,9 @@
         <span class="kw">crate</span>::Expr::Range(_binding_0) =&gt; {
             <span class="kw">crate</span>::Expr::Range(<span class="macro">full!</span>(f.fold_expr_range(_binding_0)))
         }
+        <span class="kw">crate</span>::Expr::RawAddr(_binding_0) =&gt; {
+            <span class="kw">crate</span>::Expr::RawAddr(<span class="macro">full!</span>(f.fold_expr_raw_addr(_binding_0)))
+        }
         <span class="kw">crate</span>::Expr::Reference(_binding_0) =&gt; {
             <span class="kw">crate</span>::Expr::Reference(f.fold_expr_reference(_binding_0))
         }
@@ -5137,7 +5294,7 @@
             <span class="kw">crate</span>::Expr::TryBlock(<span class="macro">full!</span>(f.fold_expr_try_block(_binding_0)))
         }
         <span class="kw">crate</span>::Expr::Tuple(_binding_0) =&gt; {
-            <span class="kw">crate</span>::Expr::Tuple(<span class="macro">full!</span>(f.fold_expr_tuple(_binding_0)))
+            <span class="kw">crate</span>::Expr::Tuple(f.fold_expr_tuple(_binding_0))
         }
         <span class="kw">crate</span>::Expr::Unary(_binding_0) =&gt; {
             <span class="kw">crate</span>::Expr::Unary(f.fold_expr_unary(_binding_0))
@@ -5161,7 +5318,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprArray {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         bracket_token: node.bracket_token,
         elems: <span class="kw">crate</span>::punctuated::fold(node.elems, f, F::fold_expr),
     }
@@ -5173,7 +5330,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprAssign {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         left: Box::new(f.fold_expr(<span class="kw-2">*</span>node.left)),
         eq_token: node.eq_token,
         right: Box::new(f.fold_expr(<span class="kw-2">*</span>node.right)),
@@ -5186,7 +5343,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprAsync {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         async_token: node.async_token,
         capture: node.capture,
         block: f.fold_block(node.block),
@@ -5199,7 +5356,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprAwait {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         base: Box::new(f.fold_expr(<span class="kw-2">*</span>node.base)),
         dot_token: node.dot_token,
         await_token: node.await_token,
@@ -5212,7 +5369,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprBinary {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         left: Box::new(f.fold_expr(<span class="kw-2">*</span>node.left)),
         op: f.fold_bin_op(node.op),
         right: Box::new(f.fold_expr(<span class="kw-2">*</span>node.right)),
@@ -5225,7 +5382,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprBlock {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         label: (node.label).map(|it| f.fold_label(it)),
         block: f.fold_block(node.block),
     }
@@ -5237,7 +5394,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprBreak {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         break_token: node.break_token,
         label: (node.label).map(|it| f.fold_lifetime(it)),
         expr: (node.expr).map(|it| Box::new(f.fold_expr(<span class="kw-2">*</span>it))),
@@ -5250,7 +5407,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprCall {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         func: Box::new(f.fold_expr(<span class="kw-2">*</span>node.func)),
         paren_token: node.paren_token,
         args: <span class="kw">crate</span>::punctuated::fold(node.args, f, F::fold_expr),
@@ -5263,7 +5420,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprCast {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
         as_token: node.as_token,
         ty: Box::new(f.fold_type(<span class="kw-2">*</span>node.ty)),
@@ -5276,7 +5433,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprClosure {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         lifetimes: (node.lifetimes).map(|it| f.fold_bound_lifetimes(it)),
         constness: node.constness,
         movability: node.movability,
@@ -5296,7 +5453,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprConst {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         const_token: node.const_token,
         block: f.fold_block(node.block),
     }
@@ -5308,7 +5465,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprContinue {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         continue_token: node.continue_token,
         label: (node.label).map(|it| f.fold_lifetime(it)),
     }
@@ -5320,7 +5477,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprField {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         base: Box::new(f.fold_expr(<span class="kw-2">*</span>node.base)),
         dot_token: node.dot_token,
         member: f.fold_member(node.member),
@@ -5333,7 +5490,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprForLoop {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         label: (node.label).map(|it| f.fold_label(it)),
         for_token: node.for_token,
         pat: Box::new(f.fold_pat(<span class="kw-2">*</span>node.pat)),
@@ -5349,7 +5506,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprGroup {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         group_token: node.group_token,
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
     }
@@ -5361,7 +5518,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprIf {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         if_token: node.if_token,
         cond: Box::new(f.fold_expr(<span class="kw-2">*</span>node.cond)),
         then_branch: f.fold_block(node.then_branch),
@@ -5376,7 +5533,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprIndex {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
         bracket_token: node.bracket_token,
         index: Box::new(f.fold_expr(<span class="kw-2">*</span>node.index)),
@@ -5389,7 +5546,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprInfer {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         underscore_token: node.underscore_token,
     }
 }
@@ -5400,7 +5557,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprLet {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         let_token: node.let_token,
         pat: Box::new(f.fold_pat(<span class="kw-2">*</span>node.pat)),
         eq_token: node.eq_token,
@@ -5414,7 +5571,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprLit {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         lit: f.fold_lit(node.lit),
     }
 }
@@ -5425,7 +5582,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprLoop {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         label: (node.label).map(|it| f.fold_label(it)),
         loop_token: node.loop_token,
         body: f.fold_block(node.body),
@@ -5438,7 +5595,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprMacro {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         mac: f.fold_macro(node.mac),
     }
 }
@@ -5449,7 +5606,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprMatch {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         match_token: node.match_token,
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
         brace_token: node.brace_token,
@@ -5466,7 +5623,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprMethodCall {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         receiver: Box::new(f.fold_expr(<span class="kw-2">*</span>node.receiver)),
         dot_token: node.dot_token,
         method: f.fold_ident(node.method),
@@ -5483,7 +5640,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprParen {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         paren_token: node.paren_token,
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
     }
@@ -5495,7 +5652,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprPath {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         qself: (node.qself).map(|it| f.fold_qself(it)),
         path: f.fold_path(node.path),
     }
@@ -5507,10 +5664,24 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprRange {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         start: (node.start).map(|it| Box::new(f.fold_expr(<span class="kw-2">*</span>it))),
         limits: f.fold_range_limits(node.limits),
         end: (node.end).map(|it| Box::new(f.fold_expr(<span class="kw-2">*</span>it))),
+    }
+}
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>fold_expr_raw_addr&lt;F&gt;(f: <span class="kw-2">&amp;mut </span>F, node: <span class="kw">crate</span>::ExprRawAddr) -&gt; <span class="kw">crate</span>::ExprRawAddr
+<span class="kw">where
+    </span>F: Fold + <span class="question-mark">?</span>Sized,
+{
+    <span class="kw">crate</span>::ExprRawAddr {
+        attrs: f.fold_attributes(node.attrs),
+        and_token: node.and_token,
+        raw: node.raw,
+        mutability: f.fold_pointer_mutability(node.mutability),
+        expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
     }
 }
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
@@ -5523,7 +5694,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprReference {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         and_token: node.and_token,
         mutability: node.mutability,
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
@@ -5536,7 +5707,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprRepeat {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         bracket_token: node.bracket_token,
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
         semi_token: node.semi_token,
@@ -5550,7 +5721,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprReturn {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         return_token: node.return_token,
         expr: (node.expr).map(|it| Box::new(f.fold_expr(<span class="kw-2">*</span>it))),
     }
@@ -5562,7 +5733,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprStruct {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         qself: (node.qself).map(|it| f.fold_qself(it)),
         path: f.fold_path(node.path),
         brace_token: node.brace_token,
@@ -5578,7 +5749,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprTry {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
         question_token: node.question_token,
     }
@@ -5593,19 +5764,19 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprTryBlock {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         try_token: node.try_token,
         block: f.fold_block(node.block),
     }
 }
-<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
-#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+<span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))))]
 </span><span class="kw">pub fn </span>fold_expr_tuple&lt;F&gt;(f: <span class="kw-2">&amp;mut </span>F, node: <span class="kw">crate</span>::ExprTuple) -&gt; <span class="kw">crate</span>::ExprTuple
 <span class="kw">where
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprTuple {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         paren_token: node.paren_token,
         elems: <span class="kw">crate</span>::punctuated::fold(node.elems, f, F::fold_expr),
     }
@@ -5617,7 +5788,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprUnary {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         op: f.fold_un_op(node.op),
         expr: Box::new(f.fold_expr(<span class="kw-2">*</span>node.expr)),
     }
@@ -5629,7 +5800,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprUnsafe {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         unsafe_token: node.unsafe_token,
         block: f.fold_block(node.block),
     }
@@ -5641,7 +5812,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprWhile {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         label: (node.label).map(|it| f.fold_label(it)),
         while_token: node.while_token,
         cond: Box::new(f.fold_expr(<span class="kw-2">*</span>node.cond)),
@@ -5655,7 +5826,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ExprYield {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         yield_token: node.yield_token,
         expr: (node.expr).map(|it| Box::new(f.fold_expr(<span class="kw-2">*</span>it))),
     }
@@ -5667,7 +5838,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::Field {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         mutability: f.fold_field_mutability(node.mutability),
         ident: (node.ident).map(|it| f.fold_ident(it)),
@@ -5695,7 +5866,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::FieldPat {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         member: f.fold_member(node.member),
         colon_token: node.colon_token,
         pat: Box::new(f.fold_pat(<span class="kw-2">*</span>node.pat)),
@@ -5708,7 +5879,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::FieldValue {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         member: f.fold_member(node.member),
         colon_token: node.colon_token,
         expr: f.fold_expr(node.expr),
@@ -5763,7 +5934,7 @@
 {
     <span class="kw">crate</span>::File {
         shebang: node.shebang,
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         items: fold_vec(node.items, f, F::fold_item),
     }
 }
@@ -5816,7 +5987,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ForeignItemFn {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         sig: f.fold_signature(node.sig),
         semi_token: node.semi_token,
@@ -5832,7 +6003,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ForeignItemMacro {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         mac: f.fold_macro(node.mac),
         semi_token: node.semi_token,
     }
@@ -5847,7 +6018,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ForeignItemStatic {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         static_token: node.static_token,
         mutability: f.fold_static_mutability(node.mutability),
@@ -5867,7 +6038,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ForeignItemType {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         type_token: node.type_token,
         ident: f.fold_ident(node.ident),
@@ -5977,7 +6148,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ImplItemConst {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         defaultness: node.defaultness,
         const_token: node.const_token,
@@ -5997,7 +6168,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ImplItemFn {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         defaultness: node.defaultness,
         sig: f.fold_signature(node.sig),
@@ -6014,7 +6185,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ImplItemMacro {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         mac: f.fold_macro(node.mac),
         semi_token: node.semi_token,
     }
@@ -6029,7 +6200,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ImplItemType {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         defaultness: node.defaultness,
         type_token: node.type_token,
@@ -6112,7 +6283,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemConst {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         const_token: node.const_token,
         ident: f.fold_ident(node.ident),
@@ -6131,7 +6302,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemEnum {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         enum_token: node.enum_token,
         ident: f.fold_ident(node.ident),
@@ -6150,7 +6321,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemExternCrate {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         extern_token: node.extern_token,
         crate_token: node.crate_token,
@@ -6166,7 +6337,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemFn {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         sig: f.fold_signature(node.sig),
         block: Box::new(f.fold_block(<span class="kw-2">*</span>node.block)),
@@ -6182,7 +6353,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemForeignMod {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         unsafety: node.unsafety,
         abi: f.fold_abi(node.abi),
         brace_token: node.brace_token,
@@ -6196,7 +6367,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemImpl {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         defaultness: node.defaultness,
         unsafety: node.unsafety,
         impl_token: node.impl_token,
@@ -6214,7 +6385,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemMacro {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         ident: (node.ident).map(|it| f.fold_ident(it)),
         mac: f.fold_macro(node.mac),
         semi_token: node.semi_token,
@@ -6227,7 +6398,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemMod {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         unsafety: node.unsafety,
         mod_token: node.mod_token,
@@ -6243,7 +6414,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemStatic {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         static_token: node.static_token,
         mutability: f.fold_static_mutability(node.mutability),
@@ -6262,7 +6433,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemStruct {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         struct_token: node.struct_token,
         ident: f.fold_ident(node.ident),
@@ -6278,7 +6449,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemTrait {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         unsafety: node.unsafety,
         auto_token: node.auto_token,
@@ -6306,7 +6477,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemTraitAlias {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         trait_token: node.trait_token,
         ident: f.fold_ident(node.ident),
@@ -6323,7 +6494,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemType {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         type_token: node.type_token,
         ident: f.fold_ident(node.ident),
@@ -6340,7 +6511,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemUnion {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         union_token: node.union_token,
         ident: f.fold_ident(node.ident),
@@ -6355,7 +6526,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::ItemUse {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         vis: f.fold_visibility(node.vis),
         use_token: node.use_token,
         leading_colon: node.leading_colon,
@@ -6393,7 +6564,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::LifetimeParam {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         lifetime: f.fold_lifetime(node.lifetime),
         colon_token: node.colon_token,
         bounds: <span class="kw">crate</span>::punctuated::fold(node.bounds, f, F::fold_lifetime),
@@ -6496,7 +6667,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::Local {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         let_token: node.let_token,
         pat: f.fold_pat(node.pat),
         init: (node.init).map(|it| f.fold_local_init(it)),
@@ -6659,7 +6830,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatIdent {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         by_ref: node.by_ref,
         mutability: node.mutability,
         ident: f.fold_ident(node.ident),
@@ -6673,7 +6844,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatOr {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         leading_vert: node.leading_vert,
         cases: <span class="kw">crate</span>::punctuated::fold(node.cases, f, F::fold_pat),
     }
@@ -6685,7 +6856,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatParen {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         paren_token: node.paren_token,
         pat: Box::new(f.fold_pat(<span class="kw-2">*</span>node.pat)),
     }
@@ -6697,7 +6868,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatReference {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         and_token: node.and_token,
         mutability: node.mutability,
         pat: Box::new(f.fold_pat(<span class="kw-2">*</span>node.pat)),
@@ -6710,7 +6881,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatRest {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         dot2_token: node.dot2_token,
     }
 }
@@ -6721,7 +6892,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatSlice {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         bracket_token: node.bracket_token,
         elems: <span class="kw">crate</span>::punctuated::fold(node.elems, f, F::fold_pat),
     }
@@ -6733,7 +6904,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatStruct {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         qself: (node.qself).map(|it| f.fold_qself(it)),
         path: f.fold_path(node.path),
         brace_token: node.brace_token,
@@ -6748,7 +6919,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatTuple {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         paren_token: node.paren_token,
         elems: <span class="kw">crate</span>::punctuated::fold(node.elems, f, F::fold_pat),
     }
@@ -6763,7 +6934,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatTupleStruct {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         qself: (node.qself).map(|it| f.fold_qself(it)),
         path: f.fold_path(node.path),
         paren_token: node.paren_token,
@@ -6777,7 +6948,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatType {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         pat: Box::new(f.fold_pat(<span class="kw-2">*</span>node.pat)),
         colon_token: node.colon_token,
         ty: Box::new(f.fold_type(<span class="kw-2">*</span>node.ty)),
@@ -6790,7 +6961,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::PatWild {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         underscore_token: node.underscore_token,
     }
 }
@@ -6837,6 +7008,40 @@
     <span class="kw">crate</span>::PathSegment {
         ident: f.fold_ident(node.ident),
         arguments: f.fold_path_arguments(node.arguments),
+    }
+}
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>fold_pointer_mutability&lt;F&gt;(
+    f: <span class="kw-2">&amp;mut </span>F,
+    node: <span class="kw">crate</span>::PointerMutability,
+) -&gt; <span class="kw">crate</span>::PointerMutability
+<span class="kw">where
+    </span>F: Fold + <span class="question-mark">?</span>Sized,
+{
+    <span class="kw">match </span>node {
+        <span class="kw">crate</span>::PointerMutability::Const(_binding_0) =&gt; {
+            <span class="kw">crate</span>::PointerMutability::Const(_binding_0)
+        }
+        <span class="kw">crate</span>::PointerMutability::Mut(_binding_0) =&gt; {
+            <span class="kw">crate</span>::PointerMutability::Mut(_binding_0)
+        }
+    }
+}
+<span class="attr">#[cfg(feature = <span class="string">"full"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"full"</span>)))]
+</span><span class="kw">pub fn </span>fold_precise_capture&lt;F&gt;(
+    f: <span class="kw-2">&amp;mut </span>F,
+    node: <span class="kw">crate</span>::PreciseCapture,
+) -&gt; <span class="kw">crate</span>::PreciseCapture
+<span class="kw">where
+    </span>F: Fold + <span class="question-mark">?</span>Sized,
+{
+    <span class="kw">crate</span>::PreciseCapture {
+        use_token: node.use_token,
+        lt_token: node.lt_token,
+        params: <span class="kw">crate</span>::punctuated::fold(node.params, f, F::fold_captured_param),
+        gt_token: node.gt_token,
     }
 }
 <span class="attr">#[cfg(any(feature = <span class="string">"derive"</span>, feature = <span class="string">"full"</span>))]
@@ -6904,7 +7109,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::Receiver {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         reference: (node.reference)
             .map(|it| ((it).<span class="number">0</span>, ((it).<span class="number">1</span>).map(|it| f.fold_lifetime(it)))),
         mutability: node.mutability,
@@ -6992,7 +7197,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::StmtMacro {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         mac: f.fold_macro(node.mac),
         semi_token: node.semi_token,
     }
@@ -7058,7 +7263,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::TraitItemConst {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         const_token: node.const_token,
         ident: f.fold_ident(node.ident),
         generics: f.fold_generics(node.generics),
@@ -7075,7 +7280,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::TraitItemFn {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         sig: f.fold_signature(node.sig),
         default: (node.default).map(|it| f.fold_block(it)),
         semi_token: node.semi_token,
@@ -7091,7 +7296,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::TraitItemMacro {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         mac: f.fold_macro(node.mac),
         semi_token: node.semi_token,
     }
@@ -7106,7 +7311,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::TraitItemType {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         type_token: node.type_token,
         ident: f.fold_ident(node.ident),
         generics: f.fold_generics(node.generics),
@@ -7256,7 +7461,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::TypeParam {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         ident: f.fold_ident(node.ident),
         colon_token: node.colon_token,
         bounds: <span class="kw">crate</span>::punctuated::fold(node.bounds, f, F::fold_type_param_bound),
@@ -7279,6 +7484,11 @@
         }
         <span class="kw">crate</span>::TypeParamBound::Lifetime(_binding_0) =&gt; {
             <span class="kw">crate</span>::TypeParamBound::Lifetime(f.fold_lifetime(_binding_0))
+        }
+        <span class="kw">crate</span>::TypeParamBound::PreciseCapture(_binding_0) =&gt; {
+            <span class="kw">crate</span>::TypeParamBound::PreciseCapture(
+                <span class="macro">full!</span>(f.fold_precise_capture(_binding_0)),
+            )
         }
         <span class="kw">crate</span>::TypeParamBound::Verbatim(_binding_0) =&gt; {
             <span class="kw">crate</span>::TypeParamBound::Verbatim(_binding_0)
@@ -7470,7 +7680,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::Variadic {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         pat: (node.pat).map(|it| (Box::new(f.fold_pat(<span class="kw-2">*</span>(it).<span class="number">0</span>)), (it).<span class="number">1</span>)),
         dots: node.dots,
         comma: node.comma,
@@ -7483,7 +7693,7 @@
     </span>F: Fold + <span class="question-mark">?</span>Sized,
 {
     <span class="kw">crate</span>::Variant {
-        attrs: fold_vec(node.attrs, f, F::fold_attribute),
+        attrs: f.fold_attributes(node.attrs),
         ident: f.fold_ident(node.ident),
         fields: f.fold_fields(node.fields),
         discriminant: (node.discriminant).map(|it| ((it).<span class="number">0</span>, f.fold_expr((it).<span class="number">1</span>))),

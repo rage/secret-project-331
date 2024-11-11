@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fontdb-0.18.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fontdb" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fontdb-0.22.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="fontdb" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1300,6 +1300,85 @@
 <a href="#1300" id="1300">1300</a>
 <a href="#1301" id="1301">1301</a>
 <a href="#1302" id="1302">1302</a>
+<a href="#1303" id="1303">1303</a>
+<a href="#1304" id="1304">1304</a>
+<a href="#1305" id="1305">1305</a>
+<a href="#1306" id="1306">1306</a>
+<a href="#1307" id="1307">1307</a>
+<a href="#1308" id="1308">1308</a>
+<a href="#1309" id="1309">1309</a>
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+<a href="#1336" id="1336">1336</a>
+<a href="#1337" id="1337">1337</a>
+<a href="#1338" id="1338">1338</a>
+<a href="#1339" id="1339">1339</a>
+<a href="#1340" id="1340">1340</a>
+<a href="#1341" id="1341">1341</a>
+<a href="#1342" id="1342">1342</a>
+<a href="#1343" id="1343">1343</a>
+<a href="#1344" id="1344">1344</a>
+<a href="#1345" id="1345">1345</a>
+<a href="#1346" id="1346">1346</a>
+<a href="#1347" id="1347">1347</a>
+<a href="#1348" id="1348">1348</a>
+<a href="#1349" id="1349">1349</a>
+<a href="#1350" id="1350">1350</a>
+<a href="#1351" id="1351">1351</a>
+<a href="#1352" id="1352">1352</a>
+<a href="#1353" id="1353">1353</a>
+<a href="#1354" id="1354">1354</a>
+<a href="#1355" id="1355">1355</a>
+<a href="#1356" id="1356">1356</a>
+<a href="#1357" id="1357">1357</a>
+<a href="#1358" id="1358">1358</a>
+<a href="#1359" id="1359">1359</a>
+<a href="#1360" id="1360">1360</a>
+<a href="#1361" id="1361">1361</a>
+<a href="#1362" id="1362">1362</a>
+<a href="#1363" id="1363">1363</a>
+<a href="#1364" id="1364">1364</a>
+<a href="#1365" id="1365">1365</a>
+<a href="#1366" id="1366">1366</a>
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
 </pre></div><pre class="rust"><code><span class="doccomment">/*!
 `fontdb` is a simple, in-memory font database with CSS-like queries.
 
@@ -1604,38 +1683,86 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
     /// It will simply skip malformed fonts and will print a warning into the log for each of them.
     </span><span class="attr">#[cfg(feature = <span class="string">"fs"</span>)]
     </span><span class="kw">pub fn </span>load_fonts_dir&lt;P: AsRef&lt;std::path::Path&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dir: P) {
-        <span class="self">self</span>.load_fonts_dir_impl(dir.as_ref())
+        <span class="self">self</span>.load_fonts_dir_impl(dir.as_ref(), <span class="kw-2">&amp;mut </span>Default::default())
+    }
+
+    <span class="attr">#[cfg(feature = <span class="string">"fs"</span>)]
+    </span><span class="kw">fn </span>canonicalize(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        path: std::path::PathBuf,
+        entry: std::fs::DirEntry,
+        seen: <span class="kw-2">&amp;mut </span>std::collections::HashSet&lt;std::path::PathBuf&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(std::path::PathBuf, std::fs::FileType)&gt; {
+        <span class="kw">let </span>file_type = entry.file_type().ok()<span class="question-mark">?</span>;
+        <span class="kw">if </span>!file_type.is_symlink() {
+            <span class="kw">if </span>!seen.is_empty() {
+                <span class="kw">if </span>seen.contains(<span class="kw-2">&amp;</span>path) {
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
+                }
+                seen.insert(path.clone());
+            }
+
+            <span class="kw">return </span><span class="prelude-val">Some</span>((path, file_type));
+        }
+
+        <span class="kw">if </span>seen.is_empty() &amp;&amp; file_type.is_dir() {
+            seen.reserve(<span class="number">8192 </span>/ std::mem::size_of::&lt;std::path::PathBuf&gt;());
+
+            <span class="kw">for </span>(<span class="kw">_</span>, info) <span class="kw">in </span><span class="self">self</span>.faces.iter() {
+                <span class="kw">let </span>path = <span class="kw">match </span><span class="kw-2">&amp;</span>info.source {
+                    Source::Binary(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
+                    Source::File(path) =&gt; path.to_path_buf(),
+                    <span class="attr">#[cfg(feature = <span class="string">"memmap"</span>)]
+                    </span>Source::SharedFile(path, <span class="kw">_</span>) =&gt; path.to_path_buf(),
+                };
+                seen.insert(path);
+            }
+        }
+
+        <span class="kw">let </span>stat = std::fs::metadata(<span class="kw-2">&amp;</span>path).ok()<span class="question-mark">?</span>;
+        <span class="kw">if </span>stat.is_symlink() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+
+        <span class="kw">let </span>canon = std::fs::canonicalize(path).ok()<span class="question-mark">?</span>;
+        <span class="kw">if </span>seen.contains(<span class="kw-2">&amp;</span>canon) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
+        }
+        seen.insert(canon.clone());
+        <span class="prelude-val">Some</span>((canon, stat.file_type()))
     }
 
     <span class="comment">// A non-generic version.
-    </span><span class="attr">#[rustfmt::skip] </span><span class="comment">// keep extensions match as is
     </span><span class="attr">#[cfg(feature = <span class="string">"fs"</span>)]
-    </span><span class="kw">fn </span>load_fonts_dir_impl(<span class="kw-2">&amp;mut </span><span class="self">self</span>, dir: <span class="kw-2">&amp;</span>std::path::Path) {
+    </span><span class="kw">fn </span>load_fonts_dir_impl(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        dir: <span class="kw-2">&amp;</span>std::path::Path,
+        seen: <span class="kw-2">&amp;mut </span>std::collections::HashSet&lt;std::path::PathBuf&gt;,
+    ) {
         <span class="kw">let </span>fonts_dir = <span class="kw">match </span>std::fs::read_dir(dir) {
             <span class="prelude-val">Ok</span>(dir) =&gt; dir,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
         };
 
         <span class="kw">for </span>entry <span class="kw">in </span>fonts_dir.flatten() {
-            <span class="kw">let </span>path = entry.path();
-            <span class="kw">let </span>file_type = <span class="kw">match </span>entry.file_type() {
-                <span class="prelude-val">Ok</span>(t) =&gt; t,
-                <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return</span>,
+            <span class="kw">let </span>(path, file_type) = <span class="kw">match </span><span class="self">self</span>.canonicalize(entry.path(), entry, seen) {
+                <span class="prelude-val">Some</span>(v) =&gt; v,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">continue</span>,
             };
 
             <span class="kw">if </span>file_type.is_file() {
                 <span class="kw">match </span>path.extension().and_then(|e| e.to_str()) {
-                    <span class="prelude-val">Some</span>(<span class="string">"ttf"</span>) | <span class="prelude-val">Some</span>(<span class="string">"ttc"</span>) | <span class="prelude-val">Some</span>(<span class="string">"TTF"</span>) | <span class="prelude-val">Some</span>(<span class="string">"TTC"</span>) |
+                    <span class="attr">#[rustfmt::skip] </span><span class="comment">// keep extensions match as is
+                    </span><span class="prelude-val">Some</span>(<span class="string">"ttf"</span>) | <span class="prelude-val">Some</span>(<span class="string">"ttc"</span>) | <span class="prelude-val">Some</span>(<span class="string">"TTF"</span>) | <span class="prelude-val">Some</span>(<span class="string">"TTC"</span>) |
                     <span class="prelude-val">Some</span>(<span class="string">"otf"</span>) | <span class="prelude-val">Some</span>(<span class="string">"otc"</span>) | <span class="prelude-val">Some</span>(<span class="string">"OTF"</span>) | <span class="prelude-val">Some</span>(<span class="string">"OTC"</span>) =&gt; {
                         <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="self">self</span>.load_font_file(<span class="kw-2">&amp;</span>path) {
                             <span class="macro">log::warn!</span>(<span class="string">"Failed to load '{}' cause {}."</span>, path.display(), e);
                         }
-                    }
+                    },
                     <span class="kw">_ </span>=&gt; {}
                 }
             } <span class="kw">else if </span>file_type.is_dir() {
-                <span class="comment">// TODO: ignore symlinks?
-                </span><span class="self">self</span>.load_fonts_dir(path);
+                <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>path, seen);
             }
         }
     }
@@ -1654,24 +1781,32 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
     </span><span class="kw">pub fn </span>load_system_fonts(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="attr">#[cfg(target_os = <span class="string">"windows"</span>)]
         </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>seen = Default::default();
             <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>system_root) = std::env::var_os(<span class="string">"SYSTEMROOT"</span>) {
                 <span class="kw">let </span>system_root_path = std::path::Path::new(system_root);
-                <span class="self">self</span>.load_fonts_dir(system_root_path.join(<span class="string">"Fonts"</span>));
+                <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>system_root_path.join(<span class="string">"Fonts"</span>), <span class="kw-2">&amp;mut </span>seen);
             } <span class="kw">else </span>{
-                <span class="self">self</span>.load_fonts_dir(<span class="string">"C:\\Windows\\Fonts\\"</span>);
+                <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"C:\\Windows\\Fonts\\"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
             }
 
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>home) = std::env::var(<span class="string">"USERPROFILE"</span>) {
                 <span class="kw">let </span>home_path = std::path::Path::new(home);
-                <span class="self">self</span>.load_fonts_dir(home_path.join(<span class="string">"AppData\\Local\\Microsoft\\Windows\\Fonts"</span>));
-                <span class="self">self</span>.load_fonts_dir(home_path.join(<span class="string">"AppData\\Roaming\\Microsoft\\Windows\\Fonts"</span>));
+                <span class="self">self</span>.load_fonts_dir_impl(
+                    <span class="kw-2">&amp;</span>home_path.join(<span class="string">"AppData\\Local\\Microsoft\\Windows\\Fonts"</span>),
+                    <span class="kw-2">&amp;mut </span>seen,
+                );
+                <span class="self">self</span>.load_fonts_dir_impl(
+                    <span class="kw-2">&amp;</span>home_path.join(<span class="string">"AppData\\Roaming\\Microsoft\\Windows\\Fonts"</span>),
+                    <span class="kw-2">&amp;mut </span>seen,
+                );
             }
         }
 
         <span class="attr">#[cfg(target_os = <span class="string">"macos"</span>)]
         </span>{
-            <span class="self">self</span>.load_fonts_dir(<span class="string">"/Library/Fonts"</span>);
-            <span class="self">self</span>.load_fonts_dir(<span class="string">"/System/Library/Fonts"</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>seen = Default::default();
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"/Library/Fonts"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"/System/Library/Fonts"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
             <span class="comment">// Downloadable fonts, location varies on major macOS releases
             </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(dir) = std::fs::read_dir(<span class="string">"/System/Library/AssetsV2"</span>) {
                 <span class="kw">for </span>entry <span class="kw">in </span>dir {
@@ -1684,22 +1819,23 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
                         .to_string_lossy()
                         .starts_with(<span class="string">"com_apple_MobileAsset_Font"</span>)
                     {
-                        <span class="self">self</span>.load_fonts_dir(entry.path());
+                        <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>entry.path(), <span class="kw-2">&amp;mut </span>seen);
                     }
                 }
             }
-            <span class="self">self</span>.load_fonts_dir(<span class="string">"/Network/Library/Fonts"</span>);
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"/Network/Library/Fonts"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
 
             <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>home) = std::env::var(<span class="string">"HOME"</span>) {
                 <span class="kw">let </span>home_path = std::path::Path::new(home);
-                <span class="self">self</span>.load_fonts_dir(home_path.join(<span class="string">"Library/Fonts"</span>));
+                <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>home_path.join(<span class="string">"Library/Fonts"</span>), <span class="kw-2">&amp;mut </span>seen);
             }
         }
 
         <span class="comment">// Redox OS.
         </span><span class="attr">#[cfg(target_os = <span class="string">"redox"</span>)]
         </span>{
-            <span class="self">self</span>.load_fonts_dir(<span class="string">"/ui/fonts"</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>seen = Default::default();
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"/ui/fonts"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
         }
 
         <span class="comment">// Linux.
@@ -1707,20 +1843,35 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
         </span>{
             <span class="attr">#[cfg(feature = <span class="string">"fontconfig"</span>)]
             </span>{
-                <span class="self">self</span>.load_fontconfig();
+                <span class="kw">if </span>!<span class="self">self</span>.load_fontconfig() {
+                    <span class="macro">log::warn!</span>(<span class="string">"Fallback to loading from known font dir paths."</span>);
+                    <span class="self">self</span>.load_no_fontconfig();
+                }
             }
 
             <span class="attr">#[cfg(not(feature = <span class="string">"fontconfig"</span>))]
             </span>{
-                <span class="self">self</span>.load_fonts_dir(<span class="string">"/usr/share/fonts/"</span>);
-                <span class="self">self</span>.load_fonts_dir(<span class="string">"/usr/local/share/fonts/"</span>);
-
-                <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>home) = std::env::var(<span class="string">"HOME"</span>) {
-                    <span class="kw">let </span>home_path = std::path::Path::new(home);
-                    <span class="self">self</span>.load_fonts_dir(home_path.join(<span class="string">".fonts"</span>));
-                    <span class="self">self</span>.load_fonts_dir(home_path.join(<span class="string">".local/share/fonts"</span>));
-                }
+                <span class="self">self</span>.load_no_fontconfig();
             }
+        }
+    }
+
+
+    <span class="comment">// Linux.
+    </span><span class="attr">#[cfg(all(
+        unix,
+        feature = <span class="string">"fs"</span>,
+        not(any(target_os = <span class="string">"macos"</span>, target_os = <span class="string">"android"</span>))
+    ))]
+    </span><span class="kw">fn </span>load_no_fontconfig(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>seen = Default::default();
+        <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"/usr/share/fonts/"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
+        <span class="self">self</span>.load_fonts_dir_impl(<span class="string">"/usr/local/share/fonts/"</span>.as_ref(), <span class="kw-2">&amp;mut </span>seen);
+
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>home) = std::env::var(<span class="string">"HOME"</span>) {
+            <span class="kw">let </span>home_path = std::path::Path::new(home);
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>home_path.join(<span class="string">".fonts"</span>), <span class="kw-2">&amp;mut </span>seen);
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>home_path.join(<span class="string">".local/share/fonts"</span>), <span class="kw-2">&amp;mut </span>seen);
         }
     }
 
@@ -1730,7 +1881,7 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
         feature = <span class="string">"fontconfig"</span>,
         not(any(target_os = <span class="string">"macos"</span>, target_os = <span class="string">"android"</span>))
     ))]
-    </span><span class="kw">fn </span>load_fontconfig(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+    </span><span class="kw">fn </span>load_fontconfig(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
         <span class="kw">use </span>std::path::Path;
 
         <span class="kw">let </span><span class="kw-2">mut </span>fontconfig = fontconfig_parser::FontConfig::default();
@@ -1787,6 +1938,11 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
             }
         }
 
+        <span class="kw">if </span>fontconfig.dirs.is_empty() {
+            <span class="kw">return </span><span class="bool-val">false</span>;
+        }
+
+        <span class="kw">let </span><span class="kw-2">mut </span>seen = Default::default();
         <span class="kw">for </span>dir <span class="kw">in </span>fontconfig.dirs {
             <span class="kw">let </span>path = <span class="kw">if </span>dir.path.starts_with(<span class="string">"~"</span>) {
                 <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>home) = home {
@@ -1797,9 +1953,11 @@ then you can use the unsafe [`Database::make_shared_face_data`] function.
             } <span class="kw">else </span>{
                 dir.path
             };
-            <span class="self">self</span>.load_fonts_dir(path);
+            <span class="self">self</span>.load_fonts_dir_impl(<span class="kw-2">&amp;</span>path, <span class="kw-2">&amp;mut </span>seen);
         }
-    }
+
+        <span class="bool-val">true
+    </span>}
 
     <span class="doccomment">/// Pushes a user-provided `FaceInfo` to the database.
     ///

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/kurbo-0.11.1/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="kurbo" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -135,6 +135,15 @@
 <a href="#135" id="135">135</a>
 <a href="#136" id="136">136</a>
 <a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
 </pre></div><pre class="rust"><code><span class="comment">// Copyright 2018 the Kurbo Authors
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
@@ -201,19 +210,20 @@
 //! efficient as the standard library, and that this crate still uses the
 //! `alloc` crate regardless.
 //!
-//! [`Piet`]: https://docs.rs/piet
-//! [`Druid`]: https://docs.rs/druid
 //! [`libm`]: https://docs.rs/libm
 
 </span><span class="attr">#![forbid(unsafe_code)]
 #![deny(missing_docs, clippy::trivially_copy_pass_by_ref)]
 #![warn(clippy::doc_markdown, rustdoc::broken_intra_doc_links)]
+#![warn(clippy::semicolon_if_nothing_returned)]
+#![warn(unused_qualifications)]
 #![allow(
     clippy::unreadable_literal,
     clippy::many_single_char_names,
     clippy::excessive_precision,
     clippy::bool_to_int_with_if
 )]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(all(not(feature = <span class="string">"std"</span>), not(test)), no_std)]
 
 #[cfg(not(any(feature = <span class="string">"std"</span>, feature = <span class="string">"libm"</span>)))]
@@ -244,32 +254,40 @@
 <span class="kw">pub mod </span>simplify;
 <span class="kw">mod </span>size;
 <span class="kw">mod </span>stroke;
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">mod </span>svg;
+<span class="kw">mod </span>svg;
 <span class="kw">mod </span>translate_scale;
 <span class="kw">mod </span>vec2;
 
-<span class="kw">pub use </span><span class="kw">crate</span>::affine::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::arc::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::bezpath::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::circle::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::cubicbez::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::ellipse::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::fit::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::insets::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::line::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::param_curve::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::point::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::quadbez::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::quadspline::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::rect::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect_radii::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::shape::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::size::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::stroke::<span class="kw-2">*</span>;
-<span class="attr">#[cfg(feature = <span class="string">"std"</span>)]
-</span><span class="kw">pub use </span><span class="kw">crate</span>::svg::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::translate_scale::<span class="kw-2">*</span>;
-<span class="kw">pub use </span><span class="kw">crate</span>::vec2::<span class="kw-2">*</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::affine::Affine;
+<span class="kw">pub use </span><span class="kw">crate</span>::arc::{Arc, ArcAppendIter};
+<span class="kw">pub use </span><span class="kw">crate</span>::bezpath::{
+    flatten, segments, BezPath, LineIntersection, MinDistance, PathEl, PathSeg, PathSegIter,
+    Segments,
+};
+<span class="kw">pub use </span><span class="kw">crate</span>::circle::{Circle, CirclePathIter, CircleSegment};
+<span class="kw">pub use </span><span class="kw">crate</span>::cubicbez::{cubics_to_quadratic_splines, CubicBez, CubicBezIter, CuspType};
+<span class="kw">pub use </span><span class="kw">crate</span>::ellipse::Ellipse;
+<span class="kw">pub use </span><span class="kw">crate</span>::fit::{
+    fit_to_bezpath, fit_to_bezpath_opt, fit_to_cubic, CurveFitSample, ParamCurveFit,
+};
+<span class="kw">pub use </span><span class="kw">crate</span>::insets::Insets;
+<span class="kw">pub use </span><span class="kw">crate</span>::line::{ConstPoint, Line, LinePathIter};
+<span class="kw">pub use </span><span class="kw">crate</span>::param_curve::{
+    Nearest, ParamCurve, ParamCurveArclen, ParamCurveArea, ParamCurveCurvature, ParamCurveDeriv,
+    ParamCurveExtrema, ParamCurveNearest, DEFAULT_ACCURACY, MAX_EXTREMA,
+};
+<span class="kw">pub use </span><span class="kw">crate</span>::point::Point;
+<span class="kw">pub use </span><span class="kw">crate</span>::quadbez::{QuadBez, QuadBezIter};
+<span class="kw">pub use </span><span class="kw">crate</span>::quadspline::QuadSpline;
+<span class="kw">pub use </span><span class="kw">crate</span>::rect::{Rect, RectPathIter};
+<span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect::{RoundedRect, RoundedRectPathIter};
+<span class="kw">pub use </span><span class="kw">crate</span>::rounded_rect_radii::RoundedRectRadii;
+<span class="kw">pub use </span><span class="kw">crate</span>::shape::Shape;
+<span class="kw">pub use </span><span class="kw">crate</span>::size::Size;
+<span class="kw">pub use </span><span class="kw">crate</span>::stroke::{
+    dash, stroke, Cap, DashIterator, Dashes, Join, Stroke, StrokeOptLevel, StrokeOpts,
+};
+<span class="kw">pub use </span><span class="kw">crate</span>::svg::{SvgArc, SvgParseError};
+<span class="kw">pub use </span><span class="kw">crate</span>::translate_scale::TranslateScale;
+<span class="kw">pub use </span><span class="kw">crate</span>::vec2::Vec2;
 </code></pre></div></section></main></body></html>

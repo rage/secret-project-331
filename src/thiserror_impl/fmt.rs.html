@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thiserror-impl-1.0.63/src/fmt.rs`."><title>fmt.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="thiserror_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/thiserror-impl-1.0.67/src/fmt.rs`."><title>fmt.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="thiserror_impl" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -171,14 +171,72 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
+<a href="#220" id="220">220</a>
+<a href="#221" id="221">221</a>
+<a href="#222" id="222">222</a>
+<a href="#223" id="223">223</a>
+<a href="#224" id="224">224</a>
+<a href="#225" id="225">225</a>
+<a href="#226" id="226">226</a>
+<a href="#227" id="227">227</a>
+<a href="#228" id="228">228</a>
+<a href="#229" id="229">229</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ast::Field;
 <span class="kw">use </span><span class="kw">crate</span>::attr::{Display, Trait};
-<span class="kw">use </span>proc_macro2::TokenTree;
-<span class="kw">use </span>quote::{format_ident, quote_spanned};
+<span class="kw">use </span><span class="kw">crate</span>::scan_expr;
+<span class="kw">use </span>proc_macro2::{TokenStream, TokenTree};
+<span class="kw">use </span>quote::{format_ident, quote, quote_spanned};
 <span class="kw">use </span>std::collections::{BTreeSet <span class="kw">as </span>Set, HashMap <span class="kw">as </span>Map};
 <span class="kw">use </span>syn::ext::IdentExt;
+<span class="kw">use </span>syn::parse::discouraged::Speculative;
 <span class="kw">use </span>syn::parse::{ParseStream, Parser};
-<span class="kw">use </span>syn::{Ident, Index, LitStr, Member, <span class="prelude-ty">Result</span>, Token};
+<span class="kw">use </span>syn::{Expr, Ident, Index, LitStr, Member, <span class="prelude-ty">Result</span>, Token};
 
 <span class="kw">impl </span>Display&lt;<span class="lifetime">'_</span>&gt; {
     <span class="comment">// Transform `"error {var}"` to `"error {}", var`.
@@ -266,11 +324,6 @@
             <span class="kw">if </span>formatvar.to_string().starts_with(<span class="string">"r#"</span>) {
                 formatvar = <span class="macro">format_ident!</span>(<span class="string">"r_{}"</span>, formatvar);
             }
-            <span class="kw">if </span>formatvar.to_string().starts_with(<span class="string">'_'</span>) {
-                <span class="comment">// Work around leading underscore being rejected by 1.40 and
-                // older compilers. https://github.com/rust-lang/rust/pull/66847
-                </span>formatvar = <span class="macro">format_ident!</span>(<span class="string">"field_{}"</span>, formatvar);
-            }
             out += <span class="kw-2">&amp;</span>formatvar.to_string();
             <span class="kw">if </span>!named_args.insert(formatvar.clone()) {
                 <span class="comment">// Already specified in the format argument list.
@@ -295,7 +348,50 @@
     }
 }
 
-<span class="kw">fn </span>explicit_named_args(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;Set&lt;Ident&gt;&gt; {
+<span class="attr">#[allow(clippy::unnecessary_wraps)]
+</span><span class="kw">fn </span>explicit_named_args(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;Set&lt;Ident&gt;&gt; {
+    <span class="kw">let </span>ahead = input.fork();
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(set) = try_explicit_named_args(<span class="kw-2">&amp;</span>ahead) {
+        input.advance_to(<span class="kw-2">&amp;</span>ahead);
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(set);
+    }
+
+    <span class="kw">let </span>ahead = input.fork();
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(set) = fallback_explicit_named_args(<span class="kw-2">&amp;</span>ahead) {
+        input.advance_to(<span class="kw-2">&amp;</span>ahead);
+        <span class="kw">return </span><span class="prelude-val">Ok</span>(set);
+    }
+
+    input.parse::&lt;TokenStream&gt;().unwrap();
+    <span class="prelude-val">Ok</span>(Set::new())
+}
+
+<span class="kw">fn </span>try_explicit_named_args(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;Set&lt;Ident&gt;&gt; {
+    <span class="kw">let </span>scan_expr = <span class="kw">if </span>is_syn_full() {
+        |input: ParseStream| input.parse::&lt;Expr&gt;().map(drop)
+    } <span class="kw">else </span>{
+        scan_expr::scan_expr
+    };
+
+    <span class="kw">let </span><span class="kw-2">mut </span>named_args = Set::new();
+
+    <span class="kw">while </span>!input.is_empty() {
+        input.parse::&lt;<span class="macro">Token!</span>[,]&gt;()<span class="question-mark">?</span>;
+        <span class="kw">if </span>input.is_empty() {
+            <span class="kw">break</span>;
+        }
+        <span class="kw">if </span>input.peek(Ident::peek_any) &amp;&amp; input.peek2(<span class="macro">Token!</span>[=]) &amp;&amp; !input.peek2(<span class="macro">Token!</span>[==]) {
+            <span class="kw">let </span>ident = input.call(Ident::parse_any)<span class="question-mark">?</span>;
+            input.parse::&lt;<span class="macro">Token!</span>[=]&gt;()<span class="question-mark">?</span>;
+            named_args.insert(ident);
+        }
+        scan_expr(input)<span class="question-mark">?</span>;
+    }
+
+    <span class="prelude-val">Ok</span>(named_args)
+}
+
+<span class="kw">fn </span>fallback_explicit_named_args(input: ParseStream) -&gt; <span class="prelude-ty">Result</span>&lt;Set&lt;Ident&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>named_args = Set::new();
 
     <span class="kw">while </span>!input.is_empty() {
@@ -304,12 +400,28 @@
             <span class="kw">let </span>ident = input.call(Ident::parse_any)<span class="question-mark">?</span>;
             input.parse::&lt;<span class="macro">Token!</span>[=]&gt;()<span class="question-mark">?</span>;
             named_args.insert(ident);
-        } <span class="kw">else </span>{
-            input.parse::&lt;TokenTree&gt;()<span class="question-mark">?</span>;
         }
     }
 
     <span class="prelude-val">Ok</span>(named_args)
+}
+
+<span class="kw">fn </span>is_syn_full() -&gt; bool {
+    <span class="comment">// Expr::Block contains syn::Block which contains Vec&lt;syn::Stmt&gt;. In the
+    // current version of Syn, syn::Stmt is exhaustive and could only plausibly
+    // represent `trait Trait {}` in Stmt::Item which contains syn::Item. Most
+    // of the point of syn's non-"full" mode is to avoid compiling Item and the
+    // entire expansive syntax tree it comprises. So the following expression
+    // being parsed to Expr::Block is a reliable indication that "full" is
+    // enabled.
+    </span><span class="kw">let </span>test = <span class="macro">quote!</span>({
+        <span class="kw">trait </span>Trait {}
+    });
+    <span class="kw">match </span>syn::parse2(test) {
+        <span class="prelude-val">Ok</span>(Expr::Verbatim(<span class="kw">_</span>)) | <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="bool-val">false</span>,
+        <span class="prelude-val">Ok</span>(Expr::Block(<span class="kw">_</span>)) =&gt; <span class="bool-val">true</span>,
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+    }
 }
 
 <span class="kw">fn </span>take_int(read: <span class="kw-2">&amp;mut &amp;</span>str) -&gt; String {

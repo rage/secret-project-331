@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Mark an `async fn` as a test with SQLx support."><title>test in sqlx - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../sqlx/index.html">sqlx</a><span class="version">0.8.1</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">sqlx</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/sqlx_macros/lib.rs.html#87">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[test]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Mark an <code>async fn</code> as a test with SQLx support.</p>
-<p>The test will automatically be executed in the async runtime according to the chosen 
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Mark an `async fn` as a test with SQLx support."><title>test in sqlx - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="sqlx" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../static.files/storage-118b08c4c78b968e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc attr"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../sqlx/index.html">sqlx</a><span class="version">0.8.2</span></h2></div><div class="sidebar-elems"></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Attribute Macro <a href="index.html">sqlx</a>::<wbr><a class="attr" href="#">test</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/sqlx_macros/lib.rs.html#87">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>#[test]</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Mark an <code>async fn</code> as a test with SQLx support.</p>
+<p>The test will automatically be executed in the async runtime according to the chosen
 <code>runtime-{async-std, tokio}</code> feature. If more than one runtime feature is enabled, <code>runtime-tokio</code> is preferred.</p>
 <p>By default, this behaves identically to <code>#[tokio::test]</code><sup>1</sup> or <code>#[async_std::test]</code>:</p>
 
@@ -29,14 +29,14 @@ but are isolated from each other.</p>
 <li><code>async fn(PoolOptions&lt;DB&gt;, impl ConnectOptions&lt;DB&gt;) -&gt; Ret</code>
 <ul>
 <li>Where <code>impl ConnectOptions</code> is, e.g, <code>PgConnectOptions</code>, <code>MySqlConnectOptions</code>, etc.</li>
-<li>If your test wants to create its own <code>Pool</code> (for example, to set pool callbacks or to modify <code>ConnectOptions</code>), 
+<li>If your test wants to create its own <code>Pool</code> (for example, to set pool callbacks or to modify <code>ConnectOptions</code>),
 you can use this signature.</li>
 </ul>
 </li>
 </ul>
 <p>Where <code>DB</code> is a supported <code>Database</code> type and <code>Ret</code> is <code>()</code> or <code>Result&lt;_, _&gt;</code>.</p>
 <h6 id="supported-databases"><a class="doc-anchor" href="#supported-databases">§</a>Supported Databases</h6>
-<p>Most of these will require you to set <code>DATABASE_URL</code> as an environment variable 
+<p>Most of these will require you to set <code>DATABASE_URL</code> as an environment variable
 or in a <code>.env</code> file like <code>sqlx::query!()</code> <em>et al</em>, to give the test driver a superuser connection with which
 to manage test databases.</p>
 <div><table><thead><tr><th>Database</th><th>Requires <code>DATABASE_URL</code></th></tr></thead><tbody>
@@ -48,7 +48,7 @@ to manage test databases.</p>
 <p>Test databases are automatically cleaned up as tests succeed, but failed tests will leave their databases in-place
 to facilitate debugging. Note that to simplify the implementation, panics are <em>always</em> considered to be failures,
 even for <code>#[should_panic]</code> tests.</p>
-<p>To limit disk space usage, any previously created test databases will be deleted the next time a test binary using 
+<p>To limit disk space usage, any previously created test databases will be deleted the next time a test binary using
 <code>#[sqlx::test]</code> is run.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>sqlx::{PgPool, Row};
@@ -68,8 +68,8 @@ even for <code>#[should_panic]</code> tests.</p>
 <p><sup>2</sup> SQLite defaults to <code>target/sqlx/test-dbs/&lt;path&gt;.sqlite</code> where <code>&lt;path&gt;</code> is the path of the test function
 converted to a filesystem path (<code>::</code> replaced with <code>/</code>).</p>
 <h4 id="automatic-migrations-requires-migrate-feature"><a class="doc-anchor" href="#automatic-migrations-requires-migrate-feature">§</a>Automatic Migrations (requires <code>migrate</code> feature)</h4>
-<p>To ensure a straightforward test implementation against a fresh test database, migrations are automatically applied if a 
-<code>migrations</code> folder is found in the same directory as <code>CARGO_MANIFEST_DIR</code> (the directory where the current crate’s 
+<p>To ensure a straightforward test implementation against a fresh test database, migrations are automatically applied if a
+<code>migrations</code> folder is found in the same directory as <code>CARGO_MANIFEST_DIR</code> (the directory where the current crate’s
 <code>Cargo.toml</code> resides).</p>
 <p>You can override the resolved path relative to <code>CARGO_MANIFEST_DIR</code> in the attribute (global overrides are not currently
 supported):</p>
@@ -164,7 +164,7 @@ the database to already have users and posts in it so the comments tests don’t
 }</code></pre></div>
 <p>Multiple <code>fixtures</code> attributes can be used to combine different operating modes.</p>
 <p><sup>3</sup>Ordering for test fixtures is entirely up to the application, and each test may choose which fixtures to
-apply and which to omit. However, since each fixture is applied separately (sent as a single command string, so wrapped 
-in an implicit <code>BEGIN</code> and <code>COMMIT</code>), you will want to make sure to order the fixtures such that foreign key 
-requirements are always satisfied, or else you might get errors. </p>
+apply and which to omit. However, since each fixture is applied separately (sent as a single command string, so wrapped
+in an implicit <code>BEGIN</code> and <code>COMMIT</code>), you will want to make sure to order the fixtures such that foreign key
+requirements are always satisfied, or else you might get errors.</p>
 </div></details></section></div></main></body></html>

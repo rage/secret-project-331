@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/histogram.rs`."><title>histogram.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/histogram.rs`."><title>histogram.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -532,24 +532,22 @@
 <a href="#532" id="532">532</a>
 <a href="#533" id="533">533</a>
 <a href="#534" id="534">534</a>
-<a href="#535" id="535">535</a>
-</pre></div><pre class="rust"><code><span class="attr">#![allow(dead_code)]
+</pre></div><pre class="rust"><code><span class="kw">use </span>core;
+<span class="kw">use </span>core::cmp::min;
 
-</span><span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{SliceWrapper, SliceWrapperMut};
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc;
+<span class="kw">use </span><span class="kw">super</span>::<span class="kw">super</span>::alloc::{SliceWrapper, SliceWrapperMut};
 <span class="kw">use </span><span class="kw">super</span>::block_split::BlockSplit;
 <span class="kw">use </span><span class="kw">super</span>::command::Command;
 <span class="kw">use </span><span class="kw">super</span>::constants::{kSigned3BitContextLookup, kUTF8ContextLookup};
+<span class="kw">use </span><span class="kw">super</span>::util::floatX;
 <span class="kw">use </span><span class="kw">super</span>::vectorization::Mem256i;
-<span class="kw">use </span>core::cmp::min;
-<span class="kw">static </span>kBrotliMinWindowBits: i32 = <span class="number">10i32</span>;
-
-<span class="kw">static </span>kBrotliMaxWindowBits: i32 = <span class="number">24i32</span>;
 
 <span class="comment">//#[derive(Clone)] clone is broken for arrays &gt; 32
 </span><span class="kw">pub struct </span>HistogramLiteral {
     <span class="kw">pub </span>data_: [u32; <span class="number">256</span>],
     <span class="kw">pub </span>total_count_: usize,
-    <span class="kw">pub </span>bit_cost_: <span class="kw">super</span>::util::floatX,
+    <span class="kw">pub </span>bit_cost_: floatX,
 }
 <span class="kw">impl </span>Clone <span class="kw">for </span>HistogramLiteral {
     <span class="attr">#[inline(always)]
@@ -567,7 +565,7 @@
         HistogramLiteral {
             data_: [<span class="number">0</span>; <span class="number">256</span>],
             total_count_: <span class="number">0</span>,
-            bit_cost_: <span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+            bit_cost_: <span class="number">3.402e+38</span>,
         }
     }
 }
@@ -575,7 +573,7 @@
 </span><span class="kw">pub struct </span>HistogramCommand {
     <span class="kw">pub </span>data_: [u32; <span class="number">704</span>],
     <span class="kw">pub </span>total_count_: usize,
-    <span class="kw">pub </span>bit_cost_: <span class="kw">super</span>::util::floatX,
+    <span class="kw">pub </span>bit_cost_: floatX,
 }
 <span class="kw">impl </span>Clone <span class="kw">for </span>HistogramCommand {
     <span class="attr">#[inline(always)]
@@ -593,7 +591,7 @@
         HistogramCommand {
             data_: [<span class="number">0</span>; <span class="number">704</span>],
             total_count_: <span class="number">0</span>,
-            bit_cost_: <span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+            bit_cost_: <span class="number">3.402e+38</span>,
         }
     }
 }
@@ -607,7 +605,7 @@
 <span class="kw">pub struct </span>HistogramDistance {
     <span class="kw">pub </span>data_: [u32; BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS],
     <span class="kw">pub </span>total_count_: usize,
-    <span class="kw">pub </span>bit_cost_: <span class="kw">super</span>::util::floatX,
+    <span class="kw">pub </span>bit_cost_: floatX,
 }
 <span class="kw">impl </span>Clone <span class="kw">for </span>HistogramDistance {
     <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HistogramDistance {
@@ -623,7 +621,7 @@
         HistogramDistance {
             data_: [<span class="number">0</span>; BROTLI_NUM_HISTOGRAM_DISTANCE_SYMBOLS],
             total_count_: <span class="number">0</span>,
-            bit_cost_: <span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX,
+            bit_cost_: <span class="number">3.402e+38</span>,
         }
     }
 }
@@ -632,8 +630,8 @@
     <span class="kw">type </span>i32vec: Sized + SliceWrapper&lt;Mem256i&gt; + SliceWrapperMut&lt;Mem256i&gt;;
     <span class="kw">fn </span>make_nnz_storage() -&gt; <span class="self">Self</span>::i32vec;
     <span class="kw">fn </span>total_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
-    <span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX;
-    <span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cost: <span class="kw">super</span>::util::floatX);
+    <span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; floatX;
+    <span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, cost: floatX);
     <span class="kw">fn </span>set_total_count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, count: usize);
 }
 <span class="kw">impl </span>SliceWrapper&lt;u32&gt; <span class="kw">for </span>HistogramLiteral {
@@ -746,11 +744,11 @@
         <span class="self">self</span>.total_count_
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX {
+    </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; floatX {
         <span class="self">self</span>.bit_cost_
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">super</span>::util::floatX) {
+    </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: floatX) {
         <span class="self">self</span>.bit_cost_ = data;
     }
     <span class="attr">#[inline(always)]
@@ -788,11 +786,11 @@
         <span class="self">self</span>.total_count_
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX {
+    </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; floatX {
         <span class="self">self</span>.bit_cost_
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">super</span>::util::floatX) {
+    </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: floatX) {
         <span class="self">self</span>.bit_cost_ = data;
     }
     <span class="attr">#[inline(always)]
@@ -831,11 +829,11 @@
         <span class="self">self</span>.total_count_
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">super</span>::util::floatX {
+    </span><span class="kw">fn </span>bit_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; floatX {
         <span class="self">self</span>.bit_cost_
     }
     <span class="attr">#[inline(always)]
-    </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: <span class="kw">super</span>::util::floatX) {
+    </span><span class="kw">fn </span>set_bit_cost(<span class="kw-2">&amp;mut </span><span class="self">self</span>, data: floatX) {
         <span class="self">self</span>.bit_cost_ = data;
     }
     <span class="attr">#[inline(always)]
@@ -931,7 +929,7 @@
         <span class="kw-2">*</span>data_elem = <span class="number">0</span>;
     }
     xself.set_total_count(<span class="number">0</span>);
-    xself.set_bit_cost(<span class="number">3.402e+38 </span><span class="kw">as </span><span class="kw">super</span>::util::floatX);
+    xself.set_bit_cost(<span class="number">3.402e+38</span>);
 }
 <span class="kw">pub fn </span>ClearHistograms&lt;HistogramType: SliceWrapperMut&lt;u32&gt; + CostAccessors&gt;(
     array: <span class="kw-2">&amp;mut </span>[HistogramType],

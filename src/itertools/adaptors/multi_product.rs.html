@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.12.1/src/adaptors/multi_product.rs`."><title>multi_product.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/itertools-0.13.0/src/adaptors/multi_product.rs`."><title>multi_product.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="itertools" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -229,53 +229,55 @@
 <a href="#229" id="229">229</a>
 <a href="#230" id="230">230</a>
 <a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-<a href="#250" id="250">250</a>
-<a href="#251" id="251">251</a>
 </pre></div><pre class="rust"><code><span class="attr">#![cfg(feature = <span class="string">"use_alloc"</span>)]
-
-</span><span class="kw">use </span><span class="kw">crate</span>::size_hint;
-<span class="kw">use </span><span class="kw">crate</span>::Itertools;
+</span><span class="kw">use </span><span class="prelude-ty">Option</span>::{<span class="self">self </span><span class="kw">as </span>State, <span class="prelude-val">None </span><span class="kw">as </span>ProductEnded, <span class="prelude-val">Some </span><span class="kw">as </span>ProductInProgress};
+<span class="kw">use </span><span class="prelude-ty">Option</span>::{<span class="self">self </span><span class="kw">as </span>CurrentItems, <span class="prelude-val">None </span><span class="kw">as </span>NotYetPopulated, <span class="prelude-val">Some </span><span class="kw">as </span>Populated};
 
 <span class="kw">use </span>alloc::vec::Vec;
+
+<span class="kw">use </span><span class="kw">crate</span>::size_hint;
 
 <span class="attr">#[derive(Clone)]
 </span><span class="doccomment">/// An iterator adaptor that iterates over the cartesian product of
 /// multiple iterators of type `I`.
 ///
-/// An iterator element type is `Vec&lt;I&gt;`.
+/// An iterator element type is `Vec&lt;I::Item&gt;`.
 ///
 /// See [`.multi_cartesian_product()`](crate::Itertools::multi_cartesian_product)
 /// for more information.
 </span><span class="attr">#[must_use = <span class="string">"iterator adaptors are lazy and do nothing unless consumed"</span>]
-</span><span class="kw">pub struct </span>MultiProduct&lt;I&gt;(Vec&lt;MultiProductIter&lt;I&gt;&gt;)
+</span><span class="kw">pub struct </span>MultiProduct&lt;I&gt;(State&lt;MultiProductInner&lt;I&gt;&gt;)
 <span class="kw">where
     </span>I: Iterator + Clone,
     I::Item: Clone;
+
+<span class="attr">#[derive(Clone)]
+</span><span class="doccomment">/// Internals for `MultiProduct`.
+</span><span class="kw">struct </span>MultiProductInner&lt;I&gt;
+<span class="kw">where
+    </span>I: Iterator + Clone,
+    I::Item: Clone,
+{
+    <span class="doccomment">/// Holds the iterators.
+    </span>iters: Vec&lt;MultiProductIter&lt;I&gt;&gt;,
+    <span class="doccomment">/// Not populated at the beginning then it holds the current item of each iterator.
+    </span>cur: CurrentItems&lt;Vec&lt;I::Item&gt;&gt;,
+}
 
 <span class="kw">impl</span>&lt;I&gt; std::fmt::Debug <span class="kw">for </span>MultiProduct&lt;I&gt;
 <span class="kw">where
     </span>I: Iterator + Clone + std::fmt::Debug,
     I::Item: Clone + std::fmt::Debug,
 {
-    <span class="macro">debug_fmt_fields!</span>(CoalesceBy, <span class="number">0</span>);
+    <span class="macro">debug_fmt_fields!</span>(MultiProduct, <span class="number">0</span>);
+}
+
+<span class="kw">impl</span>&lt;I&gt; std::fmt::Debug <span class="kw">for </span>MultiProductInner&lt;I&gt;
+<span class="kw">where
+    </span>I: Iterator + Clone + std::fmt::Debug,
+    I::Item: Clone + std::fmt::Debug,
+{
+    <span class="macro">debug_fmt_fields!</span>(MultiProductInner, iters, cur);
 }
 
 <span class="doccomment">/// Create a new cartesian product iterator over an arbitrary number
@@ -289,11 +291,13 @@
     &lt;H::Item <span class="kw">as </span>IntoIterator&gt;::IntoIter: Clone,
     &lt;H::Item <span class="kw">as </span>IntoIterator&gt;::Item: Clone,
 {
-    MultiProduct(
-        iters
+    <span class="kw">let </span>inner = MultiProductInner {
+        iters: iters
             .map(|i| MultiProductIter::new(i.into_iter()))
             .collect(),
-    )
+        cur: NotYetPopulated,
+    };
+    MultiProduct(ProductInProgress(inner))
 }
 
 <span class="attr">#[derive(Clone, Debug)]
@@ -303,85 +307,8 @@
     </span>I: Iterator + Clone,
     I::Item: Clone,
 {
-    cur: <span class="prelude-ty">Option</span>&lt;I::Item&gt;,
     iter: I,
     iter_orig: I,
-}
-
-<span class="doccomment">/// Holds the current state during an iteration of a `MultiProduct`.
-</span><span class="attr">#[derive(Debug)]
-</span><span class="kw">enum </span>MultiProductIterState {
-    StartOfIter,
-    MidIter { on_first_iter: bool },
-}
-
-<span class="kw">impl</span>&lt;I&gt; MultiProduct&lt;I&gt;
-<span class="kw">where
-    </span>I: Iterator + Clone,
-    I::Item: Clone,
-{
-    <span class="doccomment">/// Iterates the rightmost iterator, then recursively iterates iterators
-    /// to the left if necessary.
-    ///
-    /// Returns true if the iteration succeeded, else false.
-    </span><span class="kw">fn </span>iterate_last(
-        multi_iters: <span class="kw-2">&amp;mut </span>[MultiProductIter&lt;I&gt;],
-        <span class="kw-2">mut </span>state: MultiProductIterState,
-    ) -&gt; bool {
-        <span class="kw">use </span><span class="self">self</span>::MultiProductIterState::<span class="kw-2">*</span>;
-
-        <span class="kw">if let </span><span class="prelude-val">Some</span>((last, rest)) = multi_iters.split_last_mut() {
-            <span class="kw">let </span>on_first_iter = <span class="kw">match </span>state {
-                StartOfIter =&gt; {
-                    <span class="kw">let </span>on_first_iter = !last.in_progress();
-                    state = MidIter { on_first_iter };
-                    on_first_iter
-                }
-                MidIter { on_first_iter } =&gt; on_first_iter,
-            };
-
-            <span class="kw">if </span>!on_first_iter {
-                last.iterate();
-            }
-
-            <span class="kw">if </span>last.in_progress() {
-                <span class="bool-val">true
-            </span>} <span class="kw">else if </span><span class="self">Self</span>::iterate_last(rest, state) {
-                last.reset();
-                last.iterate();
-                <span class="comment">// If iterator is None twice consecutively, then iterator is
-                // empty; whole product is empty.
-                </span>last.in_progress()
-            } <span class="kw">else </span>{
-                <span class="bool-val">false
-            </span>}
-        } <span class="kw">else </span>{
-            <span class="comment">// Reached end of iterator list. On initialisation, return true.
-            // At end of iteration (final iterator finishes), finish.
-            </span><span class="kw">match </span>state {
-                StartOfIter =&gt; <span class="bool-val">false</span>,
-                MidIter { on_first_iter } =&gt; on_first_iter,
-            }
-        }
-    }
-
-    <span class="doccomment">/// Returns the unwrapped value of the next iteration.
-    </span><span class="kw">fn </span>curr_iterator(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;I::Item&gt; {
-        <span class="self">self</span>.<span class="number">0
-            </span>.iter()
-            .map(|multi_iter| multi_iter.cur.clone().unwrap())
-            .collect()
-    }
-
-    <span class="doccomment">/// Returns true if iteration has started and has not yet finished; false
-    /// otherwise.
-    </span><span class="kw">fn </span>in_progress(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(last) = <span class="self">self</span>.<span class="number">0</span>.last() {
-            last.in_progress()
-        } <span class="kw">else </span>{
-            <span class="bool-val">false
-        </span>}
-    }
 }
 
 <span class="kw">impl</span>&lt;I&gt; MultiProductIter&lt;I&gt;
@@ -391,26 +318,9 @@
 {
     <span class="kw">fn </span>new(iter: I) -&gt; <span class="self">Self </span>{
         <span class="self">Self </span>{
-            cur: <span class="prelude-val">None</span>,
             iter: iter.clone(),
             iter_orig: iter,
         }
-    }
-
-    <span class="doccomment">/// Iterate the managed iterator.
-    </span><span class="kw">fn </span>iterate(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.cur = <span class="self">self</span>.iter.next();
-    }
-
-    <span class="doccomment">/// Reset the managed iterator.
-    </span><span class="kw">fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
-        <span class="self">self</span>.iter = <span class="self">self</span>.iter_orig.clone();
-    }
-
-    <span class="doccomment">/// Returns true if the current iterator has been started and has not yet
-    /// finished; false otherwise.
-    </span><span class="kw">fn </span>in_progress(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.cur.is_some()
     }
 }
 
@@ -422,82 +332,132 @@
     <span class="kw">type </span>Item = Vec&lt;I::Item&gt;;
 
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">if </span><span class="self">Self</span>::iterate_last(<span class="kw-2">&amp;mut </span><span class="self">self</span>.<span class="number">0</span>, MultiProductIterState::StartOfIter) {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.curr_iterator())
-        } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+        <span class="comment">// This fuses the iterator.
+        </span><span class="kw">let </span>inner = <span class="self">self</span>.<span class="number">0</span>.as_mut()<span class="question-mark">?</span>;
+        <span class="kw">match </span><span class="kw-2">&amp;mut </span>inner.cur {
+            Populated(values) =&gt; {
+                <span class="macro">debug_assert!</span>(!inner.iters.is_empty());
+                <span class="comment">// Find (from the right) a non-finished iterator and
+                // reset the finished ones encountered.
+                </span><span class="kw">for </span>(iter, item) <span class="kw">in </span>inner.iters.iter_mut().zip(values.iter_mut()).rev() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(new) = iter.iter.next() {
+                        <span class="kw-2">*</span>item = new;
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(values.clone());
+                    } <span class="kw">else </span>{
+                        iter.iter = iter.iter_orig.clone();
+                        <span class="comment">// `cur` is populated so the untouched `iter_orig` can not be empty.
+                        </span><span class="kw-2">*</span>item = iter.iter.next().unwrap();
+                    }
+                }
+                <span class="self">self</span>.<span class="number">0 </span>= ProductEnded;
+                <span class="prelude-val">None
+            </span>}
+            <span class="comment">// Only the first time.
+            </span>NotYetPopulated =&gt; {
+                <span class="kw">let </span>next: <span class="prelude-ty">Option</span>&lt;Vec&lt;<span class="kw">_</span>&gt;&gt; = inner.iters.iter_mut().map(|i| i.iter.next()).collect();
+                <span class="kw">if </span>next.is_none() || inner.iters.is_empty() {
+                    <span class="comment">// This cartesian product had at most one item to generate and now ends.
+                    </span><span class="self">self</span>.<span class="number">0 </span>= ProductEnded;
+                } <span class="kw">else </span>{
+                    inner.cur.clone_from(<span class="kw-2">&amp;</span>next);
+                }
+                next
+            }
+        }
     }
 
     <span class="kw">fn </span>count(<span class="self">self</span>) -&gt; usize {
-        <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
-            <span class="kw">return </span><span class="number">0</span>;
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+            ProductEnded =&gt; <span class="number">0</span>,
+            <span class="comment">// The iterator is fresh so the count is the product of the length of each iterator:
+            // - If one of them is empty, stop counting.
+            // - Less `count()` calls than the general case.
+            </span>ProductInProgress(MultiProductInner {
+                iters,
+                cur: NotYetPopulated,
+            }) =&gt; iters
+                .into_iter()
+                .map(|iter| iter.iter_orig.count())
+                .try_fold(<span class="number">1</span>, |product, count| {
+                    <span class="kw">if </span>count == <span class="number">0 </span>{
+                        <span class="prelude-val">None
+                    </span>} <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>(product * count)
+                    }
+                })
+                .unwrap_or_default(),
+            <span class="comment">// The general case.
+            </span>ProductInProgress(MultiProductInner {
+                iters,
+                cur: Populated(<span class="kw">_</span>),
+            }) =&gt; iters.into_iter().fold(<span class="number">0</span>, |<span class="kw-2">mut </span>acc, iter| {
+                <span class="kw">if </span>acc != <span class="number">0 </span>{
+                    acc <span class="kw-2">*</span>= iter.iter_orig.count();
+                }
+                acc + iter.iter.count()
+            }),
         }
-
-        <span class="kw">if </span>!<span class="self">self</span>.in_progress() {
-            <span class="kw">return </span><span class="self">self
-                </span>.<span class="number">0
-                </span>.into_iter()
-                .fold(<span class="number">1</span>, |acc, multi_iter| acc * multi_iter.iter.count());
-        }
-
-        <span class="self">self</span>.<span class="number">0</span>.into_iter().fold(
-            <span class="number">0</span>,
-            |acc,
-             MultiProductIter {
-                 iter,
-                 iter_orig,
-                 cur: <span class="kw">_</span>,
-             }| {
-                <span class="kw">let </span>total_count = iter_orig.count();
-                <span class="kw">let </span>cur_count = iter.count();
-                acc * total_count + cur_count
-            },
-        )
     }
 
     <span class="kw">fn </span>size_hint(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, <span class="prelude-ty">Option</span>&lt;usize&gt;) {
-        <span class="comment">// Not ExactSizeIterator because size may be larger than usize
-        </span><span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_empty() {
-            <span class="kw">return </span>(<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>));
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0 </span>{
+            ProductEnded =&gt; (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
+            ProductInProgress(MultiProductInner {
+                iters,
+                cur: NotYetPopulated,
+            }) =&gt; iters
+                .iter()
+                .map(|iter| iter.iter_orig.size_hint())
+                .fold((<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)), size_hint::mul),
+            ProductInProgress(MultiProductInner {
+                iters,
+                cur: Populated(<span class="kw">_</span>),
+            }) =&gt; {
+                <span class="kw">if let </span>[first, tail @ ..] = <span class="kw-2">&amp;</span>iters[..] {
+                    tail.iter().fold(first.iter.size_hint(), |<span class="kw-2">mut </span>sh, iter| {
+                        sh = size_hint::mul(sh, iter.iter_orig.size_hint());
+                        size_hint::add(sh, iter.iter.size_hint())
+                    })
+                } <span class="kw">else </span>{
+                    <span class="comment">// Since it is populated, this cartesian product has started so `iters` is not empty.
+                    </span><span class="macro">unreachable!</span>()
+                }
+            }
         }
-
-        <span class="kw">if </span>!<span class="self">self</span>.in_progress() {
-            <span class="kw">return </span><span class="self">self</span>.<span class="number">0</span>.iter().fold((<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="number">1</span>)), |acc, multi_iter| {
-                size_hint::mul(acc, multi_iter.iter.size_hint())
-            });
-        }
-
-        <span class="self">self</span>.<span class="number">0</span>.iter().fold(
-            (<span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>)),
-            |acc,
-             MultiProductIter {
-                 iter,
-                 iter_orig,
-                 cur: <span class="kw">_</span>,
-             }| {
-                <span class="kw">let </span>cur_size = iter.size_hint();
-                <span class="kw">let </span>total_size = iter_orig.size_hint();
-                size_hint::add(size_hint::mul(acc, total_size), cur_size)
-            },
-        )
     }
 
     <span class="kw">fn </span>last(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">let </span>iter_count = <span class="self">self</span>.<span class="number">0</span>.len();
-
-        <span class="kw">let </span>lasts: <span class="self">Self</span>::Item = <span class="self">self
-            </span>.<span class="number">0
-            </span>.into_iter()
-            .map(|multi_iter| multi_iter.iter.last())
-            .while_some()
-            .collect();
-
-        <span class="kw">if </span>lasts.len() == iter_count {
-            <span class="prelude-val">Some</span>(lasts)
+        <span class="kw">let </span>MultiProductInner { iters, cur } = <span class="self">self</span>.<span class="number">0</span><span class="question-mark">?</span>;
+        <span class="comment">// Collect the last item of each iterator of the product.
+        </span><span class="kw">if let </span>Populated(values) = cur {
+            <span class="kw">let </span><span class="kw-2">mut </span>count = iters.len();
+            <span class="kw">let </span>last = iters
+                .into_iter()
+                .zip(values)
+                .map(|(i, value)| {
+                    i.iter.last().unwrap_or_else(|| {
+                        <span class="comment">// The iterator is empty, use its current `value`.
+                        </span>count -= <span class="number">1</span>;
+                        value
+                    })
+                })
+                .collect();
+            <span class="kw">if </span>count == <span class="number">0 </span>{
+                <span class="comment">// `values` was the last item.
+                </span><span class="prelude-val">None
+            </span>} <span class="kw">else </span>{
+                <span class="prelude-val">Some</span>(last)
+            }
         } <span class="kw">else </span>{
-            <span class="prelude-val">None
-        </span>}
+            iters.into_iter().map(|i| i.iter.last()).collect()
+        }
     }
+}
+
+<span class="kw">impl</span>&lt;I&gt; std::iter::FusedIterator <span class="kw">for </span>MultiProduct&lt;I&gt;
+<span class="kw">where
+    </span>I: Iterator + Clone,
+    I::Item: Clone,
+{
 }
 </code></pre></div></section></main></body></html>

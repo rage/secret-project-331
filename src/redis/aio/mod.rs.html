@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.24.0/src/aio/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/redis-0.26.1/src/aio/mod.rs`."><title>mod.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="redis" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -153,10 +153,50 @@
 <a href="#153" id="153">153</a>
 <a href="#154" id="154">154</a>
 <a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Adds async IO support to redis.
 </span><span class="kw">use </span><span class="kw">crate</span>::cmd::{cmd, Cmd};
+<span class="kw">use </span><span class="kw">crate</span>::connection::get_resp3_hello_command_error;
 <span class="kw">use </span><span class="kw">crate</span>::connection::RedisConnectionInfo;
-<span class="kw">use </span><span class="kw">crate</span>::types::{ErrorKind, RedisFuture, RedisResult, Value};
+<span class="kw">use </span><span class="kw">crate</span>::types::{ErrorKind, ProtocolVersion, RedisFuture, RedisResult, Value};
 <span class="kw">use </span>::tokio::io::{AsyncRead, AsyncWrite};
 <span class="kw">use </span>async_trait::async_trait;
 <span class="kw">use </span>futures_util::Future;
@@ -220,6 +260,11 @@
     <span class="doccomment">/// Sends multiple already encoded (packed) command into the TCP socket
     /// and reads `count` responses from it.  This is used to implement
     /// pipelining.
+    /// Important - this function is meant for internal usage, since it's
+    /// easy to pass incorrect `offset` &amp; `count` parameters, which might
+    /// cause the connection to enter an erroneous state. Users shouldn't
+    /// call it, instead using the Pipeline::query_async function.
+    </span><span class="attr">#[doc(hidden)]
     </span><span class="kw">fn </span>req_packed_commands&lt;<span class="lifetime">'a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw-2">mut </span><span class="self">self</span>,
         cmd: <span class="kw-2">&amp;</span><span class="lifetime">'a </span><span class="kw">crate</span>::Pipeline,
@@ -239,7 +284,13 @@
 <span class="kw">where
     </span>C: ConnectionLike,
 {
-    <span class="kw">if let </span><span class="prelude-val">Some</span>(password) = <span class="kw-2">&amp;</span>connection_info.password {
+    <span class="kw">if </span>connection_info.protocol != ProtocolVersion::RESP2 {
+        <span class="kw">let </span>hello_cmd = resp3_hello(connection_info);
+        <span class="kw">let </span>val: RedisResult&lt;Value&gt; = hello_cmd.query_async(con).<span class="kw">await</span>;
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = val {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(get_resp3_hello_command_error(err));
+        }
+    } <span class="kw">else if let </span><span class="prelude-val">Some</span>(password) = <span class="kw-2">&amp;</span>connection_info.password {
         <span class="kw">let </span><span class="kw-2">mut </span>command = cmd(<span class="string">"AUTH"</span>);
         <span class="kw">if let </span><span class="prelude-val">Some</span>(username) = <span class="kw-2">&amp;</span>connection_info.username {
             command.arg(username);
@@ -291,6 +342,7 @@
 
     <span class="comment">// result is ignored, as per the command's instructions.
     // https://redis.io/commands/client-setinfo/
+    </span><span class="attr">#[cfg(not(feature = <span class="string">"disable-client-setinfo"</span>))]
     </span><span class="kw">let _</span>: RedisResult&lt;()&gt; = <span class="kw">crate</span>::connection::client_set_info_pipeline()
         .query_async(con)
         .<span class="kw">await</span>;
@@ -305,7 +357,33 @@
 <span class="attr">#[cfg(feature = <span class="string">"connection-manager"</span>)]
 </span><span class="kw">mod </span>connection_manager;
 <span class="attr">#[cfg(feature = <span class="string">"connection-manager"</span>)]
+#[cfg_attr(docsrs, doc(cfg(feature = <span class="string">"connection-manager"</span>)))]
 </span><span class="kw">pub use </span>connection_manager::<span class="kw-2">*</span>;
 <span class="kw">mod </span>runtime;
+<span class="kw">use </span><span class="kw">crate</span>::commands::resp3_hello;
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">use </span>runtime::<span class="kw-2">*</span>;
+
+<span class="macro">macro_rules!</span> check_resp3 {
+    (<span class="macro-nonterminal">$protocol</span>: expr) =&gt; {
+        <span class="kw">use </span><span class="kw">crate</span>::types::ProtocolVersion;
+        <span class="kw">if </span><span class="macro-nonterminal">$protocol </span>== ProtocolVersion::RESP2 {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
+                <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
+                <span class="string">"RESP3 is required for this command"</span>,
+            )));
+        }
+    };
+
+    (<span class="macro-nonterminal">$protocol</span>: expr, <span class="macro-nonterminal">$message</span>: expr) =&gt; {
+        <span class="kw">use </span><span class="kw">crate</span>::types::ProtocolVersion;
+        <span class="kw">if </span><span class="macro-nonterminal">$protocol </span>== ProtocolVersion::RESP2 {
+            <span class="kw">return </span><span class="prelude-val">Err</span>(RedisError::from((
+                <span class="kw">crate</span>::ErrorKind::InvalidClientConfig,
+                <span class="macro-nonterminal">$message</span>,
+            )));
+        }
+    };
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>check_resp3;
 </code></pre></div></section></main></body></html>

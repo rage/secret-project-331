@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.4.1/src/proto/h1/role.rs`."><title>role.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-1.5.0/src/proto/h1/role.rs`."><title>role.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="hyper" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -3032,6 +3032,57 @@
 <a href="#3032" id="3032">3032</a>
 <a href="#3033" id="3033">3033</a>
 <a href="#3034" id="3034">3034</a>
+<a href="#3035" id="3035">3035</a>
+<a href="#3036" id="3036">3036</a>
+<a href="#3037" id="3037">3037</a>
+<a href="#3038" id="3038">3038</a>
+<a href="#3039" id="3039">3039</a>
+<a href="#3040" id="3040">3040</a>
+<a href="#3041" id="3041">3041</a>
+<a href="#3042" id="3042">3042</a>
+<a href="#3043" id="3043">3043</a>
+<a href="#3044" id="3044">3044</a>
+<a href="#3045" id="3045">3045</a>
+<a href="#3046" id="3046">3046</a>
+<a href="#3047" id="3047">3047</a>
+<a href="#3048" id="3048">3048</a>
+<a href="#3049" id="3049">3049</a>
+<a href="#3050" id="3050">3050</a>
+<a href="#3051" id="3051">3051</a>
+<a href="#3052" id="3052">3052</a>
+<a href="#3053" id="3053">3053</a>
+<a href="#3054" id="3054">3054</a>
+<a href="#3055" id="3055">3055</a>
+<a href="#3056" id="3056">3056</a>
+<a href="#3057" id="3057">3057</a>
+<a href="#3058" id="3058">3058</a>
+<a href="#3059" id="3059">3059</a>
+<a href="#3060" id="3060">3060</a>
+<a href="#3061" id="3061">3061</a>
+<a href="#3062" id="3062">3062</a>
+<a href="#3063" id="3063">3063</a>
+<a href="#3064" id="3064">3064</a>
+<a href="#3065" id="3065">3065</a>
+<a href="#3066" id="3066">3066</a>
+<a href="#3067" id="3067">3067</a>
+<a href="#3068" id="3068">3068</a>
+<a href="#3069" id="3069">3069</a>
+<a href="#3070" id="3070">3070</a>
+<a href="#3071" id="3071">3071</a>
+<a href="#3072" id="3072">3072</a>
+<a href="#3073" id="3073">3073</a>
+<a href="#3074" id="3074">3074</a>
+<a href="#3075" id="3075">3075</a>
+<a href="#3076" id="3076">3076</a>
+<a href="#3077" id="3077">3077</a>
+<a href="#3078" id="3078">3078</a>
+<a href="#3079" id="3079">3079</a>
+<a href="#3080" id="3080">3080</a>
+<a href="#3081" id="3081">3081</a>
+<a href="#3082" id="3082">3082</a>
+<a href="#3083" id="3083">3083</a>
+<a href="#3084" id="3084">3084</a>
+<a href="#3085" id="3085">3085</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::mem::MaybeUninit;
 
 <span class="attr">#[cfg(feature = <span class="string">"client"</span>)]
@@ -3100,6 +3151,7 @@
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>parse_headers&lt;T&gt;(
     bytes: <span class="kw-2">&amp;mut </span>BytesMut,
+    prev_len: <span class="prelude-ty">Option</span>&lt;usize&gt;,
     ctx: ParseContext&lt;<span class="lifetime">'_</span>&gt;,
 ) -&gt; ParseResult&lt;T::Incoming&gt;
 <span class="kw">where
@@ -3112,8 +3164,36 @@
 
     <span class="kw">let </span>_entered = <span class="macro">trace_span!</span>(<span class="string">"parse_headers"</span>);
 
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(prev_len) = prev_len {
+        <span class="kw">if </span>!is_complete_fast(bytes, prev_len) {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        }
+    }
+
     T::parse(bytes, ctx)
 }
+
+<span class="doccomment">/// A fast scan for the end of a message.
+/// Used when there was a partial read, to skip full parsing on a
+/// a slow connection.
+</span><span class="kw">fn </span>is_complete_fast(bytes: <span class="kw-2">&amp;</span>[u8], prev_len: usize) -&gt; bool {
+    <span class="kw">let </span>start = <span class="kw">if </span>prev_len &lt; <span class="number">3 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ prev_len - <span class="number">3 </span>};
+    <span class="kw">let </span>bytes = <span class="kw-2">&amp;</span>bytes[start..];
+
+    <span class="kw">for </span>(i, b) <span class="kw">in </span>bytes.iter().copied().enumerate() {
+        <span class="kw">if </span>b == <span class="string">b'\r' </span>{
+            <span class="kw">if </span>bytes[i + <span class="number">1</span>..].chunks(<span class="number">3</span>).next() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b"\n\r\n"</span>[..]) {
+                <span class="kw">return </span><span class="bool-val">true</span>;
+            }
+        } <span class="kw">else if </span>b == <span class="string">b'\n' </span>{
+            <span class="kw">if </span>bytes.get(i + <span class="number">1</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">b'\n'</span>) {
+                <span class="kw">return </span><span class="bool-val">true</span>;
+            }
+        }
+    }
+
+    <span class="bool-val">false
+</span>}
 
 <span class="kw">pub</span>(<span class="kw">super</span>) <span class="kw">fn </span>encode_headers&lt;T&gt;(
     enc: Encode&lt;<span class="lifetime">'_</span>, T::Outgoing&gt;,
@@ -5859,6 +5939,28 @@
         //
         </span>parse(<span class="prelude-val">Some</span>(<span class="number">200</span>), <span class="number">201</span>, <span class="bool-val">false</span>);
         parse(<span class="prelude-val">Some</span>(<span class="number">200</span>), <span class="number">210</span>, <span class="bool-val">false</span>);
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_is_complete_fast() {
+        <span class="kw">let </span>s = <span class="string">b"GET / HTTP/1.1\r\na: b\r\n\r\n"</span>;
+        <span class="kw">for </span>n <span class="kw">in </span><span class="number">0</span>..s.len() {
+            <span class="macro">assert!</span>(is_complete_fast(s, n), <span class="string">"{:?}; {}"</span>, s, n);
+        }
+        <span class="kw">let </span>s = <span class="string">b"GET / HTTP/1.1\na: b\n\n"</span>;
+        <span class="kw">for </span>n <span class="kw">in </span><span class="number">0</span>..s.len() {
+            <span class="macro">assert!</span>(is_complete_fast(s, n));
+        }
+
+        <span class="comment">// Not
+        </span><span class="kw">let </span>s = <span class="string">b"GET / HTTP/1.1\r\na: b\r\n\r"</span>;
+        <span class="kw">for </span>n <span class="kw">in </span><span class="number">0</span>..s.len() {
+            <span class="macro">assert!</span>(!is_complete_fast(s, n));
+        }
+        <span class="kw">let </span>s = <span class="string">b"GET / HTTP/1.1\na: b\n"</span>;
+        <span class="kw">for </span>n <span class="kw">in </span><span class="number">0</span>..s.len() {
+            <span class="macro">assert!</span>(!is_complete_fast(s, n));
+        }
     }
 
     <span class="attr">#[test]

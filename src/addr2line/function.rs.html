@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/addr2line-0.22.0/src/function.rs`."><title>function.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="addr2line" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/addr2line-0.24.2/src/function.rs`."><title>function.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="addr2line" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -553,23 +553,41 @@
 <a href="#553" id="553">553</a>
 <a href="#554" id="554">554</a>
 <a href="#555" id="555">555</a>
+<a href="#556" id="556">556</a>
+<a href="#557" id="557">557</a>
+<a href="#558" id="558">558</a>
+<a href="#559" id="559">559</a>
+<a href="#560" id="560">560</a>
+<a href="#561" id="561">561</a>
+<a href="#562" id="562">562</a>
+<a href="#563" id="563">563</a>
+<a href="#564" id="564">564</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>alloc::boxed::Box;
 <span class="kw">use </span>alloc::vec::Vec;
 <span class="kw">use </span>core::cmp::Ordering;
-<span class="kw">use </span>core::iter;
 
-<span class="kw">use </span><span class="kw">crate</span>::lazy::LazyCell;
+<span class="kw">use </span><span class="kw">crate</span>::lazy::LazyResult;
 <span class="kw">use </span><span class="kw">crate</span>::maybe_small;
 <span class="kw">use crate</span>::{Context, DebugFile, Error, RangeAttributes};
 
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>LazyFunctions&lt;R: gimli::Reader&gt;(LazyResult&lt;Functions&lt;R&gt;&gt;);
+
+<span class="kw">impl</span>&lt;R: gimli::Reader&gt; LazyFunctions&lt;R&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        LazyFunctions(LazyResult::new())
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>, unit: gimli::UnitRef&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Functions&lt;R&gt;, Error&gt; {
+        <span class="self">self</span>.<span class="number">0
+            </span>.borrow_with(|| Functions::parse(unit))
+            .as_ref()
+            .map_err(Error::clone)
+    }
+}
+
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Functions&lt;R: gimli::Reader&gt; {
     <span class="doccomment">/// List of all `DW_TAG_subprogram` details in the unit.
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) functions: Box&lt;
-        [(
-            gimli::UnitOffset&lt;R::Offset&gt;,
-            LazyCell&lt;<span class="prelude-ty">Result</span>&lt;Function&lt;R&gt;, Error&gt;&gt;,
-        )],
-    &gt;,
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) functions: Box&lt;[LazyFunction&lt;R&gt;]&gt;,
     <span class="doccomment">/// List of `DW_TAG_subprogram` address ranges in the unit.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) addresses: Box&lt;[FunctionAddress]&gt;,
 }
@@ -583,6 +601,32 @@
     range: gimli::Range,
     <span class="doccomment">/// An index into `Functions::functions`.
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) function: usize,
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>LazyFunction&lt;R: gimli::Reader&gt; {
+    dw_die_offset: gimli::UnitOffset&lt;R::Offset&gt;,
+    lazy: LazyResult&lt;Function&lt;R&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;R: gimli::Reader&gt; LazyFunction&lt;R&gt; {
+    <span class="kw">fn </span>new(dw_die_offset: gimli::UnitOffset&lt;R::Offset&gt;) -&gt; <span class="self">Self </span>{
+        LazyFunction {
+            dw_die_offset,
+            lazy: LazyResult::new(),
+        }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>borrow(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        file: DebugFile,
+        unit: gimli::UnitRef&lt;R&gt;,
+        ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>Function&lt;R&gt;, Error&gt; {
+        <span class="self">self</span>.lazy
+            .borrow_with(|| Function::parse(<span class="self">self</span>.dw_die_offset, file, unit, ctx))
+            .as_ref()
+            .map_err(Error::clone)
+    }
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Function&lt;R: gimli::Reader&gt; {
@@ -610,10 +654,7 @@
 }
 
 <span class="kw">impl</span>&lt;R: gimli::Reader&gt; Functions&lt;R&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse(
-        unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
-        sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;Functions&lt;R&gt;, Error&gt; {
+    <span class="kw">fn </span>parse(unit: gimli::UnitRef&lt;R&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Functions&lt;R&gt;, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>functions = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>addresses = Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>entries = unit.entries_raw(<span class="prelude-val">None</span>)<span class="question-mark">?</span>;
@@ -631,7 +672,7 @@
                                             ranges.low_pc = <span class="prelude-val">Some</span>(val)
                                         }
                                         gimli::AttributeValue::DebugAddrIndex(index) =&gt; {
-                                            ranges.low_pc = <span class="prelude-val">Some</span>(sections.address(unit, index)<span class="question-mark">?</span>);
+                                            ranges.low_pc = <span class="prelude-val">Some</span>(unit.address(index)<span class="question-mark">?</span>);
                                         }
                                         <span class="kw">_ </span>=&gt; {}
                                     },
@@ -640,7 +681,7 @@
                                             ranges.high_pc = <span class="prelude-val">Some</span>(val)
                                         }
                                         gimli::AttributeValue::DebugAddrIndex(index) =&gt; {
-                                            ranges.high_pc = <span class="prelude-val">Some</span>(sections.address(unit, index)<span class="question-mark">?</span>);
+                                            ranges.high_pc = <span class="prelude-val">Some</span>(unit.address(index)<span class="question-mark">?</span>);
                                         }
                                         gimli::AttributeValue::Udata(val) =&gt; {
                                             ranges.size = <span class="prelude-val">Some</span>(val)
@@ -649,7 +690,7 @@
                                     },
                                     gimli::DW_AT_ranges =&gt; {
                                         ranges.ranges_offset =
-                                            sections.attr_ranges_offset(unit, attr.value())<span class="question-mark">?</span>;
+                                            unit.attr_ranges_offset(attr.value())<span class="question-mark">?</span>;
                                     }
                                     <span class="kw">_ </span>=&gt; {}
                                 };
@@ -659,13 +700,14 @@
                     }
 
                     <span class="kw">let </span>function_index = functions.len();
-                    <span class="kw">if </span>ranges.for_each_range(sections, unit, |range| {
+                    <span class="kw">let </span>has_address = ranges.for_each_range(unit, |range| {
                         addresses.push(FunctionAddress {
                             range,
                             function: function_index,
                         });
-                    })<span class="question-mark">? </span>{
-                        functions.push((dw_die_offset, LazyCell::new()));
+                    })<span class="question-mark">?</span>;
+                    <span class="kw">if </span>has_address {
+                        functions.push(LazyFunction::new(dw_die_offset));
                     }
                 } <span class="kw">else </span>{
                     entries.skip_attributes(abbrev.attributes())<span class="question-mark">?</span>;
@@ -706,28 +748,22 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse_inlined_functions(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         file: DebugFile,
-        unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
+        unit: gimli::UnitRef&lt;R&gt;,
         ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
-        sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">for </span>function <span class="kw">in </span><span class="kw-2">&amp;*</span><span class="self">self</span>.functions {
-            function
-                .<span class="number">1
-                </span>.borrow_with(|| Function::parse(function.<span class="number">0</span>, file, unit, ctx, sections))
-                .as_ref()
-                .map_err(Error::clone)<span class="question-mark">?</span>;
+            function.borrow(file, unit, ctx)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
 <span class="kw">impl</span>&lt;R: gimli::Reader&gt; Function&lt;R&gt; {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>parse(
+    <span class="kw">fn </span>parse(
         dw_die_offset: gimli::UnitOffset&lt;R::Offset&gt;,
         file: DebugFile,
-        unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
+        unit: gimli::UnitRef&lt;R&gt;,
         ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
-        sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="self">Self</span>, Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>entries = unit.entries_raw(<span class="prelude-val">Some</span>(dw_die_offset))<span class="question-mark">?</span>;
         <span class="kw">let </span>depth = entries.next_depth();
@@ -740,18 +776,18 @@
                 <span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>attr) =&gt; {
                     <span class="kw">match </span>attr.name() {
                         gimli::DW_AT_linkage_name | gimli::DW_AT_MIPS_linkage_name =&gt; {
-                            <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = sections.attr_string(unit, attr.value()) {
+                            <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = unit.attr_string(attr.value()) {
                                 name = <span class="prelude-val">Some</span>(val);
                             }
                         }
                         gimli::DW_AT_name =&gt; {
                             <span class="kw">if </span>name.is_none() {
-                                name = sections.attr_string(unit, attr.value()).ok();
+                                name = unit.attr_string(attr.value()).ok();
                             }
                         }
                         gimli::DW_AT_abstract_origin | gimli::DW_AT_specification =&gt; {
                             <span class="kw">if </span>name.is_none() {
-                                name = name_attr(attr.value(), file, unit, ctx, sections, <span class="number">16</span>)<span class="question-mark">?</span>;
+                                name = name_attr(attr.value(), file, unit, ctx, <span class="number">16</span>)<span class="question-mark">?</span>;
                             }
                         }
                         <span class="kw">_ </span>=&gt; {}
@@ -761,19 +797,15 @@
             }
         }
 
-        <span class="kw">let </span><span class="kw-2">mut </span>inlined_functions = Vec::new();
-        <span class="kw">let </span><span class="kw-2">mut </span>inlined_addresses = Vec::new();
-        Function::parse_children(
-            <span class="kw-2">&amp;mut </span>entries,
-            depth,
+        <span class="kw">let </span><span class="kw-2">mut </span>state = InlinedState {
+            entries,
+            functions: Vec::new(),
+            addresses: Vec::new(),
             file,
             unit,
             ctx,
-            sections,
-            <span class="kw-2">&amp;mut </span>inlined_functions,
-            <span class="kw-2">&amp;mut </span>inlined_addresses,
-            <span class="number">0</span>,
-        )<span class="question-mark">?</span>;
+        };
+        Function::parse_children(<span class="kw-2">&amp;mut </span>state, depth, <span class="number">0</span>)<span class="question-mark">?</span>;
 
         <span class="comment">// Sort ranges in "breadth-first traversal order", i.e. first by call_depth
         // and then by range.begin. This allows finding the range containing an
@@ -785,7 +817,7 @@
         // In this example, if you want to look up address 7 at depth 0, and you
         // encounter [0..2 at depth 1], are you before or after the target range?
         // You don't know.
-        </span>inlined_addresses.sort_by(|r1, r2| {
+        </span>state.addresses.sort_by(|r1, r2| {
             <span class="kw">if </span>r1.call_depth &lt; r2.call_depth {
                 Ordering::Less
             } <span class="kw">else if </span>r1.call_depth &gt; r2.call_depth {
@@ -802,50 +834,38 @@
         <span class="prelude-val">Ok</span>(Function {
             dw_die_offset,
             name,
-            inlined_functions: inlined_functions.into_boxed_slice(),
-            inlined_addresses: inlined_addresses.into_boxed_slice(),
+            inlined_functions: state.functions.into_boxed_slice(),
+            inlined_addresses: state.addresses.into_boxed_slice(),
         })
     }
 
     <span class="kw">fn </span>parse_children(
-        entries: <span class="kw-2">&amp;mut </span>gimli::EntriesRaw&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;,
+        state: <span class="kw-2">&amp;mut </span>InlinedState&lt;R&gt;,
         depth: isize,
-        file: DebugFile,
-        unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
-        ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
-        sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
-        inlined_functions: <span class="kw-2">&amp;mut </span>Vec&lt;InlinedFunction&lt;R&gt;&gt;,
-        inlined_addresses: <span class="kw-2">&amp;mut </span>Vec&lt;InlinedFunctionAddress&gt;,
         inlined_depth: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
         <span class="kw">loop </span>{
-            <span class="kw">let </span>dw_die_offset = entries.next_offset();
-            <span class="kw">let </span>next_depth = entries.next_depth();
+            <span class="kw">let </span>dw_die_offset = state.entries.next_offset();
+            <span class="kw">let </span>next_depth = state.entries.next_depth();
             <span class="kw">if </span>next_depth &lt;= depth {
                 <span class="kw">return </span><span class="prelude-val">Ok</span>(());
             }
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(abbrev) = entries.read_abbreviation()<span class="question-mark">? </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(abbrev) = state.entries.read_abbreviation()<span class="question-mark">? </span>{
                 <span class="kw">match </span>abbrev.tag() {
                     gimli::DW_TAG_subprogram =&gt; {
-                        Function::skip(entries, abbrev, next_depth)<span class="question-mark">?</span>;
+                        Function::skip(<span class="kw-2">&amp;mut </span>state.entries, abbrev, next_depth)<span class="question-mark">?</span>;
                     }
                     gimli::DW_TAG_inlined_subroutine =&gt; {
                         InlinedFunction::parse(
+                            state,
                             dw_die_offset,
-                            entries,
                             abbrev,
                             next_depth,
-                            file,
-                            unit,
-                            ctx,
-                            sections,
-                            inlined_functions,
-                            inlined_addresses,
                             inlined_depth,
                         )<span class="question-mark">?</span>;
                     }
                     <span class="kw">_ </span>=&gt; {
-                        entries.skip_attributes(abbrev.attributes())<span class="question-mark">?</span>;
+                        state.entries.skip_attributes(abbrev.attributes())<span class="question-mark">?</span>;
                     }
                 }
             }
@@ -871,7 +891,7 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>find_inlined_functions(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         probe: u64,
-    ) -&gt; iter::Rev&lt;maybe_small::IntoIter&lt;<span class="kw-2">&amp;</span>InlinedFunction&lt;R&gt;&gt;&gt; {
+    ) -&gt; maybe_small::Vec&lt;<span class="kw-2">&amp;</span>InlinedFunction&lt;R&gt;&gt; {
         <span class="comment">// `inlined_functions` is ordered from outside to inside.
         </span><span class="kw">let </span><span class="kw-2">mut </span>inlined_functions = maybe_small::Vec::new();
         <span class="kw">let </span><span class="kw-2">mut </span>inlined_addresses = <span class="kw-2">&amp;</span><span class="self">self</span>.inlined_addresses[..];
@@ -902,63 +922,58 @@
                 <span class="kw">break</span>;
             }
         }
-        inlined_functions.into_iter().rev()
+        inlined_functions
     }
 }
 
 <span class="kw">impl</span>&lt;R: gimli::Reader&gt; InlinedFunction&lt;R&gt; {
     <span class="kw">fn </span>parse(
+        state: <span class="kw-2">&amp;mut </span>InlinedState&lt;R&gt;,
         dw_die_offset: gimli::UnitOffset&lt;R::Offset&gt;,
-        entries: <span class="kw-2">&amp;mut </span>gimli::EntriesRaw&lt;<span class="lifetime">'_</span>, <span class="lifetime">'_</span>, R&gt;,
         abbrev: <span class="kw-2">&amp;</span>gimli::Abbreviation,
         depth: isize,
-        file: DebugFile,
-        unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
-        ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
-        sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
-        inlined_functions: <span class="kw-2">&amp;mut </span>Vec&lt;InlinedFunction&lt;R&gt;&gt;,
-        inlined_addresses: <span class="kw-2">&amp;mut </span>Vec&lt;InlinedFunctionAddress&gt;,
         inlined_depth: usize,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;(), Error&gt; {
+        <span class="kw">let </span>unit = state.unit;
         <span class="kw">let </span><span class="kw-2">mut </span>ranges = RangeAttributes::default();
         <span class="kw">let </span><span class="kw-2">mut </span>name = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>call_file = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>call_line = <span class="number">0</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>call_column = <span class="number">0</span>;
         <span class="kw">for </span>spec <span class="kw">in </span>abbrev.attributes() {
-            <span class="kw">match </span>entries.read_attribute(<span class="kw-2">*</span>spec) {
+            <span class="kw">match </span>state.entries.read_attribute(<span class="kw-2">*</span>spec) {
                 <span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>attr) =&gt; <span class="kw">match </span>attr.name() {
                     gimli::DW_AT_low_pc =&gt; <span class="kw">match </span>attr.value() {
                         gimli::AttributeValue::Addr(val) =&gt; ranges.low_pc = <span class="prelude-val">Some</span>(val),
                         gimli::AttributeValue::DebugAddrIndex(index) =&gt; {
-                            ranges.low_pc = <span class="prelude-val">Some</span>(sections.address(unit, index)<span class="question-mark">?</span>);
+                            ranges.low_pc = <span class="prelude-val">Some</span>(unit.address(index)<span class="question-mark">?</span>);
                         }
                         <span class="kw">_ </span>=&gt; {}
                     },
                     gimli::DW_AT_high_pc =&gt; <span class="kw">match </span>attr.value() {
                         gimli::AttributeValue::Addr(val) =&gt; ranges.high_pc = <span class="prelude-val">Some</span>(val),
                         gimli::AttributeValue::DebugAddrIndex(index) =&gt; {
-                            ranges.high_pc = <span class="prelude-val">Some</span>(sections.address(unit, index)<span class="question-mark">?</span>);
+                            ranges.high_pc = <span class="prelude-val">Some</span>(unit.address(index)<span class="question-mark">?</span>);
                         }
                         gimli::AttributeValue::Udata(val) =&gt; ranges.size = <span class="prelude-val">Some</span>(val),
                         <span class="kw">_ </span>=&gt; {}
                     },
                     gimli::DW_AT_ranges =&gt; {
-                        ranges.ranges_offset = sections.attr_ranges_offset(unit, attr.value())<span class="question-mark">?</span>;
+                        ranges.ranges_offset = unit.attr_ranges_offset(attr.value())<span class="question-mark">?</span>;
                     }
                     gimli::DW_AT_linkage_name | gimli::DW_AT_MIPS_linkage_name =&gt; {
-                        <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = sections.attr_string(unit, attr.value()) {
+                        <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = unit.attr_string(attr.value()) {
                             name = <span class="prelude-val">Some</span>(val);
                         }
                     }
                     gimli::DW_AT_name =&gt; {
                         <span class="kw">if </span>name.is_none() {
-                            name = sections.attr_string(unit, attr.value()).ok();
+                            name = unit.attr_string(attr.value()).ok();
                         }
                     }
                     gimli::DW_AT_abstract_origin | gimli::DW_AT_specification =&gt; {
                         <span class="kw">if </span>name.is_none() {
-                            name = name_attr(attr.value(), file, unit, ctx, sections, <span class="number">16</span>)<span class="question-mark">?</span>;
+                            name = name_attr(attr.value(), state.file, unit, state.ctx, <span class="number">16</span>)<span class="question-mark">?</span>;
                         }
                     }
                     gimli::DW_AT_call_file =&gt; {
@@ -989,8 +1004,8 @@
             }
         }
 
-        <span class="kw">let </span>function_index = inlined_functions.len();
-        inlined_functions.push(InlinedFunction {
+        <span class="kw">let </span>function_index = state.functions.len();
+        state.functions.push(InlinedFunction {
             dw_die_offset,
             name,
             call_file,
@@ -998,34 +1013,35 @@
             call_column,
         });
 
-        ranges.for_each_range(sections, unit, |range| {
-            inlined_addresses.push(InlinedFunctionAddress {
+        ranges.for_each_range(unit, |range| {
+            state.addresses.push(InlinedFunctionAddress {
                 range,
                 call_depth: inlined_depth,
                 function: function_index,
             });
         })<span class="question-mark">?</span>;
 
-        Function::parse_children(
-            entries,
-            depth,
-            file,
-            unit,
-            ctx,
-            sections,
-            inlined_functions,
-            inlined_addresses,
-            inlined_depth + <span class="number">1</span>,
-        )
+        Function::parse_children(state, depth, inlined_depth + <span class="number">1</span>)
     }
+}
+
+<span class="kw">struct </span>InlinedState&lt;<span class="lifetime">'a</span>, R: gimli::Reader&gt; {
+    <span class="comment">// Mutable fields.
+    </span>entries: gimli::EntriesRaw&lt;<span class="lifetime">'a</span>, <span class="lifetime">'a</span>, R&gt;,
+    functions: Vec&lt;InlinedFunction&lt;R&gt;&gt;,
+    addresses: Vec&lt;InlinedFunctionAddress&gt;,
+
+    <span class="comment">// Constant fields.
+    </span>file: DebugFile,
+    unit: gimli::UnitRef&lt;<span class="lifetime">'a</span>, R&gt;,
+    ctx: <span class="kw-2">&amp;</span><span class="lifetime">'a </span>Context&lt;R&gt;,
 }
 
 <span class="kw">fn </span>name_attr&lt;R&gt;(
     attr: gimli::AttributeValue&lt;R&gt;,
     <span class="kw-2">mut </span>file: DebugFile,
-    unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
+    unit: gimli::UnitRef&lt;R&gt;,
     ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
-    sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
     recursion_limit: usize,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;, Error&gt;
 <span class="kw">where
@@ -1037,17 +1053,20 @@
 
     <span class="kw">match </span>attr {
         gimli::AttributeValue::UnitRef(offset) =&gt; {
-            name_entry(file, unit, offset, ctx, sections, recursion_limit)
+            name_entry(file, unit, offset, ctx, recursion_limit)
         }
         gimli::AttributeValue::DebugInfoRef(dr) =&gt; {
+            <span class="kw">let </span>sections = unit.dwarf;
             <span class="kw">let </span>(unit, offset) = ctx.find_unit(dr, file)<span class="question-mark">?</span>;
-            name_entry(file, unit, offset, ctx, sections, recursion_limit)
+            <span class="kw">let </span>unit = gimli::UnitRef::new(sections, unit);
+            name_entry(file, unit, offset, ctx, recursion_limit)
         }
         gimli::AttributeValue::DebugInfoRefSup(dr) =&gt; {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(sup_sections) = sections.sup.as_ref() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(sup_sections) = unit.dwarf.sup.as_ref() {
                 file = DebugFile::Supplementary;
                 <span class="kw">let </span>(unit, offset) = ctx.find_unit(dr, file)<span class="question-mark">?</span>;
-                name_entry(file, unit, offset, ctx, sup_sections, recursion_limit)
+                <span class="kw">let </span>unit = gimli::UnitRef::new(sup_sections, unit);
+                name_entry(file, unit, offset, ctx, recursion_limit)
             } <span class="kw">else </span>{
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
             }
@@ -1058,10 +1077,9 @@
 
 <span class="kw">fn </span>name_entry&lt;R&gt;(
     file: DebugFile,
-    unit: <span class="kw-2">&amp;</span>gimli::Unit&lt;R&gt;,
+    unit: gimli::UnitRef&lt;R&gt;,
     offset: gimli::UnitOffset&lt;R::Offset&gt;,
     ctx: <span class="kw-2">&amp;</span>Context&lt;R&gt;,
-    sections: <span class="kw-2">&amp;</span>gimli::Dwarf&lt;R&gt;,
     recursion_limit: usize,
 ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;R&gt;, Error&gt;
 <span class="kw">where
@@ -1080,12 +1098,12 @@
         <span class="kw">match </span>entries.read_attribute(<span class="kw-2">*</span>spec) {
             <span class="prelude-val">Ok</span>(<span class="kw-2">ref </span>attr) =&gt; <span class="kw">match </span>attr.name() {
                 gimli::DW_AT_linkage_name | gimli::DW_AT_MIPS_linkage_name =&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = sections.attr_string(unit, attr.value()) {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = unit.attr_string(attr.value()) {
                         <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(val));
                     }
                 }
                 gimli::DW_AT_name =&gt; {
-                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = sections.attr_string(unit, attr.value()) {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(val) = unit.attr_string(attr.value()) {
                         name = <span class="prelude-val">Some</span>(val);
                     }
                 }
@@ -1103,7 +1121,7 @@
     }
 
     <span class="kw">if let </span><span class="prelude-val">Some</span>(next) = next {
-        <span class="kw">return </span>name_attr(next, file, unit, ctx, sections, recursion_limit - <span class="number">1</span>);
+        <span class="kw">return </span>name_attr(next, file, unit, ctx, recursion_limit - <span class="number">1</span>);
     }
 
     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)

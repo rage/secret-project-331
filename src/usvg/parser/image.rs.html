@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.42.0/src/parser/image.rs`."><title>image.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/usvg-0.44.0/src/parser/image.rs`."><title>image.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="usvg" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -380,6 +380,11 @@
 <a href="#380" id="380">380</a>
 <a href="#381" id="381">381</a>
 <a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
 </pre></div><pre class="rust"><code><span class="comment">// This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -435,7 +440,7 @@
     ///
     /// base64 encoded data is already decoded.
     ///
-    /// The default implementation would try to load JPEG, PNG, GIF, SVG and SVGZ types.
+    /// The default implementation would try to load JPEG, PNG, GIF, WebP, SVG and SVGZ types.
     /// Note that it will simply match the `mime` or data's magic.
     /// The actual images would not be decoded. It's up to the renderer.
     </span><span class="kw">pub fn </span>default_data_resolver() -&gt; ImageHrefDataResolverFn&lt;<span class="lifetime">'static</span>&gt; {
@@ -444,11 +449,13 @@
                 <span class="string">"image/jpg" </span>| <span class="string">"image/jpeg" </span>=&gt; <span class="prelude-val">Some</span>(ImageKind::JPEG(data)),
                 <span class="string">"image/png" </span>=&gt; <span class="prelude-val">Some</span>(ImageKind::PNG(data)),
                 <span class="string">"image/gif" </span>=&gt; <span class="prelude-val">Some</span>(ImageKind::GIF(data)),
+                <span class="string">"image/webp" </span>=&gt; <span class="prelude-val">Some</span>(ImageKind::WEBP(data)),
                 <span class="string">"image/svg+xml" </span>=&gt; load_sub_svg(<span class="kw-2">&amp;</span>data, opts),
                 <span class="string">"text/plain" </span>=&gt; <span class="kw">match </span>get_image_data_format(<span class="kw-2">&amp;</span>data) {
                     <span class="prelude-val">Some</span>(ImageFormat::JPEG) =&gt; <span class="prelude-val">Some</span>(ImageKind::JPEG(data)),
                     <span class="prelude-val">Some</span>(ImageFormat::PNG) =&gt; <span class="prelude-val">Some</span>(ImageKind::PNG(data)),
                     <span class="prelude-val">Some</span>(ImageFormat::GIF) =&gt; <span class="prelude-val">Some</span>(ImageKind::GIF(data)),
+                    <span class="prelude-val">Some</span>(ImageFormat::WEBP) =&gt; <span class="prelude-val">Some</span>(ImageKind::WEBP(data)),
                     <span class="kw">_ </span>=&gt; load_sub_svg(<span class="kw-2">&amp;</span>data, opts),
                 },
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
@@ -480,9 +487,10 @@
                     <span class="prelude-val">Some</span>(ImageFormat::JPEG) =&gt; <span class="prelude-val">Some</span>(ImageKind::JPEG(Arc::new(data))),
                     <span class="prelude-val">Some</span>(ImageFormat::PNG) =&gt; <span class="prelude-val">Some</span>(ImageKind::PNG(Arc::new(data))),
                     <span class="prelude-val">Some</span>(ImageFormat::GIF) =&gt; <span class="prelude-val">Some</span>(ImageKind::GIF(Arc::new(data))),
+                    <span class="prelude-val">Some</span>(ImageFormat::WEBP) =&gt; <span class="prelude-val">Some</span>(ImageKind::WEBP(Arc::new(data))),
                     <span class="prelude-val">Some</span>(ImageFormat::SVG) =&gt; load_sub_svg(<span class="kw-2">&amp;</span>data, opts),
                     <span class="kw">_ </span>=&gt; {
-                        <span class="macro">log::warn!</span>(<span class="string">"'{}' is not a PNG, JPEG, GIF or SVG(Z) image."</span>, href);
+                        <span class="macro">log::warn!</span>(<span class="string">"'{}' is not a PNG, JPEG, GIF, WebP or SVG(Z) image."</span>, href);
                         <span class="prelude-val">None
                     </span>}
                 }
@@ -505,6 +513,7 @@
     PNG,
     JPEG,
     GIF,
+    WEBP,
     SVG,
 }
 
@@ -680,7 +689,7 @@
     }
 }
 
-<span class="doccomment">/// Checks that file has a PNG, a GIF or a JPEG magic bytes.
+<span class="doccomment">/// Checks that file has a PNG, a GIF, a JPEG or a WebP magic bytes.
 /// Or an SVG(Z) extension.
 </span><span class="kw">fn </span>get_image_file_format(path: <span class="kw-2">&amp;</span>std::path::Path, data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;ImageFormat&gt; {
     <span class="kw">let </span>ext = path.extension().and_then(|e| e.to_str())<span class="question-mark">?</span>.to_lowercase();
@@ -691,12 +700,13 @@
     get_image_data_format(data)
 }
 
-<span class="doccomment">/// Checks that file has a PNG, a GIF or a JPEG magic bytes.
+<span class="doccomment">/// Checks that file has a PNG, a GIF, a JPEG or a WebP magic bytes.
 </span><span class="kw">fn </span>get_image_data_format(data: <span class="kw-2">&amp;</span>[u8]) -&gt; <span class="prelude-ty">Option</span>&lt;ImageFormat&gt; {
     <span class="kw">match </span>imagesize::image_type(data).ok()<span class="question-mark">? </span>{
         imagesize::ImageType::Gif =&gt; <span class="prelude-val">Some</span>(ImageFormat::GIF),
         imagesize::ImageType::Jpeg =&gt; <span class="prelude-val">Some</span>(ImageFormat::JPEG),
         imagesize::ImageType::Png =&gt; <span class="prelude-val">Some</span>(ImageFormat::PNG),
+        imagesize::ImageType::Webp =&gt; <span class="prelude-val">Some</span>(ImageFormat::WEBP),
         <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }

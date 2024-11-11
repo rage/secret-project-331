@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.18.3/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git2-0.19.0/src/lib.rs`."><title>lib.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="git2" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1666,6 +1666,22 @@
 <a href="#1666" id="1666">1666</a>
 <a href="#1667" id="1667">1667</a>
 <a href="#1668" id="1668">1668</a>
+<a href="#1669" id="1669">1669</a>
+<a href="#1670" id="1670">1670</a>
+<a href="#1671" id="1671">1671</a>
+<a href="#1672" id="1672">1672</a>
+<a href="#1673" id="1673">1673</a>
+<a href="#1674" id="1674">1674</a>
+<a href="#1675" id="1675">1675</a>
+<a href="#1676" id="1676">1676</a>
+<a href="#1677" id="1677">1677</a>
+<a href="#1678" id="1678">1678</a>
+<a href="#1679" id="1679">1679</a>
+<a href="#1680" id="1680">1680</a>
+<a href="#1681" id="1681">1681</a>
+<a href="#1682" id="1682">1682</a>
+<a href="#1683" id="1683">1683</a>
+<a href="#1684" id="1684">1684</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! # libgit2 bindings for Rust
 //!
 //! This library contains bindings to the [libgit2][1] C library which is used
@@ -1733,7 +1749,7 @@
 //! source `Repository`, to ensure that they do not outlive the repository
 //! itself.
 
-</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/git2/0.18"</span>)]
+</span><span class="attr">#![doc(html_root_url = <span class="string">"https://docs.rs/git2/0.19"</span>)]
 #![allow(trivial_numeric_casts, trivial_casts)]
 #![deny(missing_docs)]
 #![warn(rust_2018_idioms)]
@@ -1886,6 +1902,8 @@
     </span>ApplyFail,
     <span class="doccomment">/// The object is not owned by the current user
     </span>Owner,
+    <span class="doccomment">/// Timeout
+    </span>Timeout,
 }
 
 <span class="doccomment">/// An enumeration of possible categories of things that can have
@@ -2053,6 +2071,8 @@
     </span>Global,
     <span class="doccomment">/// Repository specific config, e.g. $PWD/.git/config
     </span>Local,
+    <span class="doccomment">///  Worktree specific configuration file, e.g. $GIT_DIR/config.worktree
+    </span>Worktree,
     <span class="doccomment">/// Application specific configuration file
     </span>App,
     <span class="doccomment">/// Highest level available
@@ -2327,6 +2347,17 @@
         /// exist. When using this flag, you may wish to manually call
         /// `git_odb_refresh` before processing a batch of objects.
         </span><span class="kw">const </span>NO_REFRESH = raw::GIT_ODB_LOOKUP_NO_REFRESH <span class="kw">as </span>u32;
+    }
+}
+
+<span class="macro">bitflags!</span> {
+    <span class="doccomment">/// How to handle reference updates.
+    </span><span class="attr">#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    </span><span class="kw">pub struct </span>RemoteUpdateFlags: u32 {
+       <span class="doccomment">/// Write the fetch results to FETCH_HEAD.
+       </span><span class="kw">const </span>UPDATE_FETCHHEAD = raw::GIT_REMOTE_UPDATE_FETCHHEAD <span class="kw">as </span>u32;
+       <span class="doccomment">/// Report unchanged tips in the update_tips callback.
+       </span><span class="kw">const </span>REPORT_UNCHANGED = raw::GIT_REMOTE_UPDATE_REPORT_UNCHANGED <span class="kw">as </span>u32;
     }
 }
 
@@ -2631,6 +2662,7 @@
             raw::GIT_CONFIG_LEVEL_XDG =&gt; ConfigLevel::XDG,
             raw::GIT_CONFIG_LEVEL_GLOBAL =&gt; ConfigLevel::Global,
             raw::GIT_CONFIG_LEVEL_LOCAL =&gt; ConfigLevel::Local,
+            raw::GIT_CONFIG_LEVEL_WORKTREE =&gt; ConfigLevel::Worktree,
             raw::GIT_CONFIG_LEVEL_APP =&gt; ConfigLevel::App,
             raw::GIT_CONFIG_HIGHEST_LEVEL =&gt; ConfigLevel::Highest,
             n =&gt; <span class="macro">panic!</span>(<span class="string">"unknown config level: {}"</span>, n),

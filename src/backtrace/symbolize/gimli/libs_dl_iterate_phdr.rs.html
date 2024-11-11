@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.73/src/symbolize/gimli/libs_dl_iterate_phdr.rs`."><title>libs_dl_iterate_phdr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/backtrace-0.3.74/src/symbolize/gimli/libs_dl_iterate_phdr.rs`."><title>libs_dl_iterate_phdr.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="backtrace" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -73,6 +73,25 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
 </pre></div><pre class="rust"><code><span class="comment">// Other Unix (e.g. Linux) platforms use ELF as an object file format
 // and typically implement an API called `dl_iterate_phdr` to load
 // native libraries.
@@ -110,31 +129,50 @@
     env::current_exe().map(|e| e.into()).unwrap_or_default()
 }
 
-<span class="comment">// `info` should be a valid pointers.
-// `vec` should be a valid pointer to a `std::Vec`.
+<span class="doccomment">/// # Safety
+/// `info` must be a valid pointer.
+/// `vec` must be a valid pointer to `Vec&lt;Library&gt;`
+</span><span class="attr">#[forbid(unsafe_op_in_unsafe_fn)]
 </span><span class="kw">unsafe extern </span><span class="string">"C" </span><span class="kw">fn </span>callback(
     info: <span class="kw-2">*mut </span>libc::dl_phdr_info,
     _size: libc::size_t,
     vec: <span class="kw-2">*mut </span>libc::c_void,
 ) -&gt; libc::c_int {
-    <span class="kw">let </span>info = <span class="kw-2">&amp;*</span>info;
-    <span class="kw">let </span>libs = <span class="kw-2">&amp;mut *</span>vec.cast::&lt;Vec&lt;Library&gt;&gt;();
-    <span class="kw">let </span>is_main_prog = info.dlpi_name.is_null() || <span class="kw-2">*</span>info.dlpi_name == <span class="number">0</span>;
-    <span class="kw">let </span>name = <span class="kw">if </span>is_main_prog {
-        <span class="comment">// The man page for dl_iterate_phdr says that the first object visited by
-        // callback is the main program; so the first time we encounter a
-        // nameless entry, we can assume its the main program and try to infer its path.
-        // After that, we cannot continue that assumption, and we use an empty string.
-        </span><span class="kw">if </span>libs.is_empty() {
-            infer_current_exe(info.dlpi_addr <span class="kw">as </span>usize)
-        } <span class="kw">else </span>{
-            OsString::new()
-        }
+    <span class="comment">// SAFETY: We are guaranteed these fields:
+    </span><span class="kw">let </span>dlpi_addr = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>info).dlpi_addr };
+    <span class="kw">let </span>dlpi_name = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>info).dlpi_name };
+    <span class="kw">let </span>dlpi_phdr = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>info).dlpi_phdr };
+    <span class="kw">let </span>dlpi_phnum = <span class="kw">unsafe </span>{ (<span class="kw-2">*</span>info).dlpi_phnum };
+    <span class="comment">// SAFETY: We assured this.
+    </span><span class="kw">let </span>libs = <span class="kw">unsafe </span>{ <span class="kw-2">&amp;mut *</span>vec.cast::&lt;Vec&lt;Library&gt;&gt;() };
+    <span class="comment">// most implementations give us the main program first
+    </span><span class="kw">let </span>is_main = libs.is_empty();
+    <span class="comment">// we may be statically linked, which means we are main and mostly one big blob of code
+    </span><span class="kw">let </span>is_static = dlpi_addr == <span class="number">0</span>;
+    <span class="comment">// sometimes we get a null or 0-len CStr, based on libc's whims, but these mean the same thing
+    </span><span class="kw">let </span>no_given_name = dlpi_name.is_null()
+        <span class="comment">// SAFETY: we just checked for null
+        </span>|| <span class="kw">unsafe </span>{ <span class="kw-2">*</span>dlpi_name == <span class="number">0 </span>};
+    <span class="kw">let </span>name = <span class="kw">if </span>is_static {
+        <span class="comment">// don't try to look up our name from /proc/self/maps, it'll get silly
+        </span>env::current_exe().unwrap_or_default().into_os_string()
+    } <span class="kw">else if </span>is_main &amp;&amp; no_given_name {
+        infer_current_exe(dlpi_addr <span class="kw">as </span>usize)
     } <span class="kw">else </span>{
-        <span class="kw">let </span>bytes = CStr::from_ptr(info.dlpi_name).to_bytes();
-        OsStr::from_bytes(bytes).to_owned()
+        <span class="comment">// this fallback works even if we are main, because some platforms give the name anyways
+        </span><span class="kw">if </span>dlpi_name.is_null() {
+            OsString::new()
+        } <span class="kw">else </span>{
+            <span class="comment">// SAFETY: we just checked for nullness
+            </span>OsStr::from_bytes(<span class="kw">unsafe </span>{ CStr::from_ptr(dlpi_name) }.to_bytes()).to_owned()
+        }
     };
-    <span class="kw">let </span>headers = slice::from_raw_parts(info.dlpi_phdr, info.dlpi_phnum <span class="kw">as </span>usize);
+    <span class="kw">let </span>headers = <span class="kw">if </span>dlpi_phdr.is_null() || dlpi_phnum == <span class="number">0 </span>{
+        <span class="kw-2">&amp;</span>[]
+    } <span class="kw">else </span>{
+        <span class="comment">// SAFETY: We just checked for nullness or 0-len slices
+        </span><span class="kw">unsafe </span>{ slice::from_raw_parts(dlpi_phdr, dlpi_phnum <span class="kw">as </span>usize) }
+    };
     libs.push(Library {
         name,
         segments: headers
@@ -144,7 +182,7 @@
                 stated_virtual_memory_address: (<span class="kw-2">*</span>header).p_vaddr <span class="kw">as </span>usize,
             })
             .collect(),
-        bias: info.dlpi_addr <span class="kw">as </span>usize,
+        bias: dlpi_addr <span class="kw">as </span>usize,
     });
     <span class="number">0
 </span>}

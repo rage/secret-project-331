@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-6.0.0/src/enc/entropy_encode.rs`."><title>entropy_encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/brotli-7.0.0/src/enc/entropy_encode.rs`."><title>entropy_encode.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="brotli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -585,13 +585,6 @@
 <a href="#585" id="585">585</a>
 <a href="#586" id="586">586</a>
 <a href="#587" id="587">587</a>
-<a href="#588" id="588">588</a>
-<a href="#589" id="589">589</a>
-<a href="#590" id="590">590</a>
-<a href="#591" id="591">591</a>
-<a href="#592" id="592">592</a>
-<a href="#593" id="593">593</a>
-<a href="#594" id="594">594</a>
 </pre></div><pre class="rust"><code><span class="comment">/* Copyright 2010 Google Inc. All Rights Reserved.
 
    Distributed under MIT license.
@@ -599,7 +592,6 @@
 */
 
 /* Entropy encoding (Huffman) utilities. */
-</span><span class="attr">#![allow(dead_code)]
 </span><span class="kw">use </span>core::cmp::max;
 
 <span class="attr">#[derive(Clone, Copy, Default)]
@@ -939,12 +931,19 @@ See https://en.wikipedia.org/wiki/Huffman_coding */
     }
 }
 
-<span class="kw">pub fn </span>DecideOverRleUse(
+<span class="attr">#[deprecated(note = <span class="string">"Use decide_over_rle_use instead"</span>)]
+</span><span class="kw">pub fn </span>DecideOverRleUse(
     depth: <span class="kw-2">&amp;</span>[u8],
     length: usize,
     use_rle_for_non_zero: <span class="kw-2">&amp;mut </span>i32,
     use_rle_for_zero: <span class="kw-2">&amp;mut </span>i32,
 ) {
+    <span class="kw">let </span>(non_zero, zero) = decide_over_rle_use(depth, length);
+    <span class="kw-2">*</span>use_rle_for_non_zero = non_zero.into();
+    <span class="kw-2">*</span>use_rle_for_zero = zero.into();
+}
+
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>decide_over_rle_use(depth: <span class="kw-2">&amp;</span>[u8], length: usize) -&gt; (bool, bool) {
     <span class="kw">let </span><span class="kw-2">mut </span>total_reps_zero: usize = <span class="number">0usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>total_reps_non_zero: usize = <span class="number">0usize</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>count_reps_zero: usize = <span class="number">1</span>;
@@ -972,16 +971,10 @@ See https://en.wikipedia.org/wiki/Huffman_coding */
         }
         i = i.wrapping_add(reps);
     }
-    <span class="kw-2">*</span>use_rle_for_non_zero = <span class="kw">if </span>total_reps_non_zero &gt; count_reps_non_zero.wrapping_mul(<span class="number">2</span>) {
-        <span class="number">1i32
-    </span>} <span class="kw">else </span>{
-        <span class="number">0i32
-    </span>};
-    <span class="kw-2">*</span>use_rle_for_zero = <span class="kw">if </span>total_reps_zero &gt; count_reps_zero.wrapping_mul(<span class="number">2</span>) {
-        <span class="number">1i32
-    </span>} <span class="kw">else </span>{
-        <span class="number">0i32
-    </span>};
+    <span class="kw">let </span>use_rle_for_non_zero = total_reps_non_zero &gt; count_reps_non_zero.wrapping_mul(<span class="number">2</span>);
+    <span class="kw">let </span>use_rle_for_zero = total_reps_zero &gt; count_reps_zero.wrapping_mul(<span class="number">2</span>);
+
+    (use_rle_for_non_zero, use_rle_for_zero)
 }
 
 <span class="kw">fn </span>Reverse(v: <span class="kw-2">&amp;mut </span>[u8], <span class="kw-2">mut </span>start: usize, <span class="kw-2">mut </span>end: usize) {
@@ -1082,8 +1075,8 @@ See https://en.wikipedia.org/wiki/Huffman_coding */
 ) {
     <span class="kw">let </span><span class="kw-2">mut </span>previous_value: u8 = <span class="number">8u8</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>i: usize;
-    <span class="kw">let </span><span class="kw-2">mut </span>use_rle_for_non_zero: i32 = <span class="number">0i32</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>use_rle_for_zero: i32 = <span class="number">0i32</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>use_rle_for_non_zero = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>use_rle_for_zero = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>new_length: usize = length;
     i = <span class="number">0usize</span>;
     <span class="lifetime">'break27</span>: <span class="kw">while </span>i &lt; length {
@@ -1096,21 +1089,14 @@ See https://en.wikipedia.org/wiki/Huffman_coding */
         }
         i = i.wrapping_add(<span class="number">1</span>);
     }
-    <span class="kw">if </span>length &gt; <span class="number">50usize </span>{
-        DecideOverRleUse(
-            depth,
-            new_length,
-            <span class="kw-2">&amp;mut </span>use_rle_for_non_zero,
-            <span class="kw-2">&amp;mut </span>use_rle_for_zero,
-        );
+    <span class="kw">if </span>length &gt; <span class="number">50 </span>{
+        (use_rle_for_non_zero, use_rle_for_zero) = decide_over_rle_use(depth, new_length);
     }
     i = <span class="number">0usize</span>;
     <span class="kw">while </span>i &lt; new_length {
         <span class="kw">let </span>value: u8 = depth[i];
         <span class="kw">let </span><span class="kw-2">mut </span>reps: usize = <span class="number">1</span>;
-        <span class="kw">if </span>value <span class="kw">as </span>i32 != <span class="number">0i32 </span>&amp;&amp; (use_rle_for_non_zero != <span class="number">0</span>)
-            || value <span class="kw">as </span>i32 == <span class="number">0i32 </span>&amp;&amp; (use_rle_for_zero != <span class="number">0</span>)
-        {
+        <span class="kw">if </span>value != <span class="number">0 </span>&amp;&amp; use_rle_for_non_zero || value == <span class="number">0 </span>&amp;&amp; use_rle_for_zero {
             <span class="kw">let </span><span class="kw-2">mut </span>k: usize;
             k = i.wrapping_add(<span class="number">1</span>);
             <span class="kw">while </span>k &lt; new_length &amp;&amp; (depth[k] <span class="kw">as </span>i32 == value <span class="kw">as </span>i32) {

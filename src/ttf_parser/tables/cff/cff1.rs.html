@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.21.1/src/tables/cff/cff1.rs`."><title>cff1.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.24.1/src/tables/cff/cff1.rs`."><title>cff1.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../../src-files.js"></script><script defer src="../../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -1050,6 +1050,14 @@
 <a href="#1050" id="1050">1050</a>
 <a href="#1051" id="1051">1051</a>
 <a href="#1052" id="1052">1052</a>
+<a href="#1053" id="1053">1053</a>
+<a href="#1054" id="1054">1054</a>
+<a href="#1055" id="1055">1055</a>
+<a href="#1056" id="1056">1056</a>
+<a href="#1057" id="1057">1057</a>
+<a href="#1058" id="1058">1058</a>
+<a href="#1059" id="1059">1059</a>
+<a href="#1060" id="1060">1060</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A [Compact Font Format Table](
 //! https://docs.microsoft.com/en-us/typography/opentype/spec/cff) implementation.
 
@@ -1504,9 +1512,11 @@
             }
             operator::VERTICAL_MOVE_TO =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>&amp;&amp; ctx.width.is_none() {
+                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>{
                     i += <span class="number">1</span>;
-                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    <span class="kw">if </span>ctx.width.is_none() {
+                        ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    }
                 }
 
                 p.parse_vertical_move_to(i)<span class="question-mark">?</span>;
@@ -1634,9 +1644,11 @@
                 </span>p.stack.clear();
 
                 <span class="comment">// If the stack length is uneven, than the first value is a `width`.
-                </span><span class="kw">if </span>len.is_odd() &amp;&amp; ctx.width.is_none() {
+                </span><span class="kw">if </span>len.is_odd() {
                     len -= <span class="number">1</span>;
-                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    <span class="kw">if </span>ctx.width.is_none() {
+                        ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    }
                 }
 
                 ctx.stems_len += len <span class="kw">as </span>u32 &gt;&gt; <span class="number">1</span>;
@@ -1645,18 +1657,22 @@
             }
             operator::MOVE_TO =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                <span class="kw">if </span>p.stack.len() == <span class="number">3 </span>&amp;&amp; ctx.width.is_none() {
+                <span class="kw">if </span>p.stack.len() == <span class="number">3 </span>{
                     i += <span class="number">1</span>;
-                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    <span class="kw">if </span>ctx.width.is_none() {
+                        ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    }
                 }
 
                 p.parse_move_to(i)<span class="question-mark">?</span>;
             }
             operator::HORIZONTAL_MOVE_TO =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
-                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>&amp;&amp; ctx.width.is_none() {
+                <span class="kw">if </span>p.stack.len() == <span class="number">2 </span>{
                     i += <span class="number">1</span>;
-                    ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    <span class="kw">if </span>ctx.width.is_none() {
+                        ctx.width = <span class="prelude-val">Some</span>(p.stack.at(<span class="number">0</span>));
+                    }
                 }
 
                 p.parse_horizontal_move_to(i)<span class="question-mark">?</span>;
@@ -1944,7 +1960,7 @@
             <span class="prelude-val">Some</span>(charset_id::EXPERT_SUBSET) =&gt; Charset::ExpertSubset,
             <span class="prelude-val">Some</span>(offset) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::new_at(data, offset)<span class="question-mark">?</span>;
-                parse_charset(number_of_glyphs.get(), <span class="kw-2">&amp;mut </span>s)<span class="question-mark">?
+                parse_charset(number_of_glyphs, <span class="kw-2">&amp;mut </span>s)<span class="question-mark">?
             </span>}
             <span class="prelude-val">None </span>=&gt; Charset::ISOAdobe, <span class="comment">// default
         </span>};

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.21.1/src/tables/glyf.rs`."><title>glyf.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ttf-parser-0.24.1/src/tables/glyf.rs`."><title>glyf.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="ttf_parser" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -605,6 +605,53 @@
 <a href="#605" id="605">605</a>
 <a href="#606" id="606">606</a>
 <a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! A [Glyph Data Table](
 //! https://docs.microsoft.com/en-us/typography/opentype/spec/glyf) implementation.
 
@@ -1206,10 +1253,57 @@
         outline_impl(<span class="self">self</span>.loca_table, <span class="self">self</span>.data, glyph_data, <span class="number">0</span>, <span class="kw-2">&amp;mut </span>b)<span class="question-mark">?
     </span>}
 
+    <span class="doccomment">/// The bounding box of the glyph. Unlike the `outline` method, this method does not
+    /// calculate the bounding box manually by outlining the glyph, but instead uses the
+    /// bounding box in the `glyf` program. As a result, this method will be much faster,
+    /// but the bounding box could be more inaccurate.
+    </span><span class="attr">#[inline]
+    </span><span class="kw">pub fn </span>bbox(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;Rect&gt; {
+        <span class="kw">let </span>glyph_data = <span class="self">self</span>.get(glyph_id)<span class="question-mark">?</span>;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::new(glyph_data);
+        <span class="comment">// number of contours
+        </span><span class="kw">let _ </span>= s.read::&lt;i16&gt;()<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(Rect {
+            x_min: s.read::&lt;i16&gt;()<span class="question-mark">?</span>,
+            y_min: s.read::&lt;i16&gt;()<span class="question-mark">?</span>,
+            x_max: s.read::&lt;i16&gt;()<span class="question-mark">?</span>,
+            y_max: s.read::&lt;i16&gt;()<span class="question-mark">?</span>,
+        })
+    }
+
     <span class="attr">#[inline]
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">'a </span>[u8]&gt; {
         <span class="kw">let </span>range = <span class="self">self</span>.loca_table.glyph_range(glyph_id)<span class="question-mark">?</span>;
         <span class="self">self</span>.data.get(range)
+    }
+
+    <span class="doccomment">/// Returns the number of points in this outline.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>outline_points(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph_id: GlyphId) -&gt; u16 {
+        <span class="self">self</span>.outline_points_impl(glyph_id).unwrap_or(<span class="number">0</span>)
+    }
+
+    <span class="kw">fn </span>outline_points_impl(<span class="kw-2">&amp;</span><span class="self">self</span>, glyph_id: GlyphId) -&gt; <span class="prelude-ty">Option</span>&lt;u16&gt; {
+        <span class="kw">let </span>data = <span class="self">self</span>.get(glyph_id)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Stream::new(data);
+        <span class="kw">let </span>number_of_contours = s.read::&lt;i16&gt;()<span class="question-mark">?</span>;
+
+        <span class="comment">// Skip bbox.
+        </span>s.advance(<span class="number">8</span>);
+
+        <span class="kw">if </span>number_of_contours &gt; <span class="number">0 </span>{
+            <span class="comment">// Simple glyph.
+            </span><span class="kw">let </span>number_of_contours = NonZeroU16::new(number_of_contours <span class="kw">as </span>u16)<span class="question-mark">?</span>;
+            <span class="kw">let </span>glyph_points = parse_simple_outline(s.tail()<span class="question-mark">?</span>, number_of_contours)<span class="question-mark">?</span>;
+            <span class="prelude-val">Some</span>(glyph_points.points_left)
+        } <span class="kw">else if </span>number_of_contours &lt; <span class="number">0 </span>{
+            <span class="comment">// Composite glyph.
+            </span><span class="kw">let </span>components = CompositeGlyphIter::new(s.tail()<span class="question-mark">?</span>);
+            <span class="prelude-val">Some</span>(components.clone().count() <span class="kw">as </span>u16)
+        } <span class="kw">else </span>{
+            <span class="comment">// An empty glyph.
+            </span><span class="prelude-val">None
+        </span>}
     }
 }
 </code></pre></div></section></main></body></html>

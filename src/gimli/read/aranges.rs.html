@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.29.0/src/read/aranges.rs`."><title>aranges.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-dd39b87e5fcfba68.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.80.1 (3f5fd8dd4 2024-08-06)" data-channel="1.80.1" data-search-js="search-d52510db62a78183.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-20a3ad099b048cf2.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-df360f571f6edeae.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `/home/runner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/gimli-0.31.1/src/read/aranges.rs`."><title>aranges.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-492a78a4a87dcc01.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="gimli" data-themes="" data-resource-suffix="" data-rustdoc-version="1.82.0 (f6e511eec 2024-10-15)" data-channel="1.82.0" data-search-js="search-a99f1315e7cc5121.js" data-settings-js="settings-4313503d2e1961c2.js" ><script src="../../../static.files/storage-118b08c4c78b968e.js"></script><script defer src="../../../static.files/src-script-e66d777a5a92e9b2.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-921df33f47b8780c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-3b12f09e550e0385.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -648,9 +648,171 @@
 <a href="#648" id="648">648</a>
 <a href="#649" id="649">649</a>
 <a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+<a href="#654" id="654">654</a>
+<a href="#655" id="655">655</a>
+<a href="#656" id="656">656</a>
+<a href="#657" id="657">657</a>
+<a href="#658" id="658">658</a>
+<a href="#659" id="659">659</a>
+<a href="#660" id="660">660</a>
+<a href="#661" id="661">661</a>
+<a href="#662" id="662">662</a>
+<a href="#663" id="663">663</a>
+<a href="#664" id="664">664</a>
+<a href="#665" id="665">665</a>
+<a href="#666" id="666">666</a>
+<a href="#667" id="667">667</a>
+<a href="#668" id="668">668</a>
+<a href="#669" id="669">669</a>
+<a href="#670" id="670">670</a>
+<a href="#671" id="671">671</a>
+<a href="#672" id="672">672</a>
+<a href="#673" id="673">673</a>
+<a href="#674" id="674">674</a>
+<a href="#675" id="675">675</a>
+<a href="#676" id="676">676</a>
+<a href="#677" id="677">677</a>
+<a href="#678" id="678">678</a>
+<a href="#679" id="679">679</a>
+<a href="#680" id="680">680</a>
+<a href="#681" id="681">681</a>
+<a href="#682" id="682">682</a>
+<a href="#683" id="683">683</a>
+<a href="#684" id="684">684</a>
+<a href="#685" id="685">685</a>
+<a href="#686" id="686">686</a>
+<a href="#687" id="687">687</a>
+<a href="#688" id="688">688</a>
+<a href="#689" id="689">689</a>
+<a href="#690" id="690">690</a>
+<a href="#691" id="691">691</a>
+<a href="#692" id="692">692</a>
+<a href="#693" id="693">693</a>
+<a href="#694" id="694">694</a>
+<a href="#695" id="695">695</a>
+<a href="#696" id="696">696</a>
+<a href="#697" id="697">697</a>
+<a href="#698" id="698">698</a>
+<a href="#699" id="699">699</a>
+<a href="#700" id="700">700</a>
+<a href="#701" id="701">701</a>
+<a href="#702" id="702">702</a>
+<a href="#703" id="703">703</a>
+<a href="#704" id="704">704</a>
+<a href="#705" id="705">705</a>
+<a href="#706" id="706">706</a>
+<a href="#707" id="707">707</a>
+<a href="#708" id="708">708</a>
+<a href="#709" id="709">709</a>
+<a href="#710" id="710">710</a>
+<a href="#711" id="711">711</a>
+<a href="#712" id="712">712</a>
+<a href="#713" id="713">713</a>
+<a href="#714" id="714">714</a>
+<a href="#715" id="715">715</a>
+<a href="#716" id="716">716</a>
+<a href="#717" id="717">717</a>
+<a href="#718" id="718">718</a>
+<a href="#719" id="719">719</a>
+<a href="#720" id="720">720</a>
+<a href="#721" id="721">721</a>
+<a href="#722" id="722">722</a>
+<a href="#723" id="723">723</a>
+<a href="#724" id="724">724</a>
+<a href="#725" id="725">725</a>
+<a href="#726" id="726">726</a>
+<a href="#727" id="727">727</a>
+<a href="#728" id="728">728</a>
+<a href="#729" id="729">729</a>
+<a href="#730" id="730">730</a>
+<a href="#731" id="731">731</a>
+<a href="#732" id="732">732</a>
+<a href="#733" id="733">733</a>
+<a href="#734" id="734">734</a>
+<a href="#735" id="735">735</a>
+<a href="#736" id="736">736</a>
+<a href="#737" id="737">737</a>
+<a href="#738" id="738">738</a>
+<a href="#739" id="739">739</a>
+<a href="#740" id="740">740</a>
+<a href="#741" id="741">741</a>
+<a href="#742" id="742">742</a>
+<a href="#743" id="743">743</a>
+<a href="#744" id="744">744</a>
+<a href="#745" id="745">745</a>
+<a href="#746" id="746">746</a>
+<a href="#747" id="747">747</a>
+<a href="#748" id="748">748</a>
+<a href="#749" id="749">749</a>
+<a href="#750" id="750">750</a>
+<a href="#751" id="751">751</a>
+<a href="#752" id="752">752</a>
+<a href="#753" id="753">753</a>
+<a href="#754" id="754">754</a>
+<a href="#755" id="755">755</a>
+<a href="#756" id="756">756</a>
+<a href="#757" id="757">757</a>
+<a href="#758" id="758">758</a>
+<a href="#759" id="759">759</a>
+<a href="#760" id="760">760</a>
+<a href="#761" id="761">761</a>
+<a href="#762" id="762">762</a>
+<a href="#763" id="763">763</a>
+<a href="#764" id="764">764</a>
+<a href="#765" id="765">765</a>
+<a href="#766" id="766">766</a>
+<a href="#767" id="767">767</a>
+<a href="#768" id="768">768</a>
+<a href="#769" id="769">769</a>
+<a href="#770" id="770">770</a>
+<a href="#771" id="771">771</a>
+<a href="#772" id="772">772</a>
+<a href="#773" id="773">773</a>
+<a href="#774" id="774">774</a>
+<a href="#775" id="775">775</a>
+<a href="#776" id="776">776</a>
+<a href="#777" id="777">777</a>
+<a href="#778" id="778">778</a>
+<a href="#779" id="779">779</a>
+<a href="#780" id="780">780</a>
+<a href="#781" id="781">781</a>
+<a href="#782" id="782">782</a>
+<a href="#783" id="783">783</a>
+<a href="#784" id="784">784</a>
+<a href="#785" id="785">785</a>
+<a href="#786" id="786">786</a>
+<a href="#787" id="787">787</a>
+<a href="#788" id="788">788</a>
+<a href="#789" id="789">789</a>
+<a href="#790" id="790">790</a>
+<a href="#791" id="791">791</a>
+<a href="#792" id="792">792</a>
+<a href="#793" id="793">793</a>
+<a href="#794" id="794">794</a>
+<a href="#795" id="795">795</a>
+<a href="#796" id="796">796</a>
+<a href="#797" id="797">797</a>
+<a href="#798" id="798">798</a>
+<a href="#799" id="799">799</a>
+<a href="#800" id="800">800</a>
+<a href="#801" id="801">801</a>
+<a href="#802" id="802">802</a>
+<a href="#803" id="803">803</a>
+<a href="#804" id="804">804</a>
+<a href="#805" id="805">805</a>
+<a href="#806" id="806">806</a>
+<a href="#807" id="807">807</a>
+<a href="#808" id="808">808</a>
+<a href="#809" id="809">809</a>
+<a href="#810" id="810">810</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::common::{DebugArangesOffset, DebugInfoOffset, Encoding, SectionId};
 <span class="kw">use </span><span class="kw">crate</span>::endianity::Endianity;
-<span class="kw">use </span><span class="kw">crate</span>::read::{EndianSlice, Error, Range, Reader, ReaderOffset, <span class="prelude-ty">Result</span>, Section};
+<span class="kw">use </span><span class="kw">crate</span>::read::{
+    EndianSlice, Error, Range, Reader, ReaderAddress, ReaderOffset, <span class="prelude-ty">Result</span>, Section,
+};
 
 <span class="doccomment">/// The `DebugAranges` struct represents the DWARF address range information
 /// found in the `.debug_aranges` section.
@@ -785,7 +947,6 @@
     encoding: Encoding,
     length: Offset,
     debug_info_offset: DebugInfoOffset&lt;Offset&gt;,
-    segment_size: u8,
     entries: R,
 }
 
@@ -808,21 +969,22 @@
         }
 
         <span class="kw">let </span>debug_info_offset = rest.read_offset(format).map(DebugInfoOffset)<span class="question-mark">?</span>;
-        <span class="kw">let </span>address_size = rest.read_u8()<span class="question-mark">?</span>;
+        <span class="kw">let </span>address_size = rest.read_address_size()<span class="question-mark">?</span>;
         <span class="kw">let </span>segment_size = rest.read_u8()<span class="question-mark">?</span>;
+        <span class="kw">if </span>segment_size != <span class="number">0 </span>{
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedSegmentSize);
+        }
 
         <span class="comment">// unit_length + version + offset + address_size + segment_size
         </span><span class="kw">let </span>header_length = format.initial_length_size() + <span class="number">2 </span>+ format.word_size() + <span class="number">1 </span>+ <span class="number">1</span>;
 
         <span class="comment">// The first tuple following the header in each set begins at an offset that is
-        // a multiple of the size of a single tuple (that is, the size of a segment selector
-        // plus twice the size of an address).
+        // a multiple of the size of a single tuple (that is, twice the size of an address).
         </span><span class="kw">let </span>tuple_length = address_size
             .checked_mul(<span class="number">2</span>)
-            .and_then(|x| x.checked_add(segment_size))
-            .ok_or(Error::InvalidAddressRange)<span class="question-mark">?</span>;
+            .ok_or(Error::UnsupportedAddressSize(address_size))<span class="question-mark">?</span>;
         <span class="kw">if </span>tuple_length == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::InvalidAddressRange);
+            <span class="kw">return </span><span class="prelude-val">Err</span>(Error::UnsupportedAddressSize(address_size));
         }
         <span class="kw">let </span>padding = <span class="kw">if </span>header_length % tuple_length == <span class="number">0 </span>{
             <span class="number">0
@@ -835,14 +997,12 @@
             format,
             version,
             address_size,
-            <span class="comment">// TODO: segment_size
-        </span>};
+        };
         <span class="prelude-val">Ok</span>(ArangeHeader {
             offset,
             encoding,
             length,
             debug_info_offset,
-            segment_size,
             entries: rest,
         })
     }
@@ -865,12 +1025,6 @@
         <span class="self">self</span>.encoding
     }
 
-    <span class="doccomment">/// Return the segment size for this set of entries.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>segment_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u8 {
-        <span class="self">self</span>.segment_size
-    }
-
     <span class="doccomment">/// Return the offset into the .debug_info section for this set of arange entries.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>debug_info_offset(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DebugInfoOffset&lt;Offset&gt; {
@@ -883,7 +1037,6 @@
         ArangeEntryIter {
             input: <span class="self">self</span>.entries.clone(),
             encoding: <span class="self">self</span>.encoding,
-            segment_size: <span class="self">self</span>.segment_size,
         }
     }
 }
@@ -896,7 +1049,6 @@
 </span><span class="kw">pub struct </span>ArangeEntryIter&lt;R: Reader&gt; {
     input: R,
     encoding: Encoding,
-    segment_size: u8,
 }
 
 <span class="kw">impl</span>&lt;R: Reader&gt; ArangeEntryIter&lt;R&gt; {
@@ -907,11 +1059,29 @@
     /// yielded. If an error occurs while parsing the next arange, then this error
     /// is returned as `Err(e)`, and all subsequent calls return `Ok(None)`.
     </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ArangeEntry&gt;&gt; {
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>raw_entry = <span class="kw">match </span><span class="self">self</span>.next_raw()<span class="question-mark">? </span>{
+                <span class="prelude-val">Some</span>(entry) =&gt; entry,
+                <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
+            };
+
+            <span class="kw">let </span>entry = <span class="self">self</span>.convert_raw(raw_entry)<span class="question-mark">?</span>;
+            <span class="kw">if </span>entry.is_some() {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(entry);
+            }
+        }
+    }
+
+    <span class="doccomment">/// Advance the iterator and return the next arange without validating it.
+    ///
+    /// The returned entry will have `range.end` set to 0.
+    /// This will return tombstone entries as well.
+    </span><span class="kw">pub fn </span>next_raw(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ArangeEntry&gt;&gt; {
         <span class="kw">if </span><span class="self">self</span>.input.is_empty() {
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">match </span>ArangeEntry::parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>.input, <span class="self">self</span>.encoding, <span class="self">self</span>.segment_size) {
+        <span class="kw">match </span>ArangeEntry::parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>.input, <span class="self">self</span>.encoding) {
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry)) =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry)),
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; {
                 <span class="self">self</span>.input.empty();
@@ -922,6 +1092,25 @@
                 <span class="prelude-val">Err</span>(e)
             }
         }
+    }
+
+    <span class="doccomment">/// Convert a raw range into a range.
+    ///
+    /// The raw range should have been obtained from `next_raw`.
+    </span><span class="attr">#[doc(hidden)]
+    </span><span class="kw">pub fn </span>convert_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut </span>entry: ArangeEntry) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;ArangeEntry&gt;&gt; {
+        <span class="comment">// Skip tombstone entries.
+        // DWARF specifies a tombstone value of -1, but many linkers use 0.
+        // However, 0 may be a valid address, so the caller must handle that case.
+        </span><span class="kw">let </span>address_size = <span class="self">self</span>.encoding.address_size;
+        <span class="kw">let </span>tombstone_address = !<span class="number">0 </span>&gt;&gt; (<span class="number">64 </span>- <span class="self">self</span>.encoding.address_size * <span class="number">8</span>);
+        <span class="kw">if </span>entry.range.begin == tombstone_address {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
+        }
+
+        <span class="comment">// Calculate end now so that we can handle overflow.
+        </span>entry.range.end = entry.range.begin.add_sized(entry.length, address_size)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(entry))
     }
 }
 
@@ -938,61 +1127,38 @@
 <span class="doccomment">/// A single parsed arange.
 </span><span class="attr">#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 </span><span class="kw">pub struct </span>ArangeEntry {
-    segment: <span class="prelude-ty">Option</span>&lt;u64&gt;,
-    address: u64,
+    range: Range,
     length: u64,
 }
 
 <span class="kw">impl </span>ArangeEntry {
     <span class="doccomment">/// Parse a single arange. Return `None` for the null arange, `Some` for an actual arange.
-    </span><span class="kw">fn </span>parse&lt;R: Reader&gt;(
-        input: <span class="kw-2">&amp;mut </span>R,
-        encoding: Encoding,
-        segment_size: u8,
-    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;&gt; {
+    </span><span class="kw">fn </span>parse&lt;R: Reader&gt;(input: <span class="kw-2">&amp;mut </span>R, encoding: Encoding) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>&gt;&gt; {
         <span class="kw">let </span>address_size = encoding.address_size;
 
-        <span class="kw">let </span>tuple_length = R::Offset::from_u8(<span class="number">2 </span>* address_size + segment_size);
+        <span class="kw">let </span>tuple_length = R::Offset::from_u8(<span class="number">2 </span>* address_size);
         <span class="kw">if </span>tuple_length &gt; input.len() {
             input.empty();
             <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let </span>segment = <span class="kw">if </span>segment_size != <span class="number">0 </span>{
-            input.read_address(segment_size)<span class="question-mark">?
-        </span>} <span class="kw">else </span>{
-            <span class="number">0
-        </span>};
-        <span class="kw">let </span>address = input.read_address(address_size)<span class="question-mark">?</span>;
+        <span class="kw">let </span>begin = input.read_address(address_size)<span class="question-mark">?</span>;
         <span class="kw">let </span>length = input.read_address(address_size)<span class="question-mark">?</span>;
+        <span class="kw">let </span>range = Range { begin, end: <span class="number">0 </span>};
 
-        <span class="kw">match </span>(segment, address, length) {
+        <span class="kw">match </span>(begin, length) {
             <span class="comment">// This is meant to be a null terminator, but in practice it can occur
             // before the end, possibly due to a linker omitting a function and
             // leaving an unrelocated entry.
-            </span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>) =&gt; <span class="self">Self</span>::parse(input, encoding, segment_size),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ArangeEntry {
-                segment: <span class="kw">if </span>segment_size != <span class="number">0 </span>{
-                    <span class="prelude-val">Some</span>(segment)
-                } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>},
-                address,
-                length,
-            })),
+            </span>(<span class="number">0</span>, <span class="number">0</span>) =&gt; <span class="self">Self</span>::parse(input, encoding),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(ArangeEntry { range, length })),
         }
-    }
-
-    <span class="doccomment">/// Return the segment selector of this arange.
-    </span><span class="attr">#[inline]
-    </span><span class="kw">pub fn </span>segment(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;u64&gt; {
-        <span class="self">self</span>.segment
     }
 
     <span class="doccomment">/// Return the beginning address of this arange.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>address(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; u64 {
-        <span class="self">self</span>.address
+        <span class="self">self</span>.range.begin
     }
 
     <span class="doccomment">/// Return the length of this arange.
@@ -1004,10 +1170,7 @@
     <span class="doccomment">/// Return the range.
     </span><span class="attr">#[inline]
     </span><span class="kw">pub fn </span>range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Range {
-        Range {
-            begin: <span class="self">self</span>.address,
-            end: <span class="self">self</span>.address.wrapping_add(<span class="self">self</span>.length),
-        }
+        <span class="self">self</span>.range
     }
 }
 
@@ -1076,8 +1239,8 @@
     </span><span class="kw">fn </span>test_parse_header_ok() {
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>buf = [
-            <span class="comment">// 32-bit length = 32.
-            </span><span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
+            <span class="comment">// 32-bit length = 28 (8 bytes header, 4 bytes padding, 16 bytes tuple data).
+            </span><span class="number">0x1c</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
             <span class="comment">// Version.
             </span><span class="number">0x02</span>, <span class="number">0x00</span>,
             <span class="comment">// Offset.
@@ -1085,11 +1248,10 @@
             <span class="comment">// Address size.
             </span><span class="number">0x08</span>,
             <span class="comment">// Segment size.
-            </span><span class="number">0x04</span>,
-            <span class="comment">// Length to here = 12, tuple length = 20.
+            </span><span class="number">0x00</span>,
+            <span class="comment">// Length to here = 12, tuple length = 16.
             // Padding to tuple length multiple = 4.
             </span><span class="number">0x10</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
-            <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
 
             <span class="comment">// Dummy arange tuple data.
             </span><span class="number">0x20</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
@@ -1122,9 +1284,8 @@
                     version: <span class="number">2</span>,
                     address_size: <span class="number">8</span>,
                 },
-                length: <span class="number">0x20</span>,
+                length: <span class="number">0x1c</span>,
                 debug_info_offset: DebugInfoOffset(<span class="number">0x0403_0201</span>),
-                segment_size: <span class="number">4</span>,
                 entries: EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">32</span>..buf.len() - <span class="number">16</span>], LittleEndian),
             }
         );
@@ -1143,7 +1304,7 @@
             <span class="comment">// Address size.
             </span><span class="number">0xff</span>,
             <span class="comment">// Segment size.
-            </span><span class="number">0xff</span>,
+            </span><span class="number">0x00</span>,
             <span class="comment">// Length to here = 12, tuple length = 20.
             // Padding to tuple length multiple = 4.
             </span><span class="number">0x10</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
@@ -1166,7 +1327,7 @@
 
         <span class="kw">let </span>error = ArangeHeader::parse(rest, DebugArangesOffset(<span class="number">0x10</span>))
             .expect_err(<span class="string">"should fail to parse header"</span>);
-        <span class="macro">assert_eq!</span>(error, Error::InvalidAddressRange);
+        <span class="macro">assert_eq!</span>(error, Error::UnsupportedAddressSize(<span class="number">0xff</span>));
     }
 
     <span class="attr">#[test]
@@ -1206,7 +1367,7 @@
 
         <span class="kw">let </span>error = ArangeHeader::parse(rest, DebugArangesOffset(<span class="number">0x10</span>))
             .expect_err(<span class="string">"should fail to parse header"</span>);
-        <span class="macro">assert_eq!</span>(error, Error::InvalidAddressRange);
+        <span class="macro">assert_eq!</span>(error, Error::UnsupportedAddressSize(<span class="number">0</span>));
     }
 
     <span class="attr">#[test]
@@ -1216,50 +1377,23 @@
             version: <span class="number">2</span>,
             address_size: <span class="number">4</span>,
         };
-        <span class="kw">let </span>segment_size = <span class="number">0</span>;
         <span class="kw">let </span>buf = [<span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x09</span>];
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>entry =
-            ArangeEntry::parse(rest, encoding, segment_size).expect(<span class="string">"should parse entry ok"</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian));
-        <span class="macro">assert_eq!</span>(
-            entry,
-            <span class="prelude-val">Some</span>(ArangeEntry {
-                segment: <span class="prelude-val">None</span>,
-                address: <span class="number">0x0403_0201</span>,
-                length: <span class="number">0x0807_0605</span>,
-            })
-        );
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_parse_entry_segment() {
-        <span class="kw">let </span>encoding = Encoding {
-            format: Format::Dwarf32,
-            version: <span class="number">2</span>,
-            address_size: <span class="number">4</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
         };
-        <span class="kw">let </span>segment_size = <span class="number">8</span>;
-        <span class="attr">#[rustfmt::skip]
-        </span><span class="kw">let </span>buf = [
-            <span class="comment">// Segment.
-            </span><span class="number">0x11</span>, <span class="number">0x12</span>, <span class="number">0x13</span>, <span class="number">0x14</span>, <span class="number">0x15</span>, <span class="number">0x16</span>, <span class="number">0x17</span>, <span class="number">0x18</span>,
-            <span class="comment">// Address.
-            </span><span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>,
-            <span class="comment">// Length.
-            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>,
-            <span class="comment">// Next tuple.
-            </span><span class="number">0x09
-        </span>];
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>entry =
-            ArangeEntry::parse(rest, encoding, segment_size).expect(<span class="string">"should parse entry ok"</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian));
+        <span class="kw">let </span>entry = iter.next().expect(<span class="string">"should parse entry ok"</span>);
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian)
+        );
         <span class="macro">assert_eq!</span>(
             entry,
             <span class="prelude-val">Some</span>(ArangeEntry {
-                segment: <span class="prelude-val">Some</span>(<span class="number">0x1817_1615_1413_1211</span>),
-                address: <span class="number">0x0403_0201</span>,
+                range: Range {
+                    begin: <span class="number">0x0403_0201</span>,
+                    end: <span class="number">0x0403_0201 </span>+ <span class="number">0x0807_0605</span>,
+                },
                 length: <span class="number">0x0807_0605</span>,
             })
         );
@@ -1272,7 +1406,6 @@
             version: <span class="number">2</span>,
             address_size: <span class="number">4</span>,
         };
-        <span class="kw">let </span>segment_size = <span class="number">0</span>;
         <span class="attr">#[rustfmt::skip]
         </span><span class="kw">let </span>buf = [
             <span class="comment">// Zero tuple.
@@ -1284,15 +1417,202 @@
             <span class="comment">// Next tuple.
             </span><span class="number">0x09
         </span>];
-        <span class="kw">let </span>rest = <span class="kw-2">&amp;mut </span>EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian);
-        <span class="kw">let </span>entry =
-            ArangeEntry::parse(rest, encoding, segment_size).expect(<span class="string">"should parse entry ok"</span>);
-        <span class="macro">assert_eq!</span>(<span class="kw-2">*</span>rest, EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian));
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next().expect(<span class="string">"should parse entry ok"</span>);
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian)
+        );
         <span class="macro">assert_eq!</span>(
             entry,
             <span class="prelude-val">Some</span>(ArangeEntry {
-                segment: <span class="prelude-val">None</span>,
-                address: <span class="number">0x0403_0201</span>,
+                range: Range {
+                    begin: <span class="number">0x0403_0201</span>,
+                    end: <span class="number">0x0403_0201 </span>+ <span class="number">0x0807_0605</span>,
+                },
+                length: <span class="number">0x0807_0605</span>,
+            })
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_parse_entry_overflow_32() {
+        <span class="kw">let </span>encoding = Encoding {
+            format: Format::Dwarf32,
+            version: <span class="number">2</span>,
+            address_size: <span class="number">4</span>,
+        };
+        <span class="attr">#[rustfmt::skip]
+        </span><span class="kw">let </span>buf = [
+            <span class="comment">// Address.
+            </span><span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x84</span>,
+            <span class="comment">// Length.
+            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x88</span>,
+            <span class="comment">// Next tuple.
+            </span><span class="number">0x09
+        </span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next();
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian)
+        );
+        <span class="macro">assert_eq!</span>(entry, <span class="prelude-val">Err</span>(Error::AddressOverflow));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_parse_entry_overflow_64() {
+        <span class="kw">let </span>encoding = Encoding {
+            format: Format::Dwarf32,
+            version: <span class="number">2</span>,
+            address_size: <span class="number">8</span>,
+        };
+        <span class="attr">#[rustfmt::skip]
+        </span><span class="kw">let </span>buf = [
+            <span class="comment">// Address.
+            </span><span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x80</span>,
+            <span class="comment">// Length.
+            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x80</span>,
+            <span class="comment">// Next tuple.
+            </span><span class="number">0x09
+        </span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next();
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian)
+        );
+        <span class="macro">assert_eq!</span>(entry, <span class="prelude-val">Err</span>(Error::AddressOverflow));
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_parse_entry_tombstone_32() {
+        <span class="kw">let </span>encoding = Encoding {
+            format: Format::Dwarf32,
+            version: <span class="number">2</span>,
+            address_size: <span class="number">4</span>,
+        };
+        <span class="attr">#[rustfmt::skip]
+        </span><span class="kw">let </span>buf = [
+            <span class="comment">// Address.
+            </span><span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>,
+            <span class="comment">// Length.
+            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>,
+            <span class="comment">// Address.
+            </span><span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>,
+            <span class="comment">// Length.
+            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>,
+            <span class="comment">// Next tuple.
+            </span><span class="number">0x09
+        </span>];
+
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next_raw().unwrap();
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">9</span>..], LittleEndian)
+        );
+        <span class="macro">assert_eq!</span>(
+            entry,
+            <span class="prelude-val">Some</span>(ArangeEntry {
+                range: Range {
+                    begin: <span class="number">0xffff_ffff</span>,
+                    end: <span class="number">0</span>,
+                },
+                length: <span class="number">0x0807_0605</span>,
+            })
+        );
+
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next().unwrap();
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian)
+        );
+        <span class="macro">assert_eq!</span>(
+            entry,
+            <span class="prelude-val">Some</span>(ArangeEntry {
+                range: Range {
+                    begin: <span class="number">0x0403_0201</span>,
+                    end: <span class="number">0x0403_0201 </span>+ <span class="number">0x0807_0605</span>,
+                },
+                length: <span class="number">0x0807_0605</span>,
+            })
+        );
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>test_parse_entry_tombstone_64() {
+        <span class="kw">let </span>encoding = Encoding {
+            format: Format::Dwarf32,
+            version: <span class="number">2</span>,
+            address_size: <span class="number">8</span>,
+        };
+        <span class="attr">#[rustfmt::skip]
+        </span><span class="kw">let </span>buf = [
+            <span class="comment">// Address.
+            </span><span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>,
+            <span class="comment">// Length.
+            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
+            <span class="comment">// Address.
+            </span><span class="number">0x01</span>, <span class="number">0x02</span>, <span class="number">0x03</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
+            <span class="comment">// Length.
+            </span><span class="number">0x05</span>, <span class="number">0x06</span>, <span class="number">0x07</span>, <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,
+            <span class="comment">// Next tuple.
+            </span><span class="number">0x09
+        </span>];
+
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next_raw().unwrap();
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">17</span>..], LittleEndian)
+        );
+        <span class="macro">assert_eq!</span>(
+            entry,
+            <span class="prelude-val">Some</span>(ArangeEntry {
+                range: Range {
+                    begin: <span class="number">0xffff_ffff_ffff_ffff</span>,
+                    end: <span class="number">0</span>,
+                },
+                length: <span class="number">0x0807_0605</span>,
+            })
+        );
+
+        <span class="kw">let </span><span class="kw-2">mut </span>iter = ArangeEntryIter {
+            input: EndianSlice::new(<span class="kw-2">&amp;</span>buf, LittleEndian),
+            encoding,
+        };
+        <span class="kw">let </span>entry = iter.next().unwrap();
+        <span class="macro">assert_eq!</span>(
+            iter.input,
+            EndianSlice::new(<span class="kw-2">&amp;</span>buf[buf.len() - <span class="number">1</span>..], LittleEndian)
+        );
+        <span class="macro">assert_eq!</span>(
+            entry,
+            <span class="prelude-val">Some</span>(ArangeEntry {
+                range: Range {
+                    begin: <span class="number">0x0403_0201</span>,
+                    end: <span class="number">0x0403_0201 </span>+ <span class="number">0x0807_0605</span>,
+                },
                 length: <span class="number">0x0807_0605</span>,
             })
         );

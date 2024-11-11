@@ -1,0 +1,45 @@
+User: {
+  shape: person
+}
+
+User <-> Frontends
+
+Frontends: {
+  "Main frontend"
+  "CMS"
+  "Course Material"
+}
+
+"Exercise plugins": {
+  "Quizzes"
+  "TMC"
+  "Language exercises"
+  "Factorial analysis exercises"
+}
+
+Backend: {
+  shape: hexagon
+}
+
+Frontends <-> Backend
+Backend <-> "Exercise plugins"
+"Exercise plugins" <-> Frontends
+
+"Data storage": {
+  near: "center-left"
+  PostgreSQL: {
+    shape: cylinder
+  }
+  Redis: {
+    shape: cylinder
+  }
+}
+
+Backend <-> "Data storage"
+
+External_services: {
+  label: "External services"
+  shape: cloud
+}
+
+Backend <-> External_services

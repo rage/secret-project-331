@@ -3,20 +3,21 @@ import React from "react"
 
 import { BlockRendererProps } from "../.."
 import { SeparatorAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import colorMapper from "../../../../styles/colorMapper"
 
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
+interface ExtraAttributes {
+  className?: string
+}
+
 const SeparatorBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<SeparatorAttributes>>
+  React.PropsWithChildren<BlockRendererProps<SeparatorAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { anchor, className, textColor, backgroundColor } = data.attributes
+  const { className } = data.attributes
   return (
     <div>
       <hr
         className={css`
-          ${backgroundColor && `background-color: ${colorMapper(textColor)};`}
-          ${textColor && `color: ${colorMapper(backgroundColor)};`}
           ${
             (!className || className === "is-style-default") &&
             "width: 6.25rem; text-align: center;" /* Is not style-wide or dots */
@@ -34,7 +35,6 @@ const SeparatorBlock: React.FC<
               letter-spacing: 2rem;
             }`}
         `}
-        {...(anchor && { id: anchor })}
       />
     </div>
   )

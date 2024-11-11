@@ -594,7 +594,8 @@ export function isChatbotConversationInfo(obj: unknown): obj is ChatbotConversat
         typedObj["current_conversation_messages"].every(
           (e: any) => isChatbotConversationMessage(e) as boolean,
         ))) &&
-    typeof typedObj["chatbot_name"] === "string"
+    typeof typedObj["chatbot_name"] === "string" &&
+    typeof typedObj["hide_citations"] === "boolean"
   )
 }
 

@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Don't commit the copy of the shared module
 shared-module
+
+# Don't commit the build
+storybook-static

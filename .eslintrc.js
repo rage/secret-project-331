@@ -232,6 +232,8 @@ module.exports = {
             "sortBy",
             "split",
             "JSON.parse",
+            "addFilter",
+            "removeFilter",
           ],
         },
         "object-properties": {

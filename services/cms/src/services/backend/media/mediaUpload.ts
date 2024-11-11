@@ -1,9 +1,7 @@
-import { MediaItem } from "@wordpress/media-utils"
-
-import { uploadMedia } from "./uploadMediaToServer"
+import { MediaItem, uploadMedia } from "./uploadMediaToServer"
 export interface MediaUploadProps {
   allowedTypes: string[]
-  filesList: ArrayLike<File>
+  filesList: File[]
   // Below commented probably the future onError function for Gutenberg
   // Blocks seem to want a message as string still.
   //onError: (error: { code: UploadMediaErrorCode; message: string; file: File }) => void

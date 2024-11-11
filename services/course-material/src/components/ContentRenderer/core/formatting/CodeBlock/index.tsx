@@ -21,7 +21,7 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   data,
   dontAllowBlockToBeWiderThanContainerWidth,
 }) => {
-  const { anchor, content } = data.attributes
+  const { content } = data.attributes
   const fontSizePx = useMemo(() => {
     const longestLine = (content ?? "")
       .split("\n")
@@ -54,7 +54,6 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
           white-space: pre-wrap;
           overflow-wrap: break-word;
         `}
-        {...(anchor && { id: anchor })}
       >
         <SyntaxHighlightedContainer content={content} />
       </pre>

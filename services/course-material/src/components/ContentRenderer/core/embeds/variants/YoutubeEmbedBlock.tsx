@@ -9,7 +9,10 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { baseTheme } from "@/shared-module/common/styles/theme"
 
 export const YoutubeEmbedBlock: React.FC<
-  React.PropsWithChildren<EmbedAttributes> & { dontAllowBlockToBeWiderThanContainerWidth: boolean }
+  React.PropsWithChildren<EmbedAttributes> & {
+    dontAllowBlockToBeWiderThanContainerWidth: boolean
+    className?: string
+  }
 > = (props) => {
   const { t } = useTranslation()
   const { url } = props

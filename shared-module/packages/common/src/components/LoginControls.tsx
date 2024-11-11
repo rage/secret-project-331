@@ -1,4 +1,4 @@
-import { ClassNamesArg, cx } from "@emotion/css"
+import { cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,7 +12,7 @@ import Button from "./Button"
 import Spinner from "./Spinner"
 
 export interface LoginControlsProps {
-  styles?: ClassNamesArg[]
+  styles?: string[]
   currentPagePath: string
 }
 

@@ -4,7 +4,6 @@ import { useContext } from "react"
 import { BlockRendererProps } from "../../.."
 import { ListAttributes } from "../../../../../../types/GutenbergBlockAttributes"
 import { GlossaryContext } from "../../../../../contexts/GlossaryContext"
-import colorMapper from "../../../../../styles/colorMapper"
 import { fontSizeMapper, mobileFontSizeMapper } from "../../../../../styles/fontSizeMapper"
 import InnerBlocks from "../../../util/InnerBlocks"
 import { parseText } from "../../../util/textParsing"
@@ -21,16 +20,12 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
   const {
     ordered,
     values,
-    anchor,
-    backgroundColor,
     // className,
     fontSize,
-    gradient,
     // placeholder,
     reversed,
     start,
     // style,
-    textColor,
     // type,
   } = props.data.attributes
 
@@ -40,11 +35,8 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
   const listItemClass = cx(
     css`
       ${fontSize && `font-size: ${mobileFontSizeMapper(fontSize)};`}
-      ${textColor && `color: ${colorMapper(textColor)};`}
-    ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-    ${gradient && `background: ${colorMapper(gradient)};`}
-    ${backgroundColor && `padding: 1.25em 2.375em !important;`}
-    padding-inline-start: 2.5rem !important;
+
+      padding-inline-start: 2.5rem !important;
       overflow-wrap: break-word;
 
       ${respondToOrLarger.md} {
@@ -76,7 +68,6 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
       // eslint-disable-next-line react/no-danger-with-children
       <ol
         className={listItemClass}
-        {...(anchor && { id: anchor })}
         {...(start && { start: start })}
         reversed={reversed}
         dangerouslySetInnerHTML={dangerouslySetInnerHTML}
@@ -89,7 +80,6 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
       // eslint-disable-next-line react/no-danger-with-children
       <ul
         className={listItemClass}
-        {...(anchor && { id: anchor })}
         dangerouslySetInnerHTML={dangerouslySetInnerHTML}
         // eslint-disable-next-line react/no-children-prop
         children={children}

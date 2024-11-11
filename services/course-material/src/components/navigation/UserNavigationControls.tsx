@@ -1,4 +1,4 @@
-import { ClassNamesArg, css, cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -16,7 +16,7 @@ import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redi
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserNavigationControlsProps {
-  styles?: ClassNamesArg[]
+  styles?: string[]
   currentPagePath: string
   courseId?: string | null
 }

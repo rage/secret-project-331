@@ -40,19 +40,9 @@
   },
   "eslint.lintTask.enable": true,
   "eslint.format.enable": true,
-  "shellcheck.customArgs": [
-    "--external-sources"
-  ],
-  "stylelint.validate": [
-    "css",
-    "less",
-    "postcss",
-    "typescriptreact",
-    "javascriptreact"
-  ],
+  "shellcheck.customArgs": ["--external-sources"],
+  "stylelint.validate": ["css", "less", "postcss", "typescriptreact", "javascriptreact"],
   "stylelint.stylelintPath": "node_modules/stylelint",
   "files.insertFinalNewline": true,
-  "rust-analyzer.linkedProjects": [
-    "services/headless-lms/Cargo.toml"
-  ]
+  "rust-analyzer.linkedProjects": ["services/headless-lms/Cargo.toml"]
 }

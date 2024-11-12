@@ -74,6 +74,14 @@ async fn post_new_email_template(
     token.authorized_ok(web::Json(email_template))
 }
 
+// #[instrument(skip(payload, pool))]
+// async fn post_partners_blocks(
+//     course_id: web::Path<Uuid>,
+//     payload: web::Json<>
+// ) -> <> {
+
+// }
+
 /**
 POST `/api/v0/main-frontend/course-instances/{course_instance_id}/reprocess-completions`
 

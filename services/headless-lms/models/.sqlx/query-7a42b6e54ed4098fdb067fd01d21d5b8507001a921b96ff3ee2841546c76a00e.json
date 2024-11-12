@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO partners_blocks (course_id, content, created_at, updated_at)\nVALUES ($1, $2, now(), NULL)\nON CONFLICT (course_id)\nDO UPDATE\nSET content = EXCLUDED.content, updated_at = now()\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "content",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Jsonb"]
+    },
+    "nullable": [false, false, false, true, true, false]
+  },
+  "hash": "7a42b6e54ed4098fdb067fd01d21d5b8507001a921b96ff3ee2841546c76a00e"
+}

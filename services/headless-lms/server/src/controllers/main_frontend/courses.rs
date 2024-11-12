@@ -2,7 +2,10 @@
 
 use chrono::Utc;
 use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
-use headless_lms_models::suspected_cheaters::{SuspectedCheaters, ThresholdData};
+use headless_lms_models::{
+    partner_block::{PartnerBlock, PartnerBlockNew},
+    suspected_cheaters::{SuspectedCheaters, ThresholdData},
+};
 use rand::Rng;
 use std::sync::Arc;
 
@@ -1514,6 +1517,27 @@ async fn get_course_with_join_code(
 }
 
 /**
+ POST /api/v0/main-frontend/courses/:course_id/partners_blocks - Create or updates a partners block for a course
+*/
+#[instrument(skip(payload, pool))]
+async fn post_partners_blocks(
+    path: web::Path<Uuid>,
+    payload: web::Json<Option<serde_json::Value>>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let course_id = path.into_inner();
+
+    let content = payload.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::partner_block::upsert_partner_block(&mut conn, course_id, content).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1686,6 +1710,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/join-course-with-join-code",
             web::post().to(add_user_to_course_with_join_code),
+        )
+        .route(
+            "/{course_id}/partners-blocks",
+            web::post().to(post_partners_blocks),
         )
         .route(
             "/{course_id}/set-join-code",

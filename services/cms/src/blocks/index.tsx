@@ -114,6 +114,8 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/conditional-block", ConditionalBlock],
   ["moocfi/exercise-custom-view-block", ExerciseCustomView],
   ["moocfi/code-giveaway", CodeGiveaway],
+  ["moocfi/expandable-content", ExpendableContent],
+  ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

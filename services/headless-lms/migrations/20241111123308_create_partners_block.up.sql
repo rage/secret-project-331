@@ -5,6 +5,9 @@ CREATE TABLE partners_block (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   content JSONB,
-  course_instance_id UUID REFERENCES course_instances NOT NULL
+  course_id UUID NOT NULL REFERENCES courses(id)
 );
-COMMENT ON TABLE partners_block IS 'A partners block table contains the content of the partners block created in the Gutenberg Editor which are images, text and links.';
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON partners_block FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMENT ON TABLE partners_block IS 'A partners block is a custom content block displayed across all pages of a course, positioned directly above the site footer. This block showcases partner logos and links, providing easy access to relevant partner sites. The partners_block table stores the content data for this block. Content is created and managed through the Gutenberg Editor.';

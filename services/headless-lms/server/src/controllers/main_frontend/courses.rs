@@ -1562,7 +1562,7 @@ async fn delete_partners_block(
     path: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
+) -> ControllerResult<web::Json<PartnersBlock>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(
@@ -1572,9 +1572,10 @@ async fn delete_partners_block(
         Res::Course(course_id),
     )
     .await?;
-    models::partner_block::delete_partner_block(&mut conn, course_id).await?;
+    let deleted_partners_block =
+        models::partner_block::delete_partner_block(&mut conn, course_id).await?;
 
-    token.authorized_ok(web::Json(()))
+    token.authorized_ok(web::Json(deleted_partners_block))
 }
 
 /**

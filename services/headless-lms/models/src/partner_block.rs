@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct PartnerBlock {
+pub struct PartnersBlock {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -22,9 +22,9 @@ pub async fn upsert_partner_block(
     conn: &mut PgConnection,
     course_id: Uuid,
     content: Option<serde_json::Value>,
-) -> ModelResult<PartnerBlock> {
+) -> ModelResult<PartnersBlock> {
     let res = sqlx::query_as!(
-        PartnerBlock,
+        PartnersBlock,
         r#"
 INSERT INTO partners_blocks (course_id, content, created_at, updated_at)
 VALUES ($1, $2, now(), NULL)
@@ -44,9 +44,9 @@ RETURNING *
 pub async fn get_partner_block(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<PartnerBlock> {
+) -> ModelResult<PartnersBlock> {
     let res = sqlx::query_as!(
-        PartnerBlock,
+        PartnersBlock,
         "SELECT *
 FROM partners_blocks
 WHERE course_id = $1
@@ -61,9 +61,9 @@ WHERE course_id = $1
 pub async fn delete_partner_block(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<PartnerBlock> {
+) -> ModelResult<PartnersBlock> {
     let deleted = sqlx::query_as!(
-        PartnerBlock,
+        PartnersBlock,
         r#"
 UPDATE partners_blocks
 SET deleted_at = now()

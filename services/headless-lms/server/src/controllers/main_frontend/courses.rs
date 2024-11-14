@@ -3,7 +3,7 @@
 use chrono::Utc;
 use domain::csv_export::user_exericse_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
-    partner_block::{PartnerBlock, PartnerBlockNew},
+    partner_block::PartnersBlock,
     suspected_cheaters::{SuspectedCheaters, ThresholdData},
 };
 use rand::Rng;
@@ -1517,10 +1517,10 @@ async fn get_course_with_join_code(
 }
 
 /**
- POST /api/v0/main-frontend/courses/:course_id/partners_blocks - Create or updates a partners block for a course
+ POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
 */
 #[instrument(skip(payload, pool))]
-async fn post_partners_blocks(
+async fn post_partners_block(
     path: web::Path<Uuid>,
     payload: web::Json<Option<serde_json::Value>>,
     pool: web::Data<PgPool>,
@@ -1533,6 +1533,46 @@ async fn post_partners_blocks(
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     models::partner_block::upsert_partner_block(&mut conn, course_id, content).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+*/
+#[instrument(skip(pool))]
+async fn get_partners_block(
+    path: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<PartnersBlock>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+
+    token.authorized_ok(web::Json(partner_block))
+}
+
+/**
+DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
+*/
+#[instrument(skip(pool))]
+async fn delete_partners_block(
+    path: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::UsuallyUnacceptableDeletion,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+    models::partner_block::delete_partner_block(&mut conn, course_id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -1713,7 +1753,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route(
             "/{course_id}/partners-blocks",
-            web::post().to(post_partners_blocks),
+            web::post().to(post_partners_block),
+        )
+        .route(
+            "/{course_id}/partners-block",
+            web::get().to(get_partners_block),
+        )
+        .route(
+            "/{course_id}/partners-block",
+            web::delete().to(delete_partners_block),
         )
         .route(
             "/{course_id}/set-join-code",

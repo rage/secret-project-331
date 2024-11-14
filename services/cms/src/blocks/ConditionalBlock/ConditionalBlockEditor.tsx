@@ -54,7 +54,6 @@ const ALLOWED_NESTED_BLOCKS = [
   "moocfi/revelable-content",
   "moocfi/revealable-hidden-content",
   "moocfi/aside-with-image",
-
   "moocfi/flip-card",
   "moocfi/front-card",
   "moocfi/back-card",

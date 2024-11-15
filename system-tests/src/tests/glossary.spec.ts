@@ -65,8 +65,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     clearNotifications: true,
   })
 
-  await page.fill('[placeholder="New term"]', "abcd")
-  await page.fill('textarea[name="New definition"]', "efgh")
+  await page.getByPlaceholder("New term").fill("abcd")
+  await page.getByPlaceholder("New definition").fill("efgh")
 
   await page.click(`button:text-is("Save") >> visible=true`)
   await page.locator(`div:text-is("Success")`).waitFor()
@@ -96,10 +96,10 @@ test("glossary test", async ({ page, headless }, testInfo) => {
   })
 
   // Fill [placeholder="updated term"]
-  await page.fill('[label="Updated term"]', "ABCD")
+  await page.getByPlaceholder("Updated term").fill("ABCD")
 
   // Fill text=efgh
-  await page.fill('[label="Updated definition"]', "EFGH")
+  await page.getByPlaceholder("Updated definition").fill("EFGH")
 
   await page.click(':nth-match(:text("Save"), 2)')
 

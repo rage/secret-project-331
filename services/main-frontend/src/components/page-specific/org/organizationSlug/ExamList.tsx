@@ -1,16 +1,30 @@
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useState } from "react"
+import { isPast } from "date-fns" // Added import
+import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { fetchOrganizationExams } from "../../../../services/backend/exams"
 import NewExamDialog from "../../manage/courses/id/exams/NewExamDialog"
+
+import ExamListItem from "./ExamListItem"
 
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+
+const StyledUl = styled.ul`
+  margin: 1rem 0;
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-radius: 8px;
+`
 
 interface Props {
   organizationId: string
@@ -24,6 +38,7 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
 
   const [newExamFormOpen, setNewExamFormOpen] = useState(false)
+  const [showEnded, setShowEnded] = useState(false)
 
   const getOrgExams = useQuery({
     queryKey: ["organization-exams", organizationId],
@@ -39,6 +54,16 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
 
   const loginStateContext = useContext(LoginStateContext)
 
+  const activeExams = useMemo(
+    () =>
+      getOrgExams.data?.filter((exam) => !exam.ends_at || !isPast(new Date(exam.ends_at))) ?? [],
+    [getOrgExams.data],
+  )
+  const endedExams = useMemo(
+    () => getOrgExams.data?.filter((exam) => exam.ends_at && isPast(new Date(exam.ends_at))) ?? [],
+    [getOrgExams.data],
+  )
+
   if (getOrgExams.isError) {
     return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
   }
@@ -49,17 +74,21 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
 
   return (
     <div>
-      <ul>
-        {getOrgExams.data.map((exam) => {
-          return (
-            <li key={exam.id}>
-              <a href={`/org/${organizationSlug}/exams/${exam.id}`}>{exam.name}</a>
-              <br />
-              <a href={`/manage/exams/${exam.id}`}>{t("manage")}</a>
-            </li>
-          )
-        })}
-      </ul>
+      <StyledUl>
+        {activeExams.map((exam) => (
+          <ExamListItem key={exam.id} exam={exam} organizationSlug={organizationSlug} />
+        ))}
+      </StyledUl>
+      <button onClick={() => setShowEnded(!showEnded)}>
+        {showEnded ? t("hide-ended-exams") : t("show-ended-exams")}
+      </button>
+      {showEnded && (
+        <StyledUl>
+          {endedExams.map((exam) => (
+            <ExamListItem key={exam.id} exam={exam} organizationSlug={organizationSlug} />
+          ))}
+        </StyledUl>
+      )}
       <div
         className={css`
           margin-bottom: 1rem;

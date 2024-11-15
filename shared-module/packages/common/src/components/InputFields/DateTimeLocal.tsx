@@ -1,5 +1,5 @@
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, InputHTMLAttributes, useState } from "react"
+import React, { forwardRef, InputHTMLAttributes } from "react"
 
 import { baseTheme } from "../../styles"
 import { dateToString } from "../../utils/time"
@@ -15,13 +15,13 @@ export interface TimePickerProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
   onChangeByValue?: (value: string, name?: string) => void
   error?: string
-  defaultValue?: string
   className?: string
 }
 
 const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
-  ({ onChangeByValue, onChange, className, defaultValue, ...rest }: TimePickerProps, ref) => {
-    const [value, setValue] = useState<string>(defaultValue ?? "")
+  (props: TimePickerProps, ref) => {
+    const { onChangeByValue, onChange, className, defaultValue, value, ...rest } = props
+
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (onChangeByValue) {
         const {
@@ -32,8 +32,10 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
       if (onChange) {
         onChange(event)
       }
-      setValue(event.target.value)
     }
+
+    const effectiveValue = value ?? defaultValue
+
     return (
       <div
         className={cx(
@@ -81,24 +83,17 @@ const DateTimeLocal = forwardRef<HTMLInputElement, TimePickerProps>(
       >
         <label>
           <span>{rest.label}</span>
-          <input
-            ref={ref}
-            type="datetime-local"
-            step="1"
-            {...rest}
-            onChange={handleOnChange}
-            value={value}
-          />
+          <input ref={ref} type="datetime-local" step="1" onChange={handleOnChange} {...rest} />
         </label>
 
-        {value && (
+        {effectiveValue && typeof effectiveValue === "string" && (
           <small
             className={css`
               display: block;
               height: 18px;
             `}
           >
-            {dateToString(new Date(value))}
+            {dateToString(effectiveValue)}
           </small>
         )}
 

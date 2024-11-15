@@ -1,3 +1,4 @@
+import { parseISO } from "date-fns"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -6,7 +7,7 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
 
 interface EditExamFormProps {
   initialData: Exam
@@ -16,15 +17,13 @@ interface EditExamFormProps {
 }
 
 interface EditExamFields {
-  id: string
   name: string
-  startsAt: Date
-  endsAt: Date
+  startsAt: string
+  endsAt: string
   timeMinutes: number
-  parentId: string | null
   automaticCompletionEnabled: boolean
   minimumPointsTreshold: number
-  manualGradingEnabled: boolean
+  gradeManually: boolean
 }
 
 const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
@@ -40,19 +39,31 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm<EditExamFields>()
+  } = useForm<EditExamFields>({
+    // eslint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+    defaultValues: {
+      name: initialData.name,
+      startsAt: formatDateForDateTimeLocalInputs(initialData.starts_at),
+      endsAt: formatDateForDateTimeLocalInputs(initialData.ends_at),
+      timeMinutes: initialData.time_minutes,
+      automaticCompletionEnabled: initialData.minimum_points_treshold !== 0,
+      minimumPointsTreshold: initialData.minimum_points_treshold,
+      gradeManually: initialData.grade_manually,
+    },
+  })
 
   const onEditExamWrapper = handleSubmit((data) => {
     onEditExam({
       name: data.name,
-      starts_at: new Date(data.startsAt).toISOString(),
-      ends_at: new Date(data.endsAt).toISOString(),
+      starts_at: parseISO(data.startsAt).toISOString(),
+      ends_at: parseISO(data.endsAt).toISOString(),
       time_minutes: Number(data.timeMinutes),
       minimum_points_treshold: data.automaticCompletionEnabled
         ? Number(data.minimumPointsTreshold)
         : 0,
       organization_id: organizationId,
-      grade_manually: data.manualGradingEnabled,
+      grade_manually: data.gradeManually,
     })
   })
 
@@ -64,40 +75,27 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         <TextField
           id={"name"}
           error={errors.name?.message}
-          defaultValue={initialData?.name}
           label={t("label-name")}
           {...register("name", { required: t("required-field") })}
         />
         <DateTimeLocal
           error={errors.startsAt?.message}
-          defaultValue={
-            initialData?.starts_at ? dateToDateTimeLocalString(initialData?.starts_at) : undefined
-          }
           label={t("label-starts-at")}
           {...register("startsAt", { required: t("required-field") })}
         />
         <DateTimeLocal
           error={errors.endsAt?.message}
-          defaultValue={
-            initialData?.ends_at ? dateToDateTimeLocalString(initialData?.ends_at) : undefined
-          }
           label={t("label-ends-at")}
           {...register("endsAt", { required: t("required-field") })}
         />
         <TextField
           id={"timeMinutes"}
           error={errors.timeMinutes?.message}
-          defaultValue={initialData?.time_minutes}
           label={t("label-time-minutes")}
           {...register("timeMinutes", { required: t("required-field") })}
         />
+        <CheckBox label={t("label-grade-exam-manually")} {...register("gradeManually")} />
         <CheckBox
-          defaultChecked={initialData?.grade_manually}
-          label={t("label-grade-exam-manually")}
-          {...register("manualGradingEnabled")}
-        />
-        <CheckBox
-          defaultChecked={initialData?.minimum_points_treshold !== 0}
           label={t("label-related-courses-can-be-completed-automatically")}
           {...register("automaticCompletionEnabled")}
         />
@@ -105,7 +103,6 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
           <TextField
             id={"minimumPointsTreshold"}
             error={errors.timeMinutes?.message}
-            defaultValue={initialData?.minimum_points_treshold}
             label={t("label-exam-minimum-points")}
             {...register("minimumPointsTreshold", { required: t("required-field") })}
           />

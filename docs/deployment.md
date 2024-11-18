@@ -84,7 +84,7 @@ Routing rules are defined in `kubernetes/base/ingress.yml`. For more details, re
 | Feature                       | `bin/dev` (Development Mode)                 | `bin/test` (Local Prod Mode)                   | Production Deployment       |
 | ----------------------------- | -------------------------------------------- | ---------------------------------------------- | --------------------------- |
 | **Environment Variables**     | Development                                  | Development, but production settings turned on | Production-secured values   |
-| **Database**                  | Local DB with seed data (`headless-lms-dev`) | Local DB with seed data (`headless-lms-test`)  | Live production DB          |
+| **Database**                  | Local DB with seed data (`headless_lms_dev`) | Local DB with seed data (`headless_lms_test`)  | Live production DB          |
 | **Build Process**             | Compiled in development mode                 | Compiled in production mode                    | Compiled in production mode |
 | **Deployment Tool**           | Skaffold                                     | Skaffold                                       | Skaffold                    |
 | **Kubernetes Cluster**        | Minikube                                     | Minikube                                       | GCP Kubernetes              |

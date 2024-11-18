@@ -98,5 +98,6 @@ Routing rules are defined in `kubernetes/base/ingress.yml`. For more details, re
 - [Skaffold Documentation](https://skaffold.dev/docs/)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Kustomize Documentation](https://kustomize.io/)
+- [Kubernetes Ingress Documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - [Ingress-NGINX Documentation](https://kubernetes.github.io/ingress-nginx/)
 - [Google Cloud Kubernetes Engine](https://cloud.google.com/kubernetes-engine)

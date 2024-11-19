@@ -1,8 +1,10 @@
 import styled from "@emotion/styled"
+import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface Exam {
   id: string
@@ -83,13 +85,13 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
         <Detail>
           <span className="label">{t("start-date")}:</span>
           <span className="value">
-            {exam.starts_at ? new Date(exam.starts_at).toLocaleDateString() : t("n-a")}
+            {exam.starts_at ? dateToDateTimeLocalString(parseISO(exam.starts_at)) : t("n-a")}
           </span>
         </Detail>
         <Detail>
           <span className="label">{t("end-date")}:</span>
           <span className="value">
-            {exam.ends_at ? new Date(exam.ends_at).toLocaleDateString() : t("n-a")}
+            {exam.ends_at ? dateToDateTimeLocalString(parseISO(exam.ends_at)) : t("n-a")}
           </span>
         </Detail>
         <Detail>

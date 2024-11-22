@@ -8,6 +8,7 @@ CREATE TABLE user_marketing_consents (
   course_id UUID NOT NULL REFERENCES courses(id),
   course_language_groups_id UUID NOT NULL REFERENCES course_language_groups(id),
   user_id UUID NOT NULL REFERENCES users(id),
+  user_mailchimp_id VARCHAR(255),
   consent BOOLEAN NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -24,6 +25,7 @@ COMMENT ON COLUMN user_marketing_consents.id IS 'A unique, stable identifier for
 COMMENT ON COLUMN user_marketing_consents.course_id IS 'Course that the user has access to.';
 COMMENT ON COLUMN user_marketing_consents.course_language_groups_id IS 'The course language group id that the mailing list is related to';
 COMMENT ON COLUMN user_marketing_consents.user_id IS 'User who has the access to the course.';
+COMMENT ON COLUMN user_marketing_consents.user_mailchimp_id IS 'Unique id for the user, provided by Mailchimp';
 COMMENT ON COLUMN user_marketing_consents.consent IS 'Wheter the user has given a marketing consent for a specific course.';
 COMMENT ON COLUMN user_marketing_consents.created_at IS 'Timestamp of when the record was created.';
 COMMENT ON COLUMN user_marketing_consents.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

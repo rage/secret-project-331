@@ -7,6 +7,7 @@ pub struct UserMarketingConsent {
     pub course_id: Uuid,
     pub course_language_groups_id: Uuid,
     pub user_id: Uuid,
+    pub user_mailchimp_id: Option<String>,
     pub consent: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -21,6 +22,7 @@ pub struct UserMarketingConsentWithDetails {
     pub course_id: Uuid,
     pub course_language_groups_id: Uuid,
     pub user_id: Uuid,
+    pub user_mailchimp_id: Option<String>,
     pub consent: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -30,6 +32,8 @@ pub struct UserMarketingConsentWithDetails {
     pub last_name: Option<String>,
     pub email: String,
     pub course_name: String,
+    pub locale: Option<String>,
+    pub completed_course: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -86,6 +90,7 @@ pub async fn fetch_user_marketing_consent(
       course_id,
       course_language_groups_id,
       user_id,
+      user_mailchimp_id,
       consent,
       created_at,
       updated_at,
@@ -116,6 +121,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         umc.course_id,
         umc.course_language_groups_id,
         umc.user_id,
+        umc.user_mailchimp_id,
         umc.consent,
         umc.created_at,
         umc.updated_at,
@@ -124,14 +130,58 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         u.first_name AS first_name,
         u.last_name AS last_name,
         u.email AS email,
-        c.name AS course_name
+        c.name AS course_name,
+        c.language_code AS locale,
+        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course
     FROM user_marketing_consents AS umc
     JOIN user_details AS u ON u.user_id = umc.user_id
     JOIN courses AS c ON c.id = umc.course_id
+    LEFT JOIN course_module_completions AS cmc
+        ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
     WHERE umc.course_language_groups_id = $1
     AND (umc.synced_to_mailchimp_at IS NULL
-            OR umc.synced_to_mailchimp_at < umc.updated_at
-            OR umc.synced_to_mailchimp_at < u.updated_at)
+            OR umc.synced_to_mailchimp_at < umc.updated_at)
+    ",
+        course_language_groups_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(result)
+}
+
+/// Fetches all user details that have been updated after their marketing consent was last synced to Mailchimp
+pub async fn fetch_all_unsynced_updated_emails(
+    conn: &mut PgConnection,
+    course_language_groups_id: Uuid,
+) -> sqlx::Result<Vec<UserMarketingConsentWithDetails>> {
+    let result = sqlx::query_as!(
+        UserMarketingConsentWithDetails,
+        "
+    SELECT
+        umc.id,
+        umc.course_id,
+        umc.course_language_groups_id,
+        umc.user_id,
+        umc.user_mailchimp_id,
+        umc.consent,
+        umc.created_at,
+        umc.updated_at,
+        umc.deleted_at,
+        umc.synced_to_mailchimp_at,
+        u.first_name AS first_name,
+        u.last_name AS last_name,
+        u.email AS email,
+        c.name AS course_name,
+        c.language_code AS locale,
+        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course
+    FROM user_marketing_consents AS umc
+    JOIN user_details AS u ON u.user_id = umc.user_id
+    JOIN courses AS c ON c.id = umc.course_id
+    LEFT JOIN course_module_completions AS cmc
+        ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
+    WHERE umc.course_language_groups_id = $1
+    AND (umc.synced_to_mailchimp_at IS NULL OR umc.synced_to_mailchimp_at < u.updated_at)
     ",
         course_language_groups_id
     )
@@ -150,7 +200,7 @@ pub async fn update_synced_to_mailchimp_at_to_all_synced_users(
         "
 UPDATE user_marketing_consents
 SET synced_to_mailchimp_at = now()
-WHERE id IN (
+WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
   )
 ",
@@ -158,6 +208,95 @@ WHERE id IN (
     )
     .execute(conn)
     .await?;
+    Ok(())
+}
+
+// Used to add the user_mailchimp_ids to a list of new users when they are successfully synced to mailchimp
+pub async fn update_user_mailchimp_id_at_to_all_synced_users(
+    pool: &mut PgConnection,
+    user_contact_pairs: Vec<(String, String)>,
+) -> ModelResult<()> {
+    let user_ids: Vec<String> = user_contact_pairs
+        .iter()
+        .map(|(user_id, _)| user_id.clone())
+        .collect();
+    let user_mailchimp_ids: Vec<String> = user_contact_pairs
+        .iter()
+        .map(|(_, mailchimp_id)| mailchimp_id.clone())
+        .collect();
+
+    // Updated query
+    let query = r#"
+        UPDATE user_marketing_consents
+        SET user_mailchimp_id = updated_data.user_mailchimp_id
+        FROM (
+            SELECT UNNEST($1::Uuid[]) AS user_id, UNNEST($2::text[]) AS user_mailchimp_id
+        ) AS updated_data
+        WHERE user_marketing_consents.user_id = updated_data.user_id
+    "#;
+
+    // Execute the query with the `user_ids` and `user_mailchimp_ids`
+    sqlx::query(query)
+        .bind(&user_ids)
+        .bind(&user_mailchimp_ids)
+        .execute(pool)
+        .await?;
+
+    Ok(())
+}
+
+/// Updates user consents in bulk using Mailchimp data.
+pub async fn update_bulk_user_consent(
+    conn: &mut PgConnection,
+    mailchimp_data: Vec<(String, bool, String, String)>,
+) -> anyhow::Result<()> {
+    let user_ids: Vec<Uuid> = mailchimp_data
+        .iter()
+        .filter_map(|(user_id, _, _, _)| Uuid::parse_str(user_id).ok())
+        .collect();
+
+    let consents: Vec<bool> = mailchimp_data
+        .iter()
+        .map(|(_, consent, _, _)| *consent)
+        .collect();
+
+    let timestamps: Vec<DateTime<Utc>> = mailchimp_data
+        .iter()
+        .filter_map(|(_, _, ts, _)| {
+            DateTime::parse_from_rfc3339(ts)
+                .ok()
+                .map(|dt| dt.with_timezone(&Utc)) // Convert to Utc
+        })
+        .collect();
+
+    let course_language_groups_ids: Vec<Uuid> = mailchimp_data
+        .iter()
+        .filter_map(|(_, _, _, lang_id)| Uuid::parse_str(lang_id).ok())
+        .collect();
+
+    let query = r#"
+        UPDATE user_marketing_consents
+        SET consent = updated_data.consent,
+            synced_to_mailchimp_at = updated_data.last_updated
+        FROM (
+            SELECT UNNEST($1::Uuid[]) AS user_id,
+                   UNNEST($2::bool[]) AS consent,
+                   UNNEST($3::timestamptz[]) AS last_updated,
+                   UNNEST($4::Uuid[]) AS course_language_groups_id
+        ) AS updated_data
+        WHERE user_marketing_consents.user_id = updated_data.user_id
+          AND user_marketing_consents.synced_to_mailchimp_at < updated_data.last_updated
+          AND user_marketing_consents.course_language_groups_id = updated_data.course_language_groups_id
+    "#;
+
+    // Execute the query
+    sqlx::query(query)
+        .bind(&user_ids)
+        .bind(&consents)
+        .bind(&timestamps)
+        .bind(&course_language_groups_ids)
+        .execute(conn)
+        .await?;
     Ok(())
 }
 

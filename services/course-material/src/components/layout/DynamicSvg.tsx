@@ -39,8 +39,8 @@ const DynamicSvg: React.FC<DynamicSvgProps> = ({ src }) => {
         }
 
         svg {
-          width: 6.5rem;
-          height: 6.5rem;
+          width: 5rem;
+          height: 5rem;
         }
       `}
       dangerouslySetInnerHTML={{ __html: svgContent }}

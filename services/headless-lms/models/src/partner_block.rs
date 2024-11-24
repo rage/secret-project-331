@@ -26,11 +26,11 @@ pub async fn upsert_partner_block(
     let res = sqlx::query_as!(
         PartnersBlock,
         r#"
-INSERT INTO partners_blocks (course_id, content, created_at, updated_at)
-VALUES ($1, $2, now(), NULL)
+INSERT INTO partners_blocks (course_id, content)
+VALUES ($1, $2)
 ON CONFLICT (course_id)
 DO UPDATE
-SET content = EXCLUDED.content, updated_at = now()
+SET content = EXCLUDED.content
 RETURNING *
 "#,
         course_id,

@@ -179,6 +179,7 @@ import {
   PageWithExercises,
   Pagination,
   PaperSize,
+  PartnerBlockNew,
   PartnersBlock,
   PeerOrSelfReviewAnswer,
   PeerOrSelfReviewConfig,
@@ -3424,6 +3425,14 @@ export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
     typeof typedObj["created_at"] === "string" &&
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
+  const typedObj = obj as PartnerBlockNew
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["course_id"] === "string"
   )
 }

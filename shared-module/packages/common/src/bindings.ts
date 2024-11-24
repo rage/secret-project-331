@@ -1939,6 +1939,11 @@ export interface PartnersBlock {
   course_id: string
 }
 
+export interface PartnerBlockNew {
+  course_id: string
+  content: unknown | null
+}
+
 export interface UploadResult {
   url: string
 }

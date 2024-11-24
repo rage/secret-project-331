@@ -328,14 +328,14 @@ export const setPartnerBlockForCourse = async (
   courseId: string,
   data: object | null,
 ): Promise<void> => {
-  await mainFrontendClient.post(`/courses/${courseId}/partners-blocks`, data)
+  await mainFrontendClient.post(`/courses/${courseId}/partners-block`, data)
 }
 
 export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/partners-blocks`)
+  const response = await mainFrontendClient.get(`/courses/${courseId}/partners-block`)
   return validateResponse(response, isPartnersBlock)
 }
 
 export const deletePartnersBlock = async (courseId: string): Promise<void> => {
-  await mainFrontendClient.delete(`/courses/${courseId}/partners-blocks`)
+  await mainFrontendClient.delete(`/courses/${courseId}/partners-block`)
 }

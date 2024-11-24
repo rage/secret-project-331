@@ -1525,16 +1525,17 @@ async fn post_partners_block(
     payload: web::Json<Option<serde_json::Value>>,
     pool: web::Data<PgPool>,
     user: AuthUser,
-) -> ControllerResult<web::Json<()>> {
+) -> ControllerResult<web::Json<PartnersBlock>> {
     let course_id = path.into_inner();
 
     let content = payload.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::partner_block::upsert_partner_block(&mut conn, course_id, content).await?;
+    let upserted_partner_block =
+        models::partner_block::upsert_partner_block(&mut conn, course_id, content).await?;
 
-    token.authorized_ok(web::Json(()))
+    token.authorized_ok(web::Json(upserted_partner_block))
 }
 
 /**
@@ -1753,7 +1754,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(add_user_to_course_with_join_code),
         )
         .route(
-            "/{course_id}/partners-blocks",
+            "/{course_id}/partners-block",
             web::post().to(post_partners_block),
         )
         .route(

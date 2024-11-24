@@ -55,8 +55,6 @@ const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> =
     return res
   }
 
-  console.log("blockQuery.data", blockQuery.data)
-
   return (
     <CourseContext.Provider value={{ courseId: courseId }}>
       <PartnersBlockEditor data={blockQuery.data} handleSave={handleSave} />

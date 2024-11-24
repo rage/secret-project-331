@@ -1,4 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
+import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
 import React, { useContext, useState } from "react"
@@ -56,7 +57,11 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
   return (
     <>
       <div className="editor__component">
-        <div>
+        <div
+          className={css`
+            margin: 4rem 0 2.5rem 0;
+          `}
+        >
           {error && <pre>{error}</pre>}
           <Button variant="primary" size="medium" disabled={saving} onClick={handleOnSave}>
             {t("save")}

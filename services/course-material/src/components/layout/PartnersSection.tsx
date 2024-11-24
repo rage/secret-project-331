@@ -44,7 +44,9 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
             column-gap: 4rem;
+            row-gap: 2rem;
 
             figure {
               width: 5rem;

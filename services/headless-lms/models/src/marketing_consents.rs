@@ -108,7 +108,7 @@ pub async fn fetch_user_marketing_consent(
     Ok(result)
 }
 
-// Fetches all user marketing consents with detailed user information for a specific course language group, if they haven't been synced to Mailchimp or if there have been updates since the last sync.
+/// Fetches all user marketing consents with detailed user information for a specific course language group, if they haven't been synced to Mailchimp or if there have been updates since the last sync.
 pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_groups_id(
     conn: &mut PgConnection,
     course_language_groups_id: Uuid,
@@ -191,7 +191,7 @@ pub async fn fetch_all_unsynced_updated_emails(
     Ok(result)
 }
 
-// Used to update the synced_to_mailchimp_at to a list of users when they are successfully synced to mailchimp
+/// Used to update the synced_to_mailchimp_at to a list of users when they are successfully synced to mailchimp
 pub async fn update_synced_to_mailchimp_at_to_all_synced_users(
     conn: &mut PgConnection,
     ids: &[Uuid],
@@ -211,7 +211,7 @@ WHERE user_id IN (
     Ok(())
 }
 
-// Used to add the user_mailchimp_ids to a list of new users when they are successfully synced to mailchimp
+/// Used to add the user_mailchimp_ids to a list of new users when they are successfully synced to mailchimp
 pub async fn update_user_mailchimp_id_at_to_all_synced_users(
     pool: &mut PgConnection,
     user_contact_pairs: Vec<(String, String)>,
@@ -225,7 +225,6 @@ pub async fn update_user_mailchimp_id_at_to_all_synced_users(
         .map(|(_, mailchimp_id)| mailchimp_id.clone())
         .collect();
 
-    // Updated query
     let query = r#"
         UPDATE user_marketing_consents
         SET user_mailchimp_id = updated_data.user_mailchimp_id
@@ -235,7 +234,6 @@ pub async fn update_user_mailchimp_id_at_to_all_synced_users(
         WHERE user_marketing_consents.user_id = updated_data.user_id
     "#;
 
-    // Execute the query with the `user_ids` and `user_mailchimp_ids`
     sqlx::query(query)
         .bind(&user_ids)
         .bind(&user_mailchimp_ids)

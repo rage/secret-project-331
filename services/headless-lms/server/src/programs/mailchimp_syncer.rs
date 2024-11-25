@@ -141,7 +141,6 @@ async fn ensure_mailchimp_schema(
             .iter()
             .any(|f| f.field_name == required_field)
         {
-            // If the required field is missing, add it
             if let Err(e) =
                 add_field_to_mailchimp(list_id, required_field, server_prefix, access_token).await
             {
@@ -289,7 +288,6 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
         )
         .await?;
 
-    // Store successfully synced user IDs
     let mut successfully_synced_user_ids = Vec::new();
 
     // Iterate through tokens and fetch and send user details to Mailchimp
@@ -513,8 +511,6 @@ async fn update_emails_in_mailchimp(
     Ok(successfully_synced_user_ids)
 }
 
-//
-
 /// Fetches data from Mailchimp in chunks.
 async fn fetch_mailchimp_data_in_chunks(
     list_id: &str,
@@ -559,7 +555,7 @@ async fn fetch_mailchimp_data_in_chunks(
                 ) {
                     // Avoid adding data if any field is missing or empty
                     if !user_id.is_empty() && !language_groups_id.is_empty() {
-                        let is_subscribed = status == "subscribed"; // or another condition as needed
+                        let is_subscribed = status == "subscribed";
                         all_data.push((
                             user_id.to_string(),
                             is_subscribed,
@@ -577,13 +573,13 @@ async fn fetch_mailchimp_data_in_chunks(
             break;
         }
 
-        offset += chunk_size; // Move the offset forward
+        offset += chunk_size;
     }
 
     Ok(all_data)
 }
 
-const BATCH_SIZE: usize = 1000; // Adjust based on DB capabilities
+const BATCH_SIZE: usize = 1000;
 
 async fn process_mailchimp_data(
     conn: &mut PgConnection,

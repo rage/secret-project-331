@@ -201,7 +201,7 @@ async fn fetch_current_mailchimp_fields(
     } else {
         let error_text = response.text().await?;
         error!("Error fetching merge fields: {}", error_text);
-        Err(anyhow::anyhow!("Failed to fetch current Mailchimp fields.").into())
+        Err(anyhow::anyhow!("Failed to fetch current Mailchimp fields."))
     }
 }
 
@@ -502,7 +502,7 @@ async fn update_emails_in_mailchimp(
             if update_response.status().is_success() {
                 successfully_synced_user_ids.push(user.user_id);
             } else {
-                failed_user_ids.push(user.user_id.clone());
+                failed_user_ids.push(user.user_id);
             }
         } else {
             continue;

@@ -1,9 +1,9 @@
 import { css, cx } from "@emotion/css"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
+import { BlockProhibited } from "@vectopus/atlas-icons-react"
 import { max } from "lodash"
 import React, { useEffect, useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { BlockProhibited } from "@vectopus/atlas-icons-react"
 
 import managePageOrderReducer, {
   managePageOrderInitialState,
@@ -43,80 +43,6 @@ const headingDropdown = css`
   font-size: 30px;
   top: 12px;
 `
-
-const placeholder = [
-  {
-    "clientId": "32dbf035-cfa9-44d9-8f8a-fc173282ea77",
-    "name": "core/columns",
-    "isValid": true,
-    "attributes": {
-      "isStackedOnMobile": true
-    },
-    "innerBlocks": [
-      {
-        "clientId": "a6345230-014d-41df-b85a-49867cb373ae",
-        "name": "core/column",
-        "isValid": true,
-        "attributes": {},
-        "innerBlocks": [
-          {
-            "clientId": "8e4087a9-8a06-4ab3-96d7-810dc02a7d30",
-            "name": "core/image",
-            "isValid": true,
-            "attributes": {
-              "alt": "",
-              "caption": "",
-              "linkDestination": "media",
-              "blurDataUrl": ""
-            },
-            "innerBlocks": []
-          }
-        ]
-      },
-      {
-        "clientId": "d7420d0e-6336-4f42-9173-09c87e7978c0",
-        "name": "core/column",
-        "isValid": true,
-        "attributes": {},
-        "innerBlocks": [
-          {
-            "clientId": "ebe7e576-5209-4098-b5ad-6874f3f96602",
-            "name": "core/image",
-            "isValid": true,
-            "attributes": {
-              "alt": "",
-              "caption": "",
-              "linkDestination": "media",
-              "blurDataUrl": ""
-            },
-            "innerBlocks": []
-          }
-        ]
-      },
-      {
-        "clientId": "d1bb3c77-2a50-459e-ba72-3754dc76e249",
-        "name": "core/column",
-        "isValid": true,
-        "attributes": {},
-        "innerBlocks": [
-          {
-            "clientId": "727484af-cac0-45c8-8867-678a0cb14118",
-            "name": "core/image",
-            "isValid": true,
-            "attributes": {
-              "alt": "",
-              "caption": "",
-              "linkDestination": "media",
-              "blurDataUrl": ""
-            },
-            "innerBlocks": []
-          }
-        ]
-      }
-    ]
-  }
-]
-
 
 export interface ManageCourseStructureProps {
   courseStructure: CourseStructure
@@ -191,7 +117,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
 
   const handleCreatePartnersBlock = async () => {
-    const result = await setPartnerBlockForCourse(courseStructure.course.id, [])
     // eslint-disable-next-line i18next/no-literal-string
     window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
   }
@@ -427,28 +352,33 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       </div>
       <DebugModal data={courseStructure} />
 
-      <div className={css`
-        background: #f7f8f9;
-        width: 70rem;
-        padding: 1rem;
-        color: #4C5868;
-        margin-top: 3rem;
+      <div
+        className={css`
+          background: #f7f8f9;
+          width: 70rem;
+          padding: 1rem;
+          color: #4c5868;
+          margin-top: 3rem;
 
-        h5 {
-          margin-bottom: 0.5rem;
-          font-weight: 600;
+          h5 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
 
-          svg {
-            margin-right: 0.4rem;
+            svg {
+              margin-right: 0.4rem;
+            }
           }
-        }
 
-        p {
-          margin-bottom: 1rem;
-        }
-        `}>
-          <h5><BlockProhibited size={18} weight="bold" color='#4C5868' />{t("partners-section-heading")}</h5>
-          <p>{t("partners-section-text")}</p>
+          p {
+            margin-bottom: 1rem;
+          }
+        `}
+      >
+        <h5>
+          <BlockProhibited size={18} weight="bold" color="#4C5868" />
+          {t("partners-section-heading")}
+        </h5>
+        <p>{t("partners-section-text")}</p>
         <button
           className={css`
             background: ${baseTheme.colors.gray[200]};
@@ -462,8 +392,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         >
           {t("partners-section-button-text")}
         </button>
-
-        </div>
+      </div>
 
       <BottomPanel
         title={t("message-do-you-want-to-save-the-changes-to-the-page-ordering")}

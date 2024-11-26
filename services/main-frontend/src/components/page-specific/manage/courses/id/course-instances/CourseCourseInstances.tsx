@@ -105,7 +105,6 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                       {t("link-view-points")}
                     </Link>{" "}
                     <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
-                    <ModuleCompletionReprocessButton courseInstanceId={instance.id} />
                   </li>
                 )
               })}

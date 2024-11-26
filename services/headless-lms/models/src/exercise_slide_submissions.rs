@@ -14,7 +14,7 @@ use crate::{
     exercises::{self, Exercise, GradingProgress},
     prelude::*,
     teacher_grading_decisions::{self, TeacherGradingDecision},
-    user_exercise_states::{self, CourseInstanceOrExamId, UserExerciseState},
+    user_exercise_states::{self, CourseOrExamId, UserExerciseState},
     CourseOrExamId,
 };
 
@@ -324,7 +324,7 @@ LIMIT $2 OFFSET $3;
 pub async fn get_users_all_submissions_for_course_instance_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+    course_instance_id_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Vec<ExerciseSlideSubmission>> {
     let (course_instance_id, exam_id) = course_instance_id_or_exam_id.to_instance_and_exam_ids();
     let submissions = sqlx::query_as!(
@@ -849,12 +849,12 @@ SELECT counts.*, exercises.name exercise_name
 pub async fn get_exercise_slide_submission_counts_for_exercise_user(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-    course_instance_id_or_exam_id: CourseInstanceOrExamId,
+    course_instance_id_or_exam_id: CourseOrExamId,
     user_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, i64>> {
     let ci_id_or_e_id = match course_instance_id_or_exam_id {
-        CourseInstanceOrExamId::Instance(id) => id,
-        CourseInstanceOrExamId::Exam(id) => id,
+        CourseOrExamId::Instance(id) => id,
+        CourseOrExamId::Exam(id) => id,
     };
     let res = sqlx::query!(
         r#"

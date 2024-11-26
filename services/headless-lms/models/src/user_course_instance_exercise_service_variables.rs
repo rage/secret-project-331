@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     exercise_tasks::ExerciseTask,
     prelude::*,
-    user_exercise_states::{CourseInstanceOrExamId, UserExerciseState},
+    user_exercise_states::{CourseOrExamId, UserExerciseState},
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
@@ -24,7 +24,7 @@ pub struct UserCourseInstanceExerciseServiceVariable {
 pub(crate) async fn get_all_variables_for_user_and_course_instance_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
-    instance_or_exam_id: CourseInstanceOrExamId,
+    instance_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Vec<UserCourseInstanceExerciseServiceVariable>> {
     let (course_instance_id, exam_id) = instance_or_exam_id.to_instance_and_exam_ids();
     let res = sqlx::query_as!(

@@ -11,7 +11,7 @@ pub struct PeerOrSelfReviewSubmission {
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub peer_or_self_review_config_id: Uuid,
     pub exercise_slide_submission_id: Uuid,
 }
@@ -21,7 +21,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     peer_or_self_review_config_id: Uuid,
     exercise_slide_submission_id: Uuid,
 ) -> ModelResult<Uuid> {
@@ -31,7 +31,7 @@ INSERT INTO peer_or_self_review_submissions (
     id,
     user_id,
     exercise_id,
-    course_instance_id,
+    course_id,
     peer_or_self_review_config_id,
     exercise_slide_submission_id
   )
@@ -41,7 +41,7 @@ RETURNING id
         pkey_policy.into_uuid(),
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         peer_or_self_review_config_id,
         exercise_slide_submission_id,
     )
@@ -92,7 +92,7 @@ pub async fn get_users_submission_ids_for_exercise_and_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         "
@@ -100,12 +100,12 @@ SELECT exercise_slide_submission_id
 FROM peer_or_self_review_submissions
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND course_id = $3
   AND deleted_at IS NULL
     ",
         user_id,
         exercise_id,
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?
@@ -118,7 +118,7 @@ WHERE user_id = $1
 pub async fn get_all_received_peer_or_self_review_submissions_for_user_and_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<PeerOrSelfReviewSubmission>> {
     let res = sqlx::query_as!(
         PeerOrSelfReviewSubmission,
@@ -127,12 +127,12 @@ SELECT prs.*
 FROM exercise_slide_submissions ess
 INNER JOIN peer_or_self_review_submissions prs ON (ess.id = prs.exercise_slide_submission_id)
 WHERE ess.user_id = $1
-  AND ess.course_instance_id = $2
+  AND ess.course_id = $2
   AND ess.deleted_at IS NULL
   AND prs.deleted_at IS NULL
     ",
         user_id,
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?;
@@ -142,7 +142,7 @@ WHERE ess.user_id = $1
 pub async fn get_all_given_peer_or_self_review_submissions_for_user_and_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<PeerOrSelfReviewSubmission>> {
     let res = sqlx::query_as!(
         PeerOrSelfReviewSubmission,
@@ -150,11 +150,11 @@ pub async fn get_all_given_peer_or_self_review_submissions_for_user_and_course_i
 SELECT *
 FROM peer_or_self_review_submissions
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
     ",
         user_id,
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?;
@@ -164,7 +164,7 @@ WHERE user_id = $1
 pub async fn get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     exercise_id: Uuid,
 ) -> ModelResult<i64> {
     let res = sqlx::query!(
@@ -173,11 +173,11 @@ SELECT COUNT(*)
 FROM peer_or_self_review_submissions
 WHERE user_id = $1
   AND exercise_id = $3
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
     ",
         user_id,
-        course_instance_id,
+        course_id,
         exercise_id
     )
     .fetch_one(conn)
@@ -188,7 +188,7 @@ WHERE user_id = $1
 pub async fn get_peer_reviews_given_by_user_and_course_instance_and_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     exercise_id: Uuid,
 ) -> ModelResult<Vec<PeerOrSelfReviewSubmission>> {
     let res = sqlx::query_as!(
@@ -198,11 +198,11 @@ SELECT *
 FROM peer_or_self_review_submissions
 WHERE user_id = $1
   AND exercise_id = $3
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
     ",
         user_id,
-        course_instance_id,
+        course_id,
         exercise_id
     )
     .fetch_all(conn)
@@ -214,7 +214,7 @@ pub async fn get_users_submission_count_for_exercise_and_course_instance(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<u32> {
     let res = sqlx::query!(
         "
@@ -222,12 +222,12 @@ SELECT COUNT(*) AS count
 FROM peer_or_self_review_submissions
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND course_id = $3
   AND deleted_at IS NULL
         ",
         user_id,
         exercise_id,
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .await?;
@@ -238,7 +238,7 @@ pub async fn get_last_time_user_submitted_peer_review(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<DateTime<Utc>>> {
     let res = sqlx::query!(
         "
@@ -246,12 +246,12 @@ SELECT MAX(created_at) as latest_submission_time
 FROM peer_or_self_review_submissions
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND course_id = $3
   AND deleted_at IS NULL
         ",
         user_id,
         exercise_id,
-        course_instance_id
+        course_id
     )
     .fetch_optional(conn)
     .await?;
@@ -280,7 +280,7 @@ pub async fn get_self_review_submission_by_user_and_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<PeerOrSelfReviewSubmission>> {
     let res = sqlx::query_as!(
         PeerOrSelfReviewSubmission,
@@ -290,13 +290,13 @@ FROM peer_or_self_review_submissions prs
 JOIN exercise_slide_submissions ess ON (ess.id = prs.exercise_slide_submission_id)
 WHERE ess.user_id = $1
   AND prs.exercise_id = $2
-  AND prs.course_instance_id = $3
+  AND prs.course_id = $3
   AND prs.deleted_at IS NULL
   AND ess.deleted_at IS NULL
         ",
         user_id,
         exercise_id,
-        course_instance_id
+        course_id
     )
     .fetch_optional(conn)
     .await?;

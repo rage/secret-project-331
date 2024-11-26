@@ -22,9 +22,7 @@ use crate::{
     regradings,
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_exercise_slide_states::{self, UserExerciseSlideState},
-    user_exercise_states::{
-        self, CourseInstanceOrExamId, ExerciseWithUserState, UserExerciseState,
-    },
+    user_exercise_states::{self, CourseOrExamId, ExerciseWithUserState, UserExerciseState},
     user_exercise_task_states,
 };
 
@@ -310,12 +308,12 @@ pub async fn grade_user_submission(
     )
     .await?;
 
-    let course_instance_or_exam_id = CourseInstanceOrExamId::from_instance_and_exam_ids(
-        user_exercise_state.course_instance_id,
+    let course_or_exam_id = CourseOrExamId::from_course_and_exam_ids(
+        user_exercise_state.course_id,
         user_exercise_state.exam_id,
     )?;
 
-    let user_course_instance_exercise_service_variables  = crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_instance_or_exam_id).await?;
+    let user_course_instance_exercise_service_variables  = crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_or_exam_id).await?;
 
     let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {

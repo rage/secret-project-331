@@ -17,7 +17,7 @@ use crate::{
     peer_or_self_review_submissions,
     peer_review_queue_entries::{self, PeerReviewQueueEntry},
     prelude::*,
-    user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
+    user_exercise_states::{self, CourseOrExamId, ReviewingStage, UserExerciseState},
 };
 
 use super::user_exercise_state_updater::{
@@ -131,7 +131,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
             &mut tx,
             giver_exercise_state.user_id,
             giver_exercise_state.exercise_id,
-            giver_exercise_state.get_course_instance_id()?,
+            giver_exercise_state.get_course_id()?,
         )
         .await?
         .try_into()?;
@@ -160,7 +160,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
                     &mut tx,
                     giver_exercise_state.user_id,
                     giver_exercise_state.exercise_id,
-                    giver_exercise_state.get_course_instance_id()?,
+                    giver_exercise_state.get_course_id()?,
                 )
                 .await?;
 
@@ -183,7 +183,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
         PKeyPolicy::Generate,
         giver_exercise_state.user_id,
         giver_exercise_state.exercise_id,
-        giver_exercise_state.get_course_instance_id()?,
+        giver_exercise_state.get_course_id()?,
         peer_or_self_review_config.id,
         peer_review_submission.exercise_slide_submission_id,
     )
@@ -220,7 +220,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
             &mut tx,
             giver_exercise_state.user_id,
             giver_exercise_state.exercise_id,
-            giver_exercise_state.get_course_instance_id()?,
+            giver_exercise_state.get_course_id()?,
             peer_reviews_given,
             users_latest_submission.id,
             peer_reviews_received >= peer_or_self_review_config.peer_reviews_to_receive,
@@ -238,18 +238,16 @@ pub async fn create_peer_or_self_review_submission_for_user(
     )
     .await?;
     let receiver_peer_review_queue_entry =
-        peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(
+        peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_ids(
             &mut tx,
             exercise_slide_submission.id,
-            exercise_slide_submission
-                .course_instance_id
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::PreconditionFailed,
-                        "Exercise slide not part of a course instance.".to_string(),
-                        None,
-                    )
-                })?,
+            exercise_slide_submission.course_id.ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Exercise slide not part of a course instance.".to_string(),
+                    None,
+                )
+            })?,
         )
         .await?;
     if let Some(entry) = receiver_peer_review_queue_entry {
@@ -269,7 +267,7 @@ pub async fn create_peer_or_self_review_submission_for_user(
         &mut tx,
         exercise.id,
         giver_exercise_state.user_id,
-        giver_exercise_state.get_course_instance_id()?,
+        giver_exercise_state.get_course_id()?,
     )
     .await?;
     tx.commit().await?;
@@ -330,7 +328,7 @@ async fn update_peer_review_receiver_exercise_status(
             conn,
             peer_review_queue_entry.user_id,
             peer_review_queue_entry.exercise_id,
-            CourseInstanceOrExamId::Instance(peer_review_queue_entry.course_instance_id),
+            CourseOrExamId::Course(peer_review_queue_entry.course_id),
         )
         .await?;
         if let Some(user_exercise_state) = user_exercise_state {
@@ -394,16 +392,16 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         exercise.get_course_id()?,
     )
     .await?;
-    let course_instance_id = reviewer_user_exercise_state.get_course_instance_id()?;
+
+    let course_id = exercise.get_course_id()?;
 
     // If an answer has been given within 1 hour to be reviewed and it still needs peer review, return the same one
-    if let Some(saved_exercise_slide_submission_to_review) = crate::offered_answers_to_peer_review_temporary::try_to_restore_previously_given_exercise_slide_submission(&mut *conn, exercise.id, reviewer_user_exercise_state.user_id, course_instance_id).await? {
+    if let Some(saved_exercise_slide_submission_to_review) = crate::offered_answers_to_peer_review_temporary::try_to_restore_previously_given_exercise_slide_submission(&mut *conn, exercise.id, reviewer_user_exercise_state.user_id, course_id).await? {
         let data = get_course_material_peer_or_self_review_data(
             conn,
             &peer_or_self_review_config,
             &Some(saved_exercise_slide_submission_to_review),
             reviewer_user_exercise_state.user_id,
-            course_instance_id,
             exercise.id,
             fetch_service_info,
         )
@@ -417,7 +415,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
             conn,
             reviewer_user_exercise_state.user_id,
             reviewer_user_exercise_state.exercise_id,
-            course_instance_id,
+            course_id,
         )
         .await?;
     let candidate_submission_id = try_to_select_peer_review_candidate_from_queue(
@@ -456,7 +454,6 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
         &peer_or_self_review_config,
         &exercise_slide_submission_to_review,
         reviewer_user_exercise_state.user_id,
-        course_instance_id,
         exercise.id,
         fetch_service_info,
     )
@@ -478,7 +475,6 @@ pub async fn select_own_submission_for_self_review(
         exercise.get_course_id()?,
     )
     .await?;
-    let course_instance_id = reviewer_user_exercise_state.get_course_instance_id()?;
     let exercise_slide_submission =
         exercise_slide_submissions::get_users_latest_exercise_slide_submission(
             conn,
@@ -491,7 +487,6 @@ pub async fn select_own_submission_for_self_review(
         &peer_or_self_review_config,
         &Some(exercise_slide_submission),
         reviewer_user_exercise_state.user_id,
-        course_instance_id,
         exercise.id,
         fetch_service_info,
     )
@@ -588,7 +583,6 @@ async fn get_course_material_peer_or_self_review_data(
     peer_or_self_review_config: &PeerOrSelfReviewConfig,
     exercise_slide_submission: &Option<ExerciseSlideSubmission>,
     reviewer_user_id: Uuid,
-    reviewer_course_instance_id: Uuid,
     exercise_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialPeerOrSelfReviewData> {
@@ -602,7 +596,7 @@ async fn get_course_material_peer_or_self_review_data(
         peer_or_self_review_submissions::get_num_peer_reviews_given_by_user_and_course_instance_and_exercise(
             conn,
             reviewer_user_id,
-            reviewer_course_instance_id,
+            peer_or_self_review_config.course_id,
             exercise_id,
         )
         .await?;

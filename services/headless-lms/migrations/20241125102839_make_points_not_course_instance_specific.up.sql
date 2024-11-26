@@ -143,8 +143,48 @@ WHERE uets.user_exercise_slide_state_id = uess.id
   AND uets.deleted_at IS NULL
   AND uess.deleted_at IS NOT NULL;
 
+ALTER TABLE offered_answers_to_peer_review_temporary
+ADD COLUMN course_id uuid REFERENCES courses(id);
+UPDATE offered_answers_to_peer_review_temporary
+SET course_id = ci.course_id
+FROM user_course_settings ucs
+  JOIN course_instances ci ON ucs.current_course_instance_id = ci.id
+WHERE offered_answers_to_peer_review_temporary.course_instance_id = ci.id;
+ALTER TABLE offered_answers_to_peer_review_temporary
+ALTER COLUMN course_id
+SET NOT NULL;
+ALTER TABLE offered_answers_to_peer_review_temporary DROP COLUMN course_instance_id;
+
 -- Drop the course_instance_id column
 ALTER TABLE user_exercise_states DROP COLUMN course_instance_id;
 
 -- Course module completions should not have a course_instance_id -> moving the user to a different course_instance changes the completions list the teacher sees the student on.
 ALTER TABLE course_module_completions DROP COLUMN course_instance_id;
+CREATE UNIQUE INDEX course_module_automatic_completion_uniqueness ON course_module_completions (course_module_id, course_id, user_id)
+WHERE completion_granter_user_id IS NULL
+  AND deleted_at IS NULL;
+
+-- Peer and self review submissions should have course_id instead of course_instance_id
+ALTER TABLE peer_or_self_review_submissions
+ADD COLUMN course_id uuid REFERENCES courses(id);
+UPDATE peer_or_self_review_submissions
+SET course_id = ci.course_id
+FROM user_course_settings ucs
+  JOIN course_instances ci ON ucs.current_course_instance_id = ci.id
+WHERE peer_or_self_review_submissions.course_instance_id = ci.id;
+ALTER TABLE peer_or_self_review_submissions
+ALTER COLUMN course_id
+SET NOT NULL;
+ALTER TABLE peer_or_self_review_submissions DROP COLUMN course_instance_id;
+
+ALTER TABLE peer_review_queue_entries
+ADD COLUMN course_id uuid REFERENCES courses(id);
+UPDATE peer_review_queue_entries
+SET course_id = ci.course_id
+FROM user_course_settings ucs
+  JOIN course_instances ci ON ucs.current_course_instance_id = ci.id
+WHERE peer_review_queue_entries.course_instance_id = ci.id;
+ALTER TABLE peer_review_queue_entries
+ALTER COLUMN course_id
+SET NOT NULL;
+ALTER TABLE peer_review_queue_entries DROP COLUMN course_instance_id;

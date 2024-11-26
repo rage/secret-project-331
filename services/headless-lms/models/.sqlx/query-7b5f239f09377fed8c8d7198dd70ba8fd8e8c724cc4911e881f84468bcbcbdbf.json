@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM peer_review_queue_entries\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_id = $3\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "receiving_peer_reviews_exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "received_enough_peer_reviews",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "peer_review_priority",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "removed_from_queue_for_unusual_reason",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 10,
+        "name": "course_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [false, false, false, true, false, false, false, false, false, false, false]
+  },
+  "hash": "7b5f239f09377fed8c8d7198dd70ba8fd8e8c724cc4911e881f84468bcbcbdbf"
+}

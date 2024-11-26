@@ -20,7 +20,7 @@ use crate::{
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
     user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
     user_course_settings,
-    user_exercise_states::{self, CourseInstanceOrExamId, ReviewingStage, UserExerciseState},
+    user_exercise_states::{self, CourseOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
 };
 use std::collections::HashMap;
@@ -428,12 +428,12 @@ pub async fn get_course_material_exercise(
     );
 
     let user_exercise_state = match (user_id, instance_or_exam_id) {
-        (Some(user_id), Some(course_instance_or_exam_id)) => {
+        (Some(user_id), Some(course_or_exam_id)) => {
             user_exercise_states::get_user_exercise_state_if_exists(
                 conn,
                 user_id,
                 exercise.id,
-                course_instance_or_exam_id,
+                course_or_exam_id,
             )
             .await?
         }
@@ -500,8 +500,8 @@ pub async fn get_course_material_exercise(
     };
 
     let user_course_instance_exercise_service_variables = match (user_id, instance_or_exam_id) {
-        (Some(user_id), Some(course_instance_or_exam_id)) => {
-            Some(crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_instance_or_exam_id).await?)
+        (Some(user_id), Some(course_or_exam_id)) => {
+            Some(crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_or_exam_id).await?)
         }
         _ => None,
     }.unwrap_or_default();
@@ -548,7 +548,7 @@ pub async fn get_or_select_exercise_slide(
     user_id: Option<Uuid>,
     exercise: &Exercise,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseInstanceOrExamId>)> {
+) -> ModelResult<(CourseMaterialExerciseSlide, Option<CourseOrExamId>)> {
     match (user_id, exercise.course_id, exercise.exam_id) {
         (None, ..) => {
             // No signed in user. Show random exercise without model solution.
@@ -589,7 +589,7 @@ pub async fn get_or_select_exercise_slide(
                         .await?;
                     Ok((
                         tasks,
-                        Some(CourseInstanceOrExamId::Instance(
+                        Some(CourseOrExamId::Instance(
                             settings.current_course_instance_id,
                         )),
                     ))
@@ -613,10 +613,7 @@ pub async fn get_or_select_exercise_slide(
                             )
                             .await?;
                         if let Some(exercise_tasks) = exercise_tasks {
-                            Ok((
-                                exercise_tasks,
-                                Some(CourseInstanceOrExamId::Instance(instance.id)),
-                            ))
+                            Ok((exercise_tasks, Some(CourseOrExamId::Instance(instance.id))))
                         } else {
                             // no exercise task has been chosen for the user
                             let random_slide =
@@ -692,7 +689,7 @@ pub async fn get_or_select_exercise_slide(
                 )
                 .await?;
             info!("selecting exam task {:#?}", tasks);
-            Ok((tasks, Some(CourseInstanceOrExamId::Exam(exam_id))))
+            Ok((tasks, Some(CourseOrExamId::Exam(exam_id))))
         }
         (Some(_), ..) => Err(ModelError::new(
             ModelErrorType::Generic,
@@ -755,7 +752,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<ExerciseStatusSummaryForUser>> {
-    let course_instance_or_exam_id = CourseInstanceOrExamId::Instance(course_instance_id);
+    let course_or_exam_id = CourseOrExamId::Instance(course_instance_id);
     // Load all the data for this user from all the exercises to memory, and group most of them to HashMaps by exercise id
     let exercises =
         crate::exercises::get_exercises_by_course_instance_id(&mut *conn, course_instance_id)
@@ -764,7 +761,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
         crate::user_exercise_states::get_all_for_user_and_course_instance_or_exam(
             &mut *conn,
             user_id,
-            course_instance_or_exam_id,
+            course_or_exam_id,
         )
         .await?
         .into_iter()
@@ -774,7 +771,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
         crate::exercise_slide_submissions::get_users_all_submissions_for_course_instance_or_exam(
             &mut *conn,
             user_id,
-            course_instance_or_exam_id,
+            course_or_exam_id,
         )
         .await?
         .into_iter()
@@ -986,7 +983,7 @@ mod test {
             tx.as_mut(),
             user_id,
             exercise_id,
-            CourseInstanceOrExamId::Instance(course_instance.id),
+            CourseOrExamId::Instance(course_instance.id),
         )
         .await
         .unwrap();
@@ -1014,7 +1011,7 @@ mod test {
             tx.as_mut(),
             user_id,
             exercise_id,
-            CourseInstanceOrExamId::Instance(course_instance.id),
+            CourseOrExamId::Instance(course_instance.id),
         )
         .await
         .unwrap();

@@ -323,7 +323,7 @@ async fn submit_peer_or_self_review(
             &mut conn,
             exercise_slide_submission.user_id,
             exercise.id,
-            user_exercise_states::CourseInstanceOrExamId::Instance(receiver_course_instance_id),
+            user_exercise_states::CourseOrExamId::Instance(receiver_course_instance_id),
         )
         .await?;
         if let Some(receiver_user_exercise_state) = receiver_user_exercise_state {

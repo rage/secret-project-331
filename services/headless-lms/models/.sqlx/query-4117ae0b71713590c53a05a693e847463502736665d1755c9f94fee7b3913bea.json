@@ -1,0 +1,116 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM course_module_completions\nWHERE course_module_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "completion_date",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "completion_registration_attempt_date",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "completion_language",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 10,
+        "name": "eligible_for_ects",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 11,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 12,
+        "name": "grade",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 13,
+        "name": "passed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 14,
+        "name": "prerequisite_modules_completed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 15,
+        "name": "completion_granter_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 16,
+        "name": "needs_to_be_reviewed",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "4117ae0b71713590c53a05a693e847463502736665d1755c9f94fee7b3913bea"
+}

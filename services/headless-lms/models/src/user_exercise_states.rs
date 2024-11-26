@@ -57,7 +57,7 @@ pub struct UserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
-    pub course_instance_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
@@ -70,11 +70,11 @@ pub struct UserExerciseState {
 }
 
 impl UserExerciseState {
-    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
-        self.course_instance_id.ok_or_else(|| {
+    pub fn get_course_id(&self) -> ModelResult<Uuid> {
+        self.course_id.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::Generic,
-                "Exercise is not part of a course instance.".to_string(),
+                "Exercise is not part of a course.".to_string(),
                 None,
             )
         })
@@ -105,23 +105,23 @@ pub struct UserExerciseStateUpdate {
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
 /// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-pub enum CourseInstanceOrExamId {
-    Instance(Uuid),
+pub enum CourseOrExamId {
+    Course(Uuid),
     Exam(Uuid),
 }
 
-impl CourseInstanceOrExamId {
-    pub fn from_instance_and_exam_ids(
-        course_instance_id: Option<Uuid>,
+impl CourseOrExamId {
+    pub fn from_course_and_exam_ids(
+        course_id: Option<Uuid>,
         exam_id: Option<Uuid>,
     ) -> ModelResult<Self> {
-        match (course_instance_id, exam_id) {
+        match (course_id, exam_id) {
             (None, None) => Err(ModelError::new(
                 ModelErrorType::Generic,
                 "Expected either course instance or exam id, but neither were provided.",
                 None,
             )),
-            (Some(instance_id), None) => Ok(Self::Instance(instance_id)),
+            (Some(course_id), None) => Ok(Self::Course(course_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
             (Some(_), Some(_)) => Err(ModelError::new(
                 ModelErrorType::Generic,
@@ -133,20 +133,17 @@ impl CourseInstanceOrExamId {
 
     pub fn to_instance_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
         match self {
-            CourseInstanceOrExamId::Instance(instance_id) => (Some(*instance_id), None),
-            CourseInstanceOrExamId::Exam(exam_id) => (None, Some(*exam_id)),
+            CourseOrExamId::Course(course_id) => (Some(*course_id), None),
+            CourseOrExamId::Exam(exam_id) => (None, Some(*exam_id)),
         }
     }
 }
 
-impl TryFrom<UserExerciseState> for CourseInstanceOrExamId {
+impl TryFrom<UserExerciseState> for CourseOrExamId {
     type Error = ModelError;
 
     fn try_from(user_exercise_state: UserExerciseState) -> Result<Self, Self::Error> {
-        Self::from_instance_and_exam_ids(
-            user_exercise_state.course_instance_id,
-            user_exercise_state.exam_id,
-        )
+        Self::from_course_and_exam_ids(user_exercise_state.course_id, user_exercise_state.exam_id)
     }
 }
 
@@ -251,9 +248,9 @@ pub async fn get_course_instance_metrics_indexed_by_module_id(
 }
 
 /// Gets course instance metrics for a single module.
-pub async fn get_single_module_course_instance_metrics(
+pub async fn get_single_module_metrics(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     course_module_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<UserCourseInstanceMetrics> {
@@ -265,13 +262,13 @@ FROM user_exercise_states AS ues
   LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE chapters.course_module_id = $1
-  AND ues.course_instance_id = $2
+  AND ues.course_id = $2
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $3
   AND ues.deleted_at IS NULL
         ",
         course_module_id,
-        course_instance_id,
+        course_id,
         user_id,
     )
     .map(|x| UserCourseInstanceMetrics {
@@ -304,7 +301,7 @@ WHERE ues.course_instance_id = $1
   AND ues.deleted_at IS NULL
 GROUP BY chapters.course_module_id;
         ",
-        course_instance_id,
+        course_id,
         user_id,
     )
     .fetch_all(conn)
@@ -317,7 +314,7 @@ pub async fn get_user_course_instance_metrics_indexed_by_module_id(
     course_instance_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, UserCourseInstanceMetrics>> {
-    let res = get_user_course_instance_metrics(conn, course_instance_id, user_id)
+    let res = get_user_course_instance_metrics(conn, course_id, user_id)
         .await?
         .into_iter()
         .map(|x| (x.course_module_id, x))
@@ -362,8 +359,7 @@ pub async fn get_user_course_instance_progress(
     let course_metrics =
         get_course_instance_metrics_indexed_by_module_id(&mut *conn, course_instance_id).await?;
     let user_metrics =
-        get_user_course_instance_metrics_indexed_by_module_id(conn, course_instance_id, user_id)
-            .await?;
+        get_user_course_instance_metrics_indexed_by_module_id(conn, course_id, user_id).await?;
     let course_id = course_instances::get_course_instance(conn, course_instance_id)
         .await?
         .course_id;
@@ -460,7 +456,7 @@ WHERE ues.deleted_at IS NULL
   AND ues.user_id = $3;
         "#,
         exercise_ids,
-        course_instance_id,
+        course_id,
         user_id,
     )
     .fetch_all(conn)
@@ -481,7 +477,7 @@ pub async fn get_or_create_user_exercise_state(
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -499,7 +495,7 @@ WHERE user_id = $1
 "#,
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id
     )
     .fetch_optional(&mut *conn)
@@ -511,12 +507,12 @@ WHERE user_id = $1
         sqlx::query_as!(
             UserExerciseState,
             r#"
-    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
+    INSERT INTO user_exercise_states (user_id, exercise_id, course_id, exam_id)
     VALUES ($1, $2, $3, $4)
     RETURNING id,
       user_id,
       exercise_id,
-      course_instance_id,
+      course_id,
       exam_id,
       created_at,
       updated_at,
@@ -529,7 +525,7 @@ WHERE user_id = $1
       "#,
             user_id,
             exercise_id,
-            course_instance_id,
+            course_id,
             exam_id
         )
         .fetch_one(&mut *conn)
@@ -551,7 +547,7 @@ pub async fn get_or_create_user_exercise_state_for_users(
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -571,7 +567,7 @@ WHERE user_id IN (
 "#,
         user_ids,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id
     )
     .fetch_all(&mut *conn)
@@ -591,12 +587,12 @@ WHERE user_id IN (
     let created = sqlx::query_as!(
         UserExerciseState,
         r#"
-    INSERT INTO user_exercise_states (user_id, exercise_id, course_instance_id, exam_id)
+    INSERT INTO user_exercise_states (user_id, exercise_id, course_id, exam_id)
     SELECT UNNEST($1::uuid []), $2, $3, $4
     RETURNING id,
       user_id,
       exercise_id,
-      course_instance_id,
+      course_id,
       exam_id,
       created_at,
       updated_at,
@@ -609,7 +605,7 @@ WHERE user_id IN (
       "#,
         &missing_user_ids,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id
     )
     .fetch_all(&mut *conn)
@@ -628,7 +624,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExe
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -664,7 +660,7 @@ WHERE user_id = $1
   GROUP BY user_id
         "#,
         user_id,
-        course_instance_id,
+        course_id,
     )
     .map(|x| x.total_points)
     .fetch_one(conn)
@@ -677,26 +673,11 @@ pub async fn get_users_current_by_exercise(
     user_id: Uuid,
     exercise: &Exercise,
 ) -> ModelResult<UserExerciseState> {
-    let course_or_exam_id = CourseOrExamId::from(exercise.course_id, exercise.exam_id)?;
-    let course_instance_or_exam_id = match course_or_exam_id {
-        CourseOrExamId::Course(course_id) => {
-            user_course_settings::get_user_course_settings_by_course_id(conn, user_id, course_id)
-                .await?
-                .map(|settings| {
-                    CourseInstanceOrExamId::Instance(settings.current_course_instance_id)
-                })
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::PreconditionFailed,
-                        "Missing user course settings.".to_string(),
-                        None,
-                    )
-                })
-        }
-        CourseOrExamId::Exam(exam_id) => Ok(CourseInstanceOrExamId::Exam(exam_id)),
-    }?;
+    let course_or_exam_id =
+        CourseOrExamId::from_course_and_exam_ids(exercise.course_id, exercise.exam_id)?;
+
     let user_exercise_state =
-        get_user_exercise_state_if_exists(conn, user_id, exercise.id, course_instance_or_exam_id)
+        get_user_exercise_state_if_exists(conn, user_id, exercise.id, course_or_exam_id)
             .await?
             .ok_or_else(|| {
                 ModelError::new(
@@ -712,16 +693,16 @@ pub async fn get_user_exercise_state_if_exists(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_or_exam_id: CourseInstanceOrExamId,
+    course_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Option<UserExerciseState>> {
-    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_instance_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -739,7 +720,7 @@ WHERE user_id = $1
       "#,
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id
     )
     .fetch_optional(conn)
@@ -750,16 +731,16 @@ WHERE user_id = $1
 pub async fn get_all_for_user_and_course_instance_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_or_exam_id: CourseInstanceOrExamId,
+    course_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Vec<UserExerciseState>> {
-    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_instance_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -775,7 +756,7 @@ WHERE user_id = $1
   AND deleted_at IS NULL
       "#,
         user_id,
-        course_instance_id,
+        course_id,
         exam_id
     )
     .fetch_all(conn)
@@ -802,7 +783,7 @@ WHERE user_id = $1
 ",
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id
     )
     .fetch_optional(&mut *conn)
@@ -819,7 +800,7 @@ WHERE user_id = $1
     ",
             user_id,
             exercise_id,
-            course_instance_id,
+            course_id,
             selected_exercise_slide_id,
             exam_id
         )
@@ -831,7 +812,7 @@ WHERE user_id = $1
     INSERT INTO user_exercise_states (
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         selected_exercise_slide_id,
         exam_id
       )
@@ -839,7 +820,7 @@ WHERE user_id = $1
     ",
             user_id,
             exercise_id,
-            course_instance_id,
+            course_id,
             selected_exercise_slide_id,
             exam_id
         )
@@ -867,7 +848,7 @@ WHERE id = $5
 RETURNING id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -892,11 +873,11 @@ RETURNING id,
 pub async fn update_reviewing_stage(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_or_exam_id: CourseInstanceOrExamId,
+    course_or_exam_id: CourseOrExamId,
     exercise_id: Uuid,
     new_reviewing_stage: ReviewingStage,
 ) -> ModelResult<UserExerciseState> {
-    let (course_instance_id, exam_id) = course_instance_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_instance_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
@@ -908,7 +889,7 @@ AND exercise_id = $4
 RETURNING id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -920,7 +901,7 @@ RETURNING id,
   selected_exercise_slide_id
         "#,
         user_id,
-        course_instance_id,
+        course_id,
         exam_id,
         exercise_id,
         new_reviewing_stage as ReviewingStage
@@ -946,7 +927,7 @@ WHERE id = $2
 RETURNING id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   exam_id,
   created_at,
   updated_at,
@@ -1025,7 +1006,6 @@ impl ExerciseWithUserState {
 
 pub struct EwusCourse {
     pub course_id: Uuid,
-    pub course_instance_id: Uuid,
 }
 
 pub struct EwusExam {
@@ -1049,14 +1029,10 @@ impl EwusCourseOrExam {
     ) -> ModelResult<Self> {
         if exercise.id == user_exercise_state.exercise_id {
             let course_id = exercise.course_id;
-            let course_instance_id = user_exercise_state.course_instance_id;
             let exam_id = exercise.exam_id;
-            match (course_id, course_instance_id, exam_id) {
-                (None, None, Some(exam_id)) => Ok(Self::Exam(EwusExam { exam_id })),
-                (Some(course_id), Some(course_instance_id), None) => Ok(Self::Course(EwusCourse {
-                    course_id,
-                    course_instance_id,
-                })),
+            match (course_id, exam_id) {
+                (None, Some(exam_id)) => Ok(Self::Exam(EwusExam { exam_id })),
+                (Some(course_id), None) => Ok(Self::Course(EwusCourse { course_id })),
                 _ => Err(ModelError::new(
                     ModelErrorType::Generic,
                     "Invalid initializer data.".to_string(),
@@ -1259,7 +1235,7 @@ pub fn stream_user_exercise_states_for_course<'a>(
 SELECT id,
   user_id,
   exercise_id,
-  course_instance_id,
+  course_id,
   created_at,
   updated_at,
   score_given,
@@ -1290,13 +1266,8 @@ mod tests {
         #[tokio::test]
         async fn works_without_any_user_exercise_states() {
             insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-            let res = get_single_module_course_instance_metrics(
-                tx.as_mut(),
-                instance.id,
-                course_module.id,
-                user,
-            )
-            .await;
+            let res =
+                get_single_module_metrics(tx.as_mut(), instance.id, course_module.id, user).await;
             assert!(res.is_ok())
         }
     }

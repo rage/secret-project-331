@@ -13,7 +13,7 @@ use crate::{
     exercise_task_submissions::{self, ExerciseTaskSubmission},
     library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
-    user_exercise_states::{self, CourseInstanceOrExamId},
+    user_exercise_states::{self, CourseOrExamId},
     CourseOrExamId,
 };
 
@@ -304,7 +304,7 @@ pub async fn get_existing_users_exercise_slide_for_course_instance(
         conn,
         user_id,
         exercise_id,
-        CourseInstanceOrExamId::Instance(course_instance_id),
+        CourseOrExamId::Instance(course_instance_id),
     )
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {

@@ -15,7 +15,7 @@ pub struct PeerReviewQueueEntry {
     pub deleted_at: Option<DateTime<Utc>>,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
-    pub course_instance_id: Uuid,
+    pub course_id: Uuid,
     pub receiving_peer_reviews_exercise_slide_submission_id: Uuid,
     pub received_enough_peer_reviews: bool,
     pub peer_review_priority: i32,
@@ -27,7 +27,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
     peer_review_priority: i32,
 ) -> ModelResult<Uuid> {
@@ -37,7 +37,7 @@ INSERT INTO peer_review_queue_entries (
     id,
     user_id,
     exercise_id,
-    course_instance_id,
+    course_id,
     receiving_peer_reviews_exercise_slide_submission_id,
     peer_review_priority
   )
@@ -47,7 +47,7 @@ RETURNING id
         pkey_policy.into_uuid(),
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         receiving_peer_reviews_exercise_slide_submission_id,
         peer_review_priority,
     )
@@ -56,7 +56,7 @@ RETURNING id
     Ok(res.id)
 }
 
-/// Inserts or updates the queue entry indexed by `user_id`, `exercise_id` and `course_instance_id`.
+/// Inserts or updates the queue entry indexed by `user_id`, `exercise_id` and `course_id`.
 ///
 /// The value for `receiving_peer_reviews_exercise_slide_submission_id` never changes after the initial
 /// insertion. This is to make sure that all received peer reviews are made for the same exercise slide
@@ -66,7 +66,7 @@ pub async fn upsert_peer_review_priority(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     peer_review_priority: i32,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
     received_enough_peer_reviews: bool,
@@ -77,19 +77,19 @@ pub async fn upsert_peer_review_priority(
 INSERT INTO peer_review_queue_entries (
     user_id,
     exercise_id,
-    course_instance_id,
+    course_id,
     peer_review_priority,
     receiving_peer_reviews_exercise_slide_submission_id,
     received_enough_peer_reviews
   )
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_instance_id, deleted_at) DO
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, exercise_id, course_id, deleted_at) DO
 UPDATE
 SET peer_review_priority = $4
 RETURNING *
         ",
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         peer_review_priority,
         receiving_peer_reviews_exercise_slide_submission_id,
         received_enough_peer_reviews,
@@ -161,10 +161,10 @@ WHERE id = $1
     Ok(res)
 }
 
-async fn get_by_receiving_peer_reviews_submission_and_course_instance_ids(
+async fn get_by_receiving_peer_reviews_submission_and_course_ids(
     conn: &mut PgConnection,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<PeerReviewQueueEntry> {
     let res = sqlx::query_as!(
         PeerReviewQueueEntry,
@@ -172,36 +172,36 @@ async fn get_by_receiving_peer_reviews_submission_and_course_instance_ids(
 SELECT *
 FROM peer_review_queue_entries
 WHERE receiving_peer_reviews_exercise_slide_submission_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
     ",
         receiving_peer_reviews_exercise_slide_submission_id,
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn try_to_get_by_receiving_submission_and_course_instance_ids(
+pub async fn try_to_get_by_receiving_submission_and_course_ids(
     conn: &mut PgConnection,
     receiving_peer_reviews_exercise_slide_submission_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<PeerReviewQueueEntry>> {
-    get_by_receiving_peer_reviews_submission_and_course_instance_ids(
+    get_by_receiving_peer_reviews_submission_and_course_ids(
         conn,
         receiving_peer_reviews_exercise_slide_submission_id,
-        course_instance_id,
+        course_id,
     )
     .await
     .optional()
 }
 
-pub async fn get_by_user_and_exercise_and_course_instance_ids(
+pub async fn get_by_user_and_exercise_and_course_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<PeerReviewQueueEntry> {
     let res = sqlx::query_as!(
         PeerReviewQueueEntry,
@@ -210,25 +210,25 @@ SELECT *
 FROM peer_review_queue_entries
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND course_id = $3
   AND deleted_at IS NULL
         ",
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn try_to_get_by_user_and_exercise_and_course_instance_ids(
+pub async fn try_to_get_by_user_and_exercise_and_course_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<PeerReviewQueueEntry>> {
-    get_by_user_and_exercise_and_course_instance_ids(conn, user_id, exercise_id, course_instance_id)
+    get_by_user_and_exercise_and_course_ids(conn, user_id, exercise_id, course_id)
         .await
         .optional()
 }
@@ -349,7 +349,7 @@ pub async fn remove_queue_entries_for_unusual_reason(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -357,12 +357,12 @@ UPDATE peer_review_queue_entries
 SET removed_from_queue_for_unusual_reason = TRUE
 WHERE user_id = $1
   AND exercise_id = $2
-  AND course_instance_id = $3
+  AND course_id = $3
   AND deleted_at IS NULL
     ",
         user_id,
         exercise_id,
-        course_instance_id
+        course_id
     )
     .execute(conn)
     .await?;
@@ -371,7 +371,7 @@ WHERE user_id = $1
 
 pub async fn get_entries_that_need_reviews_and_are_older_than(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     timestamp: DateTime<Utc>,
 ) -> ModelResult<Vec<PeerReviewQueueEntry>> {
     let res = sqlx::query_as!(
@@ -379,13 +379,13 @@ pub async fn get_entries_that_need_reviews_and_are_older_than(
         "
 SELECT *
 FROM peer_review_queue_entries
-WHERE course_instance_id = $1
+WHERE course_id = $1
   AND received_enough_peer_reviews = FALSE
   AND removed_from_queue_for_unusual_reason = FALSE
   AND created_at < $2
   AND deleted_at IS NULL
     ",
-        course_instance_id,
+        course_id,
         timestamp
     )
     .fetch_all(&mut *conn)
@@ -427,9 +427,7 @@ pub async fn remove_from_queue_and_add_to_manual_review(
     let _ues = user_exercise_states::update_reviewing_stage(
         &mut tx,
         peer_review_queue_entry.user_id,
-        user_exercise_states::CourseInstanceOrExamId::Instance(
-            peer_review_queue_entry.course_instance_id,
-        ),
+        user_exercise_states::CourseOrExamId::Course(peer_review_queue_entry.course_id),
         peer_review_queue_entry.exercise_id,
         ReviewingStage::WaitingForManualGrading,
     )
@@ -449,9 +447,7 @@ pub async fn remove_from_queue_and_give_full_points(
         &mut tx,
         peer_review_queue_entry.user_id,
         peer_review_queue_entry.exercise_id,
-        user_exercise_states::CourseInstanceOrExamId::Instance(
-            peer_review_queue_entry.course_instance_id,
-        ),
+        user_exercise_states::CourseOrExamId::Course(peer_review_queue_entry.course_id),
     )
     .await?;
     if let Some(user_exercise_state) = user_exercise_state {
@@ -520,10 +516,10 @@ AND deleted_at is NULL
     Ok(())
 }
 
-pub async fn get_all_by_user_and_course_instance_ids(
+pub async fn get_all_by_user_and_course_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<PeerReviewQueueEntry>> {
     let res = sqlx::query_as!(
         PeerReviewQueueEntry,
@@ -531,23 +527,23 @@ pub async fn get_all_by_user_and_course_instance_ids(
 SELECT *
 FROM peer_review_queue_entries
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
         ",
         user_id,
-        course_instance_id,
+        course_id,
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn try_to_get_all_by_user_and_course_instance_ids(
+pub async fn try_to_get_all_by_user_and_course_ids(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<Vec<PeerReviewQueueEntry>>> {
-    get_all_by_user_and_course_instance_ids(conn, user_id, course_instance_id)
+    get_all_by_user_and_course_ids(conn, user_id, course_id)
         .await
         .optional()
 }

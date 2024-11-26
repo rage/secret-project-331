@@ -76,3 +76,21 @@ RETURNING *
     .await?;
     Ok(deleted)
 }
+
+pub async fn check_if_course_exists(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> Result<bool, sqlx::Error> {
+    let exists = sqlx::query!(
+        r#"
+        SELECT 1 AS exists
+        FROM partners_blocks
+        WHERE course_id = $1
+        LIMIT 1
+        "#,
+        course_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(exists.is_some())
+}

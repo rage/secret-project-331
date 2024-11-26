@@ -4,7 +4,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("partner block tests", async ({ page }) => {
+test.only("partner block tests", async ({ page }) => {
   test.slow()
   await page.goto("http://project-331.local/organizations")
 

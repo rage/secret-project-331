@@ -1550,7 +1550,20 @@ async fn get_partners_block(
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+
+    // Check if the course exists in the partners_blocks table
+    let course_exists = models::partner_block::check_if_course_exists(&mut conn, course_id).await?;
+
+    let partner_block = if course_exists {
+        // If the course exists, fetch the partner block
+        models::partner_block::get_partner_block(&mut conn, course_id).await?
+    } else {
+        // If the course does not exist, create a new partner block with an empty content array
+        let empty_content: Option<serde_json::Value> = Some(serde_json::Value::Array(vec![]));
+
+        // Upsert the partner block with the empty content
+        models::partner_block::upsert_partner_block(&mut conn, course_id, empty_content).await?
+    };
 
     token.authorized_ok(web::Json(partner_block))
 }

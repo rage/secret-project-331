@@ -47,7 +47,6 @@ const ALLOWED_NESTED_BLOCKS = [
   "moocfi/author-inner-block",
   "moocfi/conditional-block",
   "moocfi/exercise-custom-view-block",
-  "moocfi/partners",
   "moocfi/top-level-pages",
   "moocfi/expandable-content",
   "moocfi/expandable-content-inner-block",

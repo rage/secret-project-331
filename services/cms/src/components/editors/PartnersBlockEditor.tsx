@@ -33,7 +33,10 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
   const courseId = useContext(CourseContext)?.courseId
   const { t } = useTranslation()
   const [content, setContent] = useState<BlockInstance[]>(
-    modifyBlocks(data.content as BlockInstance[], allowedPartnerCoreBlocks) as BlockInstance[],
+    modifyBlocks(
+      (data.content ?? []) as BlockInstance[],
+      allowedPartnerCoreBlocks,
+    ) as BlockInstance[],
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)

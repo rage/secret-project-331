@@ -22,12 +22,12 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
     getPartnersBlock.refetch()
   }, [courseId, getPartnersBlock])
 
-  const hasImages =
-    getPartnersBlock.isSuccess &&
-    Array.isArray(getPartnersBlock.data.content) &&
-    getPartnersBlock.data.content.some(
-      (block) => block.name === "core/image" && block.attributes.url,
-    )
+  const content =
+    getPartnersBlock.isSuccess && Array.isArray(getPartnersBlock.data.content)
+      ? getPartnersBlock.data.content
+      : [] // Default to an empty array if content is not present
+
+  const hasImages = content.some((block) => block.name === "core/image" && block.attributes.url)
 
   return (
     <>
@@ -60,42 +60,40 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
             }
           `}
         >
-          {getPartnersBlock.isSuccess &&
-            Array.isArray(getPartnersBlock.data.content) &&
-            getPartnersBlock.data.content.map((block) => {
-              if (block.name === "core/image" && block.attributes.url) {
-                const { url, alt, href, linkDestination } = block.attributes
+          {content.map((block) => {
+            if (block.name === "core/image" && block.attributes.url) {
+              const { url, alt, href, linkDestination } = block.attributes
 
-                // Ensure that the link is always a full URL (https://)
-                // eslint-disable-next-line i18next/no-literal-string
-                const formattedLink = href && !/^https?:\/\//i.test(href) ? `https://${href}` : href
-                const isSvgUrl = url.endsWith(".svg")
+              // Ensure that the link is always a full URL (https://)
+              // eslint-disable-next-line i18next/no-literal-string
+              const formattedLink = href && !/^https?:\/\//i.test(href) ? `https://${href}` : href
+              const isSvgUrl = url.endsWith(".svg")
 
-                // Conditionally return image wrapped in a link or just the image based on whether 'link' is available
-                return linkDestination == "custom" ? (
-                  <a
-                    key={block.clientId}
-                    href={formattedLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {isSvgUrl ? (
-                      <DynamicSvg src={url} />
-                    ) : (
-                      <figure>
-                        <img src={url} alt={alt} />
-                      </figure>
-                    )}
-                  </a>
-                ) : isSvgUrl ? (
-                  <DynamicSvg src={url} />
-                ) : (
-                  <figure>
-                    <img src={url} alt={alt} />
-                  </figure>
-                )
-              }
-            })}
+              // Conditionally return image wrapped in a link or just the image based on whether 'link' is available
+              return linkDestination == "custom" ? (
+                <a
+                  key={block.clientId}
+                  href={formattedLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {isSvgUrl ? (
+                    <DynamicSvg src={url} />
+                  ) : (
+                    <figure>
+                      <img src={url} alt={alt} />
+                    </figure>
+                  )}
+                </a>
+              ) : isSvgUrl ? (
+                <DynamicSvg src={url} />
+              ) : (
+                <figure>
+                  <img src={url} alt={alt} />
+                </figure>
+              )
+            }
+          })}
         </div>
       )}
     </>

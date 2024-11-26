@@ -355,7 +355,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
       <div
         className={css`
           background: #f7f8f9;
-          width: 70rem;
+          width: 100%;
           padding: 1rem;
           color: #4c5868;
           margin-top: 3rem;

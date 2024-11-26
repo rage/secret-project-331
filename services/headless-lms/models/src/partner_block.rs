@@ -7,7 +7,7 @@ pub struct PartnersBlock {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub content: Option<serde_json::Value>,
+    pub content: serde_json::Value,
     pub course_id: Uuid,
 }
 

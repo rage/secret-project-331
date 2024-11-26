@@ -1935,7 +1935,7 @@ export interface PartnersBlock {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  content: unknown | null
+  content: unknown
   course_id: string
 }
 

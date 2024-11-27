@@ -1,12 +1,10 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useEffect } from "react"
+import React from "react"
 
 import DynamicSvg from "./DynamicSvg"
 
 import { fetchPartnersBlock } from "@/services/backend"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 
 interface PartnersBlockProps {
   courseId: string | null

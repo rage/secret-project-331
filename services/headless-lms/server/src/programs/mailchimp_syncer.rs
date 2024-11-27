@@ -181,8 +181,6 @@ async fn ensure_mailchimp_schema(
         }
     }
 
-    info!("Existing fields: {:?}", existing_fields);
-
     // Add any required fields that are missing
     for required_field in REQUIRED_FIELDS.iter() {
         if !existing_fields
@@ -445,7 +443,11 @@ pub async fn send_users_to_mailchimp(
     for user in &users_details {
         let user_details = json!({
             "email_address": user.email,
-            "status": "subscribed",
+            "status": if user.consent {
+                    "subscribed".to_string()
+                } else {
+                    user.email_subscription_in_mailchimp.clone().unwrap_or_else(|| "subscribed".to_string())
+                },
             "merge_fields": {
                 "FNAME": user.first_name,
                 "LNAME": user.last_name,
@@ -582,19 +584,19 @@ async fn fetch_unsubscribed_users_from_mailchimp_in_chunks(
     server_prefix: &str,
     access_token: &str,
     chunk_size: usize,
-) -> anyhow::Result<Vec<(String, bool, String, String)>> {
+) -> anyhow::Result<Vec<(String, String, String, String)>> {
     let mut all_data = Vec::new();
     let mut offset = 0;
 
     loop {
         let url = format!(
-            "https://{}.api.mailchimp.com/3.0/lists/{}/members?offset={}&count={}&fields=members.merge_fields,members.status,members.last_changed&status=unsubscribed",
+            "https://{}.api.mailchimp.com/3.0/lists/{}/members?offset={}&count={}&fields=members.merge_fields,members.status,members.last_changed&status=unsubscribed,non-subscribed",
             server_prefix, list_id, offset, chunk_size
         );
 
         let response = REQWEST_CLIENT
             .get(&url)
-            .bearer_auth(access_token)
+            .header("Authorization", format!("apikey {}", access_token))
             .send()
             .await?
             .json::<serde_json::Value>()
@@ -620,12 +622,11 @@ async fn fetch_unsubscribed_users_from_mailchimp_in_chunks(
                 ) {
                     // Avoid adding data if any field is missing or empty
                     if !user_id.is_empty() && !language_group_id.is_empty() {
-                        let is_subscribed = status == "subscribed";
                         all_data.push((
                             user_id.to_string(),
-                            is_subscribed,
                             last_changed.to_string(),
                             language_group_id.to_string(),
+                            status.to_string(),
                         ));
                     }
                 }
@@ -648,7 +649,7 @@ const BATCH_SIZE: usize = 1000;
 
 async fn process_unsubscribed_users_from_mailchimp(
     conn: &mut PgConnection,
-    mailchimp_data: Vec<(String, bool, String, String)>,
+    mailchimp_data: Vec<(String, String, String, String)>,
 ) -> anyhow::Result<()> {
     // Log the total size of the Mailchimp data
     let total_records = mailchimp_data.len();

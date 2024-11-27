@@ -11,6 +11,7 @@ pub struct UserMarketingConsent {
     pub user_id: Uuid,
     pub user_mailchimp_id: Option<String>,
     pub consent: bool,
+    pub email_subscription_in_mailchimp: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -26,6 +27,7 @@ pub struct UserMarketingConsentWithDetails {
     pub user_id: Uuid,
     pub user_mailchimp_id: Option<String>,
     pub consent: bool,
+    pub email_subscription_in_mailchimp: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -116,6 +118,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         umc.user_id,
         umc.user_mailchimp_id,
         umc.consent,
+        umc.email_subscription_in_mailchimp,
         umc.created_at,
         umc.updated_at,
         umc.deleted_at,
@@ -158,6 +161,7 @@ pub async fn fetch_all_unsynced_updated_emails(
         umc.user_id,
         umc.user_mailchimp_id,
         umc.consent,
+        umc.email_subscription_in_mailchimp,
         umc.created_at,
         umc.updated_at,
         umc.deleted_at,
@@ -235,17 +239,17 @@ WHERE user_marketing_consents.user_id = updated_data.user_id
     Ok(())
 }
 
-/// Updates user consents in bulk using Mailchimp data.
+/// Updates user consents to false in bulk using Mailchimp data.
 pub async fn update_unsubscribed_users_from_mailchimp_in_bulk(
     conn: &mut PgConnection,
-    mailchimp_data: Vec<(String, bool, String, String)>,
+    mailchimp_data: Vec<(String, String, String, String)>,
 ) -> anyhow::Result<()> {
-    let (user_ids_raw, consents, timestamps_raw, course_language_group_ids_raw): (
-        Vec<_>,
-        Vec<_>,
-        Vec<_>,
-        Vec<_>,
-    ) = multiunzip(mailchimp_data);
+    let (
+        user_ids_raw,
+        timestamps_raw,
+        course_language_group_ids_raw,
+        email_subscriptions_in_mailchimp,
+    ): (Vec<_>, Vec<_>, Vec<_>, Vec<_>) = multiunzip(mailchimp_data);
 
     let user_ids: Vec<Uuid> = user_ids_raw
         .into_iter()
@@ -269,22 +273,24 @@ pub async fn update_unsubscribed_users_from_mailchimp_in_bulk(
     sqlx::query!(
         "
     UPDATE user_marketing_consents
-    SET consent = updated_data.consent,
+    SET consent = false,
+        email_subscription_in_mailchimp = updated_data.email_subscription_in_mailchimp,
         synced_to_mailchimp_at = updated_data.last_updated
     FROM (
         SELECT UNNEST($1::Uuid[]) AS user_id,
-               UNNEST($2::bool[]) AS consent,
-               UNNEST($3::timestamptz[]) AS last_updated,
-               UNNEST($4::Uuid[]) AS course_language_group_id
+               UNNEST($2::timestamptz[]) AS last_updated,
+               UNNEST($3::Uuid[]) AS course_language_group_id,
+               UNNEST($4::text[]) AS email_subscription_in_mailchimp
+
     ) AS updated_data
     WHERE user_marketing_consents.user_id = updated_data.user_id
       AND user_marketing_consents.synced_to_mailchimp_at < updated_data.last_updated
       AND user_marketing_consents.course_language_group_id = updated_data.course_language_group_id
     ",
         &user_ids,
-        &consents,
         &timestamps,
-        &course_language_group_ids
+        &course_language_group_ids,
+        &email_subscriptions_in_mailchimp
     )
     .execute(conn)
     .await?;

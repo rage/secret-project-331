@@ -77,7 +77,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   sortInstances()
 
   const getCourse = useQuery({
-    queryKey: ["courses/${course_id}", selectedLangCourseId],
+    queryKey: ["courses", selectedLangCourseId],
     queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
     enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
   })

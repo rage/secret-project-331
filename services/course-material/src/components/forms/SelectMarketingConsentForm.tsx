@@ -1,8 +1,10 @@
+import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
 import { fetchUserMarketingConsent, updateMarketingConsent } from "@/services/backend"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface selectMarketingConstentProps {
   courseId: string
@@ -15,13 +17,17 @@ const SelectMarketingConstentForm: React.FC<selectMarketingConstentProps> = ({
 }) => {
   const [marketingConsent, setMarketingConsent] = useState(false)
 
+  const fetchInitialMarketingConsent = useQuery({
+    queryKey: ["marketing-consent", courseId],
+    queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(courseId)),
+    enabled: courseId !== undefined,
+  })
+
   useEffect(() => {
-    const fetchConsentStatus = async () => {
-      const response = await fetchUserMarketingConsent(courseId)
-      setMarketingConsent(response.consent)
+    if (fetchInitialMarketingConsent.isSuccess) {
+      setMarketingConsent(fetchInitialMarketingConsent.data.consent)
     }
-    fetchConsentStatus()
-  }, [courseId, courseLanguageGroupsId])
+  }, [fetchInitialMarketingConsent.data, fetchInitialMarketingConsent.isSuccess])
 
   const handleMarketingConsentChangeMutation = useToastMutation(
     async () => {

@@ -908,10 +908,10 @@ pub struct UserMarketingConsentPayload {
     pub course_language_groups_id: Uuid,
     pub consent: bool,
 }
+
 /**
 POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.
 */
-
 #[instrument(skip(pool, payload))]
 async fn update_marketing_consent(
     payload: web::Json<UserMarketingConsentPayload>,
@@ -937,9 +937,8 @@ async fn update_marketing_consent(
 }
 
 /**
-GET `/api/v0/course-material/courses/:course_id/-fetch-user-marketing-consent`
+GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
 */
-
 #[instrument(skip(pool))]
 async fn fetch_user_marketing_consent(
     pool: web::Data<PgPool>,

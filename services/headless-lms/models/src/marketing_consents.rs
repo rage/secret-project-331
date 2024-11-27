@@ -1,3 +1,5 @@
+use itertools::multiunzip;
+
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -5,7 +7,7 @@ use crate::prelude::*;
 pub struct UserMarketingConsent {
     pub id: Uuid,
     pub course_id: Uuid,
-    pub course_language_groups_id: Uuid,
+    pub course_language_group_id: Uuid,
     pub user_id: Uuid,
     pub user_mailchimp_id: Option<String>,
     pub consent: bool,
@@ -20,7 +22,7 @@ pub struct UserMarketingConsent {
 pub struct UserMarketingConsentWithDetails {
     pub id: Uuid,
     pub course_id: Uuid,
-    pub course_language_groups_id: Uuid,
+    pub course_language_group_id: Uuid,
     pub user_id: Uuid,
     pub user_mailchimp_id: Option<String>,
     pub consent: bool,
@@ -42,7 +44,7 @@ pub struct UserMarketingConsentWithDetails {
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
-    pub course_language_groups_id: Uuid,
+    pub course_language_group_id: Uuid,
     pub server_prefix: String,
     pub access_token: String,
     pub mailchimp_mailing_list_id: String,
@@ -54,22 +56,22 @@ pub struct MarketingMailingListAccessToken {
 pub async fn upsert_marketing_consent(
     conn: &mut PgConnection,
     course_id: Uuid,
-    course_language_groups_id: Uuid,
+    course_language_group_id: Uuid,
     user_id: &Uuid,
     consent: bool,
 ) -> sqlx::Result<Uuid> {
     let result = sqlx::query!(
         r#"
-      INSERT INTO user_marketing_consents (user_id, course_id, course_language_groups_id, consent)
+      INSERT INTO user_marketing_consents (user_id, course_id, course_language_group_id, consent)
       VALUES ($1, $2, $3, $4)
-      ON CONFLICT (user_id, course_language_groups_id)
+      ON CONFLICT (user_id, course_language_group_id)
       DO UPDATE
       SET consent = $4
       RETURNING id
       "#,
         user_id,
         course_id,
-        course_language_groups_id,
+        course_language_group_id,
         consent
     )
     .fetch_one(conn)
@@ -86,16 +88,7 @@ pub async fn fetch_user_marketing_consent(
     let result = sqlx::query_as!(
         UserMarketingConsent,
         "
-    SELECT id,
-      course_id,
-      course_language_groups_id,
-      user_id,
-      user_mailchimp_id,
-      consent,
-      created_at,
-      updated_at,
-      deleted_at,
-      synced_to_mailchimp_at
+    SELECT *
     FROM user_marketing_consents
     WHERE user_id = $1 AND course_id = $2
     ",
@@ -109,9 +102,9 @@ pub async fn fetch_user_marketing_consent(
 }
 
 /// Fetches all user marketing consents with detailed user information for a specific course language group, if they haven't been synced to Mailchimp or if there have been updates since the last sync.
-pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_groups_id(
+pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group_id(
     conn: &mut PgConnection,
-    course_language_groups_id: Uuid,
+    course_language_group_id: Uuid,
 ) -> sqlx::Result<Vec<UserMarketingConsentWithDetails>> {
     let result = sqlx::query_as!(
         UserMarketingConsentWithDetails,
@@ -119,7 +112,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
     SELECT
         umc.id,
         umc.course_id,
-        umc.course_language_groups_id,
+        umc.course_language_group_id,
         umc.user_id,
         umc.user_mailchimp_id,
         umc.consent,
@@ -138,11 +131,11 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
     JOIN courses AS c ON c.id = umc.course_id
     LEFT JOIN course_module_completions AS cmc
         ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
-    WHERE umc.course_language_groups_id = $1
+    WHERE umc.course_language_group_id = $1
     AND (umc.synced_to_mailchimp_at IS NULL
             OR umc.synced_to_mailchimp_at < umc.updated_at)
     ",
-        course_language_groups_id
+        course_language_group_id
     )
     .fetch_all(conn)
     .await?;
@@ -153,7 +146,7 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
 /// Fetches all user details that have been updated after their marketing consent was last synced to Mailchimp
 pub async fn fetch_all_unsynced_updated_emails(
     conn: &mut PgConnection,
-    course_language_groups_id: Uuid,
+    course_language_group_id: Uuid,
 ) -> sqlx::Result<Vec<UserMarketingConsentWithDetails>> {
     let result = sqlx::query_as!(
         UserMarketingConsentWithDetails,
@@ -161,7 +154,7 @@ pub async fn fetch_all_unsynced_updated_emails(
     SELECT
         umc.id,
         umc.course_id,
-        umc.course_language_groups_id,
+        umc.course_language_group_id,
         umc.user_id,
         umc.user_mailchimp_id,
         umc.consent,
@@ -180,10 +173,10 @@ pub async fn fetch_all_unsynced_updated_emails(
     JOIN courses AS c ON c.id = umc.course_id
     LEFT JOIN course_module_completions AS cmc
         ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
-    WHERE umc.course_language_groups_id = $1
+    WHERE umc.course_language_group_id = $1
     AND (umc.synced_to_mailchimp_at IS NULL OR umc.synced_to_mailchimp_at < u.updated_at)
     ",
-        course_language_groups_id
+        course_language_group_id
     )
     .fetch_all(conn)
     .await?;
@@ -216,85 +209,85 @@ pub async fn update_user_mailchimp_id_at_to_all_synced_users(
     pool: &mut PgConnection,
     user_contact_pairs: Vec<(String, String)>,
 ) -> ModelResult<()> {
-    let user_ids: Vec<String> = user_contact_pairs
-        .iter()
-        .map(|(user_id, _)| user_id.clone())
+    let (user_ids_raw, user_mailchimp_ids): (Vec<_>, Vec<_>) =
+        user_contact_pairs.into_iter().unzip();
+
+    // Parse user_ids into Uuid
+    let user_ids: Vec<Uuid> = user_ids_raw
+        .into_iter()
+        .filter_map(|user_id| Uuid::parse_str(&user_id).ok())
         .collect();
-    let user_mailchimp_ids: Vec<String> = user_contact_pairs
-        .iter()
-        .map(|(_, mailchimp_id)| mailchimp_id.clone())
-        .collect();
 
-    let query = r#"
-        UPDATE user_marketing_consents
-        SET user_mailchimp_id = updated_data.user_mailchimp_id
-        FROM (
-            SELECT UNNEST($1::Uuid[]) AS user_id, UNNEST($2::text[]) AS user_mailchimp_id
-        ) AS updated_data
-        WHERE user_marketing_consents.user_id = updated_data.user_id
-    "#;
-
-    sqlx::query(query)
-        .bind(&user_ids)
-        .bind(&user_mailchimp_ids)
-        .execute(pool)
-        .await?;
-
+    sqlx::query!(
+        "
+UPDATE user_marketing_consents
+SET user_mailchimp_id = updated_data.user_mailchimp_id
+FROM (
+    SELECT UNNEST($1::uuid[]) AS user_id, UNNEST($2::text[]) AS user_mailchimp_id
+) AS updated_data
+WHERE user_marketing_consents.user_id = updated_data.user_id
+",
+        &user_ids,
+        &user_mailchimp_ids
+    )
+    .execute(pool)
+    .await?;
     Ok(())
 }
 
 /// Updates user consents in bulk using Mailchimp data.
-pub async fn update_bulk_user_consent(
+pub async fn update_unsubscribed_users_from_mailchimp_in_bulk(
     conn: &mut PgConnection,
     mailchimp_data: Vec<(String, bool, String, String)>,
 ) -> anyhow::Result<()> {
-    let user_ids: Vec<Uuid> = mailchimp_data
-        .iter()
-        .filter_map(|(user_id, _, _, _)| Uuid::parse_str(user_id).ok())
+    let (user_ids_raw, consents, timestamps_raw, course_language_group_ids_raw): (
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+        Vec<_>,
+    ) = multiunzip(mailchimp_data);
+
+    let user_ids: Vec<Uuid> = user_ids_raw
+        .into_iter()
+        .filter_map(|user_id| Uuid::parse_str(&user_id).ok())
         .collect();
 
-    let consents: Vec<bool> = mailchimp_data
-        .iter()
-        .map(|(_, consent, _, _)| *consent)
-        .collect();
-
-    let timestamps: Vec<DateTime<Utc>> = mailchimp_data
-        .iter()
-        .filter_map(|(_, _, ts, _)| {
-            DateTime::parse_from_rfc3339(ts)
+    let timestamps: Vec<DateTime<Utc>> = timestamps_raw
+        .into_iter()
+        .filter_map(|ts| {
+            DateTime::parse_from_rfc3339(&ts)
                 .ok()
-                .map(|dt| dt.with_timezone(&Utc)) // Convert to Utc
+                .map(|dt| dt.with_timezone(&Utc))
         })
         .collect();
 
-    let course_language_groups_ids: Vec<Uuid> = mailchimp_data
-        .iter()
-        .filter_map(|(_, _, _, lang_id)| Uuid::parse_str(lang_id).ok())
+    let course_language_group_ids: Vec<Uuid> = course_language_group_ids_raw
+        .into_iter()
+        .filter_map(|lang_id| Uuid::parse_str(&lang_id).ok())
         .collect();
 
-    let query = r#"
-        UPDATE user_marketing_consents
-        SET consent = updated_data.consent,
-            synced_to_mailchimp_at = updated_data.last_updated
-        FROM (
-            SELECT UNNEST($1::Uuid[]) AS user_id,
-                   UNNEST($2::bool[]) AS consent,
-                   UNNEST($3::timestamptz[]) AS last_updated,
-                   UNNEST($4::Uuid[]) AS course_language_groups_id
-        ) AS updated_data
-        WHERE user_marketing_consents.user_id = updated_data.user_id
-          AND user_marketing_consents.synced_to_mailchimp_at < updated_data.last_updated
-          AND user_marketing_consents.course_language_groups_id = updated_data.course_language_groups_id
-    "#;
-
-    // Execute the query
-    sqlx::query(query)
-        .bind(&user_ids)
-        .bind(&consents)
-        .bind(&timestamps)
-        .bind(&course_language_groups_ids)
-        .execute(conn)
-        .await?;
+    sqlx::query!(
+        "
+    UPDATE user_marketing_consents
+    SET consent = updated_data.consent,
+        synced_to_mailchimp_at = updated_data.last_updated
+    FROM (
+        SELECT UNNEST($1::Uuid[]) AS user_id,
+               UNNEST($2::bool[]) AS consent,
+               UNNEST($3::timestamptz[]) AS last_updated,
+               UNNEST($4::Uuid[]) AS course_language_group_id
+    ) AS updated_data
+    WHERE user_marketing_consents.user_id = updated_data.user_id
+      AND user_marketing_consents.synced_to_mailchimp_at < updated_data.last_updated
+      AND user_marketing_consents.course_language_group_id = updated_data.course_language_group_id
+    ",
+        &user_ids,
+        &consents,
+        &timestamps,
+        &course_language_group_ids
+    )
+    .execute(conn)
+    .await?;
     Ok(())
 }
 
@@ -307,7 +300,7 @@ pub async fn fetch_all_marketing_mailing_list_access_tokens(
     SELECT
       id,
       course_id,
-      course_language_groups_id,
+      course_language_group_id,
       server_prefix,
       access_token,
       mailchimp_mailing_list_id,

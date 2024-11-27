@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    UPDATE user_marketing_consents\n    SET consent = updated_data.consent,\n        synced_to_mailchimp_at = updated_data.last_updated\n    FROM (\n        SELECT UNNEST($1::Uuid[]) AS user_id,\n               UNNEST($2::bool[]) AS consent,\n               UNNEST($3::timestamptz[]) AS last_updated,\n               UNNEST($4::Uuid[]) AS course_language_group_id\n    ) AS updated_data\n    WHERE user_marketing_consents.user_id = updated_data.user_id\n      AND user_marketing_consents.synced_to_mailchimp_at < updated_data.last_updated\n      AND user_marketing_consents.course_language_group_id = updated_data.course_language_group_id\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["UuidArray", "BoolArray", "TimestamptzArray", "UuidArray"]
+    },
+    "nullable": []
+  },
+  "hash": "1fc6b778efbecae84f6ee2a0d8550aba48b2bb79374b55e9c0bcf42c6141b80f"
+}

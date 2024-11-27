@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n    SELECT\n        umc.id,\n        umc.course_id,\n        umc.course_language_groups_id,\n        umc.user_id,\n        umc.user_mailchimp_id,\n        umc.consent,\n        umc.created_at,\n        umc.updated_at,\n        umc.deleted_at,\n        umc.synced_to_mailchimp_at,\n        u.first_name AS first_name,\n        u.last_name AS last_name,\n        u.email AS email,\n        c.name AS course_name,\n        c.language_code AS locale,\n        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course\n    FROM user_marketing_consents AS umc\n    JOIN user_details AS u ON u.user_id = umc.user_id\n    JOIN courses AS c ON c.id = umc.course_id\n    LEFT JOIN course_module_completions AS cmc\n        ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id\n    WHERE umc.course_language_groups_id = $1\n    AND (umc.synced_to_mailchimp_at IS NULL\n            OR umc.synced_to_mailchimp_at < umc.updated_at)\n    ",
+  "query": "\n    SELECT\n        umc.id,\n        umc.course_id,\n        umc.course_language_group_id,\n        umc.user_id,\n        umc.user_mailchimp_id,\n        umc.consent,\n        umc.created_at,\n        umc.updated_at,\n        umc.deleted_at,\n        umc.synced_to_mailchimp_at,\n        u.first_name AS first_name,\n        u.last_name AS last_name,\n        u.email AS email,\n        c.name AS course_name,\n        c.language_code AS locale,\n        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course\n    FROM user_marketing_consents AS umc\n    JOIN user_details AS u ON u.user_id = umc.user_id\n    JOIN courses AS c ON c.id = umc.course_id\n    LEFT JOIN course_module_completions AS cmc\n        ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id\n    WHERE umc.course_language_group_id = $1\n    AND (umc.synced_to_mailchimp_at IS NULL OR umc.synced_to_mailchimp_at < u.updated_at)\n    ",
   "describe": {
     "columns": [
       {
@@ -15,7 +15,7 @@
       },
       {
         "ordinal": 2,
-        "name": "course_language_groups_id",
+        "name": "course_language_group_id",
         "type_info": "Uuid"
       },
       {
@@ -106,5 +106,5 @@
       null
     ]
   },
-  "hash": "074ad35b8fa2588b0c36be3f18ec160f8bd276628e02678031d28e6545dfbb22"
+  "hash": "89b8ca0887cdf25ad383e29ff5c75f1575e6f8557a1612d9560cb7deed06269d"
 }

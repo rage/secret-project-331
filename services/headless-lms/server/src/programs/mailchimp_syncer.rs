@@ -15,16 +15,58 @@ struct MailchimpField {
     field_name: String,
 }
 
-const REQUIRED_FIELDS: &[&str] = &[
-    "FNAME",
-    "LNAME",
-    "MARKETING",
-    "LOCALE",
-    "GRADUATED",
-    "COURSEID",
-    "LANGGRPID",
-    "USERID",
+#[derive(Debug)]
+struct FieldSchema {
+    tag: &'static str,
+    name: &'static str,
+    default_value: &'static str,
+}
+
+const REQUIRED_FIELDS: &[FieldSchema] = &[
+    FieldSchema {
+        tag: "FNAME",
+        name: "First Name",
+        default_value: "",
+    },
+    FieldSchema {
+        tag: "LNAME",
+        name: "Last Name",
+        default_value: "",
+    },
+    FieldSchema {
+        tag: "MARKETING",
+        name: "Accepts Marketing",
+        default_value: "disallowed",
+    },
+    FieldSchema {
+        tag: "LOCALE",
+        name: "Locale",
+        default_value: "en",
+    },
+    FieldSchema {
+        tag: "GRADUATED",
+        name: "Graduated",
+        default_value: "",
+    },
+    FieldSchema {
+        tag: "COURSEID",
+        name: "Course ID",
+        default_value: "",
+    },
+    FieldSchema {
+        tag: "USERID",
+        name: "User ID",
+        default_value: "",
+    },
+    FieldSchema {
+        tag: "LANGGRPID",
+        name: "Course language Group ID",
+        default_value: "",
+    },
 ];
+
+/// These fields are excluded from removing all fields that are not in the schema
+const FIELDS_EXCLUDED_FROM_REMOVING: &[&str] = &["PHONE", "PACE", "COUNTRY", "MMERGE9", "RESEARCH"];
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
@@ -121,9 +163,13 @@ async fn ensure_mailchimp_schema(
     let existing_fields =
         fetch_current_mailchimp_fields(list_id, server_prefix, access_token).await?;
 
-    // Remove extra fields not in REQUIRED_FIELDS
+    // Remove extra fields not in REQUIRED_FIELDS or FIELDS_EXCLUDED_FROM_REMOVING
     for field in existing_fields.iter() {
-        if !REQUIRED_FIELDS.contains(&field.field_name.as_str()) {
+        if !REQUIRED_FIELDS
+            .iter()
+            .any(|r| r.tag == field.field_name.as_str())
+            && !FIELDS_EXCLUDED_FROM_REMOVING.contains(&field.field_name.as_str())
+        {
             if let Err(e) =
                 remove_field_from_mailchimp(list_id, &field.field_id, server_prefix, access_token)
                     .await
@@ -135,23 +181,31 @@ async fn ensure_mailchimp_schema(
         }
     }
 
+    info!("Existing fields: {:?}", existing_fields);
+
     // Add any required fields that are missing
-    for &required_field in REQUIRED_FIELDS.iter() {
+    for required_field in REQUIRED_FIELDS.iter() {
         if !existing_fields
             .iter()
-            .any(|f| f.field_name == required_field)
+            .any(|f| f.field_name == required_field.tag)
         {
             if let Err(e) =
                 add_field_to_mailchimp(list_id, required_field, server_prefix, access_token).await
             {
-                warn!("Failed to add required field '{}': {}", required_field, e);
+                warn!(
+                    "Failed to add required field '{}': {}",
+                    required_field.name, e
+                );
             } else {
-                info!("Successfully added required field '{}'", required_field);
+                info!(
+                    "Successfully added required field '{}'",
+                    required_field.name
+                );
             }
         } else {
             info!(
                 "Field '{}' already exists, skipping addition.",
-                required_field
+                required_field.name
             );
         }
     }
@@ -178,6 +232,7 @@ async fn fetch_current_mailchimp_fields(
 
     if response.status().is_success() {
         let json = response.json::<serde_json::Value>().await?;
+
         let fields: Vec<MailchimpField> = json["merge_fields"]
             .as_array()
             .unwrap_or(&vec![])
@@ -208,7 +263,7 @@ async fn fetch_current_mailchimp_fields(
 /// Adds a new merge field to the Mailchimp list.
 async fn add_field_to_mailchimp(
     list_id: &str,
-    field_name: &str,
+    field_schema: &FieldSchema,
     server_prefix: &str,
     access_token: &str,
 ) -> anyhow::Result<()> {
@@ -218,9 +273,10 @@ async fn add_field_to_mailchimp(
     );
 
     let body = json!({
-        "tag": field_name,
-        "name": field_name,
-        "type": "text"
+        "tag": field_schema.tag,
+        "name": field_schema.name,
+        "type": "text",
+        "default_value": field_schema.default_value,
     });
 
     let response = REQWEST_CLIENT
@@ -293,7 +349,7 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
     // Iterate through tokens and fetch and send user details to Mailchimp
     for token in access_tokens {
         // Fetch all users from Mailchimp and sync possible changes locally
-        let mailchimp_data = fetch_mailchimp_data_in_chunks(
+        let mailchimp_data = fetch_unsubscribed_users_from_mailchimp_in_chunks(
             &token.mailchimp_mailing_list_id,
             &token.server_prefix,
             &token.access_token,
@@ -306,19 +362,20 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
             token.mailchimp_mailing_list_id
         );
 
-        process_mailchimp_data(conn, mailchimp_data).await?;
+        process_unsubscribed_users_from_mailchimp(conn, mailchimp_data).await?;
 
         // Fetch unsynced emails and update them in Mailchimp
         let users_with_unsynced_emails =
             headless_lms_models::marketing_consents::fetch_all_unsynced_updated_emails(
                 conn,
-                token.course_language_groups_id,
+                token.course_language_group_id,
             )
             .await?;
 
         println!(
-            "Prosessing unsynced emails for list: {}",
-            token.mailchimp_mailing_list_id
+            "Found {} unsynced user email(s) for course language group: {}",
+            users_with_unsynced_emails.len(),
+            token.course_language_group_id
         );
 
         if !users_with_unsynced_emails.is_empty() {
@@ -336,16 +393,16 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
 
         // Fetch unsynced user consents and update them in Mailchimp
         let unsynced_users_details =
-            headless_lms_models::marketing_consents::fetch_all_unsynced_user_marketing_consents_by_course_language_groups_id(
+            headless_lms_models::marketing_consents::fetch_all_unsynced_user_marketing_consents_by_course_language_group_id(
                 conn,
-                token.course_language_groups_id,
+                token.course_language_group_id,
             )
             .await?;
 
         println!(
             "Found {} unsynced user consent(s) for course language group: {}",
             unsynced_users_details.len(),
-            token.course_language_groups_id
+            token.course_language_group_id
         );
 
         if !unsynced_users_details.is_empty() {
@@ -397,7 +454,7 @@ pub async fn send_users_to_mailchimp(
                 "GRADUATED": if user.completed_course.unwrap_or(false) { "passed" } else { "not passed" },
                 "USERID": user.user_id,
                 "COURSEID": user.course_id,
-                "LANGGRPID": user.course_language_groups_id,
+                "LANGGRPID": user.course_language_group_id,
             },
         });
         users_data_in_json.push(user_details);
@@ -508,11 +565,19 @@ async fn update_emails_in_mailchimp(
             continue;
         }
     }
+
+    if !failed_user_ids.is_empty() {
+        eprintln!("Failed to update the following users:");
+        for user_id in &failed_user_ids {
+            error!("User ID: {}", user_id);
+        }
+    }
+
     Ok(successfully_synced_user_ids)
 }
 
 /// Fetches data from Mailchimp in chunks.
-async fn fetch_mailchimp_data_in_chunks(
+async fn fetch_unsubscribed_users_from_mailchimp_in_chunks(
     list_id: &str,
     server_prefix: &str,
     access_token: &str,
@@ -523,11 +588,11 @@ async fn fetch_mailchimp_data_in_chunks(
 
     loop {
         let url = format!(
-            "https://{}.api.mailchimp.com/3.0/lists/{}/members?offset={}&count={}&fields=members.merge_fields,members.status,members.last_changed?merge_fields[MARKETING]=disallowed",
+            "https://{}.api.mailchimp.com/3.0/lists/{}/members?offset={}&count={}&fields=members.merge_fields,members.status,members.last_changed&status=unsubscribed",
             server_prefix, list_id, offset, chunk_size
         );
 
-        let response = reqwest::Client::new()
+        let response = REQWEST_CLIENT
             .get(&url)
             .bearer_auth(access_token)
             .send()
@@ -549,18 +614,18 @@ async fn fetch_mailchimp_data_in_chunks(
                 member["merge_fields"].as_object(),
             ) {
                 // Ensure both USERID and LANGGRPID are present and valid
-                if let (Some(user_id), Some(language_groups_id)) = (
+                if let (Some(user_id), Some(language_group_id)) = (
                     merge_fields.get("USERID").and_then(|v| v.as_str()),
                     merge_fields.get("LANGGRPID").and_then(|v| v.as_str()),
                 ) {
                     // Avoid adding data if any field is missing or empty
-                    if !user_id.is_empty() && !language_groups_id.is_empty() {
+                    if !user_id.is_empty() && !language_group_id.is_empty() {
                         let is_subscribed = status == "subscribed";
                         all_data.push((
                             user_id.to_string(),
                             is_subscribed,
                             last_changed.to_string(),
-                            language_groups_id.to_string(),
+                            language_group_id.to_string(),
                         ));
                     }
                 }
@@ -581,7 +646,7 @@ async fn fetch_mailchimp_data_in_chunks(
 
 const BATCH_SIZE: usize = 1000;
 
-async fn process_mailchimp_data(
+async fn process_unsubscribed_users_from_mailchimp(
     conn: &mut PgConnection,
     mailchimp_data: Vec<(String, bool, String, String)>,
 ) -> anyhow::Result<()> {
@@ -594,12 +659,13 @@ async fn process_mailchimp_data(
         }
 
         // Attempt to process the current chunk
-        if let Err(e) =
-            headless_lms_models::marketing_consents::update_bulk_user_consent(conn, chunk.to_vec())
-                .await
+        if let Err(e) = headless_lms_models::marketing_consents::update_unsubscribed_users_from_mailchimp_in_bulk(
+            conn,
+            chunk.to_vec(),
+        )
+        .await
         {
-            // Log the error with chunk-specific context
-            eprintln!(
+            error!(
                 "Error while processing chunk {}/{}: ",
                 (total_records + BATCH_SIZE - 1) / BATCH_SIZE,
                 e

@@ -12,7 +12,7 @@ import {
 } from "../../services/backend"
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
-import SelectMarketingConstentForm from "../forms/SelectMarketingConsentForm"
+import SelectMarketingConsentForm from "../forms/SelectMarketingConsentForm"
 
 import {
   getLanguageName,
@@ -202,7 +202,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
         `}
       >
         {getCourse.data?.ask_marketing_consent && (
-          <SelectMarketingConstentForm
+          <SelectMarketingConsentForm
             courseId={selectedLangCourseId}
             courseLanguageGroupsId={getCourse.data?.course_language_group_id}
           />

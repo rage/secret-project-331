@@ -141,8 +141,7 @@ const UpdateCourseForm: React.FC<React.PropsWithChildren<UpdateCourseFormProps>>
         </FieldContainer>
         <FieldContainer>
           <CheckBox
-            // eslint-disable-next-line i18next/no-literal-string
-            label={"Ask marketing consent"}
+            label={t("label-ask-for-marketing-consent")}
             onChange={() => {
               setAskMarketingConsent(!askMarketingConsent)
             }}

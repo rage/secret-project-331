@@ -752,7 +752,7 @@ export const updateMarketingConsent = async (
   consent: boolean,
 ): Promise<string> => {
   const res = await courseMaterialClient.post(
-    `courses/${courseId}/user-marketing-consent`,
+    `/courses/${courseId}/user-marketing-consent`,
     {
       course_language_groups_id: courseLanguageGroupsId,
       consent,
@@ -767,6 +767,6 @@ export const updateMarketingConsent = async (
 export const fetchUserMarketingConsent = async (
   courseId: string,
 ): Promise<UserMarketingConsent> => {
-  const res = await courseMaterialClient.get(`courses/${courseId}/fetch-user-marketing-consent`)
+  const res = await courseMaterialClient.get(`/courses/${courseId}/fetch-user-marketing-consent`)
   return validateResponse(res, isUserMarketingConsent)
 }

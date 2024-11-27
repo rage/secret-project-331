@@ -6,12 +6,12 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
-interface selectMarketingConstentProps {
+interface SelectMarketingConsentFormProps {
   courseId: string
   courseLanguageGroupsId: string
 }
 
-const SelectMarketingConstentForm: React.FC<selectMarketingConstentProps> = ({
+const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   courseId,
   courseLanguageGroupsId,
 }) => {
@@ -57,4 +57,4 @@ const SelectMarketingConstentForm: React.FC<selectMarketingConstentProps> = ({
   )
 }
 
-export default SelectMarketingConstentForm
+export default SelectMarketingConsentForm

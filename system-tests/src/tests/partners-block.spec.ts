@@ -14,7 +14,7 @@ test("partner block tests", async ({ page }) => {
 
   await page.getByLabel("Manage course 'Introduction to citations").click()
   await page.getByRole("tab", { name: "Pages" }).click()
-  await page.getByText("Create Partners Section").click()
+  await page.getByText("Add Partners Section").click()
 
   await page.locator("button.components-button").click()
 

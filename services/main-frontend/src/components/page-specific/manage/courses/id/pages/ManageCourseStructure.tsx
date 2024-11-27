@@ -359,9 +359,10 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           color: #4c5868;
           margin-top: 3rem;
 
-          h5 {
+          span {
             margin-bottom: 0.5rem;
             font-weight: 600;
+            font-size: clamp(18px, 2vw, 20px);
 
             svg {
               margin-right: 0.4rem;
@@ -382,7 +383,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           className={css`
             background: ${baseTheme.colors.gray[200]};
             padding: 8px 20px;
-            color: #fff;
+            color: ${baseTheme.colors.gray[700]};
             cursor: pointer;
             width: auto;
             border: none;

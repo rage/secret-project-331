@@ -12,7 +12,6 @@ import { deleteChapter } from "../../../../../../services/backend/chapters"
 import {
   postNewChapterOrdering,
   postNewPageOrdering,
-  setPartnerBlockForCourse,
 } from "../../../../../../services/backend/courses"
 import BottomPanel from "../../../../../BottomPanel"
 

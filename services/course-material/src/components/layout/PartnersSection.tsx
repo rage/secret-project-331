@@ -37,6 +37,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
       {getPartnersBlock.isPending && <Spinner variant={"medium"} />}
       {hasImages && (
         <div
+          data-test-id="partners-block"
           className={css`
             background: #f3f4f4;
             padding: 3rem 5rem;

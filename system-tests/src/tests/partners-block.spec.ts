@@ -4,7 +4,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test.only("partner block tests", async ({ page }) => {
+test("partner block tests", async ({ page }) => {
   test.slow()
   await page.goto("http://project-331.local/organizations")
 
@@ -25,13 +25,18 @@ test.only("partner block tests", async ({ page }) => {
     page.waitForEvent("filechooser"),
     page.click('button:has-text("Upload")'),
   ])
-  await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
+  await fileChooser.setFiles("src/fixtures/media/sample-logo.svg")
   await page.getByRole("button", { name: "Save", exact: true }).click()
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-citations")
 
-  await page.locator("div.partners-block").click()
-  await page.locator('[data-test-id="partners-block"]').waitFor()
+  await page.click('text="Default"')
+  await page.click('text="Continue"')
 
-  await page.getByText("Reference").scrollIntoViewIfNeeded()
+  await page.evaluate(() => {
+    window.scrollTo(0, document.body.scrollHeight)
+  })
+
+  await page.locator("footer").scrollIntoViewIfNeeded()
+  page.locator('[data-test-id="partners-block"]')
 })

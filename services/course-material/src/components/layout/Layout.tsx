@@ -184,7 +184,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
         `}
       >
         <DynamicToaster />
-        <PartnersSectionBlock courseId={courseId} data-test-id="partners-block" />
+        <PartnersSectionBlock courseId={courseId} />
         <Footer />
       </div>
     </>

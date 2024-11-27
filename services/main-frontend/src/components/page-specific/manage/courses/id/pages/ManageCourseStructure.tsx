@@ -115,7 +115,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
 
   const maxPart = max(courseStructure.chapters.map((p) => p.chapter_number))
 
-  const handleCreatePartnersBlock = async () => {
+  const openEditor = async () => {
     // eslint-disable-next-line i18next/no-literal-string
     window.location.assign(`/cms/partners-block/${courseStructure.course.id}/edit`)
   }
@@ -387,7 +387,7 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
             width: auto;
             border: none;
           `}
-          onClick={handleCreatePartnersBlock}
+          onClick={openEditor}
         >
           {t("partners-section-button-text")}
         </button>

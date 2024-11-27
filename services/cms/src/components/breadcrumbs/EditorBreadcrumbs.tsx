@@ -30,9 +30,6 @@ const EditorBreadcrumbs: React.FC<React.PropsWithChildren<unknown>> = () => {
   }
 
   if (data.isPending) {
-    if (!data.data) {
-      return null
-    }
     return <Spinner variant={"small"} />
   }
 

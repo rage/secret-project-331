@@ -8,7 +8,7 @@ export const setPartnerBlockForCourse = async (
   courseId: string,
   data: object | null,
 ): Promise<PartnersBlock> => {
-  const response = await cmsClient.post(`/courses/${courseId}/partners-blocks`, data)
+  const response = await cmsClient.post(`/courses/${courseId}/partners-block`, data)
   return validateResponse(response, isPartnersBlock)
 }
 
@@ -18,5 +18,5 @@ export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBloc
 }
 
 export const deletePartnersBlock = async (courseId: string): Promise<void> => {
-  await cmsClient.delete(`/courses/${courseId}/partners-blocks`)
+  await cmsClient.delete(`/courses/${courseId}/partners-block`)
 }

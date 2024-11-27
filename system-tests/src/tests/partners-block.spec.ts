@@ -1,4 +1,4 @@
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -33,10 +33,15 @@ test("partner block tests", async ({ page }) => {
   await page.click('text="Default"')
   await page.click('text="Continue"')
 
-  await page.evaluate(() => {
-    window.scrollTo(0, document.body.scrollHeight)
-  })
+  // await page.evaluate(() => {
+  //   window.scrollTo(0, document.body.scrollHeight)
+  // })
 
-  await page.locator("footer").scrollIntoViewIfNeeded()
-  page.locator('[data-test-id="partners-block"]')
+  // await page.locator("footer").scrollIntoViewIfNeeded()
+  // page.locator('[data-test-id="partners-block"]')
+
+  // Scroll and verify partners block
+  const partnersBlock = page.locator('[data-test-id="partners-block"]')
+  await partnersBlock.scrollIntoViewIfNeeded()
+  await expect(partnersBlock).toBeVisible()
 })

@@ -51,7 +51,6 @@ const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> =
   const handleSave = async (data: unknown): Promise<PartnersBlock> => {
     const res = await setPartnerBlockForCourse(courseId, data ?? [])
     await blockQuery.refetch()
-    console.log("res", res)
     return res
   }
 

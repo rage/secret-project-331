@@ -18,10 +18,6 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
     queryFn: () => fetchPartnersBlock(courseId as NonNullable<string>),
   })
 
-  useEffect(() => {
-    getPartnersBlock.refetch()
-  }, [courseId, getPartnersBlock])
-
   const content =
     getPartnersBlock.isSuccess && Array.isArray(getPartnersBlock.data.content)
       ? getPartnersBlock.data.content

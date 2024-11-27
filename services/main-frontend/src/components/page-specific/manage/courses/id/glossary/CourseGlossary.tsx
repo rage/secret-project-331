@@ -4,66 +4,31 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "../../../../../../pages/manage/courses/[id]/[...path]"
-import { fetchGlossary, postNewTerm } from "../../../../../../services/backend/courses"
-import { deleteTerm, updateTerm } from "../../../../../../services/backend/glossary"
+import { fetchGlossary } from "../../../../../../services/backend/courses"
 
-import Button from "@/shared-module/common/components/Button"
+import CreateTermForm from "./CreateTermForm"
+import TermItem from "./TermItem"
+
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+
+interface GlossaryTerm {
+  id: string
+  term: string
+  definition: string
+}
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
   const { t } = useTranslation()
 
-  const [newTerm, setNewTerm] = useState("")
-  const [newDefinition, setNewDefinition] = useState("")
-  const [updatedTerm, setUpdatedTerm] = useState("")
-  const [updatedDefinition, setUpdatedDefinition] = useState("")
   const [editingTerm, setEditingTerm] = useState<string | null>(null)
   const glossary = useQuery({
     queryKey: [`glossary-${courseId}`],
     queryFn: () => fetchGlossary(courseId),
   })
-  const createMutation = useToastMutation(
-    () => postNewTerm(courseId, newTerm, newDefinition),
-    {
-      notify: true,
-      method: "POST",
-    },
-    {
-      onSuccess: () => {
-        setNewTerm("")
-        setNewDefinition("")
-        glossary.refetch()
-      },
-    },
-  )
-  const updateMutation = useToastMutation(
-    (termId: string) => updateTerm(termId, updatedTerm, updatedDefinition),
-    {
-      notify: true,
-      method: "PUT",
-    },
-    {
-      onSuccess: () => {
-        setEditingTerm(null)
-        glossary.refetch()
-      },
-    },
-  )
-  const deleteMutation = useToastMutation(
-    (termId: string) => deleteTerm(termId),
-    {
-      notify: true,
-      method: "DELETE",
-    },
-    { onSuccess: () => glossary.refetch() },
-  )
 
   return (
     <>
@@ -79,83 +44,22 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       </h1>
       {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
       {glossary.isPending && <Spinner variant={"medium"} />}
-      <div>
-        <TextField
-          label={t("new-term")}
-          placeholder={t("new-term")}
-          value={newTerm}
-          onChangeByValue={setNewTerm}
-        />
-        <TextAreaField
-          name={t("new-definition")}
-          placeholder={t("new-definition")}
-          label={t("new-definition")}
-          value={newDefinition}
-          onChangeByValue={setNewDefinition}
-          disabled={false}
-        />
-        <Button variant="primary" size="medium" onClick={() => createMutation.mutate()}>
-          {t("button-text-save")}
-        </Button>
-      </div>
+      <CreateTermForm refetch={glossary.refetch} courseId={courseId} />
       {glossary.isSuccess &&
         glossary.data
-          .sort((a, b) => a.term.localeCompare(b.term))
-          .map((term) => {
-            return editingTerm === term.id ? (
-              <div key={term.id}>
-                <hr />
-                <TextField
-                  placeholder={t("updated-term")}
-                  label={t("updated-term")}
-                  value={updatedTerm}
-                  onChangeByValue={setUpdatedTerm}
-                />
-                <TextAreaField
-                  name={t("updated-definition")}
-                  label={t("updated-definition")}
-                  placeholder={t("updated-definition")}
-                  value={updatedDefinition}
-                  onChangeByValue={setUpdatedDefinition}
-                  disabled={false}
-                />
-                <Button
-                  variant="primary"
-                  size="medium"
-                  onClick={() => updateMutation.mutate(term.id)}
-                >
-                  {t("button-text-save")}
-                </Button>
-                <Button variant="tertiary" size="medium" onClick={() => setEditingTerm(null)}>
-                  {t("button-text-cancel")}
-                </Button>
-              </div>
-            ) : (
-              <div key={term.id}>
-                <hr />
-                <div>{term.term}</div>
-                <div>{term.definition}</div>
-                <Button
-                  variant="primary"
-                  size="medium"
-                  onClick={() => {
-                    setUpdatedTerm(term.term)
-                    setUpdatedDefinition(term.definition)
-                    setEditingTerm(term.id)
-                  }}
-                >
-                  {t("edit")}
-                </Button>
-                <Button
-                  variant="tertiary"
-                  size="medium"
-                  onClick={() => deleteMutation.mutate(term.id)}
-                >
-                  {t("button-text-delete")}
-                </Button>
-              </div>
-            )
-          })}
+          .sort((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
+          .map((term: GlossaryTerm) => (
+            <TermItem
+              key={term.id}
+              term={term}
+              isEditing={editingTerm === term.id}
+              onEdit={() => {
+                setEditingTerm(term.id)
+              }}
+              onCancel={() => setEditingTerm(null)}
+              refetch={glossary.refetch}
+            />
+          ))}
     </>
   )
 }

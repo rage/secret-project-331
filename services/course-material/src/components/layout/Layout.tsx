@@ -1,4 +1,5 @@
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import dynamic from "next/dynamic"
 import Head from "next/head"
 import { useRouter } from "next/router"
@@ -16,6 +17,7 @@ import UserNavigationControls from "../navigation/UserNavigationControls"
 import PartnersSectionBlock from "./PartnersSection"
 import ScrollIndicator from "./ScrollIndicator"
 
+import { fetchPartnersBlock } from "@/services/backend"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import LanguageSelection, {
@@ -58,6 +60,11 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const [changeLanguageToThisCourseId, setChangeLanguageToThisCourseId] = useState<string | null>(
     null,
   )
+
+  const getPartnersBlock = useQuery({
+    queryKey: ["partners-block", courseId],
+    queryFn: () => fetchPartnersBlock(courseId as NonNullable<string>),
+  })
 
   const languageVersions = useCourseLanguageVersions(courseId)
   const languages: LanguageOption[] = (languageVersions?.data ?? []).map((languageVersion) => ({
@@ -119,6 +126,11 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       setPageState,
     }
   }, [courseId, hideFromSearchEngines, organizationSlug, title])
+
+  const content =
+    getPartnersBlock.isSuccess && Array.isArray(getPartnersBlock.data.content)
+      ? getPartnersBlock.data.content
+      : []
   return (
     <>
       <Head>

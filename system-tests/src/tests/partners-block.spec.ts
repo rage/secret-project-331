@@ -4,7 +4,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("partner block tests", async ({ page }) => {
+test.only("partner block tests", async ({ page }) => {
   test.slow()
   await page.goto("http://project-331.local/organizations")
 
@@ -14,6 +14,7 @@ test("partner block tests", async ({ page }) => {
 
   await page.getByLabel("Manage course 'Introduction to citations").click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await page.locator("footer").scrollIntoViewIfNeeded()
   await page.getByText("Create Partners Section").click()
 
   await page.locator("button.components-button").click()
@@ -32,10 +33,6 @@ test("partner block tests", async ({ page }) => {
 
   await page.click('text="Default"')
   await page.click('text="Continue"')
-
-  // await page.evaluate(() => {
-  //   window.scrollTo(0, document.body.scrollHeight)
-  // })
 
   // await page.locator("footer").scrollIntoViewIfNeeded()
   // page.locator('[data-test-id="partners-block"]')

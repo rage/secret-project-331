@@ -27,10 +27,6 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
 
   return (
     <>
-      {getPartnersBlock.isError && (
-        <ErrorBanner variant={"readOnly"} error={getPartnersBlock.error} />
-      )}
-      {getPartnersBlock.isPending && <Spinner variant={"medium"} />}
       {hasImages && (
         <div
           data-test-id="partners-block"

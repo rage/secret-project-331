@@ -359,10 +359,10 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           color: #4c5868;
           margin-top: 3rem;
 
-          span {
+          .header {
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            font-size: clamp(18px, 2vw, 20px);
+            font-weight: 500;
+            font-size: 1.25rem;
 
             svg {
               margin-right: 0.4rem;
@@ -374,14 +374,14 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
           }
         `}
       >
-        <h5>
+        <span className="header">
           <BlockProhibited size={18} weight="bold" color="#4C5868" />
           {t("partners-section-heading")}
-        </h5>
+        </span>
         <p>{t("partners-section-text")}</p>
         <button
           className={css`
-            background: ${baseTheme.colors.gray[200]};
+            background: ${baseTheme.colors.gray[100]};
             padding: 8px 20px;
             color: ${baseTheme.colors.gray[700]};
             cursor: pointer;

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT exercise_slide_id,\n  COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND (course_instance_id = $2 OR exam_id = $2)\n  AND user_id = $3\n  AND deleted_at IS NULL\nGROUP BY exercise_slide_id;\n    ",
+  "query": "\nSELECT exercise_slide_id,\n  COUNT(*) as count\nFROM exercise_slide_submissions\nWHERE exercise_id = $1\n  AND (course_id = $2 OR exam_id = $2)\n  AND user_id = $3\n  AND deleted_at IS NULL\nGROUP BY exercise_slide_id;\n    ",
   "describe": {
     "columns": [
       {
@@ -19,5 +19,5 @@
     },
     "nullable": [false, null]
   },
-  "hash": "70153b30b4c994da2fcc85853bc4a56e406477b77390a85d8d2c4436a038e67a"
+  "hash": "d0733bc461fadb2ac107e60efade919569cd646428d19f445e308d4db29d5e51"
 }

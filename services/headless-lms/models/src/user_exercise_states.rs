@@ -131,7 +131,7 @@ impl CourseOrExamId {
         }
     }
 
-    pub fn to_instance_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
+    pub fn to_course_and_exam_ids(&self) -> (Option<Uuid>, Option<Uuid>) {
         match self {
             CourseOrExamId::Course(course_id) => (Some(*course_id), None),
             CourseOrExamId::Exam(exam_id) => (None, Some(*exam_id)),
@@ -648,14 +648,14 @@ WHERE id = $1
 pub async fn get_user_total_course_points(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<f32>> {
     let res = sqlx::query!(
         r#"
 SELECT SUM(score_given) AS "total_points"
 FROM user_exercise_states
 WHERE user_id = $1
-  AND course_instance_id = $2
+  AND course_id = $2
   AND deleted_at IS NULL
   GROUP BY user_id
         "#,
@@ -695,7 +695,7 @@ pub async fn get_user_exercise_state_if_exists(
     exercise_id: Uuid,
     course_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Option<UserExerciseState>> {
-    let (course_id, exam_id) = course_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
@@ -733,7 +733,7 @@ pub async fn get_all_for_user_and_course_instance_or_exam(
     user_id: Uuid,
     course_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Vec<UserExerciseState>> {
-    let (course_id, exam_id) = course_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
@@ -877,7 +877,7 @@ pub async fn update_reviewing_stage(
     exercise_id: Uuid,
     new_reviewing_stage: ReviewingStage,
 ) -> ModelResult<UserExerciseState> {
-    let (course_id, exam_id) = course_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"

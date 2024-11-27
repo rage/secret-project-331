@@ -34,15 +34,13 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             .await?;
     if let Some(completion) = completion {
         let course = courses::get_course(&mut tx, course_module.course_id).await?;
-        let course_instance =
-            course_instances::get_course_instance(&mut tx, course_instance_id).await?;
         let submodule_completions_required = course
             .base_module_completion_requires_n_submodule_completions
             .try_into()?;
         update_module_completion_prerequisite_statuses_for_user(
             &mut tx,
             user_id,
-            &course_instance,
+            course_module.course_id,
             submodule_completions_required,
         )
         .await?;
@@ -55,7 +53,6 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
                 &mut tx,
                 user_id,
                 course.id,
-                course_instance_id,
                 &thresholds,
                 completion,
             )
@@ -70,17 +67,15 @@ pub async fn check_and_insert_suspected_cheaters(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
-    course_instance_id: Uuid,
     thresholds: &Threshold,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
-    let total_points =
-        user_exercise_states::get_user_total_course_points(conn, user_id, course_instance_id)
-            .await?
-            .unwrap_or(0.0);
+    let total_points = user_exercise_states::get_user_total_course_points(conn, user_id, course_id)
+        .await?
+        .unwrap_or(0.0);
 
     let student_duration_seconds =
-        course_instances::get_student_duration(conn, completion.user_id, course_instance_id)
+        course_instances::get_student_duration(conn, completion.user_id, course_id)
             .await?
             .unwrap_or(0);
 
@@ -538,7 +533,6 @@ pub async fn add_manual_completions(
                 PKeyPolicy::Generate,
                 &NewCourseModuleCompletion {
                     course_id: course_instance.course_id,
-                    course_instance_id: course_instance.id,
                     course_module_id: manual_completion_request.course_module_id,
                     user_id: completion.user_id,
                     completion_date: completion.completion_date.unwrap_or_else(Utc::now),
@@ -547,16 +541,17 @@ pub async fn add_manual_completions(
                     eligible_for_ects: true,
                     email: completion_receiver_user_details.email,
                     grade: completion.grade,
-                    // Should passed be false if grade == Some(0)?
-                    passed: true,
+                    // False if grade is Some(0), otherwise true.
+                    passed: completion.grade.unwrap_or(1) > 0,
                 },
                 CourseModuleCompletionGranter::User(completion_giver_user_id),
             )
             .await?;
+            // TODO: Should we enroll the user to the instance if they are on some other instance?
             update_module_completion_prerequisite_statuses_for_user(
                 &mut tx,
                 completion_receiver.id,
-                course_instance,
+                course.id,
                 course
                     .base_module_completion_requires_n_submodule_completions
                     .try_into()?,

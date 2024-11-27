@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds\nFROM course_instance_enrollments ce\nJOIN course_module_completions cmc ON cmc.course_id = ce.course_id\nAND cmc.user_id = ce.user_id\nWHERE ce.course_id = $1\n    AND ce.user_id = $2\n    AND ce.deleted_at IS NULL\n    AND cmc.deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "student_duration_seconds",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid"]
+    },
+    "nullable": [null]
+  },
+  "hash": "fb38d4d35b28f2767241e7fcac6846e6b5af3ab4d91f820ac095274445838e7b"
+}

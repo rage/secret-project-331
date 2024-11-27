@@ -829,21 +829,21 @@ WHERE ce.course_instance_id = $1
 pub async fn get_student_duration(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Option<i64>> {
     let res = sqlx::query!(
         "
 SELECT
     COALESCE(EXTRACT(EPOCH FROM cmc.completion_date - ce.created_at)::int8, 0) AS student_duration_seconds
 FROM course_instance_enrollments ce
-JOIN course_module_completions cmc ON cmc.course_instance_id = ce.course_instance_id
+JOIN course_module_completions cmc ON cmc.course_id = ce.course_id
 AND cmc.user_id = ce.user_id
-WHERE ce.course_instance_id = $1
+WHERE ce.course_id = $1
     AND ce.user_id = $2
     AND ce.deleted_at IS NULL
     AND cmc.deleted_at IS NULL;
         ",
-        course_instance_id,
+        course_id,
         user_id
     )
     .fetch_optional(conn)

@@ -27,7 +27,6 @@ pub struct AnswerRequiringAttention {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub data_json: Option<serde_json::Value>,
-    pub course_instance_id: Option<Uuid>,
     pub grading_progress: GradingProgress,
     pub score_given: Option<f32>,
     pub submission_id: Uuid,
@@ -38,7 +37,6 @@ pub struct AnswerRequiringAttention {
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
-    pub course_instance_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
@@ -54,7 +52,6 @@ pub struct ExerciseSlideSubmission {
     pub deleted_at: Option<DateTime<Utc>>,
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
-    pub course_instance_id: Option<Uuid>,
     pub exam_id: Option<Uuid>,
     pub exercise_id: Uuid,
     pub user_id: Uuid,
@@ -62,11 +59,11 @@ pub struct ExerciseSlideSubmission {
 }
 
 impl ExerciseSlideSubmission {
-    pub fn get_course_instance_id(&self) -> ModelResult<Uuid> {
-        self.course_instance_id.ok_or_else(|| {
+    pub fn get_course_id(&self) -> ModelResult<Uuid> {
+        self.course_id.ok_or_else(|| {
             ModelError::new(
                 ModelErrorType::Generic,
-                "Submission is not related to a course instance.".to_string(),
+                "Submission is not related to a course.".to_string(),
                 None,
             )
         })
@@ -142,20 +139,18 @@ pub async fn insert_exercise_slide_submission(
 INSERT INTO exercise_slide_submissions (
     exercise_slide_id,
     course_id,
-    course_instance_id,
     exam_id,
     exercise_id,
     user_id,
     user_points_update_strategy
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id,
   created_at,
   updated_at,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -163,7 +158,6 @@ RETURNING id,
         "#,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
-        exercise_slide_submission.course_instance_id,
         exercise_slide_submission.exam_id,
         exercise_slide_submission.exercise_id,
         exercise_slide_submission.user_id,
@@ -186,7 +180,6 @@ INSERT INTO exercise_slide_submissions (
     id,
     exercise_slide_id,
     course_id,
-    course_instance_id,
     exam_id,
     exercise_id,
     user_id,
@@ -199,7 +192,6 @@ RETURNING id,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -208,7 +200,6 @@ RETURNING id,
         id,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
-        exercise_slide_submission.course_instance_id,
         exercise_slide_submission.exam_id,
         exercise_slide_submission.exercise_id,
         exercise_slide_submission.user_id,
@@ -229,7 +220,6 @@ updated_at,
 deleted_at,
 exercise_slide_id,
 course_id,
-course_instance_id,
 exam_id,
 exercise_id,
 user_id,
@@ -264,7 +254,6 @@ SELECT DISTINCT ON (user_id)
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -302,7 +291,6 @@ SELECT id,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -321,12 +309,12 @@ LIMIT $2 OFFSET $3;
     Ok(submissions)
 }
 
-pub async fn get_users_all_submissions_for_course_instance_or_exam(
+pub async fn get_users_all_submissions_for_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id_or_exam_id: CourseOrExamId,
+    course_or_exam_id: CourseOrExamId,
 ) -> ModelResult<Vec<ExerciseSlideSubmission>> {
-    let (course_instance_id, exam_id) = course_instance_id_or_exam_id.to_instance_and_exam_ids();
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
@@ -336,18 +324,17 @@ SELECT id,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
   user_points_update_strategy AS "user_points_update_strategy: _"
 FROM exercise_slide_submissions
 WHERE user_id = $1
-  AND (course_instance_id = $2 OR exam_id = $3)
+  AND (course_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
         "#,
         user_id,
-        course_instance_id,
+        course_id,
         exam_id,
     )
     .fetch_all(conn)
@@ -369,7 +356,6 @@ SELECT id,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -450,7 +436,6 @@ SELECT id,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -521,7 +506,6 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         deleted_at,
         exercise_slide_id,
         course_id,
-        course_instance_id,
         exam_id,
         exercise_id,
         user_id,
@@ -731,7 +715,6 @@ SELECT id,
   deleted_at,
   exercise_slide_id,
   course_id,
-  course_instance_id,
   exam_id,
   exercise_id,
   user_id,
@@ -762,7 +745,6 @@ pub async fn get_all_answers_requiring_attention(
         us_state.id,
         us_state.user_id,
         us_state.exercise_id,
-        us_state.course_instance_id,
         us_state.score_given,
         us_state.grading_progress as "grading_progress: _",
         t_submission.data_json,
@@ -849,11 +831,11 @@ SELECT counts.*, exercises.name exercise_name
 pub async fn get_exercise_slide_submission_counts_for_exercise_user(
     conn: &mut PgConnection,
     exercise_id: Uuid,
-    course_instance_id_or_exam_id: CourseOrExamId,
+    course_id_or_exam_id: CourseOrExamId,
     user_id: Uuid,
 ) -> ModelResult<HashMap<Uuid, i64>> {
-    let ci_id_or_e_id = match course_instance_id_or_exam_id {
-        CourseOrExamId::Instance(id) => id,
+    let ci_id_or_e_id = match course_id_or_exam_id {
+        CourseOrExamId::Course(id) => id,
         CourseOrExamId::Exam(id) => id,
     };
     let res = sqlx::query!(
@@ -862,7 +844,7 @@ SELECT exercise_slide_id,
   COUNT(*) as count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
-  AND (course_instance_id = $2 OR exam_id = $2)
+  AND (course_id = $2 OR exam_id = $2)
   AND user_id = $3
   AND deleted_at IS NULL
 GROUP BY exercise_slide_id;

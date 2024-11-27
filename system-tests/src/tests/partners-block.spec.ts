@@ -14,7 +14,7 @@ test("partner block tests", async ({ page }) => {
     page.getByText("University of Helsinki, Department of Mathematics and Statistics").click(),
   ])
 
-  await page.getByLabel("Manage course 'Introduction to citations").click()
+  await page.getByLabel("Manage course 'Giveaway").click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await page.getByText("Add Partners Section").click()
 
@@ -30,7 +30,7 @@ test("partner block tests", async ({ page }) => {
   await fileChooser.setFiles("src/fixtures/media/sample-logo.svg")
   await page.getByRole("button", { name: "Save", exact: true }).click()
 
-  await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-citations")
+  await page.goto("http://project-331.local/org/uh-cs/courses/giveaway")
 
   await selectCourseInstanceIfPrompted(page)
 

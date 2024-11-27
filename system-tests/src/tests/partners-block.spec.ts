@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test"
 
+import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -30,8 +32,7 @@ test("partner block tests", async ({ page }) => {
 
   await page.goto("http://project-331.local/org/uh-cs/courses/introduction-to-citations")
 
-  await page.click('text="Default"')
-  await page.click('text="Continue"')
+  await selectCourseInstanceIfPrompted(page)
 
   // Scroll and verify partners block
   const partnersBlock = page.locator('[data-test-id="partners-block"]')

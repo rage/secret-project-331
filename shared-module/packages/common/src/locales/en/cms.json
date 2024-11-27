@@ -110,6 +110,7 @@
   "peer-reviews-to-receive": "Peer reviews to receive",
   "peer-reviews-to-receive-and-give-error-message": "Peer reviews to give must be greater than peer reviews to receive",
   "please-select-exercise-type": "Please select an exercise type:",
+  "primary-color": "Primary color",
   "remove": "Remove",
   "research-form-checkbox-description": "This block is used to add a question to the research form.",
   "reset": "Reset",
@@ -123,7 +124,6 @@
   "select-repository-exercise": "Select repository exercise",
   "selected-exercise-type": "Selected exercise type: {{exerciseType}}",
   "separator-color": "Separator color",
-  "primary-color": "Primary color",
   "serialize-to-html": "Serialize to HTML",
   "slide-title": "Slide {{ number }}",
   "start": "Start",
@@ -131,6 +131,7 @@
   "table-box-description": "This is a custom table block with colored background",
   "table-width-customizer": "Table width customizer",
   "task": "Task",
+  "terminology": "Terminology",
   "title-additional-review-instructions": "Additional review instructions",
   "title-assignment": "Assignment",
   "title-outdated-blocks-migrated": "Outdated blocks migrated",
@@ -145,6 +146,5 @@
   "use-default-text-for-label": "Use default text for label",
   "warning-points-are-all-or-nothing-disabled": "Warning: It is recommended to enable “points are all or nothing”. The peer reviews given by students vary greatly in quality, which may lead to some students receiving unfair points from the exercise. Enabling this option reduces randomness in the received points, making the peer review process fairer for the students.",
   "welcome-message-for-course": "Welcome message for course...",
-  "terminology": "Terminology",
   "width-of-table": "Width of table"
 }

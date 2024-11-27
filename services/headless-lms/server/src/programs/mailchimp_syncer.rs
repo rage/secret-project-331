@@ -355,7 +355,7 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
         )
         .await?;
 
-        println!(
+        info!(
             "Processing Mailchimp data for list: {}",
             token.mailchimp_mailing_list_id
         );
@@ -370,7 +370,7 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
             )
             .await?;
 
-        println!(
+        info!(
             "Found {} unsynced user email(s) for course language group: {}",
             users_with_unsynced_emails.len(),
             token.course_language_group_id
@@ -397,7 +397,7 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
             )
             .await?;
 
-        println!(
+        info!(
             "Found {} unsynced user consent(s) for course language group: {}",
             unsynced_users_details.len(),
             token.course_language_group_id
@@ -419,7 +419,7 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
             &successfully_synced_user_ids,
         )
         .await?;
-        println!(
+        info!(
             "Successfully updated synced status for {} users.",
             successfully_synced_user_ids.len()
         );
@@ -569,7 +569,7 @@ async fn update_emails_in_mailchimp(
     }
 
     if !failed_user_ids.is_empty() {
-        eprintln!("Failed to update the following users:");
+        info!("Failed to update the following users:");
         for user_id in &failed_user_ids {
             error!("User ID: {}", user_id);
         }

@@ -196,18 +196,18 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           />
         )}
       </div>
-      <div
-        className={css`
-          padding: 1rem 3rem;
-        `}
-      >
-        {getCourse.data?.ask_marketing_consent && (
+      {getCourse.data?.ask_marketing_consent && (
+        <div
+          className={css`
+            padding: 1rem 3rem;
+          `}
+        >
           <SelectMarketingConsentForm
             courseId={selectedLangCourseId}
             courseLanguageGroupsId={getCourse.data?.course_language_group_id}
           />
-        )}
-      </div>
+        </div>
+      )}
       {languageChanged && (
         <div
           className={css`

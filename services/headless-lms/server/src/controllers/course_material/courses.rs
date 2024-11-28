@@ -6,6 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
+use headless_lms_models::partner_block::PartnersBlock;
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
@@ -902,6 +903,23 @@ async fn get_research_form_answers_with_user_id(
 }
 
 /**
+GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+*/
+#[instrument(skip(pool))]
+async fn get_partners_block(
+    path: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<PartnersBlock>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let partner_block = models::partner_block::get_partner_block(&mut conn, course_id).await?;
+
+    token.authorized_ok(web::Json(partner_block))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -978,6 +996,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/research-consent-form",
             web::get().to(get_research_form_with_course_id),
+        )
+        .route(
+            "/{course_id}/partners-block",
+            web::get().to(get_partners_block),
         )
         .route(
             "/{course_id}/research-consent-form-questions",

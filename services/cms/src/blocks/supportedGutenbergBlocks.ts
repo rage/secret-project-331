@@ -53,6 +53,8 @@ export const allowedEmailCoreBlocks: string[] = [
   "core/table",
 ]
 
+export const allowedPartnerCoreBlocks: string[] = ["core/image"]
+
 export const allowedExamInstructionsCoreBlocks: string[] = [
   "core/paragraph",
   "core/image",

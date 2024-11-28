@@ -13,6 +13,7 @@ import SearchDialog from "../SearchDialog"
 import { useFigureOutNewUrl } from "../modals/ChooseCourseLanguage"
 import UserNavigationControls from "../navigation/UserNavigationControls"
 
+import PartnersSectionBlock from "./PartnersSection"
 import ScrollIndicator from "./ScrollIndicator"
 
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -183,6 +184,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
         `}
       >
         <DynamicToaster />
+        <PartnersSectionBlock courseId={courseId} />
         <Footer />
       </div>
     </>

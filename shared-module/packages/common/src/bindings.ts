@@ -1930,6 +1930,20 @@ export interface User {
   email_domain: string | null
 }
 
+export interface PartnersBlock {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  content: unknown
+  course_id: string
+}
+
+export interface PartnerBlockNew {
+  course_id: string
+  content: unknown | null
+}
+
 export interface UploadResult {
   url: string
 }

@@ -1,8 +1,10 @@
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
+import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
@@ -77,21 +79,27 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
   const { t } = useTranslation()
 
   return (
-    <ListItem>
+    <ListItem data-testid="exam-list-item">
       <ExamHeader>
-        <a href={`/org/${organizationSlug}/exams/${exam.id}`}>{exam.name}</a>
+        <Link href={`/org/${organizationSlug}/exams/${exam.id}`}>{exam.name}</Link>
       </ExamHeader>
       <ExamDetails>
         <Detail>
           <span className="label">{t("start-date")}:</span>
           <span className="value">
-            {exam.starts_at ? dateToDateTimeLocalString(parseISO(exam.starts_at)) : t("n-a")}
+            <HideTextInSystemTests
+              text={exam.starts_at ? dateToDateTimeLocalString(parseISO(exam.starts_at)) : t("n-a")}
+              testPlaceholder={dateToDateTimeLocalString(parseISO("2022-01-01T00:00:00"))}
+            />
           </span>
         </Detail>
         <Detail>
           <span className="label">{t("end-date")}:</span>
           <span className="value">
-            {exam.ends_at ? dateToDateTimeLocalString(parseISO(exam.ends_at)) : t("n-a")}
+            <HideTextInSystemTests
+              text={exam.ends_at ? dateToDateTimeLocalString(parseISO(exam.ends_at)) : t("n-a")}
+              testPlaceholder={dateToDateTimeLocalString(parseISO("2022-01-01T00:00:00"))}
+            />
           </span>
         </Detail>
         <Detail>
@@ -102,7 +110,7 @@ const ExamListItem: React.FC<Props> = ({ exam, organizationSlug }) => {
         </Detail>
       </ExamDetails>
       <ManageLink>
-        <a href={`/manage/exams/${exam.id}`}>{t("manage")}</a>
+        <Link href={`/manage/exams/${exam.id}`}>{t("manage")}</Link>
       </ManageLink>
     </ListItem>
   )

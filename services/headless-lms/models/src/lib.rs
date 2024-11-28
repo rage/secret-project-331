@@ -61,6 +61,7 @@ pub mod page_visit_datum_summary_by_courses_countries;
 pub mod page_visit_datum_summary_by_courses_device_types;
 pub mod page_visit_datum_summary_by_pages;
 pub mod pages;
+pub mod partner_block;
 pub mod peer_or_self_review_configs;
 pub mod peer_or_self_review_question_submissions;
 pub mod peer_or_self_review_questions;

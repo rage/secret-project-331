@@ -179,6 +179,8 @@ import {
   PageWithExercises,
   Pagination,
   PaperSize,
+  PartnerBlockNew,
+  PartnersBlock,
   PeerOrSelfReviewAnswer,
   PeerOrSelfReviewConfig,
   PeerOrSelfReviewQuestion,
@@ -3412,6 +3414,26 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     (typedObj["email_domain"] === null || typeof typedObj["email_domain"] === "string")
+  )
+}
+
+export function isPartnersBlock(obj: unknown): obj is PartnersBlock {
+  const typedObj = obj as PartnersBlock
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["course_id"] === "string"
+  )
+}
+
+export function isPartnerBlockNew(obj: unknown): obj is PartnerBlockNew {
+  const typedObj = obj as PartnerBlockNew
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["course_id"] === "string"
   )
 }
 

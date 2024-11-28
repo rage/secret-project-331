@@ -984,6 +984,28 @@
 <a href="#984" id="984">984</a>
 <a href="#985" id="985">985</a>
 <a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
+<a href="#1000" id="1000">1000</a>
+<a href="#1001" id="1001">1001</a>
+<a href="#1002" id="1002">1002</a>
+<a href="#1003" id="1003">1003</a>
+<a href="#1004" id="1004">1004</a>
+<a href="#1005" id="1005">1005</a>
+<a href="#1006" id="1006">1006</a>
+<a href="#1007" id="1007">1007</a>
+<a href="#1008" id="1008">1008</a>
 </pre></div><pre class="rust"><code><span class="doccomment">//! Controllers for requests starting with `/api/v0/course-material/courses`.
 
 </span><span class="kw">use </span>std::{collections::HashMap, net::IpAddr, path::Path};
@@ -992,6 +1014,7 @@
 <span class="kw">use </span>actix_web::web::Json;
 <span class="kw">use </span>chrono::Utc;
 <span class="kw">use </span>futures::{future::OptionFuture, FutureExt};
+<span class="kw">use </span>headless_lms_models::partner_block::PartnersBlock;
 <span class="kw">use </span>headless_lms_utils::ip_to_country::IpToCountryMapper;
 <span class="kw">use </span>isbot::Bots;
 <span class="kw">use </span>models::{
@@ -1888,6 +1911,23 @@ GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fe
 }
 
 <span class="doccomment">/**
+GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+*/
+</span><span class="attr">#[instrument(skip(pool))]
+</span><span class="kw">async fn </span>get_partners_block(
+    path: web::Path&lt;Uuid&gt;,
+    user: AuthUser,
+    pool: web::Data&lt;PgPool&gt;,
+) -&gt; ControllerResult&lt;web::Json&lt;PartnersBlock&gt;&gt; {
+    <span class="kw">let </span>course_id = path.into_inner();
+    <span class="kw">let </span><span class="kw-2">mut </span>conn = pool.acquire().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>token = skip_authorize();
+    <span class="kw">let </span>partner_block = models::partner_block::get_partner_block(<span class="kw-2">&amp;mut </span>conn, course_id).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    token.authorized_ok(web::Json(partner_block))
+}
+
+<span class="doccomment">/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1964,6 +2004,10 @@ We add the routes by calling the route method instead of using the route annotat
         .route(
             <span class="string">"/{course_id}/research-consent-form"</span>,
             web::get().to(get_research_form_with_course_id),
+        )
+        .route(
+            <span class="string">"/{course_id}/partners-block"</span>,
+            web::get().to(get_partners_block),
         )
         .route(
             <span class="string">"/{course_id}/research-consent-form-questions"</span>,

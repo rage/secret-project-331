@@ -609,6 +609,7 @@
   "sort-by-name": "Järjestä nimen mukaan",
   "sort-by-role": "Järjestä roolin mukaan",
   "start-date": "Aloituspäivä",
+  "start-date-must-be-before-end-date": "Aloituspäivän on oltava ennen päättymispäivää",
   "starts": "Alku",
   "stats": "Tilastot",
   "status": "Tila",

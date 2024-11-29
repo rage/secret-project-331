@@ -79,9 +79,9 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
           <ExamListItem key={exam.id} exam={exam} organizationSlug={organizationSlug} />
         ))}
       </StyledUl>
-      <button onClick={() => setShowEnded(!showEnded)}>
+      <Button variant="secondary" size="medium" onClick={() => setShowEnded(!showEnded)}>
         {showEnded ? t("hide-ended-exams") : t("show-ended-exams")}
-      </button>
+      </Button>
       {showEnded && (
         <StyledUl>
           {endedExams.map((exam) => (

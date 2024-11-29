@@ -604,6 +604,7 @@
   "sort-by-name": "Sort by name",
   "sort-by-role": "Sort by role",
   "start-date": "Start date",
+  "start-date-must-be-before-end-date": "Start date must be before end date",
   "starts": "Starts",
   "stats": "Stats",
   "status": "Status",

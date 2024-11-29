@@ -1,4 +1,6 @@
 import { parseISO } from "date-fns"
+import { TFunction } from "i18next"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -53,6 +55,9 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
     },
   })
 
+  const startsAt = watch("startsAt")
+  const validateDates = useMemo(() => createValidateDates(t, startsAt), [t, startsAt])
+
   const onEditExamWrapper = handleSubmit((data) => {
     onEditExam({
       name: data.name,
@@ -86,7 +91,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         <DateTimeLocal
           error={errors.endsAt?.message}
           label={t("label-ends-at")}
-          {...register("endsAt", { required: t("required-field") })}
+          {...register("endsAt", { required: t("required-field"), validate: validateDates })}
         />
         <TextField
           id={"timeMinutes"}
@@ -102,7 +107,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
         {automaticEnabled && (
           <TextField
             id={"minimumPointsTreshold"}
-            error={errors.timeMinutes?.message}
+            error={errors.minimumPointsTreshold?.message}
             label={t("label-exam-minimum-points")}
             {...register("minimumPointsTreshold", { required: t("required-field") })}
           />
@@ -117,6 +122,14 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
       </form>
     </div>
   )
+}
+const createValidateDates = (t: TFunction, startsAt: string) => {
+  return (endsAt: string): boolean | string => {
+    if (parseISO(startsAt) >= parseISO(endsAt)) {
+      return t("start-date-must-be-before-end-date")
+    }
+    return true
+  }
 }
 
 export default EditExamForm

@@ -604,6 +604,7 @@
   "sort-by-name": "ترتيب حسب الاسم",
   "sort-by-role": "ترتيب حسب الدور",
   "start-date": "تاريخ البدء",
+  "start-date-must-be-before-end-date": "يجب أن يكون تاريخ البدء قبل تاريخ الانتهاء",
   "starts": "يبدأ",
   "stats": "الإحصاءات",
   "status": "الحالة",

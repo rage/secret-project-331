@@ -38,6 +38,7 @@ For non-developers:
 - Extend LMS with new exercises: [Plugin System](./plugin-system.md)
 - Implement responsive designs: [Mobile-First CSS](./mobile-first-css.md)
 - Support multiple languages: [Internationalization](./internationalization.md)
+- Develop new blocks for CMS and course material: [Blocks Development](./blocks.md)
 
 ## 📦 Deployment
 
@@ -54,7 +55,7 @@ For non-developers:
 
 ## 🧪 Testing
 
-- Write and execute tests: [Testing Guidelines](./tests.md)
+- Write and execute tests: [Testing](./tests.md)
 
 ## 🔄 Updating Dependencies
 
@@ -62,7 +63,6 @@ For non-developers:
 
 ## 📚 Additional Documentation
 
-- Develop new LMS blocks: [Blocks Development](./blocks.md)
 - Additional notes: [Miscellaneous Notes](./etc.md)
 
 ## 📞 Support and Contributions

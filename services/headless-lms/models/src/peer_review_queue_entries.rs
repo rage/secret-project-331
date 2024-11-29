@@ -516,7 +516,7 @@ AND deleted_at is NULL
     Ok(())
 }
 
-pub async fn get_all_by_user_and_course_ids(
+pub async fn get_all_by_user_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -538,12 +538,12 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn try_to_get_all_by_user_and_course_ids(
+pub async fn try_to_get_all_by_user_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<Option<Vec<PeerReviewQueueEntry>>> {
-    get_all_by_user_and_course_ids(conn, user_id, course_id)
+    get_all_by_user_and_course_id(conn, user_id, course_id)
         .await
         .optional()
 }

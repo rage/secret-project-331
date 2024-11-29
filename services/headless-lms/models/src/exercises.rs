@@ -18,7 +18,7 @@ use crate::{
     peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
-    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
+    user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, CourseOrExamId, ReviewingStage, UserExerciseState},
     CourseOrExamId,
@@ -100,8 +100,7 @@ pub struct CourseMaterialExercise {
     pub exercise_slide_submission_counts: HashMap<Uuid, i64>,
     pub peer_or_self_review_config: Option<CourseMaterialPeerOrSelfReviewConfig>,
     pub previous_exercise_slide_submission: Option<ExerciseSlideSubmission>,
-    pub user_course_instance_exercise_service_variables:
-        Vec<UserCourseInstanceExerciseServiceVariable>,
+    pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
 }
 
 impl CourseMaterialExercise {
@@ -276,30 +275,6 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
-pub async fn get_exercises_by_course_instance_id(
-    conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<Vec<Exercise>> {
-    let exercises = sqlx::query_as!(
-        Exercise,
-        r#"
-SELECT *
-FROM exercises
-WHERE course_id = (
-    SELECT course_id
-    FROM course_instances
-    WHERE id = $1
-  )
-  AND deleted_at IS NULL
-ORDER BY order_number ASC
-"#,
-        course_instance_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(exercises)
-}
-
 pub async fn get_exercise_submissions_and_status_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -410,7 +385,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub async fn get_course_material_exercise(
@@ -501,7 +476,7 @@ pub async fn get_course_material_exercise(
 
     let user_course_instance_exercise_service_variables = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(course_or_exam_id)) => {
-            Some(crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_or_exam_id).await?)
+            Some(crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_or_exam_id).await?)
         }
         _ => None,
     }.unwrap_or_default();
@@ -587,12 +562,7 @@ pub async fn get_or_select_exercise_slide(
                             None,fetch_service_info
                         )
                         .await?;
-                    Ok((
-                        tasks,
-                        Some(CourseOrExamId::Instance(
-                            settings.current_course_instance_id,
-                        )),
-                    ))
+                    Ok((tasks, Some(CourseOrExamId::Course(course_id))))
                 }
                 Some(_) => {
                     // User is enrolled on a different language version of the course. Show exercise
@@ -613,7 +583,7 @@ pub async fn get_or_select_exercise_slide(
                             )
                             .await?;
                         if let Some(exercise_tasks) = exercise_tasks {
-                            Ok((exercise_tasks, Some(CourseOrExamId::Instance(instance.id))))
+                            Ok((exercise_tasks, Some(CourseOrExamId::Course(course_id))))
                         } else {
                             // no exercise task has been chosen for the user
                             let random_slide =
@@ -747,18 +717,16 @@ RETURNING id;
     Ok(id.id)
 }
 
-pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
+pub async fn get_all_exercise_statuses_by_user_id_and_course_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<ExerciseStatusSummaryForUser>> {
-    let course_or_exam_id = CourseOrExamId::Instance(course_instance_id);
+    let course_or_exam_id = CourseOrExamId::Course(course_id);
     // Load all the data for this user from all the exercises to memory, and group most of them to HashMaps by exercise id
-    let exercises =
-        crate::exercises::get_exercises_by_course_instance_id(&mut *conn, course_instance_id)
-            .await?;
+    let exercises = crate::exercises::get_exercises_by_course_id(&mut *conn, course_id).await?;
     let mut user_exercise_states =
-        crate::user_exercise_states::get_all_for_user_and_course_instance_or_exam(
+        crate::user_exercise_states::get_all_for_user_and_course_or_exam(
             &mut *conn,
             user_id,
             course_or_exam_id,
@@ -768,7 +736,7 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
         .map(|ues| (ues.exercise_id, ues))
         .collect::<HashMap<_, _>>();
     let mut exercise_slide_submissions =
-        crate::exercise_slide_submissions::get_users_all_submissions_for_course_instance_or_exam(
+        crate::exercise_slide_submissions::get_users_all_submissions_for_course_or_exam(
             &mut *conn,
             user_id,
             course_or_exam_id,
@@ -776,9 +744,9 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
         .await?
         .into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    let mut given_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
+    let mut given_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_given_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
-    let mut received_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course_instance(&mut *conn, user_id, course_instance_id).await?.into_iter()
+    let mut received_peer_or_self_review_submissions = crate::peer_or_self_review_submissions::get_all_received_peer_or_self_review_submissions_for_user_and_course(&mut *conn, user_id, course_id).await?.into_iter()
         .into_group_map_by(|o| o.exercise_id);
     let given_peer_or_self_review_submission_ids = given_peer_or_self_review_submissions
         .values()
@@ -806,16 +774,14 @@ pub async fn get_all_exercise_statuses_by_user_id_and_course_instance_id(
         peer_review_submission.0
     });
     let mut peer_review_queue_entries =
-        crate::peer_review_queue_entries::get_all_by_user_and_course_instance_ids(
-            &mut *conn,
-            user_id,
-            course_instance_id,
+        crate::peer_review_queue_entries::get_all_by_user_and_course_id(
+            &mut *conn, user_id, course_id,
         )
         .await?
         .into_iter()
         .map(|x| (x.exercise_id, x))
         .collect::<HashMap<_, _>>();
-    let mut teacher_grading_decisions = crate::teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_course_instance_id(&mut *conn, user_id, course_instance_id).await?.into_iter()
+    let mut teacher_grading_decisions = crate::teacher_grading_decisions::get_all_latest_grading_decisions_by_user_id_and_course_id(&mut *conn, user_id, course_id).await?.into_iter()
     .filter_map(|tgd| {
         let user_exercise_state = user_exercise_states.clone().into_iter()
             .find(|(_exercise_id, ues)|  ues.id == tgd.user_exercise_state_id)?;

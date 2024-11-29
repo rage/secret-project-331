@@ -401,7 +401,7 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
 pub async fn exercise_slide_submission_count(

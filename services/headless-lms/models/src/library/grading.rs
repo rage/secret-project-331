@@ -20,7 +20,7 @@ use crate::{
     },
     prelude::*,
     regradings,
-    user_course_instance_exercise_service_variables::UserCourseInstanceExerciseServiceVariable,
+    user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_exercise_slide_states::{self, UserExerciseSlideState},
     user_exercise_states::{self, CourseOrExamId, ExerciseWithUserState, UserExerciseState},
     user_exercise_task_states,
@@ -41,8 +41,7 @@ pub struct StudentExerciseSlideSubmission {
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
-    pub user_course_instance_exercise_service_variables:
-        Vec<UserCourseInstanceExerciseServiceVariable>,
+    pub user_course_instance_exercise_service_variables: Vec<UserCourseExerciseServiceVariable>,
 }
 
 impl StudentExerciseSlideSubmissionResult {
@@ -131,9 +130,6 @@ pub async fn create_user_exercise_slide_submission(
         NewExerciseSlideSubmission {
             exercise_slide_id: selected_exercise_slide_id,
             course_id: exercise_with_user_state.exercise().course_id,
-            course_instance_id: exercise_with_user_state
-                .user_exercise_state()
-                .course_instance_id,
             exam_id: exercise_with_user_state.exercise().exam_id,
             exercise_id: exercise_with_user_state.exercise().id,
             user_id: exercise_with_user_state.user_exercise_state().user_id,
@@ -197,7 +193,7 @@ pub async fn update_grading_with_single_regrading_result(
         conn,
         slide_submission.user_id,
         exercise.id,
-        slide_submission.course_instance_id,
+        slide_submission.course_id,
         slide_submission.exam_id,
     )
     .await?;
@@ -313,7 +309,7 @@ pub async fn grade_user_submission(
         user_exercise_state.exam_id,
     )?;
 
-    let user_course_instance_exercise_service_variables  = crate::user_course_instance_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_or_exam_id).await?;
+    let user_course_instance_exercise_service_variables  = crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_or_exam_id).await?;
 
     let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {
@@ -552,17 +548,13 @@ pub async fn get_paginated_answers_requiring_attention_for_exercise(
             &fetch_service_info,
         )
         .await?;
-        let given_peer_reviews = if let Some(course_instance_id) = answer.course_instance_id {
-            peer_or_self_review_question_submissions::get_given_peer_reviews(
-                conn,
-                answer.user_id,
-                answer.exercise_id,
-                course_instance_id,
-            )
-            .await?
-        } else {
-            vec![]
-        };
+        let given_peer_reviews = peer_or_self_review_question_submissions::get_given_peer_reviews(
+            conn,
+            answer.user_id,
+            answer.exercise_id,
+        )
+        .await?;
+
         let received_peer_or_self_reviews =
             peer_or_self_review_question_submissions::get_questions_and_answers_by_submission_id(
                 conn,

@@ -6,12 +6,10 @@ use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zer
 use serde_json::Value;
 
 use crate::{
-    course_instances,
     course_modules::{self, CourseModule},
     courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
-    user_course_settings,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display)]
@@ -100,10 +98,10 @@ pub struct UserExerciseStateUpdate {
     pub grading_progress: GradingProgress,
 }
 
-/// Either a course instance or exam id.
+/// Either a course or exam id.
 ///
 /// Exercises can either be part of courses or exams. Many user-related actions need to differentiate
-/// between two, so `CourseInstanceOrExamId` helps when handling these separate scenarios.
+/// between two, so `CourseOrExamId` helps when handling these separate scenarios.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum CourseOrExamId {
     Course(Uuid),
@@ -118,14 +116,14 @@ impl CourseOrExamId {
         match (course_id, exam_id) {
             (None, None) => Err(ModelError::new(
                 ModelErrorType::Generic,
-                "Expected either course instance or exam id, but neither were provided.",
+                "Expected either course or exam id, but neither were provided.",
                 None,
             )),
             (Some(course_id), None) => Ok(Self::Course(course_id)),
             (None, Some(exam_id)) => Ok(Self::Exam(exam_id)),
             (Some(_), Some(_)) => Err(ModelError::new(
                 ModelErrorType::Generic,
-                "Expected either course instance or exam id, but both were provided.",
+                "Expected either course or exam id, but both were provided.",
                 None,
             )),
         }
@@ -149,7 +147,7 @@ impl TryFrom<UserExerciseState> for CourseOrExamId {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct UserCourseInstanceProgress {
+pub struct UserCourseProgress {
     pub course_module_id: Uuid,
     pub course_module_name: String,
     pub course_module_order_number: i32,
@@ -163,13 +161,13 @@ pub struct UserCourseInstanceProgress {
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct UserCourseInstanceChapterExerciseProgress {
+pub struct UserCourseChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-pub struct DatabaseUserCourseInstanceChapterExerciseProgress {
+pub struct DatabaseUserCourseChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: Option<f32>,
 }
@@ -181,14 +179,14 @@ pub struct UserChapterMetrics {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-pub struct UserCourseInstanceMetrics {
+pub struct UserCourseMetrics {
     pub course_module_id: Uuid,
     pub score_given: Option<f32>,
     pub attempted_exercises: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-pub struct CourseInstanceExerciseMetrics {
+pub struct CourseExerciseMetrics {
     course_module_id: Uuid,
     total_exercises: Option<i64>,
     score_maximum: Option<i64>,
@@ -210,36 +208,36 @@ pub struct ExerciseUserCounts {
     n_users_with_max_points: Option<i64>,
 }
 
-pub async fn get_course_instance_metrics(
+pub async fn get_course_metrics(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<Vec<CourseInstanceExerciseMetrics>> {
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseExerciseMetrics>> {
     let res = sqlx::query_as!(
-        CourseInstanceExerciseMetrics,
+        CourseExerciseMetrics,
         r"
 SELECT chapters.course_module_id,
   COUNT(exercises.id) AS total_exercises,
   SUM(exercises.score_maximum) AS score_maximum
-FROM course_instances
-  LEFT JOIN exercises ON (course_instances.course_id = exercises.course_id)
+FROM courses c
+  LEFT JOIN exercises ON (c.course_id = exercises.course_id)
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE exercises.deleted_at IS NULL
-  AND course_instances.id = $1
+  AND c.id = $1
   AND chapters.course_module_id IS NOT NULL
 GROUP BY chapters.course_module_id
         ",
-        course_instance_id
+        course_id
     )
     .fetch_all(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn get_course_instance_metrics_indexed_by_module_id(
+pub async fn get_course_metrics_indexed_by_module_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> ModelResult<HashMap<Uuid, CourseInstanceExerciseMetrics>> {
-    let res = get_course_instance_metrics(conn, course_instance_id)
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, CourseExerciseMetrics>> {
+    let res = get_course_metrics(conn, course_id)
         .await?
         .into_iter()
         .map(|x| (x.course_module_id, x))
@@ -247,13 +245,13 @@ pub async fn get_course_instance_metrics_indexed_by_module_id(
     Ok(res)
 }
 
-/// Gets course instance metrics for a single module.
+/// Gets course metrics for a single module.
 pub async fn get_single_module_metrics(
     conn: &mut PgConnection,
     course_id: Uuid,
     course_module_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<UserCourseInstanceMetrics> {
+) -> ModelResult<UserCourseMetrics> {
     let res = sqlx::query!(
         "
 SELECT COUNT(ues.exercise_id) AS attempted_exercises,
@@ -271,7 +269,7 @@ WHERE chapters.course_module_id = $1
         course_id,
         user_id,
     )
-    .map(|x| UserCourseInstanceMetrics {
+    .map(|x| UserCourseMetrics {
         course_module_id,
         score_given: x.score_given,
         attempted_exercises: x.attempted_exercises,
@@ -281,13 +279,13 @@ WHERE chapters.course_module_id = $1
     Ok(res)
 }
 
-pub async fn get_user_course_instance_metrics(
+pub async fn get_user_course_metrics(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Vec<UserCourseInstanceMetrics>> {
+) -> ModelResult<Vec<UserCourseMetrics>> {
     let res = sqlx::query_as!(
-        UserCourseInstanceMetrics,
+        UserCourseMetrics,
         r"
 SELECT chapters.course_module_id,
   COUNT(ues.exercise_id) AS attempted_exercises,
@@ -295,7 +293,7 @@ SELECT chapters.course_module_id,
 FROM user_exercise_states AS ues
   LEFT JOIN exercises ON (ues.exercise_id = exercises.id)
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
-WHERE ues.course_instance_id = $1
+WHERE ues.course_id = $1
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
   AND ues.deleted_at IS NULL
@@ -309,12 +307,12 @@ GROUP BY chapters.course_module_id;
     Ok(res)
 }
 
-pub async fn get_user_course_instance_metrics_indexed_by_module_id(
+pub async fn get_user_course_metrics_indexed_by_module_id(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<HashMap<Uuid, UserCourseInstanceMetrics>> {
-    let res = get_user_course_instance_metrics(conn, course_id, user_id)
+) -> ModelResult<HashMap<Uuid, UserCourseMetrics>> {
+    let res = get_user_course_metrics(conn, course_id, user_id)
         .await?
         .into_iter()
         .map(|x| (x.course_module_id, x))
@@ -322,9 +320,9 @@ pub async fn get_user_course_instance_metrics_indexed_by_module_id(
     Ok(res)
 }
 
-pub async fn get_user_course_instance_chapter_metrics(
+pub async fn get_user_course_chapter_metrics(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     exercise_ids: &[Uuid],
     user_id: Uuid,
 ) -> ModelResult<UserChapterMetrics> {
@@ -340,29 +338,25 @@ WHERE ues.exercise_id IN (
   AND ues.deleted_at IS NULL
   AND ues.activity_progress IN ('completed', 'submitted')
   AND ues.user_id = $2
-  AND ues.course_instance_id = $3;
+  AND ues.course_id = $3;
                 "#,
         &exercise_ids,
         user_id,
-        course_instance_id
+        course_id
     )
     .fetch_one(conn)
     .await?;
     Ok(res)
 }
 
-pub async fn get_user_course_instance_progress(
+pub async fn get_user_course_progress(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     user_id: Uuid,
-) -> ModelResult<Vec<UserCourseInstanceProgress>> {
-    let course_metrics =
-        get_course_instance_metrics_indexed_by_module_id(&mut *conn, course_instance_id).await?;
+) -> ModelResult<Vec<UserCourseProgress>> {
+    let course_metrics = get_course_metrics_indexed_by_module_id(&mut *conn, course_id).await?;
     let user_metrics =
-        get_user_course_instance_metrics_indexed_by_module_id(conn, course_id, user_id).await?;
-    let course_id = course_instances::get_course_instance(conn, course_instance_id)
-        .await?
-        .course_id;
+        get_user_course_metrics_indexed_by_module_id(conn, course_id, user_id).await?;
     let course_name = courses::get_course(conn, course_id).await?.name;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     merge_modules_with_metrics(course_modules, &course_metrics, &user_metrics, &course_name)
@@ -395,17 +389,17 @@ WHERE user_id = $2
 
 fn merge_modules_with_metrics(
     course_modules: Vec<CourseModule>,
-    course_metrics_by_course_module_id: &HashMap<Uuid, CourseInstanceExerciseMetrics>,
-    user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseInstanceMetrics>,
+    course_metrics_by_course_module_id: &HashMap<Uuid, CourseExerciseMetrics>,
+    user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseMetrics>,
     default_course_module_name_placeholder: &str,
-) -> ModelResult<Vec<UserCourseInstanceProgress>> {
+) -> ModelResult<Vec<UserCourseProgress>> {
     course_modules
         .into_iter()
         .map(|course_module| {
             let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
             let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
             let requirements = course_module.completion_policy.automatic();
-            let progress = UserCourseInstanceProgress {
+            let progress = UserCourseProgress {
                 course_module_id: course_module.id,
                 // Only default course module doesn't have a name.
                 course_module_name: course_module
@@ -436,14 +430,14 @@ fn merge_modules_with_metrics(
         .collect::<ModelResult<_>>()
 }
 
-pub async fn get_user_course_instance_chapter_exercises_progress(
+pub async fn get_user_course_chapter_exercises_progress(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     exercise_ids: &[Uuid],
     user_id: Uuid,
-) -> ModelResult<Vec<DatabaseUserCourseInstanceChapterExerciseProgress>> {
+) -> ModelResult<Vec<DatabaseUserCourseChapterExerciseProgress>> {
     let res = sqlx::query_as!(
-        DatabaseUserCourseInstanceChapterExerciseProgress,
+        DatabaseUserCourseChapterExerciseProgress,
         r#"
 SELECT COALESCE(ues.score_given, 0) AS score_given,
   ues.exercise_id AS exercise_id
@@ -452,7 +446,7 @@ WHERE ues.deleted_at IS NULL
   AND ues.exercise_id IN (
     SELECT UNNEST($1::uuid [])
   )
-  AND ues.course_instance_id = $2
+  AND ues.course_id = $2
   AND ues.user_id = $3;
         "#,
         exercise_ids,
@@ -468,7 +462,7 @@ pub async fn get_or_create_user_exercise_state(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Option<Uuid>,
+    course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
 ) -> ModelResult<UserExerciseState> {
     let existing = sqlx::query_as!(
@@ -490,7 +484,7 @@ SELECT id,
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND (course_instance_id = $3 OR exam_id = $4)
+  AND (course_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
 "#,
         user_id,
@@ -538,7 +532,7 @@ pub async fn get_or_create_user_exercise_state_for_users(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
     exercise_id: Uuid,
-    course_instance_id: Option<Uuid>,
+    course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
 ) -> ModelResult<HashMap<Uuid, UserExerciseState>> {
     let existing = sqlx::query_as!(
@@ -562,7 +556,7 @@ WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
   )
   AND exercise_id = $2
-  AND (course_instance_id = $3 OR exam_id = $4)
+  AND (course_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
 "#,
         user_ids,
@@ -715,7 +709,7 @@ SELECT id,
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND (course_instance_id = $3 OR exam_id = $4)
+  AND (course_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
       "#,
         user_id,
@@ -728,7 +722,7 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn get_all_for_user_and_course_instance_or_exam(
+pub async fn get_all_for_user_and_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_or_exam_id: CourseOrExamId,
@@ -752,7 +746,7 @@ SELECT id,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE user_id = $1
-  AND (course_instance_id = $2 OR exam_id = $3)
+  AND (course_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
       "#,
         user_id,
@@ -768,7 +762,7 @@ pub async fn upsert_selected_exercise_slide_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Option<Uuid>,
+    course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
     selected_exercise_slide_id: Option<Uuid>,
 ) -> ModelResult<()> {
@@ -778,7 +772,7 @@ SELECT
 FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
-  AND (course_instance_id = $3 OR exam_id = $4)
+  AND (course_id = $3 OR exam_id = $4)
   AND deleted_at IS NULL
 ",
         user_id,
@@ -795,7 +789,7 @@ UPDATE user_exercise_states
 SET selected_exercise_slide_id = $4
 WHERE user_id = $1
   AND exercise_id = $2
-  AND (course_instance_id = $3 OR exam_id = $5)
+  AND (course_id = $3 OR exam_id = $5)
   AND deleted_at IS NULL
     ",
             user_id,
@@ -884,7 +878,7 @@ pub async fn update_reviewing_stage(
 UPDATE user_exercise_states
 SET reviewing_stage = $5
 WHERE user_id = $1
-AND (course_instance_id = $2 OR exam_id = $3)
+AND (course_id = $2 OR exam_id = $3)
 AND exercise_id = $4
 RETURNING id,
   user_id,
@@ -949,8 +943,7 @@ RETURNING id,
 /// Convenience struct that combines user state to the exercise.
 ///
 /// Many operations require information about both the user state and the exercise. However, because
-/// exercises can either belong to a course or an exam, and each course instance will have their
-/// own `UserExerciseState`, it can get difficult to track the proper context.
+/// exercises can either belong to a course or an exam it can get difficult to track the proper context.
 pub struct ExerciseWithUserState {
     exercise: Exercise,
     user_exercise_state: UserExerciseState,
@@ -1050,13 +1043,13 @@ impl EwusCourseOrExam {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct CourseInstanceUserPoints {
+pub struct CourseUserPoints {
     pub user_id: Uuid,
-    pub points_for_each_chapter: Vec<CourseInstanceUserPointsInner>,
+    pub points_for_each_chapter: Vec<CourseUserPointsInner>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct CourseInstanceUserPointsInner {
+pub struct CourseUserPointsInner {
     pub chapter_number: i32,
     pub points_for_chapter: f32,
 }
@@ -1074,10 +1067,10 @@ pub struct ExamUserPointsInner {
     pub score_given: f32,
 }
 
-pub fn stream_course_instance_points(
+pub fn stream_course_points(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
-) -> impl Stream<Item = sqlx::Result<CourseInstanceUserPoints>> + '_ {
+    course_id: Uuid,
+) -> impl Stream<Item = sqlx::Result<CourseUserPoints>> + '_ {
     sqlx::query!(
         "
 SELECT user_id,
@@ -1092,7 +1085,7 @@ FROM (
       JOIN user_details ud ON ud.user_id = u.id
       JOIN exercises e ON e.id = ues.exercise_id
       JOIN chapters c on e.chapter_id = c.id
-    WHERE ues.course_instance_id = $1
+    WHERE ues.course_id = $1
       AND ues.deleted_at IS NULL
       AND c.deleted_at IS NULL
       AND u.deleted_at IS NULL
@@ -1104,13 +1097,13 @@ FROM (
 GROUP BY user_id
 
 ",
-        course_instance_id
+        course_id
     )
     .try_map(|i| {
         let user_id = i.user_id;
         let points_for_each_chapter = i.points_for_each_chapter.unwrap_or(Value::Null);
         serde_json::from_value(points_for_each_chapter)
-            .map(|points_for_each_chapter| CourseInstanceUserPoints {
+            .map(|points_for_each_chapter| CourseUserPoints {
                 user_id,
                 points_for_each_chapter,
             })
@@ -1215,7 +1208,7 @@ pub struct ExportedUserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
     pub exercise_id: Uuid,
-    pub course_instance_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub score_given: Option<f32>,
@@ -1227,7 +1220,7 @@ pub struct ExportedUserExerciseState {
 
 pub fn stream_user_exercise_states_for_course<'a>(
     conn: &'a mut PgConnection,
-    course_instance_ids: &'a [Uuid],
+    course_ids: &'a [Uuid],
 ) -> impl Stream<Item = sqlx::Result<ExportedUserExerciseState>> + 'a {
     let res = sqlx::query_as!(
         ExportedUserExerciseState,
@@ -1244,10 +1237,10 @@ SELECT id,
   reviewing_stage AS "reviewing_stage: _",
   selected_exercise_slide_id
 FROM user_exercise_states
-WHERE course_instance_id = ANY($1)
+WHERE course_id = ANY($1)
   AND deleted_at IS NULL
         "#,
-        course_instance_ids
+        course_ids
     )
     .fetch(conn);
     res
@@ -1260,14 +1253,13 @@ mod tests {
     use super::*;
     use crate::test_helper::*;
 
-    mod getting_single_module_course_instance_metrics {
+    mod getting_single_module_course_metrics {
         use super::*;
 
         #[tokio::test]
         async fn works_without_any_user_exercise_states() {
-            insert_data!(:tx, :user, :org, :course, :instance, :course_module);
-            let res =
-                get_single_module_metrics(tx.as_mut(), instance.id, course_module.id, user).await;
+            insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+            let res = get_single_module_metrics(tx.as_mut(), course, course_module.id, user).await;
             assert!(res.is_ok())
         }
     }
@@ -1284,7 +1276,7 @@ mod tests {
         .set_registration_info(None, Some(5.0), None, false)];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,
-            CourseInstanceExerciseMetrics {
+            CourseExerciseMetrics {
                 course_module_id: module_id,
                 total_exercises: Some(4),
                 score_maximum: Some(10),
@@ -1292,7 +1284,7 @@ mod tests {
         )]);
         let user_metrics_by_course_module_id = HashMap::from([(
             module_id,
-            UserCourseInstanceMetrics {
+            UserCourseMetrics {
                 course_module_id: module_id,
                 score_given: Some(1.0),
                 attempted_exercises: Some(3),

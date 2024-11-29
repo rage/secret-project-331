@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT user_id,\n  to_jsonb(array_agg(to_jsonb(uue) - 'email' - 'user_id')) AS points_for_each_chapter\nFROM (\n    SELECT ud.email,\n      u.id AS user_id,\n      c.chapter_number,\n      COALESCE(SUM(ues.score_given), 0) AS points_for_chapter\n    FROM user_exercise_states ues\n      JOIN users u ON u.id = ues.user_id\n      JOIN user_details ud ON ud.user_id = u.id\n      JOIN exercises e ON e.id = ues.exercise_id\n      JOIN chapters c on e.chapter_id = c.id\n    WHERE ues.course_id = $1\n      AND ues.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n      AND u.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n    GROUP BY ud.email,\n      u.id,\n      c.chapter_number\n  ) as uue\nGROUP BY user_id\n\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "points_for_each_chapter",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid"]
+    },
+    "nullable": [false, null]
+  },
+  "hash": "45930183ef1acaee901ebb127849da11861720411b3306c86ecc28ed48714cff"
+}

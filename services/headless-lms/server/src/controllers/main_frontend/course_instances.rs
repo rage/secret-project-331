@@ -15,7 +15,7 @@ use models::{
             TeacherManualCompletionRequest,
         },
     },
-    user_exercise_states::UserCourseInstanceProgress,
+    user_exercise_states::UserCourseProgress,
 };
 
 use crate::{
@@ -400,7 +400,7 @@ async fn get_user_progress_for_course_instance(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<UserCourseInstanceProgress>>> {
+) -> ControllerResult<web::Json<Vec<UserCourseProgress>>> {
     let (course_instance_id, user_id) = params.into_inner();
     let mut conn = pool.acquire().await?;
     let token = authorize(

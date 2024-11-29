@@ -8,7 +8,7 @@ use models::{
     course_instance_enrollments::CourseInstanceEnrollment,
     course_module_completions::CourseModuleCompletion,
     library::progressing::UserModuleCompletionStatus,
-    user_exercise_states::{UserCourseInstanceChapterExerciseProgress, UserCourseInstanceProgress},
+    user_exercise_states::{UserCourseChapterExerciseProgress, UserCourseProgress},
 };
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
@@ -21,7 +21,7 @@ async fn get_user_progress_for_course_instance(
     user: AuthUser,
     course_instance_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<UserCourseInstanceProgress>>> {
+) -> ControllerResult<web::Json<Vec<UserCourseProgress>>> {
     let mut conn = pool.acquire().await?;
     let user_course_instance_progress =
         models::user_exercise_states::get_user_course_instance_progress(
@@ -65,7 +65,7 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
     params: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<UserCourseInstanceChapterExerciseProgress>>> {
+) -> ControllerResult<web::Json<Vec<UserCourseChapterExerciseProgress>>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
     let chapter_exercises =
@@ -80,10 +80,10 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
             user.id,
         )
         .await?;
-    let rounded_score_given_instances: Vec<UserCourseInstanceChapterExerciseProgress> =
+    let rounded_score_given_instances: Vec<UserCourseChapterExerciseProgress> =
         user_course_instance_exercise_progress
             .into_iter()
-            .map(|i| UserCourseInstanceChapterExerciseProgress {
+            .map(|i| UserCourseChapterExerciseProgress {
                 score_given: option_f32_to_f32_two_decimals_with_none_as_zero(i.score_given),
                 exercise_id: i.exercise_id,
             })

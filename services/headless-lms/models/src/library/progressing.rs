@@ -702,27 +702,22 @@ pub struct UserModuleCompletionStatus {
 }
 
 /// Gets course modules with user's completion status for the given instance.
-pub async fn get_user_module_completion_statuses_for_course_instance(
+pub async fn get_user_module_completion_statuses_for_course(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<UserModuleCompletionStatus>> {
-    let course_id = course_instances::get_course_id(conn, course_instance_id).await?;
     let course = courses::get_course(conn, course_id).await?;
     let course_modules = course_modules::get_by_course_id(conn, course_id).await?;
     let course_module_ids = course_modules.iter().map(|x| x.id).collect::<Vec<_>>();
     let course_module_completions: HashMap<Uuid, CourseModuleCompletion> =
-        course_module_completions::get_all_by_course_instance_and_user_id(
-            conn,
-            course_instance_id,
-            user_id,
-        )
-        .await?
-        .into_iter()
-        .map(|x| (x.course_module_id, x))
-        .collect();
+        course_module_completions::get_all_by_course_and_user_id(conn, course_id, user_id)
+            .await?
+            .into_iter()
+            .map(|x| (x.course_module_id, x))
+            .collect();
 
-    let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course_instance(conn, course_instance_id).await?;
+    let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
     let all_certifcate_configurations_requiring_only_one_module_and_no_course_instance = crate::certificate_configurations::get_all_certifcate_configurations_requiring_only_one_module_and_no_course_instance(conn, &course_module_ids).await?;
 
     let course_module_completion_statuses = course_modules
@@ -869,23 +864,19 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_default_module() {
             insert_data!(:tx);
-            let (mut tx, user, instance, default_module, _submodule_1, _submodule_2) =
+            let (mut tx, user, course, instance, default_module, _submodule_1, _submodule_2) =
                 create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &default_module,
-                instance,
                 user,
             )
             .await
             .unwrap();
-            let statuses = get_user_module_completion_statuses_for_course_instance(
-                tx.as_mut(),
-                user,
-                instance,
-            )
-            .await
-            .unwrap();
+            let statuses =
+                get_user_module_completion_statuses_for_course(tx.as_mut(), user, course)
+                    .await
+                    .unwrap();
             let status = statuses
                 .iter()
                 .find(|x| x.module_id == default_module.id)
@@ -897,23 +888,19 @@ mod tests {
         #[tokio::test]
         async fn grants_automatic_completion_but_no_prerequisite_for_submodule() {
             insert_data!(:tx);
-            let (mut tx, user, instance, _default_module, submodule_1, _submodule_2) =
+            let (mut tx, user, course, instance, _default_module, submodule_1, _submodule_2) =
                 create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &submodule_1,
-                instance,
                 user,
             )
             .await
             .unwrap();
-            let statuses = get_user_module_completion_statuses_for_course_instance(
-                tx.as_mut(),
-                user,
-                instance,
-            )
-            .await
-            .unwrap();
+            let statuses =
+                get_user_module_completion_statuses_for_course(tx.as_mut(), user, course)
+                    .await
+                    .unwrap();
             let status = statuses
                 .iter()
                 .find(|x| x.module_id == submodule_1.id)
@@ -926,12 +913,11 @@ mod tests {
         async fn grants_automatic_completion_for_eligible_submodule_when_completing_default_module()
         {
             insert_data!(:tx);
-            let (mut tx, user, instance, default_module, submodule_1, submodule_2) =
+            let (mut tx, user, course, instance, default_module, submodule_1, submodule_2) =
                 create_test_data(tx).await;
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &default_module,
-                instance,
                 user,
             )
             .await
@@ -939,7 +925,6 @@ mod tests {
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &submodule_1,
-                instance,
                 user,
             )
             .await
@@ -947,18 +932,14 @@ mod tests {
             update_automatic_completion_status_and_grant_if_eligible(
                 tx.as_mut(),
                 &submodule_2,
-                instance,
                 user,
             )
             .await
             .unwrap();
-            let statuses = get_user_module_completion_statuses_for_course_instance(
-                tx.as_mut(),
-                user,
-                instance,
-            )
-            .await
-            .unwrap();
+            let statuses =
+                get_user_module_completion_statuses_for_course(tx.as_mut(), user, course)
+                    .await
+                    .unwrap();
             statuses.iter().for_each(|x| {
                 assert!(x.completed);
                 assert!(x.prerequisite_modules_completed);
@@ -967,7 +948,15 @@ mod tests {
 
         async fn create_test_data(
             mut tx: Tx<'_>,
-        ) -> (Tx<'_>, Uuid, Uuid, CourseModule, CourseModule, CourseModule) {
+        ) -> (
+            Tx<'_>,
+            Uuid,
+            Uuid,
+            Uuid,
+            CourseModule,
+            CourseModule,
+            CourseModule,
+        ) {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
             let automatic_completion_policy =
                 CompletionPolicy::Automatic(AutomaticCompletionRequirements {
@@ -1086,6 +1075,7 @@ mod tests {
             (
                 tx,
                 user,
+                course,
                 instance.id,
                 default_module,
                 course_module,
@@ -1128,7 +1118,6 @@ mod tests {
             PKeyPolicy::Generate,
             &NewCourseModuleCompletion {
                 course_id: course,
-                course_instance_id: instance.id,
                 course_module_id: course_module.id,
                 user_id: user,
                 completion_date: Utc::now() + Duration::days(1),
@@ -1146,14 +1135,9 @@ mod tests {
         suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(259200), 10)
             .await
             .unwrap();
-        update_automatic_completion_status_and_grant_if_eligible(
-            tx.as_mut(),
-            &course_module,
-            instance.id,
-            user,
-        )
-        .await
-        .unwrap();
+        update_automatic_completion_status_and_grant_if_eligible(tx.as_mut(), &course_module, user)
+            .await
+            .unwrap();
 
         let cheaters =
             suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
@@ -1196,7 +1180,6 @@ mod tests {
             PKeyPolicy::Generate,
             &NewCourseModuleCompletion {
                 course_id: course,
-                course_instance_id: instance.id,
                 course_module_id: course_module.id,
                 user_id: user,
                 completion_date: Utc::now() + Duration::days(3),
@@ -1214,14 +1197,9 @@ mod tests {
         suspected_cheaters::insert_thresholds(tx.as_mut(), course, Some(172800), 10)
             .await
             .unwrap();
-        update_automatic_completion_status_and_grant_if_eligible(
-            tx.as_mut(),
-            &course_module,
-            instance.id,
-            user,
-        )
-        .await
-        .unwrap();
+        update_automatic_completion_status_and_grant_if_eligible(tx.as_mut(), &course_module, user)
+            .await
+            .unwrap();
 
         let cheaters =
             suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)

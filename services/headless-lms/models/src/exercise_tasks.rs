@@ -154,7 +154,10 @@ WHERE id = (
     )
     .fetch_one(conn)
     .await?;
-    CourseOrExamId::from(res.course_id, res.exam_id)
+    Ok(CourseOrExamId::from_course_and_exam_ids(
+        res.course_id,
+        res.exam_id,
+    )?)
 }
 
 pub async fn get_exercise_task_by_id(
@@ -293,18 +296,18 @@ WHERE exercise_slide_id = ANY($1)
 }
 
 // TODO: Move most of this to exercise_slides
-pub async fn get_existing_users_exercise_slide_for_course_instance(
+pub async fn get_existing_users_exercise_slide_for_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Uuid,
+    course_id: Uuid,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Option<CourseMaterialExerciseSlide>> {
     let user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
         conn,
         user_id,
         exercise_id,
-        CourseOrExamId::Instance(course_instance_id),
+        CourseOrExamId::Course(course_id),
     )
     .await?;
     let exercise_tasks = if let Some(user_exercise_state) = user_exercise_state {

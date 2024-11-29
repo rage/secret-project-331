@@ -333,7 +333,7 @@ pub async fn grade_submission(
     let mut tx = conn.begin().await?;
     let updated_grading =
         update_grading(&mut tx, grading, &exercise_task_grading_result, exercise).await?;
-    crate::user_course_instance_exercise_service_variables::insert_after_exercise_task_graded(
+    crate::user_course_exercise_service_variables::insert_after_exercise_task_graded(
         &mut tx,
         &exercise_task_grading_result.set_user_variables,
         exercise_task,

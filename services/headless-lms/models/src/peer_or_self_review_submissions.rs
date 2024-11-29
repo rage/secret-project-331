@@ -115,7 +115,7 @@ WHERE user_id = $1
     Ok(res)
 }
 
-pub async fn get_all_received_peer_or_self_review_submissions_for_user_and_course_instance(
+pub async fn get_all_received_peer_or_self_review_submissions_for_user_and_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -139,7 +139,7 @@ WHERE ess.user_id = $1
     Ok(res)
 }
 
-pub async fn get_all_given_peer_or_self_review_submissions_for_user_and_course_instance(
+pub async fn get_all_given_peer_or_self_review_submissions_for_user_and_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,

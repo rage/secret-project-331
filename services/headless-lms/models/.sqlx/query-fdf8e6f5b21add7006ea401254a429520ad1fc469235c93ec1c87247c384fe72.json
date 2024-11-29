@@ -1,0 +1,120 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE user_id = $1\n  AND (course_id = $2 OR exam_id = $3)\n  AND deleted_at IS NULL\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "exam_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "score_given",
+        "type_info": "Float4"
+      },
+      {
+        "ordinal": 9,
+        "name": "grading_progress: _",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": ["fully-graded", "pending", "pending-manual", "failed", "not-ready"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "activity_progress: _",
+        "type_info": {
+          "Custom": {
+            "name": "activity_progress",
+            "kind": {
+              "Enum": ["initialized", "started", "in-progress", "submitted", "completed"]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "reviewing_stage: _",
+        "type_info": {
+          "Custom": {
+            "name": "reviewing_stage",
+            "kind": {
+              "Enum": [
+                "not_started",
+                "peer_review",
+                "self_review",
+                "waiting_for_peer_reviews",
+                "waiting_for_manual_grading",
+                "reviewed_and_locked"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "selected_exercise_slide_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "fdf8e6f5b21add7006ea401254a429520ad1fc469235c93ec1c87247c384fe72"
+}

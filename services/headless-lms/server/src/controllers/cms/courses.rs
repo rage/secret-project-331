@@ -5,6 +5,7 @@ use crate::prelude::*;
 use models::{
     course_instances::CourseInstance,
     pages::{Page, PageVisibility},
+    partner_block::PartnersBlock,
     peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfiguration},
     peer_or_self_review_questions::normalize_cms_peer_or_self_review_questions,
 };
@@ -235,6 +236,81 @@ async fn get_course_instances(
 }
 
 /**
+ POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
+*/
+#[instrument(skip(payload, pool))]
+async fn post_partners_block(
+    path: web::Path<Uuid>,
+    payload: web::Json<Option<serde_json::Value>>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<()>> {
+    let course_id = path.into_inner();
+
+    let content = payload.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    models::partner_block::upsert_partner_block(&mut conn, course_id, content).await?;
+
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
+*/
+#[instrument(skip(pool))]
+async fn get_partners_block(
+    path: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<PartnersBlock>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    // Check if the course exists in the partners_blocks table
+    let course_exists = models::partner_block::check_if_course_exists(&mut conn, course_id).await?;
+
+    let partner_block = if course_exists {
+        // If the course exists, fetch the partner block
+        models::partner_block::get_partner_block(&mut conn, course_id).await?
+    } else {
+        // If the course does not exist, create a new partner block with an empty content array
+        let empty_content: Option<serde_json::Value> = Some(serde_json::Value::Array(vec![]));
+
+        // Upsert the partner block with the empty content
+        models::partner_block::upsert_partner_block(&mut conn, course_id, empty_content).await?
+    };
+
+    token.authorized_ok(web::Json(partner_block))
+}
+
+/**
+DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
+*/
+#[instrument(skip(pool))]
+async fn delete_partners_block(
+    path: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PartnersBlock>> {
+    let course_id = path.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::UsuallyUnacceptableDeletion,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+    let deleted_partners_block =
+        models::partner_block::delete_partner_block(&mut conn, course_id).await?;
+
+    token.authorized_ok(web::Json(deleted_partners_block))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -263,6 +339,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/research-consent-form",
             web::put().to(upsert_course_research_form),
+        )
+        .route(
+            "/{course_id}/partners-block",
+            web::post().to(post_partners_block),
+        )
+        .route(
+            "/{course_id}/partners-block",
+            web::get().to(get_partners_block),
+        )
+        .route(
+            "/{course_id}/partners-block",
+            web::delete().to(delete_partners_block),
         )
         .route("/{course_id}/modules", web::get().to(get_course_modules))
         .route(

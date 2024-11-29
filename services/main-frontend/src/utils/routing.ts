@@ -12,6 +12,10 @@ export function manageCourseInstanceEmailsPageRoute(courseInstanceId: string) {
   return `/manage/course-instances/${courseInstanceId}/emails`
 }
 
+export function managePartnersBlockPageRoute(courseId: string) {
+  return `/manage/courses/${courseId}/partners-block`
+}
+
 export function manageCourseInstancePermissionsPageRoute(courseInstanceId: string) {
   return `/manage/course-instances/${courseInstanceId}/permissions`
 }

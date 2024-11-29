@@ -34,6 +34,7 @@ import {
   PageNavigationInformation,
   PageSearchResult,
   PageWithExercises,
+  PartnersBlock,
   PeerOrSelfReviewsReceived,
   ResearchForm,
   ResearchFormQuestion,
@@ -75,6 +76,7 @@ import {
   isPageNavigationInformation,
   isPageSearchResult,
   isPageWithExercises,
+  isPartnersBlock,
   isPeerOrSelfReviewsReceived,
   isResearchForm,
   isResearchFormQuestion,
@@ -742,4 +744,9 @@ export const getCodeGiveawayStatus = async (id: string): Promise<CodeGiveawaySta
 export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => {
   const response = await courseMaterialClient.post(`/code-giveaways/${id}/claim`)
   return validateResponse(response, isString)
+}
+
+export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/partners-block`)
+  return validateResponse(response, isPartnersBlock)
 }

@@ -10,10 +10,13 @@ import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import {
   Block,
+  fetchCourseInstance,
   fetchGlossary,
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
+  fetchUserChapterInstanceChapterProgress,
+  fetchUserCourseInstanceChapterExercisesProgress,
   getChatbotConfigurationForCourse,
 } from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"
@@ -115,6 +118,24 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     queryFn: () => getChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
     enabled: loginContext.signedIn === true && Boolean(courseId),
   })
+
+  const courseInstanceId = pageContext.instance?.id
+  const chapterId = pageContext.pageData?.chapter_id
+
+  const getUserChapterProgress = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
+    queryFn: () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
+  })
+
+  const chapterProgress =
+    getUserChapterProgress.isSuccess && getUserChapterProgress.data
+      ? {
+          maxScore: getUserChapterProgress.data.score_maximum,
+          givenScore: getUserChapterProgress.data.score_given,
+          attemptedExercises: getUserChapterProgress.data.attempted_exercises,
+          totalExercises: getUserChapterProgress.data.total_exercises,
+        }
+      : ""
 
   useEffect(() => {
     if (
@@ -252,7 +273,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             />
           </div>
         </div>
-        {pageContext.pageData?.chapter_id && <NavigationContainer />}
+        {pageContext.pageData?.chapter_id && (
+          <NavigationContainer chapterProgress={chapterProgress} />
+        )}
         {pageContext.pageData?.course_id && (
           <ReferenceList courseId={pageContext.pageData.course_id} />
         )}

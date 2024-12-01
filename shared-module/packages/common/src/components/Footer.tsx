@@ -142,10 +142,13 @@ export interface Props extends FooterProps {
 export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
 const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> = ({
-  privacyLink: { linkTitle, linkUrl },
+  privacyLink = null,
 }) => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
+  const defaultLink = useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN
+  const linkTitle = privacyLink?.linkTitle || t("privacy")
+  const linkUrl = privacyLink?.linkUrl || defaultLink
   return (
     <footer
       role="contentinfo"
@@ -169,14 +172,7 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
             </p>
           </Text>
           <Links>
-            {linkTitle ? (
-              <StyledLink href={linkUrl}>{linkTitle}</StyledLink>
-            ) : (
-              <StyledLink href={useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN}>
-                {t("privacy")}
-              </StyledLink>
-            )}
-            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink> */}
+            <StyledLink href={linkUrl}>{linkTitle}</StyledLink>
           </Links>
           <div
             className={css`

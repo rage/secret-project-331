@@ -20,6 +20,12 @@ export interface NextPageProps {
   currentPageId: string
   courseSlug: string
   organizationSlug: string
+  chapterProgress: {
+    maxScore: string
+    givenScore: string
+    attemptedExercises: string
+    totalExercises: string
+  }
 }
 
 const NUMERIC = "numeric"
@@ -30,6 +36,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   currentPageId,
   organizationSlug,
   courseSlug,
+  chapterProgress,
 }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
@@ -73,7 +80,13 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
 
   return (
     // Chapter exists, but next chapter not open yet.
-    <NextSectionLink {...nextPageProps} />
+    <>
+      <span>
+        {chapterProgress.attemptedExercises} / {chapterProgress.totalExercises} ...
+        {chapterProgress.givenScore}/{chapterProgress.maxScore}
+      </span>
+      <NextSectionLink {...nextPageProps} />
+    </>
   )
 }
 

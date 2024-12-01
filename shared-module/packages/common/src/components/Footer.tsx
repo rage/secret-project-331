@@ -132,9 +132,18 @@ const LogoA = styled.a`
   }
 `
 
+export interface Props extends FooterProps {
+  privacyLink: {
+    linkTitle?: string
+    linkUrl?: string
+  }
+}
+
 export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
-const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterProps>>> = () => {
+const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> = ({
+  privacyLink: { linkTitle, linkUrl },
+}) => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
   return (
@@ -160,9 +169,13 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
             </p>
           </Text>
           <Links>
-            <StyledLink href={useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN}>
-              {t("privacy")}
-            </StyledLink>
+            {linkTitle ? (
+              <StyledLink href={linkUrl}>{linkTitle}</StyledLink>
+            ) : (
+              <StyledLink href={useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN}>
+                {t("privacy")}
+              </StyledLink>
+            )}
             {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink> */}
           </Links>
           <div

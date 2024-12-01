@@ -1930,6 +1930,16 @@ export interface User {
   email_domain: string | null
 }
 
+export interface PrivacyLink {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  link_title: string
+  link_url: string
+  course_id: string
+}
+
 export interface PartnersBlock {
   id: string
   created_at: string

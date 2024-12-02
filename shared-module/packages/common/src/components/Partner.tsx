@@ -83,9 +83,9 @@ interface StyledSponsor {
   width?: string
 }
 
-export type SponsorProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps
+export type PartnerProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps
 
-const Sponsor: React.FC<React.PropsWithChildren<React.PropsWithChildren<SponsorProps>>> = ({
+const Partner: React.FC<React.PropsWithChildren<React.PropsWithChildren<PartnerProps>>> = ({
   width = "250px",
   logos,
 }) => {
@@ -107,4 +107,4 @@ const Sponsor: React.FC<React.PropsWithChildren<React.PropsWithChildren<SponsorP
   )
 }
 
-export default Sponsor
+export default Partner

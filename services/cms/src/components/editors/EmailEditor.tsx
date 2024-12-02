@@ -12,6 +12,7 @@ import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
 import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 
 interface EmailEditorProps {
@@ -46,6 +47,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
   const [subject, setSubject] = useState(data.subject ?? "")
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleOnSave = async () => {
     setSaving(true)
@@ -60,6 +62,8 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       setContent(res.content as BlockInstance[])
       setName(res.name)
       setError(null)
+      // eslint-disable-next-line i18next/no-literal-string
+      setSuccessMessage("Content saved successfully!")
       setSubject(res.subject ?? "")
     } catch (e: unknown) {
       if (!(e instanceof Error)) {
@@ -99,6 +103,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
           setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
         />
       )}
+      {successMessage && <SuccessNotification />}
     </>
   )
 }

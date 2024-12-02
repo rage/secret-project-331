@@ -81,10 +81,12 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   return (
     // Chapter exists, but next chapter not open yet.
     <>
-      <span>
-        {chapterProgress.attemptedExercises} / {chapterProgress.totalExercises} ...
-        {chapterProgress.givenScore}/{chapterProgress.maxScore}
-      </span>
+      {getPageRoutingData.data.next_page?.chapter_id !== chapterId && (
+        <span>
+          {chapterProgress.attemptedExercises} / {chapterProgress.totalExercises} ...
+          {chapterProgress.givenScore}/{chapterProgress.maxScore}
+        </span>
+      )}
       <NextSectionLink {...nextPageProps} />
     </>
   )

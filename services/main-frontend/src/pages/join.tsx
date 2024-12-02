@@ -10,8 +10,10 @@ import {
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   const { t } = useTranslation()
@@ -83,4 +85,4 @@ const JoinCoursePage: React.FC<React.PropsWithChildren<unknown>> = () => {
   )
 }
 
-export default JoinCoursePage
+export default withErrorBoundary(withSignedIn(JoinCoursePage))

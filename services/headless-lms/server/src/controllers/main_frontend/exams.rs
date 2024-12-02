@@ -1,6 +1,11 @@
+use std::collections::HashMap;
+
 use futures::future;
 
 use chrono::Utc;
+use headless_lms_models::{
+    exercise_slide_submissions::ExerciseSlideSubmission, user_exercise_states::UserExerciseState,
+};
 use models::{
     course_exams,
     exams::{self, Exam, NewExam},
@@ -283,35 +288,59 @@ async fn get_exercises_with_exam_id(
 }
 
 /**
-POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false.
+POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false. Takes teacher grading decision ids as input.
  */
 #[instrument(skip(pool))]
 async fn release_grades(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
     user: AuthUser,
-    payload: web::Json<Vec<ExerciseSlideSubmissionAndUserExerciseState>>,
+    payload: web::Json<Vec<Uuid>>,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
 
-    let exercise_slide_submissions_and_user_exercise_state_list = payload.0;
+    let teacher_grading_decision_ids = payload.0;
 
-    for submission in exercise_slide_submissions_and_user_exercise_state_list.into_iter() {
-        if submission.teacher_grading_decision.is_some() {
-            user_exercise_state_updater::update_user_exercise_state(
-                &mut conn,
-                submission.user_exercise_state.id,
-            )
+    let teacher_grading_decisions =
+        models::teacher_grading_decisions::get_by_ids(&mut conn, &teacher_grading_decision_ids)
             .await?;
-            teacher_grading_decisions::update_teacher_grading_decision_hidden_field(
-                &mut conn,
-                submission.teacher_grading_decision.unwrap().id,
-                false,
-            )
+
+    let user_exercise_state_mapping = models::user_exercise_states::get_by_ids(
+        &mut conn,
+        &teacher_grading_decisions
+            .iter()
+            .map(|x| x.user_exercise_state_id)
+            .collect::<Vec<Uuid>>(),
+    )
+    .await?
+    .into_iter()
+    .map(|x| (x.id, x))
+    .collect::<HashMap<Uuid, UserExerciseState>>();
+
+    let mut tx = conn.begin().await?;
+    for teacher_grading_decision in teacher_grading_decisions.iter() {
+        let user_exercise_state = user_exercise_state_mapping
+            .get(&teacher_grading_decision.user_exercise_state_id)
+            .ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::InternalServerError,
+                    "User exercise state not found for a teacher grading decision",
+                    None,
+                )
+            })?;
+
+        teacher_grading_decisions::update_teacher_grading_decision_hidden_field(
+            &mut tx,
+            teacher_grading_decision.id,
+            false,
+        )
+        .await?;
+        user_exercise_state_updater::update_user_exercise_state(&mut tx, user_exercise_state.id)
             .await?;
-        }
     }
+
+    tx.commit().await?;
 
     token.authorized_ok(web::Json(()))
 }

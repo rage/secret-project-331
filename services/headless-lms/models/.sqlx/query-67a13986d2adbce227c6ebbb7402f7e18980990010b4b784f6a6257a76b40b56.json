@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE id = ANY($1)\n",
+  "query": "\nSELECT id,\n  user_id,\n  exercise_id,\n  course_instance_id,\n  exam_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  grading_progress AS \"grading_progress: _\",\n  activity_progress AS \"activity_progress: _\",\n  reviewing_stage AS \"reviewing_stage: _\",\n  selected_exercise_slide_id\nFROM user_exercise_states\nWHERE id = ANY($1)\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -116,5 +116,5 @@
       true
     ]
   },
-  "hash": "64749812d6f37a24c02dd98db9bdde37d63c7136d4248f9837c095f27adc8bfd"
+  "hash": "67a13986d2adbce227c6ebbb7402f7e18980990010b4b784f6a6257a76b40b56"
 }

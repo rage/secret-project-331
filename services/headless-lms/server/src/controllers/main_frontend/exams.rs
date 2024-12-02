@@ -328,6 +328,14 @@ async fn release_grades(
                 )
             })?;
 
+        if user_exercise_state.exam_id != Some(*exam_id) {
+            return Err(ControllerError::new(
+                ControllerErrorType::BadRequest,
+                "Teacher grading decision does not belong to the specified exam.",
+                None,
+            ));
+        }
+
         teacher_grading_decisions::update_teacher_grading_decision_hidden_field(
             &mut tx,
             teacher_grading_decision.id,

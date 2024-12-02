@@ -671,6 +671,7 @@ SELECT id,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE id = ANY($1)
+AND deleted_at IS NULL
 "#,
         &ids
     )

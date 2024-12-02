@@ -95,9 +95,6 @@ export const fetchExercisesWithExamId = async (examId: string): Promise<Array<Ex
   return validateResponse(response, isArray(isExercise))
 }
 
-export const releaseGrades = async (
-  examId: string,
-  submissions: Array<ExerciseSlideSubmissionAndUserExerciseState>,
-) => {
-  await mainFrontendClient.post(`/exams/${examId}/release-grades`, submissions)
+export const releaseGrades = async (examId: string, teacherGradingDecisionIds: string[]) => {
+  await mainFrontendClient.post(`/exams/${examId}/release-grades`, teacherGradingDecisionIds)
 }

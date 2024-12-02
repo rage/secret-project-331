@@ -64,6 +64,7 @@ import LearningObjectiveBlock from "./moocfi/LearningObjectiveBlock"
 import LogoLink from "./moocfi/LogoLink"
 import Map from "./moocfi/Map"
 import PagesInChapterBlock from "./moocfi/PagesInChapterBlock"
+import PartnersBlock from "./moocfi/PartnersBlock"
 import ResearchConsentQuestionBlock from "./moocfi/ResearchConsentQuestionBlock"
 import RevealableContentBlock from "./moocfi/RevealableContentBlock/RevealableContentBlock"
 import RevealableHiddenContentBlock from "./moocfi/RevealableContentBlock/RevealableHiddenContentBlock"
@@ -156,6 +157,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
   "moocfi/latex": LatexBlock,
   "moocfi/learning-objectives": LearningObjectiveBlock,
   "moocfi/pages-in-chapter": PagesInChapterBlock,
+  "moocfi/partners": PartnersBlock,
   "moocfi/highlightbox": HighlightBox,
   "moocfi/instructionbox": InstructionBoxBlock,
   "moocfi/tablebox": TableBox,

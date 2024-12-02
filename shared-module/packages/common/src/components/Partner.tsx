@@ -33,7 +33,7 @@ const Container = styled.div`
     margin: 6rem 0;
   }
 `
-const SponsorBox = styled.div`
+const PartnerBox = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
@@ -47,7 +47,7 @@ const SponsorBox = styled.div`
   }
 `
 // eslint-disable-next-line i18next/no-literal-string
-const SponsorLogo = styled.div<StyledSponsor>`
+const PartnerLogo = styled.div<StyledPartner>`
   width: ${({ width }) => (width ? width : "160px")};
   aspect-ratio: 2 / 1;
   font-size: 1.6rem;
@@ -75,17 +75,17 @@ interface Logo {
   }
 }
 
-export interface SponsorExtraProps {
+export interface PartnerExtraProps {
   logos: Logo[]
   width?: string
 }
-interface StyledSponsor {
+interface StyledPartner {
   width?: string
 }
 
-export type SponsorProps = React.HTMLAttributes<HTMLDivElement> & SponsorExtraProps
+export type PartnerProps = React.HTMLAttributes<HTMLDivElement> & PartnerExtraProps
 
-const Sponsor: React.FC<React.PropsWithChildren<React.PropsWithChildren<SponsorProps>>> = ({
+const Partner: React.FC<React.PropsWithChildren<React.PropsWithChildren<PartnerProps>>> = ({
   width = "250px",
   logos,
 }) => {
@@ -94,17 +94,17 @@ const Sponsor: React.FC<React.PropsWithChildren<React.PropsWithChildren<SponsorP
   return (
     <Container>
       <h2> {t("partners")} </h2>
-      <SponsorBox>
+      <PartnerBox>
         {logos.map(({ attributes, clientId }) => {
           return (
-            <SponsorLogo width={width} key={clientId}>
+            <PartnerLogo width={width} key={clientId}>
               <img src={attributes.url} alt={attributes.alt} />
-            </SponsorLogo>
+            </PartnerLogo>
           )
         })}
-      </SponsorBox>
+      </PartnerBox>
     </Container>
   )
 }
 
-export default Sponsor
+export default Partner

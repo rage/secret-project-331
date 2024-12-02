@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import React, { useMemo } from "react"
+import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -63,20 +63,19 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
     {} as Record<string, ExerciseSlideSubmissionAndUserExerciseState[]>,
   )
 
-  const handlePublishGradingResults = () => {
-    getAllSubmissions.refetch()
-    generateSubs()
-    publishMutation.mutate({ id: query.id, submissions: generateSubs() })
-  }
-
   const publishMutation = useToastMutation(
-    ({
-      id,
-      submissions,
-    }: {
-      id: string
-      submissions: ExerciseSlideSubmissionAndUserExerciseState[]
-    }) => releaseGrades(id, submissions),
+    async () => {
+      const freshSubmissions = await getAllSubmissions.refetch()
+      if (!freshSubmissions.data) {
+        throw new Error("Failed to fetch submissions")
+      }
+      const teacherGradingDecisionIds = freshSubmissions.data
+        .flatMap((exerciseSubmissionList) =>
+          exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
+        )
+        .filter((id): id is string => id !== undefined)
+      return releaseGrades(query.id, teacherGradingDecisionIds)
+    },
     { notify: true, method: "PUT" },
     {
       onSuccess: () => {
@@ -85,116 +84,118 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
     },
   )
 
-  const generateSubs = () => {
-    const submissionList: ExerciseSlideSubmissionAndUserExerciseState[] = []
-    getAllSubmissions.data?.map((exerciseSubmissionList) => {
-      exerciseSubmissionList.map((submission) => {
-        submissionList.push(submission)
+  const checkPublishable = useCallback(() => {
+    let unpublishedCount = 0
+    getAllSubmissions.data?.forEach((s) => {
+      s.forEach((sub) => {
+        if (sub.teacher_grading_decision?.hidden === true) {
+          unpublishedCount += 1
+        }
       })
     })
-    return submissionList
-  }
-
-  const checkPublishable = () => {
-    let unpublishedCount = 0
-    getAllSubmissions.data?.map((s) =>
-      s.map((sub) => {
-        if (sub.teacher_grading_decision?.hidden === true) {
-          unpublishedCount = unpublishedCount + 1
-        }
-      }),
-    )
     return unpublishedCount
-  }
+  }, [getAllSubmissions.data])
 
-  const gradedCheck = (id: string) => {
-    if (!getExam.data?.grade_manually) {
-      return (
-        <div
-          className={css`
-            color: #32bea6;
-          `}
-        >
-          {t("label-graded-automatically")}
-        </div>
-      )
-    }
-
-    const submissions = allSubmissionsList?.[id]
-    if (submissions) {
-      const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
-      if (submissions.length === countGraded) {
+  const gradedCheck = useCallback(
+    (id: string) => {
+      if (!getExam.data?.grade_manually) {
         return (
           <div
             className={css`
               color: #32bea6;
             `}
           >
-            {t("status-graded")}
-          </div>
-        )
-      } else if (countGraded === 0) {
-        return (
-          <div
-            className={css`
-              color: #f76d82;
-            `}
-          >
-            {t("status-ungraded")}
-          </div>
-        )
-      } else if (submissions.length > countGraded) {
-        return (
-          <div
-            className={css`
-              color: #ffce54;
-            `}
-          >
-            {t("status-in-progress")}
+            {t("label-graded-automatically")}
           </div>
         )
       }
-    } else {
-      return " "
-    }
-  }
 
-  const totalAnswered = (id: string) => {
-    const submissions = allSubmissionsList?.[id]
-    if (submissions) {
-      return submissions.length
-    } else {
-      return "0"
-    }
-  }
-
-  const totalGraded = (id: string) => {
-    if (!getExam.data?.grade_manually) {
-      return <div>{totalAnswered(id)}</div>
-    }
-    const submissions = allSubmissionsList?.[id]
-    if (submissions) {
-      return submissions.filter((sub) => sub.teacher_grading_decision).length
-    } else {
-      return "0"
-    }
-  }
-
-  const totalPublished = (id: string) => {
-    if (!getExam.data?.grade_manually) {
-      return <div>0</div>
-    }
-    const submissions = allSubmissionsList?.[id]
-    let count = 0
-    if (submissions) {
-      submissions.map((sub) => {
-        if (sub.teacher_grading_decision?.hidden === true) {
-          count = count + 1
+      const submissions = allSubmissionsList?.[id]
+      if (submissions) {
+        const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
+        if (submissions.length === countGraded) {
+          return (
+            <div
+              className={css`
+                color: #32bea6;
+              `}
+            >
+              {t("status-graded")}
+            </div>
+          )
+        } else if (countGraded === 0) {
+          return (
+            <div
+              className={css`
+                color: #f76d82;
+              `}
+            >
+              {t("status-ungraded")}
+            </div>
+          )
+        } else if (submissions.length > countGraded) {
+          return (
+            <div
+              className={css`
+                color: #ffce54;
+              `}
+            >
+              {t("status-in-progress")}
+            </div>
+          )
         }
-      })
-    }
-    return count
-  }
+      } else {
+        return " "
+      }
+    },
+    [getExam.data, allSubmissionsList, t],
+  )
+
+  const totalAnswered = useCallback(
+    (id: string) => {
+      const submissions = allSubmissionsList?.[id]
+      if (submissions) {
+        return submissions.length
+      } else {
+        return "0"
+      }
+    },
+    [allSubmissionsList],
+  )
+
+  const totalGraded = useCallback(
+    (id: string) => {
+      if (!getExam.data?.grade_manually) {
+        return <div>{totalAnswered(id)}</div>
+      }
+      const submissions = allSubmissionsList?.[id]
+      if (submissions) {
+        return submissions.filter((sub) => sub.teacher_grading_decision).length
+      } else {
+        return "0"
+      }
+    },
+    [getExam.data?.grade_manually, allSubmissionsList, totalAnswered],
+  )
+
+  const totalPublished = useCallback(
+    (id: string) => {
+      if (!getExam.data?.grade_manually) {
+        return <div>0</div>
+      }
+      const submissions = allSubmissionsList?.[id]
+      let count = 0
+      if (submissions) {
+        submissions.map((sub) => {
+          if (sub.teacher_grading_decision?.hidden === true) {
+            count = count + 1
+          }
+        })
+      }
+      return count
+    },
+    [allSubmissionsList, getExam.data?.grade_manually],
+  )
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
@@ -338,7 +339,7 @@ const GradingPage: React.FC<React.PropsWithChildren<SubmissionPageProps>> = ({ q
                   t("message-do-you-want-to-publish-all-currently-graded-submissions"),
                 )
                 if (confirmation) {
-                  handlePublishGradingResults()
+                  publishMutation.mutate()
                 }
               }}
             >

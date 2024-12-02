@@ -1,6 +1,6 @@
 import { InnerBlocks } from "@wordpress/block-editor"
 
-const SponsorSave: React.FC<unknown> = () => {
+const PartnerSave: React.FC<unknown> = () => {
   return (
     <div>
       <InnerBlocks.Content />
@@ -8,4 +8,4 @@ const SponsorSave: React.FC<unknown> = () => {
   )
 }
 
-export default SponsorSave
+export default PartnerSave

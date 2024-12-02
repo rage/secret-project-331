@@ -3,9 +3,7 @@ use std::collections::HashMap;
 use futures::future;
 
 use chrono::Utc;
-use headless_lms_models::{
-    exercise_slide_submissions::ExerciseSlideSubmission, user_exercise_states::UserExerciseState,
-};
+use headless_lms_models::user_exercise_states::UserExerciseState;
 use models::{
     course_exams,
     exams::{self, Exam, NewExam},

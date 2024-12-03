@@ -10,6 +10,7 @@ import {
   imageSavedPageYCoordinate,
   observeYCoordinate,
   savePageYCoordinateToImage,
+  scrollToObservedYCoordinate,
 } from "./imageMetadataTools"
 import { hideToasts } from "./notificationUtils"
 
@@ -450,9 +451,7 @@ async function scrollToSavedImageCoordinate(
             )
           }
         }
-        await page.mainFrame().evaluate((savedYCoordinate) => {
-          window.scrollTo(0, savedYCoordinate)
-        }, savedYCoordinate)
+        await scrollToObservedYCoordinate(page, savedYCoordinate)
         yCoordinateRightNTimes = 0
       }
       if (totalTries > 100) {

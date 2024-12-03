@@ -121,3 +121,14 @@ export async function observeYCoordinate(
     tries++
   }
 }
+
+export async function scrollToObservedYCoordinate(page: Page, yCoordinate: number): Promise<void> {
+  const targetY =
+    yCoordinate < 0
+      ? (await page.evaluate(() => document.body.scrollHeight)) + yCoordinate
+      : yCoordinate
+
+  await page.mainFrame().evaluate((coord) => {
+    window.scrollTo(0, coord)
+  }, targetY)
+}

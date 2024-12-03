@@ -384,7 +384,16 @@ export async function takeScreenshotAndComparetoSnapshot(
           yCoordinateRightNTimes = 0
         }
         if (totalTries > 100) {
-          throw new Error(`Could not scroll to the saved y coordinate`)
+          const pageSize = await page.mainFrame().evaluate(() => {
+            return {
+              width: window.innerWidth,
+              height: window.innerHeight,
+              scrollHeight: document.documentElement.scrollHeight,
+            }
+          })
+          throw new Error(
+            `Could not scroll to the saved y coordinate ${savedYCoordinate}. Page size: ${JSON.stringify(pageSize)}`,
+          )
         }
         await page.waitForTimeout(100)
 

@@ -62,18 +62,9 @@ export async function savePageYCoordinateToImage(
 ): Promise<void> {
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  let yCoordinate = await page.mainFrame().evaluate(() => {
-    return window.scrollY
-  })
+  const yCoordinate = observeYCoordinate(page, useCoordinatesFromTheBottomForSavingYCoordinates)
 
   console.info(`Saving y-coordinate ${yCoordinate} to image "${pathToImage}"`)
-
-  if (useCoordinatesFromTheBottomForSavingYCoordinates) {
-    const pageHeight = await page.evaluate(() => {
-      return document.body.scrollHeight
-    })
-    yCoordinate = yCoordinate - pageHeight
-  }
 
   const contents = await readFile(pathToImage, "binary")
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,4 +78,38 @@ export async function savePageYCoordinateToImage(
   listOfPngMetadataChunks.push(iend)
   const newContents = pngMetadata.joinChunk(listOfPngMetadataChunks)
   await writeFile(pathToImage, newContents, "binary")
+}
+
+export async function observeYCoordinate(
+  page: Page,
+  useCoordinatesFromTheBottomForSavingYCoordinates: boolean | undefined,
+): Promise<number> {
+  let previousYCoordinate: number | null = null
+  let tries = 0
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    // eslint-disable-next-line no-await-in-loop, playwright/no-wait-for-timeout
+    await page.waitForTimeout(100)
+    let yCoordinate = await page.mainFrame().evaluate(() => {
+      return window.scrollY
+    })
+
+    if (useCoordinatesFromTheBottomForSavingYCoordinates) {
+      const pageHeight = await page.evaluate(() => {
+        return document.body.scrollHeight
+      })
+      yCoordinate = -(pageHeight - yCoordinate)
+    }
+
+    if (previousYCoordinate === yCoordinate) {
+      return yCoordinate
+    } else {
+      previousYCoordinate = yCoordinate
+    }
+
+    if (tries > 100) {
+      throw new Error(`Could not stabilize y-coordinate after ${tries} tries.`)
+    }
+    tries++
+  }
 }

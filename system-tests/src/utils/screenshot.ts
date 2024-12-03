@@ -8,6 +8,7 @@ import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
 import {
   ensureImageHasBeenOptimized,
   imageSavedPageYCoordinate,
+  observeYCoordinate,
   savePageYCoordinateToImage,
 } from "./imageMetadataTools"
 import { hideToasts } from "./notificationUtils"
@@ -419,7 +420,10 @@ async function scrollToSavedImageCoordinate(
     let yCoordinateRightNTimes = 0
     let totalTries = 0
     do {
-      const observedYCoordinate = await page.mainFrame().evaluate(() => window.scrollY)
+      const observedYCoordinate = await observeYCoordinate(
+        page,
+        useCoordinatesFromTheBottomForSavingYCoordinates,
+      )
       if (observedYCoordinate === savedYCoordinate) {
         yCoordinateRightNTimes++
       } else {

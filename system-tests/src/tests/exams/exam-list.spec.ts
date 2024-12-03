@@ -41,11 +41,11 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     testInfo,
     snapshotName: "create-exam-dialog",
     waitForTheseToBeVisibleAndStable: [
-      page.getByText("Name"),
-      page.getByText("Starts at"),
-      page.getByText("Ends at"),
-      page.getByText("Time in minutes"),
-      page.getByText("duplicate"),
+      page.getByLabel("Name").first(),
+      page.getByLabel("Starts at").first(),
+      page.getByLabel("Ends at").first(),
+      page.getByLabel("Time in minutes").first(),
+      page.getByLabel("duplicate").first(),
     ],
   })
 
@@ -67,11 +67,11 @@ test("exam list renders, can create exam", async ({ page, headless }, testInfo) 
     testInfo,
     snapshotName: "create-exam-dialog-filled",
     waitForTheseToBeVisibleAndStable: [
-      page.getByText("Name"),
-      page.getByText("Starts at"),
-      page.getByText("Ends at"),
-      page.getByText("Time in minutes"),
-      page.getByText("duplicate"),
+      page.getByLabel("Name").first(),
+      page.getByLabel("Starts at").first(),
+      page.getByLabel("Ends at").first(),
+      page.getByLabel("Time in minutes").first(),
+      page.getByLabel("duplicate").first(),
     ],
   })
 

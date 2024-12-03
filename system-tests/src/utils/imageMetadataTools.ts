@@ -47,7 +47,12 @@ export async function imageSavedPageYCoordinate(pathToImage: string): Promise<nu
     }
     const coordinate = coordString.split("moocfi-page-y-")[1]
     if (coordinate) {
-      return Number(coordinate)
+      const yCoordinate = Number(coordinate)
+      if (isNaN(yCoordinate)) {
+        console.warn(`Warn: Invalid y-coordinate "${coordinate}" in image metadata, ignoring it.`)
+        return null
+      }
+      return yCoordinate
     }
   } catch (_e) {
     return null

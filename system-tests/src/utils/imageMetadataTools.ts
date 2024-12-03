@@ -62,7 +62,7 @@ export async function savePageYCoordinateToImage(
 ): Promise<void> {
   // eslint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  const yCoordinate = observeYCoordinate(page, useCoordinatesFromTheBottomForSavingYCoordinates)
+  const yCoordinate = await observeYCoordinate(page, useCoordinatesFromTheBottomForSavingYCoordinates)
 
   console.info(`Saving y-coordinate ${yCoordinate} to image "${pathToImage}"`)
 

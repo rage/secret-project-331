@@ -432,7 +432,7 @@ pub async fn try_to_select_exercise_slide_submission_for_peer_review(
                 exercise_slide_submission.id,
                 exercise.id,
                 reviewer_user_exercise_state.user_id,
-                course_instance_id,
+                course_id,
             )
             .await?;
             Some(exercise_slide_submission)

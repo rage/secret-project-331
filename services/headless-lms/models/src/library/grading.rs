@@ -309,7 +309,7 @@ pub async fn grade_user_submission(
         user_exercise_state.exam_id,
     )?;
 
-    let user_course_instance_exercise_service_variables  = crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(&mut tx, user_exercise_state.user_id, course_or_exam_id).await?;
+    let user_course_instance_exercise_service_variables  = crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_or_exam(&mut tx, user_exercise_state.user_id, course_or_exam_id).await?;
 
     let result = StudentExerciseSlideSubmissionResult {
         exercise_status: Some(ExerciseStatus {

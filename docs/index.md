@@ -9,19 +9,6 @@ For non-developers:
 - **Learn more about the courses**: [https://www.mooc.fi](https://www.mooc.fi)
 - **Teacher Documentation**: Refer to the **Wiki** tab in this repository.
 
-## 📖 Table of Contents
-
-1. [Getting Started](#getting-started)
-2. [Architecture](#architecture)
-3. [Development Guides](#development-guides)
-4. [Deployment](#deployment)
-5. [Database Operations](#database-operations)
-6. [Version Control](#version-control)
-7. [Testing](#testing)
-8. [Updating Dependencies](#updating-dependencies)
-9. [Additional Documentation](#additional-documentation)
-10. [Support and Contributions](#support-and-contributions)
-
 ## 🚀 Getting Started
 
 - Set up local environment: [Development Environment Setup](./Development.md)

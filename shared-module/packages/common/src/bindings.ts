@@ -1156,11 +1156,15 @@ export interface UserWithModuleCompletions {
 export interface UserMarketingConsent {
   id: string
   course_id: string
+  course_language_group_id: string
   user_id: string
+  user_mailchimp_id: string | null
   consent: boolean
+  email_subscription_in_mailchimp: string | null
   created_at: string
   updated_at: string
   deleted_at: string | null
+  synced_to_mailchimp_at: string | null
 }
 
 export interface MaterialReference {

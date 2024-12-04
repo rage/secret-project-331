@@ -749,13 +749,15 @@ export const claimCodeFromCodeGiveaway = async (id: string): Promise<string> => 
 export const updateMarketingConsent = async (
   courseId: string,
   courseLanguageGroupsId: string,
-  consent: boolean,
+  emailSubscription: boolean,
+  marketingConsent: boolean,
 ): Promise<string> => {
   const res = await courseMaterialClient.post(
     `/courses/${courseId}/user-marketing-consent`,
     {
       course_language_groups_id: courseLanguageGroupsId,
-      consent,
+      email_subscription: emailSubscription,
+      marketing_consent: marketingConsent,
     },
     {
       responseType: "json",

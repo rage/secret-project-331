@@ -8,11 +8,11 @@ import PageContext from "../../contexts/PageContext"
 import {
   fetchCourseById,
   fetchCourseInstances,
+  fetchUserMarketingConsent,
   postSaveCourseSettings,
 } from "../../services/backend"
 import SelectCourseLanguage from "../SelectCourseLanguage"
 import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
-import SelectMarketingConsentForm from "../forms/SelectMarketingConsentForm"
 
 import {
   getLanguageName,
@@ -28,6 +28,7 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont, typography } from "@/shared-module/common/styles"
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/common/utils/constants"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 export interface CourseSettingsModalProps {
@@ -76,11 +77,17 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
   })
   sortInstances()
 
-  const getCourse = useQuery({
+  const askMarketingConsent = useQuery({
     queryKey: ["courses", selectedLangCourseId],
     queryFn: () => fetchCourseById(selectedLangCourseId as NonNullable<string>),
-    enabled: selectedLangCourseId !== null && open && pageState.state === "ready",
-  })
+    enabled: selectedLangCourseId !== null,
+  }).data?.ask_marketing_consent
+
+  const checkUserMarketingConsent = useQuery({
+    queryKey: ["marketing-consent", selectedLangCourseId],
+    queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(selectedLangCourseId)),
+    enabled: selectedLangCourseId !== undefined,
+  }).data?.email_subscription_in_mailchimp
 
   useEffect(() => {
     getCourseInstances.refetch()
@@ -99,8 +106,12 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
     const shouldChooseInstance =
       pageState.state === "ready" && pageState.instance === null && pageState.settings === null
 
-    setOpen((signedIn && shouldChooseInstance) || (signedIn && manualOpen))
-  }, [loginState, pageState, manualOpen])
+    setOpen(
+      (signedIn && shouldChooseInstance) ||
+        (signedIn && manualOpen) ||
+        (signedIn && askMarketingConsent === true && checkUserMarketingConsent === "unsubscribed"),
+    )
+  }, [loginState, pageState, manualOpen, askMarketingConsent, checkUserMarketingConsent])
 
   const languageChanged = savedOrDefaultLangCourseId !== selectedLangCourseId
 
@@ -193,21 +204,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
               pageState.settings?.current_course_instance_id ?? pageState.instance?.id
             }
             dialogLanguage={dialogLanguage}
+            selectedLangCourseId={selectedLangCourseId}
           />
         )}
       </div>
-      {getCourse.data?.ask_marketing_consent && (
-        <div
-          className={css`
-            padding: 1rem 3rem;
-          `}
-        >
-          <SelectMarketingConsentForm
-            courseId={selectedLangCourseId}
-            courseLanguageGroupsId={getCourse.data?.course_language_group_id}
-          />
-        </div>
-      )}
+
       {languageChanged && (
         <div
           className={css`

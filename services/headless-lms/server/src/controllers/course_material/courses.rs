@@ -906,7 +906,8 @@ async fn get_research_form_answers_with_user_id(
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserMarketingConsentPayload {
     pub course_language_groups_id: Uuid,
-    pub consent: bool,
+    pub email_subscription: bool,
+    pub marketing_consent: bool,
 }
 
 /**
@@ -924,12 +925,19 @@ async fn update_marketing_consent(
 
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
 
+    let email_subscription = if payload.email_subscription {
+        "subscribed"
+    } else {
+        "unsubscribed"
+    };
+
     let result = models::marketing_consents::upsert_marketing_consent(
         &mut conn,
         *course_id,
         payload.course_language_groups_id,
         &user.id,
-        payload.consent,
+        email_subscription,
+        payload.marketing_consent,
     )
     .await?;
 

@@ -1,21 +1,24 @@
 import { useQuery } from "@tanstack/react-query"
+import { t } from "i18next"
 import React, { useEffect, useState } from "react"
 
-import { fetchUserMarketingConsent, updateMarketingConsent } from "@/services/backend"
+import { fetchUserMarketingConsent } from "@/services/backend"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface SelectMarketingConsentFormProps {
   courseId: string
-  courseLanguageGroupsId: string
+  onEmailSubscriptionConsentChange: (isChecked: boolean) => void
+  onMarketingConsentChange: (isChecked: boolean) => void
 }
 
 const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   courseId,
-  courseLanguageGroupsId,
+  onEmailSubscriptionConsentChange,
+  onMarketingConsentChange,
 }) => {
   const [marketingConsent, setMarketingConsent] = useState(false)
+  const [emailSubscriptionConsent, setEmailSubscriptionConsent] = useState(false)
 
   const fetchInitialMarketingConsent = useQuery({
     queryKey: ["marketing-consent", courseId],
@@ -23,35 +26,40 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
     enabled: courseId !== undefined,
   })
 
+  const handleEmailSubscriptionConsentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked
+    onEmailSubscriptionConsentChange(isChecked)
+    setEmailSubscriptionConsent(isChecked)
+  }
+
+  const handleMarketingConsentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked
+    onMarketingConsentChange(isChecked)
+    setMarketingConsent(isChecked)
+  }
+
   useEffect(() => {
     if (fetchInitialMarketingConsent.isSuccess) {
       setMarketingConsent(fetchInitialMarketingConsent.data.consent)
+      const emailSub =
+        fetchInitialMarketingConsent.data.email_subscription_in_mailchimp === "subscribed"
+      setEmailSubscriptionConsent(emailSub)
     }
   }, [fetchInitialMarketingConsent.data, fetchInitialMarketingConsent.isSuccess])
-
-  const handleMarketingConsentChangeMutation = useToastMutation(
-    async () => {
-      try {
-        await updateMarketingConsent(courseId, courseLanguageGroupsId, marketingConsent)
-      } catch (error) {
-        setMarketingConsent(!marketingConsent)
-      }
-      return null
-    },
-    { notify: false },
-  )
 
   return (
     <>
       <CheckBox
-        // eslint-disable-next-line i18next/no-literal-string
-        label="I consent to receive marketing messages for this course."
+        label={t("marketing-consent-checkbox-text")}
         type="checkbox"
         checked={marketingConsent}
-        onChange={() => {
-          setMarketingConsent(!marketingConsent)
-          handleMarketingConsentChangeMutation.mutate()
-        }}
+        onChange={handleMarketingConsentChange}
+      ></CheckBox>
+      <CheckBox
+        label={t("marketing-consent-privacy-policy-checkbox-text")}
+        type="checkbox"
+        checked={emailSubscriptionConsent}
+        onChange={handleEmailSubscriptionConsentChange}
       ></CheckBox>
     </>
   )

@@ -38,11 +38,20 @@ pub struct UserMarketingConsentWithDetails {
     pub course_name: String,
     pub locale: Option<String>,
     pub completed_course: Option<bool>,
+    pub research_consent: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
+pub struct UserEmailSubscription {
+    pub user_id: Uuid,
+    pub email: String,
+    pub email_subscription_in_mailchimp: Option<String>,
+    pub user_mailchimp_id: Option<String>,
+}
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -60,21 +69,25 @@ pub async fn upsert_marketing_consent(
     course_id: Uuid,
     course_language_group_id: Uuid,
     user_id: &Uuid,
-    consent: bool,
+    email_subscription: &str,
+    marketing_consent: bool,
 ) -> sqlx::Result<Uuid> {
     let result = sqlx::query!(
         r#"
-      INSERT INTO user_marketing_consents (user_id, course_id, course_language_group_id, consent)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO user_marketing_consents (user_id, course_id, course_language_group_id, consent, email_subscription_in_mailchimp)
+      VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT (user_id, course_language_group_id)
       DO UPDATE
-      SET consent = $4
+      SET
+        consent = $4,
+        email_subscription_in_mailchimp = $5
       RETURNING id
       "#,
         user_id,
         course_id,
         course_language_group_id,
-        consent
+        marketing_consent,
+        email_subscription
     )
     .fetch_one(conn)
     .await?;
@@ -128,15 +141,24 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
         u.email AS email,
         c.name AS course_name,
         c.language_code AS locale,
-        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course
+        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course,
+        COALESCE(csfa.research_consent, urc.research_consent) AS research_consent
     FROM user_marketing_consents AS umc
     JOIN user_details AS u ON u.user_id = umc.user_id
     JOIN courses AS c ON c.id = umc.course_id
     LEFT JOIN course_module_completions AS cmc
         ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
+     LEFT JOIN course_specific_consent_form_answers AS csfa
+        ON csfa.course_id = umc.course_id AND csfa.user_id = umc.user_id
+    LEFT JOIN user_research_consents AS urc
+        ON urc.user_id = umc.user_id
     WHERE umc.course_language_group_id = $1
-    AND (umc.synced_to_mailchimp_at IS NULL
-            OR umc.synced_to_mailchimp_at < umc.updated_at)
+    AND (
+        umc.synced_to_mailchimp_at IS NULL
+        OR umc.synced_to_mailchimp_at < umc.updated_at
+        OR csfa.updated_at > umc.synced_to_mailchimp_at
+        OR urc.updated_at > umc.synced_to_mailchimp_at
+)
     ",
         course_language_group_id
     )
@@ -146,39 +168,23 @@ pub async fn fetch_all_unsynced_user_marketing_consents_by_course_language_group
     Ok(result)
 }
 
-/// Fetches all user details that have been updated after their marketing consent was last synced to Mailchimp
+/// Fetches email, email subscription status and user ID for users whose details have been updated after their marketing consent was last synced to Mailchimp
 pub async fn fetch_all_unsynced_updated_emails(
     conn: &mut PgConnection,
     course_language_group_id: Uuid,
-) -> sqlx::Result<Vec<UserMarketingConsentWithDetails>> {
+) -> sqlx::Result<Vec<UserEmailSubscription>> {
     let result = sqlx::query_as!(
-        UserMarketingConsentWithDetails,
+        UserEmailSubscription,
         "
     SELECT
-        umc.id,
-        umc.course_id,
-        umc.course_language_group_id,
         umc.user_id,
-        umc.user_mailchimp_id,
-        umc.consent,
-        umc.email_subscription_in_mailchimp,
-        umc.created_at,
-        umc.updated_at,
-        umc.deleted_at,
-        umc.synced_to_mailchimp_at,
-        u.first_name AS first_name,
-        u.last_name AS last_name,
         u.email AS email,
-        c.name AS course_name,
-        c.language_code AS locale,
-        CASE WHEN cmc.passed IS NOT NULL THEN cmc.passed ELSE NULL END AS completed_course
+        umc.email_subscription_in_mailchimp,
+        umc.user_mailchimp_id
     FROM user_marketing_consents AS umc
     JOIN user_details AS u ON u.user_id = umc.user_id
-    JOIN courses AS c ON c.id = umc.course_id
-    LEFT JOIN course_module_completions AS cmc
-        ON cmc.user_id = umc.user_id AND cmc.course_id = umc.course_id
     WHERE umc.course_language_group_id = $1
-    AND (umc.synced_to_mailchimp_at IS NULL OR umc.synced_to_mailchimp_at < u.updated_at)
+    AND umc.synced_to_mailchimp_at < u.updated_at
     ",
         course_language_group_id
     )
@@ -284,6 +290,7 @@ pub async fn update_unsubscribed_users_from_mailchimp_in_bulk(
 
     ) AS updated_data
     WHERE user_marketing_consents.user_id = updated_data.user_id
+      AND user_marketing_consents.consent = true
       AND user_marketing_consents.synced_to_mailchimp_at < updated_data.last_updated
       AND user_marketing_consents.course_language_group_id = updated_data.course_language_group_id
     ",

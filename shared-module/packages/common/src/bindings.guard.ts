@@ -2202,11 +2202,17 @@ export function isUserMarketingConsent(obj: unknown): obj is UserMarketingConsen
     ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
     typeof typedObj["id"] === "string" &&
     typeof typedObj["course_id"] === "string" &&
+    typeof typedObj["course_language_group_id"] === "string" &&
     typeof typedObj["user_id"] === "string" &&
+    (typedObj["user_mailchimp_id"] === null || typeof typedObj["user_mailchimp_id"] === "string") &&
     typeof typedObj["consent"] === "boolean" &&
+    (typedObj["email_subscription_in_mailchimp"] === null ||
+      typeof typedObj["email_subscription_in_mailchimp"] === "string") &&
     typeof typedObj["created_at"] === "string" &&
     typeof typedObj["updated_at"] === "string" &&
-    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string")
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    (typedObj["synced_to_mailchimp_at"] === null ||
+      typeof typedObj["synced_to_mailchimp_at"] === "string")
   )
 }
 

@@ -1,6 +1,7 @@
 use crate::setup_tracing;
 use dotenv::dotenv;
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
+use headless_lms_models::marketing_consents::UserEmailSubscription;
 use headless_lms_models::marketing_consents::UserMarketingConsentWithDetails;
 use headless_lms_utils::http::REQWEST_CLIENT;
 use serde::Deserialize;
@@ -54,19 +55,24 @@ const REQUIRED_FIELDS: &[FieldSchema] = &[
         default_value: "",
     },
     FieldSchema {
+        tag: "LANGGRPID",
+        name: "Course language Group ID",
+        default_value: "",
+    },
+    FieldSchema {
         tag: "USERID",
         name: "User ID",
         default_value: "",
     },
     FieldSchema {
-        tag: "LANGGRPID",
-        name: "Course language Group ID",
-        default_value: "",
+        tag: "RESEARCH",
+        name: "Research consent",
+        default_value: "false",
     },
 ];
 
 /// These fields are excluded from removing all fields that are not in the schema
-const FIELDS_EXCLUDED_FROM_REMOVING: &[&str] = &["PHONE", "PACE", "COUNTRY", "MMERGE9", "RESEARCH"];
+const FIELDS_EXCLUDED_FROM_REMOVING: &[&str] = &["PHONE", "PACE", "COUNTRY", "MMERGE9"];
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
@@ -414,15 +420,26 @@ async fn sync_contacts(conn: &mut PgConnection, _config: &SyncerConfig) -> anyho
 
     // If there are any successfully synced users, update the database to mark them as synced
     if !successfully_synced_user_ids.is_empty() {
-        headless_lms_models::marketing_consents::update_synced_to_mailchimp_at_to_all_synced_users(
-            conn,
-            &successfully_synced_user_ids,
-        )
-        .await?;
-        info!(
-            "Successfully updated synced status for {} users.",
-            successfully_synced_user_ids.len()
-        );
+        match headless_lms_models::marketing_consents::update_synced_to_mailchimp_at_to_all_synced_users(
+        conn,
+        &successfully_synced_user_ids,
+    )
+    .await
+    {
+        Ok(_) => {
+            info!(
+                "Successfully updated synced status for {} users.",
+                successfully_synced_user_ids.len()
+            );
+        }
+        Err(e) => {
+            error!(
+                "Failed to update synced status for {} users: {:?}",
+                successfully_synced_user_ids.len(),
+                e
+            );
+        }
+    }
     }
 
     Ok(())
@@ -441,26 +458,28 @@ pub async fn send_users_to_mailchimp(
 
     // Prepare each user's data for Mailchimp
     for user in &users_details {
-        let user_details = json!({
-            "email_address": user.email,
-            "status": if user.consent {
-                    "subscribed".to_string()
-                } else {
-                    user.email_subscription_in_mailchimp.clone().unwrap_or_else(|| "subscribed".to_string())
-                },
-            "merge_fields": {
-                "FNAME": user.first_name,
-                "LNAME": user.last_name,
-                "MARKETING": if user.consent { "allowed" } else { "disallowed" },
-                "LOCALE": user.locale,
-                "GRADUATED": if user.completed_course.unwrap_or(false) { "passed" } else { "not passed" },
-                "USERID": user.user_id,
-                "COURSEID": user.course_id,
-                "LANGGRPID": user.course_language_group_id,
-            },
-        });
-        users_data_in_json.push(user_details);
-        user_ids.push(user.id);
+        // Check user has given permission to send data to mailchimp
+        if let Some(ref subscription) = user.email_subscription_in_mailchimp {
+            if subscription == "subscribed" {
+                let user_details = json!({
+                    "email_address": user.email,
+                    "status": user.email_subscription_in_mailchimp,
+                    "merge_fields": {
+                        "FNAME": user.first_name,
+                        "LNAME": user.last_name,
+                        "MARKETING": if user.consent { "allowed" } else { "disallowed" },
+                        "LOCALE": user.locale,
+                        "GRADUATED": if user.completed_course.unwrap_or(false) { "passed" } else { "not passed" },
+                        "USERID": user.user_id,
+                        "COURSEID": user.course_id,
+                        "LANGGRPID": user.course_language_group_id,
+                        "RESEARCH" : if user.research_consent.unwrap_or(false) { "allowed" } else { "disallowed" },
+                    },
+                });
+                users_data_in_json.push(user_details);
+                user_ids.push(user.id);
+            }
+        }
     }
 
     let batch_request = json!({
@@ -529,7 +548,7 @@ pub async fn send_users_to_mailchimp(
 
 /// Updates the email addresses of multiple users in a Mailchimp mailing list.
 async fn update_emails_in_mailchimp(
-    users: Vec<UserMarketingConsentWithDetails>,
+    users: Vec<UserEmailSubscription>,
     list_id: &str,
     server_prefix: &str,
     access_token: &str,
@@ -539,6 +558,12 @@ async fn update_emails_in_mailchimp(
 
     for user in users {
         if let Some(ref user_mailchimp_id) = user.user_mailchimp_id {
+            if let Some(ref status) = user.email_subscription_in_mailchimp {
+                if status != "subscribed" {
+                    continue; // Skip this user if they are not subscribed because Mailchimp only updates emails that are subscribed
+                }
+            }
+
             let url = format!(
                 "https://{}.api.mailchimp.com/3.0/lists/{}/members/{}",
                 server_prefix, list_id, user_mailchimp_id
@@ -547,7 +572,7 @@ async fn update_emails_in_mailchimp(
             // Prepare the body for the PUT request
             let body = serde_json::json!({
                 "email_address": &user.email,
-                "status": "subscribed",
+                "status": &user.email_subscription_in_mailchimp,
             });
 
             // Update the email

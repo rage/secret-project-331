@@ -1,7 +1,6 @@
 import { test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
 test.use({
   storageState: "src/states/admin@example.com.json",

@@ -26,7 +26,6 @@ interface CourseCheatersProps {
 const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> = ({
   courseId,
   archive,
-  perPage,
 }) => {
   const { t } = useTranslation()
 

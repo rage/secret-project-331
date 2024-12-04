@@ -9,7 +9,6 @@ import TableWrapper from "./TableWrapper"
 
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import { baseTheme, typography } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   data: Page | null | undefined

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
@@ -12,7 +12,7 @@ interface CodeGiveawayCodeProps {
 const CodeGiveawayCode: React.FC<CodeGiveawayCodeProps> = ({ code, revealed }) => {
   const { t } = useTranslation()
 
-  const { code_giveaway_id, code_given_to_user_id, added_by_user_id, code: codeValue } = code
+  const { code_given_to_user_id, added_by_user_id, code: codeValue } = code
 
   return (
     <FullWidthTableRow>

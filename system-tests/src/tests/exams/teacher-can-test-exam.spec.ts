@@ -16,10 +16,9 @@ test("Testing exam works", async ({ page }) => {
   await page.getByRole("button", { name: "Submit" }).click()
 
   await page
-    .locator("li")
-    .filter({ hasText: "Exam for testingManage" })
-    .getByRole("link")
-    .nth(1)
+    .getByTestId("exam-list-item")
+    .filter({ hasText: "Exam for testing" })
+    .getByRole("link", { name: "Manage" })
     .click()
 
   //Add exercise to exam
@@ -62,10 +61,9 @@ test("Testing exam works", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
   await page.getByLabel("University of Helsinki, Department of Computer Science").click()
   await page
-    .locator("li")
-    .filter({ hasText: "Exam for testingManage" })
-    .getByRole("link")
-    .nth(1)
+    .getByTestId("exam-list-item")
+    .filter({ hasText: "Exam for testing" })
+    .getByRole("link", { name: "Manage" })
     .click()
 
   //Test exam

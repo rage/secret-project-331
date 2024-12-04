@@ -6,16 +6,12 @@ import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances } from "../../services/backend/course-instances"
-import { fetchCourseModulesByCourseId } from "../../services/backend/courses"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
-import CourseContext from "@/contexts/CourseContext"
 import { fetchCodeGiveawaysByCourseId } from "@/services/backend/code-giveaways"
-import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 

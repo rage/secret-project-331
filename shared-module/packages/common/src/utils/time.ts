@@ -18,3 +18,20 @@ export const dateToDateTimeLocalString = (date: Date | string): string => {
     return "Invalid date"
   }
 }
+
+/**
+ * Formats a given date to a string suitable for use in `<input type="datetime-local">` elements, or the `DateTimeLocal` component from shared module.
+ *
+ * The `<input type="datetime-local">` element expects the date string to be in the format `YYYY-MM-DDTHH:MM`.
+ *
+ * @param date - The date to be formatted.
+ * @returns A string representing the formatted date in the `YYYY-MM-DDTHH:MM` format.
+ */
+export const formatDateForDateTimeLocalInputs = (
+  date: Date | string | null | undefined,
+): string | undefined => {
+  if (!date) {
+    return undefined
+  }
+  return format(date, "yyyy-MM-dd'T'HH:mm")
+}

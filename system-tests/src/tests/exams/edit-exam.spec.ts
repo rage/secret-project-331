@@ -15,7 +15,11 @@ test("Editing exam works", async ({ page }) => {
   await page.getByLabel("Time in minutes", { exact: true }).fill("60")
   await page.getByRole("button", { name: "Submit" }).click()
 
-  await page.locator("li").filter({ hasText: "Test examManage" }).getByRole("link").nth(1).click()
+  await page
+    .getByTestId("exam-list-item")
+    .filter({ hasText: "Test exam" })
+    .getByRole("link", { name: "Manage" })
+    .click()
 
   //Edit exam
   await page.getByRole("button", { name: "Edit exam" }).click()

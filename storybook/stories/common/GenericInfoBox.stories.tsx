@@ -1,6 +1,5 @@
 /* eslint-disable i18next/no-literal-string */
 import type { Meta, StoryObj } from "@storybook/react"
-import React from "react"
 
 import StoryComponent from "../../src/shared-module/common/components/GenericInfobox"
 

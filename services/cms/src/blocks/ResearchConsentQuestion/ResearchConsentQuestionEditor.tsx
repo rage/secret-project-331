@@ -9,11 +9,10 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 import { ResearchConsentQuestionAttributes } from "."
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 
 const ResearchConsentCheckBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>
-> = ({ clientId, attributes, isSelected, setAttributes }) => {
+> = ({ clientId, attributes, setAttributes }) => {
   const { content } = attributes
   const { t } = useTranslation()
 

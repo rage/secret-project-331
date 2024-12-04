@@ -1,5 +1,4 @@
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/router"
 import { useState } from "react"

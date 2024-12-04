@@ -8,7 +8,7 @@ use actix_multipart::form::MultipartForm;
 use headless_lms_utils::file_store::file_utils;
 use models::chapters::DatabaseChapter;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use models::user_exercise_states::CourseInstanceOrExamId;
+use models::user_exercise_states::CourseOrExamId;
 use mooc_langs_api as api;
 use std::collections::HashSet;
 
@@ -143,7 +143,7 @@ async fn get_exercise(
     )
     .await?;
     match instance_or_exam_id {
-        Some(CourseInstanceOrExamId::Instance(_id)) => {}
+        Some(CourseOrExamId::Instance(_id)) => {}
         _ => {
             return Err(ControllerError::new(
                 ControllerErrorType::BadRequest,

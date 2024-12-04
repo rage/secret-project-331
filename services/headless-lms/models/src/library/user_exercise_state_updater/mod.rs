@@ -156,15 +156,13 @@ pub async fn update_user_exercise_state_with_some_already_loaded_data(
         user_exercise_states::update(conn, derived_user_exercise_state).await?;
 
     // Always when the user_exercise_state updates, we need to also check if the user has completed the course.
-    if let Some(course_instance_id) = new_saved_user_exercise_state.course_instance_id {
-        let course_module = course_modules::get_by_exercise_id(conn, exercise_id).await?;
-        super::progressing::update_automatic_completion_status_and_grant_if_eligible(
-            conn,
-            &course_module,
-            course_instance_id,
-            new_saved_user_exercise_state.user_id,
-        )
-        .await?;
-    }
+    let course_module = course_modules::get_by_exercise_id(conn, exercise_id).await?;
+    super::progressing::update_automatic_completion_status_and_grant_if_eligible(
+        conn,
+        &course_module,
+        new_saved_user_exercise_state.user_id,
+    )
+    .await?;
+
     Ok(new_saved_user_exercise_state)
 }

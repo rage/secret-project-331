@@ -222,9 +222,9 @@ WHERE cctr.course_module_id = $1
 }
 
 /** A default certificate configuration requires only one course module. */
-pub async fn get_default_certificate_configurations_and_requirements_by_course_instance(
+pub async fn get_default_certificate_configurations_and_requirements_by_course(
     conn: &mut PgConnection,
-    course_instance_id: Uuid,
+    course_id: Uuid,
 ) -> ModelResult<Vec<CertificateConfigurationAndRequirements>> {
     let mut res = Vec::new();
     let all_certificate_configurations = sqlx::query_as!(
@@ -257,11 +257,11 @@ SELECT cc.id,
   cc.overlay_svg_file_upload_id
 FROM certificate_configurations cc
 JOIN certificate_configuration_to_requirements cctr ON cc.id = cctr.certificate_configuration_id
-WHERE cctr.course_instance_id = $1
+WHERE cctr.course_id = $1
   AND cc.deleted_at IS NULL
   AND cctr.deleted_at IS NULL
         "#,
-        course_instance_id,
+        course_id,
     )
     .fetch_all(&mut *conn)
     .await?;

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS count\nFROM peer_or_self_review_submissions\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND course_id = $3\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": [null]
+  },
+  "hash": "3856ae3b64b6764e7b55ed55aa2954f464a6164eb15ce68b609335684a1f1d78"
+}

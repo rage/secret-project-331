@@ -1,4 +1,4 @@
-use headless_lms_models::user_course_instance_exercise_service_variables;
+use headless_lms_models::user_course_exercise_service_variables;
 use models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
@@ -66,7 +66,7 @@ async fn get_user_course_module_exercises_by_exercise_type(
     )
     .await?;
     let user_variables =
-    user_course_instance_exercise_service_variables::get_all_user_variables_for_user_and_course_instance_and_exercise_type(&mut conn, user.id, course_instance_id, &exercise_type).await?;
+    user_course_exercise_service_variables::get_all_user_variables_for_user_and_course_instance_and_exercise_type(&mut conn, user.id, course_instance_id, &exercise_type).await?;
     let token = skip_authorize();
     let res = CustomViewExerciseSubmissions {
         exercise_tasks,

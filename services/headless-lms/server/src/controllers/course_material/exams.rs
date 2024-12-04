@@ -1,6 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 use headless_lms_models::{
-    exercises::Exercise, user_exercise_states::CourseInstanceOrExamId, ModelError, ModelErrorType,
+    exercises::Exercise, user_exercise_states::CourseOrExamId, ModelError, ModelErrorType,
 };
 use models::{
     exams::{self, ExamEnrollment},
@@ -191,7 +191,7 @@ pub async fn fetch_exam_for_user(
                 user_exercise_states::get_all_for_user_and_course_instance_or_exam(
                     &mut conn,
                     user.id,
-                    CourseInstanceOrExamId::Exam(*exam_id),
+                    CourseOrExamId::Exam(*exam_id),
                 )
                 .await?;
 

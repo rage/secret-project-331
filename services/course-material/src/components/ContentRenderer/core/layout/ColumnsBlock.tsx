@@ -4,7 +4,6 @@ import { SetStateAction } from "react"
 import { BlockRendererProps } from "../.."
 import { ColumnAttributes, ColumnsAttributes } from "../../../../../types/GutenbergBlockAttributes"
 import { Block } from "../../../../services/backend"
-import colorMapper from "../../../../styles/colorMapper"
 
 import ColumnBlock from "./ColumnBlock"
 
@@ -20,12 +19,10 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
   const {
     isStackedOnMobile,
     // align,
-    anchor,
-    backgroundColor,
     // className,
-    gradient,
+
     // style,
-    textColor,
+
     verticalAlignment,
   } = data.attributes
 
@@ -42,15 +39,7 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
           }
           flex-wrap: nowrap;
         }
-
-        ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-        ${gradient && `background: ${colorMapper(gradient)};`}
-        ${textColor && `color: ${colorMapper(textColor)};`}
         ${verticalAlignment && `align-items: ${verticalAlignment};`}
-        ${
-          (backgroundColor || gradient) &&
-          "padding: 1.25rem 2.375rem !important;" /* We want to have padding around the child column divs if bg set */
-        }
         display: flex;
         flex-wrap: wrap;
 
@@ -64,7 +53,6 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
           "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */
         }
       `}
-      {...(anchor && { id: anchor })}
     >
       {innerBlocks.map((block) => {
         return (

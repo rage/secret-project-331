@@ -19,7 +19,6 @@ import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, typography } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface Props {
   data: Page[]

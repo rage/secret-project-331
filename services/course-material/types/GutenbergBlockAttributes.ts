@@ -11,35 +11,18 @@
 import type { StringWithHTML } from "."
 
 export interface AudioAttributes {
+  blob?: string
   src?: string
   caption?: StringWithHTML
   id?: number
   autoplay?: boolean
   loop?: boolean
   preload?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface BlockAttributes {
   ref?: number
-  content?: {
-    [k: string]: unknown
-  }
-  lock?: {
-    [k: string]: unknown
-  }
-  metadata?: {
+  content: {
     [k: string]: unknown
   }
 }
@@ -58,62 +41,16 @@ export interface ButtonAttributes {
   textColor?: string
   gradient?: string
   width?: number
-  borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface ButtonsAttributes {
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  layout?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface CodeAttributes {
   content?: StringWithHTML
-  borderColor?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface ColumnAttributes {
@@ -121,53 +58,14 @@ export interface ColumnAttributes {
   width?: string
   allowedBlocks?: unknown[]
   templateLock?: "all" | "insert" | "contentOnly" | false
-  borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  layout?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface ColumnsAttributes {
   verticalAlignment?: string
   isStackedOnMobile: boolean
   templateLock?: "all" | "insert" | "contentOnly" | false
-  borderColor?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  layout?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface EmbedAttributes {
@@ -178,23 +76,11 @@ export interface EmbedAttributes {
   allowResponsive: boolean
   responsive: boolean
   previewable: boolean
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
-  height?: number
-  title?: string
 }
 
 export interface FileAttributes {
   id?: number
+  blob?: string
   href?: string
   fileId?: string
   fileName?: StringWithHTML
@@ -204,58 +90,23 @@ export interface FileAttributes {
   downloadButtonText?: StringWithHTML
   displayPreview?: boolean
   previewHeight: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface HeadingAttributes {
   textAlign?: string
   content?: StringWithHTML
   level: number
+  levelOptions?: unknown[]
   placeholder?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface HtmlAttributes {
   content?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface ImageAttributes {
+  blob?: string
   url?: string
   alt: string
   caption?: StringWithHTML
@@ -272,22 +123,8 @@ export interface ImageAttributes {
   aspectRatio?: string
   scale?: string
   sizeSlug?: string
-  linkDestination: string
+  linkDestination?: string
   linkTarget?: string
-  borderColor?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 export interface ListAttributes {
@@ -297,39 +134,13 @@ export interface ListAttributes {
   start?: number
   reversed?: boolean
   placeholder?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface ListItemAttributes {
   placeholder?: string
   content?: StringWithHTML
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface ParagraphAttributes {
@@ -338,126 +149,35 @@ export interface ParagraphAttributes {
   dropCap: boolean
   placeholder?: string
   direction?: "ltr" | "rtl"
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface PreformattedAttributes {
   content?: StringWithHTML
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface PullquoteAttributes {
   value?: StringWithHTML
   citation?: StringWithHTML
   textAlign?: string
-  borderColor?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface QuoteAttributes {
   value: string
   citation?: StringWithHTML
-  align?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
+  textAlign?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  layout?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface SeparatorAttributes {
   opacity: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface SpacerAttributes {
   height: string
   width?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 export interface TableAttributes {
@@ -466,24 +186,7 @@ export interface TableAttributes {
   head: Cells[]
   body: Cells[]
   foot: Cells[]
-  borderColor?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 export interface Cells {
   cells?: CellAttributes[]
@@ -500,21 +203,5 @@ export interface CellAttributes {
 export interface VerseAttributes {
   content?: StringWithHTML
   textAlign?: string
-  borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
   fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }

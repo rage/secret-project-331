@@ -11,7 +11,7 @@ const useCountAnswersRequiringAttentionHook = (courseId: string) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return res as any
       },
-    }) as UseQueryResult<number>
+    }) as unknown as UseQueryResult<number>
   }
   return useAnswersRequiringAttention
 }

@@ -20,14 +20,6 @@ export interface AudioDeprecated1Attributes {
   autoplay?: boolean
   loop?: boolean
   preload?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -35,13 +27,17 @@ export interface AudioDeprecated1Attributes {
  */
 export interface BlockDeprecated1Attributes {
   ref?: number
+  content?: {
+    [k: string]: unknown
+  }
+}
+
+/**
+ * @deprecated
+ */
+export interface BlockDeprecated2Attributes {
+  ref?: number
   overrides?: {
-    [k: string]: unknown
-  }
-  lock?: {
-    [k: string]: unknown
-  }
-  metadata?: {
     [k: string]: unknown
   }
 }
@@ -56,13 +52,6 @@ export interface ButtonDeprecated10Attributes {
   color?: string
   textColor?: string
   align: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -75,13 +64,6 @@ export interface ButtonDeprecated11Attributes {
   color?: string
   textColor?: string
   align: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -98,20 +80,6 @@ export interface ButtonDeprecated1Attributes {
   textColor?: string
   gradient?: string
   width?: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -128,20 +96,6 @@ export interface ButtonDeprecated2Attributes {
   textColor?: string
   gradient?: string
   width?: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -158,20 +112,6 @@ export interface ButtonDeprecated3Attributes {
   textColor?: string
   gradient?: string
   width?: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -192,15 +132,6 @@ export interface ButtonDeprecated4Attributes {
     [k: string]: unknown
   }
   width?: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -221,15 +152,6 @@ export interface ButtonDeprecated5Attributes {
     [k: string]: unknown
   }
   width?: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -247,14 +169,6 @@ export interface ButtonDeprecated6Attributes {
   textColor?: string
   gradient?: string
   style?: {
-    [k: string]: unknown
-  }
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
     [k: string]: unknown
   }
 }
@@ -276,14 +190,6 @@ export interface ButtonDeprecated7Attributes {
   customTextColor?: string
   customGradient?: string
   gradient?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -301,13 +207,6 @@ export interface ButtonDeprecated8Attributes {
   linkTarget?: string
   rel?: string
   placeholder?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -322,13 +221,6 @@ export interface ButtonDeprecated9Attributes {
   textColor?: string
   customBackgroundColor?: string
   customTextColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -337,34 +229,12 @@ export interface ButtonDeprecated9Attributes {
 export interface ButtonsDeprecated1Attributes {
   contentJustification?: string
   orientation: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
  * @deprecated
  */
-export interface ButtonsDeprecated2Attributes {
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-}
+export interface ButtonsDeprecated2Attributes {}
 
 /**
  * @deprecated
@@ -372,13 +242,6 @@ export interface ButtonsDeprecated2Attributes {
 export interface ColumnDeprecated1Attributes {
   verticalAlignment?: string
   width?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -390,13 +253,6 @@ export interface ColumnsDeprecated1Attributes {
   customBackgroundColor?: string
   customTextColor?: string
   textColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -404,13 +260,6 @@ export interface ColumnsDeprecated1Attributes {
  */
 export interface ColumnsDeprecated2Attributes {
   columns: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -418,13 +267,6 @@ export interface ColumnsDeprecated2Attributes {
  */
 export interface ColumnsDeprecated3Attributes {
   columns: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -438,15 +280,6 @@ export interface EmbedDeprecated1Attributes {
   allowResponsive: boolean
   responsive: boolean
   previewable: boolean
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-  height?: number
-  title?: string
 }
 
 /**
@@ -460,15 +293,6 @@ export interface EmbedDeprecated2Attributes {
   allowResponsive: boolean
   responsive: boolean
   previewable: boolean
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-  height?: number
-  title?: string
 }
 
 /**
@@ -485,15 +309,6 @@ export interface FileDeprecated1Attributes {
   downloadButtonText?: string
   displayPreview?: boolean
   previewHeight: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -510,15 +325,6 @@ export interface FileDeprecated2Attributes {
   downloadButtonText?: string
   displayPreview?: boolean
   previewHeight: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -534,15 +340,6 @@ export interface FileDeprecated3Attributes {
   downloadButtonText?: string
   displayPreview?: boolean
   previewHeight: number
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -553,23 +350,6 @@ export interface HeadingDeprecated1Attributes {
   content: string
   level: number
   placeholder?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -580,19 +360,6 @@ export interface HeadingDeprecated2Attributes {
   content: string
   level: number
   placeholder?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -605,14 +372,6 @@ export interface HeadingDeprecated3Attributes {
   placeholder?: string
   customTextColor?: string
   textColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -625,14 +384,6 @@ export interface HeadingDeprecated4Attributes {
   placeholder?: string
   customTextColor?: string
   textColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -645,14 +396,6 @@ export interface HeadingDeprecated5Attributes {
   placeholder?: string
   customTextColor?: string
   textColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -676,21 +419,8 @@ export interface ImageDeprecated1Attributes {
   aspectRatio?: string
   scale?: string
   sizeSlug?: string
-  linkDestination: string
+  linkDestination?: string
   linkTarget?: string
-  borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -711,21 +441,8 @@ export interface ImageDeprecated2Attributes {
   aspectRatio?: string
   scale?: string
   sizeSlug?: string
-  linkDestination: string
+  linkDestination?: string
   linkTarget?: string
-  borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -746,21 +463,8 @@ export interface ImageDeprecated3Attributes {
   aspectRatio?: string
   scale?: string
   sizeSlug?: string
-  linkDestination: string
+  linkDestination?: string
   linkTarget?: string
-  borderColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -779,20 +483,8 @@ export interface ImageDeprecated4Attributes {
   width?: number
   height?: number
   sizeSlug?: string
-  linkDestination: string
+  linkDestination?: string
   linkTarget?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -811,17 +503,8 @@ export interface ImageDeprecated5Attributes {
   width?: number
   height?: number
   sizeSlug?: string
-  linkDestination: string
+  linkDestination?: string
   linkTarget?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -837,14 +520,6 @@ export interface ImageDeprecated6Attributes {
   width?: number
   height?: number
   linkDestination: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -859,14 +534,6 @@ export interface ImageDeprecated7Attributes {
   align?: string
   width?: number
   height?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -881,14 +548,6 @@ export interface ImageDeprecated8Attributes {
   align?: string
   width?: number
   height?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
-  blurDataUrl: string
 }
 
 /**
@@ -901,22 +560,6 @@ export interface ListDeprecated1Attributes {
   start?: number
   reversed?: boolean
   placeholder?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -929,22 +572,6 @@ export interface ListDeprecated2Attributes {
   start?: number
   reversed?: boolean
   placeholder?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -957,22 +584,18 @@ export interface ListDeprecated3Attributes {
   start?: number
   reversed?: boolean
   placeholder?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
+}
+
+/**
+ * @deprecated
+ */
+export interface ListDeprecated4Attributes {
+  ordered: boolean
+  values: string
+  type?: string
+  start?: number
+  reversed?: boolean
+  placeholder?: string
 }
 
 /**
@@ -990,13 +613,6 @@ export interface ParagraphDeprecated1Attributes {
   customTextColor?: string
   customBackgroundColor?: string
   customFontSize?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1014,13 +630,6 @@ export interface ParagraphDeprecated2Attributes {
   customTextColor?: string
   customBackgroundColor?: string
   customFontSize?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1038,13 +647,6 @@ export interface ParagraphDeprecated3Attributes {
   customTextColor?: string
   customBackgroundColor?: string
   customFontSize?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1063,13 +665,6 @@ export interface ParagraphDeprecated4Attributes {
   customBackgroundColor?: string
   customFontSize?: number
   width?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1084,13 +679,6 @@ export interface ParagraphDeprecated5Attributes {
   backgroundColor?: string
   fontSize?: number
   direction?: "ltr" | "rtl"
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1108,13 +696,6 @@ export interface ParagraphDeprecated6Attributes {
   style?: {
     [k: string]: unknown
   }
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1124,13 +705,6 @@ export interface PullquoteDeprecated1Attributes {
   value?: string
   citation: string
   textAlign?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1143,13 +717,6 @@ export interface PullquoteDeprecated2Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1165,13 +732,6 @@ export interface PullquoteDeprecated3Attributes {
   figureStyle?: {
     [k: string]: unknown
   }
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1184,13 +744,6 @@ export interface PullquoteDeprecated4Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1203,13 +756,6 @@ export interface PullquoteDeprecated5Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1223,13 +769,6 @@ export interface PullquoteDeprecated6Attributes {
   textColor?: string
   customTextColor?: string
   align: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1239,18 +778,6 @@ export interface QuoteDeprecated1Attributes {
   value: string
   citation: string
   align?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1260,13 +787,6 @@ export interface QuoteDeprecated2Attributes {
   value: string
   citation: string
   align?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1276,14 +796,6 @@ export interface QuoteDeprecated3Attributes {
   value: string
   citation: string
   align?: string
-  style: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1294,13 +806,16 @@ export interface QuoteDeprecated4Attributes {
   citation: string
   align?: string
   style: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
+}
+
+/**
+ * @deprecated
+ */
+export interface QuoteDeprecated5Attributes {
+  value: string
+  citation: string
+  align?: string
+  style: number
 }
 
 /**
@@ -1309,13 +824,6 @@ export interface QuoteDeprecated4Attributes {
 export interface SeparatorDeprecated1Attributes {
   color?: string
   customColor?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1324,13 +832,6 @@ export interface SeparatorDeprecated1Attributes {
 export interface SpacerDeprecated1Attributes {
   height: number
   width?: number
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1339,22 +840,6 @@ export interface SpacerDeprecated1Attributes {
 export interface VerseDeprecated1Attributes {
   content: string
   textAlign?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  anchor?: string
-  className?: string
-  backgroundColor?: string
-  textColor?: string
-  gradient?: string
-  fontFamily?: string
-  fontSize?: string
-  style?: {
-    [k: string]: unknown
-  }
-  metadata?: {
-    [k: string]: unknown
-  }
 }
 
 /**
@@ -1363,11 +848,4 @@ export interface VerseDeprecated1Attributes {
 export interface VerseDeprecated2Attributes {
   content: string
   textAlign?: string
-  lock?: {
-    [k: string]: unknown
-  }
-  className?: string
-  metadata?: {
-    [k: string]: unknown
-  }
 }

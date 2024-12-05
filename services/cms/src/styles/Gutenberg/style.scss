@@ -15,9 +15,13 @@ $sidebar-width: 350px;
   // Reference element for the block popover position.
   position: relative;
 
+  width: 100%;
+  height: 100%;
+
   /* Give space for sidebar so that it won't accidentally overlap the main editor */
   /* Same as sidebar width */
   margin-right: calc("auto" - $sidebar-width);
+
   @media (max-width: $sidebar-threshold) {
     // Disable the margin-right if min-width more than 600px for responsiveness
     margin-right: 0px;
@@ -29,6 +33,7 @@ $sidebar-width: 350px;
   /* Give space for sidebar so that it won't accidentally overlap the main editor */
   /* Same as sidebar width */
   margin-right: calc("auto" - $sidebar-width);
+
   @media (max-width: $sidebar-threshold) {
     // Disable the margin-right if min-width more than 600px for responsiveness
     margin-right: 0px;
@@ -53,6 +58,7 @@ $sidebar-width: 350px;
   // Temporarily disable the sidebar on mobile
   // Do we want to support advanced content editing with a mobile phone?
   display: block;
+
   @media (max-width: $sidebar-threshold) {
     display: none;
   }
@@ -61,8 +67,10 @@ $sidebar-width: 350px;
 .editor__top-button-wrapper {
   padding: 1rem;
   display: none;
+
   @media (max-width: $sidebar-threshold) {
     display: block;
   }
+
   background: #f5f6f7;
 }

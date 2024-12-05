@@ -67,7 +67,7 @@ test("Changing view in the cms sidebar works", async ({ page, headless }, testIn
     headless,
     testInfo,
     snapshotName: "block-menu",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("option", { name: "List" })],
+    waitForTheseToBeVisibleAndStable: [page.getByRole("option", { name: "List", exact: true })],
     axeSkip: gutenbergAxeSkip,
     skipMobile: true,
   })

@@ -64,6 +64,12 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
 
+    await page.getByLabel("Hero section title...").click()
+
+    await page.getByLabel("Hero section title...").click()
+    await page.getByLabel("Options").click()
+    await page.getByText("Add after").click()
+
     await page.click(':nth-match([aria-label="Add block"], 1)')
 
     await page.click('[placeholder="Search"]')

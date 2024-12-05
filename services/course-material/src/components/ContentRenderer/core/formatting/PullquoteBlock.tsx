@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps } from "../.."
 import { PullquoteAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import colorMapper from "../../../../styles/colorMapper"
 import { sanitizeCourseMaterialHtml } from "../../../../utils/sanitizeCourseMaterialHtml"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -22,44 +21,26 @@ const PullquoteBlock: React.FC<
 > = ({ data }) => {
   const {
     citation,
-    align,
-    anchor,
-    backgroundColor,
     // borderColor, // Border color is same as textColor in CMS
     // className,
-    gradient,
     // style,
     textAlign,
-    textColor,
     fontSize = "medium",
     value,
   } = data.attributes
 
-  const textAlignNotCenterWidth =
-    textAlign && textAlign !== "center" && !align ? "max-width: 26.25rem;" : null
-
   const size = FONT_SIZES[fontSize]
 
   return (
-    <div
-      className={css`
-        ${textAlignNotCenterWidth}
-      `}
-    >
+    <div>
       <figure
         className={css`
-          ${textColor && `color: ${colorMapper(textColor)};`}
-          ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-          ${gradient && `background: ${colorMapper(gradient)};`}
           text-align: center;
           ${textAlign && `text-align: ${textAlign};`}
           border-top: 0.25rem solid #d5dbdf;
           border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;
-          ${align && `float: ${align};`}
-          ${align === "right" ? "margin-left: 1rem;" : "margin-right: 1rem;"}
         `}
-        {...(anchor && { id: anchor })}
       >
         <blockquote
           className={css`

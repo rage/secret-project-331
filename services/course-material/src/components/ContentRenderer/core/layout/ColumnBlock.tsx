@@ -2,7 +2,6 @@ import { css } from "@emotion/css"
 
 import { BlockRendererProps, blockToRendererMap } from "../.."
 import { ColumnAttributes } from "../../../../../types/GutenbergBlockAttributes"
-import colorMapper from "../../../../styles/colorMapper"
 import DefaultBlock from "../../DefaultBlock"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -12,13 +11,9 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
   data,
 }) => {
   const {
-    anchor,
-    backgroundColor,
     // className,
-    gradient,
     // style,
     // templateLock,
-    textColor,
     verticalAlignment,
     width,
   } = data.attributes
@@ -36,9 +31,6 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
   return (
     <div
       className={css`
-        ${backgroundColor && `background: ${colorMapper(backgroundColor)};`}
-        ${gradient && `background: ${colorMapper(gradient)};`}
-        ${textColor && `color: ${colorMapper(textColor)};`}
         ${verticalAlignment && getAlignSelf(verticalAlignment)}
         overflow-wrap: break-word;
         flex-grow: 1;
@@ -51,7 +43,6 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
           padding: 0rem;
         }
       `}
-      {...(anchor && { id: anchor })}
     >
       {data.innerBlocks.map((block) => {
         const Component = blockToRendererMap[block.name] ?? DefaultBlock

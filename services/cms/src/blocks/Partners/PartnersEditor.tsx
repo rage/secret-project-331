@@ -10,7 +10,7 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image"]
 
-const SponsorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
+const PartnerEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<string, never>>>> = ({
   clientId,
 }) => {
   const { t } = useTranslation()
@@ -45,4 +45,4 @@ const SponsorEditor: React.FC<React.PropsWithChildren<BlockEditProps<Record<stri
   )
 }
 
-export default SponsorEditor
+export default PartnerEditor

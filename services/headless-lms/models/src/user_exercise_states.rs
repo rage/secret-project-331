@@ -228,6 +228,7 @@ FROM course_instances
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE exercises.deleted_at IS NULL
   AND course_instances.id = $1
+  AND chapters.course_module_id IS NOT NULL
 GROUP BY chapters.course_module_id
         ",
         course_instance_id
@@ -644,6 +645,37 @@ WHERE id = $1
         id,
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_instance_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE id = ANY($1)
+AND deleted_at IS NULL
+"#,
+        &ids
+    )
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

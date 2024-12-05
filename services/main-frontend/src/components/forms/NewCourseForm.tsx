@@ -86,6 +86,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         copy_user_permissions: copyCourseUserPermissions,
         is_joinable_by_code_only: false,
         join_code: null,
+        ask_marketing_consent: false,
       }
       if (courseId) {
         await onSubmitDuplicateCourseForm(courseId, newCourse)
@@ -122,6 +123,7 @@ const NewCourseForm: React.FC<React.PropsWithChildren<NewCourseFormProps>> = ({
         copy_user_permissions: copyCourseUserPermissions,
         is_joinable_by_code_only: false,
         join_code: null,
+        ask_marketing_consent: false,
       })
       setName("")
       setSlug("")

@@ -8,11 +8,9 @@ import { baseTheme } from "@/shared-module/common/styles/theme"
 
 const THINGLINK = "thinglink"
 
-export const ThingLinkEmbedBlock: React.FC<
-  React.PropsWithChildren<EmbedAttributes & { dontAllowBlockToBeWiderThanContainerWidth: boolean }>
-> = (props) => {
+export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes>> = (props) => {
   return (
-    <BreakFromCentered sidebar={false} disabled={props.dontAllowBlockToBeWiderThanContainerWidth}>
+    <BreakFromCentered sidebar={false}>
       <figure
         className={css`
           width: 100%;

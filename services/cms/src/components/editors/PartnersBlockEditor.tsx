@@ -2,7 +2,7 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import dynamic from "next/dynamic"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { allowedPartnerCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -50,7 +50,6 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
       const res = await handleSave(content)
       setContent(res.content as BlockInstance[])
       setError(null)
-      setSuccessMessage(t("content-saved-successfully"))
     } catch (e: unknown) {
       if (!(e instanceof Error)) {
         throw e
@@ -58,8 +57,17 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
       setError(e.toString())
     } finally {
       setSaving(false)
+      setSuccessMessage(t("content-saved-successfully"))
     }
   }
+
+  // Hide success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timeout = setTimeout(() => setSuccessMessage(null), 1000)
+      return () => clearTimeout(timeout) // Clear timeout if component unmounts
+    }
+  }, [successMessage])
 
   return (
     <>
@@ -86,7 +94,7 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
           setNeedToRunMigrationsAndValidations={() => {}}
         />
       )}
-      {successMessage && <SuccessNotification />}
+      {successMessage && <SuccessNotification message={successMessage} />}
     </>
   )
 }

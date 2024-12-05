@@ -75,6 +75,7 @@ const SuccessHeader = styled.div`
   }
   color: ${baseTheme.colors.green[600]};
   line-height: 18px;
+  margin-bottom: 0.2rem;
 `
 
 const SuccessMessage = styled.div`

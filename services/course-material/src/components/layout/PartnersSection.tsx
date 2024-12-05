@@ -43,7 +43,8 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
               margin: 0;
 
               img {
-                width: 10rem;
+                width: 12rem;
+                aspect-ratio: auto;
                 margin: 0 !important;
                 pointer-events: none;
               }

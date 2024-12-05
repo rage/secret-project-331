@@ -753,7 +753,7 @@ export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBloc
   return validateResponse(response, isPartnersBlock)
 }
 
-export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink> => {
+export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink[]> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/privacy-link`)
-  return validateResponse(response, isPrivacyLink)
+  return validateResponse(response, isArray(isPrivacyLink))
 }

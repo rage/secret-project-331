@@ -1,11 +1,16 @@
+import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
 import { i18n, TFunction } from "i18next"
-import React, { useMemo } from "react"
+import React, { useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import PageContext from "../../../../contexts/PageContext"
 import useTime from "../../../../hooks/useTime"
-import { fetchPageNavigationData } from "../../../../services/backend"
+import {
+  fetchPageNavigationData,
+  fetchUserChapterInstanceChapterProgress,
+} from "../../../../services/backend"
 import { courseFrontPageRoute, coursePageRoute } from "../../../../utils/routing"
 
 import { PageNavigationInformation } from "@/shared-module/common/bindings"
@@ -14,19 +19,69 @@ import NextSectionLink, {
   NextSectionLinkProps,
 } from "@/shared-module/common/components/NextSectionLink"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { monospaceFont } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface NextPageProps {
   chapterId: string | null
   currentPageId: string
   courseSlug: string
   organizationSlug: string
-  chapterProgress: {
-    maxScore: string
-    givenScore: string
-    attemptedExercises: string
-    totalExercises: string
-  }
 }
+
+const ChapterProgress = styled.div`
+  background: #f4f6f8;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  min-height: 6rem;
+  color: ##1a2333;
+  margin-bottom: 1rem;
+  flex-direction: column;
+
+  ${respondToOrLarger.md} {
+    flex-direction: row;
+  }
+
+  p {
+    margin-bottom: 0.4rem;
+  }
+
+  .progress-container {
+    display: flex;
+    align-items: end;
+  }
+
+  .metric {
+    font-family: ${monospaceFont};
+    font-size: 2rem;
+    font-weight: 700;
+    margin-right: 0.5rem;
+    line-height: 100%;
+  }
+
+  .attempted-exercises {
+    margin-right: 1.2rem;
+  }
+
+  .description {
+    opacity: 60%;
+    line-height: 100%;
+    align-self: end;
+    padding-top: 0.2rem;
+  }
+
+  .answers,
+  .attempted-exercises {
+    display: flex;
+    flex-direction: column;
+
+    ${respondToOrLarger.md} {
+      flex-direction: row;
+    }
+  }
+`
 
 const NUMERIC = "numeric"
 const LONG = "long"
@@ -36,15 +91,42 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   currentPageId,
   organizationSlug,
   courseSlug,
-  chapterProgress,
 }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
+  const pageContext = useContext(PageContext)
+  const courseInstanceId = pageContext.instance?.id
 
   const getPageRoutingData = useQuery({
     queryKey: [`pages-${chapterId}-page-routing-data`, currentPageId],
     queryFn: () => fetchPageNavigationData(currentPageId),
   })
+
+  // Compute `shouldFetchChapterProgress` inside `useMemo`
+  const shouldFetchChapterProgress = useMemo(
+    () => getPageRoutingData.data?.next_page?.chapter_id !== chapterId,
+    [getPageRoutingData.data, chapterId],
+  )
+
+  const getUserChapterProgress = useQuery({
+    queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
+    queryFn: () =>
+      fetchUserChapterInstanceChapterProgress(
+        assertNotNullOrUndefined(courseInstanceId),
+        assertNotNullOrUndefined(chapterId),
+      ),
+    enabled: shouldFetchChapterProgress,
+  })
+
+  const chapterProgress =
+    getUserChapterProgress.isSuccess && getUserChapterProgress.data
+      ? {
+          maxScore: getUserChapterProgress.data.score_maximum,
+          givenScore: parseFloat(getUserChapterProgress.data.score_given.toFixed(2)),
+          attemptedExercises: getUserChapterProgress.data.attempted_exercises,
+          totalExercises: getUserChapterProgress.data.total_exercises,
+        }
+      : {}
 
   const nextPageProps = useMemo(() => {
     if (!getPageRoutingData.data) {
@@ -78,15 +160,43 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     return <Spinner variant={"medium"} />
   }
 
+  function calculatePercentage(attempted: number, total: number): string {
+    if (!total) {
+      return ""
+    }
+    if (total === 0) {
+      return "0%" // Handle division by zero
+    }
+    return Math.round((attempted / total) * 100) + "%"
+  }
+
   return (
     // Chapter exists, but next chapter not open yet.
     <>
-      {getPageRoutingData.data.next_page?.chapter_id !== chapterId && (
-        <span>
-          {chapterProgress.attemptedExercises} / {chapterProgress.totalExercises} ...
-          {chapterProgress.givenScore}/{chapterProgress.maxScore}
-        </span>
-      )}
+      {getPageRoutingData.data.next_page?.chapter_id !== chapterId &&
+        chapterProgress.attemptedExercises &&
+        chapterProgress.totalExercises && (
+          <ChapterProgress>
+            <p>{t("chapter-progress")}</p>
+            <div className="progress-container">
+              <div className="attempted-exercises">
+                <span className="metric">
+                  {calculatePercentage(
+                    chapterProgress.attemptedExercises,
+                    chapterProgress.totalExercises,
+                  )}
+                </span>
+                <span className="description">{t("attempted-exercises")}</span>
+              </div>
+              <div className="answers">
+                <span className="metric">
+                  {chapterProgress.givenScore}/{chapterProgress.maxScore}
+                </span>
+                <span className="description">{t("correct-answers")}</span>
+              </div>
+            </div>
+          </ChapterProgress>
+        )}
       <NextSectionLink {...nextPageProps} />
     </>
   )

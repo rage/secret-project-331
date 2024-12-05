@@ -924,15 +924,15 @@ GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
 */
 #[instrument(skip(pool))]
 async fn get_privacy_link(
-    path: web::Path<Uuid>,
+    course_id: web::Path<Uuid>,
     user: AuthUser,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<PrivacyLink>> {
-    let course_id = path.into_inner();
+) -> ControllerResult<web::Json<Vec<PrivacyLink>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let user_id = Some(user.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
 
-    let privacy_link = models::privacy_link::get_privacy_link(&mut conn, course_id).await?;
+    let privacy_link = models::privacy_link::get_privacy_link(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(privacy_link))
 }

@@ -66,13 +66,13 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
     queryFn: () => fetchPrivacyLink(courseId as NonNullable<string>),
   })
 
-  const customPrivacyLink =
-    getPrivacyLink.isSuccess && getPrivacyLink.data
-      ? {
-          linkTitle: getPrivacyLink.data?.link_title,
-          linkUrl: getPrivacyLink.data?.link_url,
-        }
-      : "" // Default to an empty array if content is not present
+  const customPrivacyLinks =
+    getPrivacyLink.isSuccess && Array.isArray(getPrivacyLink.data)
+      ? getPrivacyLink.data.map((link) => ({
+          linkTitle: link.title,
+          linkUrl: link.url,
+        }))
+      : []
 
   const languageVersions = useCourseLanguageVersions(courseId)
   const languages: LanguageOption[] = (languageVersions?.data ?? []).map((languageVersion) => ({
@@ -120,8 +120,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       htmlElement.setAttribute("dir", getDir(currentLanguageCode))
     }, 100)
   }, [currentLanguageCode, i18n])
-
-  console.log("customPrivacyLink", customPrivacyLink)
 
   const layoutContextValue = useMemo(() => {
     return {
@@ -202,7 +200,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       >
         <DynamicToaster />
         <PartnersSectionBlock courseId={courseId} />
-        <Footer privacyLink={customPrivacyLink} />
+        <Footer privacyLinks={customPrivacyLinks} />
       </div>
     </>
   )

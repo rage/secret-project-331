@@ -25,12 +25,12 @@
       },
       {
         "ordinal": 4,
-        "name": "link_title",
+        "name": "title",
         "type_info": "Varchar"
       },
       {
         "ordinal": 5,
-        "name": "link_url",
+        "name": "url",
         "type_info": "Text"
       },
       {

@@ -7,8 +7,8 @@ pub struct PrivacyLink {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub link_title: String,
-    pub link_url: String,
+    pub title: String,
+    pub url: String,
     pub course_id: Uuid,
 }
 
@@ -16,31 +16,26 @@ pub struct PrivacyLink {
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PrivacyLinkNew {
     pub course_id: Uuid,
-    pub link_title: String,
-    pub link_url: String,
+    pub title: String,
+    pub url: String,
 }
 
-pub async fn upsert_privacy_link(
+pub async fn insert(
     conn: &mut PgConnection,
     course_id: Uuid,
-    link_title: String,
-    link_url: String,
+    title: String,
+    url: String,
 ) -> ModelResult<PrivacyLink> {
     let res = sqlx::query_as!(
         PrivacyLink,
         r#"
-INSERT INTO privacy_links (course_id, link_title, link_url)
+INSERT INTO privacy_links (course_id, title, url)
 VALUES ($1, $2, $3)
-ON CONFLICT (course_id)
-DO UPDATE
-SET link_url = EXCLUDED.link_url,
-link_title = EXCLUDED.link_title,
-deleted_at = NULL
 RETURNING *
 "#,
         course_id,
-        link_title,
-        link_url,
+        title,
+        url,
     )
     .fetch_one(conn)
     .await?;
@@ -50,7 +45,7 @@ RETURNING *
 pub async fn get_privacy_link(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<PrivacyLink> {
+) -> ModelResult<Vec<PrivacyLink>> {
     let res = sqlx::query_as!(
         PrivacyLink,
         "SELECT *
@@ -59,7 +54,7 @@ WHERE course_id = $1
   AND deleted_at IS NULL",
         course_id
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
     Ok(res)
 }

@@ -12,6 +12,7 @@ import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 
 import { PartnersBlock } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
+import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import Spinner from "@/shared-module/common/components/Spinner"
 
 interface PartnersBlockEditorProps {
@@ -40,13 +41,16 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
   )
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
+  //NB: refactor to use useToast
   const handleOnSave = async () => {
     setSaving(true)
     try {
       const res = await handleSave(content)
       setContent(res.content as BlockInstance[])
       setError(null)
+      setSuccessMessage(t("content-saved-successfully"))
     } catch (e: unknown) {
       if (!(e instanceof Error)) {
         throw e
@@ -82,6 +86,7 @@ const PartnersSectionEditor: React.FC<React.PropsWithChildren<PartnersBlockEdito
           setNeedToRunMigrationsAndValidations={() => {}}
         />
       )}
+      {successMessage && <SuccessNotification />}
     </>
   )
 }

@@ -62,8 +62,7 @@ const EmailEditor: React.FC<React.PropsWithChildren<EmailEditorProps>> = ({
       setContent(res.content as BlockInstance[])
       setName(res.name)
       setError(null)
-      // eslint-disable-next-line i18next/no-literal-string
-      setSuccessMessage("Content saved successfully!")
+      setSuccessMessage(t("content-saved-successfully"))
       setSubject(res.subject ?? "")
     } catch (e: unknown) {
       if (!(e instanceof Error)) {

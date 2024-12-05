@@ -3426,8 +3426,8 @@ export function isPrivacyLink(obj: unknown): obj is PrivacyLink {
     typeof typedObj["created_at"] === "string" &&
     typeof typedObj["updated_at"] === "string" &&
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
-    typeof typedObj["link_title"] === "string" &&
-    typeof typedObj["link_url"] === "string" &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url"] === "string" &&
     typeof typedObj["course_id"] === "string"
   )
 }

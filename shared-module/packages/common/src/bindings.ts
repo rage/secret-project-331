@@ -1935,8 +1935,8 @@ export interface PrivacyLink {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  link_title: string
-  link_url: string
+  title: string
+  url: string
   course_id: string
 }
 

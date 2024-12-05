@@ -36,7 +36,7 @@ const ChapterProgress = styled.div`
   display: flex;
   justify-content: space-between;
   min-height: 6rem;
-  color: ##1a2333;
+  color: #1a2333;
   margin-bottom: 1rem;
   flex-direction: column;
 

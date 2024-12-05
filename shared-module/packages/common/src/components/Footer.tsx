@@ -148,9 +148,10 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
   const defaultLink = useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN
 
-  const displayedLinks = privacyLinks?.length
-    ? privacyLinks
-    : [{ linkTitle: t("privacy"), linkUrl: defaultLink }]
+  const displayedLinks =
+    privacyLinks && privacyLinks?.length > 0
+      ? privacyLinks
+      : [{ linkTitle: t("privacy"), linkUrl: defaultLink }]
 
   return (
     <footer

@@ -10,13 +10,10 @@ import PageContext from "../contexts/PageContext"
 import useSelectedBlockId from "../hooks/useSelectedBlockId"
 import {
   Block,
-  fetchCourseInstance,
   fetchGlossary,
   fetchPageAudioFiles,
   fetchResearchFormAnswersWithUserId,
   fetchResearchFormWithCourseId,
-  fetchUserChapterInstanceChapterProgress,
-  fetchUserCourseInstanceChapterExercisesProgress,
   getChatbotConfigurationForCourse,
 } from "../services/backend"
 import { inlineColorStyles } from "../styles/inlineColorStyles"

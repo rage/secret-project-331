@@ -10,7 +10,6 @@ import { baseTheme } from "@/shared-module/common/styles/theme"
 
 export const YoutubeEmbedBlock: React.FC<
   React.PropsWithChildren<EmbedAttributes> & {
-    dontAllowBlockToBeWiderThanContainerWidth: boolean
     className?: string
   }
 > = (props) => {
@@ -32,7 +31,7 @@ export const YoutubeEmbedBlock: React.FC<
   }
 
   return (
-    <BreakFromCentered sidebar={false} disabled={props.dontAllowBlockToBeWiderThanContainerWidth}>
+    <BreakFromCentered sidebar={false}>
       <figure
         className={css`
           width: 100%;

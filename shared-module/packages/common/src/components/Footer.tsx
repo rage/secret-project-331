@@ -74,10 +74,10 @@ const StyledLink = styled.a`
   margin-bottom: 5px;
   font-family: ${headingFont};
   padding-left: 0;
+  line-height: 1.2;
 
   ${respondToOrLarger.lg} {
-    margin-bottom: 10px;
-    padding-left: 3rem;
+    margin-bottom: 14px;
   }
 
   :hover {
@@ -176,8 +176,8 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> 
             </p>
           </Text>
           <Links>
-            {displayedLinks?.map((link, index) => (
-              <StyledLink key={index} href={link.linkUrl}>
+            {displayedLinks?.map((link) => (
+              <StyledLink key={`${link.linkTitle}-${link.linkUrl}`} href={link.linkUrl}>
                 {link.linkTitle}
               </StyledLink>
             ))}

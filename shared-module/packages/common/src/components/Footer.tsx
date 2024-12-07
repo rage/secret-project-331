@@ -74,7 +74,6 @@ const StyledLink = styled.a`
   margin-bottom: 5px;
   font-family: ${headingFont};
   padding-left: 0;
-  line-height: 1.2;
 
   ${respondToOrLarger.lg} {
     margin-bottom: 14px;

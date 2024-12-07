@@ -11,7 +11,7 @@ async function main() {
     validate: (value) => value.length > 0,
     default: `${projectName}`,
   })
-  const projectType = await select({
+  const _projectType = await select({
     message: "Project type",
     choices: [
       {
@@ -35,7 +35,7 @@ async function main() {
       },
     ],
   })
-  const packageManager = await select({
+  const _packageManager = await select({
     message: "Package manager",
     choices: [
       { name: "npm", value: "npm" },

@@ -106,10 +106,9 @@ test("Grade exams manually", async ({}) => {
   await teacherPage.goto("http://project-331.local/organizations")
   await teacherPage.getByLabel("University of Helsinki, Department of Computer Science").click()
   await teacherPage
-    .locator("li")
-    .filter({ hasText: "Exam for manual gradingManage" })
-    .getByRole("link")
-    .nth(1)
+    .getByTestId("exam-list-item")
+    .filter({ hasText: "Exam for manual grading" })
+    .getByRole("link", { name: "Manage" })
     .click()
   await teacherPage.getByRole("link", { name: "Grading", exact: true }).click()
 

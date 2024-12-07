@@ -9,7 +9,7 @@ import Language, {
   DEFAULT_FLAG_CLIP_PATH,
 } from "@/shared-module/common/components/LanguageSelection/Language"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { baseTheme, fontWeights, headingFont, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const CourseGrid = styled.div`

@@ -37,6 +37,7 @@ import Latex from "./Latex"
 import LearningObjectives from "./LearningObjectives"
 import Map from "./Map"
 import PagesInChapter from "./PagesInChapter"
+import PartnersBlock from "./Partners"
 import ResearchFormQuestion from "./ResearchConsentQuestion"
 import RevealableContent from "./RevealableContent"
 import RevealableHiddenContent from "./RevealableContent//RevealableHiddenContent"
@@ -90,6 +91,7 @@ export const blockTypeMapForPages = [
   ["moocfi/code-giveaway", CodeGiveaway],
   ["moocfi/ingress", Ingress],
   ["moocfi/terminology-block", TerminologyBlock],
+  ["moocfi/partners", PartnersBlock],
   // ["moocfi/logo-link", LogoLink],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
@@ -112,6 +114,7 @@ export const blockTypeMapForFrontPages = [
   ["moocfi/code-giveaway", CodeGiveaway],
   ["moocfi/expandable-content", ExpendableContent],
   ["moocfi/expandable-content-inner-block", ExpendableContentInnerBlock],
+  ["moocfi/partners", PartnersBlock],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ] as Array<[string, BlockConfiguration<Record<string, any>>]>
 

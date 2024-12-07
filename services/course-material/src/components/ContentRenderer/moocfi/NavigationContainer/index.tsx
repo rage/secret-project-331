@@ -9,7 +9,7 @@ import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import dontRenderUntilQueryParametersReady from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
-const NavigationContainer: React.FC<React.PropsWithChildren<unknown>> = () => {
+const NavigationContainer: React.FC<React.PropsWithChildren> = () => {
   const pageContext = useContext(PageContext)
   const courseSlug = useQueryParameter("courseSlug")
   const organizationSlug = useQueryParameter("organizationSlug")

@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import UHLogo from "../img/UHBrandLogo.svg"
-import MOOCfi from "../img/moocfiLogo.svg"
+import MOOCfi from "../img/moocfiTextLogo.svg"
 import { baseTheme, headingFont } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
 
@@ -169,6 +169,7 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
             className={css`
               display: flex;
               align-content: space-between;
+              align-items: center;
               row-gap: 1.4em;
               opacity: 0.9;
 

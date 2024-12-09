@@ -133,8 +133,8 @@ const LogoA = styled.a`
 
 export interface Props extends FooterProps {
   privacyLinks?: {
-    linkTitle?: string
-    linkUrl?: string
+    linkTitle: string
+    linkUrl: string
   }[]
 }
 

@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_exercise_states\nSET selected_exercise_slide_id = $4\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND (course_id = $3 OR exam_id = $5)\n  AND deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Uuid", "Uuid", "Uuid", "Uuid", "Uuid"]
+    },
+    "nullable": []
+  },
+  "hash": "edfadfcc7f92c4a7b6631728a683f93a06b07c621b8326feefdfc208766eddc3"
+}

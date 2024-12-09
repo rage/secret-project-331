@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(ues.exercise_id) AS attempted_exercises,\n  COALESCE(SUM(ues.score_given), 0) AS score_given\nFROM user_exercise_states AS ues\nWHERE ues.exercise_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n  AND ues.deleted_at IS NULL\n  AND ues.activity_progress IN ('completed', 'submitted')\n  AND ues.user_id = $2\n  AND ues.course_id = $3;\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "attempted_exercises",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "score_given",
+        "type_info": "Float4"
+      }
+    ],
+    "parameters": {
+      "Left": ["UuidArray", "Uuid", "Uuid"]
+    },
+    "nullable": [null, null]
+  },
+  "hash": "09a43936abac2ca7351fe2b024270a92550bdd4619110d941b0f8d7d1d530862"
+}

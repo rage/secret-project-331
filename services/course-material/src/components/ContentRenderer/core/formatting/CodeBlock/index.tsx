@@ -38,7 +38,7 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   }, [content])
 
   return (
-    <BreakFromCentered sidebar={false} disabled={dontAllowBlockToBeWiderThanContainerWidth}>
+    <BreakFromCentered sidebar={false}>
       <pre
         className={css`
           max-width: 1000px;

@@ -20,7 +20,7 @@ export const IframeBlock: React.FC<BlockRendererProps<IframeAttributes>> = (prop
   const { heightPx, widthPx } = props.data.attributes
 
   return (
-    <BreakFromCentered sidebar={false} disabled={props.dontAllowBlockToBeWiderThanContainerWidth}>
+    <BreakFromCentered sidebar={false}>
       <figure
         className={css`
           width: 100%;

@@ -1,7 +1,7 @@
 import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import MOOCfi from "../../../img/moocfiLogoNoText.svg"
+import MOOCfi from "../../../img/moocfiTextLogo.svg"
 import { baseTheme } from "../../../styles"
 import { respondToOrLarger } from "../../../styles/respond"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "../../../utils/constants"

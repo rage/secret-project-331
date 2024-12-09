@@ -28,7 +28,7 @@ const RevealableContentBlock: React.FC<
   })
 
   return (
-    <BreakFromCentered sidebar={false} disabled={false}>
+    <BreakFromCentered sidebar={false}>
       <div
         className={css`
           padding: 1rem;

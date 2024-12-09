@@ -341,7 +341,9 @@ pub async fn get_points(
 ) -> ModelResult<Points> {
     let mut chapter_point_totals = HashMap::<Uuid, i32>::new();
     let mut exercise_to_chapter_id = HashMap::new();
-    let exercises = exercises::get_exercises_by_course_instance_id(&mut *conn, instance_id).await?;
+    let course_instance = crate::course_instances::get_course_instance(conn, instance_id).await?;
+    let exercises =
+        exercises::get_exercises_by_course_id(&mut *conn, course_instance.course_id).await?;
     for exercise in exercises {
         if let Some(chapter_id) = exercise.chapter_id {
             // exercises without chapter ids (i.e. exams) are not counted

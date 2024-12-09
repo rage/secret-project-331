@@ -97,3 +97,19 @@ ALTER TABLE peer_review_queue_entries DROP COLUMN course_instance_id;
 
 -- Exercise slide submissions
 ALTER TABLE exercise_slide_submissions DROP COLUMN course_instance_id;
+
+ALTER TABLE user_course_instance_exercise_service_variables
+  RENAME TO user_course_exercise_service_variables;
+-- Add the course_id column to the user_course_exercise_service_variables table
+ALTER TABLE user_course_exercise_service_variables
+ADD COLUMN course_id uuid REFERENCES courses(id);
+-- Update the course_id column to the course_id of the current course instance
+UPDATE user_course_exercise_service_variables
+SET course_id = ci.course_id
+FROM user_course_exercise_service_variables ucesv
+  JOIN course_instances ci ON ucesv.course_instance_id = ci.id
+WHERE ucesv.course_instance_id = ci.id;
+ALTER TABLE user_course_exercise_service_variables DROP COLUMN course_instance_id;
+ALTER TABLE user_course_exercise_service_variables
+ALTER COLUMN course_id
+SET NOT NULL;

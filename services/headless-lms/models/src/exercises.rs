@@ -4,7 +4,7 @@ use itertools::Itertools;
 use url::Url;
 
 use crate::{
-    course_instances, exams,
+    exams,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{
         get_exercise_slide_submission_counts_for_exercise_user, ExerciseSlideSubmission,
@@ -21,7 +21,6 @@ use crate::{
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, CourseOrExamId, ReviewingStage, UserExerciseState},
-    CourseOrExamId,
 };
 use std::collections::HashMap;
 
@@ -476,7 +475,7 @@ pub async fn get_course_material_exercise(
 
     let user_course_instance_exercise_service_variables = match (user_id, instance_or_exam_id) {
         (Some(user_id), Some(course_or_exam_id)) => {
-            Some(crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_instance_or_exam(conn, user_id, course_or_exam_id).await?)
+            Some(crate::user_course_exercise_service_variables::get_all_variables_for_user_and_course_or_exam(conn, user_id, course_or_exam_id).await?)
         }
         _ => None,
     }.unwrap_or_default();
@@ -553,13 +552,14 @@ pub async fn get_or_select_exercise_slide(
             match user_course_settings {
                 Some(settings) if settings.current_course_id == course_id => {
                     // User is enrolled on an instance of the given course.
+                    let course_or_exam_id: CourseOrExamId = exercise.try_into()?;
                     let tasks =
-                        exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
+                        exercise_tasks::get_or_select_user_exercise_slide_for_course_or_exam(
                             conn,
                             user_id,
                             exercise.id,
-                            Some(settings.current_course_instance_id),
-                            None,fetch_service_info
+                            course_or_exam_id,
+                            fetch_service_info,
                         )
                         .await?;
                     Ok((tasks, Some(CourseOrExamId::Course(course_id))))
@@ -567,51 +567,19 @@ pub async fn get_or_select_exercise_slide(
                 Some(_) => {
                     // User is enrolled on a different language version of the course. Show exercise
                     // slide based on their latest enrollment or a random one.
-                    let latest_instance =
-                        course_instances::course_instance_by_users_latest_enrollment(
-                            conn, user_id, course_id,
+                    let exercise_tasks =
+                        exercise_tasks::get_existing_users_exercise_slide_for_course(
+                            conn,
+                            user_id,
+                            exercise.id,
+                            course_id,
+                            &fetch_service_info,
                         )
                         .await?;
-                    if let Some(instance) = latest_instance {
-                        let exercise_tasks =
-                            exercise_tasks::get_existing_users_exercise_slide_for_course_instance(
-                                conn,
-                                user_id,
-                                exercise.id,
-                                instance.id,
-                                &fetch_service_info,
-                            )
-                            .await?;
-                        if let Some(exercise_tasks) = exercise_tasks {
-                            Ok((exercise_tasks, Some(CourseOrExamId::Course(course_id))))
-                        } else {
-                            // no exercise task has been chosen for the user
-                            let random_slide =
-                                exercise_slides::get_random_exercise_slide_for_exercise(
-                                    conn,
-                                    exercise.id,
-                                )
-                                .await?;
-                            let random_tasks = exercise_tasks::get_course_material_exercise_tasks(
-                                conn,
-                                random_slide.id,
-                                Some(user_id),
-                                &fetch_service_info,
-                            )
-                            .await?;
-
-                            Ok((
-                                CourseMaterialExerciseSlide {
-                                    id: random_slide.id,
-                                    exercise_tasks: random_tasks,
-                                },
-                                None,
-                            ))
-                        }
+                    if let Some(exercise_tasks) = exercise_tasks {
+                        Ok((exercise_tasks, Some(CourseOrExamId::Course(course_id))))
                     } else {
-                        // user has enrolled on a different course language version and haven't enrolled
-                        // on this one. The idea is that they can look around the material but not submit
-                        // without changing the language version, so show a random exercise.
+                        // no exercise task has been chosen for the user
                         let random_slide = exercise_slides::get_random_exercise_slide_for_exercise(
                             conn,
                             exercise.id,
@@ -621,7 +589,7 @@ pub async fn get_or_select_exercise_slide(
                             conn,
                             random_slide.id,
                             Some(user_id),
-                            fetch_service_info,
+                            &fetch_service_info,
                         )
                         .await?;
 
@@ -648,16 +616,14 @@ pub async fn get_or_select_exercise_slide(
         (Some(user_id), _, Some(exam_id)) => {
             info!("selecting exam task");
             // signed in, exam exercise
-            let tasks =
-                exercise_tasks::get_or_select_user_exercise_tasks_for_course_instance_or_exam(
-                    conn,
-                    user_id,
-                    exercise.id,
-                    None,
-                    Some(exam_id),
-                    fetch_service_info,
-                )
-                .await?;
+            let tasks = exercise_tasks::get_or_select_user_exercise_slide_for_course_or_exam(
+                conn,
+                user_id,
+                exercise.id,
+                CourseOrExamId::Exam(exam_id),
+                fetch_service_info,
+            )
+            .await?;
             info!("selecting exam task {:#?}", tasks);
             Ok((tasks, Some(CourseOrExamId::Exam(exam_id))))
         }

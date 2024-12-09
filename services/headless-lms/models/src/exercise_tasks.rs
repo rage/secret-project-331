@@ -14,7 +14,6 @@ use crate::{
     library::custom_view_exercises::CustomViewExerciseTaskSpec,
     prelude::*,
     user_exercise_states::{self, CourseOrExamId},
-    CourseOrExamId,
 };
 
 /// Information necessary for the frontend to render an exercise task
@@ -333,19 +332,19 @@ pub async fn get_existing_users_exercise_slide_for_course(
 }
 
 // TODO: Move most of this logic to exercise_slides
-pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
+pub async fn get_or_select_user_exercise_slide_for_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
-    course_instance_id: Option<Uuid>,
-    exam_id: Option<Uuid>,
+    course_or_exam_id: CourseOrExamId,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<CourseMaterialExerciseSlide> {
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
     let user_exercise_state = user_exercise_states::get_or_create_user_exercise_state(
         conn,
         user_id,
         exercise_id,
-        course_instance_id,
+        course_id,
         exam_id,
     )
     .await?;
@@ -364,7 +363,7 @@ pub async fn get_or_select_user_exercise_tasks_for_course_instance_or_exam(
                 conn,
                 user_id,
                 exercise_id,
-                course_instance_id,
+                course_id,
                 exam_id,
                 Some(exercise_slide_id),
             )

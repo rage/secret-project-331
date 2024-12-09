@@ -145,6 +145,30 @@ impl TryFrom<UserExerciseState> for CourseOrExamId {
     }
 }
 
+impl TryFrom<&UserExerciseState> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(user_exercise_state: &UserExerciseState) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(user_exercise_state.course_id, user_exercise_state.exam_id)
+    }
+}
+
+impl TryFrom<Exercise> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(exercise: Exercise) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(exercise.course_id, exercise.exam_id)
+    }
+}
+
+impl TryFrom<&Exercise> for CourseOrExamId {
+    type Error = ModelError;
+
+    fn try_from(exercise: &Exercise) -> Result<Self, Self::Error> {
+        Self::from_course_and_exam_ids(exercise.course_id, exercise.exam_id)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCourseProgress {
@@ -219,7 +243,7 @@ SELECT chapters.course_module_id,
   COUNT(exercises.id) AS total_exercises,
   SUM(exercises.score_maximum) AS score_maximum
 FROM courses c
-  LEFT JOIN exercises ON (c.course_id = exercises.course_id)
+  LEFT JOIN exercises ON (c.id = exercises.course_id)
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
 WHERE exercises.deleted_at IS NULL
   AND c.id = $1

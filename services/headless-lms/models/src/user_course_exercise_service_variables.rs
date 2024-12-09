@@ -28,7 +28,7 @@ pub(crate) async fn get_all_variables_for_user_and_course_or_exam(
 ) -> ModelResult<Vec<UserCourseExerciseServiceVariable>> {
     let (course_id, exam_id) = instance_or_exam_id.to_course_and_exam_ids();
     let res = sqlx::query_as!(
-        UserCourseInstanceExerciseServiceVariable,
+        UserCourseExerciseServiceVariable,
         r#"
 SELECT *
 FROM user_course_exercise_service_variables
@@ -53,7 +53,7 @@ pub async fn get_all_user_variables_for_user_and_course_and_exercise_type(
     exercise_type: &str,
 ) -> ModelResult<Vec<UserCourseExerciseServiceVariable>> {
     let res = sqlx::query_as!(
-        UserCourseInstanceExerciseServiceVariable,
+        UserCourseExerciseServiceVariable,
         r#"
 SELECT *
 FROM user_course_exercise_service_variables

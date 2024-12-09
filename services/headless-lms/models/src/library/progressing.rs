@@ -192,8 +192,12 @@ async fn user_is_eligible_for_automatic_completion(
             if eligible {
                 if requirements.requires_exam {
                     info!("To complete this module automatically, the user must pass an exam.");
-                    user_has_passed_exam_for_the_course(conn, user_id, course_module.course_id)
-                        .await
+                    user_has_passed_exam_for_the_course_based_on_points(
+                        conn,
+                        user_id,
+                        course_module.course_id,
+                    )
+                    .await
                 } else {
                     Ok(true)
                 }
@@ -254,7 +258,7 @@ pub async fn user_can_take_exam(
 
 /// Returns true if there is at least one exam associated with the course, that has ended and the
 /// user has received enough points from it.
-async fn user_has_passed_exam_for_the_course(
+async fn user_has_passed_exam_for_the_course_based_on_points(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -263,6 +267,10 @@ async fn user_has_passed_exam_for_the_course(
     let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
+        // In these cases we don't want to grant a completion based on this exam.
+        if exam.grade_manually || exam.minimum_points_treshold == 0 {
+            continue;
+        }
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;

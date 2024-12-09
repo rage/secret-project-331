@@ -162,6 +162,9 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   }
 
   function calculatePercentage(attempted: number, total: number): string {
+    if (total === 0) {
+      return "0%"
+    }
     return Math.round((attempted / total) * 100) + "%"
   }
 

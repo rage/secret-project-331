@@ -164,9 +164,6 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     if (!total) {
       return ""
     }
-    if (total === 0) {
-      return "0%" // Handle division by zero
-    }
     return Math.round((attempted / total) * 100) + "%"
   }
 
@@ -192,7 +189,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
                 <span className="metric">
                   {chapterProgress.givenScore}/{chapterProgress.maxScore}
                 </span>
-                <span className="description">{t("correct-answers")}</span>
+                <span className="description">{t("points-label")}</span>
               </div>
             </div>
           </ChapterProgress>

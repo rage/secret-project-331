@@ -70,7 +70,6 @@ const ChapterProgress = styled.div`
     line-height: 100%;
     align-self: end;
     padding-top: 0.2rem;
-    text-transform: lowercase;
   }
 
   .answers,

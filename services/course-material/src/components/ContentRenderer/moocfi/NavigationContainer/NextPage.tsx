@@ -161,39 +161,34 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   }
 
   function calculatePercentage(attempted: number, total: number): string {
-    if (!total) {
-      return ""
-    }
     return Math.round((attempted / total) * 100) + "%"
   }
 
   return (
     // Chapter exists, but next chapter not open yet.
     <>
-      {getPageRoutingData.data.next_page?.chapter_id !== chapterId &&
-        chapterProgress.attemptedExercises &&
-        chapterProgress.totalExercises && (
-          <ChapterProgress>
-            <p>{t("chapter-progress")}</p>
-            <div className="progress-container">
-              <div className="attempted-exercises">
-                <span className="metric">
-                  {calculatePercentage(
-                    chapterProgress.attemptedExercises,
-                    chapterProgress.totalExercises,
-                  )}
-                </span>
-                <span className="description">{t("attempted-exercises")}</span>
-              </div>
-              <div className="answers">
-                <span className="metric">
-                  {chapterProgress.givenScore}/{chapterProgress.maxScore}
-                </span>
-                <span className="description">{t("points-label")}</span>
-              </div>
+      {getPageRoutingData.data.next_page?.chapter_id !== chapterId && (
+        <ChapterProgress>
+          <p>{t("chapter-progress")}</p>
+          <div className="progress-container">
+            <div className="attempted-exercises">
+              <span className="metric">
+                {calculatePercentage(
+                  chapterProgress.attemptedExercises ?? 0,
+                  chapterProgress.totalExercises ?? 0,
+                )}
+              </span>
+              <span className="description">{t("attempted-exercises")}</span>
             </div>
-          </ChapterProgress>
-        )}
+            <div className="answers">
+              <span className="metric">
+                {chapterProgress.givenScore}/{chapterProgress.maxScore}
+              </span>
+              <span className="description">{t("points-label")}</span>
+            </div>
+          </div>
+        </ChapterProgress>
+      )}
       <NextSectionLink {...nextPageProps} />
     </>
   )

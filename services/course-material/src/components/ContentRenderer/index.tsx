@@ -73,6 +73,7 @@ import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
 import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
@@ -301,30 +302,40 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
   )
 
   if (props.dontAddWrapperDivMeantForMostOutermostContentRenderer) {
-    return content
+    return (
+      <BreakFromCenteredDisabledContext.Provider
+        value={props.dontAllowBlockToBeWiderThanContainerWidth ?? false}
+      >
+        {content}
+      </BreakFromCenteredDisabledContext.Provider>
+    )
   }
   return (
-    <div
-      className={css`
-        font-size: 20px;
-        text-underline-offset: 4.6px;
-        text-decoration-thickness: 1.6px;
-        a {
-          color: #1072ea;
-          &:hover {
-            color: #096df1;
-          }
-          &:active {
-            color: #0870d9;
-          }
-          &:visited {
-            color: #8050f2;
-          }
-        }
-      `}
+    <BreakFromCenteredDisabledContext.Provider
+      value={props.dontAllowBlockToBeWiderThanContainerWidth ?? false}
     >
-      {content}
-    </div>
+      <div
+        className={css`
+          font-size: 20px;
+          text-underline-offset: 4.6px;
+          text-decoration-thickness: 1.6px;
+          a {
+            color: #1072ea;
+            &:hover {
+              color: #096df1;
+            }
+            &:active {
+              color: #0870d9;
+            }
+            &:visited {
+              color: #8050f2;
+            }
+          }
+        `}
+      >
+        {content}
+      </div>
+    </BreakFromCenteredDisabledContext.Provider>
   )
 }
 

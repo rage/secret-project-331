@@ -66,10 +66,11 @@ const ChapterProgress = styled.div`
   }
 
   .description {
-    opacity: 60%;
+    opacity: 80%;
     line-height: 100%;
     align-self: end;
     padding-top: 0.2rem;
+    text-transform: lowercase;
   }
 
   .answers,

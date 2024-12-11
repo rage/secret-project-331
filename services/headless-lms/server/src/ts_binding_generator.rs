@@ -267,6 +267,7 @@ fn models(target: &mut File) {
         user_exercise_states::UserExerciseState,
         user_research_consents::UserResearchConsent,
         users::User,
+        privacy_link::PrivacyLink,
         partner_block::PartnersBlock,
         partner_block::PartnerBlockNew,
     };

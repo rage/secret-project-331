@@ -36,6 +36,7 @@ import {
   PageWithExercises,
   PartnersBlock,
   PeerOrSelfReviewsReceived,
+  PrivacyLink,
   ResearchForm,
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
@@ -79,6 +80,7 @@ import {
   isPageWithExercises,
   isPartnersBlock,
   isPeerOrSelfReviewsReceived,
+  isPrivacyLink,
   isResearchForm,
   isResearchFormQuestion,
   isResearchFormQuestionAnswer,
@@ -778,4 +780,9 @@ export const fetchUserMarketingConsent = async (
 export const fetchPartnersBlock = async (courseId: string): Promise<PartnersBlock> => {
   const response = await courseMaterialClient.get(`/courses/${courseId}/partners-block`)
   return validateResponse(response, isPartnersBlock)
+}
+
+export const fetchPrivacyLink = async (courseId: string): Promise<PrivacyLink[]> => {
+  const response = await courseMaterialClient.get(`/courses/${courseId}/privacy-link`)
+  return validateResponse(response, isArray(isPrivacyLink))
 }

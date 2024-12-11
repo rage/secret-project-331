@@ -198,6 +198,7 @@ import {
   PlaygroundViewsMessage,
   PointMap,
   Points,
+  PrivacyLink,
   ProposalCount,
   ProposalStatus,
   Regrading,
@@ -3438,6 +3439,20 @@ export function isUser(obj: unknown): obj is User {
     (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
     (typedObj["upstream_id"] === null || typeof typedObj["upstream_id"] === "number") &&
     (typedObj["email_domain"] === null || typeof typedObj["email_domain"] === "string")
+  )
+}
+
+export function isPrivacyLink(obj: unknown): obj is PrivacyLink {
+  const typedObj = obj as PrivacyLink
+  return (
+    ((typedObj !== null && typeof typedObj === "object") || typeof typedObj === "function") &&
+    typeof typedObj["id"] === "string" &&
+    typeof typedObj["created_at"] === "string" &&
+    typeof typedObj["updated_at"] === "string" &&
+    (typedObj["deleted_at"] === null || typeof typedObj["deleted_at"] === "string") &&
+    typeof typedObj["title"] === "string" &&
+    typeof typedObj["url"] === "string" &&
+    typeof typedObj["course_id"] === "string"
   )
 }
 

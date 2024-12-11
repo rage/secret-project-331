@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO user_course_exercise_service_variables (\n    exercise_service_slug,\n    user_id,\n    course_id,\n    exam_id,\n    variable_key,\n    variable_value\n  )\nVALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (\n    variable_key,\n    user_id,\n    course_id,\n    exercise_service_slug,\n    exam_id,\n    deleted_at\n  ) DO\nUPDATE\nSET variable_value = $6;\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": ["Varchar", "Uuid", "Uuid", "Uuid", "Varchar", "Jsonb"]
+    },
+    "nullable": []
+  },
+  "hash": "273f5bfd20a8ea7fa6ff26daf99462ee8580c40f3d61a2d308f36b8e244d37bd"
+}

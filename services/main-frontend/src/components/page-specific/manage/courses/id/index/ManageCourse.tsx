@@ -9,6 +9,7 @@ import {
   teacherResetCourseProgressForEveryone,
   teacherResetCourseProgressForThemselves,
 } from "../../../../../../services/backend/courses"
+import ModuleCompletionReprocessButton from "../course-instances/ModuleCompletionReprocessButton"
 
 import UpdateCourseForm from "./UpdateCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
@@ -325,6 +326,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </div>
         </div>
       )}
+      <ModuleCompletionReprocessButton courseId={course.id} />
     </>
   )
 }

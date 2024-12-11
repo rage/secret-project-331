@@ -75,21 +75,16 @@
       },
       {
         "ordinal": 14,
-        "name": "course_instance_id",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 15,
         "name": "prerequisite_modules_completed",
         "type_info": "Bool"
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "completion_granter_user_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 17,
+        "ordinal": 16,
         "name": "needs_to_be_reviewed",
         "type_info": "Bool"
       }
@@ -111,7 +106,6 @@
       false,
       false,
       true,
-      false,
       false,
       false,
       true,

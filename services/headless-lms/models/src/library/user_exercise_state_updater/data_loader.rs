@@ -310,19 +310,22 @@ async fn load_peer_review_queue_entry(
         Ok(prqe)
     } else {
         info!("Loading peer review queue entry");
-        let course_instance_id =
-            loaded_user_exercise_state
-                .course_instance_id
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::InvalidRequest,
-                        "Peer reviews work only on courses (and not, for example, on exams)"
-                            .to_string(),
-                        None,
-                    )
-                })?;
+        let course_id = loaded_user_exercise_state.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Peer reviews work only on courses (and not, for example, on exams)".to_string(),
+                None,
+            )
+        })?;
         // The result is optinal because not all answers are in the peer review queue yet. For example, we don't place any answers to the queue if their giver has not given enough peer reviews.
-        Ok(crate::peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_instance_ids(conn, latest_exercise_submission_id, course_instance_id ).await?)
+        Ok(
+            crate::peer_review_queue_entries::try_to_get_by_receiving_submission_and_course_ids(
+                conn,
+                latest_exercise_submission_id,
+                course_id,
+            )
+            .await?,
+        )
     }
 }
 
@@ -381,18 +384,14 @@ async fn load_given_peer_or_self_review_submissions(
         Ok(given_peer_or_self_review_submissions)
     } else {
         info!("Loading given peer review submissions");
-        let course_instance_id =
-            loaded_user_exercise_state
-                .course_instance_id
-                .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::InvalidRequest,
-                        "Peer reviews work only on courses (and not, for example, on exams)"
-                            .to_string(),
-                        None,
-                    )
-                })?;
-        Ok(peer_or_self_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise(conn, loaded_user_exercise_state.user_id, course_instance_id, loaded_user_exercise_state.exercise_id).await?)
+        let course_id = loaded_user_exercise_state.course_id.ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Peer reviews work only on courses (and not, for example, on exams)".to_string(),
+                None,
+            )
+        })?;
+        Ok(peer_or_self_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise(conn, loaded_user_exercise_state.user_id, course_id, loaded_user_exercise_state.exercise_id).await?)
     }
 }
 
@@ -404,14 +403,14 @@ async fn load_given_self_review_submission(
     if let Some(given_self_review_submission) = already_loaded_given_self_review_submission {
         info!("Using already loaded given self review submission");
         Ok(given_self_review_submission)
-    } else if let Some(course_instance_id) = loaded_user_exercise_state.course_instance_id {
+    } else if let Some(course_id) = loaded_user_exercise_state.course_id {
         info!("Loading given self review submission");
         Ok(
             peer_or_self_review_submissions::get_self_review_submission_by_user_and_exercise(
                 conn,
                 loaded_user_exercise_state.user_id,
                 loaded_user_exercise_state.exercise_id,
-                course_instance_id,
+                course_id,
             )
             .await?,
         )

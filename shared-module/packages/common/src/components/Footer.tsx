@@ -76,8 +76,7 @@ const StyledLink = styled.a`
   padding-left: 0;
 
   ${respondToOrLarger.lg} {
-    margin-bottom: 10px;
-    padding-left: 3rem;
+    margin-bottom: 14px;
   }
 
   :hover {
@@ -132,11 +131,27 @@ const LogoA = styled.a`
   }
 `
 
+export interface Props extends FooterProps {
+  privacyLinks?: {
+    linkTitle: string
+    linkUrl: string
+  }[]
+}
+
 export type FooterProps = React.HTMLAttributes<HTMLDivElement>
 
-const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterProps>>> = () => {
+const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<Props>>> = ({
+  privacyLinks = null,
+}) => {
   const { t, i18n } = useTranslation()
   const useFinnishLinks = i18n.language === "fi" || i18n.language === "fi-FI"
+  const defaultLink = useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN
+
+  const displayedLinks =
+    privacyLinks && privacyLinks?.length > 0
+      ? privacyLinks
+      : [{ linkTitle: t("privacy"), linkUrl: defaultLink }]
+
   return (
     <footer
       role="contentinfo"
@@ -160,10 +175,11 @@ const Footer: React.FC<React.PropsWithChildren<React.PropsWithChildren<FooterPro
             </p>
           </Text>
           <Links>
-            <StyledLink href={useFinnishLinks ? PRIVACY_LINK_FI : PRIVACY_LINK_EN}>
-              {t("privacy")}
-            </StyledLink>
-            {/* <StyledLink href={basePath() + "/accessibility"}>{t("accessibility")}</StyledLink> */}
+            {displayedLinks?.map((link) => (
+              <StyledLink key={`${link.linkTitle}-${link.linkUrl}`} href={link.linkUrl}>
+                {link.linkTitle}
+              </StyledLink>
+            ))}
           </Links>
           <div
             className={css`

@@ -69,6 +69,7 @@ pub mod peer_or_self_review_submissions;
 pub mod peer_review_queue_entries;
 pub mod pending_roles;
 pub mod playground_examples;
+pub mod privacy_link;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
 pub mod regradings;

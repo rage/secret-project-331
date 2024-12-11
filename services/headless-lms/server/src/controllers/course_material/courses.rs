@@ -6,7 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{future::OptionFuture, FutureExt};
-use headless_lms_models::partner_block::PartnersBlock;
+use headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use isbot::Bots;
 use models::{
@@ -920,6 +920,24 @@ async fn get_partners_block(
 }
 
 /**
+GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
+*/
+#[instrument(skip(pool))]
+async fn get_privacy_link(
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<PrivacyLink>>> {
+    let mut conn = pool.acquire().await?;
+    let user_id = Some(user.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
+
+    let privacy_link = models::privacy_link::get_privacy_link(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(privacy_link))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1001,6 +1019,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/partners-block",
             web::get().to(get_partners_block),
         )
+        .route("/{course_id}/privacy-link", web::get().to(get_privacy_link))
         .route(
             "/{course_id}/research-consent-form-questions",
             web::get().to(get_research_form_questions_with_course_id),

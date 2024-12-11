@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailchimp-syncer
+  labels:
+    app: mailchimp-syncer
+    deploymentType: with-init-container
+    needs-db: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailchimp-syncer
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: mailchimp-syncer
+    spec:
+      containers:
+        - name: mailchimp-syncer
+          image: headless-lms
+          command: ["bin/run", "mailchimp-syncer"]
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets
+      initContainers:
+        - name: headless-lms-wait-for-db
+          image: headless-lms
+          command:
+            - bash
+            - "-c"
+            - |
+              echo Waiting for postgres to be available
+              timeout 120 ./wait-for-db.sh
+              ./wait-for-db-migrations.sh
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+            limits:
+              memory: 300Mi
+              cpu: 200m
+          envFrom:
+            - secretRef:
+                name: headless-lms-secrets

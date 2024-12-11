@@ -73,6 +73,7 @@ const REQUIRED_FIELDS: &[FieldSchema] = &[
 
 /// These fields are excluded from removing all fields that are not in the schema
 const FIELDS_EXCLUDED_FROM_REMOVING: &[&str] = &["PHONE", "PACE", "COUNTRY", "MMERGE9"];
+const REMOVE_UNSUPPORTED_FIELDS: bool = false;
 
 const SYNC_INTERVAL_SECS: u64 = 10;
 const PRINT_STILL_RUNNING_MESSAGE_TICKS_THRESHOLD: u32 = 60;
@@ -169,20 +170,26 @@ async fn ensure_mailchimp_schema(
     let existing_fields =
         fetch_current_mailchimp_fields(list_id, server_prefix, access_token).await?;
 
-    // Remove extra fields not in REQUIRED_FIELDS or FIELDS_EXCLUDED_FROM_REMOVING
-    for field in existing_fields.iter() {
-        if !REQUIRED_FIELDS
-            .iter()
-            .any(|r| r.tag == field.field_name.as_str())
-            && !FIELDS_EXCLUDED_FROM_REMOVING.contains(&field.field_name.as_str())
-        {
-            if let Err(e) =
-                remove_field_from_mailchimp(list_id, &field.field_id, server_prefix, access_token)
-                    .await
+    if REMOVE_UNSUPPORTED_FIELDS {
+        // Remove extra fields not in REQUIRED_FIELDS or FIELDS_EXCLUDED_FROM_REMOVING
+        for field in existing_fields.iter() {
+            if !REQUIRED_FIELDS
+                .iter()
+                .any(|r| r.tag == field.field_name.as_str())
+                && !FIELDS_EXCLUDED_FROM_REMOVING.contains(&field.field_name.as_str())
             {
-                warn!("Could not remove field '{}': {}", field.field_name, e);
-            } else {
-                info!("Removed field '{}'", field.field_name);
+                if let Err(e) = remove_field_from_mailchimp(
+                    list_id,
+                    &field.field_id,
+                    server_prefix,
+                    access_token,
+                )
+                .await
+                {
+                    warn!("Could not remove field '{}': {}", field.field_name, e);
+                } else {
+                    info!("Removed field '{}'", field.field_name);
+                }
             }
         }
     }
